@@ -26,89 +26,227 @@ if [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
+local_packages=/usr/local/bin/swizzin
+user=$(cat /etc/.master.info | cut -d: -f1)
+pass=$(cat /etc/.master.info | cut -d: -f2)
 
-local_packages=/etc/swizzin/scripts/
-username=$(cat /root/.master.info | cut -d ":" -f 1 |)
-passwd=$(cat /root/.master.info | cut -d ":" -f 2)
-ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-n=$RANDOM
-DPORT=$((n%59000+10024))
-DWPORT=$(shuf -i 10001-11000 -n 1)
-#DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
-DWSALT=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+if [[ -z $deluge ]]; then
+  function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+               Repo "- Whatever is in your distribution's repository" \
+               Stable "Latest stable version, built from source" \
+               Dev "Latest dev version, built from source" 3>&1 1>&2 2>&3)
 
-function _installDeluge1() {
-  sudo apt-get -y update >/dev/null 2>&1
-  sudo apt-get -y install deluged deluge-web >/dev/null 2>&1
-  systemctl stop deluged >/dev/null 2>&1
-  update-rc.d deluged remove >/dev/null 2>&1
-  rm /etc/init.d/deluged >/dev/null 2>&1
-}
-function _installDeluge2() {
-  DWP=$(python ${local_packages}deluge.Userpass.py ${passwd} ${DWSALT})
-  DUDID=$(python ${local_packages}deluge.addHost.py)
-  mkdir -p /home/${username}/.config/deluge/
-  printf "${username}:${passwd}" > /root/${username}.info.db
-  udb=$(cat /root/$username.info.db)
-  chmod 755 /home/${username}/.config
-  chmod 755 /home/${username}/.config/deluge
-  cp ${local_setup}templates/core.conf.template /home/${username}/.config/deluge/core.conf
-  cp ${local_setup}templates/web.conf.template /home/${username}/.config/deluge/web.conf
-  cp ${local_setup}templates/hostlist.conf.1.2.template /home/${username}/.config/deluge/hostlist.conf.1.2
-  sed -i "s/USERNAME/${username}/g" /home/${username}/.config/deluge/core.conf
-  sed -i "s/DPORT/${DPORT}/g" /home/${username}/.config/deluge/core.conf
-  sed -i "s/XX/${ip}/g" /home/${username}/.config/deluge/core.conf
-  sed -i "s/DWPORT/${DWPORT}/g" /home/${username}/.config/deluge/web.conf
-  sed -i "s/DWSALT/${DWSALT}/g" /home/${username}/.config/deluge/web.conf
-  sed -i "s/DWP/${DWP}/g" /home/${username}/.config/deluge/web.conf
-  sed -i "s/DUDID/${DUDID}/g" /home/${username}/.config/deluge/hostlist.conf.1.2
-  sed -i "s/DPORT/${DPORT}/g" /home/${username}/.config/deluge/hostlist.conf.1.2
-  sed -i "s/USERNAME/${username}/g" /home/${username}/.config/deluge/hostlist.conf.1.2
-  sed -i "s/PASSWD/${passwd}/g" /home/${username}/.config/deluge/hostlist.conf.1.2
-  echo "${udb}:10" > /home/${username}/.config/deluge/auth
-  mkdir -p /home/${username}/.config/deluge/plugins
-  if [[ ! -f /home/${username}/.config/deluge/plugins/ltConfig-0.2.5.0-py2.7.egg ]]; then
-    cd /home/${username}/.config/deluge/plugins/
+    if [[ $function == Repo ]]; then
+      export deluge=repo
+    elif [[ $function == Stable ]]; then
+      export deluge=stable
+    elif [[ $function == Dev ]]; then
+      export deluge=dev
+    fi
+fi
+
+function _deluge() {
+  if [[ $deluge == repo ]]; then
+    apt-get -q -y update >>"${OUTTO}" 2>&1
+    apt-get -q -y install deluged deluge-web >>"${OUTTO}" 2>&1
+    systemctl stop deluged
+    update-rc.d deluged remove
+    rm /etc/init.d/deluged
+  elif [[ $deluge == stable ]] || [[ $deluge == dev ]]; then
+    if [[ $deluge == stable ]]; then
+      LTRC=RC_1_0
+    elif [[ $deluge == dev ]]; then
+      LTRC=RC_1_1
+    fi
+  apt-get -qy update >/dev/null 2>&1
+  LIST='build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
+  python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
+  python-glade2 librsvg2-common xdg-utils python-mako'
+  for depend in $LIST; do
+    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
+  done
+  git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
+  git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
+  cd libtorrent
+  ./autotool.sh >>"${OUTTO}" 2>&1
+  ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1 >>"${OUTTO}" 2>&1
+  make -j$(nproc) >>"${OUTTO}" 2>&1
+  checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
+  ldconfig
+  cd ..
+  cd deluge
+  python setup.py build >>"${OUTTO}" 2>&1
+  python setup.py install --install-layout=deb >>"${OUTTO}" 2>&1
+  python setup.py install_data >>"${OUTTO}" 2>&1
+  cd ..
+  rm -r {deluge,libtorrent}
+fi
+  n=$RANDOM
+  DPORT=$((n%59000+10024))
+  DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  DWP=$(python ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
+  DUDID=$(python ${local_packages}/deluge.addHost.py)
+  # -- Secondary awk command -- #
+  #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
+  DWPORT=$(shuf -i 10001-11000 -n 1)
+  mkdir -p /home/${user}/.config/deluge/plugins
+  if [[ ! -f /home/${user}/.config/deluge/plugins/ltConfig-0.2.5.0-py2.7.egg ]]; then
+    cd /home/${user}/.config/deluge/plugins/
     wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.2.5.0/ltConfig-0.2.5.0-py2.7.egg
   fi
+  chmod 755 /home/${user}/.config
+  chmod 755 /home/${user}/.config/deluge
+  cat > /home/${user}/.config/deluge/core.conf <<DC
+    "file": 1,
+    "format": 1
+  }{
+    "info_sent": 0.0,
+    "lsd": true,
+    "max_download_speed": -1.0,
+    "send_info": false,
+    "natpmp": true,
+    "move_completed_path": "/home/${user}/Downloads",
+    "peer_tos": "0x08",
+    "enc_in_policy": 1,
+    "queue_new_to_top": false,
+    "ignore_limits_on_local_network": true,
+    "rate_limit_ip_overhead": true,
+    "daemon_port": ${DPORT},
+    "torrentfiles_location": "/home/${user}/dwatch",
+    "max_active_limit": -1,
+    "geoip_db_location": "/usr/share/GeoIP/GeoIP.dat",
+    "upnp": false,
+    "utpex": true,
+    "max_active_downloading": 3,
+    "max_active_seeding": -1,
+    "allow_remote": true,
+    "outgoing_ports": [
+      0,
+      0
+    ],
+    "enabled_plugins": [
+      "ltConfig"
+    ],
+    "max_half_open_connections": 50,
+    "download_location": "/home/${user}/torrents/deluge",
+    "compact_allocation": true,
+    "max_upload_speed": -1.0,
+    "plugins_location": "/home/${user}/.config/deluge/plugins",
+    "max_connections_global": -1,
+    "enc_prefer_rc4": true,
+    "cache_expiry": 60,
+    "dht": true,
+    "stop_seed_at_ratio": false,
+    "stop_seed_ratio": 2.0,
+    "max_download_speed_per_torrent": -1,
+    "prioritize_first_last_pieces": true,
+    "max_upload_speed_per_torrent": -1,
+    "auto_managed": true,
+    "enc_level": 2,
+    "copy_torrent_file": false,
+    "max_connections_per_second": 50,
+    "listen_ports": [
+      6881,
+      6891
+    ],
+    "max_connections_per_torrent": -1,
+    "del_copy_torrent_file": false,
+    "move_completed": false,
+    "autoadd_enable": false,
+    "proxies": {
+      "peer": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "web_seed": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "tracker": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "dht": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      }
+    },
+    "dont_count_slow_torrents": true,
+    "add_paused": false,
+    "random_outgoing_ports": true,
+    "max_upload_slots_per_torrent": -1,
+    "new_release_check": false,
+    "enc_out_policy": 1,
+    "seed_time_ratio_limit": 7.0,
+    "remove_seed_at_ratio": false,
+    "autoadd_location": "/home/${user}/dwatch/",
+    "max_upload_slots_global": -1,
+    "seed_time_limit": 180,
+    "cache_size": 512,
+    "share_ratio_limit": 2.0,
+    "random_port": true,
+    "listen_interface": "${ip}"
+  }
+DC
+cat > /home/${user}/.config/deluge/web.conf <<DWC
+{
+  "file": 1,
+  "format": 1
+}{
+  "port": ${DWPORT},
+  "enabled_plugins": [],
+  "pwd_sha1": "${DWP}",
+  "theme": "gray",
+  "show_sidebar": true,
+  "sidebar_show_zero": false,
+  "pkey": "ssl/daemon.pkey",
+  "https": false,
+  "sessions": {},
+  "base": "/",
+  "pwd_salt": "${DWSALT}",
+  "show_session_speed": false,
+  "first_login": false,
+  "cert": "ssl/daemon.cert",
+  "session_timeout": 3600,
+  "default_daemon": "",
+  "sidebar_multiple_filters": true
 }
-function _installDeluge3() {
-  chown -R ${username}.${username} /home/${username}/.config/
-  mkdir /home/${username}/dwatch
-  chown ${username}: /home/${username}/dwatch
-  mkdir -p /home/${username}/torrents/deluge
-  chown ${username}: /home/${username}/torrents/deluge
+DWC
+cat > /home/${user}/.config/deluge/hostlist.conf.1.2 <<DHL
+{
+  "file": 1,
+  "format": 1
+}{
+  "hosts": [
+    [
+      "${DUDID}",
+      "127.0.0.1",
+      ${DPORT},
+      "${user}",
+      "${pass}"
+    ]
+  ]
+}
+DHL
+
+  echo "${user}:${pass}:10" > /home/${user}/.config/deluge/auth
+  chmod 600 /home/${user}/.config/deluge/auth
+  chown -R ${user}.${user} /home/${user}/.config/
+  mkdir /home/${user}/dwatch
+  chown ${user}: /home/${user}/dwatch
+  mkdir -p /home/${user}/torrents/deluge
+  chown ${user}: /home/${user}/torrents/deluge
   touch /install/.deluge.lock
-}
-function _installDeluge4() {
-  #cp "${local_setup}"templates/startup.template /home/"${username}"/.startup
-  #sed -i 's/DELUGEWEB_CLIENT=no/DELUGEWEB_CLIENT=yes/g' /home/"${username}"/.startup
-  #sed -i 's/DELUGED_CLIENT=no/DELUGED_CLIENT=yes/g' /home/"${username}"/.startup
-  cp ${local_setup}templates/sysd/deluged.template /etc/systemd/system/deluged@.service
-  cp ${local_setup}templates/sysd/deluge-web.template /etc/systemd/system/deluge-web@.service
-  systemctl enable deluged@${username}
-  systemctl enable deluge-web@${username}
-  systemctl start deluged@${username}
-  systemctl start deluge-web@${username}
-
-}
-
-function _installDeluge5() {
-  echo "Deluge Install Complete!" >>"${OUTTO}" 2>&1;
-  sleep 5
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-}
-function _installDeluge6() {
-  exit
-}
-
-
-
-echo "Installing deluge ... " >>"${OUTTO}" 2>&1;_installDeluge1
-echo "Setting up deluge configurations ... " >>"${OUTTO}" 2>&1;_installDeluge2
-echo "Setting up deluge permissions ... " >>"${OUTTO}" 2>&1;_installDeluge3
-echo "Setting up services and starting deluge ... " >>"${OUTTO}" 2>&1;_installDeluge4
-_installDeluge5
-_installDeluge6
+fi
