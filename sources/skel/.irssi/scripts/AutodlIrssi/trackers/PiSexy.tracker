@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ps"
+	shortName="PS"
+	longName="PiSexy"
+	siteName="www.pisexy.org">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="AfterX"
+			serverNames="irc.afterx.org"
+			channelNames="#pisexy"
+			announcerNames="Locutus"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[PiSexy] - Shrek.Forever.After.1080p.BluRay.x264-REFiNED - http://www.pisexy.org/torrentinfo.php?id=160474-->
+				<regex value="^\[PiSexy] -(.*)-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="[dD]efuse"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

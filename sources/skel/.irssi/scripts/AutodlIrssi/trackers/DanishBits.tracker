@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="db"
+	shortName="DB"
+	longName="DanishBits"
+	siteName="danishbits.org"
+	ignore404="true">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="Danishbits"
+			serverNames="irc.danishbits.org"
+			channelNames="#DBannounce"
+			announcerNames="DB"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--GLOBAL FREELEECH ~ Superleech ~ Occupant.2011.Custom.DKsubs.NTSC.DVDR-SUBLiME ~ 3.90GB ~ https://danishbits.org/torrents.php?torrentid=16550-->
+				<!--POWERLEECH ~ Bluray ~ The.Railway.Man.2013.NOR.BluRay.Remux.1080p.AVC.DTS-HD.MA.5.1-HiFi ~ 31.33GB ~ https://danishbits.org/torrents.php?torrentid=331724-->
+				<!--FREELEECH ~ Danske Film ~ Marie.Kroeyer.2012.DANiSH.PAL.DVDR-FARGIRENIS ~ 4.39GB ~ https://danishbits.org/torrents.php?torrentid=332259-->
+				<!--NYT UPLOAD ~ HDx264 ~ Men.In.Black.3.2012.3D.HSBS.1080p.BluRay.x264.HQ-TUSAHD ~ 9.27GB ~ https://danishbits.org/torrents.php?torrentid=331725-->
+				<regex value="(NYT UPLOAD|FREELEECH|POWERLEECH|GLOBAL FREELEECH)\s~\s([^~]+?)\s~\s([^~]+?)\s~\s([^~]+?)\s~\s(https?\:\/\/[^\/]+\/)torrents.php\?torrentid=(\d+)"/>
+				<vars>
+					<var name="$freeleech"/>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="$freeleech" regex="FREELEECH" varName="freeleech" newValue="true"/>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+				<string value="&amp;id="/>
+				<var name="$torrentId"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

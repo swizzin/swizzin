@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="StarBits"
+	shortName="StarBits"
+	longName="StarBits"
+	siteName="starbits.nu">
+
+	<settings>
+		<description text="Go to http://starbits.nu/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="ZeNet"
+			serverNames="portlane.se.eu.zenet.org"
+			channelNames="#StarBits"
+			announcerNames="StarBits"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<regex value="^\[Ny Uppladdning]\s\[.*]\s(.*)\[\s(.*)\]\s\[\shttp:\/\/www.starbits.nu\/details.php\?id=([0-9]{1,6})\s]?"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://www.starbits.nu/download.php"/>
+				<string value="/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

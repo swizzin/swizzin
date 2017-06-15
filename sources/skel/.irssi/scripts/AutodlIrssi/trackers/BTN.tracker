@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="btn"
+	shortName="BTN"
+	longName="BTN"
+	siteName="">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey
+			pasteGroup="authkey,torrent_pass"
+			pasteRegex="id=\d+&amp;(?:authkey=)?([\da-zA-Z]{32})"/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="BroadcasTheNet"
+			serverNames="irc.broadcasthe.net"
+			channelNames="#BTN-Announce"
+			announcerNames="Barney"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--NOW BROADCASTING! [ Lost S06E07 720p WEB-DL DD 5.1 H.264 - LP ]-->
+			<!--[ Title: S06E07 ] [ Series: Lost ]-->
+			<!--[ 2010 ] [ Episode ] [ MKV | x264 | WEB ] [ Uploader: LinkinPark ]-->
+			<!--[ https://XXXXXXXXX/torrents.php?id=7338 / https://XXXXXXXXX/torrents.php?action=download&id=9116 ]-->
+			<!---->
+			<!--NOW BROADCASTING!-->
+			<!--[ Title: Season 1 ] [ Series: Walking with Dinosaurs ]-->
+			<!--[ 1999 ] [ Season ] [ AVI | XViD | DVDRip ] [ Uploader: skyR ]-->
+			<!--[ https://XXXXXXXXX/torrents.php?id=7395 / https://XXXXXXXXX/torrents.php?action=download&id=9120 ]-->
+			<!---->
+			<!--NOW BROADCASTING! [ Jimmy.Kimmel.2010.03.09.Gabourey.Sidibe.HDTV.XviD-2HD ]-->
+			<!--[ Title: S08E39 ] [ Series: Jimmy Kimmel Live ]-->
+			<!--[ 2010 ] [ Episode ] [ AVI | XViD | HDTV | Scene | FastTorrent ] [ Uploader: Satan ] [ Pretime: 1 minute and 30 seconds ]-->
+			<!--[ https://XXXXXXXXX/torrents.php?id=7366 / https://XXXXXXXXX/torrents.php?action=download&id=9088 ]-->
+			<extract>
+				<regex value="^NOW BROADCASTING! \[(.*)\]"/>
+				<vars>
+					<var name="torrentName"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^\[ Title: (.*) \] \[ Series: (.*) \]"/>
+				<vars>
+					<var name="$title"/>
+					<var name="name1"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^(?:\[ (\d+) \] )?\[ (.*) \] \[ (.*) \] \[ Uploader: (.*?) \](?: \[ Pretime: (.*) \])?"/>
+				<vars>
+					<var name="year"/>
+					<var name="category"/>
+					<var name="tags"/>
+					<var name="uploader"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^\[ .* / (https?://.*id=\d+) \]"/>
+				<vars>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<if srcvar="name1" regex="^AutoFill">
+				<var name="name1">
+					<string value=""/>
+				</var>
+			</if>
+
+			<extract srcvar="$title" optional="true">
+				<regex value="Season 0?(\d+)"/>
+				<vars>
+					<var name="season"/>
+				</vars>
+			</extract>
+
+			<extract srcvar="$title" optional="true">
+				<regex value="S0?(\d+)E0?(\d+)"/>
+				<vars>
+					<var name="season"/>
+					<var name="episode"/>
+				</vars>
+			</extract>
+
+			<varreplace name="tags" srcvar="tags" regex="[\|]" replace=", "/>
+			<setregex srcvar="tags" regex="Scene" varName="scene" newValue="true"/>
+
+			<extracttags srcvar="tags" split=",">
+				<setvarif varName="origin" regex="^(?:None|Scene|P2P|Internal|User|Mixed)$"/>
+
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|x264\-Hi10p|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<setvarif varName="container" regex="^(?:AVI|MKV|VOB|MPEG|MP4|ISO|WMV|TS|M4V|M2TS)$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<!--They sometimes set torrent name to "BtN"-->
+			<if srcvar="torrentName" regex="^BtN$">
+				<var name="torrentName">
+					<string value=""/>
+				</var>
+			</if>
+
+			<if srcvar="torrentName" regex="^\s*$">
+				<var name="torrentName">
+					<var name="$name1"/>
+					<string value=" "/>
+					<var name="$title"/>
+					<string value=" "/>
+					<var name="resolution"/>
+					<string value=" "/>
+					<var name="source"/>
+					<string value=" "/>
+					<var name="encoder"/>
+				</var>
+			</if>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^NEW [a-zA-Z]+!"/>
+			<regex value="^TV News!"/>
+			<regex value="^\[ New Review! \]"/>
+			<regex value="^NEW [a-zA-Z]+ [a-zA-Z]+!"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bhd"
+	shortName="BHD"
+	longName="BeyondHD"
+	siteName="beyondhd.me">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any BeyondHD torrent direct download (RSS) link into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your BeyondHD RSS feed."
+			pasteRegex="[&amp;]torrent_pass=([\da-fA-F]{32})"/>
+	</settings>
+
+	<servers>
+		<server
+			network="BeyondHD-IRC"
+			serverNames="irc.beyondhd.me"
+			channelNames="#bhd_announce"
+			announcerNames="Willie"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent: Orange.Is.the.New.Black.S01.1080p.Blu-ray.AVC.DTS-HD.MA.5.1-Test Category: Blu-ray Encodes By: KC Size: 137.73 GB Link: https://www.beyondhd.me/details.php?id=25918-->
+				<regex value="New Torrent:(.*)Category:(.*)By:(.*)Size:(.*)Link: https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="uploader"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bhu"
+	shortName="BHU"
+	longName="BitHUmen"
+	siteName="bithumen.be">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="IRCnet"
+			serverNames="ircnet.eversible.com"
+			channelNames="#bithumen"
+			announcerNames="bitHUmen"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[NEW] [REQ] Sons.of.Anarchy.S03E06.The.Push.HDTV.XviD-FQM got released 199d 11h 39m 57s ago [ Sorozat / Eng | 350MB in 21F ] - http://bithumen.be/t/175916-->
+				<!--[NEW] [REQ] Ezel-Bosszu.mindhalalig.S01E14-E18.HUN.TvRip.XviD-MiXED [ Sorozat / Hun | 1978MB in 5F ] - http://bithumen.be/t/175917-->
+				<!--[NEW] Impossible.S01E01.WS.PDTV.XviD-C4TV by FireblasT got released 5h 9m 42s ago [ Sorozat / Eng | 357MB in 28F ] - http://bithumen.be/t/177212-->
+				<!--[NEW] The Shadow Line.1x02.720p HDTV x264-FoV by FireblasT [ Sorozat / Eng | 1507MB in 34F ] - http://bithumen.be/t/177222-->
+				<!--[NEW] The.Evil.Dead.1981.1080p.BluRay.x264.Hun-Rabbit [ Film / Hun / HD | 6947MB in 51F ] - http://bithumen.be/t/177134-->
+				<regex value="^\[NEW\]\s*(?:\[REQ\])?\s*(.*?)\s*(?:by (\S*))?\s*(?:got released (.*) ago)?\s*\[([^\|]*)\|\s*([\d,.]*\s*\S*)\s*in\s*\d*F\s*\]\s*-\s*https?\:\/\/([^\/]+\/)t/(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="uploader"/>
+					<var name="preTime"/>
+					<var name="category"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

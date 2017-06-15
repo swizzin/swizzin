@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# [Quick Box :: Install Quassel IRC Bouncer package]
+#
+# GITHUB REPOS
+# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
+# LOCAL REPOS
+# Local _ packages   :   /etc/QuickBox/packages
+# Author             :   QuickBox.IO | lizaSB
+# URL                :   https://quickbox.io
+#
+# QuickBox Copyright (C) 2016
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
+#################################################################################
+function _x2gorepo() {
+if [[ $distribution == Ubuntu ]]; then
+	apt-add-repository ppa:x2go/stable -y >/dev/null 2>&1
+	apt-get -y update >/dev/null 2>&1
+else
+
+cat >/etc/apt/sources.list.d/x2go.list<<EOF
+# X2Go Repository (release builds)
+deb http://packages.x2go.org/debian ${release} main
+# X2Go Repository (sources of release builds)
+deb-src http://packages.x2go.org/debian ${release} main
+
+# X2Go Repository (nightly builds)
+#deb http://packages.x2go.org/debian ${release} heuler
+# X2Go Repository (sources of nightly builds)
+#deb-src http://packages.x2go.org/debian ${release} heuler
+EOF
+
+apt-get -y update >/dev/null 2>&1
+apt-key adv --recv-keys --keyserver keys.gnupg.net E1F958385BFE2B6E >/dev/null 2>&1
+apt-get -y update >/dev/null 2>&1
+apt-get -y install x2go-keyring && apt-get update >/dev/null 2>&1
+fi
+}
+function _x2go() {
+		_x2gorepo
+			apt-get -y install x2goserver x2goserver-xsession >/dev/null 2>&1
+			apt-get -y install pulseaudio >/dev/null 2>&1
+			apt-get -y install iceweasel >/dev/null 2>&1
+		echo ${ok}
+}
+
+OUTTO=/srv/rutorrent/home/db/output.log
+distribution=$(lsb_release -is)
+release=$(lsb_release -cs)
+ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
+echo -n "Installing Xfce4 (this may take a bit) ... " >>"${OUTTO}" 2>&1;apt-get install -y xfce4 >/dev/null 2>&1
+echo >>"${OUTTO}" 2>&1;
+echo -n "Installing x2go repositories ... " >>"${OUTTO}" 2>&1; _x2gorepo
+echo >>"${OUTTO}" 2>&1;
+echo -n "Installing X2go (this may take a bit) ... " >>"${OUTTO}" 2>&1; _x2go
+touch /install/.x2go.lock
+echo >>"${OUTTO}" 2>&1;
+echo "X2go Install Complete!" >>"${OUTTO}" 2>&1;
+sleep 5
+echo >>"${OUTTO}" 2>&1;
+echo >>"${OUTTO}" 2>&1;
+echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;

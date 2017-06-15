@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hdme"
+	shortName="HDME"
+	longName="HDME.eu"
+	siteName="hdme.eu"
+	follow302links="true">
+
+	<settings>
+		<description text="Go to http://hdme.eu/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your HDME.eu RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="hdme.eu"
+			serverNames="irc.hdme.eu"
+			channelNames="#hdme-announce"
+			announcerNames="HDME"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--New Upload-->
+			<!--Torrent: Supernatural.S05E12.720p.HDTV.x264-IMMERSE -->
+			<!--Pre Time: 29m, 22s ago -->
+			<!--Size: 1.09 GB -->
+			<!--Cat: TV Series 720p -->
+			<!--Uploader: stasH -->
+			<!--URL: http://hdme.eu/details.php?id=7626 -->
+			<extract>
+				<regex value="^New Upload"/>
+				<vars/>
+			</extract>
+			<extract>
+				<regex value="^Torrent:\s*(.*)"/>
+				<vars>
+					<var name="torrentName"/>
+				</vars>
+			</extract>
+			<extract optional="true">
+				<regex value="^Pre Time:\s*(.*)"/>
+				<vars>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Size:\s*(.*)"/>
+				<vars>
+					<var name="torrentSize"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Cat:\s*(.*)"/>
+				<vars>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Uploader:\s*(.*)"/>
+				<vars>
+					<var name="uploader"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^URL:\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="rssdown.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+				<string value="&amp;name="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

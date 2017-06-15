@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="al"
+	shortName="AL"
+	longName="Acid-Lounge"
+	siteName="www.acid-lounge.org.uk">
+
+	<settings>
+		<!--http://www.acid-lounge.org.uk/rssdownload.php?passkey=XXXXXXXXXX&uid=XXXXX&tid=XXXX-->
+		<description text="Paste (Ctrl+V) any Acid-Lounge torrent direct download (RSS) link into any one of the two text boxes below to automatically extract passkey and uid."/>
+		<passkey
+			tooltiptext="The passkey in any Acid-Lounge torrent direct download (RSS) link."
+			pasteGroup="passkey,uid"
+			pasteRegex="[\?&amp;]passkey=([\da-fA-F]{32})"
+		/>
+		<textbox
+			name="uid"
+			text="uid"
+			accesskey="i"
+			tooltiptext="The uid in any Acid-Lounge torrent direct download (RSS) link."
+			pasteGroup="passkey,uid"
+			pasteRegex="[\?&amp;]uid=(\d+)"
+		/>
+	</settings>
+
+	<servers>
+		<server
+			network="Bend"
+			serverNames="irc.bend.me.uk"
+			channelNames="#acid-uploads"
+			announcerNames="ACiD-BaBy"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--(TV)  The.Sarah.Jane.Adventures.S04E01.HDTV.XviD-BiA  http://www.acid-lounge.org.uk/details.php?id=109619&hit=1-->
+				<regex value="^\s*\(([^)]+)\)(.*)\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<!--http://www.acid-lounge.org.uk/rssdownload.php?passkey=XXXXXXXXXX&uid=XXXXX&tid=XXXX-->
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="rssdownload.php?tid="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+				<string value="&amp;uid="/>
+				<var name="uid"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="rtt"
+	shortName="RevoTT"
+	longName="RevolutionTT"
+	siteName="revolutiontt.me">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any RevolutionTT torrent download link into the text box below to automatically extract passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="thehorde"
+			serverNames="irc.revolutiontt.me"
+			channelNames="#vip"
+			announcerNames="RevoTT"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[NEWmTORRENT]jinfTV/XViDY->HBones.S05E12.The.Proof.in.the.Pudding.HDTV.XviD-FQMA| https://www.revolutiontt.net/details.php?id=pyK9laiE&hit=1-->
+				<regex value="^\[NEW.TORRENT\].in.(.*).->.(.*).\| https?\:\/\/([^\/]+\/).*[&amp;\?]id=([0-9a-zA-Z]+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--[NEWyREQUESTEDOTORRENT]CindTV/PacksY->v[REQ]BOneTTreeaHillHSeasonJ6z| https://www.revolutiontt.net/details.php?id=pAKvOOfg&hit=1-->
+				<regex value="^\[NEW.REQUESTED.TORRENT\].in.(.*).->.(.*).\| https?\:\/\/([^\/]+\/).*[&amp;\?]id=([0-9a-zA-Z]+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent?passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\[NEW.TORRENT\]" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

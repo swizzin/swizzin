@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="st"
+	shortName="ST"
+	longName="SnatchThat"
+	siteName="SnatchThat.cc">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any snatchthat.cc torrent direct download (RSS) link into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your snatchthat RSS feed."
+			pasteRegex="[&amp;]pk=([\da-zA-Z]{40})"/>
+	</settings>
+
+	<servers>
+		<server
+			network="Snatch-That-IRC-Network"
+			serverNames="irc.snatchthat.cc"
+			channelNames="#st_announce"
+			announcerNames="SniTcHy"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--New Torrent Uploaded: Jimi Hendrix Live At Woodstock Mkv Dts Hd .:. Category: Encodes 1080p-->
+			<!--Size: 7.91 GB .:. URL: http://www.snatchthat.cc/?p=torrents&pid=10&action=details&tid=1987-->
+			<!---->
+			<!--New Torrent Uploaded: Armin Van Buuren - Imagine (Unmixed) [2008/MP3/320] (Scene) .:. Category: MP3 Albums/Singles-->
+			<!--Size: 180.64 MB .:. URL: http://www.snatchthat.cc/?p=torrents&pid=10&action=details&tid=1990-->
+			<extract>
+				<regex value="New Torrent Uploaded:\s*(.*)\s*\.:\.\s*Category:\s*(.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="Size:\s*(.*)\s*\.:\.\s*URL:\s*https?\:\/\/([^\/]+\/).*tid=(.*)"/>
+				<vars>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="torrentName" regex="\(Scene\)" varName="scene" newValue="true"/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="\[(.*)\]"/>
+				<vars>
+					<var name="$releaseTags"/>
+				</vars>
+			</extract>
+
+			<extract srcvar="$releaseTags" optional="true">
+				<regex value="((?:19|20)\d\d)"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg Vorbis|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{3}$|\d+\.\d+|q\d+\.[\dx]+|Other)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|Web|Blu-ray|Other)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="?p=rss&amp;action=download&amp;tid="/>
+				<var name="$torrentId"/>
+				<string value="&amp;pk="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tg"
+	shortName="tg"
+	longName="TorrentGigs"
+	siteName="">
+
+	<settings>
+		<description text="Paste the RSS feed for your passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="TorrentGigs"
+			serverNames="irc.btgigs.info"
+			channelNames="#pre"
+			announcerNames="Info"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!-- [REQ]  Twin Peaks: Ogniu Krocz Ze Mn± / Twin Peaks Fire Walk With Me 1992 PL 720p BRRip XviD AC3-inTGrity - http://btgigs.info/details.php?id=356855-->
+				<!---->
+				<!--Nagi Instynkt Przetrwania / Naked And Afraid S02E06 Meltdown In Bolivia PL 720p HDTV X264 AC3-TVM4iN - http://btgigs.info/details.php?id=356858-->
+				<regex value="^(.*)\s\-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download_rss.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/0/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>			
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

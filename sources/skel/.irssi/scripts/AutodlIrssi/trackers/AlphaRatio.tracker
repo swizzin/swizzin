@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ar"
+	shortName="AR"
+	longName="AlphaRatio"
+	siteName="alpharatio.cc">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="AlphaRatio"
+			serverNames="irc.alpharatio.cc"
+			channelNames="#Announce"
+			announcerNames="Voyager"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[New Release]-[AppsPC]-[Spice_Road_v1.002-FAS]-[URL]-[ https://alpharatio.cc/torrents.php?id=3273 ]-[ 3265 ]-[ Uploaded 53 Secs after pre. ]-->
+				<!--[New Release]-[AppsMAC]-[Angvik_v1.4_MacOSX-SPLATTER]-[URL]-[ https://alpharatio.cc/torrents.php?id=3280 ]-[ 3272 ]-[ Uploaded 14 Mins, 12 Secs after pre. ]-->
+				<regex value= "^\[New Release\]-\[(\S+)\]-\[(\S+)\]-\[URL\]-\[ https?\:\/\/([^\/]+\/).*[&amp;\?]id=\d+.*\[\s*(\d+) \].*Uploaded (.*) after pre"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--[New Release]-[MovieHD]-[The Hobbit Desolation Of Smaug 2013 1080p Bluray DTS x264 - SiMPLE]-[URL]-[ https://alpharatio.cc/torrents.php?id=3822 ]-[ 3807 ]-->
+				<regex value= "^\[New Release\]-\[(\S+)\]-\[(.+)\]-\[URL\]-\[ https?\:\/\/([^\/]+\/).*[&amp;\?]id=\d+.*\[\s*(\d+) \]"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="fyt"
+	shortName="FYT"
+	longName="Fuck Yeah Torrents"
+	siteName="fuckyeahtorrents.com">
+
+	<settings>
+		<description text="Go to http://fuckyeahtorrents.com/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your FYT RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="Fuck-Yeah"
+			serverNames="irc.fuckyeahtorrents.com"
+			channelNames="#announce"
+			announcerNames="_announce_"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent Uploaded: <TV-XVID> Name: 'MythBusters.S09E03.Running.on.Water.HDTV.XviD-FQM' Size: 358.75 MB Files: 22 https://fuckyeahtorrents.com/details.php?id=54140-->
+				<!-- New Torrent Uploaded: <XXX-0DAY> Name: '18Eighteen.11.10.12.Elizabeth.Bentley.Anal.Thermometers.And.Hot.Sex.XXX.720p.WMV-SEXORS' Size: 325.25 MB Files: 25 https://fuckyeahtorrents.com/details.php?id=168535-->
+				<regex value="^\s*New Torrent Uploaded:\s*&lt;([^&gt;]*)&gt;\s*Name:\s*'(.*)'\s*Size:\s*(\S+\s*\S*)\s*Files:\s*(\S*)\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$files"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<varenc name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

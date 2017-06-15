@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="db9"
+	shortName="DB9"
+	longName="DEEPBASSNiNE"
+	siteName="tracker.deepbassnine.com">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="DeepBassNine"
+			serverNames="irc.p2p-network.net"
+			channelNames="#deepbassnine"
+			announcerNames="DEEPBASSNiNE"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Greymatter - Mind Over Matter [UUCD003D][2010][Album] - [120.90 MB in 14 F] - MP3 / 320 / Web - https://tracker.deepbassnine.com/torrents.php?id=91733 / https://tracker.deepbassnine.com/torrents.php?action=download&id=147941 - dubstep-->
+				<!--Jahdan Blakkamoore - Buzzrock Warrior [GDM023CD][2009][Album] - [102.91 MB in 14 F] - MP3 / 320 / CD - https://tracker.deepbassnine.com/torrents.php?id=22152 / https://tracker.deepbassnine.com/torrents.php?action=download&id=147943 - dubstep, dancehall-->
+				<regex value="^(.*)\s+-\s+\[\s*([\d.,]*\s*\S*)\s*in\s*\d*\s*F\s*\]\s+-\s+(.*)\s+-\s+https?:.*[&amp;\?]id=.*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)\s*-\s*(.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="releaseTags"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<var name="log">
+				<string value="false"/>
+			</var>
+			<var name="cue">
+				<string value="false"/>
+			</var>
+
+			<varreplace name="tags" srcvar="tags" regex="[\._]" replace=" "/>
+
+			<extract srcvar="torrentName">
+				<regex value="^(.+?) - ([^\[]+).*\[(\d{4})\]\[([^\[]+)\]"/>
+				<vars>
+					<var name="name1"/>
+					<var name="name2"/>
+					<var name="year"/>
+					<var name="$releaseType"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg Vorbis|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,4}|\d+\.\d+|q\d+\.[\dx]+|Other)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|WEB|Blu-ray|Other)$"/>
+
+				<setvarif varName="scene" value="Scene" newValue="true"/>
+				<setvarif varName="log" value="Log" newValue="true"/>
+				<setvarif varName="cue" value="Cue" newValue="true"/>
+
+				<!--Ignored-->
+				<regex value="^(?:5\.1 Audio|\.m4a|Various.*|~.*|&gt;.*)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

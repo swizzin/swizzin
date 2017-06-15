@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ptm"
+	shortName="PTM"
+	longName="PreToMe"
+	siteName="pretome.info">
+
+	<settings>
+		<description text="Copy the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your PreToMe rss feed"
+			pasteRegex="[\?&amp;]key=([\da-fA-F]{32})"
+		/>
+	</settings>
+
+	<servers>
+		<server
+			network="PreToMe"
+			serverNames="irc.pretome.info"
+			channelNames="#announce,#pretome"
+			announcerNames="tehDude"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--tehFIRE: [TV|x264] Newsreaders.S01E05.HDTV.x264-2HD https://pretome.info/details.php?id=333951-->
+				<regex value="tehFIRE(?:\|REQ)?: \[([^\]]*)\] ([^:]*) https?\:\/\/([^\/]+).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--tehFIRE: [TV|XviD] Royal.Institution.Christmas.Lectures.2009.Part2.WS.PDTV.XviD-WATERS :: preGAP: 1m and 9s :: https://pretome.info/details.php?id=127107-->
+				<regex value="tehFIRE(?:\|REQ)?: \[([^\]]*)\] ([^:]*) :: preGAP: ([^:]*) :: https?\:\/\/([^\/]+).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<if srcvar="preTime" regex="^\d+\s*\w+">
+				<var name="scene">
+					<string value="true"/>
+				</var>
+			</if>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="/download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

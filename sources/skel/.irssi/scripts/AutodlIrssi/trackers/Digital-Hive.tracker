@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="dh"
+	shortName="DH"
+	longName="Digital-Hive"
+	siteName="www.digitalhive.org">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="Corrupt-Net"
+			serverNames="irc.corrupt-net.org,irc.digitalhive.org"
+			channelNames="#DH.Announce"
+			announcerNames="DH"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New in Music - Matthias_Bergmann-Still_Time-2008-OMA (Uploaded 19 secs. After Pre.) (http://www.digitalhive.org/details.php?id=47104)-->
+				<regex value="^New in(?: (.*) )?- (.*) \(Uploaded (.*) After Pre.\)\s+\(https?\:\/\/([^\/]+).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--New in Music - None-My_Only_Heart_of_Lion-2009-BFHMP3 (http://www.digitalhive.org/details.php?id=47103)-->
+				<regex value="^New in(?: (.*) )?- (.*)\s+\(https?\:\/\/([^\/]+).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="/download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;name="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="^!tkb \S+"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

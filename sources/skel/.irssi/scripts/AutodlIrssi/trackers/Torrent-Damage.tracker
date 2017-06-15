@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="td"
+	shortName="TD"
+	longName="Torrent-Damage"
+	siteName="www.torrent-damage.net">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+		<delta
+			tooltiptext="Don't change unless you know what you're doing. torrent download link ID - torrent page ID."
+			defaultValue="-28"
+			name="delta3"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="torrent-damage"
+			serverNames="irc.torrent-damage.net"
+			channelNames="#releases-auto"
+			announcerNames="AnnounceBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent: EPL.2011.10.02.Bolton.Wanderers.vs.Chelsea.720p.HDTV.x264-FAIRPLAY 114324 TV/HD-->
+				<regex value="^New Torrent:(.*)\s(\d+)\s(\S+(?:/\S+ \S+)?)$"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$torrentId"/>
+					<var name="category"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="$baseUrl">
+				<string value="http://www.torrent-damage.net/"/>
+			</var>
+			<var name="$torrentId">
+				<delta idName="$torrentId" deltaName="delta3"/>
+			</var>
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+			<http name="Referer">
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

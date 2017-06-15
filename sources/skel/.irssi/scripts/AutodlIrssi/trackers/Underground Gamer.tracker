@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ug"
+	shortName="UG"
+	longName="Underground Gamer"
+	siteName="www.underground-gamer.com">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="bgirc"
+			serverNames="irc.underground-gamer.com,irc.bitgamer.su,irc.bitgamer.com"
+			channelNames="#Chat"
+			announcerNames="Eva"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New torrent: (MS-Windows) Monopoly [3rd Edition] [Full Game] [Parlor/Board Games/2002] 399.63 MB http://www.underground-gamer.com/details.php?id=44352-->
+				<regex value="^New torrent: \(([^\)]*)\)(.*?)([\d\.,]+\s*[a-zA-Z]+)\s*https?\:\/\/([^\/]+).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<extract srcvar="torrentName" optional="true">
+				<regex value="\[([^\]]*(?:19|20)\d\d[^\]]*)\]"/>
+				<vars>
+					<var name="$releaseTags"/>
+				</vars>
+			</extract>
+
+			<varreplace name="tags" srcvar="$releaseTags" regex="[\/]" replace=", "/>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="year" regex="^(?:19|20)\d\d$"/>
+
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,3}|\d+\.\d+|q\d+\.[\dx]+)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="/download.php?id="/>
+				<var name="$torrentId"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="^New torrent:" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

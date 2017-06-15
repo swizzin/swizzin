@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tvt.ro"
+	shortName="TvT.ro"
+	longName="Tv TORRENTs ro"
+	siteName="freshon.tv">
+
+	<settings>
+		<description text="Go to your user profile and copy the passkey and paste (Ctrl+V) it below."/>
+		<passkey
+			pasteRegex="([\da-fA-F]{32})"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="TvT"
+			serverNames="irc.freshon.tv"
+			channelNames="#tvt.announce"
+			announcerNames="T"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[..Miniseries..] Mortal.Kombat.WebDL.HD.1080 (965.97 MB) - http://freshon.tv/details.php?id=68347-->
+				<regex value="^\[([^\]]*)\]\s*(.*)\(([^\)]*)\)\s*-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--[..Sports..] WWE.Friday.Night.Smackdown.2010.01.29.WS.PDTV.XviD-433 - http://freshon.tv/details.php?id=43435-->
+				<regex value="^\[([^\]]*)\]\s*(.*)\s*-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?type=rss&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\[([^\]]*)\]" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="st"
+	shortName="ST"
+	longName="SuperTorrents"
+	siteName="www.supertorrents.org">
+
+	<settings>
+		<description text="Click the General link and copy the RSS link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your SuperTorrents RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2PIRC"
+			serverNames="irc.p2pirc.org,california.us.p2pirc.org,chicago.us.p2pirc.org,texas.us.p2pirc.org,amsterdam.eu.p2pirc.org,london.eu.p2pirc.org,montreal.ca.p2pirc.org"
+			channelNames="#supertorrents,#stm-spam"
+			announcerNames="ST"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--NEW TORRENT: Real.Skateboards.Everything.And.The.Kitchen.Sink.2008.DVDRiP.XviD-SCARED SECTION: Movies|XviD PRETIME: 30min 14sec LINK: http://www.supertorrents.org/details.php?id=66156&hit=1-->
+				<regex value="^NEW TORRENT:(.*)SECTION:(.*)PRETIME:(.*)LINK:\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--NEW TORRENT: VA-Nova_Xposure_10-01-(Promo_CD)-2010-SC GENRE: Pop PRETIME: 1min 30sec LINK: http://www.stmusic.org/details.php?id=297180&hit=1-->
+				<regex value="^NEW TORRENT:(.*)GENRE:(.*)PRETIME:(.*)LINK:\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^NEW TORRENT:" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hdc"
+	shortName="HDC"
+	longName="HDCenter"
+	siteName="www.hdcenter.cc">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="FashShit.Net"
+			serverNames="irc.hdcenter.cc,irc.fastshit.net"
+			channelNames="#hdcenter"
+			announcerNames="HDC"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<!--New Upload: Gladiator 2000 10th Anniversary Edition REMASTERED 1080p Blu-ray AVC DTS-HD MA 5 1  / Freeleech! - https://hdcenter.cc/torrents.php?id=28327 / https://hdcenter.cc/torrents.php?action=download&id=28327-->
+			<!--New Upload: Reach Me 2014 1080p BluRay AVC TrueHD 5.1-HDAccess  - https://hdcenter.cc/torrents.php?id=28322 / https://hdcenter.cc/torrents.php?action=download&id=28322-->
+			<extract>
+				<regex value="New Upload: (.*?)(?: / )?(Freeleech!)? - .* / (https?://.*id=\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$freeleech"/>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="$freeleech" regex="Freeleech!" varName="freeleech" newValue="true"/>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

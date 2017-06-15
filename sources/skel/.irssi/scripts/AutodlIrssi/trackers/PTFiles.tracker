@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ptf"
+	shortName="PTF"
+	longName="PTFiles"
+	siteName="ptfiles.net">
+
+	<settings>
+		<description text="Grab your RSS feed link and paste below to extract your passkey."/>
+		<passkey
+			tooltiptext="The passkey in your PTFiles RSS feed link."
+			pasteRegex="[\?&amp;]passkey=([\da-zA-Z]{32})"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#phoenix-torrents"
+			announcerNames="PTF"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[FREE][New Movies/HD Torrent] 13.Thirteen.2010.1080p.BluRay.DTS.x264-DNL - 9.04 GiB - http://ptfiles.net/details.php?id=26357 SSL: https://ptfiles.net/details.php?id=26357-->
+				<!--[New Music Torrent] Various-Various[2010/MP3/192] - 10.94 GiB - http://ptfiles.net/details.php?id=26358 SSL: https://ptfiles.net/details.php?id=26358-->
+				<regex value="^\s*(?:\[([^\]]*)])?\s*\[New ([^\]]*) Torrent](.*) -(.*)-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="tags"/>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="dl.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="/details\.php" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

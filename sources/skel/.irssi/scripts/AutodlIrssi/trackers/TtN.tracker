@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   Version: MPL 1.1
+
+   The contents of this file are subject to the Mozilla Public License Version
+   1.1 (the "License"); you may not use this file except in compliance with
+   the License. You may obtain a copy of the License at
+   http://www.mozilla.org/MPL/
+
+   Software distributed under the License is distributed on an "AS IS" basis,
+   WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   for the specific language governing rights and limitations under the
+   License.
+   The Original Code is IRC Auto Downloader.
+   The Initial Developer of the Original Code is
+   David Nilsson.
+   Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   the Initial Developer. All Rights Reserved.
+
+   Contributor(s):
+   ^tammy^
+   MrRandom
+   Alastor
+
+   ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+  type="ttn"
+	shortName="TtN"
+	longName="TransmiThe.net"
+	siteName="transmithe.net">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="DigitalIRC"
+			serverNames="irc.transmithe.net"
+			channelNames="#ttn-announce"
+			announcerNames="DRADIS"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[Episodes] Expedition Unknown - S02E15 [HDTV / x264 / MKV / 720p / HD] [1.12 GB - Uploader: Caprica] - http://transmithe.net/torrents.php?id=71799-->
+				<!--[Seasons] Marvels Agent Carter - Season 2 [ [WebDL / h264 / MKV / 1080p / HD] [16.31 GB - Uploader: Zoe] - http://transmithe.net/torrents.php?id=71800-->
+				<regex value="\[(.*?)\] (.*?) \[(.*?)\] \[(.*?) - Uploader: (.*?)\] - (https?://.*)id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="torrentSize"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<extract srcvar="torrentName" optional="true">
+				<regex value="(.*) - Season 0?(\d+)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="season"/>
+				</vars>
+			</extract>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="(.*) - S0?(\d+)E0?(\d+)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="season"/>
+					<var name="episode"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WebDL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|x264\-Hi10p|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+				<setvarif varName="container" regex="^(?:AVI|MKV|VOB|MPEG|MP4|ISO|WMV|TS|M4V|M2TS)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

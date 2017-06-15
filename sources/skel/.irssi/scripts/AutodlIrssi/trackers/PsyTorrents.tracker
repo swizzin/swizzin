@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="psyt"
+	shortName="PsyT"
+	longName="PsyTorrents"
+	siteName="PsyTorrents">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="Estnet"
+			serverNames="irc.psytorrents.info"
+			channelNames="#announce"
+			announcerNames="PsyBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--New upload: Sound Strider - Escape Magic (2015) () (Unknown) (WEB MP3 320)-->
+			<!--Tags: [psy] - 83.28MB - Torrent: https://psytorrents.info/torrents.php?id=13489&torrentid=15180 - DL: https://psytorrents.info/torrents.php?action=download&id=15180-->
+			<!---->
+			<!--New upload: Vibrasphere and Shogan - Eroded Wasteland (2015) (Spiral Trax) (EP) (WEB MP3 320)-->
+			<!--Tags: [progressive] - 42.89MB - Torrent: https://psytorrents.info/torrents.php?id=13493&torrentid=15184 - DL: https://psytorrents.info/torrents.php?action=download&id=15184-->
+			<extract>
+				<regex value="New upload: (.*) \((.*)\) \((.*)\)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="releaseType"/>
+					<var name="$releaseTags"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="Tags: \[(.*)\] - (.*) - Torrent: .* - DL: (https?://.*id=\d+)"/>
+				<vars>
+					<var name="tags"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<!--Some use dots some use underscores, but replace all with spaces-->
+			<varreplace name="tags" srcvar="tags" regex="[\._]" replace=" "/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="^([^\-]+)\s+-\s+(.+) \((\d+)\) \((?:.*)\)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="name2"/>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split=" ">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg Vorbis|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,4}|\d+\.\d+|q\d+\.[\dx]+|Other)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|WEB|Blu-ray|Other)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

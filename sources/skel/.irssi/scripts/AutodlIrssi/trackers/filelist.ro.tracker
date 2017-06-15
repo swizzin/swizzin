@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="flr"
+	shortName="FLR"
+	longName="filelist.ro"
+	siteName="filelist.ro">
+
+	<settings>
+		<description text="Go to http://filelist.ro/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#filelist"
+			announcerNames="Announce"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<regex value="New Torrent: (.*?) (?:-- (.*) )?-- \[(.*)] \[(.*)] -- (https?://filelist.ro/).*id=(.*) -- by (.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="category"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="uploader"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<varreplace name="tags" srcvar="$releaseTags" regex="[\[\]]" replace=""/>
+
+			<extracttags srcvar="tags" split="--">
+				<setvarif varName="origin" regex="^(?:Internal!)$"/>
+				<setvarif varName="freeleech" value="Freeleech!" newValue="true"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;file="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^New!\s*(.*)-" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="stp"
+	shortName="STP"
+	longName="Stop The Presses"
+	siteName="stopthepress.es">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="IRC-Network"
+			serverNames="chat.irc-network.pl"
+			channelNames="#STP-Announce"
+			announcerNames="PaperBoy"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Paul A. Tipler & Gene Mosca - Physics for Scientists and Engineers [2007] [Book] - PDF / Web / Freeleech! - https://stopthepress.es/torrents.php?id=14480 / https://stopthepress.es/torrents.php?action=download&id=15205 - reference, non.fiction, science, textbook, physics, education-->
+				<!--USA TODAY03-19 [2013] [Issue] - PDF / Web / Retail / Scene / Freeleech! - https://stopthepress.es/torrents.php?id=14483 / https://stopthepress.es/torrents.php?action=download&id=15208 - news-->
+				<!--Aku Ankka03/01 [2013] [Issue] - PDF / Scan / Freeleech! - https://stopthepress.es/torrents.php?id=14484 / https://stopthepress.es/torrents.php?action=download&id=15209 - children-->
+				<regex value="^(.*)\s+-\s+https?:.*[&amp;\?]id=.*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)\s*-\s*(.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<varreplace name="tags" srcvar="tags" regex="[\._]" replace=" "/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="[\(\[]((?:19|20)\d\d)[\)\]]"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extractone>
+				<!--Should match all book releases-->
+				<extract srcvar="torrentName">
+					<regex value="^(.+?) - ([^\[]+).*\[(\d{4})\] \[([^\[]+)\] - ([^\-\[\]]+)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="name2"/>
+						<var name="year"/>
+						<var name="releaseType"/>
+						<var name="$releaseTags"/>
+					</vars>
+				</extract>
+				<!--Should match all magazine releases-->
+				<extract srcvar="torrentName">
+					<regex value="^([^\[]+).*\[(\d{4})\] \[([^\[]+)\] - ([^\-\[\]]+)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="year"/>
+						<var name="releaseType"/>
+						<var name="$releaseTags"/>
+					</vars>
+				</extract>
+				<!--Should match everything else-->
+				<extract srcvar="torrentName">
+					<regex value="^(.*) \[([^\[]+)\] - ([^\-\[\]]+)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="releaseType"/>
+						<var name="$releaseTags"/>
+					</vars>
+				</extract>
+			</extractone>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="format" regex="^(?:PDF|EPUB|MOBI|AZW3|DJVU|HTML|TXT|CBR|CBZ|Other)$"/>
+				<setvarif varName="source" regex="^(?:Web|Scan|Disc|Unknown)$"/>
+				<setvarif varName="scene" value="Scene" newValue="true"/>
+				<setvarif varName="freeleech" value="Freeleech!" newValue="true"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

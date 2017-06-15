@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tby"
+	shortName="TBy"
+	longName="TorrentBytes"
+	siteName="www.torrentbytes.net">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="torrentbytes"
+			serverNames="irc.torrentbytes.ninja"
+			channelNames="#torrentbytes-announce"
+			announcerNames="ByteMe"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[TB-RLS] .:. [ Kenny.Vs.Spenny.S06E11.720p.HDTV.x264-aAF ] .:. [ http://www.torrentbytes.net/download.php?id=126413 ] .:. [ http://www.torrentbytes.net/details.php?id=126413 ] .:. [ Uploaded 2 minutes, 28 seconds after pre ]-->
+				<!--[TB-RLS] .:. [ Jay Malinowski-Bright Lights And Bruises-2010-GOLDSTAR ] .:. [ http://www.torrentbytes.net/download.php?id=126558 ] .:. [ http://www.torrentbytes.net/details.php?id=126558 ]-->
+				<regex value="^\[TB-RLS\] \.:\. \[(.*)\] \.:\. \[ https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+).*https?\:\/\/(?:.*\[ Uploaded (.*)\])?"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;name="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<var name="torrentSslUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;SSL&amp;name="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

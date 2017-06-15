@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ttx"
+	shortName="TT"
+	longName="TuneTraxx"
+	siteName="tunetraxx.org">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any TuneTraxx RSS link into the box below to automatically extract the passkey"/>
+		<passkey pasteRegex=".*[&amp;]pk=([\da-zA-Z]{40})" />
+	</settings>
+
+	<servers>
+		<server
+			network="TuneTraxx.org"
+			serverNames="irc.tunetraxx.org"
+			channelNames="#announce"
+			announcerNames="TTBot"
+			/>
+	</servers>
+
+	<parseinfo>
+
+		<linepatterns>
+			<extract>
+				<!--NY TORRENT: Dance Single Croatia_Squad_-_Touch_Me-(ETR236)-WEB-2014-XDS 41.62MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1972)-->
+				<!--NY TORRENT: Dance Album David_Guetta-Listen-2CD-2014-VOiCE 116.67MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1973)-->
+				<!--NY TORRENT: Club Single DJ_EBO_-_Triple_Jump_98-Vinyl-1998-iDC 33.98MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1974)-->
+				<!--NY TORRENT: House Single Gorgon_City_Feat._Jennifer_Hudson_-_Go_All_Night-(00602547135087)-WEB-2014-XDS 87.62MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1975)-->
+				<!--NY TORRENT: R&B Album John_Legend-Love_In_The_Future-Special_Edition-2014-DeBT 127.1MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1976)-->
+				<!--NY TORRENT: House Single Liz_ft._Tyga_-_Dont_Say-(Beshken_Remix)-WEB-2014-FFM 7.97MB (http://tunetraxx.org/?p=torrents&pid=10&action=details&tid=1977)-->
+				<regex value="NY TORRENT: (.*(?:Single|Album)) (.*) (.*) \((.*)\/.*id=(\d+)\)$"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<var name="log">
+				<string value="false"/>
+			</var>
+			<var name="cue">
+				<string value="false"/>
+			</var>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+			<var name="bitrate">
+				<string value="false"/>
+			</var>
+			<var name="media">
+				<string value="false"/>
+			</var>
+
+			<!-- Extract Artists from torrent name -->
+			<varreplace name="simpleName" srcvar="torrentName" regex="[_]" replace=" "/>
+			<extract srcvar="simpleName" optional="true">
+				<regex value="^(?!VA)([\w\&amp;\. ]+[-]?\w)(?:_-_|–|-| -)"/>
+				<vars>
+					<var name="name1"/>
+				</vars>
+			</extract>
+			<!-- Extract Albums from torrent name; if various artists (VA) is the artist-->
+			<varreplace name="simpleName" srcvar="torrentName" regex="[_]" replace=" "/>
+			<extract srcvar="simpleName" optional="true">
+				<regex value="^VA(?: -|-)\s?([\w\&amp;\. ]+[-]?\w)"/>
+				<vars>
+					<var name="name2"/>
+				</vars>
+			</extract>
+
+			<!-- Extract releaseType from category -->
+			<extract srcvar="category" optional="true">
+				<regex value="(\w+)$"/>
+				<vars>
+					<var name="releaseType"/>
+				</vars>
+			</extract>
+
+			<!-- http://tunetraxx.org/?p=rss&action=download&tid=1736&pk= -->
+			<var name="torrentUrl">
+			    <var name="$baseUrl"/>
+				  <string value="/?p=rss&amp;action=download&amp;tid="/>
+				    <var name="$torrentId"/>
+				    <string value="&amp;pk="/>
+				    <var name="passkey"/>
+			</var>
+		</linematched>
+
+		<ignore>
+		</ignore>
+
+	</parseinfo>
+</trackerinfo>

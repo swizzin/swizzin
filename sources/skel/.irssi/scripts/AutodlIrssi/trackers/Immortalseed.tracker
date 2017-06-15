@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="is"
+	shortName="IS"
+	longName="Immortalseed"
+	siteName="immortalseed.tv">
+
+	<settings>
+		<description text="Go to https://immortalseed.tv/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your ImmortalSeed RSS feed link."
+			pasteRegex="[\?&amp;]secret_key=([\da-fA-F]{32})"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="Immortalseed"
+			serverNames="irc.immortalseed.tv"
+			channelNames="#immortal"
+			announcerNames="thoth"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--ImmortalSeed - Category: ( TV - High Definition ) Torrent: ( The.Mindy.Project.S02E10.720p.HDTV.X264-DIMENSION ) Size: ( 760.00 MB ) Link: ( https://immortalseed.tv/details.php?id=275757 ) -->
+				<regex value="^\s*ImmortalSeed\s*-\s*Category:\s*\(([^)]*)\)\s*Torrent:\s*\(([^)]*)\)\s*Size:\s*\(([^)]*)\)\s*Link:\s*\(\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--ImmortalSeed - Category: ( Movies-HD ) Torrent: ( Family Guy Blue Harvest 2007 1080p BluRay x264-TRiS ) Size: ( 4.38 GB ) Link: ( https://immortalseed.tv/details.php?id=274877 ) -->
+				<regex value="^\s*ImmortalSeed\s*-\s*Category:\s*\(([^)]*)\)\s*Torrent:\s*\(([^)]*)\)\s*Size:\s*\(([^)]*)\)\s*Link:\s*\(\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?type=rss&amp;secret_key="/>
+				<var name="passkey"/>
+				<string value="&amp;id="/>
+				<var name="$torrentId"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="details\.php\?id=\d+" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

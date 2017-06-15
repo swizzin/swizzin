@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bb"
+	shortName="BB"
+	longName="Baconbits"
+	siteName="">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="BaconBits"
+			serverNames="irc.baconbits.org"
+			channelNames="#torrents"
+			announcerNames="BaconBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--user1 uploaded: Something - Else (Single) [2011] - MP3 / V0 (VBR) / Web - https://XXXXXXXXXXXXXX/torrents.php?id=1234&torrentid=12345 - metal, djent, progressive metal-->
+				<regex value="^\s*(\S+) uploaded: (.*)-\s+https?\:\/\/([^\/]+\/).*[&amp;\?]torrentid=(\d+)\S*\s*-(.*)"/>
+				<vars>
+					<var name="uploader"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<varreplace name="tags" srcvar="tags" regex="[\._]" replace=" "/>
+
+			<extractone>
+				<extract srcvar="torrentName">
+					<regex value="^(.+?) - ([^\[]+).*\[(\d{4})\]\s*-([^\-\[\]]+)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="name2"/>
+						<var name="year"/>
+						<var name="$releaseTags"/>
+					</vars>
+				</extract>
+				<extract srcvar="torrentName">
+					<regex value="^([^\-]+)\s+-\s+(.+)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="name2"/>
+					</vars>
+				</extract>
+				<extract srcvar="torrentName">
+					<regex value="(.*)"/>
+					<vars>
+						<var name="name1"/>
+					</vars>
+				</extract>
+			</extractone>
+
+			<extract srcvar="$releaseTags" optional="true">
+				<regex value="([\d\.]+)%"/>
+				<vars>
+					<var name="logScore"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,4}|\d+\.\d+|q\d+\.[\dx]+|Other)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|WEB)$"/>
+
+				<setvarif varName="scene" value="Scene" newValue="true"/>
+				<setvarif varName="log" value="Log" newValue="true"/>
+				<setvarif varName="cue" value="Cue" newValue="true"/>
+
+				<!--Ignored-->
+				<regex value="^(?:5\.1 Audio|\.m4a|Various.*|~.*|&gt;.*)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\s*(\S+) requested:"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

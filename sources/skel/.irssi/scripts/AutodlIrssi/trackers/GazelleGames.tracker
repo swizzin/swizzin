@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="gg"
+	shortName="GG"
+	longName="GazelleGames"
+	siteName="gazellegames.net">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="GGn"
+			serverNames="irc.gazellegames.net"
+			channelNames="#Announce"
+			announcerNames="Vertigo"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--user - Uploaded: || PC - Big_Rigs_Over_the_Road_Racing_NFO_FIX-Razor1911 in Big Rigs: Over the Road Racing [-2003-] - (English, Scene) - http://gazellegames.net/torrents.php?id=4684 -OR- http://gazellegames.net/torrents.php?action=download&id=7018 - racing -->
+				<!--user - Uploaded: || Hatoful Boyfriend Holiday Star in Hatoful Boyfriend Holiday Star [-2012-] - (English, Home Rip) - http://gazellegames.net/torrents.php?id=4687 -OR- http://gazellegames.net/torrents.php?action=download&id=7019 - visual.novel,indie, adventure -->
+				<regex value="^\s*(\S+) - Uploaded: \|\|(.*) - https?\:\/\/.*\s+https?\:\/\/([^\/]+\/)torrents.php\?action=download[&amp;\?]id=(\d+)\S*\s*.*"/>
+				<vars>
+					<var name="uploader"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<setregex srcvar="torrentName" regex="Scene\)" varName="scene" newValue="true"/>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\s*New thread:"/>
+			<regex value="^\s*User not found"/>
+			<regex value="^\s*\[ .* \] ::  \[ Class"/>
+			<regex value="^New Game Request:"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

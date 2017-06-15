@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="norbits"
+	shortName="NorBits"
+	longName="NorBits"
+	siteName="norbits.net">
+
+	<settings>
+		<description text="Paste any NorBits torrent download link."/>
+		<passkey tooltiptext="The passkey from your NorBits download link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="NB-IRC"
+			serverNames="irc.norbits.net"
+			channelNames="#Norbits"
+			announcerNames="NB"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<regex value="Ny torrent: (.*) :: Kategori: (.*) :: Scene: (.*) :: St[&#248;]rrelse: (.*) :: http?\:\/\/([^\/]+\/).*[\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$scene"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="$scene" regex="Ja" varName="scene" newValue="true"/>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+			<var name="torrentSslUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^Ny torrent:" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

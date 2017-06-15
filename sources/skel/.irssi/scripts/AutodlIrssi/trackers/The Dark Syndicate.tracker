@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -   Haxthausen
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tds"
+	shortName="TDS"
+	longName="The Dark Syndicate"
+	siteName="thedarksyndicate.me">
+
+	<settings>
+		<gazelle_description text="Go to RSS Feeds > All Torrents and copy the RSS link of any torrent. Paste it (Ctrl+V) into any one of the two text boxes below to automatically extract authkey and torrent_pass."/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="The Dark Syndicate"
+			serverNames="irc.thedarksyndicate.me"
+			channelNames="#announce"
+			announcerNames="TheDarkBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--TV/HD-X264 .:. Labyrinth.2012.Part.2.HDTV.XViD-PSiG .:. Auto .:. Pretime:  .:. https://thedarksyndicate.me/browse.php?id=98632 .:. https://thedarksyndicate.me/browse.php?action=download&id=97560-->
+				<regex value="^(.*) .:. (.*) .:. (.*) .:. Pretime: (.*) .:. https?.* .:. https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="uploader"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<!--https://thedarksyndicate.me/browse.php?id=98632-->
+				<!--https://thedarksyndicate.me/browse.php?dl=98632-->
+				<!--https://thedarksyndicate.me/browse.php?action=download&id=97560-->
+				<!--http://thedarksyndicate.me/rssdownload.php?id=97560&authkey=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&torrent_pass=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-->
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="rssdownload.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^pm'ing .*"/>
+			<regex value="^sending .*"/>
+			<regex value="^.*\] \[.*"/>
+			<regex value="^.* there was no results for .*"/>
+			<regex value="^Your quote has been added .*"/>
+			<regex value="^You cannot delete .*"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

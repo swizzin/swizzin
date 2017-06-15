@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="schd"
+	shortName="SCHD"
+	longName="SceneHD"
+	siteName="scenehd.org"
+	follow302links="false">
+
+	<settings>
+		<description text="Go to https://scenehd.org/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="SceneHD"
+			serverNames="irc.scenehd.eu"
+			channelNames="#scenehd,#announce"
+			announcerNames="SceneHD"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[NEW] 24.S08E20.EXTENDED.720p.BluRay.X264-WASABi [TV/720] https://scenehd.org/details.php?id=37403-->
+				<regex value="^\[NEW](.*)\[([^\]]+)] https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="torrentName" regex="\.1x01|S01E01|SceneHD$" varName="freeleech" newValue="true"/>
+			<setregex srcvar="category" regex="Bluray\/Complete" varName="freeleech" newValue="true"/>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^Torrent:"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

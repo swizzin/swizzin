@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="dks"
+	shortName="dks"
+	longName="DK-Scene"
+	siteName="dk-scene.org">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any DK-Scene RSS link into the box below to automatically extrart the passkey"/>
+		<passkey pasteRegex="[&amp;]torrent_pass=([\da-fA-F]{32})" tooltiptext="Paste your DK-Scene RSS link here."/>
+	</settings>
+
+	<servers>
+		<server
+			network="DK-Scene.org"
+			serverNames="irc.DK-Scene.org"
+			channelNames="#Announce"
+			announcerNames="DK-Scene"
+		/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!-- NYT UPLOAD ~ Krigen 2015 DANiSH BDRip x264-x264ERFREMTiDEN (Danish-HD) ~ https://dk-scene.org/details.php?id=1872&hit=1 -->
+				<regex value="NYT UPLOAD ~ ([^\(]+) \(([^\)]+)\) ~ (https?:\/\/[^\/]+\/)[^=]+=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<!-- https://www.dk-scene.org/download.php?torrent=1398&passkey= -->
+			<!-- https://dk-scene.org/download.php?torrent=1435&torrent_pass= -->
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

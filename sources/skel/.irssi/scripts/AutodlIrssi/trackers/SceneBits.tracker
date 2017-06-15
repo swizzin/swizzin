@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="scb"
+	shortName="ScB"
+	longName="SceneBits"
+	siteName="www.scenebits.info">
+
+	<settings>
+		<description text="Go to https://scenebits.info/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your ScB RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="SceneBits"
+			serverNames="irc.scenebits.info"
+			channelNames="#sbits-announce"
+			announcerNames="ScB-Bot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--NEW in  Music => Mark_Knight_-_Glow_Radio-SAT-06-04-2011-TALiON :: Size: 89.34 MB :: Uploaded: 7 seconds after pre. :: https://scenebits.info/details.php?id=34776-->
+				<!--NEW in  Music => Bad Meets Evil-Hell The Sequel (EP)-2011-pee2pee :: Size: 43.86 MB :: https://scenebits.info/details.php?id=34892-->
+				<regex value="^NEW in (.*)=>(.*)::\s*Size:([^:]*)(?::: Uploaded:([^:]*))?\s*::\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<varenc name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

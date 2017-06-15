@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="think"
+	shortName="TGN"
+	longName="Think-Geek"
+	siteName="think-geek.net">
+
+	<settings>
+		<description text="Coller ici (Ctrl+V) un lien RSS de think-geek.net pour extraire automatiquement votre passkey."/>
+		<passkey
+			tooltiptext="passkey du flux RSS think-geek"
+			pasteRegex="[&amp;]pk=([\da-zA-Z]{40})"/>
+	</settings>
+
+	<servers>
+		<server
+			network="think"
+			serverNames="irc.think-pictures.biz"
+			channelNames="#think-geek"
+			announcerNames="TGN"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<!--[Serie VF] [The.Chicago.Code.S01E13.FiNAL.FRENCH.HDTV.x264-SRiZ] [296.53 MB] [ https://think-geek.net/?p=torrents&pid=10&action=details&tid=34882 ]-->
+			<extract>
+				<regex value="^\[(.*?)\] \[(.*?)\] \[(.*?)\] \[ https?\:\/\/([^\/]+\/).*tid=(.*) \]"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="?p=rss&amp;action=download&amp;tid="/>
+				<var name="$torrentId"/>
+				<string value="&amp;pk="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

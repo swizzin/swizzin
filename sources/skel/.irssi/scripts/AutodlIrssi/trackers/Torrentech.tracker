@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ttech"
+	shortName="ttech"
+	longName="Torrentech"
+	siteName="torrentech">
+
+	<settings>
+		<description text="Paste your passkey from My Controls."/>
+		<passkey tooltiptext="Your Torrentech.org passkey."/>
+	</settings>
+
+	<servers>
+		<server
+			network="torrentech"
+			serverNames="irc.torrentech.org"
+			channelNames="#announce"
+			announcerNames="ttbot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<extract>
+				<regex value="\[New Upload] in (.*)"/>
+				<vars>
+					<var name="category"/>
+				</vars>
+			</extract>
+
+			<extract>
+				<regex value="\[Release] (.*) \*{3} (.*) \*{3}"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+
+			<extract>
+				<regex value="\[Link] (https?://.*)\?showtopic=(\d+)"/>
+				<vars>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<extract srcvar="torrentName" optional="true">
+				<regex value="(.*?) - (.*)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="name2"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="tags" split="/">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg Vorbis|AAC|AC3|DTS)$"/>
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:v\d+|\d{2,4})"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="?act=attach&amp;type=post&amp;passkey="/>
+				<var name="passkey"/>
+				<string value="&amp;id="/>
+				<var name="$torrentId"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="sparvar"
+	shortName="Sparvar"
+	longName="Sparvar"
+	siteName="Sparvar.org">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any Sparvar download link into the box below to automatically extract the authkey."/>
+		<authkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="Rizon"
+			serverNames="irc.rizon.net"
+			channelNames="#Sparvar"
+			announcerNames="SparvGuden"
+		/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!-- [Sparvar] EPL.2015.05.17.Manchester.United.vs.Arsenal.SWEDiSH.720p.HDTV.x264-PRiNCE - https://www.sparvar.org/details.php?id=93564 -->
+				<!-- [Sparvar] Apollo.13.1995.REMASTERED.1080p.BluRay.Remux.AVC.DTS-HD.MA.5.1-HDX - https://www.sparvar.org/details.php?id=93565 -->
+				<!-- [Sparvar] FC.Z.S02.SWEDiSH.PDTV.XviD-SPARVAR - https://www.sparvar.org/details.php?id=93562 -->
+				<!-- [Sparvar] Sparlost.S10.SWEDiSH.WEBRip.x264-SPARVAR - https://www.sparvar.org/details.php?id=93566 -->
+				<!-- [Sparvar] Sparlost.S09E03.SWEDiSH.WEBRip.x264-SweWR [3m, 03s efter pre] -  https://www.sparvar.org/details.php?id=93563 -->
+				<!-- [Sparvar] VM.med.Wikegard.2015.E10.SWEDiSH.720p.HDTV.x264-CCCAM [2m, 45s efter pre] - https://www.sparvar.org/details.php?id=93567 -->
+				<!-- [Sparvar] Svenska.Cupen.2015.Final.IFK.Goteborg.vs.Orebro.SWEDiSH.720p.HDTV.x264-PRiNCE [7m, 22s efter pre] - https://www.sparvar.org/details.php?id=93569 -->
+				<!-- [Sparvar] Svenska.Cupen.2015.Final.IFK.Goteborg.vs.Orebro.SWEDiSH.720p.HDTV.x264-PRiNCE [33s efter pre] - https://www.sparvar.org/details.php?id=93568 -->
+				<regex value="\[Sparvar\] ([^\[]+)(?: \[(.*) efter pre\])? - (.*\/).*=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="preTime"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<!-- https://www.sparvar.org/download.php?id=93564&authkey= -->
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

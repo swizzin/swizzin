@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="32P"
+	shortName="32PAGES"
+	longName="32PAGES"
+	siteName="32pag.es">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="32P"
+			serverNames="irc.32pag.es"
+			channelNames="#announce"
+			announcerNames="Voltron"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[ Freeleech! ] [ Dynamite Entertainment ] Pathfinder #Volume 1-#2 (Empire) - https://32pag.es/torrents.php?id=1050 / https://32pag.es/torrents.php?action=download&id=33399-->
+				<!--[ Marvel ] Hulk v3 #1-#7+Annual (Minutemen-InnerDemons) - https://32pag.es/torrents.php?id=1882 / https://32pag.es/torrents.php?action=download&id=33443-->
+				<regex value="(\[ Freeleech! \] )?\[(.*)\] (.*) - https?://.* / (https?://.*id=\d+)"/>
+				<vars>
+					<var name="$freeleech"/>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="$freeleech" regex="Freeleech!" varName="freeleech" newValue="true"/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value=".*\((.*)\)"/>
+				<vars>
+					<var name="releaseGroup"/>
+				</vars>
+			</extract>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

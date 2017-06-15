@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hdl"
+	shortName="HDL"
+	longName="HD4Free"
+	siteName="hd4free.xyz">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any hd4free.xyz torrent direct download (RSS) link into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your hd4free RSS feed."
+			pasteRegex="[&amp;]torrent_pass=([\da-fA-F]{32})"/>
+	</settings>
+
+	<servers>
+		<server
+			network="HD4FREE-IRC"
+			serverNames="irc.hd4free.xyz"
+			channelNames="#announce"
+			announcerNames="NuLL"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent: 47 Ronin 2013 BluRay 1080p DTS-HD x264-LEGi0N By: greyshadow Size: 11.29 GB Link: https://hd4free.xyz/details.php?id=3940-->
+				<regex value="New Torrent: (.*) By: (.*) Size: (.*) Link: https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="uploader"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

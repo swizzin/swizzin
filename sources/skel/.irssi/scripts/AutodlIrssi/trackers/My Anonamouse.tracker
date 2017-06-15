@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="mam"
+	shortName="MAM"
+	longName="My Anonamouse"
+	siteName="www.myanonamouse.net">
+
+	<settings>
+		<cookie_description/>
+		<description text="&lt;br&gt;&lt;strong&gt;Required Keys:&lt;/strong&gt; mam_id (Changes monthly)."/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="ANONAMOUSE"
+			serverNames="irc.myanonamouse.net"
+			channelNames="#announce"
+			announcerNames="MouseBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent :  A Madman Dreams of Turing Machines [REQUESTED] Category: ( Ebooks - General Non-Fiction ) Size: ( 1.66 MB ) Link: ( https://www.myanonamouse.net/t/199645 )-->
+				<!--New Torrent :  The Economist - 7 November 2015 (pdf) By: The Economist Group Category: ( Ebooks - Magazines/Newspapers ) Size: ( 62.06 MB ) Link: ( https://www.myanonamouse.net/t/273837 ) VIP-->
+				<regex value="New Torrent :(.*) Category:\s*\((.*)\) Size: \((.*)\) Link: \(\s*https?\:\/\/([^\/]+\/).*?(\d+)\s*\)\s*(VIP)?"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="$vip"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+			<setregex srcvar="$vip" regex="VIP" varName="freeleech" newValue="true"/>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="tor/download.php?tid="/>
+				<var name="$torrentId"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="scc"
+	shortName="SCC"
+	longName="SceneAccess"
+	siteName="www.sceneaccess.eu">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any SceneAccess torrent download link into the text box below to automatically extract authkey."/>
+		<authkey
+			pasteRegex="/download/\d+/([a-fA-F\d]+)/"
+			tooltiptext="The authkey in any SceneAccess SSH torrent download link."
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="SceneAccess"
+			serverNames="irc.sceneaccess.eu,irc.sceneaccess.org"
+			channelNames="#announce"
+			announcerNames="SCC"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--NEW in Apps/0DAY: -> HomePlanSoft.Easy.Mail.Plus.v2.2.25.4-ARN (Uploaded 28 seconds after pre) - (5.61 MB) - (http://www.sceneaccess.org/details.php?id=233981)-->
+				<regex value="^NEW in ([^:]*): -> (.*) \(Uploaded (.+) after pre\) - \(([\d\.,]+ \w+)\) - \(https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="preTime"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--NEW in TV/XviD: -> No.Leave.No.Life.S01E02.WS.PDTV.XviD-HDCP (175.48 MB) - (http://www.sceneaccess.org/details.php?id=233976)-->
+				<regex value="^NEW in ([^:]*): -> (.*) \(([\d\.,]+ \w+)\) - \(https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)\)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="category" regex="Packs|Foreign|FLAC|MP3|MVID|^0DAY$" varName="freeleech" newValue="true"/>
+
+			<var name="scene">
+				<string value="true"/>
+			</var>
+
+			<setregex srcvar="category" regex="Non-Scene" varName="scene" newValue="false"/>
+
+			<if srcvar="category" regex="TV\/SD-x264|(Movies|TV)\/XviD">
+				<var name="resolution">
+					<string value="SD"/>
+				</var>
+			</if>
+
+			<var name="torrentUrl">
+				<string value="https://sceneaccess.eu/"/>
+				<string value="download/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="authkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

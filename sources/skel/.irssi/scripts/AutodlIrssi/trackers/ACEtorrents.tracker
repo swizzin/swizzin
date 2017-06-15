@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ace"
+	shortName="ACE"
+	longName="ACEtorrents"
+	siteName="www.acetorrents.net">
+
+	<settings>
+		<description text="Go to http://www.acetorrents.net/getrss.php to get the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your ACEtorrents RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#acetorrents"
+			announcerNames="Ace-Bot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--New Upload: Smash.Cut.2009.R1.NTSC.DVDR-CME-->
+			<!--Category: DVDR :: Pre Time: 13m, 38s ago-->
+			<!--URL: http://www.acetorrents.net/details.php?id=72138 -->
+			<!---->
+			<!--New Upload: Stargate.Universe.S01.Vol1.720p.BluRay.x264-SiNNERS-->
+			<!--Category: TV-DVDRIP-->
+			<!--URL: http://www.acetorrents.net/details.php?id=72139 -->
+			<!---->
+			<!--Requested Upload: Warren.Miller's.Children.of.Winter.2009.XviD.DVDRip-->
+			<!--Category: XVID-->
+			<!--URL: http://www.acetorrents.net/details.php?id=75052-->
+			<extract>
+				<regex value="^(New Upload|Requested Upload):(.*)"/>
+				<vars>
+					<var name="$newOrRequest"/>
+					<var name="torrentName"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Category:(.*?)(?::: Pre Time:(.*))?$"/>
+				<vars>
+					<var name="category"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^URL: https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="tags">
+				<string value="new"/>
+			</var>
+			<setregex srcvar="$newOrRequest" regex="^Requested Upload" varName="tags" newValue="request"/>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="rssdownload.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^(?:New Upload|Requested Upload):" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

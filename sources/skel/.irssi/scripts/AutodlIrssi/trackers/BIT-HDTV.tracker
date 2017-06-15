@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bithdtv"
+	shortName="bithdtv"
+	longName="BIT-HDTV"
+	siteName="www.bit-hdtv.com">
+
+	<settings>
+		<cookie_description/>
+		<description text="&lt;br&gt;&lt;strong&gt;Required Keys:&lt;/strong&gt; h_su, h_sp, h_sl."/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#bit-hdtv"
+			announcerNames="BHD-bot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!-- New torrent: Heat.1995.810p.BluRay.x264.DTS-PRoDJi | Cat.: Movies | x264 | | 720p | Uploader: wunschan | http://www.bit-hdtv.com/details.php?id=32224-->
+				<regex value="^\s*New torrent:(.*)\|\s*Cat.:([^\|]*)(.*)Uploader:([^\|]*)\|\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="tags"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<varreplace name="tags" srcvar="tags" regex="[\|]" replace=", "/>
+
+			<extracttags srcvar="tags" split=",">
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="Cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="^\s*New torrent:" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

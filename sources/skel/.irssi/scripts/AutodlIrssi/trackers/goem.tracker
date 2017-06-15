@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="goem"
+	shortName="goem"
+	longName="goem"
+	siteName="goem.org">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any goem torrent download link into any one of the two text boxes below to automatically extract passkey and uid."/>
+		<passkey
+			pasteGroup="passkey,uid"
+			pasteRegex="/[\d]+/[\d]+/([\da-fA-F]+)"
+			/>
+		<textbox
+			name="uid"
+			text="uid"
+			accesskey="i"
+			tooltiptext="The uid in any goem torrent download link."
+			pasteGroup="passkey,uid"
+			pasteRegex="/[\d]+/([\d]+)/[\da-fA-F]+"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#goem,#goem.announce"
+			announcerNames="Besch"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[New Torrent]  Cirque du Freak: The Vampire's Assistant [720P] - http://goem.org/details.php?id=23028-->
+				<!--[New Torrent]  "Leverage" The Morning After Job [S03] [E13] [720P] - BD/x264/AC3 - http://goem.org/details.php?torrent=26175-->
+				<regex value="^\[New Torrent\](.*)- https?\:\/\/([^\/]+\/).*[&amp;\?](?:id|torrent)=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<varreplace name="torrentName" srcvar="torrentName" regex='["]' replace=""/>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="uid"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\[New Torrent\]" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

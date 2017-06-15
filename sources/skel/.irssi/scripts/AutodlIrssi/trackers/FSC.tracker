@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="fsc"
+	shortName="FSC"
+	longName="FSC"
+	siteName="">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="Xevion.Net"
+			serverNames="irc.xevion.net"
+			channelNames="#funsharing"
+			announcerNames="annbot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--[Upload Title] WWE.Friday.Night.Smackdown.2010.21.10.HDTV.XviD-KYR [TV/XviD]-->
+			<!--[Dtail] https://xxxxx/details.php?id=97475-->
+			<!--[Trrnt] https://xxxxx/download.php/97475/qxxpcoyrkd.torrent-->
+			<extract>
+				<regex value="^\[Upload Title](.*)\[([^\]]*)]\s*$"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^\[Dtail]"/>
+				<vars/>
+			</extract>
+			<extract>
+				<regex value="^\[Trrnt]\s*(https?\:\S+\.torrent)\s*$"/>
+				<vars>
+					<var name="torrentUrl"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="^\[" expected="false"/>
+			<regex value="^\[New Request]"/>
+			<regex value="^\[Category]"/>
+			<regex value="^\[Torrent Recycle]"/>
+			<regex value="/reqdetails\.php"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

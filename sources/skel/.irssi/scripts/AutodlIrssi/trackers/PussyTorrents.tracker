@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="pussy"
+	shortName="PUSSY"
+	longName="PussyTorrents"
+	siteName="www.pussytorrents.org">
+
+	<settings>
+		<description text="Go to your profile and copy and paste your RSS link to extract the rsskey."/>
+		<textbox
+			name="rsskey"
+			text="rsskey"
+			accesskey="r"
+			tooltiptext="The rsskey in your PussyTorrents RSS feed link."
+			emptytext="PussyTorrents rsskey"
+			pasteGroup="rsskey"
+			pasteRegex="/([\da-fA-F]{20})"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="PussyTorrents.org"
+			serverNames="irc.pussytorrents.org"
+			channelNames="#pussytorrents"
+			announcerNames="_PussyBot_"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent Announcement: Name:'ClaraG COMPLETE SITERIP XXX WMV-PRONCLIPS' uploaded by 'Anonymous' -  http://www.pussytorrents.org/torrent/43718-->
+				<regex value="^New Torrent Announcement:\s*Name:'(.*)' uploaded by '([^']*)'\s*-\s*https?\:\/\/([^\/]+\/)torrent/(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="rss/download/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="rsskey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

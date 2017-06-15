@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tt"
+	shortName="TT"
+	longName="TranceTraffic"
+	siteName="www.trancetraffic.com">
+
+	<settings>
+		<description text="Go to http://www.trancetraffic.com/links.php and copy the RSS feed (direct download) link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#trancetraffic"
+			announcerNames="TranceTraffic"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!--New Torrent Uploaded:-->
+			<!--Name....: Brian Cheetham - Global Dance Session-SAT-01-30-2010-TALiON-->
+			<!--Uploader: Quintana-->
+			<!--Category: Livesets - House-->
+			<!--URL.....: http://www.trancetraffic.com/details.php?id=125796&hit=1-->
+			<extract>
+				<regex value="^New Torrent Uploaded:"/>
+				<vars/>
+			</extract>
+			<extract>
+				<regex value="^Name\.*:\s*(.*)"/>
+				<vars>
+					<var name="torrentName"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Uploader\.*:\s*(.*)"/>
+				<vars>
+					<var name="uploader"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^Category\.*:\s*(.*)"/>
+				<vars>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^URL\.*:\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent?passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value=""/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="morethan.tv"
+	shortName="Morethan.tv"
+	longName="Morethan.tv"
+	siteName="morethan.tv">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="morethan.tv"
+			serverNames="irc.morethan.tv"
+			channelNames="#Announce"
+			announcerNames="X"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Black.Sails.S02E01.720p.HDTV.x264-KILLERS [] - x264 / Other /  / Freeleech! - https://www.morethan.tv/torrents.php?id=3998 / https://www.morethan.tv/torrents.php?action=download&id=3554 - tv-->
+				<!--Penguins.Of.Madagascar.2014.WEB-DL.XviD.MP3-RARBG.5 [2014] - XviD / 720p / Web-DL / Freeleech! - https://www.morethan.tv/torrents.php?id=3999 / https://www.morethan.tv/torrents.php?action=download&id=3555 - comedy, animation-->
+				<!--Pride 2014 1080p BluRay DD5.1 x264-EbP [2014] - x264 / 1080p / BluRay / Freeleech! - https://www.morethan.tv/torrents.php?id=4000 / https://www.morethan.tv/torrents.php?action=download&id=3556 - comedy, drama-->
+				<regex value="(.*) - (.*) - https?://.* / (https?://.*id=\d+) - (.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="$baseUrl"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value=".* \[(\d+)?]"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|x264\-Hi10p|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<setvarif varName="freeleech" value="Freeleech!" newValue="true"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

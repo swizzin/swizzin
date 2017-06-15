@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - hn
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ff"
+	shortName="FF"
+	longName="FunFile"
+	siteName="www.funfile.org">
+
+	<settings>
+		<description text="Copy the RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your FunFile RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="FunFile"
+			serverNames="irc.funfile.org"
+			channelNames="#FunFile.org"
+			announcerNames="H3r4ut"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<extract>
+				<!--[New Shit] S.W.A.T.Firefight.2011.PROPER.NTSC.MULTi.DVDR-BonG [Movies] @ https://www.funfile.org/details.php?id=131267-->
+				<regex value="^\[New Shit\] (.*) \[([^\]]+)\] @ https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract optional="true">
+				<!--[Scene] Uploaded 33 secs after pre-->
+				<regex value="^(\[Scene\])\s+Uploaded(.*)after pre"/>
+				<vars>
+					<var name="$scene"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="$scene" regex="Scene" varName="scene" newValue="true"/>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tv"
+	shortName="TV"
+	longName="TorrentVault"
+	siteName="www.torrentvault.org">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="TV"
+			serverNames="irc.torrentvault.org"
+			channelNames="#tv,#tv-spam"
+			announcerNames="InfoVault"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--NEW -#- EPISODES/TV-XVID -#- Name: Nikita.S01E01.HDTV.XviD-LOL [27F/349.71MB] -#- Uploader: Anonymous (Regular) -#- Pre: 3 mins, 16 secs [Action/Drama] -#- https://www.torrentvault.org/torrents.php?id=138767-->
+				<!--NEW -#- MUSIC/MP3 -#- Name: Of_Montreal-False_Priest-2010-FNT [17F/75.55MB] -#- Uploader: Anonymous (Regular) -#- Pre: 1 min, 27 secs [Indie] -#- https://www.torrentvault.org/torrents.php?id=138766-->
+				<regex value="^NEW -#-(.*)-#- Name:(.*)\[\d+\s*F/([\d.,]+\s*\w?B)] -#- Uploader:\s*(\S+).*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<!--Get pre time and tag fields-->
+			<extract srcvar="line" optional="true">
+				<regex value="Pre:([^\[\-]*)(?:\[([^\]]*)])?"/>
+				<vars>
+					<var name="preTime"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+			<varreplace name="tags" srcvar="tags" regex="[\/]" replace=", "/>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^NEW in NOTICE"/>
+			<regex value="^NEW -#-" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

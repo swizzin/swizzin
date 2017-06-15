@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="waffles"
+	shortName="Waffles"
+	longName="Waffles"
+	siteName="waffles.fm"
+	follow302links="true">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any Waffles torrent download link into any one of the two text boxes below to automatically extract passkey and uid."/>
+		<passkey
+			pasteGroup="passkey,uid"
+			pasteRegex="[\?&amp;]passkey=([\da-fA-F]{40})"
+			/>
+		<textbox
+			name="uid"
+			text="uid"
+			accesskey="i"
+			tooltiptext="The uid in any Waffles torrent download link."
+			pasteGroup="passkey,uid"
+			pasteRegex="[\?&amp;]uid=(\d+)"
+			/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net,irc.p2p-irc.net"
+			channelNames="#waffles.fm-announce"
+			announcerNames="Waffles"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Eminem - Slim Shady LP [1999/CD/FLAC/Lossless] - https://www.waffles.fm/details.php?id=919362-->
+				<regex value="(.*)-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+			<var name="log">
+				<string value="false"/>
+			</var>
+
+			<!--Extract release tags from torrent name-->
+			<extract srcvar="torrentName" optional="true">
+				<regex value="\[([^\]]*)\][^\]]*$"/>
+				<vars>
+					<var name="$releaseTags"/>
+				</vars>
+			</extract>
+
+			<!--Get year-->
+			<extract srcvar="$releaseTags" optional="true">
+				<regex value="(?:^|[\[\/])\s*((?:18|19|20)\d\d)\s*(?:$|[\]\/])"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<varreplace name="tags" srcvar="$releaseTags" regex="[\/]" replace=", "/>
+
+			<extractone>
+				<extract srcvar="torrentName">
+					<!--Thinkfreak - Better This Way EP [SONICULTURE] (Web) [2010-MP3-320] (Scene)-->
+					<regex value="^(.+?) - (.*)\[[^\]]*\][^\]]*$"/>
+					<vars>
+						<var name="name1"/>
+						<var name="name2"/>
+					</vars>
+				</extract>
+				<extract srcvar="torrentName">
+					<regex value="^(.+?) - (.*)"/>
+					<vars>
+						<var name="name1"/>
+						<var name="name2"/>
+					</vars>
+				</extract>
+				<extract srcvar="torrentName">
+					<regex value="(.*)"/>
+					<vars>
+						<var name="name1"/>
+					</vars>
+				</extract>
+			</extractone>
+
+			<!--If (Web) is found, set media to WEB-->
+			<setregex srcvar="torrentName" regex="\(web\)" varName="media" newValue="WEB"/>
+
+			<!--If (Scene) is found, set media to WEB-->
+			<setregex srcvar="torrentName" regex="\(scene\)" varName="scene" newValue="true"/>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg|AAC|AC3|DTS)$"/>
+
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,3}|\d+\.\d+|q\d+\.[\dx]+)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|WEB|Other)$"/>
+
+				<setvarif varName="log" value="Log" newValue="true"/>
+
+				<!--Ignored-->
+				<regex value="^(?:18|19|20)\d\d$"/>
+				<regex value="^Multichannel$"/>
+				<regex value="^(?:PDF|EP|iTunes Plus|VO|Medical|avg|iso|UB|Serial|VO.*|Various|Intel|SN|JPG|volume SN|PC|MAC|KG)$"/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="uid"/>
+				<string value="/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent?passkey="/>
+				<var name="passkey"/>
+				<string value="&amp;uid="/>
+				<var name="uid"/>
+				<string value="&amp;rss=1"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

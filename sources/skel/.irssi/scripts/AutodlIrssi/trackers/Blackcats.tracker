@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bcg"
+	shortName="BCG"
+	longName="Blackcats"
+	siteName="www.blackcats-games.net">
+
+	<settings>
+		<description text="Go to https://www.blackcats-games.net/feeds.php and click on Generate RSS feed!, copy the Generated RSS Feed from the top"/>
+		<passkey
+			tooltiptext="The passkey in your blackcats-games rss feed"
+			pasteRegex="[\?&amp;]passkey=([\da-fA-F]{32})"
+		/>
+	</settings>
+
+	<servers>
+		<server
+			network="BCnet"
+			serverNames="irc.blackcats-games.net,blackcats-games.net"
+			channelNames="#blackcats"
+			announcerNames="snarf"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--| Blackcats 2.2: New Torrent  'Pajama.Sam.No.Need.To.Hide.When.Its.Dark.Outside' in 'PC'  has been uploaded by 'd3xtro' | http://www.blackcats-games.net/details.php?id=43900&hit=1-->
+				<!--| Blackcats 2.2: Request '[REQ:25417] Obscure.2-RELOADED' in 'PC' has been uploaded by 'Hidden' | http://www.blackcats-games.net/details.php?id=43904&hit=1-->
+				<!--| Blackcats 2.2: Recycled Torrent  'Saints.Row.2.MULTi3.PAL.XBOX360-WARG' in 'XBOX 360'  has been recycled | http://www.blackcats-games.net/details.php?id=25680&hit=1-->
+				<regex value="^\| Blackcats[^:]*:\s*(?:New Torrent|Request|Recycled Torrent)\s*'(?:\[REQ:\d+\])?(.*)' in '(.*)'\s*has been (?:uploaded by '(.*)'|recycled)\s*\| https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="tags">
+				<string value="new"/>
+			</var>
+			<setregex srcvar="origLine" regex="^\| Blackcats[^:]*: Request" varName="tags" newValue="request"/>
+			<setregex srcvar="origLine" regex="^\| Blackcats[^:]*: Recycled Torrent" varName="tags" newValue="recycled"/>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download_new.php/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\| Blackcats[^:]*:" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

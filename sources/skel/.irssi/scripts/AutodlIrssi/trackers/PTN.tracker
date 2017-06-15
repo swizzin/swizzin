@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ptn"
+	shortName="PTN"
+	longName="PTN"
+	siteName="">
+
+	<settings>
+		<description text="Check the RSS feed for your passkey."/>
+		<passkey/>
+	</settings>
+
+	<servers>
+		<server
+			network="TiK-T0K"
+			serverNames="irc.tik-t0k.net"
+			channelNames="#piratethe.net,#ptn.announce"
+			announcerNames="PTNBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New in 720P: Rabbit.Without.Ears.II.2009.ROSUB.720p.BluRay.x264-ZoNE with 4.37 GB in 2F @ https://PTN/moviedetails.php?movieid=7036 https://PTN/details.php?id=65157> -->
+				<regex value="^New in (.*)\:(.*) with (.*) in .*\s*https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="^\[DiAM0ND F0UND\]"/>
+			<regex value="^Welcome To Our"/>
+			<regex value="^User:"/>
+			<regex value="^Sending help to"/>
+			<regex value="^Users.........:"/>
+			<regex value="^Peers.........:"/>
+			<regex value="^Seeders......:"/>
+			<regex value="^Leechers.....:"/>
+			<regex value="^S\/L Ratio.....:"/>
+			<regex value="^No matches found for"/>
+			<regex value="^Error"/>
+			<regex value="^Flood-Control:"/>
+			<regex value="^\[Title\]"/>
+			<regex value="^\[Directed By\]"/>
+			<regex value="^\[Released\]"/>
+			<regex value="^\[Cast\]"/>
+			<regex value="^\[Plot\]"/>
+			<regex value="^\[Poster\]"/>
+			<regex value="^\[Runtime\]"/>
+			<regex value="^\[Link\]"/>
+			<regex value="^Torrent:"/>
+			<regex value="^Link:"/>
+			<regex value="^Size:"/>
+			<regex value="^Found"/>
+			<regex value="^\[PTN B-DAY GiFT\]"/>
+			<regex value="^No matches :"/>
+			<regex value="^New request:"/>
+			<regex value="^\[Announcement\]"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

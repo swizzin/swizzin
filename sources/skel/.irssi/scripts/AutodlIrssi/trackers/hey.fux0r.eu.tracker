@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="fux0r"
+	shortName="fux0r"
+	longName="fux0r"
+	siteName="hey.fux0r.eu">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="Corrupt-Net"
+			serverNames="irc.corrupt-net.org,irc.fux0r.eu"
+			channelNames="#fux0r"
+			announcerNames="XXX"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Filth ( Mean Bitches - Arielle Ferrera POV Slave Orders 2010 ) Formats ( wmv / wmv / SiteRip / Freeleech )  URL ( http://hey.fux0r.eu/torrents.php?id=14739 / https://ssl.fux0r.eu/torrents.php?id=14739 ) TID ( 15247 )-->
+				<regex value="^\s*New Filth\s*\((.*)\)\s*Formats\s*\((.*)\) URL.*http\:\/\/([^\/]+\/).*https\:\/\/([^\/]+\/).*\?id=.*TID \(\s*(\d+)\s*\)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="tags"/>
+					<var name="$baseUrl"/>
+					<var name="$baseSslUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<varreplace name="tags" srcvar="tags" regex="[\/]" replace=", "/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="[^\d]((?:19|20)\d\d)"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="^(.+?) - (.*)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="name2"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="tags" split=",">
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:DVDRip|DVDr|BluRay|Blu\-Ray|BRRip|HD\-DVDRip|BDRip|SiteRip|PPV|TVRip|VHSRip|IMGSet|Mixed)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<setvarif varName="scene" value="Scene" newValue="true"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+			<var name="torrentSslUrl">
+				<string value="https://"/>
+				<var name="$baseSslUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+
+</trackerinfo>

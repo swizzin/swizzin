@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -   acepilot1023
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hdts"
+	shortName="HDTS"
+	longName="HD-Torrents"
+	siteName="www.hd-torrents.org">
+
+	<settings>
+		<cookie_description text="FireFox -> Preferences -> Privacy -> Show Cookies and find the uid and pass cookies. Example: uid=1234; pass=asdf12347asdf13"/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net"
+			channelNames="#HD-Torrents.Announce"
+			announcerNames="AnnnnBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--New Torrent in category [XXX/Blu-ray] Erotische Fantasien 3D (2008) Blu-ray 1080p AVC DTS-HD MA 7 1 (14.60 GB) uploaded! Download: https://hd-torrents.org/download.php?id=806bc36530d146969d300c5352483a5e6e0639e9-->
+				<regex value="New Torrent in category \[([^\]]*)\] (.*) \(([^\)]*)\) uploaded! Download\: https?\:\/\/([^\/]+\/).*[&amp;\?]id=([a-f0-9]+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="/download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;f="/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="/download\.php" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="tbn"
+	shortName="TBN"
+	longName="Takeabyte-Nordic"
+	siteName="takeabyte-nordic.org">
+
+	<settings>
+		<description text="Go to Takeabyte-Nordic to get a RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your Takeabyte-Nordic RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="Takeabyte-Nordic"
+			serverNames="irc.takeabyte-nordic.org"
+			channelNames="#announce"
+			announcerNames="TBN"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!-- New Torrent Uploaded: Daencker Sommer Mix 2012 .:. Category: Audio -->
+			<!-- Size: 270.22 MB .:. URL: https://takeabyte-nordic.org/details.php?id=5061 -->
+
+			<!-- New Torrent Uploaded: Arne Dahl Dodsmassa 2015 SWEDISH CUSTOM PAL DVDR-LaLLa .:. Category: DVD-R -->
+			<!-- Size: 2.71 GB .:. URL: https://takeabyte-nordic.org/details.php?id=5062 -->
+
+			<!-- New Torrent Uploaded: Arne Dahl En Midsommarnattsdrom 2015 SWEDISH CUSTOM PAL DVDR-LaLLa .:. Category: DVD-R -->
+			<!-- Size: 2.49 GB .:. URL: https://takeabyte-nordic.org/details.php?id=5063 -->
+
+			<!-- New Torrent Uploaded: Arne Dahl Morkertal 2015 SWEDISH CUSTOM PAL DVDR-LaLLa .:. Category: DVD-R -->
+			<!-- Size: 2.16 GB .:. URL: https://takeabyte-nordic.org/details.php?id=5064 -->
+
+			<!-- New Torrent Uploaded: Beck Invasionen 2015 SWEDISH RETAiL SWESUB PAL DVDR-CDS .:. Category: Swedish -->
+			<!-- Size: 4.40 GB .:. URL: https://takeabyte-nordic.org/details.php?id=5065 -->
+
+			<!-- New Torrent Uploaded: Powers S01E01-E04 720p WEB-DL AAC 2 0-H.264-GREYHOUNDS .:. Category: TV-Series -->
+			<!-- Size: 3.46 GB .:. URL: https://takeabyte-nordic.org/details.php?id=5066 -->
+
+			<!-- New Torrent Uploaded: Powers S01E05 Retail DKsubs 720p WEB-DL H.264-RAPiDCOWS .:. Category: TV-Series -->
+			<!-- Size: 973.43 MB .:. URL: https://takeabyte-nordic.org/details.php?id=5067 -->
+
+			<extract>
+				<regex value="^.*: (.*) \.:\. Category: (.*)$"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="^.*: (.*) \.:\. URL: .*\/(.*\/).*id=(\d+)$"/>
+				<vars>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<!-- http://takeabyte-nordic.org/download.php?torrent=<ID>&passkey=<PASSKEY> -->
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

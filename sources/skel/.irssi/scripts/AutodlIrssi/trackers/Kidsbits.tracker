@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="Kb"
+	shortName="Kb"
+	longName="Kidsbits"
+	siteName="Kidsbits.org">
+
+	<settings>
+		<description text="Go to Kidsbits.org to get a RSS feed link. Paste it (Ctrl+V) into the text box below to automatically extract passkey."/>
+		<passkey tooltiptext="The passkey in your Takeabyte-Nordic RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="DK-Scene"
+			serverNames="irc.dk-scene.org"
+			channelNames="#Kidsbits.org"
+			announcerNames="Botty"
+			/>
+	</servers>
+
+	<parseinfo>
+		<multilinepatterns>
+			<!-- New Torrent Uploaded: Grand Theft Auto V FULL UNLOCKED-SG .:. Category: PC -->
+			<!-- Size: 60.06 GB .:. URL: https://kidsbits.org/details.php?id=3531 -->
+
+			<!-- New Torrent Uploaded: Grand Theft Auto V UPDATE v1-SG .:. Category: PC -->
+			<!-- Size: 352.75 MB .:. URL: https://kidsbits.org/details.php?id=3532 -->
+
+			<!-- New Torrent Uploaded: Grand Theft Auto V CRACK ONLY-SG .:. Category: PC -->
+			<!-- Size: 723.84 kB .:. URL: https://kidsbits.org/details.php?id=3533 -->
+
+			<!-- New Torrent Uploaded: Star Wars Rebels Spark Of Rebellion 2014 NORDiC PAL DVDR-4MYKIDS .:. Category: DVD-R -->
+			<!-- Size: 4.09 GB .:. URL: https://kidsbits.org/details.php?id=3537 -->
+
+			<!-- New Torrent Uploaded: Grand Theft Auto V Update 1 and Crack v2-3DM .:. Category: PC -->
+			<!-- Size: 860.70 MB .:. URL: https://kidsbits.org/details.php?id=3538 -->
+
+			<extract>
+				<regex value="New Torrent Uploaded: (.*) \.:\. Category: (.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+				</vars>
+			</extract>
+			<extract>
+				<regex value="Size: (.*) \.:\. URL:.*\/(.*\/).*=(\d+)"/>
+				<vars>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</multilinepatterns>
+		<linematched>
+			<!-- http://kidsbits.org/download.php?torrent=<ID>&passkey=<PASSKEY> -->
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

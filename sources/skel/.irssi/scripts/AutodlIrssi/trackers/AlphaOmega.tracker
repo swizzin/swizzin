@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ao"
+	shortName="AO"
+	longName="AlphaOmega"
+	siteName="www.AlphaOmega.me">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="AlphaOmega"
+			serverNames="irc.alphaomega.me"
+			channelNames="#AO.announce"
+			announcerNames="cerberus"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[New Release]-[TV|XviD]-[Craig.Ferguson.2010.11.30.D.J.Qualls.HDTV.XviD-2HD]-[URL]-[ http://www.AlphaOmega.me/torrents.php?id=2006 ]-[ 1933 ]-->
+				<!--[New Release]-[Movies|HD]-[When.Harry.Met.Sally.1989.720p.BluRay.X264-AMIABLE]-[URL]-[ https://www.alphaomega.me/torrents.php?id=16290 ]-[ 16224 ]-[ Uploaded 28 Mins, 46 Secs secs after pre. ]-->
+				<regex value="^\[New Release]-\[([^\]]+)]-\[([^\]]+)]-\[URL]-\[\s*https?\:\/\/([^\/]+\/)[^\]]*]-\[\s*(\d+)\s*](?:-\[\s*Uploaded ([^\]]*)])?"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="torrents.php?id=" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

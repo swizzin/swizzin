@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ab"
+	shortName="AB"
+	longName="AnimeBytes"
+	siteName="animebytes.tv">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="AnimeBytes"
+			serverNames="irc.animebytes.tv,keiko.animebytes.tv,irc.animebyt.es"
+			channelNames="#announce"
+			announcerNames="Satsuki"
+		/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Various Artists - Samurai Girl Real Bout High School Official Soundtrack [2003] :: MP3 / 320 / CD || https://tracker.url/torrents2.php?id=14923&torrentid=50957 || soundtrack || Uploaded by: Username-->
+				<!--Yume Kui: Tsurumiku Shiki Game Seisaku - OVA [2011] :: DVD / MKV / h264 / 704x396 / AAC / Softsubs (SubDESU-H) / Hentai (Censored) || https://tracker.url/torrents.php?id=8370&torrentid=50958 || nudity, sex, rape, virgins, erotic.game || Uploaded by: Username-->
+				<regex value="(.*) :: (.*) \|\| https?\:\/\/(.*)\?.*[&amp;\?]torrentid=(\d+) \|\| (.*) \|\|\s+Uploaded by: (.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+					<var name="uploader"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--Juubee Ninpuuchou - Movie [1993] :: Bluray / MKV / h264 / 960x720 / AC3 / Dual Audio / Softsubs (BluDragon) || https://tracker.url/torrents.php?id=788&torrentid=48514 || drama, ecchi, fantasy, historical, horror, martial.arts, seinen, supernatural, violence, nudity, ninjas, samurai, gore, action-->
+				<!--Stereopony - More! More!! More!!! [2011] :: FLAC / Lossless / CD || https://tracker.url/torrents2.php?id=13120&torrentid=48574 || pop, vocal-->
+				<regex value="(.*) :: (.*) \|\| https?\:\/\/(.*)\?.*[&amp;\?]torrentid=(\d+) \|\| (.*)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<varreplace name="tags" srcvar="tags" regex="[\.]" replace=" "/>
+
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<varreplace name="$releaseTags" srcvar="$releaseTags" regex="[\|]" replace="/"/>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="container" regex="^(?:AVI|MKV|VOB|MPEG|MP4|ISO|WMV|TS|M4V)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<setvarif varName="format" regex="^(?:MP3|FLAC|Ogg|AAC|AC3|DTS)$"/>
+				<setvarif varName="bitrate" regex="Lossless$"/>
+				<setvarif varName="bitrate" regex="^(?:vbr|aps|apx|v\d|\d{2,4}|\d+\.\d+|q\d+\.[\dx]+|Other)?(?:\s*kbps|\s*kbits?|\s*k)?(?:\s*\(?(?:vbr|cbr)\)?)?$"/>
+				<setvarif varName="media" regex="^(?:CD|DVD|Vinyl|Soundboard|SACD|DAT|Cassette|WEB)$"/>
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i)$"/>
+				<setvarif varName="$episodeString" regex="^Episode \d+$"/>
+				<setvarif varName="freeleech" value="Freeleech!" newValue="true"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value=".*\[(.*)\]"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<var name="torrentUrl">
+				<string value="https://"/>
+				<var name="$baseUrl"/>
+				<string value="?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+
+			<extract srcvar="$episodeString" optional="true">
+				<regex value="Episode (\d+)"/>
+				<vars>
+					<var name="episode"/>
+				</vars>
+			</extract>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="fano"
+	shortName="Fano"
+	longName="Fano.in"
+	siteName="www.fano.in">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="NetParks"
+			serverNames="irc.netparks.lv"
+			channelNames="#fano.lv-announce"
+			announcerNames="FANO-BOT"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[NEW] US TOP40 Single Charts 03 09 2011-MCG (Music) http://fano.lv/details.php?id=120297 [PRED 35 seconds ago]-->
+				<!--[NEW] Suits.S01E11.HDTV.XviD-LOL.(NO.RARS) (TV) http://fano.lv/details.php?id=120298-->
+				<regex value="^\[NEW](.*)\(([^)]*)\) https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+)\s*(?:\[PRED ([^\]]*)\])?"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="preTime"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://www.fano.in/"/>
+				<string value="download.php?id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;name="/>
+				<varenc name="torrentName"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   - THEGURUDK
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hd"
+	shortName="HD"
+	longName="HoundDawgs"
+	siteName="www.hounddawgs.org">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="HoundDawgs IRC"
+			serverNames="irc.hounddawgs.org"
+			channelNames="#announce"
+			announcerNames="Fido"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+					<!--[Musik] Riverside-Love_Fear_And_The_Time_Machine-(Limited_Edition)-2CD-2015-gnvr - https://hounddawgs.org/torrents.php?id=35442 - 152.52 MiB-->
+					<!--[Musik] [FreeLeech] Riverside-Love_Fear_And_The_Time_Machine-(Limited_Edition)-2CD-2015-gnvr - https://hounddawgs.org/torrents.php?id=35442 - 152.52 MiB-->
+					<!--[Film HD] To The Wonder 2012 Retail DKSubs 720p BluRay x264-TREATS - http://www.hounddawgs.org/torrents.php?id=1465 - 4.37 GB-->
+					<!--[Film HD] [FreeLeech] To The Wonder 2012 Retail DKSubs 720p BluRay x264-TREATS - http://www.hounddawgs.org/torrents.php?id=1465 - 4.37 GB-->
+					<regex value="\[([^\]]+)\](?:\s\[(FreeLeech)\])? (.*?) - (https?\:\/\/.*)id=(\d+) - (.*)"/>
+				<vars>
+					<var name="category"/>
+					<var name="$freeleech"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="torrentSize"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<setregex srcvar="$freeleech" regex="FreeLeech" varName="freeleech" newValue="true"/>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

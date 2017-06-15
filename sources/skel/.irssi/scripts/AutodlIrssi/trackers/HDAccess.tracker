@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="hda"
+	shortName="HDA"
+	longName="HDAccess"
+	siteName="hdaccess.net">
+
+	<settings>
+		<description text="Paste (Ctrl+V) any HDAccess torrent direct download (RSS) link into the text box below to automatically extract passkey."/>
+		<passkey
+			tooltiptext="The passkey in your HDAccess RSS feed."
+			pasteRegex="[&amp;]passkey=([\da-fA-F]{32})"/>
+	</settings>
+
+	<servers>
+		<server
+			network="P2P-NET"
+			serverNames="irc.p2p-network.net "
+			channelNames="#HDA.Announce"
+			announcerNames="HDABot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[ HDAccess ]  [ New Torrent: ] [ Mercenaries 2014 720p BluRay DTS x264-HDAccess ] [  Uploaded By: Anonymous ] [ Size: 5.91 GB ] [ Category: 720p ] [ Link: http://hdaccess.net/details.php?id=2777 ]-->
+				<!--[ HDAccess ]  [ New Torrent: ] [ Arrow S03E01 720p HDTV X264-DIMENSION ] [  Uploaded By: Anonymous ] [ Size: 1.04 GB ] [ Category: TV 720p ] [ Link: https://hdaccess.net/details.php?id=2774 ]-->
+				<regex value="\[ HDAccess \]  \[ New Torrent: \] \[ (.*) \] \[  Uploaded By:\s*(\S*) \] \[ Size: (.*) \] \[ Category: (.*) \] \[ Link: https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+) \]"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="uploader"/>
+					<var name="torrentSize"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php?torrent="/>
+				<var name="$torrentId"/>
+				<string value="&amp;passkey="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>
+

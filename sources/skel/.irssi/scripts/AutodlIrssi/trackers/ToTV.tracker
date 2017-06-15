@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+  - Version: MPL 1.1
+  -
+  - The contents of this file are subject to the Mozilla Public License Version
+  - 1.1 (the "License"); you may not use this file except in compliance with
+  - the License. You may obtain a copy of the License at
+  - http://www.mozilla.org/MPL/
+  -
+  - Software distributed under the License is distributed on an "AS IS" basis,
+  - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+  - for the specific language governing rights and limitations under the
+  - License.
+  -
+  - The Original Code is IRC Auto Downloader.
+  -
+  - The Initial Developer of the Original Code is
+  - David Nilsson.
+  - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+  - the Initial Developer. All Rights Reserved.
+  -
+  - Contributor(s):
+  -
+  - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ToTV"
+	shortName="ToTV"
+	longName="ToTV"
+	siteName="titansof.tv">
+
+	<settings>
+		<textbox
+			name="apikey"
+			text="apikey"
+			accesskey="i"
+			tooltiptext="The api key found in your ToT profile."
+		/>
+	</settings>
+
+	<servers>
+		<server
+			network="TimberWolves"
+			serverNames="irc.timberwolves.in"
+			channelNames="#tot-announce"
+			announcerNames="Titan"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[ The Walking Dead - S05E03 - Four Walls and a Roof ] [MKV / h.264 / WEB-DL / 720p / User] [ The.Walking.Dead.S05E03.720p.WEB-DL.DD5.1.H.264-Cyphanix ] [ AMC ] [ By: xxxx ] [ http://titansoftv.com/api/torrents/666/download ] -->
+				<!--[ Game of Thrones - Season 4 ] [MKV / x264 / Bluray / 720p / Scene] [ Game.of.Thrones.S04.720p.BluRay.x264-DEMAND ] [ HBO ] [ By: xxx ] [ http://titansoftv.com/api/torrents/650/download ] -->
+				<regex value="\[ ([^-.]+ - [A-Za-z0-9| ]+).*\] \[(.* \/ .* \/ .* \/ .* \/ .*)\] \[ (.*) \] \[ (.*) \] \[ By: (.*) \] \[ (https?:\/\/.*) \]"/>
+				<vars>
+					<var name="$title"/>
+					<var name="$releaseTags"/>
+					<var name="torrentName"/>
+					<var name="$network"/>
+					<var name="uploader"/>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<extract srcvar="$title" optional="true">
+				<regex value="Season 0?(\d+)"/>
+				<vars>
+					<var name="season"/>
+				</vars>
+			</extract>
+
+			<extract srcvar="$title" optional="true">
+				<regex value="S0?(\d+)E0?(\d+)"/>
+				<vars>
+					<var name="season"/>
+					<var name="episode"/>
+				</vars>
+			</extract>
+
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="releaseTags" regex="Scene" varName="scene" newValue="true"/>
+
+			<extracttags srcvar="releaseTags" split=",">
+				<setvarif varName="origin" regex="^(?:None|Scene|P2P|Internal|User|Mixed)$"/>
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|x264\-Hi10p|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+				<setvarif varName="container" regex="^(?:AVI|MKV|VOB|MPEG|MP4|ISO|WMV|TS|M4V|M2TS)$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="?apikey="/>
+				<var name="apikey"/>
+			</var>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

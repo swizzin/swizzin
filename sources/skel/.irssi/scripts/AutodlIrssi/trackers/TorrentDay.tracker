@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="td"
+	shortName="TD"
+	longName="TorrentDay"
+	siteName="TorrendDay.com">
+
+	<settings>
+		<description text="Go to TorrentDay site and click on your username to find your passkey."/>
+		<passkey tooltiptext="Copy the passkey from your details page"/>
+	</settings>
+
+	<servers>
+		<server
+			network="TorrenNTDay"
+			serverNames="irc.torrentday.com"
+			channelNames="#td.announce, #td.announce2"
+			announcerNames="TD_Announce, SimonSays"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[TV/x264] LBX Little Battlers Experience S01E06 720p HDTV x264-W4F - https://www.torrentday.com/details.php?id=1340045 - 461.734 MB-->
+				<!--[Movie/Bluray] Bad.Boys.II.2003.1080p.BluRay.DTS-HD.MA.5.1.x264-SiMPLE FREELEECH - https://www.torrentday.com/details.php?id=1335201 - 22.772 GB-->
+				<regex value="\[(.*?)\] (.*?) - (https?://.*/).*id=(\d+) - (.*)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="torrentSize"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="freeleech">
+				<string value="false"/>
+			</var>
+
+			<setregex srcvar="torrentName" regex="FREELEECH" varName="freeleech" newValue="true"/>
+			<varreplace name="torrentName" srcvar="torrentName" regex="FREELEECH" replace=""/>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent?torrent_pass="/>
+				<var name="passkey"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="details\.php\?id=\d+" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

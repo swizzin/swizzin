@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="swarm"
+	shortName="SWARM"
+	longName="SWARM"
+	siteName="theswarm.me">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="Swarm-Network"
+			serverNames="irc.swarm-network.me"
+			channelNames="#announce"
+			announcerNames="Julie"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--Reservoir Dogs [1992] - XviD/AVI/Blu-Ray/576p - http://theswarm.me/torrents.php?id=500 / http://theswarm.me/torrents.php?action=download&id=181 - comedy, crime-->
+				<!--Centurion [2010] - XviD/AVI/DVD/576p Scene  - http://theswarm.me/torrents.php?id=23759 / http://theswarm.me/torrents.php?action=download&id=182 - action, adventure, drama, history, thriller-->
+				<regex value="^(.*)-\s*https?\:\/\/([^\/]+\/).*[&amp;\?]action=download&amp;id=(\d+)\s+-(.*)$"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+					<var name="tags"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="scene">
+				<string value="false"/>
+			</var>
+
+			<extract srcvar="torrentName">
+				<regex value=".* - (.*?)(Scene)?$"/>
+				<vars>
+					<var name="category"/>
+					<var name="$scene"/>
+				</vars>
+			</extract>
+			<if srcvar="$scene" regex="^Scene$">
+				<var name="scene">
+					<string value="true"/>
+				</var>
+			</if>
+
+			<varreplace name="$releaseTags" srcvar="category" regex="/" replace=","/>
+			<varreplace name="tags" srcvar="tags" regex="[._]" replace=" "/>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="(?:^|[^\d])((?:19|20)\d\d)(?:$|[^\d])"/>
+				<vars>
+					<var name="year"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split=",">
+				<setvarif varName="scene" value="Scene" newValue="true"/>
+
+				<setvarif varName="resolution" regex="^(?:SD|Standard?Def.*|480i|480p|576p|720p|810p|1080p|1080i|PD|Portable Device)$"/>
+				<setvarif varName="source" regex="^(?:R5|DVDScr|BRRip|CAM|TS|TELESYNC|TC|TELECINE|DSR|PDTV|HDTV|DVDRip|BDRip|DVDR|DVD|BluRay|Blu\-Ray|WEBRip|WEB\-DL|WEB|TVRip|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:XviD|DivX|x264|h\.264|h264|mpeg2|VC\-1|VC1|WMV)$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="torrents.php?action=download&amp;id="/>
+				<var name="$torrentId"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="[&amp;\?]id=\d+" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

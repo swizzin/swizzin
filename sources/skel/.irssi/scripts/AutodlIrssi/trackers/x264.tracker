@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="x264"
+	shortName="x264"
+	longName="x264"
+	siteName="x264.me">
+
+	<settings>
+		<description text="Go to RSS page http://x264.me/getrss.php and extract passkey."/>
+		<passkey tooltiptext="The passkey in your x264 RSS feed link."/>
+	</settings>
+
+	<servers>
+		<server
+			network="Xevion.Net"
+			serverNames="irc.xevion.net"
+			channelNames="#x264"
+			announcerNames="x2bot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[ New Torrent: The.Incredibly.True.Adventure.of.Two.Girls.in.Love.1995.DVDRip.x264-LGBT | Movies/SD | https://x264.me/details.php?id=13366 | http://www.imdb.com/title/tt0113416/ ]-->
+				<regex value="^\[ New Torrent:([^\|]*)\|([^\|]*)\| https?\:\/\/([^\/]+\/)\S*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+			<extract>
+				<!--Internal Encoders Presents... Scott.Pilgrim.VS.The.World.2010.1080p.BluRay.x264-tRuEHD (Movies/1080p) (https://x264.me/details.php?id=13367) - (IMDB - http://www.imdb.com/title/tt0446029/)-->
+				<regex value="^[\w\s]+ Presents...(.*)\(([^\)]*)\) \(https?\:\/\/([^\/]+\/)\S*[&amp;\?]id=(\d+)"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="category"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<var name="passkey"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="/details\.php" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

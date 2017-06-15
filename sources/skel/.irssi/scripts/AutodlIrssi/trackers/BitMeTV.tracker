@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="bmtv"
+	shortName="BMTV"
+	longName="BitMeTV"
+	siteName="www.bitmetv.org"
+	follow302links="true">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="LostIRC"
+			serverNames="irc.bitmetv.org"
+			channelNames="#bitmetv.announce"
+			announcerNames="BitMeTV"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--BitMeTV.ORG Torrents: [ American Dad S05E09 720p WEB-DL DD 5.1 H.264-TjHD ] Size: [ 486.71 MB ] Link: [ http://www.bitmetv.org/details.php?id=151636&hit=1 ]-->
+				<regex value="^BitMeTV.ORG Torrents: \[ (.*) \] Size: \[ (.*) \] Link: \[ https?\:\/\/([^\/]+\/).*[&amp;\?]id=(\d+).* \]"/>
+				<vars>
+					<var name="torrentName"/>
+					<var name="torrentSize"/>
+					<var name="$baseUrl"/>
+					<var name="$torrentId"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentUrl">
+				<string value="http://"/>
+				<var name="$baseUrl"/>
+				<string value="download.php/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="torrentName"/>
+				<string value=".torrent"/>
+			</var>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+			<regex value="^BitMeTV-IRC2RSS"/>
+			<regex value="^cannot announce as the website is being lagged$"/>
+			<regex value="^got a response from the website$"/>
+			<regex value="little robot is sad because page didnt respond to http-query"/>
+			<regex value="robot fully charged with site-access again"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

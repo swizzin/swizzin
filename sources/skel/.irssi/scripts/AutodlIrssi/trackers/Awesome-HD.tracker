@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="ahd"
+	shortName="AHD"
+	longName="Awesome-HD"
+	siteName="awesome-hd.me">
+
+	<settings>
+		<gazelle_description/>
+		<gazelle_authkey/>
+		<gazelle_torrent_pass/>
+	</settings>
+
+	<servers>
+		<server
+			network="AHDIRCNet"
+			serverNames="irc.awesome-hd.me"
+			channelNames="#ahd-announce"
+			announcerNames="AHDBot"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--MOVIE: The Hobbit: An Unexpected Journey [2012] - HiFi / Blu-Ray / 1080p / mkv / h.264 Remux / DTSHD-MA / AHD Gold / DXVA / 75% Freeleech - https://awesome-hd.me/torrents.php?id=7892 / https://awesome-hd.me/torrents.php?action=download&id=13462 -->
+				<!--TV-SHOW: Homeland [2011] - WiKi / Blu-Ray / 720p / mkv / x264 / DTS / AHD Gold / 0% Freeleech - https://awesome-hd.me/torrents.php?id=7905 / https://awesome-hd.me/torrents.php?action=download&id=13459-->
+				<!--AUDIO-TRACK: Indiana Jones and the Last Crusade [1989] - D-Z0N3 /  / DTS / DTS / DTS / 75% Freeleech - https://awesome-hd.me/torrents.php?id=6978 / https://awesome-hd.me/torrents.php?action=download&id=11479-->
+				<regex value="(.*?): (.*?) / (.*) - https?://.* / (https?://.*id=\d+)"/>
+				<vars>
+					<var name="category"/>
+					<var name="torrentName"/>
+					<var name="$releaseTags"/>
+					<var name="$baseUrl"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<varreplace name="tags" srcvar="$releaseTags" regex="[\/]" replace=","/>
+
+			<extract srcvar="$releaseTags" optional="true">
+				<regex value="(\d+)% Freeleech"/>
+				<vars>
+					<var name="freeleechPercent"/>
+				</vars>
+			</extract>
+
+			<extracttags srcvar="$releaseTags" split="/">
+				<setvarif varName="resolution" regex="^(?:720p|1080p|1080i)$"/>
+				<setvarif varName="source" regex="^(?:HDTV|BluRay|Blu\-Ray|WEB\-DL|WEB|HDDVD|HD\-DVD)$"/>
+				<setvarif varName="encoder" regex="^(?:x264|h\.264 Remux|h264 Remux|VC-1 Remux|VC1 Remux|h\.264|h264|mpeg2|VC\-1|VC1)$"/>
+
+				<!--Ignored-->
+				<regex value=""/>
+			</extracttags>
+
+			<extract srcvar="torrentName" optional="true">
+				<regex value="(.*) \[(\d+)\] -(.*)"/>
+				<vars>
+					<var name="name1"/>
+					<var name="year"/>
+					<var name="releaseGroup"/>
+				</vars>
+			</extract>
+
+			<var name="torrentUrl">
+				<var name="$baseUrl"/>
+				<string value="&amp;authkey="/>
+				<var name="authkey"/>
+				<string value="&amp;torrent_pass="/>
+				<var name="torrent_pass"/>
+			</var>
+		</linematched>
+		<ignore>
+			<regex value="action=download&amp;id=" expected="false"/>
+		</ignore>
+	</parseinfo>
+</trackerinfo>

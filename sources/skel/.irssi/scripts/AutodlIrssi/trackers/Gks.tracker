@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is IRC Auto Downloader.
+   -
+   - The Initial Developer of the Original Code is
+   - David Nilsson.
+   - Portions created by the Initial Developer are Copyright (C) 2010, 2011
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s):
+   -	Nicobubulle
+   - ***** END LICENSE BLOCK ***** -->
+
+<trackerinfo
+	type="gks"
+	shortName="Gks"
+	longName="Gks"
+	siteName="gks.gs">
+
+	<settings>
+		<cookie_description/>
+		<cookie/>
+	</settings>
+
+	<servers>
+		<server
+			network="irc.gks.gs"
+			serverNames="irc.gks.gs"
+			channelNames="#GKS"
+			announcerNames="GKS"
+			/>
+	</servers>
+
+	<parseinfo>
+		<linepatterns>
+			<extract>
+				<!--[DVDRip/BDRip] - https://gks.gs/torrent/17339/Bebe.mode.d'emploi.(Katherine.Heigl,.Josh.Duhamel,.Josh.Lucas).VFSTFR.SeeDeaF [701.90 Mo]-->
+				<regex value="^\[(.*)\]\s*-\s*https:\/\/gks.gs\/torrent\/(\d+)\/(.*)\s*\[(.*)\]"/>
+				<vars>
+					<var name="category"/>
+					<var name="$torrentId"/>
+					<var name="$baseName"/>
+					<var name="torrentSize"/>
+				</vars>
+			</extract>
+		</linepatterns>
+		<linematched>
+			<var name="torrentName">
+				<var name="$baseName"/>
+			</var>
+			<var name="torrentUrl">
+				<string value="https://gks.gs/get/"/>
+				<var name="$torrentId"/>
+				<string value="/"/>
+				<varenc name="$baseName"/>
+			</var>
+			<varreplace name="torrentSize" srcvar="torrentSize" regex="Ko$" replace="KB"/>
+			<varreplace name="torrentSize" srcvar="torrentSize" regex="Mo$" replace="MB"/>
+			<varreplace name="torrentSize" srcvar="torrentSize" regex="Go$" replace="GB"/>
+			<http name="cookie">
+				<var name="cookie"/>
+			</http>
+		</linematched>
+		<ignore>
+		</ignore>
+	</parseinfo>
+</trackerinfo>
