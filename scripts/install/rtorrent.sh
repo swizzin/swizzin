@@ -23,11 +23,11 @@ fi
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _depends() {
-	APT='fail2ban subversion nginx-full dos2unix bc sudo screen zip unzip sysstat nano build-essential
-	vnstat dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
-	libsigc++-2.0-dev unzip curl libncurses5-dev yasm php7.0 php7.0-cli php7.0-fpm php7.0-dev fontconfig libfontconfig1
-	libfontconfig1-dev mediainfo php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt libarchive-zip-perl libnet-ssleay-perl php-geoip libhtml-parser-perl
-	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl libapache2-mod-scgi mktorrent'
+	APT='subversion dos2unix bc sudo screen zip unzip sysstat build-essential
+	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
+	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
+	libfontconfig1-dev mediainfo libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl
+	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl mktorrent'
 	for depends in $APT; do
 	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
 	done
@@ -114,7 +114,21 @@ trackers.use_udp.set = yes
 EOF
 echo ${ok}
 chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+
+cat > /etc/nginx/sites-enabled/rutorrent.conf <<RUC
+location /${user} {
+include scgi_params;
+scgi_pass 127.0.0.1:$port;
 }
+
+location /rutorrent {
+alias /srv/rutorrent;
+auth_basic "What's the password?";
+auth_basic_user_file /etc/htpasswd;
+}
+RUC
+}
+
 
 function _makedirs() {
 	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
@@ -153,12 +167,11 @@ cat >${rutorrent}conf/users/${user}/config.php<<EOF
 	\$forbidUserSettings = false;
 	\$scgi_port = $port;
 	\$scgi_host = "localhost";
-	\$XMLRPCMountPoint = "/RPC2";
+	\$XMLRPCMountPoint = "/${user}";
 	\$pathToExternals = array("php" => '',"curl" => '',"gzip" => '',"id" => '',"stat" => '',);
 	\$localhosts = array("127.0.0.1", "localhost",);
 	\$profilePath = '../share';
 	\$profileMask = 0777;
-
 	\$diskuser = "";
 	\$quotaUser = "${user}";
 EOF
@@ -219,12 +232,10 @@ mkcores=$(nproc | awk '{print $1/2}')
 #plugindir="plugins3.7"
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
-if [[ ! -e /install/.rtorrent.lock ]]; then
-		echo -n "Building Dependencies ... ";_depends && echo ${ok}
+	  echo -n "Building Dependencies ... ";_depends && echo ${ok}
 		echo -n "Building xmlrpc-c from source ... ";_xmlrpc
 		echo -n "Building libtorrent from source ... ";_libtorrent
 		echo -n "Building rtorrent from source ... ";_rtorrent
-		echo -n "Setting Important Files ... "; _sysctl
 		echo -n "Installing rutorrent into /srv ... ";_rutorrent
 		echo -n "Making ${user} directory structure ... ";_makedirs
 		echo -n "Setting permissions on ${user} ... ";_perms
@@ -232,16 +243,6 @@ if [[ ! -e /install/.rtorrent.lock ]]; then
 		echo -n "Installing plugins ... ";_plugins
 		echo -n "setting up rtorrent.rc ... ";_rconf;_systemd
 		touch /install/.rtorrent.lock
-		touch /home/$user/install/.rtorrent.lock
-	else
-			echo -n "Making ${user} directory structure ... ";_makedirs
-			echo -n "Setting permissions on ${user} ... ";_perms
-			echo -n "Writing ${user} rutorrent config.php file ... ";_ruconf
-			echo -n "setting up rtorrent.rc ... ";_rconf
-			echo -n "Enabling upstart";systemctl enable rtorrent@${user} 2>> $log
-			touch /home/$user/install/.rtorrent.lock
-			echo -n "rtorrent started ... ";_startme
-fi
 termin=$(date +"%s")
 difftimelps=$((termin-begin))
 echo "rtorrent install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
