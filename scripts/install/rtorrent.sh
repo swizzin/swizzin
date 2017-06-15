@@ -237,7 +237,7 @@ _startme() { service rtorrent@${user} start ; }
 
 export DEBIAN_FRONTEND=noninteractive
 
-user=$(cat /etc/.master.info | cut -d: -f2)
+user=$(cat /etc/.master.info | cut -d: -f1)
 ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
 logdir="/root/logs"
 rutorrent="/srv/rutorrent/"
