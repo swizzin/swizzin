@@ -22,28 +22,28 @@
 #   to include QuickBox in your commercial project, write to echo@quickbox.io
 #   with a summary of your project as well as its intended use for moentization.
 #
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
-IRSSIIP=$(curl -s http://ipecho.net/plain || curl -s http://ifconfig.me/ip ; echo)
+if [[ -f /install/.panel.lock ]]; then
+  OUTTO="/root/quick-box.log"
+else
+  OUTTO="/dev/null"
+fi
 
-OUTTO="/root/quick-box.log"
-local_setup=/etc/QuickBox/setup/
-
+_string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _installautodl() {
   rutorrent="/srv/rutorrent/";
-  PLUGINVAULT="/etc/quickbox/plugins/"; cd "${rutorrent}plugins"
-  PLUGIN="autodl-irssi"
   users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-    for i in $PLUGIN; do
-      cp -R "${PLUGINVAULT}$i" .
-      chown -R www-data: ${rutorrent}plugins/$PLUGIN
-    done
+  if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
+			cd /srv/rutorrent/plugins/
+			git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi >/dev/null 2>&1 || (echo "git of autodl plugin to main plugins seems to have failed ... ")
+			chown -R www-data:www-data autodl-irssi/
+  fi
     for u in "${users[@]}"; do
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
       mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${OUTTO}" 2>&1
       cd "/home/${u}/.irssi/scripts/"
-      wget -qO autodl-irssi.zip https://github.com/autodl-community/autodl-irssi/releases/download/community-v1.60/autodl-irssi-community-v1.60.zip >/dev/null 2>&1
+      wget -qO autodl-irssi.zip https://github.com/autodl-community/autodl-irssi/releases/download/community-v1.64/autodl-irssi-community-v1.64.zip >/dev/null 2>&1
       unzip -o autodl-irssi.zip >>"${OUTTO}" 2>&1
       rm autodl-irssi.zip
       cp autodl-irssi.pl autorun/
@@ -54,9 +54,17 @@ cat >"/home/${u}/.autodl/autodl2.cfg"<<ADC
 gui-server-port = ${IRSSI_PORT}
 gui-server-password = ${IRSSI_PASS}
 ADC
+      chown -R $u: /home/${u}/.autodl/
 
 echo -n "\$autodlport = \"$IRSSI_PORT\";" /srv/rutorrent/conf/users/${u}/config.php
 echo -n "\$autodlPassword = \"$IRSSI_PASS\";" /srv/rutorrent/conf/users/${u}/config.php
+
+systemctl enable irssi@${u} 2>>$log.log
+sleep 1
+service irssi@${u} start
+
 done
 
+
+}
 _installautodl

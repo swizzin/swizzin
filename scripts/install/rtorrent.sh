@@ -1,16 +1,32 @@
 #!/bin/bash
 
 begin=$(date +"%s")
-rtorrentver='0.9.6'
-libtorrentver='0.13.6'
+if [[ -z $rtorrentver ]]; then
+  function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+               0.9.6 "" \
+               0.9.4 "" \
+               0.9.2 "" 3>&1 1>&2 2>&3)
+
+    if [[ $function == 0.9.6 ]]; then
+      export rtorrentver='0.9.6'
+      export libtorrentver='0.13.6'
+    elif [[ $function == 0.9.4 ]]; then
+      export rtorrentver='0.9.4'
+      export libtorrentver='0.13.4'
+    elif [[ $function == 0.9.2 ]]; then
+      export rtorrentver='0.9.3'
+      export libtorrentver='0.13.3'
+    fi
+fi
 rtorrentdl='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
 libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
 xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
 log=/root/logs/install.log
 
-export distribution=$(lsb_release -is)
-export release=$(lsb_release -rs)
-export codename=$(lsb_release -cs)
+
+distribution=$(lsb_release -is)
+release=$(lsb_release -rs)
+codename=$(lsb_release -cs)
 
 if [[ $codename == "jessie" ]]; then
   echo "deb http://packages.dotdeb.org $(lsb_release -sc) all" > /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
@@ -114,19 +130,6 @@ trackers.use_udp.set = yes
 EOF
 echo ${ok}
 chown ${user}.${user} -R /home/${user}/.rtorrent.rc
-
-cat > /etc/nginx/sites-enabled/rutorrent.conf <<RUC
-location /${user} {
-include scgi_params;
-scgi_pass 127.0.0.1:$port;
-}
-
-location /rutorrent {
-alias /srv/rutorrent;
-auth_basic "What's the password?";
-auth_basic_user_file /etc/htpasswd;
-}
-RUC
 }
 
 
@@ -176,6 +179,19 @@ cat >${rutorrent}conf/users/${user}/config.php<<EOF
 	\$quotaUser = "${user}";
 EOF
 chown -R www-data.www-data ${rutorrent}conf/users/ 2>> $log
+
+cat > /etc/nginx/sites-enabled/rutorrent.conf <<RUC
+location /${user} {
+include scgi_params;
+scgi_pass 127.0.0.1:$port;
+}
+
+location /rutorrent {
+alias /srv/rutorrent;
+auth_basic "What's the password?";
+auth_basic_user_file /etc/htpasswd;
+}
+RUC
 echo ${ok}
 }
 
@@ -190,8 +206,8 @@ function _plugins() {
 #	sed -i 's/showhidden: true,/showhidden: false,/g' ${rutorrent}plugins/filemanager/init.js
 	sed -i 's/useExternal = false;/useExternal = "mktorrent";/' ${rutorrent}plugins/create/conf.php
 	cd /srv/rutorrent/plugins/theme/themes
-	git clone https://github.com/Swizards/club-Swizards.git club-Swizards >/dev/null 2>&1
-	perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-Swizards\"\;/g" /srv/rutorrent/plugins/theme/conf.php
+	git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
+	perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
 	cd /srv/rutorrent/plugins
 	chown -R www-data.www-data ${rutorrent}
 echo ${ok}
@@ -221,7 +237,7 @@ _startme() { service rtorrent@${user} start ; }
 
 export DEBIAN_FRONTEND=noninteractive
 
-user=$(while read line; do echo -e "$line" | base64 --decode; done </root/.bac | head -n 1)
+user=$(cat /etc/.master.info | cut -d: -f2)
 ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
 logdir="/root/logs"
 rutorrent="/srv/rutorrent/"

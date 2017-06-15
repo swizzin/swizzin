@@ -67,6 +67,7 @@ function _adduser() {
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
+	echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
 					echo "User directory already exists ... "
 					_skel
@@ -97,9 +98,42 @@ function _choices() {
     fi
   done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results
+	readarray packages < /root/results
 	for i in "${packages[@]}"; do
 	 touch /tmp/.$i.lock
 	done
+	if [[ " ${packages[@]} " =~ " rtorrent " ]]; then
+		function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+	               0.9.6 "" \
+	               0.9.4 "" \
+	               0.9.2 "" 3>&1 1>&2 2>&3)
+
+	    if [[ $function == 0.9.6 ]]; then
+	      export rtorrentver='0.9.6'
+				export libtorrentver='0.13.6'
+	    elif [[ $function == 0.9.4 ]]; then
+				export rtorrentver='0.9.4'
+				export libtorrentver='0.13.4'
+	    elif [[ $function == 0.9.2 ]]; then
+				export rtorrentver='0.9.3'
+				export libtorrentver='0.13.3'
+	    fi
+	fi
+	if [[ " ${packages[@]} " =~ " deluge " ]]; then
+		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+	               Repo "- Whatever is in your distribution's repository" \
+	               Stable "Latest stable version, built from source" \
+	               Dev "Latest dev version, built from source" 3>&1 1>&2 2>&3)
+
+	    if [[ $function == Repo ]]; then
+	      export deluge=repo
+	    elif [[ $function == Stable ]]; then
+				export deluge=stable
+	    elif [[ $function == Dev ]]; then
+				export deluge=dev
+	    fi
+	fi
+	
 	locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
 	for i in "${locksextra[@]}"; do
 		app=${i}

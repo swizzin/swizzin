@@ -21,11 +21,15 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 #################################################################################
 
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
-local_packages=/etc/QuickBox/packages/
-username=$(cat /srv/rutorrent/home/db/master.txt)
-passwd=$(cat /root/${username}.info | cut -d ":" -f 3 | cut -d "@" -f 1)
+if [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
+
+local_packages=/etc/swizzin/scripts/
+username=$(cat /root/.master.info | cut -d ":" -f 1 |)
+passwd=$(cat /root/.master.info | cut -d ":" -f 2)
 ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 n=$RANDOM
 DPORT=$((n%59000+10024))
@@ -41,8 +45,8 @@ function _installDeluge1() {
   rm /etc/init.d/deluged >/dev/null 2>&1
 }
 function _installDeluge2() {
-  DWP=$(python ${local_packages}system/deluge.Userpass.py ${passwd} ${DWSALT})
-  DUDID=$(python ${local_packages}system/deluge.addHost.py)
+  DWP=$(python ${local_packages}deluge.Userpass.py ${passwd} ${DWSALT})
+  DUDID=$(python ${local_packages}deluge.addHost.py)
   mkdir -p /home/${username}/.config/deluge/
   printf "${username}:${passwd}" > /root/${username}.info.db
   udb=$(cat /root/$username.info.db)
