@@ -44,6 +44,7 @@ function _preparation() {
   nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
+	export GIT_SSL_NO_VERIFY=true
   git clone https://gitlab.swizzin.ltd/liara/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
 }
@@ -134,7 +135,7 @@ function _choices() {
 	    fi
 	fi
 
-	locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+	locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
 	for i in "${locksextra[@]}"; do
 		app=${i}
 		if [[ ! -f /tmp/.$app.lock ]]; then
@@ -152,12 +153,12 @@ function _install() {
 
 	for i in "${packages[@]}"; do
 		echo -e "Installing $i ";
-		bash /usr/local/bin/swizzin/install/$i.sh
+		bash /usr/local/bin/swizzin/install/${i}.sh
 	done
 	rm /root/results
 	for i in "${extras[@]}"; do
 		echo -e "Installing $i ";
-		bash /usr/local/bin/swizzin/install/$i.sh
+		bash /usr/local/bin/swizzin/install/${i}.sh
 	done
 	rm /root/results2
 }
