@@ -241,18 +241,18 @@ mkcores=$(nproc | awk '{print $1/2}')
 #plugindir="plugins3.7"
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
-	  echo -n -e "Building Dependencies ... ";_depends && echo ${ok}
-		echo -n -e "Building xmlrpc-c from source ... ";_xmlrpc
-		echo -n -e "Building libtorrent from source ... ";_libtorrent
-		echo -n -e "Building rtorrent from source ... ";_rtorrent
-		echo -n -e "Installing rutorrent into /srv ... ";_rutorrent
-		echo -n -e "Making ${user} directory structure ... ";_makedirs
-		echo -n -e "Setting permissions on ${user} ... ";_perms
+	  echo "Building Dependencies ... ";_depends && echo ${ok}
+		echo "Building xmlrpc-c from source ... ";_xmlrpc
+		echo "Building libtorrent from source ... ";_libtorrent
+		echo "Building rtorrent from source ... ";_rtorrent
+		echo "Installing rutorrent into /srv ... ";_rutorrent
+		echo "Making ${user} directory structure ... ";_makedirs
+		echo "Setting permissions on ${user} ... ";_perms
     if [[ -f /install/.nginx.lock ]]; then
-		echo -n -e "Writing ${user} rutorrent config.php file ... ";_ruconf
-		echo -n -e "Installing plugins ... ";_plugins
+		echo "Writing ${user} rutorrent config.php file ... ";_ruconf
+		echo "Installing plugins ... ";_plugins
     fi
-		echo -n -e "setting up rtorrent.rc ... ";_rconf;_systemd
+		echo "setting up rtorrent.rc ... ";_rconf;_systemd
 		touch /install/.rtorrent.lock
 termin=$(date +"%s")
 difftimelps=$((termin-begin))
