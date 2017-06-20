@@ -27,8 +27,8 @@ else
   OUTTO="/dev/null"
 fi
 local_packages=/usr/local/bin/swizzin
-user=$(cat /etc/.master.info | cut -d: -f1)
-pass=$(cat /etc/.master.info | cut -d: -f2)
+user=$(cat /root/.master.info | cut -d: -f1)
+pass=$(cat /root/.master.info | cut -d: -f2)
 
 if [[ -z $deluge ]]; then
   function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
