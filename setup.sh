@@ -153,12 +153,14 @@ function _install() {
 
 	while IFS= read -r result
  	do
-		bash /usr/local/bin/swizzin/install/${i}.sh
+		echo -e "Installing ${result}"
+		bash /usr/local/bin/swizzin/install/${result}.sh
  done < "$results"
- 	rm /root/result
+ 	rm /root/results
  while IFS= read -r result
  do
-	 bash /usr/local/bin/swizzin/install/${i}.sh
+	 echo -e "Installing ${result}"
+	 bash /usr/local/bin/swizzin/install/${result}.sh
 done < "$results2"
 	rm /root/results2
 }
