@@ -1,4 +1,18 @@
 #!/bin/bash
+distribution=$(lsb_release -is)
+release=$(lsb_release -rs)
+codename=$(lsb_release -cs)
+log=/root/logs/install.log
+
+if [[ $codename == "jessie" ]]; then
+  echo "deb http://packages.dotdeb.org $(lsb_release -sc) all" > /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
+  echo "deb-src http://packages.dotdeb.org $(lsb_release -sc) all" >> /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
+  wget -q https://www.dotdeb.org/dotdeb.gpg
+  sudo apt-key add dotdeb.gpg >> /dev/null 2>&1
+  apt-get -y update
+fi
+
+
 
 APT='nginx-full php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip'
 for depends in $APT; do
@@ -79,7 +93,7 @@ mkdir -p /etc/nginx/ssl/
 mkdir -p /etc/nginx/snippets/
 
 cd /etc/nginx/ssl
-openssl dhparam -out dhparam.pem 2048
+openssl dhparam -out dhparam.pem 2048 >>$log 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf <<SSC
 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
