@@ -117,3 +117,4 @@ add_header X-Content-Type-Options nosniff;
 
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
+touch /install/.nginx.lock
