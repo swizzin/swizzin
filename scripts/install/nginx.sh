@@ -35,7 +35,6 @@ cat > /etc/nginx/sites-enabled/default <<NGC
 server {
 listen 80 default_server;
 listen [::]:80 default_server;
-server_name serverbabe.io;
 return 301 https://$server_name$request_uri;
 }
 
