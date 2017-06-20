@@ -56,6 +56,7 @@ function _depends() {
   	rm -rf /tmp/rar >/dev/null 2>&1
   else
     apt-get -y install unrar
+  fi
 }
 
 function _xmlrpc() {
@@ -247,7 +248,7 @@ rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt
 		echo -n "Installing rutorrent into /srv ... ";_rutorrent
 		echo -n "Making ${user} directory structure ... ";_makedirs
 		echo -n "Setting permissions on ${user} ... ";_perms
-    if [[ -f /install/.nginx.lock]]; then
+    if [[ -f /install/.nginx.lock ]]; then
 		echo -n "Writing ${user} rutorrent config.php file ... ";_ruconf
 		echo -n "Installing plugins ... ";_plugins
     fi
