@@ -61,7 +61,7 @@ function _depends() {
 
 function _xmlrpc() {
 				cd "/tmp"
-				svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c
+				svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
 				cd xmlrpc-c
 				./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
 				make -j${nproc} >>$log 2>&1
@@ -241,18 +241,18 @@ mkcores=$(nproc | awk '{print $1/2}')
 #plugindir="plugins3.7"
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
-	  echo -n "Building Dependencies ... ";_depends && echo ${ok}
-		echo -n "Building xmlrpc-c from source ... ";_xmlrpc
-		echo -n "Building libtorrent from source ... ";_libtorrent
-		echo -n "Building rtorrent from source ... ";_rtorrent
-		echo -n "Installing rutorrent into /srv ... ";_rutorrent
-		echo -n "Making ${user} directory structure ... ";_makedirs
-		echo -n "Setting permissions on ${user} ... ";_perms
+	  echo -n -e "Building Dependencies ... ";_depends && echo ${ok}
+		echo -n -e "Building xmlrpc-c from source ... ";_xmlrpc
+		echo -n -e "Building libtorrent from source ... ";_libtorrent
+		echo -n -e "Building rtorrent from source ... ";_rtorrent
+		echo -n -e "Installing rutorrent into /srv ... ";_rutorrent
+		echo -n -e "Making ${user} directory structure ... ";_makedirs
+		echo -n -e "Setting permissions on ${user} ... ";_perms
     if [[ -f /install/.nginx.lock ]]; then
-		echo -n "Writing ${user} rutorrent config.php file ... ";_ruconf
-		echo -n "Installing plugins ... ";_plugins
+		echo -n -e "Writing ${user} rutorrent config.php file ... ";_ruconf
+		echo -n -e "Installing plugins ... ";_plugins
     fi
-		echo -n "setting up rtorrent.rc ... ";_rconf;_systemd
+		echo -n -e "setting up rtorrent.rc ... ";_rconf;_systemd
 		touch /install/.rtorrent.lock
 termin=$(date +"%s")
 difftimelps=$((termin-begin))
