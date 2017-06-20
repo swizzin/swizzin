@@ -96,7 +96,7 @@ function _rtorrent() {
 
 function _rutorrent() {
     cd /srv
-    if [[ ! -d /srv/rutorrent ]]; then git clone https://github.com/Novik/ruTorrent.git >>$log 2>&1; fi
+    if [[ ! -d /srv/rutorrent ]]; then git clone https://github.com/Novik/ruTorrent.git rutorrent >>$log 2>&1; fi
     chown -R www-data:www-data rutorrent
     rm -rf /srv/rutorrent/plugins/throttle
     rm -rf /srv/rutorrent/plugins/extratio
