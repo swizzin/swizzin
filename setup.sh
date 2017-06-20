@@ -157,6 +157,7 @@ function _install() {
  	do
 		echo -e "Installing ${result}"
 		bash /usr/local/bin/swizzin/install/${result}.sh
+		rm /tmp/.$result.lock
  done < "$results"
  	rm /root/results
  while IFS= read -r result
