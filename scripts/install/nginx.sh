@@ -70,7 +70,7 @@ location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
 location ~ \.php$ {
   include snippets/fastcgi-php.conf;
   fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
 }
 
 include /etc/nginx/apps/*;
