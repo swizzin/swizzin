@@ -10,6 +10,6 @@ if [ $codename = "jessie" ]; then
     apt-get -y install ffmpeg >> $log 2>&1
   else
     apt-get -y install ffmpeg >> $log 2>&1
-  fi
 fi
+
 touch /install/.ffmpeg.lock
