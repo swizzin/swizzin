@@ -128,7 +128,7 @@ function _choices() {
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
 	               Repo "" \
 	               Stable "" \
-	               Dev "rce" 3>&1 1>&2 2>&3)
+	               Dev "" 3>&1 1>&2 2>&3)
 
 	    if [[ $function == Repo ]]; then
 	      export deluge=repo

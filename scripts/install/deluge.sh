@@ -32,9 +32,9 @@ pass=$(cat /root/.master.info | cut -d: -f2)
 
 if [[ -z $deluge ]]; then
   function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-               Repo "- Whatever is in your distribution's repository" \
-               Stable "Latest stable version, built from source" \
-               Dev "Latest dev version, built from source" 3>&1 1>&2 2>&3)
+               Repo "" \
+               Stable "" \
+               Dev "" 3>&1 1>&2 2>&3)
 
     if [[ $function == Repo ]]; then
       export deluge=repo
