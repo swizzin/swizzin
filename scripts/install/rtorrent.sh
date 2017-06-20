@@ -18,7 +18,7 @@ if [[ -z $rtorrentver ]]; then
       export libtorrentver='0.13.3'
     fi
 fi
-rtorrentdl='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
+rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
 libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
 xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
 log=/root/logs/install.log
@@ -71,7 +71,7 @@ function _xmlrpc() {
 function _libtorrent() {
 				cd "/tmp"
 				rm -rf xmlrpc-c >>$log 2>&1
-				wget -q ${libtorrentdl}
+				wget -q ${libtorrentloc}
 				tar -xvf libtorrent-* >>$log 2>&1
 				cd libtorrent-* >>$log 2>&1
 				./autogen.sh >>$log 2>&1
@@ -83,7 +83,7 @@ function _libtorrent() {
 function _rtorrent() {
 				cd "/tmp"
 				rm -rf libtorrent-* >>$log 2>&1
-				wget -q ${rtorrentdl}
+				wget -q ${rtorrentloc}
 				tar -xzvf rtorrent-* >>$log 2>&1
 				cd rtorrent-*
 				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
