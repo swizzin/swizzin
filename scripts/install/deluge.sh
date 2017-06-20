@@ -249,4 +249,6 @@ DHL
   mkdir -p /home/${user}/torrents/deluge
   chown ${user}: /home/${user}/torrents/deluge
   touch /install/.deluge.lock
-fi
+}
+
+_deluge
