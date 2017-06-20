@@ -75,14 +75,14 @@ function _adduser() {
 					cp -R * /home/$user/
 					echo "Changing password to new password"
 					echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
-					htpasswd -cb /etc/htpasswd $user $pass
+					htpasswd -b -c /etc/htpasswd $user $pass
 					chown -R $user:$user /home/${user}
     else
       echo -en "Creating new user \e[1;95m$user\e[0m ... "
       _skel
       useradd "${user}" -m -G www-data
       echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
-      htpasswd -cb /etc/htpasswd $user $pass
+      htpasswd -b -c /etc/htpasswd $user $pass
   fi
 }
 
