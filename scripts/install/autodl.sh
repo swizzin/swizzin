@@ -59,6 +59,23 @@ ADC
 echo -n "\$autodlport = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
 echo -n "\$autodlPassword = \"$IRSSI_PASS\";" >> /srv/rutorrent/conf/users/${u}/config.php
 
+cat >"/etc/systemd/system/irssi@.service"<<ADC
+[Unit]
+Description=AutoDL IRSSI
+After=network.target
+
+[Service]
+Type=forking
+KillMode=none
+User=%I
+ExecStart=/usr/bin/screen -d -m -fa -S irssi /usr/bin/irssi
+ExecStop=/usr/bin/killall -w -s 2 /usr/bin/irssi
+WorkingDirectory=/home/%I/
+
+[Install]
+WantedBy=multi-user.target
+ADC
+
 systemctl enable irssi@${u} 2>>$log.log
 sleep 1
 service irssi@${u} start
