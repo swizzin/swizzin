@@ -99,11 +99,13 @@ function _choices() {
     fi
   done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results
-	readarray packages < /root/results
-	for i in "${packages[@]}"; do
-	 touch /tmp/.$i.lock
-	done
-	if [[ " ${packages[@]} " =~ " rtorrent " ]]; then
+	#readarray packages < /root/results
+	results=/root/results
+	while IFS= read -r result
+ 	do
+	 touch /tmp/.$result.lock
+ done < "$results"
+	if grep -q rtorrent "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 	               0.9.6 "" \
 	               0.9.4 "" \
@@ -120,7 +122,7 @@ function _choices() {
 				export libtorrentver='0.13.3'
 	    fi
 	fi
-	if [[ " ${packages[@]} " =~ " deluge " ]]; then
+	if grep -q deluge "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
 	               Repo "- Whatever is in your distribution's repository" \
 	               Stable "Latest stable version, built from source" \
@@ -143,23 +145,21 @@ function _choices() {
 		fi
 	done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2>/root/results2
+	results2=/root/results2
+
 }
 
 function _install() {
-	readarray packages < /root/results
-	readarray extras < /root/results2
 
-	echo -e "Installing nginx & php"
-
-	for i in "${packages[@]}"; do
-		echo -e "Installing $i ";
+	while IFS= read -r result
+ 	do
 		bash /usr/local/bin/swizzin/install/${i}.sh
-	done
-	rm /root/results
-	for i in "${extras[@]}"; do
-		echo -e "Installing $i ";
-		bash /usr/local/bin/swizzin/install/${i}.sh
-	done
+ done < "$results"
+ 	rm /root/result
+ while IFS= read -r result
+ do
+	 bash /usr/local/bin/swizzin/install/${i}.sh
+done < "$results2"
 	rm /root/results2
 }
 
