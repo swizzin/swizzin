@@ -19,7 +19,7 @@ function _depends() {
   	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
   	rm -rf /tmp/rar >/dev/null 2>&1
   else
-    apt-get -y install unrar
+    apt-get -y install unrar >>$log 2>&1
   fi
 }
 
@@ -230,7 +230,7 @@ mkcores=$(nproc | awk '{print $1/2}')
 #plugindir="plugins3.7"
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
-	  echo "Building Dependencies ... ";_depends && echo ${ok}
+	  echo "Install rTorrent Dependencies ... ";_depends && echo ${ok}
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
 		echo "Building rtorrent from source ... ";_rtorrent
