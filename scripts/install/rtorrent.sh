@@ -235,10 +235,10 @@ rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
 		echo "Building rtorrent from source ... ";_rtorrent
-		echo "Installing rutorrent into /srv ... ";_rutorrent
 		echo "Making ${user} directory structure ... ";_makedirs
 		echo "Setting permissions on ${user} ... ";_perms
     if [[ -f /install/.nginx.lock ]]; then
+    echo "Installing rutorrent into /srv ... ";_rutorrent
 		echo "Writing ${user} rutorrent config.php file ... ";_ruconf
 		echo "Installing plugins ... ";_plugins
     fi
