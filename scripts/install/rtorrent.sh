@@ -1,41 +1,5 @@
 #!/bin/bash
 
-begin=$(date +"%s")
-if [[ -z $rtorrentver ]]; then
-  function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-               0.9.6 "" \
-               0.9.4 "" \
-               0.9.2 "" 3>&1 1>&2 2>&3)
-
-    if [[ $function == 0.9.6 ]]; then
-      export rtorrentver='0.9.6'
-      export libtorrentver='0.13.6'
-    elif [[ $function == 0.9.4 ]]; then
-      export rtorrentver='0.9.4'
-      export libtorrentver='0.13.4'
-    elif [[ $function == 0.9.2 ]]; then
-      export rtorrentver='0.9.3'
-      export libtorrentver='0.13.3'
-    fi
-fi
-rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
-libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
-xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
-log=/root/logs/install.log
-
-
-distribution=$(lsb_release -is)
-release=$(lsb_release -rs)
-codename=$(lsb_release -cs)
-
-if [[ $codename == "jessie" ]]; then
-  echo "deb http://packages.dotdeb.org $(lsb_release -sc) all" > /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
-  echo "deb-src http://packages.dotdeb.org $(lsb_release -sc) all" >> /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
-  wget -q https://www.dotdeb.org/dotdeb.gpg
-  sudo apt-key add dotdeb.gpg >> /dev/null 2>&1
-  apt-get -y update
-fi
-
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _depends() {
@@ -230,6 +194,31 @@ _startme() { service rtorrent@${user} start ; }
 
 export DEBIAN_FRONTEND=noninteractive
 
+begin=$(date +"%s")
+if [[ -z $rtorrentver ]]; then
+  function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+               0.9.6 "" \
+               0.9.4 "" \
+               0.9.2 "" 3>&1 1>&2 2>&3)
+
+    if [[ $function == 0.9.6 ]]; then
+      export rtorrentver='0.9.6'
+      export libtorrentver='0.13.6'
+    elif [[ $function == 0.9.4 ]]; then
+      export rtorrentver='0.9.4'
+      export libtorrentver='0.13.4'
+    elif [[ $function == 0.9.2 ]]; then
+      export rtorrentver='0.9.3'
+      export libtorrentver='0.13.3'
+    fi
+fi
+rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
+libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
+xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
+log=/root/logs/install.log
+distribution=$(lsb_release -is)
+release=$(lsb_release -rs)
+codename=$(lsb_release -cs)
 user=$(cat /root/.master.info | cut -d: -f1)
 ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
 logdir="/root/logs"
