@@ -56,8 +56,8 @@ gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
 
-echo -n "\$autodlport = \"$IRSSI_PORT\";" /srv/rutorrent/conf/users/${u}/config.php
-echo -n "\$autodlPassword = \"$IRSSI_PASS\";" /srv/rutorrent/conf/users/${u}/config.php
+echo -n "\$autodlport = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
+echo -n "\$autodlPassword = \"$IRSSI_PASS\";" >> /srv/rutorrent/conf/users/${u}/config.php
 
 systemctl enable irssi@${u} 2>>$log.log
 sleep 1
