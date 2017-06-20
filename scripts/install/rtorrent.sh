@@ -196,14 +196,6 @@ echo ${ok}
 }
 
 function _plugins() {
-#	cd ${rutorrent}plugins
-#LIST="autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare geoip _getdir \
-#history httprpc ipad loginmgr logoff lookat mediainfo _noty pausewebui ratio ratiocolor retrackers rss rssurlrewrite rutorrentMobile rutracker_check scheduler seedingtime \
-#show_peers_like_wtorrent source stream _task theme throttle tracklabels trafic unpack"
-#for i in $LIST; do
-#	svn -q co ${repourl}/sources/rtorrent/$plugindir/$i --no-auth-cache --user ${svnuser} --password ${svnpass} 2>> $log
-#done
-#	sed -i 's/showhidden: true,/showhidden: false,/g' ${rutorrent}plugins/filemanager/init.js
 	sed -i 's/useExternal = false;/useExternal = "mktorrent";/' ${rutorrent}plugins/create/conf.php
 	cd /srv/rutorrent/plugins/theme/themes
 	git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
@@ -255,8 +247,10 @@ rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt
 		echo -n "Installing rutorrent into /srv ... ";_rutorrent
 		echo -n "Making ${user} directory structure ... ";_makedirs
 		echo -n "Setting permissions on ${user} ... ";_perms
+    if [[ -f /install/.nginx.lock]]; then
 		echo -n "Writing ${user} rutorrent config.php file ... ";_ruconf
 		echo -n "Installing plugins ... ";_plugins
+    fi
 		echo -n "setting up rtorrent.rc ... ";_rconf;_systemd
 		touch /install/.rtorrent.lock
 termin=$(date +"%s")
