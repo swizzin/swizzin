@@ -45,7 +45,7 @@ function _preparation() {
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
   git clone https://github.com/lizaSB/swizzin.git /etc/swizzin >> ${log} 2>&1
-  ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin/
+  ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
 }
 
 function _skel() {
