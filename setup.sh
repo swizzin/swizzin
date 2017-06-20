@@ -161,3 +161,10 @@ function _install() {
 	done
 	rm /root/results2
 }
+
+_os
+_preparation
+_skel
+_adduser
+_choices
+_install
