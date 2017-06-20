@@ -49,7 +49,7 @@ client_max_body_size 20M;
 server_tokens off;
 root /srv/;
 
-index off;
+index index.html index.php index.htm;
 
 
 
@@ -66,20 +66,15 @@ location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
   expires max;
   log_not_found off;
 }
-# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-#
+
 location ~ \.php$ {
   include snippets/fastcgi-php.conf;
-
-  # With php7.0-cgi alone:
-#	fastcgi_pass 127.0.0.1:9000;
-#	# With php7.0-fpm:
   fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
 }
 
-# deny access to .htaccess files, if Apache's document root
-# concurs with nginx's one
-#
+include /etc/nginx/apps/*;
+
 location ~ /\.ht {
   deny all;
 }
@@ -90,6 +85,7 @@ NGC
 
 mkdir -p /etc/nginx/ssl/
 mkdir -p /etc/nginx/snippets/
+mkdir -p /etc/nginx/apps/
 
 cd /etc/nginx/ssl
 openssl dhparam -out dhparam.pem 2048 >>$log 2>&1
@@ -116,4 +112,6 @@ add_header X-Content-Type-Options nosniff;
 
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
+systemctl restart nginx
+systemctl restart php7.0-fpm
 touch /install/.nginx.lock

@@ -145,7 +145,7 @@ cat >${rutorrent}conf/users/${user}/config.php<<EOF
 EOF
 chown -R www-data.www-data ${rutorrent}conf/users/ 2>> $log
 
-cat > /etc/nginx/sites-enabled/rutorrent.conf <<RUC
+cat > /etc/nginx/apps/rutorrent.conf <<RUC
 location /${user} {
 include scgi_params;
 scgi_pass 127.0.0.1:$port;
@@ -157,6 +157,7 @@ auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd;
 }
 RUC
+systemctl force-reload nginx
 echo ${ok}
 }
 
