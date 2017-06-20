@@ -78,12 +78,14 @@ function _adduser() {
 					echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
 					htpasswd -b -c /etc/htpasswd $user $pass
 					chown -R $user:$user /home/${user}
+					echo "${user}:${pass}" > /root/.master.info
     else
       echo -en "Creating new user \e[1;95m$user\e[0m ... "
       _skel
       useradd "${user}" -m -G www-data
       echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
       htpasswd -b -c /etc/htpasswd $user $pass
+			echo "${user}:${pass}" > /root/.master.info
   fi
 }
 
@@ -124,9 +126,9 @@ function _choices() {
 	fi
 	if grep -q deluge "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-	               Repo "- Whatever is in your distribution's repository" \
-	               Stable "Latest stable version, built from source" \
-	               Dev "Latest dev version, built from source" 3>&1 1>&2 2>&3)
+	               Repo "" \
+	               Stable "" \
+	               Dev "rce" 3>&1 1>&2 2>&3)
 
 	    if [[ $function == Repo ]]; then
 	      export deluge=repo
