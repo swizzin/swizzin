@@ -119,7 +119,8 @@ function _perms() {
 
 function _ruconf() {
 rm -rf /srv/rutorrent/conf/config.php
-cat >${rutorrent}conf/users/${user}/config.php<<RUC
+mkdir -p ${rutorrent}conf/users/${user}/
+cat >${rutorrent}conf/config.php<<RUC
 <?php
 // configuration parameters
 
