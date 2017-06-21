@@ -45,7 +45,7 @@ listen [::]:443 ssl default_server;
 ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
 ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
 include snippets/ssl-params.conf;
-client_max_body_size 20M;
+client_max_body_size 40M;
 server_tokens off;
 root /srv/;
 
