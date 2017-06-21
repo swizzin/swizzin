@@ -60,6 +60,7 @@ gui-server-port = ${IRSSI_PORT}
 gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
+      chown -R $u: /home/${u}/.irssi/
 sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
 echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
 echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
