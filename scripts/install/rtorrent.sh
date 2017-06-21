@@ -3,11 +3,10 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _depends() {
-	APT='subversion dos2unix bc sudo screen zip unzip sysstat build-essential
+	APT='subversion dos2unix bc screen zip unzip sysstat build-essential
 	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
-	libfontconfig1-dev mediainfo libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl
-	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl mktorrent'
+	libfontconfig1-dev mediainfo mktorrent'
 	for depends in $APT; do
 	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
 	done
@@ -236,8 +235,8 @@ WorkingDirectory=/home/%I/
 WantedBy=multi-user.target
 EOF
 systemctl enable rtorrent@${user} 2>> $log
+service rtorrent@${user} start
 }
-_startme() { service rtorrent@${user} start ; }
 
 export DEBIAN_FRONTEND=noninteractive
 

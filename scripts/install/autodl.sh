@@ -31,7 +31,8 @@ fi
 _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _installautodl() {
-  APT='irssi'
+  APT='irssi screen libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl
+	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl'
   for depends in $APT; do
   apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
   done
@@ -60,7 +61,7 @@ gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
 sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
-echo "\$autodlport = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
+echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
 echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
 echo "?>" >> /srv/rutorrent/conf/users/${u}/config.php
 
