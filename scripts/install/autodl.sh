@@ -31,6 +31,10 @@ fi
 _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _installautodl() {
+  APT='irssi'
+  for depends in $APT; do
+  apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
+  done
   rutorrent="/srv/rutorrent/";
   users=($(cat /etc/htpasswd | cut -d ":" -f 1))
   if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
