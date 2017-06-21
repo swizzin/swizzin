@@ -208,6 +208,7 @@ echo ${ok}
 
 function _plugins() {
 	sed -i 's/useExternal = false;/useExternal = "mktorrent";/' ${rutorrent}plugins/create/conf.php
+  sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' ${rutorrent}plugins/create/conf.php
 	cd /srv/rutorrent/plugins/theme/themes
 	git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
 	perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
@@ -272,8 +273,6 @@ rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))
 warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
-mkcores=$(nproc | awk '{print $1/2}')
-#plugindir="plugins3.7"
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
 	  echo "Install rTorrent Dependencies ... ";_depends && echo ${ok}
