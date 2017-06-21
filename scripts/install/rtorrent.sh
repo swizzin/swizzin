@@ -188,7 +188,7 @@ cat >${rutorrent}conf/users/${user}/config.php<<RUU
 \$quotaUser = "${user}";
 ?>
 RUU
-chown -R www-data.www-data ${rutorrent}conf/users/ 2>> $log
+chown -R www-data.www-data ${rutorrent} 2>> $log
 
 cat > /etc/nginx/apps/rutorrent.conf <<RUC
 location /${user} {
