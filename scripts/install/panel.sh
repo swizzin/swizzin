@@ -27,7 +27,7 @@ location / {
 alias /srv/panel/ ;
 auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd;
-try_files $uri $uri/ /index.php?q=$uri&$args;
+try_files \$uri \$uri/ /index.php?q=\$uri&\$args;
 index index.php;
 allow all;
 }
