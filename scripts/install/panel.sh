@@ -17,7 +17,7 @@ sed -i "s/LOCALE/${LOCALE}/g" /srv/panel/inc/localize.php
 sed -i "s/LANG/${LANG}/g" /srv/panel/inc/localize.php
 echo "*/1 * * * * root bash /usr/local/bin/swizzin/set_interface" > /etc/cron.d/set_interface
 
-cat > /etc/nginx/sites-enabled/panel.conf <<PAN
+cat > /etc/nginx/apps/panel.conf <<PAN
 location / {
 alias /srv/panel;
 auth_basic "What's the password?";
