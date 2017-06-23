@@ -63,11 +63,11 @@ ADC
       chown -R $u: /home/${u}/.irssi/
   if [[ -f /install/.nginx.lock ]]; then
     sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
-    echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
-    echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
+    echo "\$autodlPort = $IRSSI_PORT;" >> /srv/rutorrent/conf/users/${u}/config.php
+    echo "\$autodlPassword = \"$IRSSI_PASS\";" >> /srv/rutorrent/conf/users/${u}/config.php
     echo "?>" >> /srv/rutorrent/conf/users/${u}/config.php
   fi
-  
+
 cat >"/etc/systemd/system/irssi@.service"<<ADC
 [Unit]
 Description=AutoDL IRSSI
