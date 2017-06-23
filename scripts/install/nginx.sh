@@ -47,7 +47,7 @@ ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
 include snippets/ssl-params.conf;
 client_max_body_size 40M;
 server_tokens off;
-root /srv/;
+root /srv/panel/;
 
 index index.html index.php index.htm;
 
