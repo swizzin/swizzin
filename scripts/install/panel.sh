@@ -2,13 +2,14 @@
 #QB Panel installer for swizzin
 #Author: swizzin | lizaSB
 IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
-user=$(cat /etc/.master.info | cut -d: -f2)
+user=$(cat /root/.master.info | cut -d: -f1)
 
 if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
 else
   cd /srv/
-  git clone https://gitlab.swizzin.ltd/quickbox_dashbord panel
+  export GIT_SSL_NO_VERIFY=true
+  git clone https://gitlab.swizzin.ltd/liara/quickbox_dashboard.git panel
 
   chown -R www-data: /srv/panel
 
@@ -23,10 +24,14 @@ else
 
   cat > /etc/nginx/apps/panel.conf <<PAN
 location / {
-alias /srv/panel;
+alias /srv/panel/ ;
 auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd;
+try_files $uri $uri/ /index.php?q=$uri&$args;
+index index.php;
+allow all;
 }
+
 PAN
 
   service nginx force-reload
