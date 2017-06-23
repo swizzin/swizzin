@@ -112,6 +112,11 @@ add_header X-Content-Type-Options nosniff;
 
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
+
+if [[ ! -f /tmp/.nginx.lock ]]; then
+  echo "Nginx post-installation detected. Running nginx conf"
+  bash /usr/local/bin/swizzin/nginxconf.#!/bin/sh
+fi
 systemctl restart nginx
 systemctl restart php7.0-fpm
 touch /install/.nginx.lock
