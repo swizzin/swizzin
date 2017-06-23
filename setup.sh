@@ -80,7 +80,7 @@ function _adduser() {
 					chown -R $user:$user /home/${user}
 					echo "${user}:${pass}" > /root/.master.info
     else
-      echo -en "Creating new user \e[1;95m$user\e[0m ... "
+      echo -e "Creating new user \e[1;95m$user\e[0m ... "
       _skel
       useradd "${user}" -m -G www-data
       echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
