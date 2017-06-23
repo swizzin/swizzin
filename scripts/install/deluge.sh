@@ -27,7 +27,7 @@ else
   OUTTO="/dev/null"
 fi
 local_packages=/usr/local/bin/swizzin
-user=$(cat /root/.master.info | cut -d: -f1)
+master=$(cat /root/.master.info | cut -d: -f1)
 pass=$(cat /root/.master.info | cut -d: -f2)
 
 if [[ -z $deluge ]]; then
@@ -81,6 +81,13 @@ function _deluge() {
   cd ..
   rm -r {deluge,libtorrent}
 fi
+  users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+  for u in "${users[@]}"; do
+    if [[ ${u} == ${master}]]; then
+      pass=$(cat /root/.master.info | cut -d: -f2)
+    else
+      pass=$(cat /root/${u}.info | cut -d: -f2)
+    fi
   n=$RANDOM
   DPORT=$((n%59000+10024))
   DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
@@ -89,14 +96,19 @@ fi
   # -- Secondary awk command -- #
   #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
   DWPORT=$(shuf -i 10001-11000 -n 1)
-  mkdir -p /home/${user}/.config/deluge/plugins
-  if [[ ! -f /home/${user}/.config/deluge/plugins/ltConfig-0.2.5.0-py2.7.egg ]]; then
-    cd /home/${user}/.config/deluge/plugins/
-    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.2.5.0/ltConfig-0.2.5.0-py2.7.egg
+  mkdir -p /etc/skel/.config/deluge/plugins
+  if [[ ! -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then
+    cd /etc/skel/.config/deluge/plugins/
+    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.3.1/ltConfig-0.3.1-py2.7.egg
   fi
-  chmod 755 /home/${user}/.config
-  chmod 755 /home/${user}/.config/deluge
-  cat > /home/${user}/.config/deluge/core.conf <<DC
+  mkdir -p /home/${u}/.config/deluge/plugins
+  if [[ ! -f /home/${u}/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then
+    cd /home/${u}/.config/deluge/plugins/
+    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.3.1/ltConfig-0.3.1-py2.7.egg
+  fi
+  chmod 755 /home/${u}/.config
+  chmod 755 /home/${u}/.config/deluge
+  cat > /home/${u}/.config/deluge/core.conf <<DC
     "file": 1,
     "format": 1
   }{
@@ -105,14 +117,14 @@ fi
     "max_download_speed": -1.0,
     "send_info": false,
     "natpmp": true,
-    "move_completed_path": "/home/${user}/Downloads",
+    "move_completed_path": "/home/${u}/Downloads",
     "peer_tos": "0x08",
     "enc_in_policy": 1,
     "queue_new_to_top": false,
     "ignore_limits_on_local_network": true,
     "rate_limit_ip_overhead": true,
     "daemon_port": ${DPORT},
-    "torrentfiles_location": "/home/${user}/dwatch",
+    "torrentfiles_location": "/home/${u}/dwatch",
     "max_active_limit": -1,
     "geoip_db_location": "/usr/share/GeoIP/GeoIP.dat",
     "upnp": false,
@@ -128,10 +140,10 @@ fi
       "ltConfig"
     ],
     "max_half_open_connections": 50,
-    "download_location": "/home/${user}/torrents/deluge",
+    "download_location": "/home/${u}/torrents/deluge",
     "compact_allocation": true,
     "max_upload_speed": -1.0,
-    "plugins_location": "/home/${user}/.config/deluge/plugins",
+    "plugins_location": "/home/${u}/.config/deluge/plugins",
     "max_connections_global": -1,
     "enc_prefer_rc4": true,
     "cache_expiry": 60,
@@ -191,7 +203,7 @@ fi
     "enc_out_policy": 1,
     "seed_time_ratio_limit": 7.0,
     "remove_seed_at_ratio": false,
-    "autoadd_location": "/home/${user}/dwatch/",
+    "autoadd_location": "/home/${u}/dwatch/",
     "max_upload_slots_global": -1,
     "seed_time_limit": 180,
     "cache_size": 512,
@@ -200,7 +212,7 @@ fi
     "listen_interface": "${ip}"
   }
 DC
-cat > /home/${user}/.config/deluge/web.conf <<DWC
+cat > /home/${u}/.config/deluge/web.conf <<DWC
 {
   "file": 1,
   "format": 1
@@ -224,7 +236,7 @@ cat > /home/${user}/.config/deluge/web.conf <<DWC
   "sidebar_multiple_filters": true
 }
 DWC
-cat > /home/${user}/.config/deluge/hostlist.conf.1.2 <<DHL
+cat > /home/${u}/.config/deluge/hostlist.conf.1.2 <<DHL
 {
   "file": 1,
   "format": 1
@@ -234,20 +246,21 @@ cat > /home/${user}/.config/deluge/hostlist.conf.1.2 <<DHL
       "${DUDID}",
       "127.0.0.1",
       ${DPORT},
-      "${user}",
+      "${u}",
       "${pass}"
     ]
   ]
 }
 DHL
 
-  echo "${user}:${pass}:10" > /home/${user}/.config/deluge/auth
-  chmod 600 /home/${user}/.config/deluge/auth
-  chown -R ${user}.${user} /home/${user}/.config/
-  mkdir /home/${user}/dwatch
-  chown ${user}: /home/${user}/dwatch
-  mkdir -p /home/${user}/torrents/deluge
-  chown ${user}: /home/${user}/torrents/deluge
+  echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
+  chmod 600 /home/${u}/.config/deluge/auth
+  chown -R ${u}.${u} /home/${u}/.config/
+  mkdir /home/${u}/dwatch
+  chown ${u}: /home/${u}/dwatch
+  mkdir -p /home/${u}/torrents/deluge
+  chown ${u}: /home/${u}/torrents/deluge
+done
   touch /install/.deluge.lock
 }
 
