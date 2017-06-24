@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# [QuickBox Quota Set Script]
+#
+# GitHub:   https://github.com/QuickBox/quickbox_packages
+# Author:   QuickBox.io
+# URL:      https://plaza.quickbox.io
+#
+# QuickBox Copyright (C) 2017 QuickBox.io
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
+
+function _setdisk() {
+echo "================================================================================="
+echo "Disk Space MUST be in GB/TB - Do not attempt to add decimals in space settings,"
+echo "Example - Good: 711GB OR 2TB, Example - Bad: 711.5GB OR 2.5TB"
+echo "================================================================================="
+echo
+echo -n "Username: "
+read username
+echo "Quota size for user: (EX: 500GB): "
+read SIZE
+case $SIZE in
+  *TB)
+    QUOTASIZE=$(echo $SIZE|cut -d'T' -f1)
+    DISKSIZE=$(($QUOTASIZE * 1024 * 1024 * 1024))
+    setquota -u ${username} ${DISKSIZE} ${DISKSIZE} 0 0 -a
+  ;;
+  *GB)
+    QUOTASIZE=$(echo $SIZE|cut -d'G' -f1)
+    DISKSIZE=$(($QUOTASIZE * 1024 * 1024))
+    setquota -u ${username} ${DISKSIZE} ${DISKSIZE} 0 0 -a
+  ;;
+  *MB)
+    QUOTASIZE=$(echo $SIZE|cut -d'M' -f1)
+                DISKSIZE=$(($QUOTASIZE * 1024))
+                setquota -u ${username} ${DISKSIZE} ${DISKSIZE} 0 0 -a
+  ;;
+  *)
+    echo "================================================================================="
+    echo "Disk Space MUST be in GB/TB - Do not attempt to add deciamals in space settings,"
+    echo "Example - Good: 711GB OR 2TB, Example - Bad: 711.5GB OR 2.5TB"
+    echo "Exiting script, type bash $0 and try again"
+    echo "=================================================================================";exit 0
+  ;;
+esac
+}
+
+_setdisk

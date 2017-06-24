@@ -41,6 +41,32 @@ location ~ \.php$
 
 PAN
 
+cat > /etc/sudoers.d/panel <<SUD
+secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
+#Defaults  env_keep -="HOME"
+
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/clean_mem, /proc/sys/vm/drop_caches
+Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/clean_log, /usr/local/bin/swizzin/set_interface, /usr/local/bin/quickbox/system/setdisk, /usr/local/bin/quickbox/system/showspace, /usr/local/bin/quickbox/system/updateQuickBox, /usr/local/bin/quickbox/system/lang/langSelect-*, /usr/local/bin/quickbox/system/theme/themeSelect-*, /usr/local/bin/quickbox/system/install_ffmpeg, /usr/local/bin/quickbox/system/quickVPN, /usr/local/bin/quickbox/system/box
+Cmnd_Alias   PLUGINCMNDS = /usr/local/bin/quickbox/plugin/install/installplugin-*, /usr/local/bin/quickbox/plugin/remove/removeplugin-*
+Cmnd_Alias   PACKAGECMNDS = /usr/local/bin/quickbox/package/install/installpackage-*, /usr/local/bin/quickbox/package/remove/removepackage-*
+Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota, /bin/grep, /usr/bin/awk, /usr/bin/reload, /etc/init.d/apache2 restart, /usr/bin/pkill, /usr/bin/killall, /bin/sed, /bin/systemctl
+
+# User privilege specification
+root	ALL=(ALL:ALL) ALL
+www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PLUGINCMNDS, PACKAGECMNDS, GENERALCMNDS
+
+# Members of the admin group may gain root privileges
+%admin ALL=(ALL) ALL
+
+# Allow members of group sudo to execute any command
+%www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PLUGINCMNDS, PACKAGECMNDS, GENERALCMNDS
+%sudo	ALL=(ALL:ALL) ALL
+SUD
   service nginx force-reload
   touch /install/.panel.lock
 fi

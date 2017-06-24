@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# [QuickBox Mem Cache Cleanuup Script]
+#
+# GITHUB REPOS
+# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
+# LOCAL REPOS
+# Local _ packages   :   /etc/QuickBox/packages
+# Author             :   QuickBox.IO
+# URL                :   https://quickbox.io
+#
+# QuickBox Copyright (C) 2017 QuickBox.io
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
+#################################################################################
+OUTTO=/srv/rutorrent/home/db/output.log
+
+function _cleanmemcache() {
+  echo "Cleaning system memory cache ... " >>"${OUTTO}" 2>&1;
+  echo 1 > /proc/sys/vm/drop_caches
+  sleep 5
+
+  echo "System memory cache cleared!" >>"${OUTTO}" 2>&1;
+  sleep 5
+
+  echo >>"${OUTTO}" 2>&1;
+  echo >>"${OUTTO}" 2>&1;
+  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+
+  exit
+}
+
+_cleanmemcache
