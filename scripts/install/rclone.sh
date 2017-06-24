@@ -17,9 +17,13 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-local_setup=/etc/QuickBox/setup/
-OUTTO=/srv/rutorrent/home/db/output.log
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fiMASTER=$(cat /root/.master.info | cut -d: -f1)
 arch=$(arch)
 
 echo "Downloading rclone ... " >>"${OUTTO}" 2>&1;
@@ -42,7 +46,7 @@ if [[ $arch == x86_64 ]]; then
 fi
 if [[ $arch == i386 ]]; then
   #current=$(curl -s -N http://rclone.org/downloads/ | grep -m1 linux-386 | cut -d\" -f2)
-  current=$(curl -O https://downloads.rclone.org/rclone-current-linux-386.zip)
+  current=https://downloads.rclone.org/rclone-current-linux-386.zip
   cd /tmp
   wget $current
   unzip rclone-*
