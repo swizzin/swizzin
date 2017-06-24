@@ -189,17 +189,19 @@ cat >${rutorrent}conf/users/${user}/config.php<<RUU
 ?>
 RUU
 chown -R www-data.www-data ${rutorrent} 2>> $log
-
-cat > /etc/nginx/apps/rutorrent.${user}.conf <<RUC
-location /${user} {
-include scgi_params;
-scgi_pass 127.0.0.1:$port;
-}
-
+cat > /etc/nginx/apps/rutorrent.conf <<RUN
 location /rutorrent {
 alias /srv/rutorrent;
 auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd;
+}
+RUN
+cat > /etc/nginx/apps/scgi.${user}.conf <<RUC
+location /${user} {
+include scgi_params;
+scgi_pass 127.0.0.1:$port;
+auth_basic "What's the password?";
+auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 RUC
 systemctl force-reload nginx

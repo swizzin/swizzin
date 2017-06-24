@@ -77,6 +77,8 @@ function _adduser() {
 					echo "Changing password to new password"
 					echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
 					htpasswd -b -c /etc/htpasswd $user $pass
+					mkdir -p /etc/htpasswd.d/
+					htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
 					chown -R $user:$user /home/${user}
 					echo "${user}:${pass}" > /root/.master.info
     else
@@ -85,6 +87,8 @@ function _adduser() {
       useradd "${user}" -m -G www-data
       echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
       htpasswd -b -c /etc/htpasswd $user $pass
+			mkdir -p /etc/htpasswd.d/
+			htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
 			echo "${user}:${pass}" > /root/.master.info
   fi
 }
