@@ -24,7 +24,6 @@ if [[ $distribution == Ubuntu ]]; then
 	apt-add-repository ppa:mamarley/quassel -y >/dev/null 2>&1
 	apt-get -qq -y --force-yes update >/dev/null 2>&1
   apt-get -q -y install quassel-core >/dev/null 2>&1
-	#cp ${local_setup}templates/sysd/quassel.template /etc/systemd/system/quassel@.service
 	mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
 	systemctl enable quasselcore >/dev/null 2>&1
 	systemctl start quasselcore >/dev/null 2>&1
@@ -34,7 +33,6 @@ else
   dpkg -i quassel-core* >/dev/null 2>&1
   rm quassel-core*
   apt install -f -y -q >/dev/null 2>&1
-	#cp ${local_setup}templates/sysd/quassel.template /etc/systemd/system/quassel@.service
 	mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
 	systemctl enable quasselcore >/dev/null 2>&1
 	systemctl start quasselcore >/dev/null 2>&1
@@ -47,7 +45,6 @@ function _installQuassel2() {
   exit
 }
 
-local_setup=/etc/QuickBox/setup/
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then
