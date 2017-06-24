@@ -17,7 +17,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-local_setup=/etc/QuickBox/setup/
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then
@@ -58,16 +57,8 @@ systemctl start syncthing@${MASTER} > /dev/null 2>&1
 
 cat > /etc/nginx/apps/syncthing.conf <<EOF
 location /syncthing/ {
-  proxy_set_header        Host \$host;
-  proxy_set_header        X-Real-IP \$remote_addr;
-  proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
-  proxy_set_header        X-Forwarded-Proto \$scheme;
-
+  include /etc/nginx/conf.d/proxy.conf;
   proxy_pass              http://localhost:8384/;
-
-  proxy_read_timeout      600s;
-  proxy_send_timeout      600s;
-
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }

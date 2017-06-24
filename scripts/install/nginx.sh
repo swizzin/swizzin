@@ -97,6 +97,31 @@ add_header X-Content-Type-Options nosniff;
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
 
+cat > /etc/nginx/conf.d/proxy.conf <<PROX
+client_max_body_size 10m;
+client_body_buffer_size 128k;
+
+#Timeout if the real server is dead
+proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
+
+# Advanced Proxy Config
+send_timeout 5m;
+proxy_read_timeout 240;
+proxy_send_timeout 240;
+proxy_connect_timeout 240;
+
+# Basic Proxy Config
+proxy_set_header Host \$host;
+proxy_set_header X-Real-IP \$remote_addr;
+proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto https;
+proxy_redirect  http://  \$scheme://;
+proxy_http_version 1.1;
+proxy_set_header Connection "";
+proxy_cache_bypass \$cookie_session;
+proxy_no_cache \$cookie_session;
+proxy_buffers 32 4k;
+PROX
 if [[ ! -f /tmp/.nginx.lock ]]; then
   echo "Nginx post-installation detected. Running nginx conf"
   bash /usr/local/bin/swizzin/nginxconf.sh

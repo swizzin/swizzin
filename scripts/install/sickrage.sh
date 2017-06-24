@@ -25,7 +25,6 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-local_setup=/etc/QuickBox/setup/
 
 function _installSickRage1() {
   sudo git clone https://github.com/SickRage/SickRage.git  /home/"${MASTER}"/.sickrage >/dev/null 2>&1
@@ -61,13 +60,9 @@ SRS
   sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
   sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
   cat > /etc/nginx/apps/sickrage.conf <<EOF
-  location / {
+  location /sickrage {
+      include /etc/nginx/conf.d/proxy.conf;
       proxy_pass        http://127.0.0.1:8081/sickrage;
-      proxy_set_header  X-Real-IP  \$remote_addr;
-      proxy_set_header        Host            \$host;
-      proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
-      proxy_set_header        X-Forwarded-Proto \$scheme;
-      proxy_redirect off;
       auth_basic "What's the password?";
       auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
   }

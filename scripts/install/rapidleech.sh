@@ -18,8 +18,13 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-OUTTO=/srv/rutorrent/home/db/output.log
-
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 function _installRapidleech1() {
   sudo git clone https://github.com/Th3-822/rapidleech.git  /home/"${MASTER}"/rapidleech >/dev/null 2>&1
 }
