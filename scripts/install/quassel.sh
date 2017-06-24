@@ -48,10 +48,16 @@ function _installQuassel2() {
 }
 
 local_setup=/etc/QuickBox/setup/
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 distribution=$(lsb_release -is)
 IP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Installing Quassel PPA (Ubuntu) or grabbing latest backport (Debian) ... " >>"${OUTTO}" 2>&1;_installQuassel1;echo
 echo "Quassel has now been installed! "
