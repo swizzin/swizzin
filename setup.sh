@@ -152,7 +152,7 @@ function _choices() {
 }
 
 function _install() {
-
+	touch /tmp/.install.lock
 	while IFS= read -r result
  	do
 		echo -e "Installing ${result}"
@@ -166,6 +166,7 @@ function _install() {
 	 bash /usr/local/bin/swizzin/install/${result}.sh
 done < "$results2"
 	rm /root/results2
+	rm /tmp/.install.lock
 }
 
 _os
