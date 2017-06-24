@@ -70,16 +70,16 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-  cat > /etc/apache2/sites-enabled/radarr.conf <<EOF
-<Location /radarr>
-ProxyPass http://localhost:7878/radarr
-ProxyPassReverse http://localhost:7878/radarr
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${username}
-</Location>
+  cat > /etc/nginx/apps/radarr.conf <<EOF
+location /radarr {
+    include /etc/nginx/conf.d/proxy.conf;
+    proxy_pass        http://127.0.0.1:7878/radarr;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
 EOF
+
+systemctl force-reload nginx
 
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
@@ -91,7 +91,7 @@ EOF
   systemctl start radarr.service
   sleep 10
 
-  cp ${local_setup}configs/Radarr/config.xml /home/${username}/.config/Radarr/config.xml
+  #cp ${local_setup}configs/Radarr/config.xml /home/${username}/.config/Radarr/config.xml
   chown ${username}:${username} /home/${username}/.config/Radarr/config.xml
 
   systemctl stop radarr.service
@@ -133,9 +133,13 @@ function _installRadarrExit() {
 	exit 0
 }
 
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
-local_packages=/etc/QuickBox/packages/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 username=$(cat /root/.master.info | cut -d: -f1)
 distribution=$(lsb_release -is)
 ip=$(curl -s http://whatismyip.akamai.com)
