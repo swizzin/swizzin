@@ -22,8 +22,10 @@
 #   to include QuickBox in your commercial project, write to echo@quickbox.io
 #   with a summary of your project as well as its intended use for moentization.
 #
-if [[ -f /install/.panel.lock ]]; then
-  OUTTO="/root/quick-box.log"
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
 else
   OUTTO="/dev/null"
 fi

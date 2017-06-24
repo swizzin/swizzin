@@ -20,9 +20,8 @@
 #################################################################################
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 #################################################################################
-
-if [[ -f /install/.panel.lock ]]; then
-  OUTTO="/srv/panel/db/output.log"
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
 else
   OUTTO="/dev/null"
 fi

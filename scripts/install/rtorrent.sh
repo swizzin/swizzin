@@ -259,10 +259,14 @@ if [[ -z $rtorrentver ]]; then
       export libtorrentver='0.13.3'
     fi
 fi
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/dev/null"
+fi
 rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
 libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
 xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
-log=/root/logs/install.log
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
