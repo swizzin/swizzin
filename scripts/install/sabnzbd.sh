@@ -52,18 +52,15 @@ WantedBy=multi-user.target
 
 EOF
 
-cat > /etc/apache2/sites-enabled/sabnzbd.conf <<EOF
-<Location /sabnzbd>
-ProxyPass http://localhost:65080/sabnzbd
-ProxyPassReverse http://localhost:65080/sabnzbd
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${username}
-</Location>
+cat > /etc/nginx/apps/sabnzbd.conf <<EOF
+location /sabnzbd {
+    include /etc/nginx/conf.d/proxy.conf;
+    proxy_pass        http://127.0.0.1:65080/sabnzbd;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
 EOF
-chown www-data: /etc/apache2/sites-enabled/sabnzbd.conf
-service apache2 reload
+service nginx reload
 
 }
 
@@ -87,8 +84,13 @@ _sabnzbdexit() {
 
 username=$(cat /root/.master.info | cut -d: -f1)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-OUTTO=/srv/rutorrent/home/db/output.log
-
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 echo "Installing sabnzbd ... " >>"${OUTTO}" 2>&1;_sab
 echo "Creating sabnzbd systemd template ... " >>"${OUTTO}" 2>&1;_upstart
 echo "Enabling sabnzbd services ... " >>"${OUTTO}" 2>&1;_sabnzbdenable
