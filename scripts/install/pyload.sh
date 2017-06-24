@@ -140,7 +140,7 @@ function _installpyLoad9() {
 
 
 ip=$(curl -s http://whatismyip.akamai.com)
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 OUTTO=/srv/rutorrent/home/db/output.log
 
 

@@ -136,7 +136,7 @@ function _installRadarrExit() {
 OUTTO=/srv/rutorrent/home/db/output.log
 local_setup=/etc/QuickBox/setup/
 local_packages=/etc/QuickBox/packages/
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 distribution=$(lsb_release -is)
 ip=$(curl -s http://whatismyip.akamai.com)
 

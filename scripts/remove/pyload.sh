@@ -39,7 +39,7 @@ function _removepyLoad() {
 }
 
 
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 
 _removepyLoad

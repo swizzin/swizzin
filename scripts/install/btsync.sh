@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 BTSYNCIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 OUTTO=/srv/rutorrent/home/db/output.log
 local_setup=/etc/QuickBox/setup/

@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 local_setup=/etc/QuickBox/setup/
 
 function _removeSonarr() {

@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
   systemctl stop nzbhydra@${MASTER}
   systemctl disable nzbhydra@${MASTER}
   rm /etc/systemd/system/nzbhydra@.service

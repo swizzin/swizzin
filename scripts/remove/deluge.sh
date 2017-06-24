@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-username=$(cat /etc/apache2/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 OUTTO="/root/quick-box.log"
 local_setup=/etc/QuickBox/setup/
 

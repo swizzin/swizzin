@@ -1,5 +1,5 @@
 #!/bin/bash
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 
 apt -y remove par2-tbb python-openssl python-sabyenc python-cheetah >/dev/null 2>&1
 rm -rf /home/$username/SABnzbd

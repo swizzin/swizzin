@@ -1,5 +1,5 @@
 #!/bin/bash
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 
 rm -r /home/$username/Jackett
 rm /install/.jackett.lock

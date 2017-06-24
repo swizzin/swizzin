@@ -74,7 +74,7 @@ spinner() {
 
 OUTTO=/srv/rutorrent/home/db/output.log
 local_setup=/etc/QuickBox/setup/
-user=$(cat /srv/rutorrent/home/db/master.txt)
+user=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Updating dependencies (this could take a bit) ... " > ${OUTTO} 2>&1
 echo -en "\rUpdating dependencies ... ";_depends

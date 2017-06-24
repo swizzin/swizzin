@@ -85,7 +85,7 @@ _sabnzbdexit() {
   exit
 }
 
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 OUTTO=/srv/rutorrent/home/db/output.log
 

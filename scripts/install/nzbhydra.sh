@@ -78,6 +78,6 @@ echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
 
 local_setup=/etc/QuickBox/setup/
 OUTTO=/srv/rutorrent/home/db/output.log
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 _install
 _services

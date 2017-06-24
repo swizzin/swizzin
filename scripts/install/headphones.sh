@@ -30,7 +30,7 @@ CYAN='\e[96m'
 GREEN='\e[92m'
 
 OUTTO=/srv/rutorrent/home/db/output.log
-USERNAME=$(cat /srv/rutorrent/home/db/master.txt)
+USERNAME=$(cat /root/.master.info | cut -d: -f1)
 PASSWD=$(cat /root/$USERNAME.info | cut -d ":" -f 3 | cut -d "@" -f 1)
 local_setup=/etc/QuickBox/setup/
 

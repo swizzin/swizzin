@@ -20,7 +20,7 @@
 DISTRO=$(lsb_release -is)
 CODENAME=$(lsb_release -cs)
 OUTTO=/srv/rutorrent/home/db/output.log
-username=$(cat /srv/rutorrent/home/db/master.txt)
+username=$(cat /root/.master.info | cut -d: -f1)
 local_setup=/etc/QuickBox/setup/
 
 echo "Setting up emby apache configuration ... " >>"${OUTTO}" 2>&1;

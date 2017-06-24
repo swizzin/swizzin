@@ -72,6 +72,6 @@ echo "Reboot recommended ... "
 
 local_setup=/etc/QuickBox/setup/
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-master=($(cat /srv/rutorrent/home/db/master.txt))
+master=($(cat /root/.master.info | cut -d: -f1))
 _removecron
 _installd

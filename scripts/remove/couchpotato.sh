@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
   systemctl disable couchpotato@*
   systemctl stop couchpotato@*
   rm /etc/systemd/system/couchpotato@.service

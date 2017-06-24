@@ -19,7 +19,7 @@
 
 local_setup=/etc/QuickBox/setup/
 OUTTO=/srv/rutorrent/home/db/output.log
-MASTER=$(cat /srv/rutorrent/home/db/master.txt)
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Removing rclone ... " >>"${OUTTO}" 2>&1;
   rm -f  /usr/sbin/rclone

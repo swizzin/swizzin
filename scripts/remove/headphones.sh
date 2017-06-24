@@ -1,6 +1,6 @@
 #!/bin/bash
 OUTTO=/srv/rutorrent/home/db/output.log
-USERNAME=$(cat /srv/rutorrent/home/db/master.txt)
+USERNAME=$(cat /root/.master.info | cut -d: -f1)
 APPNAME='headphones'
 APPPATH='/home/'$USERNAME'/.headphones'
 APPTITLE='Headphones'
