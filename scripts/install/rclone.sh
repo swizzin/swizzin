@@ -23,7 +23,8 @@ elif [[ -f /install/.panel.lock ]]; then
   OUTTO="/srv/panel/db/output.log"
 else
   OUTTO="/dev/null"
-fiMASTER=$(cat /root/.master.info | cut -d: -f1)
+fi
+MASTER=$(cat /root/.master.info | cut -d: -f1)
 arch=$(arch)
 
 echo "Downloading rclone ... " >>"${OUTTO}" 2>&1;
