@@ -65,14 +65,29 @@ function _installSonarr5() {
 }
 
 function _installSonarr6() {
-  cp ${local_setup}templates/sysd/sonarr.template /etc/systemd/system/sonarr@.service
+  cat > /etc/systemd/system/sonarr@.service <<SONARR
+[Unit]
+Description=nzbdrone
+After=syslog.target network.target
+
+[Service]
+Type=forking
+KillMode=process
+User=%I
+ExecStart=/usr/bin/screen -f -a -d -m -S nzbdrone mono /opt/NzbDrone/NzbDrone.exe
+ExecStop=-/bin/kill -HUP
+WorkingDirectory=/home/%I/
+
+[Install]
+WantedBy=multi-user.target
+SONARR
   systemctl enable sonarr@${username} >/dev/null 2>&1
   systemctl start sonarr@${username}
   sleep 10
 
-  rm -rf /home/${username}/.config/NzbDrone/config.xml
-  cp ${local_setup}configs/Sonarr/config.xml /home/${username}/.config/NzbDrone/config.xml
-  chown ${username}:${username} /home/${username}/.config/NzbDrone/config.xml
+  #rm -rf /home/${username}/.config/NzbDrone/config.xml
+  #cp ${local_setup}configs/Sonarr/config.xml /home/${username}/.config/NzbDrone/config.xml
+  #chown ${username}:${username} /home/${username}/.config/NzbDrone/config.xml
 
   systemctl stop sonarr@{$username}.service
   sleep 10
@@ -80,7 +95,6 @@ function _installSonarr6() {
   if [[ -f /home/${username}/.config/NzbDrone/config.xml ]]; then
     #sed -i "s/<UrlBase>.*/<UrlBase>sonarr<\/UrlBase>/g" /home/${username}/.config/NzbDrone/config.xml
     #sed -i "s/<BindAddress>.*/<BindAddress>127.0.0.1<\/BindAddress>/g" /home/${username}/.config/NzbDrone/config.xml
-    service apache2 reload
   else
     # output to dashboard
     echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/NzbDrone/config.xml" >> "${OUTTO}" 2>&1
@@ -91,18 +105,17 @@ function _installSonarr6() {
 
   systemctl stop sonarr@${username}
 
-  cat > /etc/apache2/sites-enabled/sonarr.conf <<EOF
-<Location /sonarr>
-ProxyPass http://localhost:8989/sonarr
-ProxyPassReverse http://localhost:8989/sonarr
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${username}
-</Location>
+  cat > /etc/nginx/apps/sonarr.conf <<EOF
+location / {
+    proxy_pass        http://127.0.0.1:8989/sonarr;
+    proxy_set_header  X-Real-IP  \$remote_addr;
+    proxy_set_header        Host            \$host;
+    proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header        X-Forwarded-Proto \$scheme;
+    proxy_redirect off;
+}
 EOF
-  chown www-data: /etc/apache2/sites-enabled/sonarr.conf
-  service apache2 reload
+  service nginx reload
   systemctl start sonarr@${username}
 }
 
@@ -118,10 +131,13 @@ function _installSonarr10() {
   exit
 }
 
-
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
-local_packages=/etc/QuickBox/packages/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 username=$(cat /root/.master.info | cut -d: -f1)
 distribution=$(lsb_release -is)
 
