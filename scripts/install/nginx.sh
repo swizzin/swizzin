@@ -60,12 +60,12 @@ index index.html index.php index.htm;
   #try_files $uri $uri/ /index.php$is_args$args;
 #}
 
-location = /favicon.ico { log_not_found off; access_log off; }
-location = /robots.txt { log_not_found off; access_log off; allow all; }
-location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
-  expires max;
-  log_not_found off;
-}
+#location = /favicon.ico { log_not_found off; access_log off; }
+#location = /robots.txt { log_not_found off; access_log off; allow all; }
+#location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
+#  expires max;
+#  log_not_found off;
+#}
 
 location ~ \.php$ {
   include snippets/fastcgi-php.conf;
