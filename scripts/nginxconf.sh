@@ -1,3 +1,4 @@
+#!/bin/bash
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 if [[ -f /install/.rtorrent.lock ]]; then
@@ -68,6 +69,68 @@ if [[ -f /install/.rtorrent.lock ]]; then
 
 ?>
 RUC
+fi
+
+if [[ -f /install/.syncthing.lock ]]; then
+cat > /etc/nginx/apps/syncthing.conf <<SYNC
+location /syncthing/ {
+  include /etc/nginx/conf.d/proxy.conf;
+  proxy_pass              http://localhost:8384/;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
+SYNC
+fi
+
+if [[ -f /install/.subsonic.lock ]]; then
+cat > /etc/nginx/apps/subsonic.conf <<SUB
+location /subsonic/ {
+  proxy_set_header        Host \$host;
+  proxy_set_header        X-Real-IP \$remote_addr;
+  proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
+  proxy_set_header        X-Forwarded-Proto \$scheme;
+
+  proxy_pass              http://localhost:4040/subsonic;
+
+  proxy_read_timeout      600s;
+  proxy_send_timeout      600s;
+
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
+SUB
+fi
+
+if [[ -f /install/.sabnzbd.lock ]]; then
+  cat > /etc/nginx/apps/sabnzbd.conf <<SAB
+location /sabnzbd {
+    include /etc/nginx/conf.d/proxy.conf;
+    proxy_pass        http://127.0.0.1:65080/sabnzbd;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
+SAB
+
+if [[ -f /install/.sickrage.lock ]]; then
+  cat > /etc/nginx/apps/sickrage.conf <<SRC
+location /sickrage {
+    include /etc/nginx/conf.d/proxy.conf;
+    proxy_pass        http://127.0.0.1:8081/sickrage;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
+SRC
+fi
+
+if [[ -f /install/.sonarr.lock ]]; then
+  cat > /etc/nginx/apps/sonarr.conf <<SONARR
+location /sonarr {
+    include /etc/nginx/conf.d/proxy.conf;
+    proxy_pass        http://127.0.0.1:8989/sonarr;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+}
+SONARR
 fi
 
 for u in "${users[@]}"; do
