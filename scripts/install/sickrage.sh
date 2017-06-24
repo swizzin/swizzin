@@ -18,7 +18,13 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 local_setup=/etc/QuickBox/setup/
 
 function _installSickRage1() {
@@ -31,25 +37,42 @@ function _installSickRage2() {
 
 }
 function _installSickRage3() {
-  cp ${local_setup}templates/sysd/sickrage.template /etc/systemd/system/sickrage@.service
+  cat > /etc/systemd/system/sickrage@.service <<SRS
+[Unit]
+Description=SickRage
+After=syslog.target network.target
+
+[Service]
+Type=forking
+GuessMainPID=no
+User=%I
+Group=%I
+ExecStart=/usr/bin/python /home/%I/.sickrage/SickBeard.py -q --daemon --nolaunch --datadir=/home/%I/.sickrage
+ExecStop=-/bin/kill -HUP
+
+
+[Install]
+WantedBy=multi-user.target
+SRS
   systemctl enable sickrage@${MASTER} > /dev/null 2>&1
   systemctl start sickrage@${MASTER} > /dev/null 2>&1
   systemctl stop sickrage@${MASTER} > /dev/null 2>&1
 
   sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
   sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
-  cat > /etc/apache2/sites-enabled/sickrage.conf <<EOF
-<Location /sickrage>
-  ProxyPass http://localhost:8081/sickrage
-  ProxyPassReverse http://localhost:8081/sickrage
-  AuthType Digest
-  AuthName "rutorrent"
-  AuthUserFile '/etc/htpasswd'
-  Require user ${MASTER}
-</Location>
+  cat > /etc/nginx/apps/sickrage.conf <<EOF
+  location / {
+      proxy_pass        http://127.0.0.1:8081/sickrage;
+      proxy_set_header  X-Real-IP  \$remote_addr;
+      proxy_set_header        Host            \$host;
+      proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header        X-Forwarded-Proto \$scheme;
+      proxy_redirect off;
+      auth_basic "What's the password?";
+      auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+  }
 EOF
-  chown www-data: /etc/apache2/sites-enabled/sickrage.conf
-  service apache2 reload
+  service nginx reload
   systemctl start sickrage@${MASTER} > /dev/null 2>&1
 
 }
