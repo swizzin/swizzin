@@ -95,7 +95,6 @@ execute = {sh,-c,/usr/bin/php /var/www/rutorrent/php/initplugins.php ${user} &}
 
 # -- END HERE --
 EOF
-echo ${ok}
 chown ${user}.${user} -R /home/${user}/.rtorrent.rc
 }
 
@@ -205,7 +204,6 @@ auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 RUC
 systemctl force-reload nginx
-echo ${ok}
 }
 
 function _plugins() {
@@ -216,7 +214,6 @@ function _plugins() {
 	perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
 	cd /srv/rutorrent/plugins
 	chown -R www-data.www-data ${rutorrent}
-echo ${ok}
 }
 
 _systemd() {
@@ -273,7 +270,6 @@ distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
 user=$(cat /root/.master.info | cut -d: -f1)
-ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
 logdir="/root/logs"
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
@@ -281,7 +277,7 @@ portend=$((${port} + 1500))
 warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
-	  echo "Install rTorrent Dependencies ... ";_depends && echo ${ok}
+	  echo "Installing rTorrent Dependencies ... ";_depends
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
 		echo "Building rtorrent from source ... ";_rtorrent
