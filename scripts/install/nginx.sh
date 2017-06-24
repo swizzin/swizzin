@@ -99,7 +99,7 @@ SSC
 
 if [[ ! -f /tmp/.nginx.lock ]]; then
   echo "Nginx post-installation detected. Running nginx conf"
-  bash /usr/local/bin/swizzin/nginxconf.#!/bin/sh
+  bash /usr/local/bin/swizzin/nginxconf.sh
 fi
 systemctl restart nginx
 systemctl restart php7.0-fpm
