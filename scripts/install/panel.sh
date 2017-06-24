@@ -42,7 +42,7 @@ location ~ \.php$
 PAN
 
 cat > /etc/sudoers.d/panel <<SUD
-secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
+#secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
 #Defaults  env_keep -="HOME"
 
 # Host alias specification
@@ -52,14 +52,13 @@ secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/l
 # Cmnd alias specification
 Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem, /proc/sys/vm/drop_caches
 Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/clean_log, /usr/local/bin/swizzin/set_interface, /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*, /usr/local/bin/swizzin/box
-#Cmnd_Alias   PLUGINCMNDS = /usr/local/bin/quickbox/plugin/install/installplugin-*, /usr/local/bin/quickbox/plugin/remove/removeplugin-*
 Cmnd_Alias   PACKAGECMNDS = /usr/local/bin/swizzin/install/*, /usr/local/bin/swizzin/remove/*
-Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota, /bin/grep, /usr/bin/awk, /usr/bin/reload, systemctl force-reload nginx, /usr/bin/pkill, /usr/bin/killall, /bin/sed, /bin/systemctl
+Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota, /bin/grep, /usr/bin/awk, /usr/bin/reload, /bin/systemctl force-reload nginx, /usr/bin/pkill, /usr/bin/killall, /bin/sed, /bin/systemctl
 
-www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PLUGINCMNDS, PACKAGECMNDS, GENERALCMNDS
+www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PACKAGECMNDS, GENERALCMNDS
 
 # Allow members of group sudo to execute any command
-%www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PLUGINCMNDS, PACKAGECMNDS, GENERALCMNDS
+%www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PACKAGECMNDS, GENERALCMNDS
 
 SUD
   service nginx force-reload
