@@ -50,7 +50,13 @@ function _x2go() {
 		echo ${ok}
 }
 
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 distribution=$(lsb_release -is)
 release=$(lsb_release -cs)
 ok=$(echo -e "[ \e[0;32mDONE\e[00m ]")
