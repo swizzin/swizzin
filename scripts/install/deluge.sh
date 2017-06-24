@@ -83,7 +83,7 @@ function _deluge() {
 fi
   users=($(cat /etc/htpasswd | cut -d ":" -f 1))
   for u in "${users[@]}"; do
-    if [[ ${u} == ${master}]]; then
+    if [[ ${u} == ${master} ]]; then
       pass=$(cat /root/.master.info | cut -d: -f2)
     else
       pass=$(cat /root/${u}.info | cut -d: -f2)
