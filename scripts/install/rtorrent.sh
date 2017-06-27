@@ -3,7 +3,7 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _depends() {
-	APT='subversion dos2unix bc screen zip unzip sysstat build-essential
+	APT='subversion dos2unix bc screen zip unzip sysstat build-essential cfv comerr-dev
 	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo mktorrent'
@@ -38,6 +38,9 @@ function _libtorrent() {
 				wget -q ${libtorrentloc}
 				tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 				cd libtorrent >>$log 2>&1
+				if [[ ${codname} =~ ("stretch") ]]; then
+					patch -p1 < /etc/swizzin/sources/openssl.patch
+				fi
 				./autogen.sh >>$log 2>&1
 				./configure --prefix=/usr >>$log 2>&1
 				make -j${nproc} >>$log 2>&1

@@ -1,0 +1,57 @@
+From 472dd5d7a868130b94212d4a9ec5b6167d36fc71 Mon Sep 17 00:00:00 2001
+From: Peter Pentchev <roam@ringlet.net>
+Date: Mon, 28 Nov 2016 00:17:40 +0200
+Subject: [PATCH] Fix the DH parameters generation with OpenSSL 1.1.
+
+The DH structure is now opaque, so the parameters must be stored there
+through an accessor function.
+---
+ src/utils/diffie_hellman.cc | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/src/utils/diffie_hellman.cc b/src/utils/diffie_hellman.cc
+index aa653d45..701ec90c 100644
+--- a/src/utils/diffie_hellman.cc
++++ b/src/utils/diffie_hellman.cc
+@@ -55,8 +55,11 @@ DiffieHellman::DiffieHellman(const unsigned char *prime, int primeLength,
+
+ #ifdef USE_OPENSSL
+   m_dh = DH_new();
+-  m_dh->p = BN_bin2bn(prime, primeLength, NULL);
+-  m_dh->g = BN_bin2bn(generator, generatorLength, NULL);
++  BIGNUM * const dh_p = BN_bin2bn(prime, primeLength, NULL);
++  BIGNUM * const dh_g = BN_bin2bn(generator, generatorLength, NULL);
++  if (dh_p == NULL || dh_g == NULL ||
++      !DH_set0_pqg(m_dh, dh_p, NULL, dh_g))
++	  throw internal_error("Could not generate Diffie-Hellman parameters");
+
+   DH_generate_key(m_dh);
+ #else
+@@ -74,7 +77,11 @@ DiffieHellman::~DiffieHellman() {
+ bool
+ DiffieHellman::is_valid() const {
+ #ifdef USE_OPENSSL
+-  return m_dh != NULL && m_dh->pub_key != NULL;
++  if (m_dh == NULL)
++    return false;
++  const BIGNUM *pub_key;
++  DH_get0_key(m_dh, &pub_key, NULL);
++  return pub_key != NULL;
+ #else
+   return false;
+ #endif
+@@ -103,8 +110,10 @@ DiffieHellman::store_pub_key(unsigned char* dest, unsigned int length) {
+ #ifdef USE_OPENSSL
+   std::memset(dest, 0, length);
+
+-  if ((int)length >= BN_num_bytes(m_dh->pub_key))
+-    BN_bn2bin(m_dh->pub_key, dest + length - BN_num_bytes(m_dh->pub_key));
++  const BIGNUM *pub_key;
++  DH_get0_key(m_dh, &pub_key, NULL);
++  if ((int)length >= BN_num_bytes(pub_key))
++    BN_bn2bin(pub_key, dest + length - BN_num_bytes(pub_key));
+ #endif
+ }
+
+--
+2.11.0
