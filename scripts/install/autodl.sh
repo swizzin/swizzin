@@ -81,7 +81,7 @@ ADC
 systemctl enable irssi@${u} 2>>$log.log
 sleep 1
 service irssi@${u} start
-
+touch /install/.autodl.lock
 done
 
 
