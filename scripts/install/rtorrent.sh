@@ -34,9 +34,10 @@ function _xmlrpc() {
 function _libtorrent() {
 				cd "/tmp"
 				rm -rf xmlrpc-c >>$log 2>&1
+				mkdir libtorrent
 				wget -q ${libtorrentloc}
-				tar -xvf libtorrent-* >>$log 2>&1
-				cd libtorrent-* >>$log 2>&1
+				tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
+				cd libtorrent >>$log 2>&1
 				./autogen.sh >>$log 2>&1
 				./configure --prefix=/usr >>$log 2>&1
 				make -j${nproc} >>$log 2>&1
@@ -45,16 +46,17 @@ function _libtorrent() {
 
 function _rtorrent() {
 				cd "/tmp"
-				rm -rf libtorrent-* >>$log 2>&1
+				rm -rf libtorrent* >>$log 2>&1
+				mkdir rtorrent
 				wget -q ${rtorrentloc}
-				tar -xzvf rtorrent-* >>$log 2>&1
-				cd rtorrent-*
+				tar -xzvf rtorrent-* -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
+				cd rtorrent
 				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
 				make -j${nproc} >/dev/null 2>&1
 				make install >/dev/null 2>&1
 				cd "/tmp"
 				ldconfig >/dev/null 2>&1
-				rm -rf rtorrent-* >/dev/null 2>&1
+				rm -rf rtorrent* >/dev/null 2>&1
 }
 
 function _rutorrent() {
