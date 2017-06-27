@@ -38,7 +38,7 @@ function _libtorrent() {
 				wget -q ${libtorrentloc}
 				tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 				cd libtorrent >>$log 2>&1
-				if [[ ${codname} =~ ("stretch") ]]; then
+				if [[ ${codename} =~ ("stretch") ]]; then
 					patch -p1 < /etc/swizzin/sources/openssl.patch
 				fi
 				./autogen.sh >>$log 2>&1
