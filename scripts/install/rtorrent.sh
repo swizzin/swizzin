@@ -115,7 +115,6 @@ function _makedirs() {
 function _perms() {
 	chown -R ${user}.${user} /home/${user}/ 2>> $log
 	sudo -u ${user} chmod 755 /home/${user}/ 2>> $log
-	mkdir /srv/rutorrent/conf/users/${user} 2>> $log
 	chsh -s /bin/bash ${user}
 	if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
 }
