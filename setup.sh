@@ -131,6 +131,7 @@ function _choices() {
 				export rtorrentver='0.9.3'
 				export libtorrentver='0.13.3'
 	    fi
+		fi
 	fi
 	if grep -q deluge "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
