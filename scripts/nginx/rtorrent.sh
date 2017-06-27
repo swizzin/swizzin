@@ -2,19 +2,21 @@
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 cd /srv
-if [[ ! -d /srv/rutorrent ]]; then git clone https://github.com/Novik/ruTorrent.git rutorrent >>$log 2>&1; fi
-chown -R www-data:www-data rutorrent
-rm -rf /srv/rutorrent/plugins/throttle
-rm -rf /srv/rutorrent/plugins/extratio
-rm -rf /srv/rutorrent/plugins/rpc
-rm -rf /srv/rutorrent/conf/config.php
-
+if [[ ! -d /srv/rutorrent ]]; then
+  git clone https://github.com/Novik/ruTorrent.git rutorrent >>$log 2>&1
+  chown -R www-data:www-data rutorrent
+  rm -rf /srv/rutorrent/plugins/throttle
+  rm -rf /srv/rutorrent/plugins/extratio
+  rm -rf /srv/rutorrent/plugins/rpc
+  rm -rf /srv/rutorrent/conf/config.php
+fi
 sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
 sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
-cd /srv/rutorrent/plugins/theme/themes
-git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
-perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
-cd /srv/rutorrent/plugins
+if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
+  cd /srv/rutorrent/plugins/theme/themes
+  git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
+  perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
+fi
 
 cat >/srv/rutorrentconf/config.php<<RUC
 <?php
@@ -87,9 +89,10 @@ RUM
 
 for u in "${users[@]}"; do
   port=$(cat /home/${u}/.rtorrent.rc | grep scgi | cut -d: -f2)
-  mkdir -p /srv/rutorrent/conf/users/${u}/
+  if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
+    mkdir -p /srv/rutorrent/conf/users/${u}/
 
-  cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
+    cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
 <?php
 \$topDirectory = '/home/${u}';
 \$scgi_port = $port;
@@ -97,8 +100,8 @@ for u in "${users[@]}"; do
 \$quotaUser = "${u}";
 ?>
 RUU
-  chown -R www-data.www-data /srv/rutorrent
-
+  fi
+  if [[ ! -f /etc/nginx/apps/scgi.${u}.conf ]]; then
   cat > /etc/nginx/apps/scgi.${u}.conf <<RUC
 location /${u} {
 include scgi_params;
@@ -107,6 +110,7 @@ auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }
 RUC
+  fi
 done
 
 chown -R www-data.www-data /srv/rutorrent

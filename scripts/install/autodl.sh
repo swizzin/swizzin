@@ -38,13 +38,7 @@ function _installautodl() {
   for depends in $APT; do
   apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
   done
-  rutorrent="/srv/rutorrent/";
   users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-  if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
-			cd /srv/rutorrent/plugins/
-			git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi >/dev/null 2>&1 || (echo "git of autodl plugin to main plugins seems to have failed ... ")
-			chown -R www-data:www-data autodl-irssi/
-  fi
     for u in "${users[@]}"; do
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)

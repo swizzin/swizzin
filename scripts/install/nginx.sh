@@ -123,7 +123,7 @@ proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
 
-locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then

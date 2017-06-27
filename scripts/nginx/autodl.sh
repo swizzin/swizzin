@@ -1,6 +1,8 @@
 #!/bin/bash
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-
+    cd /srv/rutorrent/plugins/
+    git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi >/dev/null 2>&1 || (echo "git of autodl plugin to main plugins seems to have failed ... ")
+    chown -R www-data:www-data autodl-irssi/
 for u in "${users[@]}"; do
 if [[ -f /install/.autodl.lock ]]; then
     IRSSI_PORT=$(cat /home/${u}/.autodl2.cfg | grep port | cut -d= -f2 | sed 's/ //g' )
