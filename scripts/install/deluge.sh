@@ -223,7 +223,7 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "show_sidebar": true,
   "sidebar_show_zero": false,
   "pkey": "ssl/daemon.pkey",
-  "https": false,
+  "https": true,
   "sessions": {},
   "base": "/",
   "pwd_salt": "${DWSALT}",
@@ -259,6 +259,48 @@ DHL
   chown ${u}: /home/${u}/dwatch
   mkdir -p /home/${u}/torrents/deluge
   chown ${u}: /home/${u}/torrents/deluge
+  if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
+    cat > /etc/systemd/system/deluged@.service <<DD
+[Unit]
+Description=Deluge Bittorrent Client Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+
+ExecStart=/usr/bin/deluged -d
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluged
+Restart=on-failure
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
+DD
+  fi
+  if [[ ! -f /etc/systemd/system/deluge-web@.service ]]; then
+    cat > /etc/systemd/system/deluge-web@.service <<DW
+[Unit]
+Description=Deluge Bittorrent Client Web Interface
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+
+ExecStart=/usr/bin/deluge-web
+ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluge-web
+TimeoutStopSec=300
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+DW
+  fi
+  systemctl enable deluged@${u}
+  systemctl enable deluge-web@${u}
+  systemctl start deluged@${u}
+  systemctl start deluge-web@${u}
 done
   touch /install/.deluge.lock
 }
