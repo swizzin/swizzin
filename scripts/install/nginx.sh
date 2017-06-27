@@ -122,10 +122,16 @@ proxy_cache_bypass \$cookie_session;
 proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
-if [[ ! -f /tmp/.nginx.lock ]]; then
-  echo "Nginx post-installation detected. Running nginx conf"
-  bash /usr/local/bin/swizzin/nginxconf.sh
-fi
+
+locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+for i in "${locks[@]}"; do
+  app=${i}
+  if [[ -f /install/.$app.lock ]]; then
+    echo "Installing nginx config for $app"
+    /usr/local/bin/swizzin/nginx/$app.sh
+  fi
+done
+
 systemctl restart nginx
 systemctl restart php7.0-fpm
 touch /install/.nginx.lock

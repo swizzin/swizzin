@@ -50,16 +50,10 @@ chown ${MASTER}: /srv/subsonic
 systemctl enable subsonic.service >/dev/null 2>&1
 systemctl start subsonic.service >/dev/null 2>&1
 
-cat > /etc/nginx/apps/subsonic.conf <<EOF
-location /subsonic/ {
-  include /etc/nginx/conf.d/proxy.conf;
-  proxy_pass              http://localhost:4040/subsonic;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-}
-EOF
-chown www-data: /etc/apache2/sites-enabled/subsonic.conf
-service apache2 reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/subsonic.sh
+  service nginx reload
+fi
 service subsonic restart
 
 echo "Subsonic Install Complete!" >>"${OUTTO}" 2>&1;

@@ -17,27 +17,18 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-OUTTO="/srv/rutorrent/home/db/output.log"
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-local_setup=/etc/QuickBox/setup/
-
-echo "Setting up hostname for plex ... "
-    echo -ne "ServerName ${HOSTNAME1}" | sudo tee /etc/apache2/conf-available/fqdn.conf >/dev/null 2>&1
-    sudo a2enconf fqdn >> /dev/null 2>&1
-    echo
-
-echo "Setting up plex apache configuration ... "
-  cp ${local_setup}templates/plex.conf.template /etc/apache2/sites-enabled/plex.conf
-  chown www-data: /etc/apache2/sites-enabled/plex.conf
-  a2enmod proxy >/dev/null 2>&1
-  sed -i "s/PUBLICIP/${PUBLICIP}/g" /etc/apache2/sites-enabled/plex.conf
-
 
 echo "Installing plex keys and sources ... "
-    #wget -O - http://shell.ninthgate.se/packages/shell.ninthgate.se.gpg.key | apt-key add - #MODIFIED
-    #echo "deb http://shell.ninthgate.se/packages/debian jessie main" > /etc/apt/sources.list.d/plexmediaserver.list #MODIFIED
-    wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
+      wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
     echo "deb https://downloads.plex.tv/repo/deb/ public main" > /etc/apt/sources.list.d/plexmediaserver.list
     echo
 

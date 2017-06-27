@@ -52,15 +52,10 @@ WantedBy=multi-user.target
 
 EOF
 
-cat > /etc/nginx/apps/sabnzbd.conf <<EOF
-location /sabnzbd {
-    include /etc/nginx/conf.d/proxy.conf;
-    proxy_pass        http://127.0.0.1:65080/sabnzbd;
-    auth_basic "What's the password?";
-    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-}
-EOF
-service nginx reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
+  service nginx reload
+fi
 
 }
 

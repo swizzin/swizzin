@@ -33,18 +33,10 @@ echo "Adjusting permissions" >>"${OUTTO}" 2>&1;
 chown plexpy:nogroup -R /opt/plexpy
 
 
-cat > /etc/apache2/sites-enabled/plexpy.conf <<EOF
-<Location /plexpy>
-ProxyPass http://localhost:8181/plexpy
-ProxyPassReverse http://localhost:8181/plexpy
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${MASTER}
-</Location>
-EOF
-chown www-data: /etc/apache2/sites-enabled/plexpy.conf
-service apache2 reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/plexpy.sh
+  service nginx reload
+fi
 
 echo "Enabling PlexPy Systemd configuration"
 cp ${local_setup}templates/sysd/plexpy.template /etc/systemd/system/plexpy.service

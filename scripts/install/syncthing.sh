@@ -55,15 +55,10 @@ SYNC
 systemctl enable syncthing@${MASTER} > /dev/null 2>&1
 systemctl start syncthing@${MASTER} > /dev/null 2>&1
 
-cat > /etc/nginx/apps/syncthing.conf <<EOF
-location /syncthing/ {
-  include /etc/nginx/conf.d/proxy.conf;
-  proxy_pass              http://localhost:8384/;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-}
-EOF
-service nginx reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/syncthing.sh
+  service nginx reload
+fi
 
 touch /install/.syncthing.lock
 echo "Syncthing installation complete!" >>"${OUTTO}" 2>&1;

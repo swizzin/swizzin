@@ -103,16 +103,10 @@ systemctl stop $APPNAME >/dev/null 2>&1
 #/etc/init.d/$APPNAME stop >/dev/null 2>&1
 #sudo cp $APPPATH/init-scripts/init.ubuntu /etc/init.d/$APPNAME || { echo $RED'Creating init file failed.'$ENDCOLOR ; exit 1; }
 
-cat > /etc/apache2/sites-enabled/$APPNAME.conf <<EOF
-<Location /$APPNAME>
-ProxyPass http://localhost:$APPDPORT
-ProxyPassReverse http://localhost:$APPDPORT
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user $USERNAME
-</Location>
-EOF
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/headphones.sh
+  service nginx reload
+fi
 
 echo
 sleep 1

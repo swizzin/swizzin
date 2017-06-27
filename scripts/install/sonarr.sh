@@ -105,15 +105,10 @@ SONARR
 
   systemctl stop sonarr@${username}
 
-  cat > /etc/nginx/apps/sonarr.conf <<EOF
-location /sonarr {
-    include /etc/nginx/conf.d/proxy.conf;
-    proxy_pass        http://127.0.0.1:8989/sonarr;
-    auth_basic "What's the password?";
-    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-}
-EOF
-  service nginx reload
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /usr/local/bin/swizzin/nginx/sonarr.sh
+    service nginx reload
+  fi
   systemctl start sonarr@${username}
 }
 

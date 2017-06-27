@@ -51,18 +51,10 @@ systemctl stop nzbhydra@${MASTER} >/dev/null 2>&1
 sed -i "s/urlBase.*/urlBase\": \"\/nzbhydra\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
 sed -i "s/host.*/host\": \"127.0.0.1\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
 
-cat > /etc/apache2/sites-enabled/nzbhydra.conf <<EOF
-<Location /nzbhydra>
-ProxyPass http://localhost:5075/nzbhydra/
-ProxyPassReverse http://localhost:5075/nzbhydra/
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${MASTER}
-</Location>
-EOF
-chown www-data: /etc/apache2/sites-enabled/nzbhydra.conf
-service apache2 reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
+  service nginx reload
+fi
 systemctl start nzbhydra@${MASTER} >/dev/null 2>&1
 
 touch /install/.nzbhydra.lock

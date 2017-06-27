@@ -41,18 +41,10 @@ systemctl stop couchpotato@${MASTER} >/dev/null 2>&1
 
 sed -i "s/url_base.*/url_base = couchpotato\nhost = localhost/g" /home/${MASTER}/.couchpotato/settings.conf
 
-cat > /etc/apache2/sites-enabled/couchpotato.conf <<EOF
-<Location /couchpotato>
-ProxyPass http://localhost:5050/couchpotato
-ProxyPassReverse http://localhost:5050/couchpotato
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${MASTER}
-</Location>
-EOF
-chown www-data: /etc/apache2/sites-enabled/couchpotato.conf
-service apache2 reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/couchpotato.sh
+  service nginx reload
+fi
 systemctl start couchpotato@${MASTER} >/dev/null 2>&1
 
 touch /install/.couchpotato.lock

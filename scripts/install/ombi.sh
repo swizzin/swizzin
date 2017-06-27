@@ -46,15 +46,10 @@ function _services() {
   systemctl enable ombi >/dev/null 2>&1
   systemctl start ombi
   touch /install/.ombi.lock
-  cat > /etc/apache2/sites-enabled/ombi.conf <<EOF
-<Location /ombi>
-ProxyPass http://localhost:3000/ombi
-ProxyPassReverse http://localhost:3000/ombi
-Require all granted
-</Location>
-EOF
-  chown www-data: /etc/apache2/sites-enabled/ombi.conf
-  service apache2 reload
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /usr/local/bin/swizzin/nginx/ombi.sh
+    service nginx reload
+  fi
 }
 
 spinner() {

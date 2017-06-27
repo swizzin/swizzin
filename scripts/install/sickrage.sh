@@ -59,15 +59,10 @@ SRS
 
   sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
   sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
-  cat > /etc/nginx/apps/sickrage.conf <<EOF
-  location /sickrage {
-      include /etc/nginx/conf.d/proxy.conf;
-      proxy_pass        http://127.0.0.1:8081/sickrage;
-      auth_basic "What's the password?";
-      auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-  }
-EOF
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/sickrage.sh
   service nginx reload
+fi
   systemctl start sickrage@${MASTER} > /dev/null 2>&1
 
 }

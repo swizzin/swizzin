@@ -55,18 +55,10 @@ sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\"/g" /home/${us
 # Disable native auto-update, since we have a command for that.
 sed -i "s/\"UpdateDisabled.*/\"UpdateDisabled\": true,/g" /home/${username}/.config/Jackett/ServerConfig.json
 
-cat > /etc/apache2/sites-enabled/jackett.conf <<EOF
-<Location /jackett>
-ProxyPass http://localhost:9117/jackett
-ProxyPassReverse http://localhost:9117/jackett
-AuthType Digest
-AuthName "rutorrent"
-AuthUserFile '/etc/htpasswd'
-Require user ${username}
-</Location>
-EOF
-chown www-data: /etc/apache2/sites-enabled/jackett.conf
-service apache2 reload
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/jackett.sh
+  service nginx reload
+fi
 service jackett@${username} start
 
 

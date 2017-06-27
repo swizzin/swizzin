@@ -70,22 +70,15 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-  cat > /etc/nginx/apps/radarr.conf <<EOF
-location /radarr {
-    include /etc/nginx/conf.d/proxy.conf;
-    proxy_pass        http://127.0.0.1:7878/radarr;
-    auth_basic "What's the password?";
-    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-}
-EOF
-
-systemctl force-reload nginx
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/radarr.sh
+  service nginx reload
+fi
 
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
   chmod 775 /home/${username}/.config
   chown -R ${username}:${username} /opt/Radarr/
-  chown www-data:www-data /etc/apache2/sites-enabled/radarr.conf
   systemctl daemon-reload
   systemctl enable radarr.service > /dev/null 2>&1
   systemctl start radarr.service
@@ -100,7 +93,6 @@ systemctl force-reload nginx
   if [[ -f /home/${username}/.config/Radarr/config.xml ]]; then
     #sed -i "s/<UrlBase>.*/<UrlBase>radarr<\/UrlBase>/g" /home/${username}/.config/Radarr/config.xml
     #sed -i "s/<BindAddress>.*/<BindAddress>127.0.0.1<\/BindAddress>/g" /home/${username}/.config/Radarr/config.xml
-    service apache2 reload
   else
     # output to dashboard
     echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/Radarr/config.xml" >> "${OUTTO}" 2>&1
