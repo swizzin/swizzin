@@ -112,6 +112,10 @@ function _choices() {
 	 touch /tmp/.$result.lock
  done < "$results"
 	if grep -q rtorrent "$results"; then
+		if [[ ${codename} =~ ("stretch") ]]; then
+			export rtorrentver='0.9.6'
+			export libtorrentver='0.13.6'
+		else
 		function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 	               0.9.6 "" \
 	               0.9.4 "" \

@@ -246,22 +246,30 @@ service rtorrent@${user} start
 export DEBIAN_FRONTEND=noninteractive
 
 begin=$(date +"%s")
+distribution=$(lsb_release -is)
+release=$(lsb_release -rs)
+codename=$(lsb_release -cs)
 if [[ -z $rtorrentver ]]; then
-  function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-               0.9.6 "" \
-               0.9.4 "" \
-               0.9.2 "" 3>&1 1>&2 2>&3)
+	if [[ ${codename} =~ ("stretch") ]]; then
+		export rtorrentver='0.9.6'
+		export libtorrentver='0.13.6'
+	else
+	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 0.9.6 "" \
+							 0.9.4 "" \
+							 0.9.2 "" 3>&1 1>&2 2>&3)
 
-    if [[ $function == 0.9.6 ]]; then
-      export rtorrentver='0.9.6'
-      export libtorrentver='0.13.6'
-    elif [[ $function == 0.9.4 ]]; then
-      export rtorrentver='0.9.4'
-      export libtorrentver='0.13.4'
-    elif [[ $function == 0.9.2 ]]; then
-      export rtorrentver='0.9.3'
-      export libtorrentver='0.13.3'
-    fi
+		if [[ $function == 0.9.6 ]]; then
+			export rtorrentver='0.9.6'
+			export libtorrentver='0.13.6'
+		elif [[ $function == 0.9.4 ]]; then
+			export rtorrentver='0.9.4'
+			export libtorrentver='0.13.4'
+		elif [[ $function == 0.9.2 ]]; then
+			export rtorrentver='0.9.3'
+			export libtorrentver='0.13.3'
+		fi
+fi
 fi
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
@@ -271,9 +279,6 @@ fi
 rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
 libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
 xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
-distribution=$(lsb_release -is)
-release=$(lsb_release -rs)
-codename=$(lsb_release -cs)
 user=$(cat /root/.master.info | cut -d: -f1)
 logdir="/root/logs"
 rutorrent="/srv/rutorrent/"
