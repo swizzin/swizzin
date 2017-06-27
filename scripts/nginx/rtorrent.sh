@@ -18,7 +18,7 @@ if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
 fi
 
-cat >/srv/rutorrentconf/config.php<<RUC
+cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
 
