@@ -19,14 +19,20 @@
 
 DISTRO=$(lsb_release -is)
 CODENAME=$(lsb_release -cs)
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 username=$(cat /root/.master.info | cut -d: -f1)
-local_setup=/etc/QuickBox/setup/
 
+if [[ -f /install/.nginx.lock ]]; then
 echo "Setting up emby apache configuration ... " >>"${OUTTO}" 2>&1;
-  cp ${local_setup}templates/emby.conf.template /etc/apache2/sites-enabled/emby.conf
-  chown www-data /etc/apache2/sites-enabled/emby.conf
-  a2enmod proxy >/dev/null 2>&1
+  bash /usr/local/bin/swizzin/nginx/emby.sh
+  service nginx reload
+fi
 
 echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
   if [[ $DISTRO == Debian ]]; then

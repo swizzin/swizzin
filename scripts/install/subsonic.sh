@@ -18,8 +18,13 @@
 #   under the GPL along with build & install instructions.
 #
 
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 

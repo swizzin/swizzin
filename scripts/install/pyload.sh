@@ -80,31 +80,10 @@ WorkingDirectory=/home/%I/
 WantedBy=multi-user.target
 
 PYSV
-
-cat >/etc/apache2/sites-enabled/pyload.conf<<PYAP
-<Location /pyload>
-    ProxyPass http://localhost:8000/pyload
-    ProxyPassReverse http://localhost:8000/pyload
-    ProxyPreserveHost On
-    ProxyHTMLEnable On
-    ProxyHTMLCharsetOut *
-    ProxyHTMLURLMap / /pyload/
-    SetOutputFilter INFLATE;DEFLATE
-    AddOutputFilterByType INFLATE;SUBSTITUTE;DEFLATE text/css
-    AddOutputFilterByType INFLATE;SUBSTITUTE;DEFLATE text/javascript
-    Substitute "s|/media|/pyload/media|i"
-    Substitute "s|/json|/pyload/json|i"
-    Substitute "s|/api|/pyload/api|i"
-    Header edit Location ^https://$ip/(?!pyload\/)(.*)$ https://$ip/pyload/$
-</Location>
-
-PYAP
-
-a2enmod proxy_http
-a2enmod proxy_html
-a2enmod substitute
-a2enmod headers
-
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/pyload.sh
+  service nginx reload
+fi
 }
 
 function _installpyLoad6() {
@@ -141,7 +120,13 @@ function _installpyLoad9() {
 
 ip=$(curl -s http://whatismyip.akamai.com)
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 
 
 echo "Installing any additional dependencies needed for pyLoad ... " >>"${OUTTO}" 2>&1;_installpyLoad1
