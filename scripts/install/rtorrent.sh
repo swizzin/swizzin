@@ -189,10 +189,10 @@ rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt
 		echo "Building rtorrent from source ... ";_rtorrent
 		echo "Making ${user} directory structure ... ";_makedirs
 		echo "Setting permissions on ${user} ... ";_perms
-    if [[ -f /install/.nginx.lock ]]; then
-			echo "Installing ruTorrent";_ruconf
-    fi
 		echo "setting up rtorrent.rc ... ";_rconf;_systemd
+		if [[ -f /install/.nginx.lock ]]; then
+			echo "Installing ruTorrent";_ruconf
+		fi
 		touch /install/.rtorrent.lock
 termin=$(date +"%s")
 difftimelps=$((termin-begin))
