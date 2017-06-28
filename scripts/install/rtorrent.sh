@@ -97,7 +97,9 @@ chown ${user}.${user} -R /home/${user}/.rtorrent.rc
 
 function _makedirs() {
 	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
-	chown ${user}.${user} /home/${user}/{torrents,.sessions} 2>> $log
+	mkdir -p /home/${user}/.sessions
+	mkdir -p /home/${user}/rwatch
+	chown ${user}.${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
 	usermod -a -G www-data ${user} 2>> $log
 	usermod -a -G ${user} www-data 2>> $log
 }

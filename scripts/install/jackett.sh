@@ -17,9 +17,14 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 username=$(cat /root/.master.info | cut -d: -f1)
-local_setup=/etc/QuickBox/setup/
 jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
 echo >>"${OUTTO}" 2>&1;
 echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
@@ -41,7 +46,22 @@ rm -f Jackett.Binaries.Mono.tar.gz
 chown ${username}.${username} -R Jackett
 touch /install/.jackett.lock
 
-cp ${local_setup}templates/sysd/jackett.template /etc/systemd/system/jackett@.service
+cat > /etc/systemd/system/jackett@.service <<JAK
+[Unit]
+Description=jackett
+After=network.target
+
+[Service]
+Type=simple
+User=%I
+WorkingDirectory=/home/%I/
+ExecStart=/usr/bin/mono /home/%I/Jackett/JackettConsole.exe --NoRestart
+Restart=always
+RestartSec=2
+[Install]
+WantedBy=multi-user.target
+JAK
+
 systemctl enable jackett@${username} >/dev/null 2>&1
 systemctl start jackett@${username}
 sleep 5
@@ -50,10 +70,7 @@ systemctl stop jackett@${username}
 mkdir -p /home/${username}/.config/Jackett
 chmod 700 /home/${username}/.config/Jackett
 chown ${username}.${username} -R /home/${username}/.config/Jackett
-sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${username}/.config/Jackett/ServerConfig.json
-sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\"/g" /home/${username}/.config/Jackett/ServerConfig.json
-# Disable native auto-update, since we have a command for that.
-sed -i "s/\"UpdateDisabled.*/\"UpdateDisabled\": true,/g" /home/${username}/.config/Jackett/ServerConfig.json
+
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/jackett.sh

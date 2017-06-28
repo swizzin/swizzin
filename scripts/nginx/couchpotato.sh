@@ -10,3 +10,4 @@ location /couchpotato {
 }
 RAD
 fi
+sed -i "s/url_base.*/url_base = couchpotato\nhost = localhost/g" /home/${MASTER}/.couchpotato/settings.conf

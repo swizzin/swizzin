@@ -29,10 +29,15 @@ ENDCOLOR='\033[0m'
 CYAN='\e[96m'
 GREEN='\e[92m'
 
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 USERNAME=$(cat /root/.master.info | cut -d: -f1)
-PASSWD=$(cat /root/$USERNAME.info | cut -d ":" -f 3 | cut -d "@" -f 1)
-local_setup=/etc/QuickBox/setup/
+PASSWD=$(cat /root/.master.info | cut -d: -f2)
 
 
 APPNAME='headphones'
@@ -73,7 +78,6 @@ echo
 sleep 1
 echo -e "Setting $APPTITLE permissions for $USERNAME ... " >>"${OUTTO}" 2>&1;
 echo -e $YELLOW'--->Setting '$APPTITLE' permissions for '$USERNAME'...'$ENDCOLOR
-chown www-data: /etc/apache2/sites-enabled/$APPNAME.conf  >/dev/null 2>&1
 sudo chown -R $USERNAME:$USERNAME $APPPATH >/dev/null 2>&1
 sudo chmod -R 775 $APPPATH >/dev/null 2>&1
 sudo chmod -R g+s $APPPATH >/dev/null 2>&1
@@ -94,7 +98,22 @@ echo $APPSHORTNAMEU"_USER="$USERNAME >> $DEFAULTFILE
 
 
 sudo mv $DEFAULTFILE "/etc/default/"$APPNAME || { echo 'Could not move '$APPTITLE' default file.' ; exit 1; }
-cp ${local_setup}templates/sysd/$APPNAME.template /etc/systemd/system/$APPNAME.service
+cat > /etc/systemd/system/headphones.service <<HEADP
+[Unit]
+Description=Headphones
+Wants=network.target network-online.target
+After=network.target network-online.target
+
+[Service]
+ExecStart=/usr/bin/python2 /home/USER/.headphones/Headphones.py -d --pidfile /var/run/headphones/headphones.pid --datadir /home/USER/.headphones --nolaunch --config /home/USER/.headphones/config.ini --port 8004
+PIDFile=/var/run/headphones/headphones.pid
+Type=forking
+User=USER
+Group=USER
+
+[Install]
+WantedBy=multi-user.target
+HEADP
 sed -i "s/USER/${USERNAME}/g" /etc/systemd/system/$APPNAME.service
 systemctl enable $APPNAME >/dev/null 2>&1
 systemctl start $APPNAME >/dev/null 2>&1
@@ -103,17 +122,10 @@ systemctl stop $APPNAME >/dev/null 2>&1
 #/etc/init.d/$APPNAME stop >/dev/null 2>&1
 #sudo cp $APPPATH/init-scripts/init.ubuntu /etc/init.d/$APPNAME || { echo $RED'Creating init file failed.'$ENDCOLOR ; exit 1; }
 
-if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/headphones.sh
-  service nginx reload
-fi
-
 echo
 sleep 1
 echo -e "Enabling $APPTITLE Autostart at Boot ... " >>"${OUTTO}" 2>&1;
 echo -e $YELLOW'--->Enabling '$APPTITLE' Autostart at Boot...'$ENDCOLOR
-sudo chown $USERNAME:$USERNAME /etc/systemd/system/$APPNAME.service
-sudo chmod +x /etc/systemd/system/$APPNAME.service
 sudo update-rc.d $APPNAME defaults
 
 echo
@@ -125,11 +137,10 @@ sleep 10
 systemctl stop $APPNAME >/dev/null 2>&1
 
 mkdir -p $APPPATH/logs
-cp ${local_setup}configs/headphones/config.ini $APPPATH/config.ini
-sudo chown -R $USERNAME:$USERNAME $APPPATH
-
-sudo sed -i "s/USER/${USERNAME}/g" $APPSETTINGS ## || { echo -e $RED'Modifying config file failed.'$ENDCOLOR; exit 1; }
-#sudo sed -i 's@http_host = localhost@http_host = 0.0.0.0@g' $APPSETTINGS  || { echo -e $RED'Modifying http_host in config file failed.'$ENDCOLOR; exit 1; }
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/headphones.sh
+  service nginx reload
+fi
 
 systemctl start $APPNAME
 

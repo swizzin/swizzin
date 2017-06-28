@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | lizaSB
+# Author             :   QuickBox.IO | liara
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
@@ -17,8 +17,13 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 
@@ -33,20 +38,33 @@ echo "Adjusting permissions" >>"${OUTTO}" 2>&1;
 chown plexpy:nogroup -R /opt/plexpy
 
 
-if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/plexpy.sh
-  service nginx reload
-fi
+
 
 echo "Enabling PlexPy Systemd configuration"
-cp ${local_setup}templates/sysd/plexpy.template /etc/systemd/system/plexpy.service
+cat > /etc/systemd/system/plexpy.service <<PPY
+[Unit]
+Description=PlexPy - Stats for Plex Media Server usage
+
+[Service]
+ExecStart=/opt/plexpy/PlexPy.py --quiet --daemon --nolaunch --config /opt/plexpy/config.ini --datadir /opt/plexpy
+GuessMainPID=no
+Type=forking
+User=plexpy
+Group=nogroup
+
+[Install]
+WantedBy=multi-user.target
+PPY
+
 systemctl enable plexpy > /dev/null 2>&1
 systemctl start plexpy
 systemctl stop plexpy
 systemctl start plexpy
 systemctl stop plexpy
-sed -i "s/http_root.*/http_root = \"plexpy\"/g" /opt/plexpy/config.ini
-sed -i "s/http_host.*/http_host = localhost/g" /opt/plexpy/config.ini
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/plexpy.sh
+  service nginx reload
+fi
 systemctl start plexpy
 touch /install/.plexpy.lock
 

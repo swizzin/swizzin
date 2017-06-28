@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | lizaSB
+# Author             :   QuickBox.IO | liara
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
@@ -19,7 +19,9 @@
 
 inst=$(which mysql)
 ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-
+if [[ ! -f /install/.nginx.lock ]]; then
+  echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+else
 echo "Please choose a password for the nextcloud mysql user."
 read -s -p "Password: " 'nextpass'
 #Check for existing mysql and install if not found
@@ -49,10 +51,10 @@ else
 fi
 #Depends
 apt-get install -y -q php7.0-mysql libxml2-dev php7.0-common php7.0-gd php7.0-json php7.0-curl  php7.0-zip php7.0-xml php7.0-mbstring > /dev/null 2>&1
-a2enmod rewrite > /dev/null 2>&1
+#a2enmod rewrite > /dev/null 2>&1
 cd /root
-wget -q https://download.nextcloud.com/server/releases/nextcloud-11.0.2.zip > /dev/null 2>&1
-unzip nextcloud-11.0.2.zip > /dev/null 2>&1
+wget -q https://download.nextcloud.com/server/releases/nextcloud-12.0.0.zip > /dev/null 2>&1
+unzip nextcloud-12.0.0.zip > /dev/null 2>&1
 mv nextcloud /srv
 
 #Set permissions as per nextcloud
@@ -85,22 +87,90 @@ then
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 
-cat > /etc/apache2/sites-enabled/nextcloud.conf <<EOF
-Alias /nextcloud "/srv/nextcloud/"
+cat > /etc/nginx/apps/nextcloud.conf <<'EOF'
+location = /.well-known/carddav {
+  return 301 $scheme://$host/nextcloud/remote.php/dav;
+}
+location = /.well-known/caldav {
+  return 301 $scheme://$host/nextcloud/remote.php/dav;
+}
 
-<Directory /srv/nextcloud/>
- Options +FollowSymlinks
- AllowOverride All
- Require all granted
+location /.well-known/acme-challenge { }
 
-<IfModule mod_dav.c>
- Dav off
-</IfModule>
+location ^~ /nextcloud {
 
-SetEnv HOME /srv/nextcloud
-SetEnv HTTP_HOME /srv/nextcloud
+    # set max upload size
+    client_max_body_size 512M;
+    fastcgi_buffers 64 4K;
 
-</Directory>
+    # Enable gzip but do not remove ETag headers
+    gzip on;
+    gzip_vary on;
+    gzip_comp_level 4;
+    gzip_min_length 256;
+    gzip_proxied expired no-cache no-store private no_last_modified no_etag auth;
+    gzip_types application/atom+xml application/javascript application/json application/ld+json application/manifest+json application/rss+xml application/vnd.geo+json application/vnd.ms-fontobject application/x-font-ttf application/x-web-app-manifest+json application/xhtml+xml application/xml font/opentype image/bmp image/svg+xml image/x-icon text/cache-manifest text/css text/plain text/vcard text/vnd.rim.location.xloc text/vtt text/x-component text/x-cross-domain-policy;
+
+    # Uncomment if your server is build with the ngx_pagespeed module
+    # This module is currently not supported.
+    #pagespeed off;
+
+    location /nextcloud {
+        rewrite ^ /nextcloud/index.php$uri;
+    }
+
+    location ~ ^/nextcloud/(?:build|tests|config|lib|3rdparty|templates|data)/ {
+        deny all;
+    }
+    location ~ ^/nextcloud/(?:\.|autotest|occ|issue|indie|db_|console) {
+        deny all;
+    }
+
+    location ~ ^/nextcloud/(?:index|remote|public|cron|core/ajax/update|status|ocs/v[12]|updater/.+|ocs-provider/.+)\.php(?:$|/) {
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param HTTPS on;
+        #Avoid sending the security headers twice
+        fastcgi_param modHeadersAvailable true;
+        fastcgi_param front_controller_active true;
+        fastcgi_pass php-handler;
+        fastcgi_intercept_errors on;
+        fastcgi_request_buffering off;
+    }
+
+    location ~ ^/nextcloud/(?:updater|ocs-provider)(?:$|/) {
+        try_files $uri/ =404;
+        index index.php;
+    }
+
+    # Adding the cache control header for js and css files
+    # Make sure it is BELOW the PHP block
+    location ~ \.(?:css|js|woff|svg|gif)$ {
+        try_files $uri /nextcloud/index.php$uri$is_args$args;
+        add_header Cache-Control "public, max-age=15778463";
+        # Add headers to serve security related headers  (It is intended
+        # to have those duplicated to the ones above)
+        # Before enabling Strict-Transport-Security headers please read
+        # into this topic first.
+        # add_header Strict-Transport-Security "max-age=15768000;
+        # includeSubDomains; preload;";
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag none;
+        add_header X-Download-Options noopen;
+        add_header X-Permitted-Cross-Domain-Policies none;
+        # Optional: Don't log access to assets
+        access_log off;
+    }
+
+    location ~ \.(?:png|html|ttf|ico|jpg|jpeg)$ {
+        try_files $uri /nextcloud/index.php$uri$is_args$args;
+        # Optional: Don't log access to other assets
+        access_log off;
+    }
+  }
 EOF
 
 mysql --user="root" --password="$password" --execute="CREATE DATABASE nextcloud;"
@@ -108,7 +178,7 @@ mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@loca
 mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
-service apache2 reload
+service nginx reload
 rm -rf /root/nextcloud*
 touch /install/.nextcloud.lock
 
@@ -116,3 +186,4 @@ echo -e "Visit https://${ip}/nextcloud to finish installation."
 echo -e "Database user: nextcloud"
 echo -e "Database password: ${nextpass}"
 echo -e "Database name: nextcloud"
+fi

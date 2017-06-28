@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | liza
+# Author             :   QuickBox.IO | liara
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2016
@@ -41,8 +41,21 @@ function _install() {
 
 
 function _services() {
-  cp ${local_setup}templates/sysd/ombi.template /etc/systemd/system/ombi.service
-  sed -i "s/USER/${user}/g" /etc/systemd/system/ombi.service
+cat > /etc/systemd/system/ombi.service <<OMB
+Description=Systemd script to run Ombi as a service
+After=network-online.target
+
+[Service]
+User=USER
+Group=USER
+Type=forking
+ExecStart=/usr/bin/screen -f -a -d -m -S ombi mono /opt/ombi/Ombi.exe -p 3000 --base ombi
+ExecStop=-/bin/kill -HUP
+WorkingDirectory=/home/${user}/
+
+[Install]
+WantedBy=multi-user.target
+OMB
   systemctl enable ombi >/dev/null 2>&1
   systemctl start ombi
   touch /install/.ombi.lock
@@ -52,23 +65,14 @@ function _services() {
   fi
 }
 
-spinner() {
-    local pid=$1
-    local delay=0.25
-    local spinstr='|/-\'
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf " [${bold}${yellow}%c${normal}]  " "$spinstr"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
-    echo -ne "${OK}"
-}
 
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 user=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Updating dependencies (this could take a bit) ... " > ${OUTTO} 2>&1

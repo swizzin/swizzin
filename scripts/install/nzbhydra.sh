@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | lizaSB
+# Author             :   QuickBox.IO | liara
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
@@ -39,8 +39,26 @@ echo "Installing and enabling service ... " >>"${OUTTO}" 2>&1;
 # for output to box
 echo "Installing and enabling service ... "
 
-cp ${local_setup}templates/sysd/nzbhydra.template /etc/systemd/system/nzbhydra@.service
-sed -i "s/USER/${MASTER}/g" /etc/systemd/system/nzbhydra@.service
+cat > /etc/systemd/system/nzbhydra@.service <<NZBH
+[Unit]
+Description=NZBHydra
+Documentation=https://github.com/theotherp/nzbhydra
+After=syslog.target network.target
+
+[Service]
+Type=forking
+KillMode=control-group
+User=%I
+Group=%I
+ExecStart=/usr/bin/python /home/%I/nzbhydra/nzbhydra.py --daemon --nobrowser --pidfile /home/%I/.nzbhydra/nzbhydra.pid --logfile /home/%I/.nzbhydra/nzbhydra.log --database /home/%I/.nzbhydra/nzbhydra.db --config /home/%I/.nzbhydra/settings.cfg
+GuessMainPID=no
+ExecStop=-/bin/kill -HUP
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+NZBH
+
 mkdir -p /home/${MASTER}/.nzbhydra
 chown ${MASTER}:${MASTER} -R /home/${MASTER}/.nzbhydra
 systemctl enable nzbhydra@${MASTER} >/dev/null 2>&1
@@ -48,8 +66,7 @@ systemctl start nzbhydra@${MASTER} >/dev/null 2>&1
 sleep 30
 systemctl stop nzbhydra@${MASTER} >/dev/null 2>&1
 
-sed -i "s/urlBase.*/urlBase\": \"\/nzbhydra\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
-sed -i "s/host.*/host\": \"127.0.0.1\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
+
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
@@ -68,8 +85,13 @@ echo
 echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
 }
 
-local_setup=/etc/QuickBox/setup/
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 _install
 _services

@@ -3,18 +3,12 @@ MASTER=$(cat /root/.master.info | cut -d: -f1)
 if [[ ! -f /etc/nginx/apps/subsonic.conf ]]; then
 cat > /etc/nginx/apps/subsonic.conf <<SUB
 location /subsonic/ {
-  proxy_set_header        Host \$host;
-  proxy_set_header        X-Real-IP \$remote_addr;
-  proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
-  proxy_set_header        X-Forwarded-Proto \$scheme;
-
+  include /etc/nginx/conf.d/proxy.conf;
   proxy_pass              http://localhost:4040/subsonic;
-
-  proxy_read_timeout      600s;
-  proxy_send_timeout      600s;
-
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 SUB
 fi
+sed -i 's/SUBSONIC_HOST=0.0.0.0/SUBSONIC_HOST=localhost/g' /usr/share/subsonic/subsonic.sh
+sed -i 's/SUBSONIC_CONTEXT_PATH=\//SUBSONIC_CONTEXT_PATH=\/subsonic/g' /usr/share/subsonic/subsonic.sh

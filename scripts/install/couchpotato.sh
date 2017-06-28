@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | lizaSB
+# Author             :   QuickBox.IO | liara
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
@@ -34,12 +34,26 @@ echo >>"${OUTTO}" 2>&1;
 echo >>"${OUTTO}" 2>&1;
 echo "Installing and enabling service ... " >>"${OUTTO}" 2>&1;
 
-cp ${local_setup}templates/sysd/couchpotato.template /etc/systemd/system/couchpotato@.service
+cat > /etc/systemd/system/couchpotato@.service <<CPS
+Description=CouchPotato
+After=syslog.target network.target
+
+[Service]
+Type=forking
+KillMode=control-group
+User=%I
+Group=%I
+ExecStart=/usr/bin/python /home/%I/.couchpotato/CouchPotato.py --daemon
+GuessMainPID=no
+ExecStop=-/bin/kill -HUP
+
+
+[Install]
+WantedBy=multi-user.target
+CPS
 systemctl enable couchpotato@${MASTER} >/dev/null 2>&1
 systemctl start couchpotato@${MASTER} >/dev/null 2>&1
 systemctl stop couchpotato@${MASTER} >/dev/null 2>&1
-
-sed -i "s/url_base.*/url_base = couchpotato\nhost = localhost/g" /home/${MASTER}/.couchpotato/settings.conf
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/couchpotato.sh
@@ -53,8 +67,13 @@ echo >>"${OUTTO}" 2>&1;
 echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
 }
 
-local_setup=/etc/QuickBox/setup/
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 _install
 _services

@@ -1,6 +1,6 @@
 #!/bin/bash
 #QB Panel installer for swizzin
-#Author: swizzin | lizaSB
+#Author: swizzin | liara
 IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
 user=$(cat /root/.master.info | cut -d: -f1)
 

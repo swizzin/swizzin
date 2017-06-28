@@ -85,25 +85,8 @@ SONARR
   systemctl start sonarr@${username}
   sleep 10
 
-  #rm -rf /home/${username}/.config/NzbDrone/config.xml
-  #cp ${local_setup}configs/Sonarr/config.xml /home/${username}/.config/NzbDrone/config.xml
-  #chown ${username}:${username} /home/${username}/.config/NzbDrone/config.xml
-
   systemctl stop sonarr@{$username}.service
   sleep 10
-
-  if [[ -f /home/${username}/.config/NzbDrone/config.xml ]]; then
-    #sed -i "s/<UrlBase>.*/<UrlBase>sonarr<\/UrlBase>/g" /home/${username}/.config/NzbDrone/config.xml
-    #sed -i "s/<BindAddress>.*/<BindAddress>127.0.0.1<\/BindAddress>/g" /home/${username}/.config/NzbDrone/config.xml
-  else
-    # output to dashboard
-    echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/NzbDrone/config.xml" >> "${OUTTO}" 2>&1
-    # output to box
-    echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/NzbDrone/config.xml"
-    exit 1
-  fi
-
-  systemctl stop sonarr@${username}
 
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sonarr.sh

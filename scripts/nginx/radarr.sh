@@ -10,3 +10,19 @@ location /radarr {
 }
 RAD
 fi
+if [[ ! -d /home/${MASTER}/.config/Radarr/ ]]; then mkdir -p /home/${MASTER}/.config/Radarr/; fi
+cat > /home/${MASTER}/.config/Radarr/config.xml <<RAD
+<Config>
+  <Port>7878</Port>
+  <UrlBase>radarr</UrlBase>
+  <BindAddress>127.0.0.1</BindAddress>
+  <SslPort>9898</SslPort>
+  <EnableSsl>False</EnableSsl>
+  <LogLevel>Info</LogLevel>
+  <Branch>master</Branch>
+  <LaunchBrowser>False</LaunchBrowser>
+  <UpdateMechanism>BuiltIn</UpdateMechanism>
+  <AnalyticsEnabled>False</AnalyticsEnabled>
+</Config>
+RAD
+chown -R ${MASTER}: /home/${MASTER}/.config/Radarr

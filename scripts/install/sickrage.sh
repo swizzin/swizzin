@@ -57,8 +57,6 @@ SRS
   systemctl start sickrage@${MASTER} > /dev/null 2>&1
   systemctl stop sickrage@${MASTER} > /dev/null 2>&1
 
-  sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
-  sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/sickrage.sh
   service nginx reload

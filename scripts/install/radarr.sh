@@ -70,10 +70,6 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/radarr.sh
-  service nginx reload
-fi
 
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
@@ -84,20 +80,11 @@ fi
   systemctl start radarr.service
   sleep 10
 
-  #cp ${local_setup}configs/Radarr/config.xml /home/${username}/.config/Radarr/config.xml
-  chown ${username}:${username} /home/${username}/.config/Radarr/config.xml
-
   systemctl stop radarr.service
   sleep 10
-
-  if [[ -f /home/${username}/.config/Radarr/config.xml ]]; then
-    #sed -i "s/<UrlBase>.*/<UrlBase>radarr<\/UrlBase>/g" /home/${username}/.config/Radarr/config.xml
-    #sed -i "s/<BindAddress>.*/<BindAddress>127.0.0.1<\/BindAddress>/g" /home/${username}/.config/Radarr/config.xml
-  else
-    # output to dashboard
-    echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/Radarr/config.xml" >> "${OUTTO}" 2>&1
-    # output to box
-    echo "ERROR INSTALLING - COULD NOT FIND config.xml in /home/${username}/.config/Radarr/config.xml"
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /usr/local/bin/swizzin/nginx/radarr.sh
+    service nginx reload
   fi
 }
 

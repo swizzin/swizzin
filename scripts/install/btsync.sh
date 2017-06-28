@@ -19,8 +19,13 @@
 #
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 BTSYNCIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 
 function _installBTSync1() {
   #sudo sh -c 'echo "deb http://linux-packages.getsync.com/btsync/deb btsync non-free" > /etc/apt/sources.list.d/btsync.list'
@@ -44,8 +49,32 @@ function _installBTSync4() {
   sudo usermod -a -G rslsync ${MASTER} >/dev/null 2>&1
 }
 function _installBTSync5() {
-  cp -r ${local_setup}templates/btsync/config.json.template /etc/resilio-sync/config.json
-  cp -r ${local_setup}templates/btsync/user_config.json.template /etc/resilio-sync/user_config.json
+  cat > /etc/resilio-sync/config.json <<RSCONF
+{
+    "listening_port" : 0,
+    "storage_path" : "/var/lib/resilio-sync/",
+    "pid_file" : "/var/run/resilio-sync/sync.pid",
+    "agree_to_EULA": "yes",
+
+    "webui" :
+    {
+        "listen" : "BTSGUIP:8888"
+    }
+}
+RSCONF
+  cat > /etc/resilio-sync/user_config.json <<RSUCONF
+{
+  "listening_port" : 0,
+  "storage_path" : "{HOME}/.config/resilio-sync/storage",
+  "pid_file" : "{HOME}/.config/resilio-sync/sync.pid",
+  "agree_to_EULA": "yes",
+
+  "webui" :
+  {
+      "listen" : "BTSGUIP:8888"
+  }
+}
+RSUCONF
   sudo sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/config.json
   sudo sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/user_config.json
   cp /var/run/resilio-sync/sync.pid /home/${MASTER}/.config/resilio-sync/sync.pid

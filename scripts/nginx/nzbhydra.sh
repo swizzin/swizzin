@@ -10,3 +10,5 @@ location /nzbhydra {
 }
 RAD
 fi
+sed -i "s/urlBase.*/urlBase\": \"\/nzbhydra\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
+sed -i "s/host.*/host\": \"127.0.0.1\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
