@@ -71,9 +71,9 @@ function _adduser() {
 	echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
 					echo "User directory already exists ... "
-					_skel
-					cd /etc/skel
-					cp -R * /home/$user/
+					#_skel
+					#cd /etc/skel
+					#cp -R * /home/$user/
 					echo "Changing password to new password"
 					echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
 					htpasswd -b -c /etc/htpasswd $user $pass
@@ -83,7 +83,7 @@ function _adduser() {
 					echo "${user}:${pass}" > /root/.master.info
     else
       echo -e "Creating new user \e[1;95m$user\e[0m ... "
-      _skel
+      #_skel
       useradd "${user}" -m -G www-data
       echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
       htpasswd -b -c /etc/htpasswd $user $pass
@@ -178,6 +178,10 @@ done < "$results2"
 	rm /tmp/.install.lock
 }
 
+function _post {
+	echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+}
+
 _os
 _preparation
 _skel
@@ -185,3 +189,4 @@ _intro
 _adduser
 _choices
 _install
+_post

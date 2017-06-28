@@ -35,7 +35,7 @@ function _function() {
 
 function _install() {
   installa=()
-  locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+  locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
@@ -54,7 +54,7 @@ function _install() {
 
 function _remove() {
 removea=()
-locks=($(find /usr/local/bin/swizzin/remove -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+locks=($(find /usr/local/bin/swizzin/remove -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
 for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then
@@ -74,7 +74,7 @@ _function
 function _cli() {
   arg=("$@")
   packages=("${arg[@]:1}")
-  repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2))
+  repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1))
   for i in "${packages[@]}"; do
     app=${i}
     if [[ -f /install/.${app}.lock ]]; then
@@ -137,13 +137,18 @@ function _help() {
 
 function _list() {
   repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+  if [[ -f /srv/panel/inc/localize.php ]]; then
+    lang=$(cat /srv/panel/inc/localize.php | grep language | cut -d "'" -f 2)
+    locale=$(/srv/panel/lang/$lang)
+  else
+    locale=/etc/swizzin/sources/lang_en
+  fi
   for i in "${repo[@]}"; do
-    locale=$(cat /srv/panel/inc/localize.php | grep language | cut -d "'" -f 2)
     app=$i
     if [[ $i == ombi ]]; then app=ombi; fi
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
-    description=$(cat /srv/rutorrent/home/lang/$locale | grep -i -m 1 \\\[\'$app | cut -d= -f2 | sed "s/ '//g" | sed "s/';//g" | sed "s/\\\'/'/g")
+    description=$(cat $locale | grep -i -m 1 \\\[\'$app | cut -d= -f2 | sed "s/ '//g" | sed "s/';//g" | sed "s/\\\'/'/g")
     if [[ -z $description ]]; then description="Description missing";fi
     printf "${sgformat}" "$i"
     echo -e "${description}\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
@@ -163,8 +168,16 @@ if [[ "$1" == "-h" ]]; then
   _help "$0"
   exit 0
 fi
-if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade") ]]; then
+if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser") ]]; then
   echo "Error: $1 invalid command"
+  exit 0
+fi
+if [[ $1 == adduser ]]; then
+  _adduser
+  exit 0
+fi
+if [[ $1 == deluser ]]; then
+  _deluser
   exit 0
 fi
 if [[ $1 == update ]]; then
