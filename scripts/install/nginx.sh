@@ -16,7 +16,7 @@ fi
 
 APT='nginx-full ssl-cert php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
+apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required package: ${depends}. Script Ending." && echo "${warning}" && exit 1)
 done
 
 sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \

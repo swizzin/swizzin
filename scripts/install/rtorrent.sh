@@ -8,7 +8,7 @@ function _depends() {
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo mktorrent'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
+	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find a required package: ${depends}. Script Ending." && echo "${warning}" && exit 1)
 	done
   if [[ $distribution == "Debian" ]]; then
     cd /tmp
