@@ -3,7 +3,7 @@
 This is a WIP. Attemping to install swizzin in its current state will probably end poorly.
 
 ### What is swizzin?
-Swizzin is a light, modular seedbox solution which uses nginx for its web server (if you choose). Backed by the repository of QuickBox scripts, just about everything should feel familiar.  You are not required to install a single thing you don't want, unless it's a dependency of setup.sh.
+Swizzin is a light, modular seedbox solution which uses nginx for its web server (if you choose). Backed by the repository of QuickBox scripts, just about everything should feel familiar.  You are not required to install a single thing you don't want, unless it's a dependency defined in setup.sh.
 
 #### How can you help?
 
