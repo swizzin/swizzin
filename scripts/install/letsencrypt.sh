@@ -1,39 +1,72 @@
 #!/bin/bash
-#
-# [Quick Box :: Install Let's Encrypt package]
-#
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   Neilpang | adaptive build QuickBox.IO ~JMSolo
-# URL                :   https://quickbox.io
-#
-# QuickBox Copyright (C) 2017 QuickBox.io
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
+# Let's Encrypt Installa
+# nginx flavor by liara
 
-service apache2 stop
+ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
-cd /root
-mkdir -p /etc/apache2/ssl/{site,certs}
-git clone https://github.com/Neilpang/acme.sh.git acme.sh-master
-cd /root/acme.sh-master
+echo -e "Enter domain name to secure with LE"
+read -e hostname
 
-echo -ne "Please enter an administrator email: " ; read EMAIL
-echo -ne "Please enter a valid domain: " ; read DOMAIN
 
-./acme.sh --install --accountconf /etc/apache2/ssl/site/$DOMAIN.conf --accountkey /etc/apache2/ssl/site/$DOMAIN.key --accountemail "$EMAIL"
-./acme.sh --issue --standalone --keypath /etc/apache2/ssl/certs/$DOMAIN-ssl.key --fullchainpath /etc/apache2/ssl/certs/$DOMAIN-ssl.pem -d $DOMAIN
+while true; do
+    read -p "Is your DNS managed by CloudFlare?" yn
+    case $yn in
+        [Yy]* ) cf=yes;;
+        [Nn]* ) cf=no;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 
-sed -i -e "s/SSLCertificateFile \/etc\/ssl\/certs\/ssl-cert-snakeoil.pem/SSLCertificateFile \/etc\/apache2\/ssl\/certs\/$DOMAIN-ssl.pem/g" /etc/apache2/sites-enabled/default-ssl.conf
-sed -i -e "s/SSLCertificateKeyFile \/etc\/ssl\/private\/ssl-cert-snakeoil.key/SSLCertificateKeyFile \/etc\/apache2\/ssl\/certs\/$DOMAIN-ssl.key/g" /etc/apache2/sites-enabled/default-ssl.conf
+if [[ ${cf} == yes ]]; then
+  while true; do
+      read -p "Does the record for this subdomain already exist?" yn
+      case $yn in
+          [Yy]* ) record=yes;;
+          [Nn]* ) record=no;;
+          * ) echo "Please answer yes or no.";;
+      esac
+  done
 
-line="30 2 * * 1 "~/acme.sh"/acme.sh --cron --home "~/acme.sh" > /dev/null"
-(crontab -u root -l; echo "$line" ) | crontab -u root -
+  echo -e "Enter CF API key"
+  read -e api
 
-service apache2 restart
+  echo -e "CF Email"
+  read -e email
+
+  export CF_Key="${api}"
+  export CF_Email="${email}"
+  if [[ ${record} == no ]]; then
+    if [[ $hostname == *.*.* ]]; then
+      zone=$(expr match "$hostname" '.*\.\(.*\..*\)')
+    else
+      zone=$hostname
+    fi
+    zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
+    addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
+    if [[ $addrecord == *"\"success\":false"* ]]; then
+        message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
+        echo -e "$message"
+        exit 1
+    else
+        message="DNS record added for $hostname at $ip"
+        echo "$message"
+    fi
+fi
+
+if [[ ! -f /root/.acme.sh/acme.sh ]]; then
+  curl https://get.acme.sh | sh
+fi
+
+mkdir -p /etc/nginx/ssl/${hostname}
+
+if [[ ${cf} == yes ]]; then
+  /root/.acme.sh/acme.sh --issue --dns dns_cf -d ${hostname}
+else
+  /root/.acme.sh/acme.sh --issue --nginx -d ${hostname}
+fi
+/root/.acme.sh/acme.sh --install-cert -d ${hostname} --key-file /etc/nginx/ssl/${hostname}/key.pem --fullchain-file /etc/nginx/ssl/${hostname}/fullchain.pem --ca-file /etc/nginx/ssl/${hostname}/chain.pem --reloadcmd "service nginx force-reload"
+
+sed -i "s/ssl_certificate .*/ssl_certificate \/etc\/nginx\/ssl\/${hostname}\/fullchain.pem;/g" /etc/nginx/sites-enabled/default
+sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
+
+systemctl reload nginx
