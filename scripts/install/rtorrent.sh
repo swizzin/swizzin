@@ -54,13 +54,16 @@ function _rtorrent() {
 				cd "/tmp"
 				rm -rf libtorrent* >>$log 2>&1
 				if [[ ${rtorrentver} == feature-bind ]]; then
-					git clone -b ${rtorrentver} https://github.comf/rakshasa/rtorrent.git rtorrent >>$log 2>&1
+					git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1
 				else
 					mkdir rtorrent
 					wget -q ${rtorrentloc}
 					tar -xzvf rtorrent-* -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
 				fi
 				cd rtorrent
+				if [[ ${rtorrentver} == feature-bind ]]; then
+					./autogen.sh
+				fi
 				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
 				make -j${nproc} >/dev/null 2>&1
 				make install >/dev/null 2>&1
