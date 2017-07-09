@@ -7,25 +7,32 @@ ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 echo -e "Enter domain name to secure with LE"
 read -e hostname
 
+read -p "Is your DNS managed by CloudFlare? (y/n) " yn
+case $yn in
+    [Yy] )
+        cf=yes
+        ;;
+    [Nn] )
+        cf=no
+        ;;
+    * ) echo "Please answer (y)es or (n)o.";;
+esac
 
-while true; do
-    read -p "Is your DNS managed by CloudFlare?" yn
-    case $yn in
-        [Yy]* ) cf=yes;;
-        [Nn]* ) cf=no;;
-        * ) echo "Please answer yes or no.";;
-    esac
-done
 
 if [[ ${cf} == yes ]]; then
-  while true; do
-      read -p "Does the record for this subdomain already exist?" yn
-      case $yn in
-          [Yy]* ) record=yes;;
-          [Nn]* ) record=no;;
-          * ) echo "Please answer yes or no.";;
-      esac
-  done
+    read -p "Does the record for this subdomain already exist? (y/n) " yn
+    case $yn in
+        [Yy] )
+        record=yes
+        ;;
+        [Nn] )
+        record=no
+        ;;
+        * )
+        echo "Please answer (y)es or (n)o."
+        ;;
+    esac
+  
 
   echo -e "Enter CF API key"
   read -e api
@@ -36,20 +43,21 @@ if [[ ${cf} == yes ]]; then
   export CF_Key="${api}"
   export CF_Email="${email}"
   if [[ ${record} == no ]]; then
-    if [[ $hostname == *.*.* ]]; then
-      zone=$(expr match "$hostname" '.*\.\(.*\..*\)')
-    else
-      zone=$hostname
-    fi
-    zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
-    addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
-    if [[ $addrecord == *"\"success\":false"* ]]; then
-        message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
-        echo -e "$message"
-        exit 1
-    else
-        message="DNS record added for $hostname at $ip"
-        echo "$message"
+        if [[ $hostname == *.*.* ]]; then
+        zone=$(expr match "$hostname" '.*\.\(.*\..*\)')
+        else
+        zone=$hostname
+        fi
+        zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
+        addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
+        if [[ $addrecord == *"\"success\":false"* ]]; then
+            message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
+            echo -e "$message"
+            exit 1
+        else
+            message="DNS record added for $hostname at $ip"
+            echo "$message"
+        fi
     fi
 fi
 
