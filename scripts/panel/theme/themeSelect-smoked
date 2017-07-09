@@ -18,7 +18,6 @@
 #   under the GPL along with build & install instructions.
 #
 function _updatedashboard() {
-  cd ${rutorrent}
   #if [[ -f /srv/panel/db/.defaulted.lock ]]; then
     if [[ -n $(find /srv/panel/db -name "branding-*.php") ]]; then
       rsync -aP --exclude=disk_*.php --exclude=branding-l.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}smoked/* /srv/panel
@@ -38,7 +37,6 @@ function _updatedashboard() {
 
 }
 
-local_themes=/etc/QuickBox/themes/
-rutorrent=/srv/rutorrent/
+local_themes=/srv/panel/themes/
 
 _updatedashboard
