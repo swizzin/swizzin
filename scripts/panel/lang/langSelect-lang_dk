@@ -21,7 +21,7 @@
 locale='da_DK.UTF-8'
 language='lang_dk'
 
-cat >/srv/rutorrent/home/inc/localize.php<<LCL
+cat >/srv/panel/inc/localize.php<<LCL
 <?php
     \$locale = 'da_DK.UTF-8';
     \$language = 'lang_dk';
@@ -40,5 +40,5 @@ cat >/srv/rutorrent/home/inc/localize.php<<LCL
 ?>
 LCL
 
-chown www-data: /srv/rutorrent/home/inc/localize.php
-service apache2 reload
+chown www-data: /srv/panel/inc/localize.php
+service nginx reload

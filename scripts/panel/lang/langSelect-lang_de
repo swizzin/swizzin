@@ -21,7 +21,7 @@
 locale='de_DE.UTF-8'
 language='lang_de'
 
-cat >/srv/rutorrent/home/inc/localize.php<<LCL
+cat >/srv/panel/localize.php<<LCL
 <?php
     \$locale = 'de_DE.UTF-8';
     \$language = 'lang_de';
@@ -40,5 +40,5 @@ cat >/srv/rutorrent/home/inc/localize.php<<LCL
 ?>
 LCL
 
-chown www-data: /srv/rutorrent/home/inc/localize.php
-service apache2 reload
+chown www-data: /srv/panel/inc/localize.php
+service nginx reload

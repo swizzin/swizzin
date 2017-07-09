@@ -19,21 +19,21 @@
 #
 function _updatedashboard() {
   cd ${rutorrent}
-  #if [[ -f /srv/rutorrent/home/db/.defaulted.lock ]]; then
-    if [[ -n $(find /srv/rutorrent/home/db -name "branding-*.php") ]]; then
-      rsync -aP --exclude=disk_*.php --exclude=branding-l.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}smoked/* ${rutorrent}home
-      rm -f /srv/rutorrent/home/lang/*.php
-      rm -rf /srv/rutorrent/home/db/.defaulted.lock >/dev/null 2>&1
-      printf "" > /srv/rutorrent/home/db/.smoked.lock
+  #if [[ -f /srv/panel/db/.defaulted.lock ]]; then
+    if [[ -n $(find /srv/panel/db -name "branding-*.php") ]]; then
+      rsync -aP --exclude=disk_*.php --exclude=branding-l.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}smoked/* /srv/panel
+      rm -f /srv/panel/lang/*.php
+      rm -rf /srv/panel/db/.defaulted.lock >/dev/null 2>&1
+      printf "" > /srv/panel/db/.smoked.lock
     else
-      rsync -aP --exclude=disk_*.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}smoked/* ${rutorrent}home
-      rm -f /srv/rutorrent/home/lang/*.php
-      rm -rf /srv/rutorrent/home/db/.defaulted.lock >/dev/null 2>&1
-      printf "" > /srv/rutorrent/home/db/.smoked.lock
+      rsync -aP --exclude=disk_*.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}smoked/* /srv/panel
+      rm -f /srv/panel/lang/*.php
+      rm -rf /srv/panel/db/.defaulted.lock >/dev/null 2>&1
+      printf "" > /srv/panel/db/.smoked.lock
     fi
   #fi
 
-  service apache2 reload
+  service nginx reload
   sleep 5
 
 }
