@@ -157,7 +157,7 @@ root: $admin_email" > /etc/aliases
 OUTTO=/etc/QuickBox.csf-install.log
 HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-#EMAIL=$(cat /srv/rutorrent/home/db/masteremail.txt)
+#EMAIL=$(cat /srv/panel/db/masteremail.txt)
 local_setup=/etc/QuickBox/setup/
 username=$(cat /root/.master.info | cut -d: -f1)
 passwd=$(cat /root/${username}.info | cut -d ":" -f 3 | cut -d "@" -f 1)

@@ -17,6 +17,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
+
+if [[ ! -f /install/.nginx.lock ]]; then
+  echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+  exit 1
+fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
@@ -33,22 +38,13 @@ function _installRapidleech2() {
   chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
 }
 function _installRapidleech3() {
-cat >/etc/apache2/sites-enabled/"${MASTER}".rapidleech.conf<<EOF
-Alias /rapidleech "/home/${MASTER}/rapidleech/"
-<Directory "/home/${MASTER}/rapidleech/">
-  Options Indexes FollowSymLinks MultiViews
-  AuthType Digest
-  AuthName "rutorrent"
-  AuthUserFile '/etc/htpasswd'
-  Require valid-user
-  AllowOverride None
-  Order allow,deny
-  allow from all
-</Directory>
-EOF
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /usr/local/bin/swizzin/nginx/rapidleech.sh
+    service nginx reload
+  fi
 }
 function _installRapidleech4() {
-  service apache2 reload
+  service nginx reload
 }
 function _installRapidleech5() {
     echo "Rapidleech Install Complete!" >>"${OUTTO}" 2>&1;
@@ -56,7 +52,7 @@ function _installRapidleech5() {
     echo >>"${OUTTO}" 2>&1;
     echo >>"${OUTTO}" 2>&1;
     echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-    /etc/init.d/apache2 reload
+    service nginx reload
 }
 function _installRapidleech6() {
     exit

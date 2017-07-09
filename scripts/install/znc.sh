@@ -48,7 +48,7 @@ fi
   echo "#### ZNC configuration will now run. Please answer the following prompts ####"
   sleep 5
   sudo -u znc znc --makeconf
-  echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/rutorrent/home/db/znc.txt
-  echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/rutorrent/home/db/znc.txt
+  echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
+  echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
 
 echo "#### ZNC now installed! ####"

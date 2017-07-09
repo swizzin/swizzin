@@ -99,7 +99,7 @@ function _installpyLoad7() {
   systemctl daemon-reload >/dev/null 2>&1
   systemctl enable pyload@${MASTER}.service >/dev/null 2>&1
   systemctl start pyload@${MASTER}.service >/dev/null 2>&1
-  service apache2 reload
+  service nginx reload
 }
 
 function _installpyLoad8() {
