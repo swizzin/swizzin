@@ -34,11 +34,16 @@ function _xmlrpc() {
 function _libtorrent() {
 				cd "/tmp"
 				rm -rf xmlrpc-c >>$log 2>&1
-				mkdir libtorrent
-				wget -q ${libtorrentloc}
-				tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
-				cd libtorrent >>$log 2>&1
-				patch -p1 < /etc/swizzin/sources/openssl.patch
+				if [[ ${libtorrentver} == feature-bind ]]; then
+					git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
+					cd libtorrent
+				else
+					mkdir libtorrent
+					wget -q ${libtorrentloc}
+					tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
+					cd libtorrent >>$log 2>&1
+					patch -p1 < /etc/swizzin/sources/openssl.patch
+				fi
 				./autogen.sh >>$log 2>&1
 				./configure --prefix=/usr >>$log 2>&1
 				make -j${nproc} >>$log 2>&1
@@ -48,9 +53,13 @@ function _libtorrent() {
 function _rtorrent() {
 				cd "/tmp"
 				rm -rf libtorrent* >>$log 2>&1
-				mkdir rtorrent
-				wget -q ${rtorrentloc}
-				tar -xzvf rtorrent-* -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
+				if [[ ${rtorrentver} == feature-bind ]]; then
+					git clone -b ${rtorrentver} https://github.comf/rakshasa/rtorrent.git rtorrent >>$log 2>&1
+				else
+					mkdir rtorrent
+					wget -q ${rtorrentloc}
+					tar -xzvf rtorrent-* -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
+				fi
 				cd rtorrent
 				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
 				make -j${nproc} >/dev/null 2>&1
@@ -146,26 +155,17 @@ distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
 if [[ -z $rtorrentver ]]; then
-	if [[ ${codename} =~ ("stretch") ]]; then
-		export rtorrentver='0.9.6'
-		export libtorrentver='0.13.6'
-	else
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 0.9.6 "" \
-							 0.9.4 "" \
-							 0.9.2 "" 3>&1 1>&2 2>&3)
+							 feature-bind "" 3>&1 1>&2 2>&3)
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
 			export libtorrentver='0.13.6'
-		elif [[ $function == 0.9.4 ]]; then
-			export rtorrentver='0.9.4'
-			export libtorrentver='0.13.4'
-		elif [[ $function == 0.9.2 ]]; then
-			export rtorrentver='0.9.3'
-			export libtorrentver='0.13.3'
+		elif [[ $function == feature-bind ]]; then
+			export rtorrentver='feature-bind'
+			export libtorrentver='feature-bind'
 		fi
-fi
 fi
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
