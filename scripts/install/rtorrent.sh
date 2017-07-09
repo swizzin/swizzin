@@ -42,7 +42,9 @@ function _libtorrent() {
 					wget -q ${libtorrentloc}
 					tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 					cd libtorrent >>$log 2>&1
-					patch -p1 < /etc/swizzin/sources/openssl.patch
+					if [[ ! ${codename} =~ (jessie) ]]; then
+						patch -p1 < /etc/swizzin/sources/openssl.patch
+					fi
 				fi
 				./autogen.sh >>$log 2>&1
 				./configure --prefix=/usr >>$log 2>&1
