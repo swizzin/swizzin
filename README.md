@@ -41,7 +41,8 @@ wget --no-check-certificate -O- https://gitlab.swizzin.ltd/liara/swizzin/raw/mas
 \*some of them might work
 
 #### TODO
-- [ ] Add/Remove user functions
+- [x] Add/Remove user functions
+- [ ] User download directories for web access
 - [ ] Clean up panel code (themes, langs, package output)
 - [x] Audit remove package scripts
 - [ ] ???
