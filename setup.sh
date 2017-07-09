@@ -80,7 +80,6 @@ function _adduser() {
 					mkdir -p /etc/htpasswd.d/
 					htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
 					chown -R $user:$user /home/${user}
-					echo "${user}:${pass}" > /root/.master.info
     else
       echo -e "Creating new user \e[1;95m$user\e[0m ... "
       #_skel
@@ -89,7 +88,6 @@ function _adduser() {
       htpasswd -b -c /etc/htpasswd $user $pass
 			mkdir -p /etc/htpasswd.d/
 			htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-			echo "${user}:${pass}" > /root/.master.info
   fi
 }
 
