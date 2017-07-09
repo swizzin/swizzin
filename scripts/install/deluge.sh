@@ -237,6 +237,7 @@ DHL
   chown ${u}: /home/${u}/dwatch
   mkdir -p /home/${u}/torrents/deluge
   chown ${u}: /home/${u}/torrents/deluge
+done
 }
 function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
@@ -277,6 +278,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 DW
   fi
+for u in $"{users[@]}"; do
   systemctl enable deluged@${u}
   systemctl enable deluge-web@${u}
   systemctl start deluged@${u}

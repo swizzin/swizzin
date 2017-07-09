@@ -53,6 +53,7 @@ gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
       chown -R $u: /home/${u}/.irssi/
+  done
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/autodl.sh
   fi
@@ -75,7 +76,7 @@ WorkingDirectory=/home/%I/
 [Install]
 WantedBy=multi-user.target
 ADC
-
+for u in $"{users[@]}"; do
 systemctl enable irssi@${u} 2>>$log.log
 sleep 1
 service irssi@${u} start
