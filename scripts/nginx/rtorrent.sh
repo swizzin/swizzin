@@ -79,6 +79,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 ?>
 RUC
 
+if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
 cat > /etc/nginx/apps/rutorrent.conf <<RUM
 location /rutorrent {
 alias /srv/rutorrent;
@@ -86,6 +87,7 @@ auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd;
 }
 RUM
+fi
 
 for u in "${users[@]}"; do
   port=$(cat /home/${u}/.rtorrent.rc | grep scgi | cut -d: -f2)

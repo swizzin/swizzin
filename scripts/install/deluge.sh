@@ -20,29 +20,6 @@
 #################################################################################
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 #################################################################################
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/dev/null"
-fi
-local_packages=/usr/local/bin/swizzin
-master=$(cat /root/.master.info | cut -d: -f1)
-pass=$(cat /root/.master.info | cut -d: -f2)
-
-if [[ -z $deluge ]]; then
-  function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-               Repo "" \
-               Stable "" \
-               Dev "" 3>&1 1>&2 2>&3)
-
-    if [[ $function == Repo ]]; then
-      export deluge=repo
-    elif [[ $function == Stable ]]; then
-      export deluge=stable
-    elif [[ $function == Dev ]]; then
-      export deluge=dev
-    fi
-fi
 
 function _deluge() {
   if [[ $deluge == repo ]]; then
@@ -80,7 +57,8 @@ function _deluge() {
   cd ..
   rm -r {deluge,libtorrent}
 fi
-  users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+}
+function _dconf {
   for u in "${users[@]}"; do
     if [[ ${u} == ${master} ]]; then
       pass=$(cat /root/.master.info | cut -d: -f2)
@@ -259,6 +237,8 @@ DHL
   chown ${u}: /home/${u}/dwatch
   mkdir -p /home/${u}/torrents/deluge
   chown ${u}: /home/${u}/torrents/deluge
+}
+function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
     cat > /etc/systemd/system/deluged@.service <<DD
 [Unit]
@@ -305,4 +285,37 @@ done
   touch /install/.deluge.lock
 }
 
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+else
+  OUTTO="/dev/null"
+fi
+local_packages=/usr/local/bin/swizzin
+users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+master=$(cat /root/.master.info | cut -d: -f1)
+pass=$(cat /root/.master.info | cut -d: -f2)
+
+if [[ -n $1 ]]; then
+  users=($1)
+  _dconf
+  exit 0
+fi
+
+if [[ -z $deluge ]] && [[ -z $1 ]]; then
+  function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+               Repo "" \
+               Stable "" \
+               Dev "" 3>&1 1>&2 2>&3)
+
+    if [[ $function == Repo ]]; then
+      export deluge=repo
+    elif [[ $function == Stable ]]; then
+      export deluge=stable
+    elif [[ $function == Dev ]]; then
+      export deluge=dev
+    fi
+fi
+
 _deluge
+_dconf
+_dservice

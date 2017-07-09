@@ -156,6 +156,80 @@ function _list() {
   done
 }
 
+function _adduser {
+  if [[ -z $2 ]]; then
+    echo "Error: You must specify a user"
+    exit 1
+  fi
+  user=$2
+  if [[ $user =~ [A-Z] ]]; then
+    echo "Usernames must not contain capital letters. Please try again."
+    exit 1
+  fi
+  echo -n "Password: (leave empty to generate a password) "; read 'pass'
+  if [[ -z "${pass}" ]]; then
+    pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+  fi
+  echo "$user:$pass" > /root/${user}.info
+  useradd "${user}" -m -G www-data
+  echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
+  htpasswd -b /etc/htpasswd $user $pass
+  mkdir -p /etc/htpasswd.d/
+  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+
+  if [[ -f /install/.rtorrent.lock ]]; then
+    /usr/local/bin/swizzin/install/rtorrent.sh ${user}
+    systemctl enable rtorrent@${user}
+    systemctl start rtorrent@${user}
+  fi
+  if [[ -f /install/.deluge.lock ]]; then
+    /usr/local/bin/swizzin/install/deluge.sh ${user}
+    systemctl enable deluged@${user}
+    systemctl enable deluge-web@${user}
+    systemctl start deluged@${user}
+    systemctl start deluge-web@${user}
+  fi
+  if [[ -f /install/.autodl.lock ]]; then
+    /usr/local/bin/swizzin/install/autodl.sh ${user}
+    systemctl enable irssi@${user}
+    systemctl start irssi@${user}
+  fi
+  cat > /etc/sudoers.d/${user} <<SUD
+Cmnd_Alias   SYSDCMDS = /bin/systemctl * rtorrent@${user}, /bin/systemctl * deluged@${user}, /bin/systemctl * deluge-web@${user}, /bin/systemctl * irssi@${user}
+
+${user}     ALL = (ALL) NOPASSWD: SYSDCMNDS
+SUD
+systemctl reload nginx
+}
+
+function _deluser {
+  user=$2
+  read -p "WARNING: This will delete the user ${user} and all associated configs and subdirectories. Press enter to continue."
+  if [[ -f /install/.rtorrent.lock ]]; then
+    systemctl disable rtorrent@${user}
+    systemctl stop rtorrent@${user}
+      if [[ -f /install/.nginx.lock ]]; then
+        rm -rf /srv/rutorrent/conf/users/${user}
+        rm -f /etc/nginx/apps/scgi.${user}.conf
+        systemctl reload nginx
+      fi
+  fi
+  if [[ -f /install/.deluge.lock ]]; then
+    systemctl disable deluged@${user}
+    systemctl disable deluge-web@${user}
+    systemctl stop deluged@${user}
+    systemctl stop deluge-web@${user}
+  fi
+  if [[ -f /install/.autodl.lock ]]; then
+    systemctl disable irssi@${user}
+    systemctl stop irssi@${user}
+  fi
+  deluser ${user}
+  rm -f /etc/htpasswd.d/htpasswd.${user}
+  rm -rf /home/${user}
+  rm /root/${user}.info
+}
+
 normal=$(tput sgr0)
 yellow=$(tput setaf 3)
 bold=$(tput bold)

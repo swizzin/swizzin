@@ -2,6 +2,7 @@
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 for u in ${users}; do
+    systemctl disable rtorrent@${u}
     systemctl stop rtorrent@{u}
     rm -f /home/${u}/.rtorrent.rc
 done
@@ -22,4 +23,5 @@ if [[ -f /install/.nginx.lock ]]; then
     rm -rf /srv/rutorrent
 fi
 
+rm /etc/systemd/system/rtorrent@.service
 rm /install/.rtorrent.lock

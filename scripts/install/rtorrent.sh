@@ -157,19 +157,6 @@ begin=$(date +"%s")
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
-if [[ -z $rtorrentver ]]; then
-	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							 0.9.6 "" \
-							 feature-bind "" 3>&1 1>&2 2>&3)
-
-		if [[ $function == 0.9.6 ]]; then
-			export rtorrentver='0.9.6'
-			export libtorrentver='0.13.6'
-		elif [[ $function == feature-bind ]]; then
-			export rtorrentver='feature-bind'
-			export libtorrentver='feature-bind'
-		fi
-fi
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
@@ -185,6 +172,30 @@ port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))
 warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
 rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
+
+if [[ -n $1 ]]; then
+	user=$1
+	_makedirs
+	_rconf
+	if [[ -f /install/.nginx.lock ]]; then
+		_ruconf
+	fi
+	exit 0
+fi
+
+if [[ -z $rtorrentver ]]; then
+	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 0.9.6 "" \
+							 feature-bind "" 3>&1 1>&2 2>&3)
+
+		if [[ $function == 0.9.6 ]]; then
+			export rtorrentver='0.9.6'
+			export libtorrentver='0.13.6'
+		elif [[ $function == feature-bind ]]; then
+			export rtorrentver='feature-bind'
+			export libtorrentver='feature-bind'
+		fi
+fi
 
 	  echo "Installing rTorrent Dependencies ... ";_depends
 		echo "Building xmlrpc-c from source ... ";_xmlrpc

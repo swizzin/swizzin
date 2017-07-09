@@ -22,13 +22,7 @@
 #   to include QuickBox in your commercial project, write to echo@quickbox.io
 #   with a summary of your project as well as its intended use for moentization.
 #
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  OUTTO="/srv/panel/db/output.log"
-else
-  OUTTO="/dev/null"
-fi
+
 
 _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
@@ -38,7 +32,9 @@ function _installautodl() {
   for depends in $APT; do
   apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
   done
-  users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+}
+
+function _autoconf {
     for u in "${users[@]}"; do
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
@@ -60,7 +56,9 @@ ADC
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/autodl.sh
   fi
+}
 
+function _autoservice {
 cat >"/etc/systemd/system/irssi@.service"<<ADC
 [Unit]
 Description=AutoDL IRSSI
@@ -83,7 +81,23 @@ sleep 1
 service irssi@${u} start
 touch /install/.autodl.lock
 done
-
-
 }
+
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
+users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+
+if [[ -n $1 ]]; then
+  users=($1)
+  _autoconf
+  exit 0
+fi
+
 _installautodl
+_autoconf
+_autoservice

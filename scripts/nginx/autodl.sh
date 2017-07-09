@@ -6,10 +6,11 @@ users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 for u in "${users[@]}"; do
     IRSSI_PORT=$(cat /home/${u}/.autodl/autodl2.cfg | grep port | cut -d= -f2 | sed 's/ //g' )
     IRSSI_PASS=$(cat /home/${u}/.autodl/autodl2.cfg | grep password | cut -d= -f2 | sed 's/ //g' )
-    sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
-    sed -i '/autodl/d' /srv/rutorrent/conf/users/${u}/config.php
-    echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
-    echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
-    echo "?>" >> /srv/rutorrent/conf/users/${u}/config.php
-
+    if [[ -z $(grep autodl /srv/rutorrent/conf/users/${u}/config.php) ]]; then
+        sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
+        sed -i '/autodl/d' /srv/rutorrent/conf/users/${u}/config.php
+        echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
+        echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
+        echo "?>" >> /srv/rutorrent/conf/users/${u}/config.php
+    fi
 done
