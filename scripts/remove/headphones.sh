@@ -1,5 +1,11 @@
 #!/bin/bash
-OUTTO=/srv/rutorrent/home/db/output.log
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 USERNAME=$(cat /root/.master.info | cut -d: -f1)
 APPNAME='headphones'
 APPPATH='/home/'$USERNAME'/.headphones'
@@ -19,7 +25,7 @@ echo -e "Removing service and configuration files for $APPTITLE ..."
 # for output to dashboard
 echo -e "Removing service and configuration files for $APPTITLE ..." >>"${OUTTO}" 2>&1;
 rm /etc/systemd/system/$APPNAME.service
-rm -f /etc/apache2/sites-enabled/$APPNAME.conf
+rm -f /etc/nginx/apps/$APPNAME.conf
 rm -rf /etc/default/$APPNAME
 rm -rf $APPPATH
 
@@ -33,7 +39,7 @@ rm -f /install/.$APPNAME.lock
 echo -e "Reloading apache ..."
 # for output to dashboard
 echo -e "Reloading apache ..." >>"${OUTTO}" 2>&1;
-service apache2 reload
+service nginx reload
 
 # for output to box
 echo "$APPTITLE has been removed"

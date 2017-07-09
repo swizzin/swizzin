@@ -17,24 +17,31 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-username=$(cat /root/.master.info | cut -d: -f1)
-OUTTO="/root/quick-box.log"
-local_setup=/etc/QuickBox/setup/
+users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 
 function _removeDeluge() {
   killall deluged
   killall deluge-web
-  ##cp "${local_setup}"templates/startup.template /home/"${username}"/.startup
     sleep 5
   systemctl disable deluged@* > /dev/null 2>&1
   systemctl stop deluged@* > /dev/null 2>&1
   rm /etc/systemd/system/deluged@.service > /dev/null 2>&1
   rm /etc/systemd/system/deluge-web@.service > /dev/null 2>&1
+  rm -rf /usr/lib/python2.7/dist-packages/deluge*
+  dpkg -r libtorrent
+  apt-get purge -y deluge > /dev/null 2>&1
+
   sudo rm /install/.deluge.lock
-
-  cd /home/"$username"
-  sudo rm -r .config/deluge
-
+  for u in ${users}; do
+    rm -rf /home/${u}/.config/deluge
+  done
 }
 
 _removeDeluge

@@ -28,9 +28,9 @@ if [[ -f /etc/init.d/nzbhydra ]]; then
   rm /etc/default/nzbhydra
 fi
 rm -rf /home/${MASTER}/nzbhydra
-rm -f /etc/apache2/sites-enabled/nzbhydra.conf
+rm -f /etc/nginx/apps/nzbhydra.conf
 rm /install/.nzbhydra.lock
-service apache2 reload
+service nginx reload
   echo -n "Verifying nzbhydra removal from /home/$MASTER."
   echo ""
   echo "NZBhydra Uninstall Complete. App data is not removed. To remove run the following command: rm -rf /home/$MASTER/.nzbhyra."

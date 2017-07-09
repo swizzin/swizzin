@@ -27,10 +27,7 @@ function _removePlex() {
   rm -rf /usr/lib/plexmediaserver
   rm /etc/init/plexmediaserver.conf
   rm /etc/default/plexmediaserver
-  rm /etc/apache2/conf-available/fqdn.conf
-  rm /etc/apache2/conf-enabled/fqdn.conf
-  rm /etc/apache2/sites-enabled/plex.conf
-  rm /srv/rutorrent/home/.plex
+  rm /srv/panel/.plex
   rm /install/.plex.lock
   sudo userdel plex >/dev/null 2>&1
   pkill -f plex

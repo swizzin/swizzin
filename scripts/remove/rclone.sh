@@ -17,8 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-local_setup=/etc/QuickBox/setup/
-OUTTO=/srv/rutorrent/home/db/output.log
+OUTTO=/srv/panel/db/output.log
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Removing rclone ... " >>"${OUTTO}" 2>&1;

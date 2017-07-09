@@ -32,10 +32,10 @@ function _removeSickRage() {
 
 
   sudo rm -r /var/run/sickrage > /dev/null 2>&1
-  sudo rm /etc/apache2/sites-enabled/sickrage.conf > /dev/null 2>&1
+  sudo rm /etc/nginx/apps/sickrage.conf > /dev/null 2>&1
   sudo rm /etc/systemd/sickrage@.service > /dev/null 2>&1
   sudo rm /install/.sickrage.lock
-  service apache2 reload
+  service nginx force-reload
 
   cd /home/"$MASTER"
   sudo rm -r .sickrage

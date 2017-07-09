@@ -22,7 +22,7 @@ function _removeEmby() {
   dpkg -r emby-server >/dev/null 2>&1
   sudo apt-get purge -y emby-server >/dev/null 2>&1
   rm -rf /etc/apt/sources.list.d/emby-server.list
-  rm -rf /etc/apache2/sites-enabled/emby.conf
+  rm -rf /etc/nginx/apps/emby.conf
   rm -rf /install/.emby.lock
   pkill -f emby-server
 }

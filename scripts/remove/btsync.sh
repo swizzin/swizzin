@@ -18,14 +18,19 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-OUTTO="/root/quick-box.log"
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
 
 function _removeBTSync() {
   sudo service resilio-sync stop
   sudo apt-get -y remove --purge resilio-sync* >>"${OUTTO}" 2>&1
   rm -rf /home/${MASTER}/sync_folder
   rm /install/.btsync.lock
-  sudo service apache2 reload
 }
 
 _removeBTSync

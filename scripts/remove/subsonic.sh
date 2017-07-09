@@ -23,6 +23,6 @@ rm /etc/systemd/system/subsonic.service
 rm -rf /srv/subsonic
 rm -rf /var/subsonic
 rm -rf /usr/share/subsonic
-rm -f /etc/apache2/sites-enabled/subsonic.conf
+rm -f /etc/nginx/apps/subsonic.conf
 rm -f /install/.subsonic.lock
-service apache2 reload
+service nginx reload

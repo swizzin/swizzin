@@ -26,14 +26,14 @@ function _removeSonarr() {
   sudo apt-get remove -y nzbdrone >/dev/null 2>&1
   sudo apt-get -y autoremove >/dev/null 2>&1
   rm -f /etc/apt/sources.list.d/sonarr.list
-  rm -f /etc/apache2/sites-enabled/sonarr.conf
+  rm -f /etc/nginx/apps/sonarr.conf
   if [[ -f /etc/init.d/sonarr ]]; then
     sudo update-rc.d -f sonarr remove >/dev/null 2>&1
     sudo rm /etc/default/sonarr
     sudo rm /etc/init.d/sonarr
   fi
     sudo rm /install/.sonarr.lock
-    service apache2 reload
+    service nginx reload
 }
 
 _removeSonarr

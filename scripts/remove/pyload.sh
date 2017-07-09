@@ -27,7 +27,7 @@ function _removepyLoad() {
   rm -rf /home/${MASTER}/.pip
   rm -rf /home/${MASTER}/.pyload
   rm -rf /var/run/pyload
-  rm -rf /etc/apache2/sites-enabled/pyload.conf
+  rm -rf /etc/nginx/apps/pyload.conf
   apt-get -y remove tesseract-ocr \
                     gocr \
                     rhino \

@@ -6,5 +6,6 @@ rm -rf /home/$username/SABnzbd
 systemctl disable sabnzbd@$username
 systemctl stop sabnzbd@$username
 rm /etc/systemd/system/sabnzbd@.service
-rm -f /etc/apache2/sites-enabled/sabnzbd.conf
+rm -f /etc/nginx/apps/sabnzbd.conf
+service nginx force-reload
 rm /install/.sabnzbd.lock
