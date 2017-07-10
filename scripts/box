@@ -43,12 +43,13 @@ function _install() {
     fi
   done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some choices:" 15 26 7 "${installa[@]}" 2>results
-  readarray packages < results
-  for i in "${packages[@]}"; do
-    echo -e "Installing $i ";
-    bash /usr/local/bin/swizzin/install/$i.sh
-  done
-  rm results
+  
+  while IFS= read -r result
+ 	do
+		echo -e "Installing ${result}"
+		bash /usr/local/bin/swizzin/install/${result}.sh
+  done < "results"
+ 	rm results
   _function
 }
 
@@ -62,11 +63,11 @@ for i in "${locks[@]}"; do
   fi
 done
 whiptail --title "Remove Software" --noitem --checklist --separate-output "Make some choices:" 15 26 7 "${removea[@]}" 2>results
-readarray packages < results
-for i in "${packages[@]}"; do
-  echo -e "Removing $i ";
-  bash /usr/local/bin/swizzin/remove/$i.sh
-done
+  while IFS= read -r result
+ 	do
+		echo -e "Removing ${result}"
+		bash /usr/local/bin/swizzin/remove/${result}.sh
+  done < "results"
 rm results
 _function
 }
