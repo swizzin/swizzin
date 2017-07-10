@@ -20,7 +20,7 @@
 _sab() {
   add-apt-repository ppa:jcfp/sab-addons
   apt update
-  apt -y install par2-tbb python-openssl python-sabyenc python-cheetah >/dev/null 2>&1
+  apt -y install par2-tbb python-openssl python-pip python-sabyenc python-cheetah >/dev/null 2>&1
   cd /home/${username}/
   #wget -qO SABnzbd.tar.gz https://github.com/sabnzbd/sabnzbd/releases/download/1.1.1/SABnzbd-1.1.1-src.tar.gz
   #tar xf SABnzbd.tar.gz >/dev/null 2>&1
