@@ -294,7 +294,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 DW
   fi
-for u in $"{users[@]}"; do
+for u in "${users[@]}"; do
   systemctl enable deluged@${u}
   systemctl enable deluge-web@${u}
   systemctl start deluged@${u}
