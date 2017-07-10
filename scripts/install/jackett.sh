@@ -64,13 +64,12 @@ JAK
 
 systemctl enable jackett@${username} >/dev/null 2>&1
 systemctl start jackett@${username}
-sleep 5
+while [ ! -f /home/${username}/.config/Jackett/ServerConfig.json ]
+do
+  sleep 2
+done
 systemctl stop jackett@${username}
-# Make sure .config/Jackett exists and has correct permissions.
-mkdir -p /home/${username}/.config/Jackett
-chmod 700 /home/${username}/.config/Jackett
-chown ${username}.${username} -R /home/${username}/.config/Jackett
-
+sleep 5
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/jackett.sh

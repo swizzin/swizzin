@@ -9,6 +9,7 @@ location /jackett {
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 RAD
+
 sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\"/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 # Disable native auto-update, since we have a command for that.
