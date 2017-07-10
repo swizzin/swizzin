@@ -82,7 +82,7 @@ function _cli() {
     else
       if [[ "${repo[@]}" =~ $i ]]; then
         echo -e "Installing $i "
-        bash /usr/local/bin/swizzin/install/$i
+        bash /usr/local/bin/swizzin/install/$i.sh
       else
         echo -e "Package $i not found"
       fi
@@ -136,10 +136,10 @@ function _help() {
 }
 
 function _list() {
-  repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+  repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d. -f 1 | sort -d))
   if [[ -f /srv/panel/inc/localize.php ]]; then
     lang=$(cat /srv/panel/inc/localize.php | grep language | cut -d "'" -f 2)
-    locale=$(/srv/panel/lang/$lang)
+    locale=/srv/panel/lang/$lang
   else
     locale=/etc/swizzin/sources/lang_en
   fi
