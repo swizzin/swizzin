@@ -76,7 +76,7 @@ WorkingDirectory=/home/%I/
 [Install]
 WantedBy=multi-user.target
 ADC
-for u in $"{users[@]}"; do
+for u in "${users[@]}"; do
 systemctl enable irssi@${u} 2>>$log.log
 sleep 1
 service irssi@${u} start
