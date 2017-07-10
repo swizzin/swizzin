@@ -18,6 +18,12 @@ if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
 fi
 
+if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
+  svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >>/dev/null 2>&1
+  chown -R www-data: /srv/rutorrent/plugins/filemanager
+  chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
+fi
+
 cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
