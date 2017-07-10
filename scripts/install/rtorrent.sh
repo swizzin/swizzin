@@ -42,7 +42,7 @@ function _libtorrent() {
 					wget -q ${libtorrentloc}
 					tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 					cd libtorrent >>$log 2>&1
-					if [[ ! ${codename} =~ (jessie) ]]; then
+					if [[ ${codename} =~ ("stretch") ]]; then
 						patch -p1 < /etc/swizzin/sources/openssl.patch
 					fi
 				fi
@@ -185,7 +185,7 @@ if [[ -n $1 ]]; then
 	exit 0
 fi
 
-if [[ -z $rtorrentver ]]; then
+if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 0.9.6 "" \
 							 feature-bind "" 3>&1 1>&2 2>&3)
@@ -197,8 +197,27 @@ if [[ -z $rtorrentver ]]; then
 			export rtorrentver='feature-bind'
 			export libtorrentver='feature-bind'
 		fi
-fi
+elif [[ -z ${rtorrentver} ]]; then
+	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 0.9.6 "" \
+							 0.9.4 "" \
+							 0.9.3 "" \
+							 feature-bind "" 3>&1 1>&2 2>&3)
 
+		if [[ $function == 0.9.6 ]]; then
+			export rtorrentver='0.9.6'
+			export libtorrentver='0.13.6'
+		elif [[ $function == 0.9.4 ]]; then
+			export rtorrentver='0.9.4'
+			export libtorrentver='0.13.4'
+		elif [[ $function == 0.9.3 ]]; then
+			export rtorrentver='0.9.3'
+			export libtorrentver='0.13.3'
+		elif [[ $function == feature-bind ]]; then
+			export rtorrentver='feature-bind'
+			export libtorrentver='feature-bind'
+		fi
+fi
 	  echo "Installing rTorrent Dependencies ... ";_depends
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent

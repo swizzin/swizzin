@@ -35,12 +35,28 @@ function _deluge() {
       LTRC=RC_1_1
     fi
   apt-get -qy update >/dev/null 2>&1
+  
   LIST='build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
   python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
   python-glade2 librsvg2-common xdg-utils python-mako'
   for depend in $LIST; do
     apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
   done
+  #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
+  #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
+  #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
+  #  for depend in $LIST; do
+  #    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
+  #  done
+  #else
+  #  cd /tmp
+  #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
+  #  tar xf boost_1_62_0.tar.gz
+  #  cd boost_1_62_0
+  #  ./bootstrap.sh --prefix=/usr
+  #  ./b2 install
+  #fi
+
   git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
   git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
   cd libtorrent
@@ -296,6 +312,8 @@ local_packages=/usr/local/bin/swizzin
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 master=$(cat /root/.master.info | cut -d: -f1)
 pass=$(cat /root/.master.info | cut -d: -f2)
+codename=$(lsb_release -cs)
+
 
 if [[ -n $1 ]]; then
   users=($1)

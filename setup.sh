@@ -110,17 +110,39 @@ function _choices() {
 	 touch /tmp/.$result.lock
  done < "$results"
 	if grep -q rtorrent "$results"; then
-		function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-								0.9.6 "" \
-								feature-bind "" 3>&1 1>&2 2>&3)
+		if [[ ${codename} =~ ("stretch") ]]; then
+			function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+									0.9.6 "" \
+									feature-bind "" 3>&1 1>&2 2>&3)
 
-			if [[ $function == 0.9.6 ]]; then
-				export rtorrentver='0.9.6'
-				export libtorrentver='0.13.6'
-			elif [[ $function == feature-bind ]]; then
-				export rtorrentver='feature-bind'
-				export libtorrentver='feature-bind'
-			fi
+				if [[ $function == 0.9.6 ]]; then
+					export rtorrentver='0.9.6'
+					export libtorrentver='0.13.6'
+				elif [[ $function == feature-bind ]]; then
+					export rtorrentver='feature-bind'
+					export libtorrentver='feature-bind'
+				fi
+			else
+				function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 0.9.6 "" \
+							 0.9.4 "" \
+							 0.9.3 "" \
+							 feature-bind "" 3>&1 1>&2 2>&3)
+
+				if [[ $function == 0.9.6 ]]; then
+					export rtorrentver='0.9.6'
+					export libtorrentver='0.13.6'
+				elif [[ $function == 0.9.4 ]]; then
+					export rtorrentver='0.9.4'
+					export libtorrentver='0.13.4'
+				elif [[ $function == 0.9.3 ]]; then
+					export rtorrentver='0.9.3'
+					export libtorrentver='0.13.3'
+				elif [[ $function == feature-bind ]]; then
+					export rtorrentver='feature-bind'
+					export libtorrentver='feature-bind'
+				fi
+		fi
 	fi
 	if grep -q deluge "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
