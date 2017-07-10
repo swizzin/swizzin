@@ -19,6 +19,7 @@ if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
 fi
 
 if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
+  cd /srv/rutorrent/plugins/
   svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >>/dev/null 2>&1
   chown -R www-data: /srv/rutorrent/plugins/filemanager
   chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
