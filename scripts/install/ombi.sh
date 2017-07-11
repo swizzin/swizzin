@@ -46,8 +46,8 @@ Description=Systemd script to run Ombi as a service
 After=network-online.target
 
 [Service]
-User=USER
-Group=USER
+User=${user}
+Group=${user}
 Type=forking
 ExecStart=/usr/bin/screen -f -a -d -m -S ombi mono /opt/ombi/Ombi.exe -p 3000 --base ombi
 ExecStop=-/bin/kill -HUP
