@@ -228,6 +228,7 @@ function _deluser {
   deluser --force ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}
+  rm -rf /etc/sudoers.d/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
   service nginx reload
