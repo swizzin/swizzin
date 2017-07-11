@@ -167,7 +167,7 @@ function _adduser {
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
   fi
-  echo -n "Enter password for ${user} (leave empty to generate a password) \n"; read 'pass'
+  echo -e "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
@@ -235,7 +235,7 @@ function _deluser {
 
 function _chpasswd {
   user=$2
-  echo -n "Enter new password for ${user}. (leave empty to generate a password) \n"; read 'pass'
+  echo -e "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
@@ -284,7 +284,7 @@ if [[ $1 == deluser ]]; then
   exit 0
 fi
 if [[ $1 == chpasswd ]]; then
-  _adduser "$@"
+  _chpasswd "$@"
   exit 0
 fi
 if [[ $1 == update ]]; then
