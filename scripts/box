@@ -248,11 +248,11 @@ if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser")
   exit 0
 fi
 if [[ $1 == adduser ]]; then
-  _adduser
+  _adduser "$@"
   exit 0
 fi
 if [[ $1 == deluser ]]; then
-  _deluser
+  _deluser "$@"
   exit 0
 fi
 if [[ $1 == update ]]; then
