@@ -64,7 +64,7 @@ function _rtorrent() {
 				fi
 				cd rtorrent
 				if [[ ${rtorrentver} == feature-bind ]]; then
-					./autogen.sh
+					./autogen.sh >>$log 2>&1
 				fi
 				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
 				make -j${nproc} >/dev/null 2>&1
