@@ -17,7 +17,7 @@ make uninstall
 cd -
 rm -rf /tmp/libtorrent
 
-apt-get -y remove mktorrent mediainfo
+#apt-get -y remove mktorrent mediainfo
 
 if [[ -f /install/.nginx.lock ]]; then
     rm -rf /srv/rutorrent
