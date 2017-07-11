@@ -19,7 +19,7 @@
 
 _sab() {
   apt-get -y install software-properties-common python-software-properties >/dev/null 2>&1
-  add-apt-repository ppa:jcfp/sab-addons >/dev/null 2>&1
+  add-apt-repository -y ppa:jcfp/sab-addons >/dev/null 2>&1
   apt update >/dev/null 2>&1
   apt -y install par2-tbb python-openssl python-pip python-sabyenc python-cheetah >/dev/null 2>&1
   cd /home/${username}/
@@ -28,7 +28,7 @@ _sab() {
   #mv SABnzbd-* SABnzbd
   git clone https://github.com/sabnzbd/sabnzbd.git /home/${username}/SABnzbd >/dev/null 2>&1
   chown ${username}.${username} -R SABnzbd
-  rm SABnzbd.tar.gz
+  #rm SABnzbd.tar.gz
   pip install http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz >/dev/null 2>&1
   apt install p7zip-full -y >/dev/null 2>&1
   touch /install/.sabnzbd.lock
