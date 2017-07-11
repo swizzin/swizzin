@@ -18,7 +18,7 @@ function _depends() {
   	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
   	rm -rf /tmp/rar >/dev/null 2>&1
   else
-    apt-get -y install unrar >>$log 2>&1
+    apt-get -y install rar unrar >>$log 2>&1
   fi
 }
 
