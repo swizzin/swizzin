@@ -14,7 +14,7 @@ location /rapidleech {
     include snippets/fastcgi-php.conf;
     fastcgi_pass unix:/run/php/php7.0-fpm.sock;
     #fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME /home/${MASTER}/rapidleech/\$fastcgi_script_name;
+    fastcgi_param SCRIPT_FILENAME /home/${MASTER}\$fastcgi_script_name;
   }
 }
 RAP
