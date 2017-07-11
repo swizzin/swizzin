@@ -225,7 +225,7 @@ function _deluser {
     systemctl disable irssi@${user}
     systemctl stop irssi@${user}
   fi
-  deluser ${user}
+  deluser --force ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   rm -rf /home/${user}
   rm /root/${user}.info
