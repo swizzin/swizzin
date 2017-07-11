@@ -167,7 +167,7 @@ function _adduser {
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
   fi
-  echo -n "Password: (leave empty to generate a password) "; read 'pass'
+  echo -n "Enter password for ${user} (leave empty to generate a password) \n"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
@@ -196,7 +196,7 @@ function _adduser {
     systemctl start irssi@${user}
   fi
   cat > /etc/sudoers.d/${user} <<SUD
-Cmnd_Alias   SYSDCMDS = /bin/systemctl * rtorrent@${user}, /bin/systemctl * deluged@${user}, /bin/systemctl * deluge-web@${user}, /bin/systemctl * irssi@${user}
+Cmnd_Alias   SYSDCMDS = /bin/systemctl * rtorrent@${user}, /bin/systemctl * deluged@${user}, /bin/systemctl * deluge-web@${user}, /bin/systemctl * irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
 ${user}     ALL = (ALL) NOPASSWD: SYSDCMNDS
 SUD
@@ -205,7 +205,7 @@ systemctl reload nginx
 
 function _deluser {
   user=$2
-  read -p "WARNING: This will delete the user ${user} and all associated configs and subdirectories. Press enter to continue."
+  read -p "WARNING: This will delete the user ${user} and all associated configs and subdirectories.\nPress enter to continue."
   if [[ -f /install/.rtorrent.lock ]]; then
     systemctl disable rtorrent@${user}
     systemctl stop rtorrent@${user}
@@ -227,8 +227,36 @@ function _deluser {
   fi
   deluser --force ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
+  htpasswd -D /etc/htpasswd ${user}
   rm -rf /home/${user}
   rm /root/${user}.info
+  service nginx reload
+}
+
+function _chpasswd {
+  user=$2
+  echo -n "Enter new password for ${user}. (leave empty to generate a password) \n"; read 'pass'
+  if [[ -z "${pass}" ]]; then
+    pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+  fi
+  echo "$user:$pass" > /root/${user}.info
+  echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
+  htpasswd -b /etc/htpasswd $user $pass
+  mkdir -p /etc/htpasswd.d/
+  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+  if [[ -e /install/.deluge.lock ]]; then
+    systemctl stop deluged@${user}
+    systemctl stop deluge-web@${user}
+    DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    DWP=$(python /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+    sed -i "s/.*$user.*/${user}:${pass}:10/" /home/$username/.config/deluge/auth
+    sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
+    sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
+    sed -i "/$user/{n;s/.*/      \"${passwd}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
+    systemctl start deluged@${user}
+    systemctl start deluge-web@${user}
+  fi
+
 }
 
 normal=$(tput sgr0)
@@ -243,7 +271,7 @@ if [[ "$1" == "-h" ]]; then
   _help "$0"
   exit 0
 fi
-if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser") ]]; then
+if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser"|"chpasswd") ]]; then
   echo "Error: $1 invalid command"
   exit 0
 fi
@@ -253,6 +281,10 @@ if [[ $1 == adduser ]]; then
 fi
 if [[ $1 == deluser ]]; then
   _deluser "$@"
+  exit 0
+fi
+if [[ $1 == chpasswd ]]; then
+  _adduser "$@"
   exit 0
 fi
 if [[ $1 == update ]]; then
