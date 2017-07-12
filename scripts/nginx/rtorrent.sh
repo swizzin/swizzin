@@ -24,11 +24,11 @@ if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
   chown -R www-data: /srv/rutorrent/plugins/filemanager
   chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
-  cat > /srv/rutorrent/plugins/filemanager/conf.php <<FMCONF
+cat >/srv/rutorrent/plugins/filemanager/conf.php<<FMCONF
 <?php
 
-\$fm['tempdir'] = '/tmp';		// path were to store temporary data ; must be writable 
-\$fm['mkdperm'] = 755; 		// default permission to set to new created directories
+\$fm['tempdir'] = '/tmp';
+\$fm['mkdperm'] = 755;
 
 // set with fullpath to binary or leave empty
 \$pathToExternals['rar'] = '$(which rar)';
@@ -46,7 +46,7 @@ if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
 
 \$fm['archive']['compress'][0] = range(0, 5);
 \$fm['archive']['compress'][1] = array('-0', '-1', '-9');
-\$fm['archive']['compress'][2] = $fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
+\$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
 
 
 
@@ -101,6 +101,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 "gzip" => '/bin/gzip', // Something like /usr/bin/gzip. If empty, will be found in PATH.
 "id" => '/usr/bin/id', // Something like /usr/bin/id. If empty, will be found in PATH.
 "stat" => '/usr/bin/stat', // Something like /usr/bin/stat. If empty, will be found in PATH.
+"bzip2" => '/bin/bzip2',
 );
 
 \$localhosts = array( // list of local interfaces
