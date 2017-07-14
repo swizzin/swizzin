@@ -190,7 +190,23 @@ done < "$results2"
 }
 
 function _post {
+	ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 	echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+	echo "Installation complete!"
+	echo ""
+	echo "You may now login with the following info: ${user}:${pass}"
+	echo ""
+	if [[ -f /install/.nginx.lock ]]; then
+		echo "Seedbox can be accessed at https://${user}:${pass}@${ip}"
+		echo ""
+	fi
+	if [[ -f /install/.deluge.lock ]]; then
+		echo "Your deluge daemon port is$(cat /home/${user}/.config/deluge/core.conf | grep daemon_port | cut -d: -f2 | cut -d"," -f1)"
+		echo "Your deluge web port is$(cat /home/${user}/.config/deluge/web.conf | grep port | cut -d: -f2 | cut -d"," -f1)"
+		echo ""
+	fi
+	echo "Please note, certain functions may not be fully functional until your server is rebooted"
+	echo "However you may issue the command `source /root/.bashrc` to begin using box functions now"
 }
 
 _os
