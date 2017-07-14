@@ -277,14 +277,26 @@ if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser"|
   exit 0
 fi
 if [[ $1 == adduser ]]; then
+  if [[ -n $3 ]]; then
+    echo -e "Error: too many arguments\nCorrect usage: box adduser <username>"
+    exit 0
+  fi
   _adduser "$@"
   exit 0
 fi
 if [[ $1 == deluser ]]; then
+  if [[ -n $3 ]]; then
+    echo -e "Error: too many arguments\nCorrect usage: box deluser <username>"
+    exit 0
+  fi
   _deluser "$@"
   exit 0
 fi
 if [[ $1 == chpasswd ]]; then
+  if [[ -n $3 ]]; then
+    echo -e "Error: too many arguments\nCorrect usage: box chpasswd <username>"
+    exit 0
+  fi
   _chpasswd "$@"
   exit 0
 fi
