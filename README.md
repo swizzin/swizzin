@@ -60,7 +60,7 @@ Box functions:
 
 #### TODO
 - [x] Add/Remove user functions
-  - [ ] Make sure functions only accept one argument
+  - [x] Make sure functions only accept one argument
 - [ ] It's my shell in a box
 - [ ] User download directories for web access
 - [ ] Clean up panel code
@@ -69,7 +69,7 @@ Box functions:
   - [ ] Remove plugin installers for ruTorrent
   - [ ] Rebrand a few things here and there, while leaving appropriate refs to QB
 - [x] Audit remove package scripts
-- [ ] A bit of post install info
+- [x] A bit of post install info
 - [ ] Better readme/docs
 - [ ] ???
 - [ ] Profit!!
