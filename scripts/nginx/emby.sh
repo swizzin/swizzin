@@ -8,5 +8,5 @@ location /pyload {
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
-fi
 EMB
+fi
