@@ -141,6 +141,16 @@ for u in "${users[@]}"; do
 ?>
 RUU
   fi
+  if [[ ! -f /etc/nginx/apps/rindex.${u}.conf ]]; then
+  cat > /etc/nginx/apps/rindex.${u}.conf <<RIN
+location /${u}.rtorrent.downloads {
+  alias /home/${u}/torrents/rtorrent;
+  fancyindex on;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
+}
+RIN
+  fi
   if [[ ! -f /etc/nginx/apps/scgi.${u}.conf ]]; then
   cat > /etc/nginx/apps/scgi.${u}.conf <<RUC
 location /${u} {
