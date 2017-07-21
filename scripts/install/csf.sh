@@ -160,6 +160,6 @@ PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 #EMAIL=$(cat /srv/panel/db/masteremail.txt)
 local_setup=/etc/QuickBox/setup/
 username=$(cat /root/.master.info | cut -d: -f1)
-passwd=$(cat /root/${username}.info | cut -d ":" -f 3 | cut -d "@" -f 1)
+passwd=$(cat /root/.master.info | cut -d: -f2)
 
 _installCSF
