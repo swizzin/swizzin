@@ -36,17 +36,11 @@ fi
 
 echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
   if [[ $DISTRO == Debian ]]; then
-    echo 'deb http://download.opensuse.org/repositories/home:/emby/Debian_8.0/ /' > /etc/apt/sources.list.d/emby-server.list
-    wget --quiet http://download.opensuse.org/repositories/home:emby/Debian_8.0/Release.key -O - | apt-key add - > /dev/null 2>&1
-  elif [[ $CODENAME == yakkety ]]; then
-    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/xUbuntu_16.10/ /' > /etc/apt/sources.list.d/emby-server.list"
-    wget --quiet http://download.opensuse.org/repositories/home:emby/xUbuntu_16.10/Release.key -O - | apt-key add - > /dev/null 2>&1
-  elif [[ $CODENAME == xenial ]]; then
-    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/xUbuntu_16.04/ /' > /etc/apt/sources.list.d/emby-server.list"
-    wget --quiet http://download.opensuse.org/repositories/home:emby/xUbuntu_16.04/Release.key -O - | apt-key add - > /dev/null 2>&1
-  elif [[ $CODENAME == wily ]]; then
-    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/xUbuntu_15.10/ /' > /etc/apt/sources.list.d/emby-server.list"
-    wget --quiet http://download.opensuse.org/repositories/home:emby/xUbuntu_15.10/Release.key -O - | apt-key add - > /dev/null 2>&1
+    echo "deb http://download.opensuse.org/repositories/home:/emby/$(lsb_release -is)_$(lsb_release -rs)/ /" > /etc/apt/sources.list.d/emby-server.list
+    wget --quiet http://download.opensuse.org/repositories/home:emby/$(lsb_release -is)_$(lsb_release -rs)/Release.key -O - | apt-key add - > /dev/null 2>&1
+  elif [[ $DISTRO == Ubuntu ]]; then
+    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/x$(lsb_release -is)_$(lsb_release -rs)/ /' > /etc/apt/sources.list.d/emby-server.list"
+    wget --quiet http://download.opensuse.org/repositories/home:emby/x$(lsb_release -is)_$(lsb_release -rs)/Release.key -O - | apt-key add - > /dev/null 2>&1
   fi
 
 echo "Updating system & installing emby server ... " >>"${OUTTO}" 2>&1;
