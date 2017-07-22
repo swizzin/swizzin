@@ -1,8 +1,10 @@
 #!/bin/bash
 #################################################################################
 # Installation script for swizzin
-# Credits to QuickBox for the package repo
-# Modified for nginx
+# Many credits to QuickBox for the package repo
+# 
+# Package installers copyright QuickBox.io (2017) where applicable.
+# All other work copyright Swizzin (2017)
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track
@@ -173,6 +175,7 @@ function _choices() {
 
 function _install() {
 	touch /tmp/.install.lock
+	begin=$(date +"%s")
 	while IFS= read -r result
  	do
 		echo -e "Installing ${result}"
@@ -187,6 +190,9 @@ function _install() {
 done < "$results2"
 	rm /root/results2
 	rm /tmp/.install.lock
+	termin=$(date +"%s")
+	difftimelps=$((termin-begin))
+	echo "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 }
 
 function _post {
@@ -206,7 +212,7 @@ function _post {
 		echo ""
 	fi
 	echo "Please note, certain functions may not be fully functional until your server is rebooted"
-	echo "However you may issue the command `source /root/.bashrc` to begin using box functions now"
+	echo "However you may issue the command 'source /root/.bashrc' to begin using box functions now"
 }
 
 _os

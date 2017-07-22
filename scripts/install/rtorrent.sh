@@ -164,7 +164,6 @@ service rtorrent@${user} start
 
 export DEBIAN_FRONTEND=noninteractive
 
-begin=$(date +"%s")
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
@@ -238,6 +237,3 @@ fi
 			echo "Installing ruTorrent";_ruconf
 		fi
 		touch /install/.rtorrent.lock
-termin=$(date +"%s")
-difftimelps=$((termin-begin))
-echo "rtorrent install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
