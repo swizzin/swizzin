@@ -1,6 +1,14 @@
 #!/bin/bash
-#QB Panel installer for swizzin
-#Author: swizzin | liara
+# QuickBox dashboard installer for Swizzin
+# Author: liara
+# Copyright (C) 2017 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
 IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
 user=$(cat /root/.master.info | cut -d: -f1)
 

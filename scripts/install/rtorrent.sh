@@ -1,5 +1,14 @@
 #!/bin/bash
-
+# rTorrent installer
+# Author: liara
+# Copyright (C) 2017 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _depends() {
@@ -8,7 +17,7 @@ function _depends() {
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo mktorrent'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find a required package: ${depends}. Script Ending." && echo "${warning}" && exit 1)
+	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find required package: ${depends}. That's probably not good...")
 	done
   if [[ $distribution == "Debian" ]]; then
     cd /tmp

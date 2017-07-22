@@ -1,4 +1,14 @@
 #!/bin/bash
+# nginx installer
+# Author: liara
+# Copyright (C) 2017 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
@@ -16,7 +26,7 @@ fi
 
 APT='nginx-full nginx-extras ssl-cert php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required package: ${depends}. Script Ending." && echo "${warning}" && exit 1)
+apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find a required package: ${depends}. That's probably not good...")
 done
 
 sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \

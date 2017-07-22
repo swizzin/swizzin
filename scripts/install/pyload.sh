@@ -9,6 +9,8 @@
 # Author             :   QuickBox.IO | JMSolo
 # URL                :   https://quickbox.io
 #
+# Modifications for Swizzin by liara
+#
 # QuickBox Copyright (C) 2017 QuickBox.io
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #

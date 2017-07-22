@@ -1,15 +1,10 @@
 #!/bin/bash
 #
-# [Quick Box :: Install systemd services]
+# [Swizzin :: Couchpotato Installer]
 #
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | liara
-# URL                :   https://quickbox.io
+# Originally written for QuickBox.io by liara
+# Modified for Swizzin by liara
 #
-# QuickBox Copyright (C) 2017 QuickBox.io
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track

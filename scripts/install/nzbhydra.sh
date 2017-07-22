@@ -1,12 +1,8 @@
 #!/bin/bash
 #
 # [Quick Box :: Install nzbhydra package]
-#
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | liara
+# Author:   liara for QuickBox.io
+# Ported by: liara for swizzin
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io

@@ -1,15 +1,9 @@
 #!/bin/bash
 #
-# [Quick Box :: Install Deluge package]
+# [Swizzin :: Install Deluge package]
+# Author: liara
 #
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | liara
-# URL                :   https://quickbox.io
-#
-# QuickBox Copyright (C) 2016
+# Copyright (C) 2017 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Nginx Configuration for RapidLeech
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 if [[ ! -f /etc/nginx/apps/rapidleech.conf ]]; then
   cat > /etc/nginx/apps/rapidleech.conf <<RAP

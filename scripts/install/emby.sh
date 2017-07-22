@@ -1,13 +1,9 @@
 #!/bin/bash
 #
-# [Quick Box :: Install Jackett package]
+# [Swizzin :: Install Emby package]
 #
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | JMSolo
-# URL                :   https://quickbox.io
+# Original Author:   QuickBox.IO | JMSolo
+# Modified for Swizzin by liara
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)

@@ -1,13 +1,9 @@
 #!/bin/bash
 #
-# [Quick Box :: Install AutoDL-IRSSI package]
+# [Swizzin :: Install AutoDL-IRSSI package]
 #
-# QUICKLAB REPOS
-# QuickLab _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO
-# URL                :   https://quickbox.io
+# Originally written for QuickBox
+# Ported from QuickBox and modified for Swizzin by liara
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
