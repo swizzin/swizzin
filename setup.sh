@@ -61,12 +61,12 @@ function _intro() {
 }
 
 function _adduser() {
-  user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then _exit; fi
+  user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
   if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
     _adduser
   fi
-  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then _exit; fi
+  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
