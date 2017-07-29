@@ -1,4 +1,4 @@
-!(http://i.imgur.com/JZlDKP1.png)
+![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
 # Release Candidate? Release Candidate!
