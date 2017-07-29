@@ -1,11 +1,14 @@
+!(http://i.imgur.com/JZlDKP1.png)
+
+
 # Release Candidate? Release Candidate!
 
 
 
 ### What is swizzin?
-Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9 or Ubuntu 16.04 or newer. The QuickBox pacakage repo has been ported over for your installing pleasure, including the panel -- if you so choose! 
+Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9 or Ubuntu 16.04 or newer. The QuickBox pacakage repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
-Box has been completely rewritten to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
+Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
 
 #### You wanna be a swizzie?
 
@@ -31,7 +34,6 @@ wget --no-check-certificate -O- https://gitlab.swizzin.ltd/liara/swizzin/raw/mas
 * ffmpeg
 
 #### Untested:
-* CSF. I wouldn't attempt this one at this time
 * Quotas. Buggy AF? You tell me.
 * Nextcloud (should work in theory)
 * pyLoad
