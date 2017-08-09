@@ -154,7 +154,7 @@ RUU
   cat > /etc/nginx/apps/rindex.${u}.conf <<RIN
 location /${u}.rtorrent.downloads {
   alias /home/${u}/torrents/rtorrent;
-  fancyindex on;
+  include /etc/nginx/snippets/fancyindex.conf;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }

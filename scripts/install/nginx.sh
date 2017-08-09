@@ -73,6 +73,9 @@ location ~ /\.ht {
   deny all;
 }
 
+location /fancyindex {
+
+}
 
 }
 NGC
@@ -132,6 +135,19 @@ proxy_cache_bypass \$cookie_session;
 proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
+
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme /srv/fancyindex
+cat > /etc/nginx/snippets/fancyindex.conf <<FIC
+fancyindex on;
+fancyindex_localtime on;
+fancyindex_exact_size off;
+fancyindex_header "/fancyindex/header.html";
+fancyindex_footer "/fancyindex/footer.html";
+#fancyindex_ignore "examplefile.html"; # Ignored files will not show up in the directory listing, but will still be public. 
+#fancyindex_ignore "Nginx-Fancyindex-Theme"; # Making sure folder where files are don't show up in the listing. 
+fancyindex_name_length 255; # Maximum file name length in bytes, change as you like.
+FIC
+sed -i 's/href="\/Nginx-Fancyindex-Theme/href="\/fancyindex/g' /srv/fancyindex/header.html
 
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 for i in "${locks[@]}"; do

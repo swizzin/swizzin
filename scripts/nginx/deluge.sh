@@ -15,7 +15,7 @@ for u in "${users[@]}"; do
   cat > /etc/nginx/apps/dindex.${u}.conf <<DIN
 location /${u}.deluge.downloads {
   alias /home/${u}/torrents/deluge;
-  fancyindex on;
+  include /etc/nginx/snippets/fancyindex.conf;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }
