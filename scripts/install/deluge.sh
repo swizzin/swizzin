@@ -96,6 +96,7 @@ function _dconf {
   chmod 755 /home/${u}/.config
   chmod 755 /home/${u}/.config/deluge
   cat > /home/${u}/.config/deluge/core.conf <<DC
+  {
     "file": 1,
     "format": 1
   }{
