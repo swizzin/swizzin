@@ -61,15 +61,32 @@ function _intro() {
 }
 
 function _adduser() {
-  user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
-  if [[ $user =~ [A-Z] ]]; then
+	if [[ -z $user ]]; then
+  	user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
+  fi
+	if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
+		user=
     _adduser
   fi
   pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
   if [[ -z "${pass}" ]]; then
     pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
   fi
+	if [[ -n $(which cracklib-check) ]]; then 
+		echo "Cracklib detected. Checking password strength."
+		sleep 1
+		str="$(cracklib-check <<<"$pass")"
+		check=$(grep OK <<<"$str")
+		if [[ -z $check ]]; then
+			chpasswd<<<"${user}:${pass}"
+			echo "Please choose a better password"
+			read -n 1 -s -r -p "Press any key to enter a new password" 
+			_adduser
+		else
+			echo "OK."
+		fi
+	fi
 	echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
 					echo "User directory already exists ... "
@@ -77,7 +94,7 @@ function _adduser() {
 					#cd /etc/skel
 					#cp -R * /home/$user/
 					echo "Changing password to new password"
-					echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
+					chpasswd<<<"${user}:${pass}"
 					htpasswd -b -c /etc/htpasswd $user $pass
 					mkdir -p /etc/htpasswd.d/
 					htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
@@ -86,7 +103,7 @@ function _adduser() {
       echo -e "Creating new user \e[1;95m$user\e[0m ... "
       #_skel
       useradd "${user}" -m -G www-data
-      echo "${user}:${pass}" | chpasswd >/dev/null 2>&1
+      chpasswd<<<"${user}:${pass}"
       htpasswd -b -c /etc/htpasswd $user $pass
 			mkdir -p /etc/htpasswd.d/
 			htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
