@@ -61,15 +61,12 @@ Box functions:
 * upgrade - once upgrade scripts are implemented, this will likely be the hook used to upgrade individual packages
 
 #### TODO
+- [ ] Ratio colors for ruTorrent
 - [x] Add/Remove user functions
   - [x] Make sure functions only accept one argument
-- [ ] It's my shell in a box
-- [ ] User download directories for web access
-- [ ] Clean up panel code
-  - [x] Themes
-  - [x] Lang packs (untested)
-  - [ ] Remove plugin installers for ruTorrent
-  - [ ] Rebrand a few things here and there, while leaving appropriate refs to QB
+- [x] It's my shell in a box
+- [x] User download directories for web access
+- [x] Clean up panel code
 - [x] Audit remove package scripts
 - [x] A bit of post install info
 - [ ] Better readme/docs
