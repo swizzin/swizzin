@@ -139,9 +139,9 @@ function _choices() {
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
 					export libtorrentver='0.13.6'
-				elif [[ $function == feature-bind ]]; then
-					export rtorrentver='feature-bind'
-					export libtorrentver='feature-bind'
+				#elif [[ $function == feature-bind ]]; then
+				#	export rtorrentver='feature-bind'
+				#	export libtorrentver='feature-bind'
 				fi
 			else
 				function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -159,9 +159,9 @@ function _choices() {
 				elif [[ $function == 0.9.3 ]]; then
 					export rtorrentver='0.9.3'
 					export libtorrentver='0.13.3'
-				elif [[ $function == feature-bind ]]; then
-					export rtorrentver='feature-bind'
-					export libtorrentver='feature-bind'
+				#elif [[ $function == feature-bind ]]; then
+				#	export rtorrentver='feature-bind'
+				#	export libtorrentver='feature-bind'
 				fi
 		fi
 	fi

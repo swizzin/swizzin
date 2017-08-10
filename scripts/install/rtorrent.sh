@@ -201,9 +201,9 @@ if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
 			export libtorrentver='0.13.6'
-		elif [[ $function == feature-bind ]]; then
-			export rtorrentver='feature-bind'
-			export libtorrentver='feature-bind'
+		#elif [[ $function == feature-bind ]]; then
+		#	export rtorrentver='feature-bind'
+		#	export libtorrentver='feature-bind'
 		fi
 elif [[ -z ${rtorrentver} ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -221,9 +221,9 @@ elif [[ -z ${rtorrentver} ]]; then
 		elif [[ $function == 0.9.3 ]]; then
 			export rtorrentver='0.9.3'
 			export libtorrentver='0.13.3'
-		elif [[ $function == feature-bind ]]; then
-			export rtorrentver='feature-bind'
-			export libtorrentver='feature-bind'
+		#elif [[ $function == feature-bind ]]; then
+		#	export rtorrentver='feature-bind'
+		#	export libtorrentver='feature-bind'
 		fi
 fi
 	  echo "Installing rTorrent Dependencies ... ";_depends
