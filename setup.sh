@@ -102,7 +102,7 @@ function _adduser() {
     else
       echo -e "Creating new user \e[1;95m$user\e[0m ... "
       #_skel
-      useradd "${user}" -m -G www-data
+      useradd "${user}" -m -G www-data -s /bin/bash
       chpasswd<<<"${user}:${pass}"
       htpasswd -b -c /etc/htpasswd $user $pass
 			mkdir -p /etc/htpasswd.d/
