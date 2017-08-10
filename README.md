@@ -17,7 +17,7 @@ Of course you do! You can help by testing untested stuff and reporting bugs to m
 ### Quick Start:
 
 ```
-wget -q -O- https://github.com/swizzin/swizzin/raw/master/setup.sh | bash
+wget -q -O- https://github.com/liaralabs/swizzin/raw/master/setup.sh | bash
 ```
 
 
