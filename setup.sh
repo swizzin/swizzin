@@ -49,6 +49,8 @@ function _preparation() {
 	export GIT_SSL_NO_VERIFY=true
   git clone https://gitlab.swizzin.ltd/liara/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
+  chmod -R 700 /etc/swizzin/scripts
+
 }
 
 function _skel() {

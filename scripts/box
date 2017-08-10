@@ -111,6 +111,7 @@ function _update() {
       git checkout master
       git reset --hard origin/master
       git pull
+      chmod -R 700 /etc/swizzin/scripts
 }
 
 function _help() {
