@@ -169,7 +169,7 @@ function _adduser {
   fi
   echo -e "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
   if [[ -z "${pass}" ]]; then
-    pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
 		echo "Cracklib detected. Checking password strength."
@@ -240,6 +240,7 @@ function _deluser {
     systemctl stop irssi@${user}
   fi
   deluser --force ${user}
+  groupdel ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}
   rm -rf /etc/sudoers.d/${user}
@@ -252,7 +253,7 @@ function _chpasswd {
   user=$2
   echo -e "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
   if [[ -z "${pass}" ]]; then
-    pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
 		echo "Cracklib detected. Checking password strength."
@@ -278,7 +279,7 @@ function _chpasswd {
     systemctl stop deluge-web@${user}
     DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
     DWP=$(python /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
-    sed -i "s/.*$user.*/${user}:${pass}:10/" /home/$username/.config/deluge/auth
+    sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
     sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
     sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
     sed -i "/$user/{n;s/.*/      \"${passwd}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2

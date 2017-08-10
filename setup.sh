@@ -71,7 +71,7 @@ function _adduser() {
   fi
   pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
   if [[ -z "${pass}" ]]; then
-    pass=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-16};echo;)
+    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
 	if [[ -n $(which cracklib-check) ]]; then 
 		echo "Cracklib detected. Checking password strength."
