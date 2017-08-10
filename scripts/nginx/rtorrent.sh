@@ -64,6 +64,12 @@ cat >/srv/rutorrent/plugins/filemanager/conf.php<<FMCONF
 FMCONF
 fi
 
+if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
+  cd /srv/rutorrent/plugins
+  svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >>/dev/null 2>&1
+  sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
+fi
+
 cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
@@ -150,8 +156,8 @@ for u in "${users[@]}"; do
 ?>
 RUU
   fi
-  if [[ ! -f /etc/nginx/apps/rindex.${u}.conf ]]; then
-  cat > /etc/nginx/apps/rindex.${u}.conf <<RIN
+  if [[ ! -f /etc/nginx/apps/${u}.rindex.conf ]]; then
+  cat > /etc/nginx/apps/${u}.rindex.conf <<RIN
 location /${u}.rtorrent.downloads {
   alias /home/${u}/torrents/rtorrent;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -160,8 +166,8 @@ location /${u}.rtorrent.downloads {
 }
 RIN
   fi
-  if [[ ! -f /etc/nginx/apps/scgi.${u}.conf ]]; then
-  cat > /etc/nginx/apps/scgi.${u}.conf <<RUC
+  if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
+  cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
 location /${u} {
 include scgi_params;
 scgi_pass 127.0.0.1:$port;

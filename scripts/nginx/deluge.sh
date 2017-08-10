@@ -11,8 +11,8 @@
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 for u in "${users[@]}"; do
-  if [[ ! -f /etc/nginx/apps/dindex.${u}.conf ]]; then
-  cat > /etc/nginx/apps/dindex.${u}.conf <<DIN
+  if [[ ! -f /etc/nginx/apps/${u}.dindex.conf ]]; then
+  cat > /etc/nginx/apps/${u}.dindex.conf <<DIN
 location /${u}.deluge.downloads {
   alias /home/${u}/torrents/deluge;
   include /etc/nginx/snippets/fancyindex.conf;

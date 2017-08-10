@@ -225,9 +225,7 @@ function _deluser {
     systemctl stop rtorrent@${user}
       if [[ -f /install/.nginx.lock ]]; then
         rm -rf /srv/rutorrent/conf/users/${user}
-        rm -f /etc/nginx/apps/scgi.${user}.conf
-        rm -f /etc/nginx/apps/rindex.${user}.conf
-        rm -f /etc/nginx/apps/dindex.${user}.conf
+        rm -f /etc/nginx/apps/${user}*
         systemctl reload nginx
       fi
   fi
