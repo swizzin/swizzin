@@ -16,8 +16,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
 else
   cd /srv/
-  export GIT_SSL_NO_VERIFY=true
-  git clone https://gitlab.swizzin.ltd/liara/quickbox_dashboard.git panel
+  git clone https://github.com/swizzin/quickbox_dashboard.git panel
 
   chown -R www-data: /srv/panel
 
