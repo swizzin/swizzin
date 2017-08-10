@@ -181,7 +181,6 @@ rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))
 warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
-rdisk=$(free -m | grep "Mem" | awk '{printf "%.0f\n", $2/10}'); if [[ $rdisk -gt 500 ]];then installdir="/tmp/ramdisk";else installdir="/tmp"; fi
 
 if [[ -n $1 ]]; then
 	user=$1
@@ -195,8 +194,9 @@ fi
 
 if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							 0.9.6 "" \
-							 feature-bind "" 3>&1 1>&2 2>&3)
+							#feature-bind "" \
+							 0.9.6 "" 3>&1 1>&2 2>&3)
+							 
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
@@ -207,10 +207,10 @@ if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 		fi
 elif [[ -z ${rtorrentver} ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 #feature-bind "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
-							 0.9.3 "" \
-							 feature-bind "" 3>&1 1>&2 2>&3)
+							 0.9.3 "" 3>&1 1>&2 2>&3)
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'

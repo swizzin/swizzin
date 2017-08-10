@@ -133,8 +133,8 @@ function _choices() {
 	if grep -q rtorrent "$results"; then
 		if [[ ${codename} =~ ("stretch") ]]; then
 			function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-									0.9.6 "" \
-									feature-bind "" 3>&1 1>&2 2>&3)
+									#feature-bind "" \
+									0.9.6 "" 3>&1 1>&2 2>&3)
 
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
@@ -145,10 +145,10 @@ function _choices() {
 				fi
 			else
 				function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							#feature-bind "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
-							 0.9.3 "" \
-							 feature-bind "" 3>&1 1>&2 2>&3)
+							 0.9.3 "" 3>&1 1>&2 2>&3)
 
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
