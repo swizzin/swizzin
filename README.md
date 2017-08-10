@@ -17,21 +17,13 @@ Of course you do! You can help by testing untested stuff and reporting bugs to m
 ### Quick Start:
 
 ```
-wget --no-check-certificate -O- https://gitlab.swizzin.ltd/liara/swizzin/raw/master/setup.sh | bash
+wget -q -O- https://gitlab.swizzin.ltd/liara/swizzin/raw/master/setup.sh | bash
 ```
 
 
 #### Supported:
 * Debian 8/9
 * Ubuntu 16.04 and above
-
-#### Tested:
-* Deluge
-* rtorrent
-* autodl
-* nginx
-* vsftpd
-* ffmpeg
 
 #### Untested:
 * Quotas. Buggy AF? You tell me.
@@ -40,7 +32,7 @@ wget --no-check-certificate -O- https://gitlab.swizzin.ltd/liara/swizzin/raw/mas
 * ZNC (shouldn't really need any modification)
 
 ### This is my box. There are many like it, but this one is mine.
-Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've rewritten it and added a few commands intended to make your life a bit easier.
+Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
 
 Box functions:
 
@@ -50,11 +42,11 @@ Box functions:
   * Usage: `box install sickrage couchpotato plex`
 * remove - removes an installed package. Accepts one or more package
   * Usage: `box remove sonarr radarr`
-* adduser - exactly what it sounds like. Define a single user with the command.
+* adduser - adds a new user. Define a single user with the command.
   * Usage: `box adduser freeloadingfriend`
-* deluser - you know what I'm talking about. Define a single user with the command.
+* deluser - deletes the specified user. Define a single user with the command.
   * Usage: `box deluser exgirlfriend`
-* chpasswd - are you catching my drift? Define a single user with the command.
+* chpasswd - changes the password for a user. Define a single user with the command.
   * Usage: `box chpasswd forgetfulfriend`
 * update - use this command to update your box with the newest changes from github
   * Usage: `box update`
