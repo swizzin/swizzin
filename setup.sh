@@ -81,7 +81,7 @@ function _adduser() {
 		if [[ -z $check ]]; then
 			chpasswd<<<"${user}:${pass}"
 			echo "Please choose a better password"
-			read -n 1 -s -r -p $'Press any key to enter a new password\n'
+			read -n 1 -s -r -p "Press any key to enter a new password"
 			_adduser
 		else
 			echo "OK."
