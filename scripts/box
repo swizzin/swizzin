@@ -219,7 +219,7 @@ systemctl reload nginx
 
 function _deluser {
   user=$2
-  read -p "WARNING: This will delete the user ${user} and all associated configs and subdirectories.\nPress enter to continue."
+  read -rep $'WARNING: This will delete the user '${user}$' and all associated configs and subdirectories.\n\nPress enter to continue.'
   if [[ -f /install/.rtorrent.lock ]]; then
     systemctl disable rtorrent@${user}
     systemctl stop rtorrent@${user}
