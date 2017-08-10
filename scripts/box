@@ -186,7 +186,7 @@ function _adduser {
 		fi
 	fi
   echo "$user:$pass" > /root/${user}.info
-  useradd "${user}" -m -G www-data
+  useradd "${user}" -m -G www-data -s /bin/bash
   chpasswd<<<"${user}:${pass}"
   htpasswd -b /etc/htpasswd $user $pass
   mkdir -p /etc/htpasswd.d/
@@ -209,12 +209,15 @@ function _adduser {
     systemctl enable irssi@${user}
     systemctl start irssi@${user}
   fi
+  USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD
-Cmnd_Alias   SYSDCMDS = /bin/systemctl * rtorrent@${user}, /bin/systemctl * deluged@${user}, /bin/systemctl * deluge-web@${user}, /bin/systemctl * irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
+Cmnd_Alias   ${USER}CMDS = /bin/systemctl * rtorrent@${user}, /bin/systemctl * deluged@${user}, /bin/systemctl * deluge-web@${user}, /bin/systemctl * irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
-${user}     ALL = (ALL) NOPASSWD: SYSDCMNDS
+${user}     ALL = (ALL) NOPASSWD: ${USER}CMNDS
 SUD
 systemctl reload nginx
+echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
+
 }
 
 function _deluser {

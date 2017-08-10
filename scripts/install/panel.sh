@@ -65,9 +65,6 @@ Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota
 
 www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PACKAGECMNDS, GENERALCMNDS
 
-# Allow members of group sudo to execute any command
-%www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PACKAGECMNDS, GENERALCMNDS
-
 SUD
   service nginx force-reload
   touch /install/.panel.lock
