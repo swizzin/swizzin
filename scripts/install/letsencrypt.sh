@@ -50,12 +50,9 @@ if [[ ${cf} == yes ]]; then
 
   export CF_Key="${api}"
   export CF_Email="${email}"
-  if [[ ${record} == no ]]; then
-        if [[ $hostname == *.*.* ]]; then
-        zone=$(expr match "$hostname" '.*\.\(.*\..*\)')
-        else
-        zone=$hostname
-        fi
+    if [[ ${record} == no ]]; then
+        echo -e "Zone Name (example.com)"
+        read -e zone
         zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
         addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
         if [[ $addrecord == *"\"success\":false"* ]]; then
