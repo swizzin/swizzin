@@ -19,11 +19,20 @@ if [[ $codename == "jessie" ]]; then
   echo "deb-src http://packages.dotdeb.org $(lsb_release -sc) all" >> /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
   wget -q https://www.dotdeb.org/dotdeb.gpg
   sudo apt-key add dotdeb.gpg >> /dev/null 2>&1
-  apt-get -y update
+  cat > /etc/apt/preferences.d/ssl <<EOP
+Package: *libssl*
+Pin: release o=debian
+Pin-Priority: 1000
+
+Package: *openssl*
+Pin: release o=debian
+Pin-Priority: 1000
+EOP
+  apt-get -y -qq update
 fi
 
 
-
+apt-get -y -qq update
 APT='nginx-full nginx-extras subversion ssl-cert php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
 apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find a required package: ${depends}. That's probably not good...")
