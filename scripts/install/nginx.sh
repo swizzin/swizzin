@@ -42,16 +42,16 @@ if [[ $codename == "jessie" ]]; then
   echo "deb http://packages.dotdeb.org $(lsb_release -sc) all" > /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
   echo "deb-src http://packages.dotdeb.org $(lsb_release -sc) all" >> /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
   wget -q https://www.dotdeb.org/dotdeb.gpg
-  sudo apt-key add dotdeb.gpg >> /dev/null 2>&1
-  cat > /etc/apt/preferences.d/ssl <<EOP
-Package: *libssl*
-Pin: release o=debian
-Pin-Priority: 1000
-
-Package: *openssl*
-Pin: release o=debian
-Pin-Priority: 1000
-EOP
+  apt-key add dotdeb.gpg >> /dev/null 2>&1
+#  cat > /etc/apt/preferences.d/ssl <<EOP
+#Package: *libssl*
+#Pin: release o=debian
+#Pin-Priority: 1000
+#
+#Package: *openssl*
+#Pin: release o=debian
+#Pin-Priority: 1000
+#EOP
   apt-get -y -qq update
 fi
 
