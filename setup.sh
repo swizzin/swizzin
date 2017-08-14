@@ -63,14 +63,14 @@ function _intro() {
 
 function _adduser() {
 	if [[ -z $user ]]; then
-  	user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
+  	user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
   fi
 	if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
 		user=
     _adduser
   fi
-  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ ! "$exitstatus" = 0 ]; then exit 0; fi
+  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
@@ -83,6 +83,7 @@ function _adduser() {
 			chpasswd<<<"${user}:${pass}"
 			echo "Please choose a better password"
 			read -n 1 -s -r -p "Press any key to enter a new password"
+			printf "\n"
 			_adduser
 		else
 			echo "OK."
@@ -122,7 +123,7 @@ function _choices() {
       packages+=("$i" '""')
     fi
   done
-	whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results
+	whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
 	#readarray packages < /root/results
 	results=/root/results
 	while IFS= read -r result
@@ -198,7 +199,7 @@ function _choices() {
 			extras+=("$i" '""')
 		fi
 	done
-	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2>/root/results2
+	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2>/root/results2; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
 	results2=/root/results2
 
 }
