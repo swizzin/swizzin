@@ -15,9 +15,14 @@ codename=$(lsb_release -cs)
 log=/root/logs/install.log
 
 if [[ -n $(pidof apache2) ]]; then
-  echo "WARNING: apache2 installation conflict detected. Installer is disabling apache2 so it may continue. If you have installed this software intentionally, please note you will need to reconfigure apache or nginx configs in order to continue using both web servers."
-  systemctl disable apache2 >> /dev/null 2>&1
-  systemctl stop apache2
+  if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78) then
+    systemctl disable apache2 >> /dev/null 2>&1
+    systemctl stop apache2
+    apt-get -y -q purge apache2 >> ${log} 2>&1
+  else
+    systemctl disable apache2 >> /dev/null 2>&1
+    systemctl stop apache2
+  fi
 fi
 
 if [[ $codename == "jessie" ]]; then
