@@ -11,23 +11,27 @@
 #
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
+function _rar() {
+	cd /tmp
+  	wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
+  	tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
+  	cp rar/*rar /bin >/dev/null 2>&1
+  	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
+  	rm -rf /tmp/rar >/dev/null 2>&1
+}
+
 function _depends() {
 	APT='subversion dos2unix bc screen zip unzip sysstat build-essential cfv comerr-dev
 	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo mktorrent'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find required package: ${depends}. That's probably not good...")
+	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good...")
 	done
   if [[ $distribution == "Debian" ]]; then
-    cd /tmp
-  	wget -q http://www.rarlab.com/rar/rarlinux-x64-5.4.0.tar.gz
-  	tar -xzf rarlinux-x64-5.4.0.tar.gz >/dev/null 2>&1
-  	cp rar/*rar /bin >/dev/null 2>&1
-  	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-  	rm -rf /tmp/rar >/dev/null 2>&1
+	_rar
   else
-    apt-get -y install rar unrar >>$log 2>&1
+    apt-get -y install rar unrar >>$log 2>&1 || echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar
   fi
 }
 
