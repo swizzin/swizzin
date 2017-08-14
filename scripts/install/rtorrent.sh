@@ -26,7 +26,7 @@ function _depends() {
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo mktorrent'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good...")
+	apt-get -qq -y --yes --force-yes install "$depends"  >> $log 2>&1 || (echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good...")
 	done
   if [[ $distribution == "Debian" ]]; then
 	_rar
@@ -180,7 +180,6 @@ rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
 libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
 xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
 user=$(cat /root/.master.info | cut -d: -f1)
-logdir="/root/logs"
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))

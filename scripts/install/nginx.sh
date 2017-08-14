@@ -12,7 +12,11 @@
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
-log=/root/logs/install.log
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/dev/null"
+fi
 
 if [[ -n $(pidof apache2) ]]; then
   if [[ -z $apache2 ]]; then
@@ -55,7 +59,7 @@ fi
 apt-get -y -qq update
 APT='nginx-full nginx-extras subversion ssl-cert php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good...")
+apt-get -qq -y --yes --force-yes install "$depends" >> $log 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good...")
 done
 
 sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
@@ -165,7 +169,7 @@ proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
 
-svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme /srv/fancyindex
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme /srv/fancyindex >> $log 2>&1
 cat > /etc/nginx/snippets/fancyindex.conf <<FIC
 fancyindex on;
 fancyindex_localtime on;

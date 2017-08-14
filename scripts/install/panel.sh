@@ -11,12 +11,17 @@
 #
 IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
 user=$(cat /root/.master.info | cut -d: -f1)
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/dev/null"
+fi
 
 if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
 else
   cd /srv/
-  git clone https://github.com/liaralabs/quickbox_dashboard.git panel
+  git clone https://github.com/liaralabs/quickbox_dashboard.git panel >>$log 2>&1
 
   chown -R www-data: /srv/panel
 
