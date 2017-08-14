@@ -198,9 +198,9 @@ fi
 
 if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							#feature-bind "" \
 							 0.9.6 "" 3>&1 1>&2 2>&3)
-							 
+							#feature-bind "" \
+	 
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
@@ -211,10 +211,11 @@ if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 		fi
 elif [[ -z ${rtorrentver} ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							 #feature-bind "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
 							 0.9.3 "" 3>&1 1>&2 2>&3)
+							 #feature-bind "" \
+
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'

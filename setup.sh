@@ -130,21 +130,24 @@ function _choices() {
  done < "$results"
 	if grep -q nginx "$results"; then
 		if [[ -n $(pidof apache2) ]]; then
-			if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78) then
-				systemctl disable apache2 >> /dev/null 2>&1
-				systemctl stop apache2
-				apt-get -y -q purge apache2 >> ${log} 2>&1
-			else
-				systemctl disable apache2 >> /dev/null 2>&1
-				systemctl stop apache2
+			whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78
+			CONFLICT=$?
+			if [[ $CONFLICT = 0 ]]; then
+					systemctl disable apache2 >> /dev/null 2>&1
+					systemctl stop apache2
+					apt-get -y -q purge apache2 >> ${log} 2>&1
+			elif [[ $CONFLICT = 1 ]]; then
+					systemctl disable apache2 >> /dev/null 2>&1
+					systemctl stop apache2
 			fi
 		fi
 	fi
 	if grep -q rtorrent "$results"; then
 		if [[ ${codename} =~ ("stretch") ]]; then
 			function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-									#feature-bind "" \
 									0.9.6 "" 3>&1 1>&2 2>&3)
+								#feature-bind "" \
+
 
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
@@ -155,10 +158,11 @@ function _choices() {
 				fi
 			else
 				function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							#feature-bind "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
 							 0.9.3 "" 3>&1 1>&2 2>&3)
+							#feature-bind "" \
+
 
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
