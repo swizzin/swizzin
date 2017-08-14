@@ -80,9 +80,7 @@ function _adduser() {
 		str="$(cracklib-check <<<"$pass")"
 		check=$(grep OK <<<"$str")
 		if [[ -z $check ]]; then
-			chpasswd<<<"${user}:${pass}"
-			echo "Please choose a better password"
-			read -n 1 -s -r -p "Press any key to enter a new password"
+			read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
 			printf "\n"
 			_adduser
 		else
