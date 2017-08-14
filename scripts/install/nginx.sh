@@ -21,14 +21,16 @@ if [[ -n $(pidof apache2) ]]; then
     else
       apache2=disable
     fi
-    if [[ $apache2 == "purge" ]]; then
-      systemctl disable apache2 >> /dev/null 2>&1
-      systemctl stop apache2
-      apt-get -y -q purge apache2 >> ${log} 2>&1
-    elif [[ $apache2 == "disable" ]]; then
-      systemctl disable apache2 >> /dev/null 2>&1
-      systemctl stop apache2
-    fi
+  fi
+  if [[ $apache2 == "purge" ]]; then
+    echo "Purging apache2 ... "
+    systemctl disable apache2 >> /dev/null 2>&1
+    systemctl stop apache2
+    apt-get -y -q purge apache2 >> ${log} 2>&1
+  elif [[ $apache2 == "disable" ]]; then
+    echo "Disabling apache2 ... "
+    systemctl disable apache2 >> /dev/null 2>&1
+    systemctl stop apache2
   fi
 fi
 
