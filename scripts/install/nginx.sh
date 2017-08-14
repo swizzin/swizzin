@@ -14,6 +14,12 @@ release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
 log=/root/logs/install.log
 
+if [[ -n $(pidof apache2) ]]; then
+  echo "WARNING: apache2 installation conflict detected. Installer is disabling apache2 so it may continue. If you have installed this software intentionally, please note you will need to reconfigure apache or nginx configs in order to continue using both web servers."
+  systemctl disable apache2 >> /dev/null 2>&1
+  systemctl stop apache2
+fi
+
 if [[ $codename == "jessie" ]]; then
   echo "deb http://packages.dotdeb.org $(lsb_release -sc) all" > /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
   echo "deb-src http://packages.dotdeb.org $(lsb_release -sc) all" >> /etc/apt/sources.list.d/dotdeb-php7-$(lsb_release -sc).list
@@ -35,7 +41,7 @@ fi
 apt-get -y -qq update
 APT='nginx-full nginx-extras subversion ssl-cert php7.0 php7.0-cli php7.0-fpm php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find a required package: ${depends}. That's probably not good...")
+apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good...")
 done
 
 sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
