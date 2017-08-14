@@ -130,15 +130,10 @@ function _choices() {
  done < "$results"
 	if grep -q nginx "$results"; then
 		if [[ -n $(pidof apache2) ]]; then
-			whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78
-			CONFLICT=$?
-			if [[ $CONFLICT = 0 ]]; then
-					systemctl disable apache2 >> /dev/null 2>&1
-					systemctl stop apache2
-					apt-get -y -q purge apache2 >> ${log} 2>&1
-			elif [[ $CONFLICT = 1 ]]; then
-					systemctl disable apache2 >> /dev/null 2>&1
-					systemctl stop apache2
+			if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78); then
+				export apache2=purge
+			else
+				export apache2=disable
 			fi
 		fi
 	fi
