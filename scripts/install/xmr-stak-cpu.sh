@@ -16,7 +16,8 @@ address=pool.supportxmr.net:5555
 user=$(cat /root/.master.info | cut -d: -f1)
 
 echo "The installer has determined that the miner will produce the most hash per second using $optthreads threads."
-read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization): " 'threads'
+read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization). If you do not choose a value, the installer will default to $optthreads: " 'threads'
+threads=${threads:=${optthreads}}
 read -p "Enter wallet address for miner (press enter to default to dev donation): " 'wallet'
 
 END=$(echo "$threads-1" | bc)
