@@ -228,6 +228,7 @@ done < "$results2"
 function _post {
 	ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 	echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+	echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
 	echo "Installation complete!"
 	echo ""
 	echo "You may now login with the following info: ${user}:${pass}"
