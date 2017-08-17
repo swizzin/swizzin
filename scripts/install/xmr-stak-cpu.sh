@@ -44,8 +44,10 @@ fi
     mv bin/xmr-stak-cpu /usr/local/bin
     mkdir /home/${user}/.xmr
 
+if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf)]]
     echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
     sysctl -p
+fi
 
 cat > /etc/systemd/system/xmr.service <<XMR
 [Unit]
