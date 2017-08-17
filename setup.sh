@@ -23,6 +23,8 @@ fi
 
 _os() {
 	echo "Checking OS version and release ... "
+	apt-get -y -qq update >> ${log} 2>&1
+	apt-get -y -qq install lsb-release >> ${log} 2>&1
 	distribution=$(lsb_release -is)
 	release=$(lsb_release -rs)
   codename=$(lsb_release -cs)
@@ -42,7 +44,7 @@ function _preparation() {
   echo "Updating system and grabbing core dependencies."
   apt-get -qq -y --force-yes update >> ${log} 2>&1
   apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
-  apt-get -qq -y --force-yes install whiptail lsb-release git sudo fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr >> ${log} 2>&1
+  apt-get -qq -y --force-yes install whiptail git sudo fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
