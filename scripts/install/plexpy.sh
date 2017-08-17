@@ -28,7 +28,7 @@ echo "Cloning PlexPy repository" >>"${OUTTO}" 2>&1;
 git clone https://github.com/drzoidberg33/plexpy.git > /dev/null 2>&1
 
 echo "Adding user and setting up PlexPy" >>"${OUTTO}" 2>&1;
-adduser --system --no-create-home plexpy
+adduser --system --no-create-home plexpy >>"${OUTTO}" 2>&1
 
 echo "Adjusting permissions" >>"${OUTTO}" 2>&1;
 chown plexpy:nogroup -R /opt/plexpy
