@@ -12,7 +12,7 @@ fi
 
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
 optthreads=$(echo "$L3/2" | bc)
-address=pool.supportxmr.net:5555
+address=pool.supportxmr.com:5555
 user=$(cat /root/.master.info | cut -d: -f1)
 
 echo "The installer has determined that the miner will produce the most hash per second using $optthreads threads."
