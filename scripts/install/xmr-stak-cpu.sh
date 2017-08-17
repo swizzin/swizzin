@@ -44,7 +44,7 @@ fi
     mv bin/xmr-stak-cpu /usr/local/bin
     mkdir /home/${user}/.xmr
 
-if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf)]]; then
+if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf) ]]; then
     echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
     sysctl -p
 fi
