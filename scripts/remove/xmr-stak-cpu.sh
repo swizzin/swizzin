@@ -7,3 +7,4 @@ systemctl stop xmr
 rm -rf /home/${user}/.xmr
 rm -rf /etc/systemd/system/xmr.service
 rm -rf /usr/local/bin/xmr-stak-cpu
+rm -rf /install/.xmr-stak-cpu.lock
