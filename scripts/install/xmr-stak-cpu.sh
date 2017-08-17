@@ -232,7 +232,7 @@ EOC
 
 for ((i=0;i<=END;i++)); do
     sed -i '/THREADS/a \
-          { "low_power_mode" : false, "no_prefetch" : true, "affine_to_cpu" : $i },' /root/.xmr/config.txt
+          { "low_power_mode" : false, "no_prefetch" : true, "affine_to_cpu" : $i },' /home/${user}/.xmr/config.txt
 done
 
 sed -i '/THREADS/d' /home/${user}/.xmr/config.txt
