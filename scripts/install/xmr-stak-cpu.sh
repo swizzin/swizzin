@@ -236,6 +236,7 @@ for ((i=0;i<=END;i++)); do
 done
 
 sed -i '/THREADS/d' /home/${user}/.xmr/config.txt
+rm -rf /tmp/xmr-stak-cpu
 touch /install/.xmr-stak-cpu.conf
 systemctl enable xmr
 systemctl start xmr
