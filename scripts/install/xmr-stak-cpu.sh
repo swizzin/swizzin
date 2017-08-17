@@ -2,6 +2,14 @@
 # Automated installer script for xmr-stak-cpu
 # Written by liara for swizzin
 
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  log="/srv/panel/db/output.log"
+else
+  log="/dev/null"
+fi
+
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
 optthreads=$(echo "$L3/2" | bc)
 address=pool.supportxmr.net:5555
@@ -17,23 +25,23 @@ if [[ -z $wallet ]]; then
 fi
 
 echo "Installing dependencies and compiling xmr-stak-cpu"
-apt-get -y -qq update
-apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwloc-dev screen
+apt-get -y -qq update >> $log 2>&1
+apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwloc-dev screen >> $log 2>&1
 
 cd /tmp
-git clone https://github.com/fireice-uk/xmr-stak-cpu.git
+git clone https://github.com/fireice-uk/xmr-stak-cpu.git >> $log 2>&1
 cd xmr-stak-cpu
 mkdir build
 cd build
 
 if [[ $(lsb_release -sc) == "jessie" ]]; then
-    cmake -DCMAKE_LINK_STATIC=ON ..
+    cmake -DCMAKE_LINK_STATIC=ON .. >> $log 2>&1
 else
-    cmake ..
+    cmake .. >> $log 2>&1
 fi
-    make install
+    make install >> $log 2>&1
     mv bin/xmr-stak-cpu /usr/local/bin
-    mkdir /root/.xmr
+    mkdir /home/${user}/.xmr
 
     echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
     sysctl -p
@@ -48,13 +56,13 @@ Type=forking
 User=$user
 Group=$user
 KillMode=none
-ExecStart=/usr/bin/screen -d -m -fa -S xmr /usr/local/bin/xmr-stak-cpu /root/.xmr/config.txt
+ExecStart=/usr/bin/screen -d -m -fa -S xmr /usr/local/bin/xmr-stak-cpu /home/${user}/.xmr/config.txt
 
 [Install]
 WantedBy=multi-user.target
 XMR
 
-cat > /root/.xmr/config.txt <<EOC
+cat > /home/${user}/.xmr/config.txt <<EOC
 /*
  * Thread configuration for each thread. Make sure it matches the number above.
  * low_power_mode - This mode will double the cache usage, and double the single thread performance. It will 
@@ -226,7 +234,7 @@ for ((i=0;i<=END;i++)); do
           { "low_power_mode" : false, "no_prefetch" : true, "affine_to_cpu" : $i },' /root/.xmr/config.txt
 done
 
-sed -i '/THREADS/d' /root/.xmr/config.txt
+sed -i '/THREADS/d' /home/${user}/.xmr/config.txt
 touch /install/.xmr-stak-cpu.conf
 systemctl enable xmr
 systemctl start xmr
