@@ -3,7 +3,7 @@
 # Written by liara for swizzin
 
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
-optthreads=echo "$L3/2" | bc
+optthreads=$(echo "$L3/2" | bc)
 address=pool.supportxmr.net:5555
 user=$(cat /root/.master.info | cut -d: -f1)
 
@@ -11,11 +11,12 @@ echo "The installer has determined that the miner will produce the most hash per
 read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization): " 'threads'
 read -p "Enter wallet address for miner (press enter to default to dev donation): " 'wallet'
 
-END=echo "$threads-1" | bc
+END=$(echo "$threads-1" | bc)
 if [[ -z $wallet ]]; then
     wallet=469BicSF5q8Lk4bdbWSbUajX8fmckaViqVk4sfyyBcYULSRxiekTPH8e6QEgSzXJhY6RDVNf1QFNhLNewXbdF1r4NxS1T4g
 fi
 
+echo "Installing dependencies and compiling xmr-stak-cpu"
 apt-get -y -qq update
 apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwloc-dev screen
 
