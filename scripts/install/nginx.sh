@@ -78,7 +78,7 @@ cat > /etc/nginx/sites-enabled/default <<NGC
 server {
 listen 80 default_server;
 listen [::]:80 default_server;
-return 301 https://$server_name$request_uri;
+return 301 https://\$server_name\$request_uri;
 }
 
 # SSL configuration
