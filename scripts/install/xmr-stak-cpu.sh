@@ -46,6 +46,7 @@ apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwl
 cd /tmp
 git clone https://github.com/fireice-uk/xmr-stak-cpu.git >> $log 2>&1
 cd xmr-stak-cpu
+sed -i "s/= 2.0/= 0.5/g" donate-level.h
 mkdir build
 cd build
 
