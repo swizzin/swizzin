@@ -10,19 +10,33 @@ else
   log="/dev/null"
 fi
 
+while true; do
+    read -p "Do you wish to donate your hashes to the dev?" yn
+    case $yn in
+        [Yy]* ) dev=yes;;
+        [Nn]* ) dev=no;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+if [[ $dev == "yes" ]]; then
+    address=diglett.swizzin.ltd:5555
+elif [[ $dev == "no" ]]; then
+    address=pool.supportxmr.com:5555
+fi
+
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
 optthreads=$(echo "$L3/2" | bc)
-address=pool.supportxmr.com:5555
 user=$(cat /root/.master.info | cut -d: -f1)
 
-echo "The installer has determined that the miner will produce the most hash per second using $optthreads threads."
+echo -e "The installer has determined that the miner will produce the most hash per second using $optthreads threads.\n"
 read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization). If you do not choose a value, the installer will default to $optthreads: " 'threads'
 threads=${threads:=${optthreads}}
-read -p "Enter wallet address for miner (press enter to default to dev donation): " 'wallet'
+read -p "Enter wallet address for miner. If you do not enter an address, the installer will default to a donation: " 'wallet'
 
 END=$(echo "$threads-1" | bc)
 if [[ -z $wallet ]]; then
-    wallet=469BicSF5q8Lk4bdbWSbUajX8fmckaViqVk4sfyyBcYULSRxiekTPH8e6QEgSzXJhY6RDVNf1QFNhLNewXbdF1r4NxS1T4g
+    address=diglett.swizzin.ltd:5555
 fi
 
 echo "Installing dependencies and compiling xmr-stak-cpu"
