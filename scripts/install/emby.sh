@@ -32,11 +32,23 @@ fi
 
 echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
   if [[ $DISTRO == Debian ]]; then
-    echo "deb http://download.opensuse.org/repositories/home:/emby/$(lsb_release -is)_$(lsb_release -rs)/ /" > /etc/apt/sources.list.d/emby-server.list
-    wget --quiet http://download.opensuse.org/repositories/home:emby/$(lsb_release -is)_$(lsb_release -rs)/Release.key -O - | apt-key add - > /dev/null 2>&1
+    if [[ $CODENAME == stretch ]]; then
+      version=9.0
+    elif [[ $CODENAME == jessie ]]; then
+      version=8.0
+    fi
+    echo "deb http://download.opensuse.org/repositories/home:/emby/$(lsb_release -is)_${version}/ /" > /etc/apt/sources.list.d/emby-server.list
+    wget --quiet http://download.opensuse.org/repositories/home:emby/$(lsb_release -is)_${version}/Release.key -O - | apt-key add - > /dev/null 2>&1
   elif [[ $DISTRO == Ubuntu ]]; then
-    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/x$(lsb_release -is)_$(lsb_release -rs)/ /' > /etc/apt/sources.list.d/emby-server.list"
-    wget --quiet http://download.opensuse.org/repositories/home:emby/x$(lsb_release -is)_$(lsb_release -rs)/Release.key -O - | apt-key add - > /dev/null 2>&1
+      if [[ $CODENAME == xenial ]]; then
+        version=16.04
+      elif [[ $CODENAME == yakkety ]]; then
+        version=16.10
+      elif [[ $CODENAME == zesty ]]; then
+        version=17.04
+      fi
+    sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/x$(lsb_release -is)_${version}/ /' > /etc/apt/sources.list.d/emby-server.list"
+    wget --quiet http://download.opensuse.org/repositories/home:emby/x$(lsb_release -is)_${version}/Release.key -O - | apt-key add - > /dev/null 2>&1
   fi
 
 echo "Updating system & installing emby server ... " >>"${OUTTO}" 2>&1;
