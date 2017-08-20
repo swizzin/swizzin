@@ -11,9 +11,9 @@ rm -rf /usr/bin/rtorrent
 cd /tmp
 git clone https://github.com/rakshasa/libtorrent.git libtorrent >>/dev/null 2>&1
 cd libtorrent
-./autogen.sh
-./configure --prefix=/usr
-make uninstall
+./autogen.sh > /dev/null 2>&1
+./configure --prefix=/usr > /dev/null 2>&1
+make uninstall > /dev/null 2>&1
 cd -
 rm -rf /tmp/libtorrent
 
