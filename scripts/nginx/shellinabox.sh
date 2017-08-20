@@ -25,3 +25,4 @@ fi
 if [[ -z $(grep localhost-only /etc/default/shellinabox) ]]; then
     sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--localhost-only /g' /etc/default/shellinabox
 fi
+systemctl reload nginx
