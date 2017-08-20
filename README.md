@@ -12,7 +12,7 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 
 #### You wanna be a swizzie?
 
-Of course you do! You can help by testing untested stuff and reporting bugs to me at irc.swizzin.ltd #swizzin-dev
+Of course you do! You can help by testing untested stuff and reporting bugs to me by opening an issue here on github or by joining us on irc.swizzin.ltd #swizzin-dev
 
 ### Quick Start:
 
@@ -53,14 +53,6 @@ Box functions:
 * upgrade - once upgrade scripts are implemented, this will likely be the hook used to upgrade individual packages
 
 #### TODO
-- [ ] Ratio colors for ruTorrent
-- [x] Add/Remove user functions
-  - [x] Make sure functions only accept one argument
-- [x] It's my shell in a box
-- [x] User download directories for web access
-- [x] Clean up panel code
-- [x] Audit remove package scripts
-- [x] A bit of post install info
 - [ ] Better readme/docs
-- [ ] ???
-- [ ] Profit!!
+- [ ] Bug fixes
+- [ ] Netdata server monitoring
