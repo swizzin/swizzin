@@ -70,6 +70,39 @@ if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
   sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
 fi
 
+if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php ) ]]; then
+  primaryroot=$(cat /install/.quota.lock)
+  cat > /srv/rutorrent/plugins/diskspace/action.php <<'DSKSP'
+<?php
+#################################################################################
+##  [Quick Box - action.php modified for quota systems use]
+#################################################################################
+# QUICKLAB REPOS
+# QuickLab _ packages:   https://github.com/QuickBox/quickbox_rutorrent-plugins
+# LOCAL REPOS
+# Local _ packages   :   ~/QuickBox/rtplugins
+# Author             :   QuickBox.IO
+# URL                :   https://plaza.quickbox.io
+#
+#################################################################################
+  require_once( '../../php/util.php' );
+  if (isset($quotaUser) && file_exists('/install/.quota.lock')) {
+      $total = shell_exec("/usr/bin/sudo /usr/sbin/repquota -u MOUNT | /bin/grep ^".$quotaUser." | /usr/bin/awk '{printf $4*1024}'");
+      $free = shell_exec("/usr/bin/sudo /usr/sbin/repquota -u MOUNT | /bin/grep ^".$quotaUser." | /usr/bin/awk '{printf ($4-$3)*1024}'");
+      cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
+  } else {
+      cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
+  }
+?>
+DSKSP
+  if [[ $primaryroot == "root" ]]; then
+      sed -i 's/MOUNT/\//g' /srv/rutorrent/plugins/diskspace/action.php
+  elif [[ $primaryroot == "home" ]]; then
+      sed -i 's/MOUNT/\/home/g' /srv/rutorrent/plugins/diskspace/action.php
+  fi
+    touch /install/.quota.lock
+fi
+
 cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
