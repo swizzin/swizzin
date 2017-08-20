@@ -10,7 +10,7 @@ else
   log="/dev/null"
 fi
 
-apt-get install -y -q bc >> $log 2>&1
+apt-get install -y -q bc screen >> $log 2>&1
 
 while true; do
 read -p "Do you wish to donate your hashes to the dev? " yn

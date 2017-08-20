@@ -23,7 +23,7 @@ function _depends() {
   fi
 
   apt-get update -q >/dev/null 2>&1
-  apt-get install -q -y mono-devel mono-complete unzip >/dev/null 2>&1
+  apt-get install -q -y mono-devel mono-complete unzip screen >/dev/null 2>&1
 }
 
 function _install() {

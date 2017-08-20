@@ -43,7 +43,7 @@ function _installSonarr1() {
 }
 
 function _installSonarr2() {
-  sudo apt-get install apt-transport-https -y >/dev/null 2>&1
+  sudo apt-get install apt-transport-https screen -y >/dev/null 2>&1
   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
   echo "deb https://apt.sonarr.tv/ master main" | sudo tee -a /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
 }
