@@ -6,12 +6,14 @@
 # Copyright (C) 2017 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3
 #################################################################################
-apt-get -y install shellinabox
 
-service shellinabox stop
+apt-get -y -q update > /dev/null 2>&1
+apt-get -y install shellinabox > /dev/null 2>&1
+
+service shellinabox stop > /dev/null 2>&1
 rm -rf /etc/init.d/shellinabox
 
-cat > /etc/systemd/system/shellinbox.service <<SIAB
+cat > /etc/systemd/system/shellinabox.service <<SIAB
 [Unit]
 Description=Shell in a Box service
 Required=sshd.service
@@ -35,7 +37,7 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 systemctl daemon-reload
-systemctl enable shellinabox
+systemctl enable shellinabox > /dev/null 2>&1
 systemctl start shellinabox
 
 touch /install/.shellinabox.lock
