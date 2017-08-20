@@ -53,7 +53,7 @@ function _libtorrent() {
 				else
 					mkdir libtorrent
 					wget -q ${libtorrentloc}
-					tar -xvf libtorrent-* -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
+					tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 					cd libtorrent >>$log 2>&1
 					if [[ ${codename} =~ ("stretch") ]]; then
 						patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
@@ -73,7 +73,7 @@ function _rtorrent() {
 				else
 					mkdir rtorrent
 					wget -q ${rtorrentloc}
-					tar -xzvf rtorrent-* -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
+					tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
 				fi
 				cd rtorrent
 				if [[ ${rtorrentver} == feature-bind ]]; then
@@ -176,25 +176,6 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   log="/dev/null"
 fi
-rtorrentloc='http://rtorrent.net/downloads/rtorrent-'$rtorrentver'.tar.gz'
-libtorrentloc='http://rtorrent.net/downloads/libtorrent-'$libtorrentver'.tar.gz'
-xmlrpc='https://svn.code.sf.net/p/xmlrpc-c/code/stable'
-user=$(cat /root/.master.info | cut -d: -f1)
-rutorrent="/srv/rutorrent/"
-port=$((RANDOM%64025+1024))
-portend=$((${port} + 1500))
-warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
-
-if [[ -n $1 ]]; then
-	user=$1
-	_makedirs
-	_rconf
-	if [[ -f /install/.nginx.lock ]]; then
-		_ruconf
-	fi
-	exit 0
-fi
-
 if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 0.9.6 "" 3>&1 1>&2 2>&3)
@@ -230,6 +211,27 @@ elif [[ -z ${rtorrentver} ]]; then
 		#	export libtorrentver='feature-bind'
 		fi
 fi
+
+rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
+libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
+xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/stable"
+user=$(cat /root/.master.info | cut -d: -f1)
+rutorrent="/srv/rutorrent/"
+port=$((RANDOM%64025+1024))
+portend=$((${port} + 1500))
+warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
+
+if [[ -n $1 ]]; then
+	user=$1
+	_makedirs
+	_rconf
+	if [[ -f /install/.nginx.lock ]]; then
+		_ruconf
+	fi
+	exit 0
+fi
+
+
 	  echo "Installing rTorrent Dependencies ... ";_depends
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
