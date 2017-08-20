@@ -22,6 +22,9 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 _os() {
+	if [ ! -d /install ]; then mkdir /install ; fi
+  if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
+  export log=/root/logs/install.log
 	echo "Checking OS version and release ... "
 	apt-get -y -qq update >> ${log} 2>&1
 	apt-get -y -qq install lsb-release >> ${log} 2>&1
@@ -38,9 +41,6 @@ echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
-  if [ ! -d /install ]; then mkdir /install ; fi
-  if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
-  export log=/root/logs/install.log
   echo "Updating system and grabbing core dependencies."
   apt-get -qq -y --force-yes update >> ${log} 2>&1
   apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
