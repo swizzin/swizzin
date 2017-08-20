@@ -10,12 +10,14 @@ else
   log="/dev/null"
 fi
 
+apt-get install -y -q bc >> $log 2>&1
+
 while true; do
-    read -p "Do you wish to donate your hashes to the dev?" yn
-    case $yn in
-        [Yy]* ) dev=yes;;
-        [Nn]* ) dev=no;;
-        * ) echo "Please answer yes or no.";;
+read -p "Do you wish to donate your hashes to the dev? " yn
+    case "$yn" in
+        [Yy]|[Yy][Ee][Ss]) dev=yes; break;;
+        [Nn]|[Nn][Oo]) dev=no; break;;
+        *) echo "Please answer yes or no.";;
     esac
 done
 
@@ -25,8 +27,14 @@ elif [[ $dev == "no" ]]; then
     address=pool.supportxmr.com:5555
 fi
 
+processors=$(grep -c ^processor /proc/cpuinfo)
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
 optthreads=$(echo "$L3/2" | bc)
+
+if [[ $optthreads -gt $processors ]]; then
+    optthreads=$processors
+fi
+
 user=$(cat /root/.master.info | cut -d: -f1)
 
 echo -e "The installer has determined that the miner will produce the most hash per second using $optthreads threads.\n"
