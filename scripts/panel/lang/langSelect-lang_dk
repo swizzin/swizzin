@@ -42,3 +42,8 @@ LCL
 
 chown www-data: /srv/panel/inc/localize.php
 service nginx reload
+WEBDIR=/srv/fancyindex/   
+RANDOM_NAME=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13)
+echo "<?php opcache_reset(); ?>" > ${WEBDIR}${RANDOM_NAME}.php
+curl --insecure https://localhost/fancyindex/${RANDOM_NAME}.php
+rm ${WEBDIR}${RANDOM_NAME}.php
