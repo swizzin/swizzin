@@ -32,7 +32,7 @@ else
   LANG=lang_en
   sed -i "s/LOCALE/${LOCALE}/g" /srv/panel/inc/localize.php
   sed -i "s/LANG/${LANG}/g" /srv/panel/inc/localize.php
-  echo "*/1 * * * * root bash /usr/local/bin/swizzin/set_interface" > /etc/cron.d/set_interface
+  echo "*/1 * * * * root bash /usr/local/bin/swizzin/panel/set_interface" > /etc/cron.d/set_interface
 
   cat > /etc/nginx/apps/panel.conf <<PAN
 location / {
@@ -63,7 +63,7 @@ cat > /etc/sudoers.d/panel <<SUD
 
 # Cmnd alias specification
 Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem, /proc/sys/vm/drop_caches
-Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/clean_log, /usr/local/bin/swizzin/set_interface, /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*, /usr/local/bin/swizzin/box
+Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/clean_log, /usr/local/bin/swizzin/panel/set_interface, /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*, /usr/local/bin/swizzin/box
 Cmnd_Alias   PACKAGECMNDS = /usr/local/bin/swizzin/install/*, /usr/local/bin/swizzin/remove/*
 Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota, /bin/grep, /usr/bin/awk, /usr/bin/reload, /bin/systemctl force-reload nginx, /usr/bin/pkill, /usr/bin/killall, /bin/sed, /bin/systemctl
 
