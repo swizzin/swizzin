@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2014 Mathias Leppich <mleppich@muhqu.de>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+usage() {
+    cat <<USAGE
+Usage: $(basename $0) [-connect CONN] -r <code>
+
+Options:
+     -connect CONN    Passed to cgi-fcgi, default: /var/run/php5-fpm.sock
+                      examples: ip.add.re.ss:port or /path/to/php-fpm.sock
+
+     -r <code>        Run PHP <code> without using script tags <?..?>
+
+USAGE
+}
+
+main() {
+    echo "<?php $PHPCODE" > $PHPFPMCLI_FILE
+    SCRIPT_FILENAME=$PHPFPMCLI_FILE \
+    REQUEST_METHOD=GET \
+    cgi-fcgi -bind -connect "$CONN" | stripheaders
+    rm $PHPFPMCLI_FILE
+}
+
+stripheaders() {
+    sed -E '1,/^.$/ d'
+}
+
+PHPFPMCLI_FILE="/tmp/php-fpm-cli.$$.php"
+CONN="/run/php/php7.0-fpm.sock"
+PHPCODE=""
+init() {
+  until [ -z "$1" ]; do
+    case "$1" in
+      -connect|--connect) shift; CONN="$1"; shift; ;;
+      
+      -r) shift; PHPCODE="$1"; shift; ;;
+
+      help|-h|-help|--help)
+        usage;
+        exit 0
+        ;;
+
+      *)
+        echo "unknown option: $1";
+        usage;
+        exit 1
+        ;;
+    esac
+  done
+  if [ -z "$PHPCODE" ]; then
+    echo "missing option: -r <code>";
+    usage;
+    exit 1
+  fi
+}
+
+if [[ -z $(which cgi-fcgi) ]]; then apt install -y -q libfcgi0ldbl > /dev/null 2>&1; fi
+init "$@" && main
