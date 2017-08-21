@@ -129,7 +129,7 @@ function _choices() {
 	while IFS= read -r result
  	do
 	 touch /tmp/.$result.lock
- done < "$results"
+ 	done < "$results"
 	if grep -q nginx "$results"; then
 		if [[ -n $(pidof apache2) ]]; then
 			if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78); then
@@ -206,18 +206,20 @@ function _choices() {
 function _install() {
 	touch /tmp/.install.lock
 	begin=$(date +"%s")
-	while IFS= read -r result
- 	do
+  readarray result < /root/results
+  for i in "${result[@]}"; do
+    result=$(echo $i)
 		echo -e "Installing ${result}"
 		bash /usr/local/bin/swizzin/install/${result}.sh
 		rm /tmp/.$result.lock
- done < "$results"
+ done
  	rm /root/results
- while IFS= read -r result
- do
-	 echo -e "Installing ${result}"
-	 bash /usr/local/bin/swizzin/install/${result}.sh
-done < "$results2"
+  readarray result < /root/results2
+  for i in "${result[@]}"; do
+    result=$(echo $i)
+		echo -e "Installing ${result}"
+		bash /usr/local/bin/swizzin/install/${result}.sh
+	done
 	rm /root/results2
 	rm /tmp/.install.lock
 	termin=$(date +"%s")
