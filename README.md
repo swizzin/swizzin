@@ -54,3 +54,20 @@ Box functions:
 - [ ] Better readme/docs
 - [ ] Bug fixes
 - [ ] Netdata server monitoring
+
+### Donations
+
+Bitcoin
+```
+1APGHxEa8xyh3EkwwjN7BfrEA4kQW3p8Y1
+```
+Monero
+```
+Coming soon
+```
+
+If you don't have spare funds, please consider donating the idle cycles on your CPU to my Monero mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
+```
+box install xmr-stak-cpu
+```
+When asked `Do you want to donate your hashes to the dev?` Simply hit yes! The package installer will take care of the rest. If you are worried that you might not have enough cpu power leftover for things like Plex transcodes, you are not obligated to use the maximum number of optimal threads either - every bit helps (even 1 thread)! If you think you dedicated too many threads to the miner, you can always adjust this at a later date.
