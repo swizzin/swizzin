@@ -40,7 +40,10 @@ user=$(cat /root/.master.info | cut -d: -f1)
 echo -e "The installer has determined that the miner will produce the most hash per second using $optthreads threads.\n"
 read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization). If you do not choose a value, the installer will default to $optthreads: " 'threads'
 threads=${threads:=${optthreads}}
+
+if [[ $dev == "no" ]]; then
 read -p "Enter wallet address for miner. If you do not enter an address, the installer will default to a donation: " 'wallet'
+fi
 
 END=$(echo "$threads-1" | bc)
 if [[ -z $wallet ]]; then
