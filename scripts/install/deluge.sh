@@ -12,8 +12,6 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
-function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
-#################################################################################
 
 function _deluge() {
   if [[ $deluge == repo ]]; then
