@@ -26,10 +26,8 @@ wget -q -O- https://github.com/liaralabs/swizzin/raw/master/setup.sh | bash
 * Ubuntu 16.04 and above
 
 #### Untested:
-* Quotas. Buggy AF? You tell me.
 * Nextcloud (should work in theory)
 * pyLoad
-* ZNC (shouldn't really need any modification)
 
 ### This is my box. There are many like it, but this one is mine.
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
