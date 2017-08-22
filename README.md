@@ -16,9 +16,17 @@ Of course you do! You can help by testing untested stuff and reporting bugs to m
 
 ### Quick Start:
 
+wget
 ```
-wget -q -O- https://github.com/liaralabs/swizzin/raw/master/setup.sh | bash
+bash <(wget -O- -q  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)
 ```
+
+curl
+```
+bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)
+```
+
+Please note that curl|bash is **not** supported. Certain scripts **will** break if the setup is piped.
 
 
 #### Supported:
