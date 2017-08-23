@@ -76,40 +76,51 @@ phpenmod -v 7.0 opcache
 rm -rf /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-enabled/default <<NGC
 server {
-listen 80 default_server;
-listen [::]:80 default_server;
-return 301 https://\$server_name\$request_uri;
+  listen 80 default_server;
+  listen [::]:80 default_server;
+  server_name _;
+
+  location /.well-known {
+    alias /srv/.well-known;
+    allow all;
+    default_type "text/plain";
+    autoindex    on;
+  }
+
+  location / {
+    return 301 https://\$server_name\$request_uri;
+  }
 }
 
 # SSL configuration
 server {
-listen 443 ssl default_server;
-listen [::]:443 ssl default_server;
-ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
-ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
-include snippets/ssl-params.conf;
-client_max_body_size 40M;
-server_tokens off;
-root /srv/;
+  listen 443 ssl default_server;
+  listen [::]:443 ssl default_server;
+  server_name _;
+  ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
+  ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
+  include snippets/ssl-params.conf;
+  client_max_body_size 40M;
+  server_tokens off;
+  root /srv/;
 
-index index.html index.php index.htm;
+  index index.html index.php index.htm;
 
-location ~ \.php$ {
-  include snippets/fastcgi-php.conf;
-  fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-  fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-}
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+  }
 
-include /etc/nginx/apps/*;
+  include /etc/nginx/apps/*;
 
-location ~ /\.ht {
-  deny all;
-}
+  location ~ /\.ht {
+    deny all;
+  }
 
-location /fancyindex {
+  location /fancyindex {
 
-}
-
+  }
 }
 NGC
 

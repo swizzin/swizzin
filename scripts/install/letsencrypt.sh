@@ -15,6 +15,8 @@ ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 echo -e "Enter domain name to secure with LE"
 read -e hostname
 
+sed -i "s/server_name _;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
+
 read -p "Is your DNS managed by CloudFlare? (y/n) " yn
 case $yn in
     [Yy] )
