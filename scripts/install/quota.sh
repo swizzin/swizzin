@@ -78,7 +78,7 @@ function _installquota(){
   elif [[ $DISTRO == Debian ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
     apt-get install -y quota >>"${OUTTO}" 2>&1
-    mount -o remount / || mount -o remount /home >>"${OUTTO}" 2>&1
+    mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
     service quota start >>"${OUTTO}" 2>&1
