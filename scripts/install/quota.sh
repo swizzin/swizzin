@@ -53,38 +53,35 @@ bold=$(tput bold); normal=$(tput sgr0); alert=${white}${on_red}; title=${standou
 
 function _installquota(){
   apt-get install -y -q quota >/dev/null 2>&1
+  if [[ ${primaryroot} == "root" ]]; then   
+    loc="/ "
+  elif [[ ${primaryroot} == "home" ]]; then
+    loc="/home "
+  fi
+  hook=$(grep "${loc}" /etc/fstab)
+  if [[ -n $(echo $hook | grep defaults) ]]; then
+    hook=defaults
+  elif [[ -n $(echo $hook | grep errors=remount-ro) ]]; then
+    hook=errors=remount-ro
+  else
+    echo "ERROR: Could not find a hook in /etc/fstab for quotas to install to. Quota requires either defaults or errors=remount-ro to be present as a mount option for the intended quota partition."
+    exit 1
+  fi
+
   if [[ $DISTRO == Ubuntu ]]; then
-    if [[ ${primaryroot} == "root" ]]; then
-      sed -i 's/errors=remount-ro/usrjquota=aquota.user,jqfmt=vfsv1,errors=remount-ro/g' /etc/fstab
-      apt-get install -y linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
-      mount -o remount / || mount -o remount /home >>"${OUTTO}" 2>&1
-      quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-      quotaon -uv / >>"${OUTTO}" 2>&1
-      service quota start >>"${OUTTO}" 2>&1
-    else
-      sed -i 's/errors=remount-ro/usrjquota=aquota.user,jqfmt=vfsv1,errors=remount-ro/g' /etc/fstab
-      apt-get install -y linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
-      mount -o remount /home >>"${OUTTO}" 2>&1
-      quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-      quotaon -uv /home >>"${OUTTO}" 2>&1
-      service quota start >>"${OUTTO}" 2>&1
-    fi
+    sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
+    apt-get install -y linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
+    mount -o remount ${loc} >>"${OUTTO}" 2>&1
+    quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
+    quotaon -uv / >>"${OUTTO}" 2>&1
+    service quota start >>"${OUTTO}" 2>&1
   elif [[ $DISTRO == Debian ]]; then
-    if [[ ${primaryroot} == "root" ]]; then
-      sed -i 's/errors=remount-ro/usrjquota=aquota.user,jqfmt=vfsv1,errors=remount-ro/g' /etc/fstab
-      apt-get install -y quota >>"${OUTTO}" 2>&1
-      mount -o remount / || mount -o remount /home >>"${OUTTO}" 2>&1
-      quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-      quotaon -uv / >>"${OUTTO}" 2>&1
-      service quota start >>"${OUTTO}" 2>&1
-    else
-      sed -i 's/errors=remount-ro/usrjquota=aquota.user,jqfmt=vfsv1,errors=remount-ro/g' /etc/fstab
-      apt-get install -y quota >>"${OUTTO}" 2>&1
-      mount -o remount /home >>"${OUTTO}" 2>&1
-      quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-      quotaon -uv /home >>"${OUTTO}" 2>&1
-      service quota start >>"${OUTTO}" 2>&1
-    fi
+    sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
+    apt-get install -y quota >>"${OUTTO}" 2>&1
+    mount -o remount / || mount -o remount /home >>"${OUTTO}" 2>&1
+    quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
+    quotaon -uv / >>"${OUTTO}" 2>&1
+    service quota start >>"${OUTTO}" 2>&1
   fi
 
   if [[ -d /srv/rutorrent ]]; then
