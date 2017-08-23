@@ -154,7 +154,7 @@ add_header X-Content-Type-Options nosniff;
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
 
-cat > /etc/nginx/conf.d/proxy.conf <<PROX
+cat > /etc/nginx/snippets/proxy.conf <<PROX
 client_max_body_size 10m;
 client_body_buffer_size 128k;
 
