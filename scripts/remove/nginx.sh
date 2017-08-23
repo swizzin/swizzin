@@ -7,6 +7,8 @@ for depends in $APT; do
 apt-get -qq -y --yes --force-yes remove "$depends" >/dev/null 2>&1
 done
 
+apt-get -y -q purge nginx-* php7.0-* >/dev/null 2>&1
+
 rm -rf /etc/nginx
 rm -rf /etc/php
 
