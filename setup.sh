@@ -17,65 +17,64 @@
 time=$(date +"%s")
 
 if [[ $EUID -ne 0 ]]; then
-		echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
-		exit 1
+	echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
+	exit 1
 fi
 
 _os() {
 	if [ ! -d /install ]; then mkdir /install ; fi
-  if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
-  export log=/root/logs/install.log
+	if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
+	export log=/root/logs/install.log
 	echo "Checking OS version and release ... "
 	apt-get -y -qq update >> ${log} 2>&1
 	apt-get -y -qq install lsb-release >> ${log} 2>&1
 	distribution=$(lsb_release -is)
 	release=$(lsb_release -rs)
-  codename=$(lsb_release -cs)
+	codename=$(lsb_release -cs)
 		if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
-				echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
-    fi
-		if [[ ! $codename =~ ("xenial"|"yakkety"|"zesty"|"jessie"|"stretch") ]]; then
-        echo "Your release ($codename) of $distribution is not supported." && exit 1
+			echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
 		fi
-echo "I have determined you are using $distribution $release."
+		if [[ ! $codename =~ ("xenial"|"yakkety"|"zesty"|"jessie"|"stretch") ]]; then
+			echo "Your release ($codename) of $distribution is not supported." && exit 1
+		fi
+	echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
-  echo "Updating system and grabbing core dependencies."
-  apt-get -qq -y --force-yes update >> ${log} 2>&1
-  apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
-  apt-get -qq -y --force-yes install whiptail git sudo fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr >> ${log} 2>&1
-  nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
-  if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
-  echo "Cloning swizzin repo to localhost"
-  git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
-  ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-  chmod -R 700 /etc/swizzin/scripts
-
+	echo "Updating system and grabbing core dependencies."
+	apt-get -qq -y --force-yes update >> ${log} 2>&1
+	apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
+	apt-get -qq -y --force-yes install whiptail git sudo fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr >> ${log} 2>&1
+	nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
+	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
+	echo "Cloning swizzin repo to localhost"
+	git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+	ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
+	chmod -R 700 /etc/swizzin/scripts
 }
 
 function _skel() {
-  rm -rf /etc/skel
-  cp -R /etc/swizzin/sources/skel /etc/skel
+	rm -rf /etc/skel
+	cp -R /etc/swizzin/sources/skel /etc/skel
 }
 
 function _intro() {
-  whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 15 50
+	whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 15 50
 }
 
 function _adduser() {
 	if [[ -z $user ]]; then
-  	user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-  fi
+		user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+	fi
 	if [[ $user =~ [A-Z] ]]; then
-    echo "Usernames must not contain capital letters. Please try again."
+		echo "Usernames must not contain capital letters. Please try again."
 		user=
-    _adduser
-  fi
-  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-  if [[ -z "${pass}" ]]; then
-    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-  fi
+		_adduser
+	fi
+	pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+	if [[ -z "${pass}" ]]; then
+		pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+	fi
 	if [[ -n $(which cracklib-check) ]]; then 
 		echo "Cracklib detected. Checking password strength."
 		sleep 1
@@ -91,45 +90,45 @@ function _adduser() {
 	fi
 	echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
-					echo "User directory already exists ... "
-					#_skel
-					#cd /etc/skel
-					#cp -R * /home/$user/
-					echo "Changing password to new password"
-					chpasswd<<<"${user}:${pass}"
-					htpasswd -b -c /etc/htpasswd $user $pass
-					mkdir -p /etc/htpasswd.d/
-					htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-					chown -R $user:$user /home/${user}
-    else
-      echo -e "Creating new user \e[1;95m$user\e[0m ... "
-      #_skel
-      useradd "${user}" -m -G www-data -s /bin/bash
-      chpasswd<<<"${user}:${pass}"
-      htpasswd -b -c /etc/htpasswd $user $pass
-			mkdir -p /etc/htpasswd.d/
-			htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-  fi
+		echo "User directory already exists ... "
+		#_skel
+		#cd /etc/skel
+		#cp -R * /home/$user/
+		echo "Changing password to new password"
+		chpasswd<<<"${user}:${pass}"
+		htpasswd -b -c /etc/htpasswd $user $pass
+		mkdir -p /etc/htpasswd.d/
+		htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+		chown -R $user:$user /home/${user}
+	else
+		echo -e "Creating new user \e[1;95m$user\e[0m ... "
+		#_skel
+		useradd "${user}" -m -G www-data -s /bin/bash
+		chpasswd<<<"${user}:${pass}"
+		htpasswd -b -c /etc/htpasswd $user $pass
+		mkdir -p /etc/htpasswd.d/
+		htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+	fi
 }
 
 function _choices() {
-  packages=()
+	packages=()
 	extras=()
-  #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
+	#locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
 	locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
-  for i in "${locks[@]}"; do
-    app=${i}
-    if [[ ! -f /install/.$app.lock ]]; then
-      packages+=("$i" '""')
-    fi
-  done
+	for i in "${locks[@]}"; do
+		app=${i}
+		if [[ ! -f /install/.$app.lock ]]; then
+			packages+=("$i" '""')
+		fi
+	done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
 	#readarray packages < /root/results
 	results=/root/results
 	while IFS= read -r result
- 	do
-	 touch /tmp/.$result.lock
- 	done < "$results"
+	do
+		touch /tmp/.$result.lock
+	done < "$results"
 	if grep -q nginx "$results"; then
 		if [[ -n $(pidof apache2) ]]; then
 			if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78); then
@@ -145,7 +144,6 @@ function _choices() {
 									0.9.6 "" 3>&1 1>&2 2>&3)
 								#feature-bind "" \
 
-
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
 					export libtorrentver='0.13.6'
@@ -159,7 +157,6 @@ function _choices() {
 							 0.9.4 "" \
 							 0.9.3 "" 3>&1 1>&2 2>&3)
 							#feature-bind "" \
-
 
 				if [[ $function == 0.9.6 ]]; then
 					export rtorrentver='0.9.6'
@@ -178,17 +175,17 @@ function _choices() {
 	fi
 	if grep -q deluge "$results"; then
 		function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-	               Repo "" \
-	               Stable "" \
-	               Dev "" 3>&1 1>&2 2>&3)
+								Repo "" \
+	  						Stable "" \
+								Dev "" 3>&1 1>&2 2>&3)
 
-	    if [[ $function == Repo ]]; then
-	      export deluge=repo
-	    elif [[ $function == Stable ]]; then
+			if [[ $function == Repo ]]; then
+				export deluge=repo
+			elif [[ $function == Stable ]]; then
 				export deluge=stable
-	    elif [[ $function == Dev ]]; then
+			elif [[ $function == Dev ]]; then
 				export deluge=dev
-	    fi
+			fi
 	fi
 
 	locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
@@ -200,23 +197,22 @@ function _choices() {
 	done
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2>/root/results2; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
 	results2=/root/results2
-
 }
 
 function _install() {
 	touch /tmp/.install.lock
 	begin=$(date +"%s")
-  readarray result < /root/results
-  for i in "${result[@]}"; do
-    result=$(echo $i)
+	readarray result < /root/results
+	for i in "${result[@]}"; do
+		result=$(echo $i)
 		echo -e "Installing ${result}"
 		bash /usr/local/bin/swizzin/install/${result}.sh
 		rm /tmp/.$result.lock
- done
- 	rm /root/results
-  readarray result < /root/results2
-  for i in "${result[@]}"; do
-    result=$(echo $i)
+	done
+	rm /root/results
+	readarray result < /root/results2
+	for i in "${result[@]}"; do
+		result=$(echo $i)
 		echo -e "Installing ${result}"
 		bash /usr/local/bin/swizzin/install/${result}.sh
 	done
