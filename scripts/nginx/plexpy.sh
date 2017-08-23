@@ -12,8 +12,13 @@ MASTER=$(cat /root/.master.info | cut -d: -f1)
 if [[ ! -f /etc/nginx/apps/plexpy.conf ]]; then
   cat > /etc/nginx/apps/plexpy.conf <<RAD
 location /plexpy {
-  include /etc/nginx/conf.d/proxy.conf;
-  proxy_pass        http://127.0.0.1:8181/plexpy;
+  proxy_bind \$server_addr;
+  proxy_pass http://127.0.0.1:8181;
+  proxy_set_header Host \$http_host;
+  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host \$server_name;
+  proxy_set_header X-Real-IP \$remote_addr;
+
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
