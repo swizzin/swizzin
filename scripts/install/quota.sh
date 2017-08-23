@@ -130,3 +130,4 @@ DISTRO=$(lsb_release -is)
 
 
 _installquota
+echo "Quotas have been installed. Use the command setdisk to set quotas per user."
