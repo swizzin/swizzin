@@ -4,7 +4,9 @@
 # Release Candidate? Release Candidate!
 
 [website](https://swizzin.ltd)
+
 [reddit](https://reddit.com/r/swizzinltd)
+
 irc: irc.swizzin.ltd 6697 #swizzin #swizzin-dev
 
 Please use reddit/irc for all community functions and leave issues for actual issues and feature requests.
