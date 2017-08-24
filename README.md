@@ -3,7 +3,11 @@
 
 # Release Candidate? Release Candidate!
 
+[website](https://swizzin.ltd)
+[reddit](https://reddit.com/r/swizzinltd)
+irc: irc.swizzin.ltd 6697 #swizzin #swizzin-dev
 
+Please use reddit/irc for all community functions and leave issues for actual issues and feature requests.
 
 ### What is swizzin?
 Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9 or Ubuntu 16.04 or newer. The QuickBox pacakage repo has been ported over for your installing pleasure, including the panel -- if you so choose!
