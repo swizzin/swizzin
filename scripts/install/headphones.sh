@@ -115,34 +115,22 @@ Group=USER
 WantedBy=multi-user.target
 HEADP
 sed -i "s/USER/${USERNAME}/g" /etc/systemd/system/$APPNAME.service
-systemctl enable $APPNAME >/dev/null 2>&1
-systemctl start $APPNAME >/dev/null 2>&1
-systemctl stop $APPNAME >/dev/null 2>&1
-#/etc/init.d/$APPNAME start >/dev/null 2>&1
-#/etc/init.d/$APPNAME stop >/dev/null 2>&1
-#sudo cp $APPPATH/init-scripts/init.ubuntu /etc/init.d/$APPNAME || { echo $RED'Creating init file failed.'$ENDCOLOR ; exit 1; }
 
-echo
-sleep 1
-echo -e "Enabling $APPTITLE Autostart at Boot ... " >>"${OUTTO}" 2>&1;
-echo -e $YELLOW'--->Enabling '$APPTITLE' Autostart at Boot...'$ENDCOLOR
-sudo update-rc.d $APPNAME defaults
-
-echo
-sleep 1
 echo -e "Starting $APPTITLE ... " >>"${OUTTO}" 2>&1;
 echo -e $YELLOW'--->Starting '$APPTITLE$ENDCOLOR
+systemctl enable $APPNAME >/dev/null 2>&1
 systemctl start $APPNAME >/dev/null 2>&1
 sleep 10
-systemctl stop $APPNAME >/dev/null 2>&1
 
 mkdir -p $APPPATH/logs
 if [[ -f /install/.nginx.lock ]]; then
+  systemctl stop $APPNAME >/dev/null 2>&1
   bash /usr/local/bin/swizzin/nginx/headphones.sh
   service nginx reload
+  systemctl start $APPNAME
+  echo "Install complete! Please note headphones access url is: https://$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')/headphones/home"
 fi
 
-systemctl start $APPNAME
 
 touch /install/.$APPNAME.lock
 echo

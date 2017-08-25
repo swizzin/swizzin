@@ -13,7 +13,7 @@ if [[ ! -f /etc/nginx/apps/headphones.conf ]]; then
   cat > /etc/nginx/apps/headphones.conf <<RAD
 location /headphones {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass        http://127.0.0.1:8004/;
+  proxy_pass        http://127.0.0.1:8004/headphones;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
@@ -69,7 +69,7 @@ freeze_db = 0
 encoder_multicore_count = 0
 git_branch = master
 https_cert = /home/USER/.headphones/server.crt
-http_root = /
+http_root = /headphones
 download_dir = ""
 http_proxy = 1
 git_path = ""
@@ -98,7 +98,7 @@ include_extras = 0
 usenet_retention = 1500
 samplingfrequency = 44100
 rename_frozen = 1
-http_host = 0.0.0.0
+http_host = 127.0.0.1
 enable_https = 0
 encoder_path = ""
 hpuser = ""
