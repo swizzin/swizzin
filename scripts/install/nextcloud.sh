@@ -46,12 +46,13 @@ else
   mysqladmin -u root password ${password}
 fi
 #Depends
-apt-get install -y -q php7.0-mysql libxml2-dev php7.0-common php7.0-gd php7.0-json php7.0-curl  php7.0-zip php7.0-xml php7.0-mbstring > /dev/null 2>&1
+apt-get install -y -q unzip php7.0-mysql libxml2-dev php7.0-common php7.0-gd php7.0-json php7.0-curl  php7.0-zip php7.0-xml php7.0-mbstring > /dev/null 2>&1
 #a2enmod rewrite > /dev/null 2>&1
-cd /root
-wget -q https://download.nextcloud.com/server/releases/nextcloud-12.0.0.zip > /dev/null 2>&1
-unzip nextcloud-12.0.0.zip > /dev/null 2>&1
+cd /tmp
+wget -q https://download.nextcloud.com/server/releases/latest.zip > /dev/null 2>&1
+unzip latest.zip > /dev/null 2>&1
 mv nextcloud /srv
+rm -rf /tmp/latest.zip
 
 #Set permissions as per nextcloud
 ocpath='/srv/nextcloud'
@@ -131,7 +132,7 @@ location ^~ /nextcloud {
         #Avoid sending the security headers twice
         fastcgi_param modHeadersAvailable true;
         fastcgi_param front_controller_active true;
-        fastcgi_pass php-handler;
+        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
         fastcgi_intercept_errors on;
         fastcgi_request_buffering off;
     }
@@ -175,7 +176,6 @@ mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON ne
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
 service nginx reload
-rm -rf /root/nextcloud*
 touch /install/.nextcloud.lock
 
 echo -e "Visit https://${ip}/nextcloud to finish installation."
