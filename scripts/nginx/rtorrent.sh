@@ -168,9 +168,15 @@ RUC
 if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
 cat > /etc/nginx/apps/rutorrent.conf <<RUM
 location /rutorrent {
-alias /srv/rutorrent;
-auth_basic "What's the password?";
-auth_basic_user_file /etc/htpasswd;
+  alias /srv/rutorrent;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_param SCRIPT_FILENAME /srv\$fastcgi_script_name;
+  }
 }
 RUM
 fi
