@@ -55,7 +55,6 @@ Please note that curl|bash is **not** supported. Certain scripts **will** break 
 * Ubuntu 16.04 and above
 
 #### Untested:
-* Nextcloud (should work in theory)
 * pyLoad
 
 ### This is my box. There are many like it, but this one is mine.
