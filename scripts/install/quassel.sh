@@ -17,6 +17,7 @@
 
 function _installQuassel1() {
 if [[ $distribution == Ubuntu ]]; then
+  apt-get install -q -y python-software-properties software-properties-common > /dev/null 2>&1
 	apt-add-repository ppa:mamarley/quassel -y >/dev/null 2>&1
 	apt-get -qq -y --force-yes update >/dev/null 2>&1
   apt-get -q -y install quassel-core >/dev/null 2>&1

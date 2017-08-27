@@ -15,6 +15,7 @@
 #################################################################################
 function _x2gorepo() {
 if [[ $distribution == Ubuntu ]]; then
+	apt-get install -q -y python-software-properties software-properties-common > /dev/null 2>&1
 	apt-add-repository ppa:x2go/stable -y >/dev/null 2>&1
 	apt-get -y update >/dev/null 2>&1
 else
