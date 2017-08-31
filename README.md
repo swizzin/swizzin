@@ -82,6 +82,9 @@ Box functions:
 - [ ] Better readme/docs
 - [ ] Bug fixes
 - [ ] Netdata server monitoring
+- [ ] Some ruTorrent plugin management (`box install rtplugs`)
+- [ ] pyMedusa
+- [ ] Percentage based dev shares
 
 ### Donations
 
