@@ -218,7 +218,7 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "first_login": false,
   "cert": "ssl/daemon.cert",
   "session_timeout": 3600,
-  "default_daemon": "${DUDID)",
+  "default_daemon": "${DUDID}",
   "sidebar_multiple_filters": true
 }
 DWC
