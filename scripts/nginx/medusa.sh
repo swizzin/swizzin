@@ -1,0 +1,33 @@
+#!/bin/bash
+# Nginx configuration for Medusa
+# Author: liara
+# Copyright (C) 2017 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+user=$(cat /root/.master.info | cut -d: -f1)
+if [[ ! -f /etc/nginx/apps/medusa.conf ]]; then
+  cat > /etc/nginx/apps/medusa.conf <<SRC
+location /medusa {
+  proxy_pass http://localhost:8081/medusa;
+  proxy_set_header Host \$host;
+  proxy_set_header X-Real-IP \$remote_addr;
+  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host \$host:443;
+  proxy_set_header X-Forwarded-Server \$host;
+  proxy_set_header X-Forwarded-Port 443;
+  proxy_set_header X-Forwarded-Proto \$scheme;
+
+  # Websocket
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade \$http_upgrade;
+  proxy_set_header Connection "upgrade";
+  proxy_read_timeout 86400;
+}
+SRC
+fi
+sed -i "s/web_root.*/web_root = \"medusa\"/g" /home/"${user}"/.medusa/config.ini
+sed -i "s/web_host.*/web_host = localhost/g" /home/"${user}"/.medusa/config.ini
