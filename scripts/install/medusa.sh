@@ -63,6 +63,6 @@ if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/medusa.sh
   service nginx reload
 fi
-systemct start medusa@${user}
+systemctl start medusa@${user}
 
 touch /install/.medusa.lock
