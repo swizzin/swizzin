@@ -21,7 +21,7 @@ for u in "${users[@]}"; do
         sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
         sed -i '/autodl/d' /srv/rutorrent/conf/users/${u}/config.php
         echo "\$autodlPort = \"$IRSSI_PORT\";" >> /srv/rutorrent/conf/users/${u}/config.php
-        echo "\$autodlPassword = $IRSSI_PASS;" >> /srv/rutorrent/conf/users/${u}/config.php
+        echo "\$autodlPassword = \"$IRSSI_PASS\";" >> /srv/rutorrent/conf/users/${u}/config.php
         echo "?>" >> /srv/rutorrent/conf/users/${u}/config.php
     fi
 done
