@@ -21,6 +21,9 @@ location /medusa {
   proxy_set_header X-Forwarded-Port 443;
   proxy_set_header X-Forwarded-Proto \$scheme;
 
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
+
   # Websocket
   proxy_http_version 1.1;
   proxy_set_header Upgrade \$http_upgrade;
