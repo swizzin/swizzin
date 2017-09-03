@@ -20,21 +20,6 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 
 Of course you do! You can help by testing untested stuff and reporting bugs to me by opening an issue here on github or by joining us on irc.swizzin.ltd #swizzin-dev
 
-### Some things to note about the QuickBox panel:
-
-swizzin is not QuickBox. I have had a lot of feedback regarding things that are "wrong" with the panel lately. I would just like to make it abundantly clear that:
-
-1. I am not a web developer.
-2. The QuickBox panel is seen as an addon to swizzin and is not intended to be a core feature like it was in QuickBox.
-
-At the current moment, fixing issues with the dashboard (like adding packages I have written to the panel, or removing reference to packages that are not available) are **extremely** low priority. It should be known that I am currently toying with the idea of removing the ability to maintain packages from the web browser entirely. Box is an incredible solution and is very easy to use.
-
-I would far rather push this as the package management solution rather than spending my time providing an easy to use graphical interface.
-
-Having to keep the panel up to date with each and every new package will significantly slow the process of adding new applications to the panel as well, because even just a single package requires a significant addition of code to the panel. However, since I don't personally use the panel, I would like to open this discussion up to those that *do* use the panel.
-
-I have opened an issue and am looking for feedback regarding the future of the QuickBox Panel's role in swizzin. For instance, I want to remove QB Package Mangement Center. If you disagree with this, let me know. Please weigh your feedback in [here](https://github.com/liaralabs/swizzin/issues/11).
-
 ### Quick Start:
 
 wget
@@ -81,9 +66,7 @@ Box functions:
 #### TODO
 - [ ] Better readme/docs
 - [ ] Bug fixes
-- [ ] Netdata server monitoring
 - [ ] Some ruTorrent plugin management (`box install rtplugs`)
-- [ ] pyMedusa
 - [ ] Percentage based dev shares
 
 ### Donations
