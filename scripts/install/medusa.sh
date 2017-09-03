@@ -12,6 +12,26 @@ fi
 distribution=$(lsb_release -is)
 user=$(cat /root/.master.info | cut -d: -f1)
 
+if [[ $(systemctl is-active sickrage@${user}) == "active" ]]; then
+  echo "Sickrage and Medusa cannot be active at the same time."
+  echo "Do you want to disable Sickrage and continue with the installation?"
+  echo "Don't worry, your install will remain at /home/${user}/.sickrage"
+  while true; do
+  read -p "Do you want to disable Sickrage? " yn
+      case "$yn" in
+          [Yy]|[Yy][Ee][Ss]) sickrage=no; break;;
+          [Nn]|[Nn][Oo]) sickrage=; break;;
+          *) echo "Please answer yes or no.";;
+      esac
+  done
+  if [[ $sickrage == "no" ]]; then
+    systemctl disable sickrage@${user}
+    systemctl stop sickrage@${user}
+  else
+    exit 1
+  fi
+fi
+
 apt-get -y -q update >> $log 2>&1
 apt-get -y -q install git-core openssl libssl-dev python2.7 >> $log 2>&1
 
