@@ -42,7 +42,7 @@ function _install() {
       installa+=("$i" '""')
     fi
   done
-	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some choices:" 15 26 7 "${installa[@]}" 2>results
+  whiptail --title "Install Software" --checklist --noitem --separate-output "Make some choices:" 15 26 7 "${installa[@]}" 2>results
   
   readarray result < results
   for i in "${result[@]}"; do
@@ -51,7 +51,7 @@ function _install() {
     bash /usr/local/bin/swizzin/install/${result}.sh
   done
 
- 	rm results
+   rm results
   _function
 }
 
@@ -68,8 +68,8 @@ whiptail --title "Remove Software" --noitem --checklist --separate-output "Make 
   readarray result < results
   for i in "${result[@]}"; do
     result=$(echo $i)
-		echo -e "Removing ${result}"
-		bash /usr/local/bin/swizzin/remove/${result}.sh
+    echo -e "Removing ${result}"
+    bash /usr/local/bin/swizzin/remove/${result}.sh
   done
 rm results
 _function
@@ -186,18 +186,18 @@ function _adduser {
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
-		echo "Cracklib detected. Checking password strength."
-		sleep 1
-		str="$(cracklib-check <<<"$pass")"
-		check=$(grep OK <<<"$str")
-		if [[ -z $check ]]; then
-			read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-			printf "\n"
+    echo "Cracklib detected. Checking password strength."
+    sleep 1
+    str="$(cracklib-check <<<"$pass")"
+    check=$(grep OK <<<"$str")
+    if [[ -z $check ]]; then
+      read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
+      printf "\n"
       _adduser "$@"
     else
       echo "OK"
-		fi
-	fi
+    fi
+  fi
   echo "$user:$pass" > /root/${user}.info
   useradd "${user}" -m -G www-data -s /bin/bash
   chpasswd<<<"${user}:${pass}"
@@ -272,18 +272,18 @@ function _chpasswd {
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
-		echo "Cracklib detected. Checking password strength."
-		sleep 1
-		str="$(cracklib-check <<<"$pass")"
-		check=$(grep OK <<<"$str")
-		if [[ -z $check ]]; then
-			read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-			printf "\n"
+    echo "Cracklib detected. Checking password strength."
+    sleep 1
+    str="$(cracklib-check <<<"$pass")"
+    check=$(grep OK <<<"$str")
+    if [[ -z $check ]]; then
+      read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
+      printf "\n"
       _chpasswd "$@"
     else
       echo "OK"
-		fi
-	fi
+    fi
+  fi
   echo "$user:$pass" > /root/${user}.info
   chpasswd<<<"${user}:${pass}"
   htpasswd -b /etc/htpasswd $user $pass
