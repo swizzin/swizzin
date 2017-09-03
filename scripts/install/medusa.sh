@@ -35,20 +35,16 @@ fi
 apt-get -y -q update >> $log 2>&1
 apt-get -y -q install git-core openssl libssl-dev python2.7 >> $log 2>&1
 
-function _rar() {
-  if [[ -z $(which rar) ]]; then
-    cd /tmp
-    wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-    tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
-    cp rar/*rar /bin >/dev/null 2>&1
-    rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-    rm -rf /tmp/rar >/dev/null 2>&1
-  fi
+function _rar () {
+  cd /tmp
+  wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
+  tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
+  cp rar/*rar /bin >/dev/null 2>&1
+  rm -rf rarlinux*.tar.gz >/dev/null 2>&1
+  rm -rf /tmp/rar >/dev/null 2>&1
 }
 
-if [[ $distribution == "Debian" ]]; then
-  _rar
-else
+if [[ -z $(which rar) ]]; then
   apt-get -y install rar unrar >>$log 2>&1 || echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar
 fi
 
