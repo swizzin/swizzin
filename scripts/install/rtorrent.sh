@@ -36,55 +36,62 @@ function _depends() {
 }
 
 function _xmlrpc() {
-				cd "/tmp"
-				svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
-				cd xmlrpc-c
-				./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
-				make -j${nproc} >>$log 2>&1
-				make install >>$log 2>&1
+	if [[ -n $noexec ]]; then
+		mount -o remount,exec /tmp
+		noexec=1
+	fi		
+	cd "/tmp"
+	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
+	cd xmlrpc-c
+	./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
+	make -j${nproc} >>$log 2>&1
+	make install >>$log 2>&1
 }
 
 function _libtorrent() {
-				cd "/tmp"
-				rm -rf xmlrpc-c >>$log 2>&1
-				if [[ ${libtorrentver} == feature-bind ]]; then
-					git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
-					cd libtorrent
-				else
-					mkdir libtorrent
-					wget -q ${libtorrentloc}
-					tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
-					cd libtorrent >>$log 2>&1
-					if [[ ${codename} =~ ("stretch") ]]; then
-						patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
-					fi
-				fi
-				./autogen.sh >>$log 2>&1
-				./configure --prefix=/usr >>$log 2>&1
-				make -j${nproc} >>$log 2>&1
-				make install >>$log 2>&1
+	cd "/tmp"
+	rm -rf xmlrpc-c >>$log 2>&1
+	if [[ ${libtorrentver} == feature-bind ]]; then
+		git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
+		cd libtorrent
+	else
+		mkdir libtorrent
+		wget -q ${libtorrentloc}
+		tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
+		cd libtorrent >>$log 2>&1
+		if [[ ${codename} =~ ("stretch") ]]; then
+			patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
+		fi
+	fi
+	./autogen.sh >>$log 2>&1
+	./configure --prefix=/usr >>$log 2>&1
+	make -j${nproc} >>$log 2>&1
+	make install >>$log 2>&1
 }
 
 function _rtorrent() {
-				cd "/tmp"
-				rm -rf libtorrent* >>$log 2>&1
-				if [[ ${rtorrentver} == feature-bind ]]; then
-					git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1
-				else
-					mkdir rtorrent
-					wget -q ${rtorrentloc}
-					tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
-				fi
-				cd rtorrent
-				if [[ ${rtorrentver} == feature-bind ]]; then
-					./autogen.sh >>$log 2>&1
-				fi
-				./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
-				make -j${nproc} >/dev/null 2>&1
-				make install >/dev/null 2>&1
-				cd "/tmp"
-				ldconfig >/dev/null 2>&1
-				rm -rf rtorrent* >/dev/null 2>&1
+	cd "/tmp"
+	rm -rf libtorrent* >>$log 2>&1
+	if [[ ${rtorrentver} == feature-bind ]]; then
+		git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1
+	else
+		mkdir rtorrent
+		wget -q ${rtorrentloc}
+		tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
+	fi
+	cd rtorrent
+	if [[ ${rtorrentver} == feature-bind ]]; then
+		./autogen.sh >>$log 2>&1
+	fi
+	./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
+	make -j${nproc} >/dev/null 2>&1
+	make install >/dev/null 2>&1
+	cd "/tmp"
+	ldconfig >/dev/null 2>&1
+	rm -rf rtorrent* >/dev/null 2>&1
+	if [[ -n $noexec ]]; then
+		mount -o remount,noexec /tmp
+	fi		
 }
 
 function _rconf() {
@@ -212,6 +219,7 @@ elif [[ -z ${rtorrentver} ]]; then
 		fi
 fi
 
+noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
 rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
 libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
 xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/stable"
