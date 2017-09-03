@@ -33,7 +33,7 @@ function _removepackage-autodl() {
       rm -rf /home/${u}/.autodl
       rm -rf /home/${u}/.irssi
     done
-    rm /install/.autodlirssi.lock
+    rm /install/.autodl.lock
 
 }
 
