@@ -39,11 +39,26 @@ fi
   apt-get update -q -y > /dev/null 2>&1
   apt-get install znc -q -y > /dev/null 2>&1
   touch /install/.znc.lock
-  sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
+  #sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
+  cat > /etc/systemd/system/znc.service <<ZNC
+[Unit]
+Description=ZNC, an advanced IRC bouncer
+After=network-online.target
+     
+[Service]
+ExecStart=/usr/bin/znc -f
+User=znc
+Restart=always
+     
+[Install]
+WantedBy=multi-user.target
+ZNC
+systemctl enable znc
   echo "#### ZNC configuration will now run. Please answer the following prompts ####"
   sleep 5
   sudo -u znc znc --makeconf
-  echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
-  echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
-
+  if [[ -f /install/.panel.lock ]]; then
+    echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
+    echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
+  fi
 echo "#### ZNC now installed! ####"
