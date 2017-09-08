@@ -20,4 +20,4 @@ location /plexpy {
 RAD
 fi
 sed -i "s/http_root.*/http_root = \"plexpy\"/g" /opt/plexpy/config.ini
-sed -i "s/http_host.*/http_host = localhost/g" /opt/plexpy/config.ini
+sed -i "s/http_host.*/http_host = 127.0.0.1/g" /opt/plexpy/config.ini
