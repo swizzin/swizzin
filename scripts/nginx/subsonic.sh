@@ -19,5 +19,5 @@ location /subsonic/ {
 }
 SUB
 fi
-sed -i 's/SUBSONIC_HOST=0.0.0.0/SUBSONIC_HOST=localhost/g' /usr/share/subsonic/subsonic.sh
+sed -i 's/SUBSONIC_HOST=0.0.0.0/SUBSONIC_HOST=127.0.0.1/g' /usr/share/subsonic/subsonic.sh
 sed -i 's/SUBSONIC_CONTEXT_PATH=\//SUBSONIC_CONTEXT_PATH=\/subsonic/g' /usr/share/subsonic/subsonic.sh

@@ -44,13 +44,13 @@ cd
 rm -rf /root/subsonic-tmp
 
 echo "Modifying Subsonic startup script ... " >>"${OUTTO}" 2>&1;
-cat > /usr/share/subsonic/subsonic.sh <<SUBS
+cat > /usr/share/subsonic/subsonic.sh <<'SUBS'
 #!/bin/sh
 MASTER=$(cat /root/.master.info | cut -d: -f1 )
 SUBSONICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 SUBSONIC_HOME=/srv/subsonic
-SUBSONIC_HOST=0.0..0.0
+SUBSONIC_HOST=0.0.0.0
 SUBSONIC_PORT=4040
 SUBSONIC_HTTPS_PORT=0
 SUBSONIC_CONTEXT_PATH=/
