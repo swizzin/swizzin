@@ -33,8 +33,8 @@ if [[ $arch == x86_64 ]]; then
   current=https://downloads.rclone.org/rclone-current-linux-amd64.zip
   cd /tmp
   wget -O rclone.zip $current
-  unzip rclone.zip
-  cd rclone*
+  unzip -d rclone -j rclone.zip
+  cd rclone
   cp rclone /usr/sbin/
   chown root:root /usr/sbin/rclone
   chmod 755 /usr/sbin/rclone
@@ -43,15 +43,15 @@ if [[ $arch == x86_64 ]]; then
   sudo cp rclone.1 /usr/local/share/man/man1/
   sudo mandb
   cd /tmp
-  rm -rf rclone-*
+  rm -rf rclone*
 fi
 if [[ $arch == i386 ]]; then
   #current=$(curl -s -N http://rclone.org/downloads/ | grep -m1 linux-386 | cut -d\" -f2)
   current=https://downloads.rclone.org/rclone-current-linux-386.zip
   cd /tmp
   wget $current
-  unzip rclone-*
-  cd rclone-*
+  unzip -d rclone -j rclone.zip
+  cd rclone
   cp rclone /usr/sbin/
   chown root:root /usr/sbin/rclone
   chmod 755 /usr/sbin/rclone
@@ -60,7 +60,7 @@ if [[ $arch == i386 ]]; then
   sudo cp rclone.1 /usr/local/share/man/man1/
   sudo mandb
   cd /tmp
-  rm -rf rclone-*
+  rm -rf rclone*
 fi
 
 echo "Installing rclone ... " >>"${OUTTO}" 2>&1;
