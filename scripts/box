@@ -307,66 +307,74 @@ function _chpasswd {
 normal=$(tput sgr0)
 yellow=$(tput setaf 3)
 bold=$(tput bold)
-if [[ -z $1 ]]; then
-  _intro
-  _function
-  exit 0
-fi
-if [[ "$1" == "-h" ]] || [[ "$1" == "help" ]]; then
-  _help "$0"
-  exit 0
-fi
-if [[ ! $1 =~ ("install"|"list"|"remove"|"update"|"upgrade"|"adduser"|"deluser"|"chpasswd") ]]; then
-  echo "Error: $1 invalid command"
-  exit 0
-fi
-if [[ $1 == adduser ]]; then
-  if [[ -n $3 ]]; then
-    echo -e "Error: too many arguments\nCorrect usage: box adduser <username>"
+
+case "$1" in
+  "")
+    _intro
+    _function
     exit 0
-  fi
+  ;;
+  "help"|"-h")
+    _help "$0"
+    exit 0
+  ;;
+  "install"|"it")
+    if [[ -z $2 ]]; then
+      echo "Error: You must choose some packages"
+      exit 1
+    fi
+    _cli "$@"
+    exit 0
+  ;;
+  "remove"|"rm")
+    if [[ -z $2 ]]; then
+      echo "Error: You must choose some packages"
+      exit 1
+    fi
+    _clr "$@"
+    exit 0
+  ;;
+  "adduser")
+    if [[ -n $3 ]]; then
+      echo -e "Error: too many arguments\nCorrect usage: box adduser <username>"
+      exit 1
+    fi
   _adduser "$@"
   exit 0
-fi
-if [[ $1 == deluser ]]; then
-  if [[ -n $3 ]]; then
-    echo -e "Error: too many arguments\nCorrect usage: box deluser <username>"
+  ;;
+  "deluser")
+    if [[ -n $3 ]]; then
+      echo -e "Error: too many arguments\nCorrect usage: box deluser <username>"
+      exit 1
+    fi
+    _deluser "$@"
     exit 0
-  fi
-  _deluser "$@"
-  exit 0
-fi
-if [[ $1 == chpasswd ]]; then
-  if [[ -n $3 ]]; then
-    echo -e "Error: too many arguments\nCorrect usage: box chpasswd <username>"
+  ;;
+  "chpasswd")
+    if [[ -n $3 ]]; then
+      echo -e "Error: too many arguments\nCorrect usage: box chpasswd <username>"
+      exit 1
+    fi
+    _chpasswd "$@"
     exit 0
-  fi
-  _chpasswd "$@"
-  exit 0
-fi
-if [[ $1 == update ]]; then
-  _update
-  exit 0
-fi
-if [[ $1 == upgrade ]]; then
-  _update
-  echo "Upgrading your swizz ... This may take a moment"
-  # Upgrade script?
-  exit 0
-fi
-if [[ $1 == list ]]; then
-  _list
-  exit 0
-fi
-if [[ -n $1 ]] && [[ -z $2 ]]; then
-  echo "Error: You must choose some packages"
-  exit 0
-fi
-if [[ $1 == install ]]; then
-  _cli "$@"
-  exit 0
-fi
-if [[ $1 == remove ]]; then
-  _clr "$@"
-  exit 0
-fi
+  ;;
+  "update")
+    _update
+    exit 0
+  ;;
+  "upgrade")
+    _update
+    echo "Upgrading your swizz ... This may take a moment"
+    # Upgrade script?
+    exit 0
+  ;;
+  "list")
+    _list
+    exit0
+  ;;
+  *)
+    echo "Error: $1 invalid command"
+    exit 1
+  ;;
+esac
+
