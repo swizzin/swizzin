@@ -367,8 +367,13 @@ case "$1" in
     exit 0
   ;;
   "panel")
+    if [[ ! -f /install/.panel.lock ]]; then
+      echo "Panel not installed..."
+      exit 1
+    fi
     _panel "$@"
     exit 0
+  ;;
   "update")
     _update
     exit 0
