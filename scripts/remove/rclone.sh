@@ -17,15 +17,9 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-OUTTO=/srv/panel/db/output.log
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
-echo "Removing rclone ... " >>"${OUTTO}" 2>&1;
   rm -f  /usr/sbin/rclone
   rm -f /usr/bin/rclone
   rm -f /install/.rclone.lock
-  
-echo "Rclone Uninstall complete!" >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+
