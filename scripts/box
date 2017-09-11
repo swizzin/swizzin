@@ -304,6 +304,14 @@ function _chpasswd {
 
 }
 
+function _panel () {
+  if [[ $2 != "fix-disk" ]]; then
+    echo "fix-disk is the only acceptable panel argument at this time"
+    exit 1
+  fi
+  /usr/local/bin/swizzin/panel/fix-disk $3
+}
+
 normal=$(tput sgr0)
 yellow=$(tput setaf 3)
 bold=$(tput bold)
@@ -358,6 +366,9 @@ case "$1" in
     _chpasswd "$@"
     exit 0
   ;;
+  "panel")
+    _panel "$@"
+    exit 0
   "update")
     _update
     exit 0
