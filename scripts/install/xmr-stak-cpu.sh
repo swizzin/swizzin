@@ -1,6 +1,8 @@
 #!/bin/bash
 # Automated installer script for xmr-stak-cpu
 # Written by liara for swizzin
+user=$(cat /root/.master.info | cut -d: -f1)
+noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
@@ -29,15 +31,16 @@ fi
 
 processors=$(grep -c ^processor /proc/cpuinfo)
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
-optthreads=$(echo "$L3/2" | bc)
+if [[ -z $L3 ]]; then
+    echo -e "L3 cache size cannot be determined. You must look up your cache size manually. Optimal threads = L3/2\n"
+elif
+    optthreads=$(echo "$L3/2" | bc)
 
-if [[ $optthreads -gt $processors ]]; then
-    optthreads=$processors
+    if [[ $optthreads -gt $processors ]]; then
+        optthreads=$processors
+    fi
+    echo -e "The installer has determined that the miner will produce the most hash per second using $optthreads threads.\n"
 fi
-
-user=$(cat /root/.master.info | cut -d: -f1)
-
-echo -e "The installer has determined that the miner will produce the most hash per second using $optthreads threads.\n"
 read -p "Please enter the number of threads you would like to configure (more threads = more cpu utilization). If you do not choose a value, the installer will default to $optthreads: " 'threads'
 threads=${threads:=${optthreads}}
 
@@ -54,6 +57,11 @@ echo "Installing dependencies and compiling xmr-stak-cpu"
 apt-get -y -qq update >> $log 2>&1
 apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwloc-dev screen >> $log 2>&1
 
+if [[ -n $noexec ]]; then
+    mount -o remount,exec /tmp
+    noexec=1
+fi	
+
 cd /tmp
 git clone https://github.com/fireice-uk/xmr-stak-cpu.git >> $log 2>&1
 cd xmr-stak-cpu
@@ -69,6 +77,10 @@ fi
     make install >> $log 2>&1
     mv bin/xmr-stak-cpu /usr/local/bin
     mkdir /home/${user}/.xmr
+
+if [[ -n $noexec ]]; then
+    mount -o remount,noexec /tmp
+fi
 
 if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf) ]]; then
     echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
