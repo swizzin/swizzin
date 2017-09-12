@@ -16,6 +16,7 @@ for i in NGC SSC PROX FIC; do
 done
 
 if [[ ! $hostname == "_" ]]; then
+  sed -i "s/server_name _;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
   sed -i "s/ssl_certificate .*/ssl_certificate \/etc\/nginx\/ssl\/${hostname}\/fullchain.pem;/g" /etc/nginx/sites-enabled/default
   sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
 fi
