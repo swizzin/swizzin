@@ -181,6 +181,17 @@ location /rutorrent {
 RUM
 fi
 
+if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
+  cat > /etc/nginx/apps/rindex.conf <<RIN
+location /rtorrent.downloads {
+  alias /home/\$remote_user/torrents/rtorrent;
+  include /etc/nginx/snippets/fancyindex.conf;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+}
+RIN
+fi
+
 for u in "${users[@]}"; do
   port=$(cat /home/${u}/.rtorrent.rc | grep scgi | cut -d: -f2)
   if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
@@ -195,16 +206,8 @@ for u in "${users[@]}"; do
 ?>
 RUU
   fi
-  if [[ ! -f /etc/nginx/apps/${u}.rindex.conf ]]; then
-  cat > /etc/nginx/apps/${u}.rindex.conf <<RIN
-location /${u}.rtorrent.downloads {
-  alias /home/${u}/torrents/rtorrent;
-  include /etc/nginx/snippets/fancyindex.conf;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
-}
-RIN
-  fi
+  if [[ ! -f /etc/nginx/apps/${u}.rindex.conf ]]; then rm -f /etc/nginx/apps/${u}.rindex.conf; fi
+
   if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
   cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
 location /${u} {
