@@ -247,10 +247,6 @@ DHL
   mkdir -p /home/${u}/torrents/deluge
   chown ${u}: /home/${u}/torrents/deluge
 done
-if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/deluge.sh
-  service nginx reload
-fi
 }
 function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
@@ -297,6 +293,12 @@ for u in "${users[@]}"; do
   systemctl start deluged@${u}
   systemctl start deluge-web@${u}
 done
+
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/deluge.sh
+  service nginx reload
+fi
+
   touch /install/.deluge.lock
 }
 
