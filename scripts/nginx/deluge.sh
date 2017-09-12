@@ -27,6 +27,7 @@ for u in "${users[@]}"; do
 systemctl stop deluge-web@$u
 sed -i 's/"interface": "0.0.0.0"/"interface": "127.0.0.1"/g' /home/$u/.config/deluge/web.conf
 sed -i 's/"https": true/"https": false/g' /home/$u/.config/deluge/web.conf
+systemctl start deluge-web@$u
 
   if [[ ! -f /etc/nginx/conf.d/${u}.deluge.conf ]]; then
     DWPORT=$(cat /home/$u/.config/deluge/web.conf | grep port | cut -d: -f2| sed 's/ //g' | sed 's/,//g')
