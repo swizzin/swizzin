@@ -213,6 +213,7 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "https": true,
   "sessions": {},
   "base": "/",
+  "interface": "0.0.0.0",
   "pwd_salt": "${DWSALT}",
   "show_session_speed": false,
   "first_login": false,
