@@ -9,6 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 user=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active netdata)
 
 if [[ ! -f /etc/nginx/apps/netdata.conf ]]; then
   cat > /etc/nginx/apps/netdata.conf <<NET
@@ -38,3 +39,6 @@ location ~ /netdata/(?<ndpath>.*) {
 NET
 fi
 sed -i "s/# bind to = \*/bind to = 127.0.0.1/g" /etc/netdata/netdata.conf
+if [[ $isactive == "active" ]]; then
+  systemctl restart netdata
+fi

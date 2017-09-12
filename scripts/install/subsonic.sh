@@ -122,7 +122,6 @@ if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/subsonic.sh
   service nginx reload
 fi
-service subsonic restart
 
 echo "Subsonic Install Complete!" >>"${OUTTO}" 2>&1;
 sleep 2

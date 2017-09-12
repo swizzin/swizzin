@@ -9,6 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active shellinabox)
 if [[ ! -f /etc/nginx/apps/shell.conf ]]; then
   cat > /etc/nginx/apps/shell.conf <<RAD
 location /shell/ {
@@ -26,3 +27,7 @@ if [[ -z $(grep localhost-only /etc/default/shellinabox) ]]; then
     sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--localhost-only /g' /etc/default/shellinabox
 fi
 systemctl reload nginx
+
+if [[ $isactive == "active" ]]; then
+  systemctl restart shellinabox
+fi

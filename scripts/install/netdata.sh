@@ -15,7 +15,6 @@ bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive >> $log 2>
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/netdata.sh
   service nginx reload
-  systemctl restart netdata
 fi
 
 touch /install/.netdata.lock

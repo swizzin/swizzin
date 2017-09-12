@@ -78,20 +78,12 @@ EOF
   systemctl daemon-reload
   systemctl enable radarr.service > /dev/null 2>&1
   systemctl start radarr.service
-  sleep 10
 
-  systemctl stop radarr.service
-  sleep 10
   if [[ -f /install/.nginx.lock ]]; then
+    sleep 10
     bash /usr/local/bin/swizzin/nginx/radarr.sh
     service nginx reload
   fi
-}
-
-function _installRadarrStart() {
-  # output to box
-  echo "Starting Radar ... "
-  systemctl start radarr.service
 }
 
 function _installRadarrFinish() {
@@ -127,6 +119,5 @@ _installRadarrIntro
 echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
 echo "Installing Radar ... " >>"${OUTTO}" 2>&1;_installRadarrCode
 echo "Configuring Radar ... " >>"${OUTTO}" 2>&1;_installRadarrConfigure
-echo "Starting Radar ... " >>"${OUTTO}" 2>&1;_installRadarrStart
 _installRadarrFinish
 _installRadarrExit

@@ -9,6 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active jackett@$MASTER)
+if [[ $isactive == "active" ]]; then
+  systemctl stop jackett@$MASTER
+fi
+systemctl stop jackett@$MASTER
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
   cat > /etc/nginx/apps/jackett.conf <<RAD
 location /jackett {
@@ -23,3 +28,7 @@ sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${MASTER}/.config
 sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 # Disable native auto-update, since we have a command for that.
 sed -i "s/\"UpdateDisabled.*/\"UpdateDisabled\": true,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
+
+if [[ $isactive == "active" ]]; then
+  systemctl start jackett@$MASTER
+fi

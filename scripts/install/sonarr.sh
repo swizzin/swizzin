@@ -85,14 +85,13 @@ SONARR
   systemctl start sonarr@${username}
   sleep 10
 
-  systemctl stop sonarr@{$username}
-  sleep 10
+
 
   if [[ -f /install/.nginx.lock ]]; then
+    sleep 10
     bash /usr/local/bin/swizzin/nginx/sonarr.sh
     service nginx reload
   fi
-  systemctl restart sonarr@${username}
 }
 
 

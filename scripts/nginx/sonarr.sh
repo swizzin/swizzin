@@ -9,6 +9,12 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active sonarr@$MASTER)
+
+if [[ $isactive == "active" ]]; then
+  systemctl stop sonarr@$MASTER
+fi
+
 if [[ ! -f /etc/nginx/apps/sonarr.conf ]]; then
 cat > /etc/nginx/apps/sonarr.conf <<SONARR
 location /sonarr {
@@ -33,3 +39,6 @@ cat > /home/${MASTER}/.config/NzbDrone/config.xml <<SONN
 </Config>
 SONN
 chown -R ${MASTER}: /home/${MASTER}/.config/NzbDrone/
+if [[ $isactive == "active" ]]; then
+  systemctl start sonarr@$MASTER
+fi

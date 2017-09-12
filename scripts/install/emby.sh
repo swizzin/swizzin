@@ -25,7 +25,7 @@ fi
 username=$(cat /root/.master.info | cut -d: -f1)
 
 if [[ -f /install/.nginx.lock ]]; then
-echo "Setting up emby apache configuration ... " >>"${OUTTO}" 2>&1;
+echo "Setting up emby nginx configuration ... " >>"${OUTTO}" 2>&1;
   bash /usr/local/bin/swizzin/nginx/emby.sh
   service nginx reload
 fi

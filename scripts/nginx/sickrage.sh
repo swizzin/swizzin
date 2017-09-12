@@ -9,6 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active sickrage@$user)
+if [[ $isactive == "active" ]]; then
+  systemctl stop sickrage@${user}
+fi
+
 if [[ ! -f /etc/nginx/apps/sickrage.conf ]]; then
   cat > /etc/nginx/apps/sickrage.conf <<SRC
 location /sickrage {
@@ -21,3 +26,6 @@ SRC
 fi
 sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
 sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
+if [[ $isactive == "active" ]]; then
+  systemctl start sickrage@${user}
+fi

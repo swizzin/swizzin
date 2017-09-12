@@ -9,6 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active radarr)
+
+if [[ $isactive == "active" ]]; then
+  systemctl stop radarr
+fi
 if [[ ! -f /etc/nginx/apps/radarr.conf ]]; then
   cat > /etc/nginx/apps/radarr.conf <<RAD
 location /radarr {
@@ -35,3 +40,6 @@ cat > /home/${MASTER}/.config/Radarr/config.xml <<RAD
 </Config>
 RAD
 chown -R ${MASTER}: /home/${MASTER}/.config/Radarr
+if [[ $isactive == "active" ]]; then
+  systemctl start radarr
+fi

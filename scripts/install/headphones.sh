@@ -124,10 +124,8 @@ sleep 10
 
 mkdir -p $APPPATH/logs
 if [[ -f /install/.nginx.lock ]]; then
-  systemctl stop $APPNAME >/dev/null 2>&1
   bash /usr/local/bin/swizzin/nginx/headphones.sh
   service nginx reload
-  systemctl start $APPNAME
   echo "Install complete! Please note headphones access url is: https://$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')/headphones/home"
 fi
 

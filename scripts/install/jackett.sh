@@ -64,18 +64,15 @@ JAK
 
 systemctl enable jackett@${username} >/dev/null 2>&1
 systemctl start jackett@${username}
-while [ ! -f /home/${username}/.config/Jackett/ServerConfig.json ]
-do
-  sleep 2
-done
-systemctl stop jackett@${username}
-sleep 5
 
 if [[ -f /install/.nginx.lock ]]; then
+  while [ ! -f /home/${username}/.config/Jackett/ServerConfig.json ]
+  do
+    sleep 2
+  done
   bash /usr/local/bin/swizzin/nginx/jackett.sh
   service nginx reload
 fi
-service jackett@${username} start
 
 
 echo >>"${OUTTO}" 2>&1;

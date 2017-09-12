@@ -54,14 +54,15 @@ PPY
 
 systemctl enable plexpy > /dev/null 2>&1
 systemctl start plexpy
-systemctl stop plexpy
-systemctl start plexpy
-systemctl stop plexpy
+
 if [[ -f /install/.nginx.lock ]]; then
+  while [ ! -f /opt/plexpy/config.ini ]
+  do
+    sleep 2
+  done
   bash /usr/local/bin/swizzin/nginx/plexpy.sh
   service nginx reload
 fi
-systemctl start plexpy
 touch /install/.plexpy.lock
 
 echo "PlexPy Install Complete!" >>"${OUTTO}" 2>&1;

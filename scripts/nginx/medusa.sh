@@ -9,6 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 user=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active medusa@$user)
+if [[ $isactive == "active" ]]; then
+  systemctl stop medusa@${user}
+fi
+
 if [[ ! -f /etc/nginx/apps/medusa.conf ]]; then
   cat > /etc/nginx/apps/medusa.conf <<SRC
 location /medusa {
@@ -34,3 +39,7 @@ SRC
 fi
 sed -i "s/web_root.*/web_root = \"medusa\"/g" /home/"${user}"/.medusa/config.ini
 sed -i "s/web_host.*/web_host = localhost/g" /home/"${user}"/.medusa/config.ini
+
+if [[ $isactive == "active" ]]; then
+  systemctl start medusa@${user}
+fi

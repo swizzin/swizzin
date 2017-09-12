@@ -9,6 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active nzbhydra@$MASTER)
+if [[ $isactive == "active" ]]; then
+  systemctl stop nzbhydra@${MASTER}
+fi
+
 if [[ ! -f /etc/nginx/apps/nzbhydra.conf ]]; then
   cat > /etc/nginx/apps/nzbhydra.conf <<RAD
 location /nzbhydra {
@@ -21,3 +26,6 @@ RAD
 fi
 sed -i "s/urlBase.*/urlBase\": \"\/nzbhydra\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
 sed -i "s/\"host\": \"0.0.0.0\",/\"host\": \"127.0.0.1\",/g"  /home/"${MASTER}"/.nzbhydra/settings.cfg
+if [[ $isactive == "active" ]]; then
+  systemctl start nzbhydra@${MASTER}
+fi

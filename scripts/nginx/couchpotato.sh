@@ -9,6 +9,10 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active couchpotato@$MASTER)
+if [[ $isactive == "active" ]]; then
+  systemctl stop couchpotato@$MASTER
+fi
 if [[ ! -f /etc/nginx/apps/couchpotato.conf ]]; then
   cat > /etc/nginx/apps/couchpotato.conf <<RAD
 location /couchpotato {
@@ -19,4 +23,7 @@ location /couchpotato {
 }
 RAD
 fi
-sed -i "s/url_base.*/url_base = couchpotato\nhost = localhost/g" /home/${MASTER}/.couchpotato/settings.conf
+sed -i "s/url_base.*/url_base = couchpotato\nhost = 127.0.0.1/g" /home/${MASTER}/.couchpotato/settings.conf
+if [[ $isactive == "active" ]]; then
+  systemctl start couchpotato@$MASTER
+fi

@@ -59,16 +59,12 @@ mkdir -p /home/${MASTER}/.nzbhydra
 chown ${MASTER}:${MASTER} -R /home/${MASTER}/.nzbhydra
 systemctl enable nzbhydra@${MASTER} >/dev/null 2>&1
 systemctl start nzbhydra@${MASTER} >/dev/null 2>&1
-sleep 30
-systemctl stop nzbhydra@${MASTER} >/dev/null 2>&1
-
-
 
 if [[ -f /install/.nginx.lock ]]; then
+  sleep 30
   bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
   service nginx reload
 fi
-systemctl start nzbhydra@${MASTER} >/dev/null 2>&1
 
 touch /install/.nzbhydra.lock
 # for output to dashboard

@@ -9,6 +9,10 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+isactive=$(systemctl is-active plexpy)
+if [[ $isactive == "active" ]]; then
+  systemctl stop plexpy
+fi
 if [[ ! -f /etc/nginx/apps/plexpy.conf ]]; then
   cat > /etc/nginx/apps/plexpy.conf <<RAD
 location /plexpy {
@@ -21,3 +25,6 @@ RAD
 fi
 sed -i "s/http_root.*/http_root = \"plexpy\"/g" /opt/plexpy/config.ini
 sed -i "s/http_host.*/http_host = 127.0.0.1/g" /opt/plexpy/config.ini
+if [[ $isactive == "active" ]]; then
+  systemctl start plexpy
+fi

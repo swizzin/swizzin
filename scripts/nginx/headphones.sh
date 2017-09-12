@@ -9,6 +9,12 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+
+isactive=$(systemctl is-active headphones)
+if [[ $isactive == "active" ]]; then
+  systemctl stop headphones
+fi
+
 if [[ ! -f /etc/nginx/apps/headphones.conf ]]; then
   cat > /etc/nginx/apps/headphones.conf <<RAD
 location /headphones {
@@ -349,3 +355,6 @@ mpc_enabled = 0
 HPCONF
 sed -i "s/USER/${MASTER}/g" /home/${MASTER}/.headphones/config.ini
 chown -R ${MASTER}: /home/${MASTER}/.headphones
+if [[ $isactive == "active" ]]; then
+  systemctl start headphones
+fi

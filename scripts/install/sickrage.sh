@@ -70,10 +70,8 @@ SRS
   systemctl start sickrage@$user
 
 if [[ -f /install/.nginx.lock ]]; then
-  systemctl stop sickrage@$user
   bash /usr/local/bin/swizzin/nginx/sickrage.sh
   service nginx reload
-  systemctl start sickrage@$user
 fi
 
 touch /install/.sickrage.lock

@@ -17,6 +17,7 @@ inst=$(which mysql)
 ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+  exit 1
 else
 echo "Please choose a password for the nextcloud mysql user."
 read -s -p "Password: " 'nextpass'

@@ -32,12 +32,14 @@ Restart=on-abort
 WantedBy=multi-user.target
 SIAB
 
+systemctl daemon-reload
+systemctl enable shellinabox > /dev/null 2>&1
+systemctl start shellinabox
+
 if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/shellinabox.sh
 fi
 
-systemctl daemon-reload
-systemctl enable shellinabox > /dev/null 2>&1
-systemctl start shellinabox
+
 
 touch /install/.shellinabox.lock

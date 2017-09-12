@@ -48,13 +48,11 @@ WantedBy=multi-user.target
 CPS
 systemctl enable couchpotato@${MASTER} >/dev/null 2>&1
 systemctl start couchpotato@${MASTER} >/dev/null 2>&1
-systemctl stop couchpotato@${MASTER} >/dev/null 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/couchpotato.sh
   service nginx reload
 fi
-systemctl start couchpotato@${MASTER} >/dev/null 2>&1
 
 touch /install/.couchpotato.lock
 echo >>"${OUTTO}" 2>&1;

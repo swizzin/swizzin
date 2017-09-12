@@ -71,14 +71,12 @@ WantedBy=multi-user.target
 MSD
 
 systemctl enable medusa@${user} >>$log 2>&1
+systemctl start medusa@${user}
 
 
 if [[ -f /install/.nginx.lock ]]; then
-  systemctl start medusa@${user}
-  systemctl stop medusa@${user}
   bash /usr/local/bin/swizzin/nginx/medusa.sh
   service nginx reload
 fi
-systemctl start medusa@${user}
 
 touch /install/.medusa.lock
