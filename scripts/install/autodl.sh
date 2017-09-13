@@ -66,7 +66,7 @@ Type=forking
 KillMode=none
 User=%I
 ExecStart=/usr/bin/screen -d -m -fa -S irssi /usr/bin/irssi
-ExecStop=/usr/bin/killall -w -s 2 /usr/bin/irssi
+ExecStop=/usr/bin/screen -S irssi -X stuff '/quit\n'
 WorkingDirectory=/home/%I/
 
 [Install]
