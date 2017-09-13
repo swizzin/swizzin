@@ -189,7 +189,7 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   log="/dev/null"
 fi
-if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
+if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]] && [[ -z $1 ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 0.9.6 "" 3>&1 1>&2 2>&3)
 							#feature-bind "" \
@@ -202,7 +202,7 @@ if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]]; then
 		#	export rtorrentver='feature-bind'
 		#	export libtorrentver='feature-bind'
 		fi
-elif [[ -z ${rtorrentver} ]]; then
+elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 0.9.6 "" \
 							 0.9.4 "" \
