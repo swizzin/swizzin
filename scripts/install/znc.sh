@@ -28,13 +28,21 @@ echo "" >> ${OUTTO} 2>&1
 useradd znc -m -s /bin/bash
 passwd znc -l >> ${OUTTO} 2>&1
 
-if [[ $DISTRO == Debian ]]; then
-  echo "deb http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" > /etc/apt/sources.list.d/znc.list
-  echo "#deb-src http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" >> /etc/apt/sources.list.d/znc.list
-  wget --quiet http://packages.temporal-intelligence.net/repo.gpg.key -O - | apt-key add - > /dev/null 2>&1
-elif [[ $DISTRO == Ubuntu ]]; then
-  sudo apt-get install -q -y python-software-properties software-properties-common > /dev/null 2>&1
-  sudo add-apt-repository -q -y ppa:teward/znc > /dev/null 2>&1
+if [[ $CODENAME == jessie ]]; then
+  if [[ -z $(cat /etc/apt/sources.list | grep backports) ]]; then
+    echo "deb http://deb.debian.org/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list
+  fi
+  cat > /etc/apt/preferences.d/znc <<ZNCP
+Package: *znc*
+Pin: release a=jessie-backports
+Pin-Priority: 500
+ZNCP
+  #echo "deb http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" > /etc/apt/sources.list.d/znc.list
+  #echo "#deb-src http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" >> /etc/apt/sources.list.d/znc.list
+  #wget --quiet http://packages.temporal-intelligence.net/repo.gpg.key -O - | apt-key add - > /dev/null 2>&1
+#elif [[ $DISTRO == Ubuntu ]]; then
+  #sudo apt-get install -q -y python-software-properties software-properties-common > /dev/null 2>&1
+  #sudo add-apt-repository -q -y ppa:teward/znc > /dev/null 2>&1
 fi
   apt-get update -q -y > /dev/null 2>&1
   apt-get install znc -q -y > /dev/null 2>&1
