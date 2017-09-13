@@ -49,6 +49,12 @@ function _deluge() {
   #  ./b2 install
   #fi
 
+  if [[ -n $noexec ]]; then
+    mount -o remount,exec /tmp
+    noexec=1
+  fi
+
+  cd /tmp
   git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
   git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
   cd libtorrent
@@ -64,6 +70,10 @@ function _deluge() {
   python setup.py install_data >>"${OUTTO}" 2>&1
   cd ..
   rm -r {deluge,libtorrent}
+
+  if [[ -n $noexec ]]; then
+	  mount -o remount,noexec /tmp
+  fi
 fi
 }
 function _dconf {
@@ -314,7 +324,7 @@ master=$(cat /root/.master.info | cut -d: -f1)
 pass=$(cat /root/.master.info | cut -d: -f2)
 codename=$(lsb_release -cs)
 ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
-
+noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
 
 if [[ -n $1 ]]; then
   users=($1)
