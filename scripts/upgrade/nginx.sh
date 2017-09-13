@@ -4,8 +4,24 @@
 # Author: liara
 
 hostname=$(cat /etc/nginx/sites-enabled/default | grep -m1 -i server_name | sed 's/server_name//g' | sed 's/ //'g | sed 's/;//g')
+locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 
-rm -rf /etc/nginx/apps/*
+if [[ ! -f /install/.nginx.lock ]]; then
+  echo "nginx doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  exit 1
+fi
+
+for i in "${locks[@]}"; do
+  app=${i}
+  if [[ -f /install/.$app.lock ]]; then
+    rm -rf /etc/nginx/apps/$app.conf
+  fi
+done
+
+rm -rf /etc/nginx/apps/dindex.conf
+rm -rf /etc/nginx/apps/rindex.conf
+rm -rf /etc/nginx/apps/*.scgi.conf
+
 rm -rf /etc/nginx/sites-enabled/default
 rm -rf /etc/nginx/conf.d/*
 rm -rf /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
@@ -21,7 +37,6 @@ if [[ ! $hostname == "_" ]]; then
   sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
 fi
 
-locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then
