@@ -24,22 +24,31 @@ function _depends() {
 	APT='subversion dos2unix bc screen zip unzip sysstat build-essential cfv comerr-dev
 	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
-	libfontconfig1-dev mediainfo mktorrent'
+	libfontconfig1-dev mediainfo'
 	for depends in $APT; do
 	apt-get -qq -y --yes --force-yes install "$depends"  >> $log 2>&1 || (echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good...")
 	done
+
+	# (un)rar
   if [[ $distribution == "Debian" ]]; then
 	_rar
   else
     apt-get -y install rar unrar >>$log 2>&1 || echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar
   fi
+
+	# mktorrent from source
+	cd /tmp
+	wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip
+	unzip -d mktorrent -j mktorrent.zip
+	cd mktorrent
+	make >>$log 2>&1
+	make install PREFIX=/usr >>$log 2>&1
+	cd /tmp
+	rm -rf mktorrent*
 }
 
 function _xmlrpc() {
-	if [[ -n $noexec ]]; then
-		mount -o remount,exec /tmp
-		noexec=1
-	fi		
+		
 	cd "/tmp"
 	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
 	cd xmlrpc-c
@@ -88,10 +97,7 @@ function _rtorrent() {
 	make install >/dev/null 2>&1
 	cd "/tmp"
 	ldconfig >/dev/null 2>&1
-	rm -rf rtorrent* >/dev/null 2>&1
-	if [[ -n $noexec ]]; then
-		mount -o remount,noexec /tmp
-	fi		
+	rm -rf rtorrent* >/dev/null 2>&1		
 }
 
 function _rconf() {
@@ -239,7 +245,10 @@ if [[ -n $1 ]]; then
 	exit 0
 fi
 
-
+if [[ -n $noexec ]]; then
+	mount -o remount,exec /tmp
+	noexec=1
+fi
 	  echo "Installing rTorrent Dependencies ... ";_depends
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
@@ -250,4 +259,8 @@ fi
 		if [[ -f /install/.nginx.lock ]]; then
 			echo "Installing ruTorrent";_ruconf
 		fi
+
+if [[ -n $noexec ]]; then
+	mount -o remount,noexec /tmp
+fi
 		touch /install/.rtorrent.lock
