@@ -108,6 +108,11 @@ function _ruconf() {
 	systemctl force-reload nginx
 }
 
+if [[ ! -f /install/.rtorrent.lock ]]; then
+  echo "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  exit 1
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 
 distribution=$(lsb_release -is)
@@ -161,11 +166,6 @@ xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/stable"
 user=$(cat /root/.master.info | cut -d: -f1)
 rutorrent="/srv/rutorrent/"
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-
-if [[ ! -f /install/.rtorrent.lock ]]; then
-  echo "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
-  exit 1
-fi
 
 for u in "${users[@]}"; do
   systemctl stop rtorrent@${u}

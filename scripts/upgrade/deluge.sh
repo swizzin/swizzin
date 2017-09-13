@@ -66,6 +66,11 @@ function _deluge() {
 fi
 }
 
+if [[ ! -f /install/.deluge.lock ]]; then
+  echo "Deluge doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  exit 1
+fi
+
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 else
