@@ -9,11 +9,11 @@ I will attempt to catalog all major features and changes to the repository here
 - Dynamic Deluge reverse proxies (/deluge)
 - Dynamic Deluge and rTorrent download directories for nginx (/rtorrent.downloads & /deluge.downloads)
 - Upgrade scripts (these are not tied into box yet. Please run them manually at this time)
- - nginx (resets configurations to swizzin defaults)
- - rtorrent (recompile and change version if wanted; refresh depends)
- - deluge (recompile and change version if wanted)
- - plex ([updateplex](https://github.com/mrworf/plexupdate) by mrworf)
- - ombi
+  - nginx (resets configurations to swizzin defaults)
+  - rtorrent (recompile and change version if wanted; refresh depends)
+  - deluge (recompile and change version if wanted)
+  - plex ([updateplex](https://github.com/mrworf/plexupdate) by mrworf)
+  - ombi
 - Compile mktorrent from source for -s flag (19c823362fb69743a5b6178fecbedffb781ace74)
 - Add panel fix-disk to box `box panel fix-disk` (for root or home disk widget) (c45f9ae6a269b3a97d9511bca74ac0cea9fab691)
 
