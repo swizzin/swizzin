@@ -228,9 +228,12 @@ Cmnd_Alias   ${USER}CMDS = /bin/systemctl start rtorrent@${user}, /bin/systemctl
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMNDS
 SUD
-systemctl reload nginx
-echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
+if [[ -f /install/.nginx.lock ]]; then
+  systemctl reload nginx
+fi
 
+echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
+chown $user: /home/$user/.bashrc
 }
 
 function _deluser {
