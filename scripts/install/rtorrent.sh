@@ -233,7 +233,6 @@ user=$(cat /root/.master.info | cut -d: -f1)
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))
-warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
 
 if [[ -n $1 ]]; then
 	user=$1
