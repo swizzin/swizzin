@@ -38,8 +38,8 @@ function _depends() {
 
 	# mktorrent from source
 	cd /tmp
-	wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip
-	unzip -d mktorrent -j mktorrent.zip
+	wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >>$log 2>&1
+	unzip -d mktorrent -j mktorrent.zip >>$log 2>&1
 	cd mktorrent
 	make >>$log 2>&1
 	make install PREFIX=/usr >>$log 2>&1
