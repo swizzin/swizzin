@@ -67,7 +67,8 @@ function _adduser() {
     user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
   fi
   if [[ $user =~ [A-Z] ]]; then
-    echo "Usernames must not contain capital letters. Please try again."
+    read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
+    printf "\n"
     user=
     _adduser
   fi
