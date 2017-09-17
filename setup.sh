@@ -63,32 +63,33 @@ function _intro() {
 }
 
 function _adduser() {
-  if [[ -z $user ]]; then
+  while [[ -z $user ]]; do
     user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-  fi
-  if [[ $user =~ [A-Z] ]]; then
-    read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
-    printf "\n"
-    user=
-    _adduser
-  fi
-  pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-  if [[ -z "${pass}" ]]; then
-    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-  fi
-  if [[ -n $(which cracklib-check) ]]; then 
-    echo "Cracklib detected. Checking password strength."
-    sleep 1
-    str="$(cracklib-check <<<"$pass")"
-    check=$(grep OK <<<"$str")
-    if [[ -z $check ]]; then
-      read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
+    if [[ $user =~ [A-Z] ]]; then
+      read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
       printf "\n"
-      _adduser
-    else
-      echo "OK."
+      user=
     fi
-  fi
+  done
+  while [[ -z "${pass}" ]]; do
+    pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    if [[ -z "${pass}" ]]; then
+      pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+    fi
+    if [[ -n $(which cracklib-check) ]]; then 
+      echo "Cracklib detected. Checking password strength."
+      sleep 1
+      str="$(cracklib-check <<<"$pass")"
+      check=$(grep OK <<<"$str")
+      if [[ -z $check ]]; then
+        read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
+        printf "\n"
+        pass=
+      else
+        echo "OK."
+      fi
+    fi
+  done
   echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
     echo "User directory already exists ... "
