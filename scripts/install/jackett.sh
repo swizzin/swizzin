@@ -44,7 +44,6 @@ wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett
 tar -xvzf Jackett.Binaries.Mono.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.Mono.tar.gz
 chown ${username}.${username} -R Jackett
-touch /install/.jackett.lock
 
 cat > /etc/systemd/system/jackett@.service <<JAK
 [Unit]
@@ -74,6 +73,7 @@ if [[ -f /install/.nginx.lock ]]; then
   service nginx reload
 fi
 
+touch /install/.jackett.lock
 
 echo >>"${OUTTO}" 2>&1;
 echo >>"${OUTTO}" 2>&1;
