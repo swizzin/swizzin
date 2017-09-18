@@ -33,7 +33,7 @@ processors=$(grep -c ^processor /proc/cpuinfo)
 L3=$(lscpu | grep L3 | cut -d: -f 2 | sed "s/ //g" | sed "s/K//g" | awk '{$1=$1/1024; print $1}')
 if [[ -z $L3 ]]; then
     echo -e "L3 cache size cannot be determined. You must look up your cache size manually. Optimal threads = L3/2\n"
-elif
+else
     optthreads=$(echo "$L3/2" | bc)
 
     if [[ $optthreads -gt $processors ]]; then
