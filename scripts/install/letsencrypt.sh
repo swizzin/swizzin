@@ -10,6 +10,11 @@
 #   under the GPL along with build & install instructions.
 #
 
+if [[ ! -f /install/.nginx.lock ]]; then
+    echo "This script is meant to be used in conjunction with nginx and it has not been installed. Please install nginx first and restart this installer."
+    exit 1
+fi    
+
 ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 echo -e "Enter domain name to secure with LE"
