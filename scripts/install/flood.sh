@@ -47,7 +47,7 @@ for u in "${users[@]}"; do
     fi
     echo "Building Flood for $u. This might take some time..."
     echo ""
-    sudo -u $u npm install --production
+    sudo -H -u $u npm install --production
     systemctl enable flood@$u > /dev/null 2>&1
     systemctl start flood@$u
     if [[ ! -f /install/.nginx.lock ]]; then

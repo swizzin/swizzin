@@ -24,7 +24,7 @@ for u in "${users[@]}"; do
     sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
     sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
   fi
-  sudo -u $u npm install --production
+  sudo -H -u $u npm install --production
   if [[ $active == "yes" ]]; then
     systemctl start flood@$u
   fi
