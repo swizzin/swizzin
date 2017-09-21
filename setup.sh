@@ -117,8 +117,9 @@ function _adduser() {
 function _choices() {
   packages=()
   extras=()
+  guis=()
   #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent rutorrent flood deluge autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
@@ -142,6 +143,21 @@ function _choices() {
     fi
   fi
   if grep -q rtorrent "$results"; then
+    gui=(rutorrent flood)
+    for i in "${gui[@]}"; do
+      app=${i}
+      if [[ ! -f /install/.$app.lock ]]; then
+        guis+=("$i" '""')
+      fi
+    done
+    whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2>/root/guis; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    #readarray packages < /root/results
+    gui=/root/guis
+    while IFS= read -r result
+    do
+      touch /tmp/.$result.lock
+    done < "$gui"
+
     if [[ ${codename} =~ ("stretch") ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
                   0.9.6 "" 3>&1 1>&2 2>&3)
@@ -190,6 +206,14 @@ function _choices() {
         export deluge=dev
       fi
   fi
+  if [[ $(grep rutorrent "$gui") ]] && [[ ! $(grep nginx "$results") ]]; then
+      if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
+        sed -i '1s/^/nginx\n/' /root/results
+        touch /tmp/.nginx.lock
+      else
+        sed -i '/rutorrent/d' /root/guis
+      fi
+  fi
 
   locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
   for i in "${locksextra[@]}"; do
@@ -213,6 +237,14 @@ function _install() {
     rm /tmp/.$result.lock
   done
   rm /root/results
+  readarray result < /root/guis
+  for i in "${result[@]}"; do
+    result=$(echo $i)
+    echo -e "Installing ${result}"
+    bash /usr/local/bin/swizzin/install/${result}.sh
+    rm /tmp/.$result.lock
+  done
+  rm /root/results  
   readarray result < /root/results2
   for i in "${result[@]}"; do
     result=$(echo $i)
