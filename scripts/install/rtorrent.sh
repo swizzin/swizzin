@@ -149,11 +149,6 @@ function _perms() {
 	chsh -s /bin/bash ${user}
 }
 
-function _ruconf() {
-	bash /usr/local/bin/swizzin/nginx/rtorrent.sh
-	systemctl force-reload nginx
-}
-
 
 
 _systemd() {
@@ -254,9 +249,6 @@ fi
 		echo "Making ${user} directory structure ... ";_makedirs
 		echo "Setting permissions on ${user} ... ";_perms
 		echo "setting up rtorrent.rc ... ";_rconf;_systemd
-		if [[ -f /install/.nginx.lock ]]; then
-			echo "Installing ruTorrent";_ruconf
-		fi
 
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp

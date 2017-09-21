@@ -103,10 +103,6 @@ function _rtorrent() {
 	rm -rf rtorrent* >/dev/null 2>&1		
 }
 
-function _ruconf() {
-	bash /usr/local/bin/swizzin/nginx/rtorrent.sh
-	systemctl force-reload nginx
-}
 
 if [[ ! -f /install/.rtorrent.lock ]]; then
   echo "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
@@ -180,9 +176,6 @@ fi
 		echo "Building xmlrpc-c from source ... ";_xmlrpc
 		echo "Building libtorrent from source ... ";_libtorrent
 		echo "Building rtorrent from source ... ";_rtorrent
-		if [[ -f /install/.nginx.lock ]]; then
-			echo "Configuring ruTorrent";_ruconf
-		fi
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
 fi

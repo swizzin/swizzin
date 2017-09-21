@@ -210,6 +210,10 @@ function _adduser {
     systemctl enable rtorrent@${user}
     systemctl start rtorrent@${user}
   fi
+  if [[ -d /srv/rutorrent ]] || [[ -f /install/.rutorrent.lock ]]; then
+    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+    /usr/local/bin/swizzin/install/rutorrent.sh
+  fi
   if [[ -f /install/.deluge.lock ]]; then
     /usr/local/bin/swizzin/install/deluge.sh ${user}
     systemctl enable deluged@${user}
@@ -224,6 +228,8 @@ function _adduser {
   fi
   if [[ -f /install/.flood.lock ]]; then
     /usr/local/bin/swizzin/install/flood.sh
+    systemctl enable flood@${user}
+    systemctl start flood@${user}
   fi
   USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD

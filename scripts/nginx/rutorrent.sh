@@ -8,6 +8,12 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
+
+if [[ ! -f /install/.nginx.lock ]]; then
+  echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+  exit 1
+fi
+
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 cd /srv
@@ -229,3 +235,5 @@ RUC
 done
 
 chown -R www-data.www-data /srv/rutorrent
+systemctl reload nginx
+touch /install/.rutorrent.lock
