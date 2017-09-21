@@ -251,11 +251,12 @@ function _deluser {
   if [[ -f /install/.rtorrent.lock ]]; then
     systemctl disable rtorrent@${user}
     systemctl stop rtorrent@${user}
-      if [[ -f /install/.nginx.lock ]]; then
-        rm -rf /srv/rutorrent/conf/users/${user}
-        rm -f /etc/nginx/apps/${user}*
-        systemctl reload nginx
-      fi
+  fi
+  if [[ -d /srv/rutorrent ]] || [[ -f /install/.rutorrent.lock ]]; then
+    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+    rm -rf /srv/rutorrent/conf/users/${user}
+    rm -f /etc/nginx/apps/${user}*
+    systemctl reload nginx
   fi
   if [[ -f /install/.deluge.lock ]]; then
     systemctl disable deluged@${user}
@@ -267,6 +268,10 @@ function _deluser {
     systemctl disable irssi@${user}
     systemctl stop irssi@${user}
   fi
+  if [[ -f /install/.flood.lock ]]; then
+    systemctl disable flood@${user}
+    systemctl stop flood@${user}
+  fi  
   deluser --force ${user}
   groupdel ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
