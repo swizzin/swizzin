@@ -3,6 +3,29 @@ I will attempt to catalog all major features and changes to the repository here
 
 ## [1.0.0-RC2]
 
+### September 21st, 2017
+
+### Added
+- Flood is now available!
+  - If you have nginx installed, you can access it from the web at /flood. Otherwise, flood port will be printed upon install. Please note, SSL is not currently configured for non-proxied configurations. If you need SSL without nginx, you will have to configure it yourself.
+  - Flood has a complimentary upgrade script. `box upgrade flood`
+  - Please note that there are currently some bugs when using both Flood's authentication and nginx basic authentication. You might need to complete nginx authentication a couple times. Flood authentication will be disabled once the option exists. Until then there is no fix.
+- box now has an upgrade function to run scripts in the scripts/upgrade directory
+  - Current scripts: deluge, flood, nginx, ombi, plex, rtorrent, rutorrent
+- Logoff plugin for ruTorrent
+
+### Changed
+- ruTorrent has been decoupled from the rTorrent installation. (run `box upgrade rutorrent` or `touch /install/.rutorrent.lock` if you already have ruTorrent installed.)
+  - If you need ruTorrent please be sure to check both nginx and ruTorrent during the initial installation. A web interface will *NOT* be installed by default.
+- rTorrent uninstall will now purge *ALL* related packages (ruTorrent and Flood). Be careful!
+- Made error for usernames with capital letters more noticeable.
+
+### Fixed
+- Let's encrypt script now checks for nginx before running
+- Master user is now given sudo permission in setup.sh not install/rtorrent.sh (oops!)
+- Upstreams in /etc/nginx/conf.d were not being removed if extra users were deleted
+- Fixed a bad else statement in xmr-stak-cpu installer
+
 ### September 13th, 2017
 
 ### Added
