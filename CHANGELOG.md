@@ -18,6 +18,7 @@ I will attempt to catalog all major features and changes to the repository here
 - ruTorrent has been decoupled from the rTorrent installation. (run `box upgrade rutorrent` or `touch /install/.rutorrent.lock` if you already have ruTorrent installed.)
   - If you need ruTorrent please be sure to check both nginx and ruTorrent during the initial installation. A web interface will *NOT* be installed by default.
 - rTorrent uninstall will now purge *ALL* related packages (ruTorrent and Flood). Be careful!
+- Quickbox Dashboard has been rebased with the latest changes
 - Made error for usernames with capital letters more noticeable.
 
 ### Fixed
