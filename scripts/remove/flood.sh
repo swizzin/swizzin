@@ -14,4 +14,5 @@ if [[ ! -f /install/.rutorrent.lock ]]; then
   rm -rf /etc/nginx/apps/rindex.conf
 fi
 rm -rf /etc/systemd/system/flood@.service
+systemctl reload nginx
 rm -rf /install/.flood.lock
