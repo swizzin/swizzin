@@ -6,6 +6,11 @@ if [[ ! -f /install/.nginx.lock ]]; then
   exit 1
 fi
 
+if [[ ! -f /install/.rtorrent.lock ]]; then
+  echo "ruTorrent is a GUI for rTorrent, which doesn't appear to be installed. Exiting."
+  exit 1
+fi
+
 bash /usr/local/bin/swizzin/nginx/rutorrent.sh
 systemctl force-reload nginx
 touch /install/.rutorrent.lock
