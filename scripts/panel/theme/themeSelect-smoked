@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# [Quick Box :: Set Defaulted Theme function]
+# [Quick Box :: Set Smoked Theme function]
 #
 # QuickLab REPOS
 # QuickLab _ packages  :   https://github.com/QuickBox/QB/packages
@@ -20,7 +20,8 @@
 function _updatedashboard() {
   \cp -fR  ${local_themes}smoked/skins/* ${panel}/skins
   \cp -fR  ${local_themes}smoked/inc/* ${panel}/inc
-
+  rm -rf /srv/panel/db/.defaulted.lock >/dev/null 2>&1
+  printf "" > /srv/panel/db/.smoked.lock
   service nginx reload
   /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
 
