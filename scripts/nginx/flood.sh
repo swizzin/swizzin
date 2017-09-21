@@ -20,6 +20,17 @@ location /flood/ {
 FLO
 fi
 
+if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
+  cat > /etc/nginx/apps/rindex.conf <<RIN
+location /rtorrent.downloads {
+  alias /home/\$remote_user/torrents/rtorrent;
+  include /etc/nginx/snippets/fancyindex.conf;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+}
+RIN
+fi
+
 for u in "${users[@]}"; do
   if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
   port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
