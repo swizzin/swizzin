@@ -18,20 +18,10 @@
 #   under the GPL along with build & install instructions.
 #
 function _updatedashboard() {
-  #if [[ -f /srv/panel/db/.smoked.lock ]]; then
-    if [[ -n $(find /srv/panel/db -name "branding-*.php") ]]; then
-      rsync -aP --exclude=disk_*.php --exclude=branding-l.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}defaulted/* /srv/panel
-      rm -f /srv/panel/lang/*.php
-      rm -rf /srv/panel/db/.smoked.lock >/dev/null 2>&1
-      printf "" > /srv/panel/db/.defaulted.lock
-    else
-      rsync -aP --exclude=disk_*.php --exclude=share.php --exclude=custom.menu.php --exclude=url.override.php --exclude=custom.css ${local_themes}defaulted/* /srv/panel
-      rm -f /srv/panel/lang/*.php
-      rm -rf /srv/panel/db/.smoked.lock >/dev/null 2>&1
-      printf "" > /srv/panel/db/.defaulted.lock
-    fi
-  #fi
-
+  \cp -fR  ${local_themes}defaulted/skins/* ${panel}/skins
+  \cp -fR  ${local_themes}defaulted/inc/* ${panel}/inc
+  rm -rf /srv/panel/db/.smoked.lock >/dev/null 2>&1
+  printf "" > /srv/panel/db/.defaulted.lock
   service nginx reload
   /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
 
@@ -40,5 +30,5 @@ function _updatedashboard() {
 }
 
 local_themes=/srv/panel/themes/
-
+panel=/srv/panel/
 _updatedashboard
