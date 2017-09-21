@@ -19,9 +19,5 @@ rm -rf /tmp/libtorrent
 
 #apt-get -y remove mktorrent mediainfo
 
-if [[ -f /install/.nginx.lock ]]; then
-    rm -rf /srv/rutorrent
-fi
-
 rm /etc/systemd/system/rtorrent@.service
 rm /install/.rtorrent.lock
