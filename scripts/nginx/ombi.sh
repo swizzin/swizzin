@@ -14,8 +14,6 @@ if [[ ! -f /etc/nginx/apps/ombi.conf ]]; then
 location /ombi {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:3000/ombi;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 RAD
 fi
