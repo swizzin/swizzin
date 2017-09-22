@@ -206,7 +206,7 @@ function _choices() {
         export deluge=dev
       fi
   fi
-  if [[ $(grep rutorrent "$gui") ]] && [[ ! $(grep nginx "$results") ]]; then
+  if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
         sed -i '1s/^/nginx\n/' /root/results
         touch /tmp/.nginx.lock
@@ -237,14 +237,16 @@ function _install() {
     rm /tmp/.$result.lock
   done
   rm /root/results
-  readarray result < /root/guis
-  for i in "${result[@]}"; do
-    result=$(echo $i)
-    echo -e "Installing ${result}"
-    bash /usr/local/bin/swizzin/install/${result}.sh
-    rm /tmp/.$result.lock
-  done
-  rm /root/results  
+  if [[ -f /root/guis ]]; then
+    readarray result < /root/guis
+    for i in "${result[@]}"; do
+      result=$(echo $i)
+      echo -e "Installing ${result}"
+      bash /usr/local/bin/swizzin/install/${result}.sh
+      rm /tmp/.$result.lock
+    done
+    rm /root/guis
+  fi
   readarray result < /root/results2
   for i in "${result[@]}"; do
     result=$(echo $i)
