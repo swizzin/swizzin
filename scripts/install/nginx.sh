@@ -146,7 +146,7 @@ resolver_timeout 5s;
 # the "preload" directive if you understand the implications.
 #add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
 
-add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
 #add_header X-Frame-Options DENY;
 add_header X-Frame-Options SAMEORIGIN;
 add_header X-Content-Type-Options nosniff;
