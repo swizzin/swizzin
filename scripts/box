@@ -354,7 +354,7 @@ function _chpasswd {
     sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
     sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
     sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
-    sed -i "/$user/{n;s/.*/      \"${passwd}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
+    sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
     systemctl start deluged@${user}
     systemctl start deluge-web@${user}
   fi
