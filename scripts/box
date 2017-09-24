@@ -126,10 +126,11 @@ function _update() {
       /usr/local/bin/swizzin/remove/panel.sh
       /usr/local/bin/swizzin/install/panel.sh
       mv /tmp/custom/* /srv/panel/custom/
-      systemctl restart {php7.0-fpm,nginx}
       if [[ $default == 1 ]]; then
         bash /usr/local/bin/swizzin/panel/theme/themeSelect-defaulted
       fi
+      systemctl restart php7.0-fpm
+      systemctl restart nginx
     fi
   fi
 }
