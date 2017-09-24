@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# Release Candidate? Release Candidate!
+# Feature Freeze 1.0 pre-stable
 
 [website](https://swizzin.ltd)
 
