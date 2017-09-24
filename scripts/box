@@ -115,6 +115,11 @@ function _update() {
       git reset --hard origin/master
       git pull
       chmod -R 700 /etc/swizzin/scripts
+  if [[ -d /srv/panel ]]; then
+    cd /srv/panel
+    git reset HEAD --hard
+    git pull
+  fi
 }
 
 function _upgrade() {
