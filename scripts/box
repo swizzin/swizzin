@@ -280,8 +280,9 @@ if [[ -f /install/.nginx.lock ]]; then
   systemctl reload nginx
 fi
 
-echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
+echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
 chown $user: /home/$user/.bashrc
+chown $user: /home/$user/.profile
 }
 
 function _deluser {
