@@ -256,7 +256,6 @@ function _post {
   ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
   echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.profile
   echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
-  chown ${user}: /home/$user/.bashrc
   chown ${user}: /home/$user/.profile
   echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
   echo "Installation complete!"

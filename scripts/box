@@ -281,7 +281,6 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
-chown $user: /home/$user/.bashrc
 chown $user: /home/$user/.profile
 }
 
