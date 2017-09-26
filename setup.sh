@@ -129,10 +129,7 @@ function _choices() {
   whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2>/root/results; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
   #readarray packages < /root/results
   results=/root/results
-  while IFS= read -r result
-  do
-    touch /tmp/.$result.lock
-  done < "$results"
+
   if grep -q nginx "$results"; then
     if [[ -n $(pidof apache2) ]]; then
       if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78); then
@@ -151,12 +148,12 @@ function _choices() {
       fi
     done
     whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2>/root/guis; exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-    #readarray packages < /root/results
-    gui=/root/guis
-    while IFS= read -r result
-    do
-      touch /tmp/.$result.lock
-    done < "$gui"
+    readarray guis < /root/guis
+    for g in "${guis[@]}"; do
+      g=$(echo $g)
+      sed -i "/rtorrent/a $g" /root/results
+    done
+    rm -f /root/guis
 
     if [[ ${codename} =~ ("stretch") ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -211,9 +208,14 @@ function _choices() {
         sed -i '1s/^/nginx\n/' /root/results
         touch /tmp/.nginx.lock
       else
-        sed -i '/rutorrent/d' /root/guis
+        sed -i '/rutorrent/d' /root/results
       fi
   fi
+
+  while IFS= read -r result
+  do
+    touch /tmp/.$result.lock
+  done < "$results"
 
   locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
   for i in "${locksextra[@]}"; do
@@ -237,16 +239,6 @@ function _install() {
     rm /tmp/.$result.lock
   done
   rm /root/results
-  if [[ -f /root/guis ]]; then
-    readarray result < /root/guis
-    for i in "${result[@]}"; do
-      result=$(echo $i)
-      echo -e "Installing ${result}"
-      bash /usr/local/bin/swizzin/install/${result}.sh
-      rm /tmp/.$result.lock
-    done
-    rm /root/guis
-  fi
   readarray result < /root/results2
   for i in "${result[@]}"; do
     result=$(echo $i)
