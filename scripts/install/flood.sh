@@ -7,9 +7,17 @@ if [[ ! -f /install/.rtorrent.lock ]]; then
   exit 1
 fi
 
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  log="/srv/panel/db/output.log"
+else
+  log="/dev/null"
+fi
+
 if [[ ! $(which npm) ]]; then
-  bash <(curl -sL https://deb.nodesource.com/setup_6.x)
-  apt-get -y -q install nodejs build-essential
+  bash <(curl -sL https://deb.nodesource.com/setup_6.x) >> $log 2>&1
+  apt-get -y -q install nodejs build-essential >> $log 2>&1
 fi
 
 cat > /etc/systemd/system/flood@.service <<SYSDF
@@ -35,7 +43,7 @@ for u in "${users[@]}"; do
     port=$(shuf -i 3501-4500 -n 1)
     scgi=$(cat /home/$u/.rtorrent.rc | grep scgi | cut -d: -f2)
     cd /home/$u
-    git clone https://github.com/jfurrow/flood.git .flood
+    git clone https://github.com/jfurrow/flood.git .flood >> $log 2>&1
     chown -R $u: .flood
     cd .flood
     cp -a config.template.js config.js
