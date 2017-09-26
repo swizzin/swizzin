@@ -50,9 +50,6 @@ ADC
       chown -R $u: /home/${u}/.autodl/
       chown -R $u: /home/${u}/.irssi/
   done
-  if [[ -f /install/.nginx.lock ]]; then
-    bash /usr/local/bin/swizzin/nginx/autodl.sh
-  fi
 }
 
 function _autoservice {
