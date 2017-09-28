@@ -50,7 +50,7 @@ function _depends() {
 function _xmlrpc() {
 		
 	cd "/tmp"
-	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
+	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1 || svn co https://github.com/mirror/xmlrpc-c/trunk/stable xmlrpc-c >>$log 2>&1
 	cd xmlrpc-c
 	./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
 	make -j${nproc} >>$log 2>&1
