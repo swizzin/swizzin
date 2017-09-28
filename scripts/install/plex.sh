@@ -28,8 +28,8 @@ HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 
 echo "Installing plex keys and sources ... "
-      wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
-    echo "deb https://downloads.plex.tv/repo/deb/ public main" > /etc/apt/sources.list.d/plexmediaserver.list
+    wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
+    echo "deb https://downloads.plex.tv/repo/deb/ ./public main" > /etc/apt/sources.list.d/plexmediaserver.list
     echo
 
 echo "Updating system ... "
