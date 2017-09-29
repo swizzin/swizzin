@@ -1,5 +1,26 @@
 # Changelog
-I will attempt to catalog all major features and changes to the repository here
+
+## [1.0.0 Pre-Stable]
+
+### September 29th, 2017
+
+### Feature Freeze
+
+### Changed
+- Disabled HSTS in nginx SSL params. [Why?] (https://github.com/liaralabs/swizzin/commit/5f9af8d3dea9ebd06fa072c322f8fa7b54b431b2)
+- Moved swizzin PATH variables from bashrc to profile
+- Moved panel installation script to nginx directory and left a wrapper in its place
+- `box update` will now update the panel as well. In the event that `git reset HEAD --hard` fails to reset the panel repo to a pullable state, a backup and restore function will run.
+
+### Fixed
+- Updated Plex repository location
+- Flood script cleanup
+- box chpasswd was using an incorrect variable to insert the password into deluge-web hostlists
+- rTorrent removal script had a syntax error
+- Added a github mirror for xmlrpc-c in the event that SourceForge goes down for an extended period again
+- Cleaned up the new GUIs function in the installer to ensure that the autodl plugin for ruTorrent installs properly if it should be installed
+- Panel: lang_de script attempted to cat its config into the wrong file.
+- Other minor fixes
 
 ## [1.0.0-RC2]
 
