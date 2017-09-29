@@ -7,7 +7,7 @@
 ### Feature Freeze
 
 ### Changed
-- Disabled HSTS in nginx SSL params. [Why?] (https://github.com/liaralabs/swizzin/commit/5f9af8d3dea9ebd06fa072c322f8fa7b54b431b2)
+- Disabled HSTS in nginx SSL params. [Why?](https://github.com/liaralabs/swizzin/commit/5f9af8d3dea9ebd06fa072c322f8fa7b54b431b2)
 - Moved swizzin PATH variables from bashrc to profile
 - Moved panel installation script to nginx directory and left a wrapper in its place
 - `box update` will now update the panel as well. In the event that `git reset HEAD --hard` fails to reset the panel repo to a pullable state, a backup and restore function will run.
