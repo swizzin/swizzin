@@ -57,6 +57,14 @@ if [[ ${cf} == yes ]]; then
 
   export CF_Key="${api}"
   export CF_Email="${email}"
+
+  valid=$(curl -X GET "https://api.cloudflare.com/client/v4/user" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json")
+  if [[ $valid == *"\"success\":false"* ]]; then
+    message="API CALL FAILED. DUMPING RESULTS:\n$valid"
+    echo -e "$message"
+    exit 1
+  fi
+  
     if [[ ${record} == no ]]; then
         echo -e "Zone Name (example.com)"
         read -e zone
