@@ -41,7 +41,7 @@ ZNCP
   #echo "#deb-src http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" >> /etc/apt/sources.list.d/znc.list
   #wget --quiet http://packages.temporal-intelligence.net/repo.gpg.key -O - | apt-key add - > /dev/null 2>&1
 #elif [[ $DISTRO == Ubuntu ]]; then
-  #sudo apt-get install -q -y python-software-properties software-properties-common > /dev/null 2>&1
+  #sudo apt-get install -q -y software-properties-common > /dev/null 2>&1
   #sudo add-apt-repository -q -y ppa:teward/znc > /dev/null 2>&1
 fi
   apt-get update -q -y > /dev/null 2>&1
