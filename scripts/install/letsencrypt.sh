@@ -88,9 +88,9 @@ fi
 mkdir -p /etc/nginx/ssl/${hostname}
 
 if [[ ${cf} == yes ]]; then
-  /root/.acme.sh/acme.sh --issue --dns dns_cf -d ${hostname} || echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1
+  /root/.acme.sh/acme.sh --issue --dns dns_cf -d ${hostname} || (echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1)
 else
-  /root/.acme.sh/acme.sh --issue --nginx -d ${hostname} || echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1
+  /root/.acme.sh/acme.sh --issue --nginx -d ${hostname} || (echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1)
 fi
 /root/.acme.sh/acme.sh --install-cert -d ${hostname} --key-file /etc/nginx/ssl/${hostname}/key.pem --fullchain-file /etc/nginx/ssl/${hostname}/fullchain.pem --ca-file /etc/nginx/ssl/${hostname}/chain.pem --reloadcmd "service nginx force-reload"
 
