@@ -16,7 +16,8 @@
 
 function _depends() {
   if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+    gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+    gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
     echo "deb http://download.mono-project.com/repo/debian wheezy main" > /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
     echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" >> /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
     echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" >> /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
@@ -69,6 +70,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
+distribution=$(lsb_release -is)
 user=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Updating dependencies (this could take a bit) ... " > ${OUTTO} 2>&1
