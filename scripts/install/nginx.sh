@@ -57,7 +57,7 @@ fi
 
 
 apt-get -y -qq update
-APT='nginx-full nginx-extras subversion ssl-cert php7.0-fpm libfcgi0ldbl php7.0-cli php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-opcache php-geoip php-xml'
+APT='nginx-full nginx-extras subversion ssl-cert php7.0-fpm libfcgi0ldbl php7.0-cli php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-mbstring php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
 apt-get -qq -y --yes --force-yes install "$depends" >> $log 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good...")
 done
