@@ -54,14 +54,17 @@ bold=$(tput bold); normal=$(tput sgr0); alert=${white}${on_red}; title=${standou
 function _installquota(){
   apt-get install -y -q quota >/dev/null 2>&1
   if [[ ${primaryroot} == "root" ]]; then   
-    loc="/ "
+    loc=$(echo -e "/\t")
+    loc2="/ "
   elif [[ ${primaryroot} == "home" ]]; then
-    loc="/home "
+    loc=$(echo -e "/home\t")
+    loc2="/home "
   fi
   hook=$(grep "${loc}" /etc/fstab)
-  if [[ -n $(echo $hook | grep defaults) ]]; then
+  hook2=$(grep "${loc2}" /etc/fstab)
+  if [[ -n $(echo $hook | grep defaults) ]] || [[ -n $(echo $hook2 | grep defaults) ]]; then
     hook=defaults
-  elif [[ -n $(echo $hook | grep errors=remount-ro) ]]; then
+  elif [[ -n $(echo $hook | grep errors=remount-ro) ]] || [[ -n $(echo $hook2 | grep errors=remount-ro) ]]; then
     hook=errors=remount-ro
   else
     echo "ERROR: Could not find a hook in /etc/fstab for quotas to install to. Quota requires either defaults or errors=remount-ro to be present as a mount option for the intended quota partition."
