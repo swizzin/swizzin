@@ -61,13 +61,16 @@ Box functions:
   * Usage: `box chpasswd forgetfulfriend`
 * update - use this command to update your box with the newest changes from github
   * Usage: `box update`
-* upgrade - once upgrade scripts are implemented, this will likely be the hook used to upgrade individual packages
+* upgrade - upgrade the given package (available scripts are in scripts/upgrade)
+  * Usage: `box upgrade nginx`
+* panel - hook for panel scripts. At this time, `fix-disk root` and `fix-disk home` are the only options
+  * Usage: `box panel fix-disk home`
+
 
 #### TODO
 - [ ] Better readme/docs
 - [ ] Bug fixes
 - [ ] Some ruTorrent plugin management (`box install rtplugs`)
-- [ ] Percentage based dev shares
 
 ### Donations
 
