@@ -1,7 +1,5 @@
 #!/bin/bash
 #Disk Widget Switcher root <-> home
-if [[ -f /srv/panel/db/.smoked.lock ]]; then theme=smoked; else theme=defaulted; fi
-
 if [[ -z $1 ]]; then
   echo "You must specify root or home"
   exit 1
@@ -9,10 +7,12 @@ fi
 
 if [[ $1 == "home" ]]; then
   rm -f /srv/panel/widgets/disk_data.php
-  cp /srv/panel/themes/${theme}/widgets/disk_datah.php /srv/panel/widgets/disk_data.php
+  wget -O /srv/panel/widgets/disk_data.php https://raw.githubusercontent.com/liaralabs/quickbox_dashboard/master/widgets/disk_datah.php > /dev/null 2>&1
+  chown www-data: /srv/panel/widgets/disk_data.php
 elif [[ $1 == "root" ]]; then
   rm -f /srv/panel/widgets/disk_data.php
-  cp /srv/panel/themes/${theme}/widgets/disk_data.php /srv/panel/widgets/disk_data.php
+  wget -O /srv/panel/widgets/disk_data.php https://raw.githubusercontent.com/liaralabs/quickbox_dashboard/master/widgets/disk_data.php > /dev/null 2>&1
+  chown www-data: /srv/panel/widgets/disk_data.php
 else
   echo "You must specify root or home"
   exit 1
