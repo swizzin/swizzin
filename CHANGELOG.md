@@ -2,9 +2,24 @@
 
 ## [1.0.0 Pre-Stable]
 
-### September 29th, 2017
-
 ### Feature Freeze
+
+### October 9th, 2017
+
+### Added
+- php7.0-mbstring was missing from the nginx installer. This may have caused php errors in ruTorrent under rare circumstances.
+
+### Changed
+- Refactored keyserver calls for mono, sonarr and sabnzbd-extras repositories
+- Removed python-software-properties in favour of allowing it to be marked for installation automatically with software-properties-common
+
+### Fixed
+- Certain do or die commands were missing parenthesis causing the exit to trigger unconditionally. These have been fixed.
+- Removed reference to removed function _ruconf in scripts/install/rtorrent.sh
+- `box panel fix-disk root/home` will now function properly again (the refactor of quickbox_dashboard left it non-functional)
+- Quota installer may have failed due to the installer's inability to match a pattern. Pattern has now been expanded to include tab characters and should fix any issues.
+
+### September 29th, 2017
 
 ### Changed
 - Disabled HSTS in nginx SSL params. [Why?](https://github.com/liaralabs/swizzin/commit/5f9af8d3dea9ebd06fa072c322f8fa7b54b431b2)
