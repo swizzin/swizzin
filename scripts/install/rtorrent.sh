@@ -232,9 +232,6 @@ if [[ -n $1 ]]; then
 	user=$1
 	_makedirs
 	_rconf
-	if [[ -f /install/.nginx.lock ]]; then
-		_ruconf
-	fi
 	exit 0
 fi
 
