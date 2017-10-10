@@ -8,7 +8,8 @@ if [[ ! -f /install/.plex.lock ]]; then
 fi
 
 if [[ ! -f /install/.updateplex.lock ]]; then
-  bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
+  user=$(cat /root/.master.info | cut -d: -f1)
+  sudo -H -u $user bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
   # In case I need this file to do more than install updateplex in the future (unlikely)
   touch /install/.updateplex.lock
 fi 
