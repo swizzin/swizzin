@@ -18,3 +18,4 @@ location /pyload {
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 PYLOAD
+fi
