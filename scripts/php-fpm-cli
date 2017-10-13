@@ -76,5 +76,5 @@ init() {
   fi
 }
 
-if [[ -z $(which cgi-fcgi) ]]; then apt-get install -y -q libfcgi0ldbl > /dev/null 2>&1; fi
+if [[ -z $(which cgi-fcgi) ]]; then apt-get install -y -q --install-recommends libfcgi0ldbl > /dev/null 2>&1; fi
 init "$@" && main
