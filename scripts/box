@@ -163,7 +163,7 @@ function _help() {
   echo -e "Usage: `basename $0` [ install | remove | upgrade ] ${bold}pkg1 pkg2 [...]${normal}\n"
   echo -e "       `basename $0` [ adduser | deluser | chpasswd ] ${bold}username${normal}\n"
   echo -e "       `basename $0` [ list | update ]\n"
-  echo -e "       `basename $0` panel fix-disk [ root | home]\n"
+  echo -e "       `basename $0` panel fix-disk [ root | home ]\n"
   echo -e "       `basename $0`\n"
   echo -e "Note: Only install and remove functions accept package arguments. List and update must be run without modifiers\n" | fmt --goal=66 --tagged-paragraph
   echo -e "\n"
