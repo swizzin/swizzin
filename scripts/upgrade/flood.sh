@@ -3,6 +3,13 @@
 # Author: liara
 
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+
+if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
+  sed -i 's/node_6.x/node_8.x/g' /etc/apt/sources.list.d/nodesource.list >> $log 2>&1
+  apt-get update -y -q >> $log 2>&1
+  apt-get -y -q upgrade >> $log 2>&1
+fi
+
 for u in "${users[@]}"; do
   port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
   scgi=$(cat /home/$u/.rtorrent.rc | grep scgi | cut -d: -f2)
@@ -24,7 +31,8 @@ for u in "${users[@]}"; do
     sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
     sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
   fi
-  sudo -H -u $u npm install --production
+  sudo -H -u $u npm install
+  sudo -H -u $u npm run build || (rm -rf /home/$u/.flood/node_modules; sudo -H -u $u npm install; sudo -H -u $u npm run build)
   if [[ $active == "yes" ]]; then
     systemctl start flood@$u
   fi

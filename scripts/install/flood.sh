@@ -15,8 +15,8 @@ else
   log="/dev/null"
 fi
 
-if [[ ! $(which npm) ]]; then
-  bash <(curl -sL https://deb.nodesource.com/setup_6.x) >> $log 2>&1
+if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
+  bash <(curl -sL https://deb.nodesource.com/setup_8.x) >> $log 2>&1
   apt-get -y -q install nodejs build-essential >> $log 2>&1
 fi
 
@@ -55,7 +55,7 @@ for u in "${users[@]}"; do
     fi
     echo "Building Flood for $u. This might take some time..."
     echo ""
-    sudo -H -u $u npm install --production >> $log 2>&1
+    sudo -H -u $u npm install>> $log 2>&1
     systemctl enable flood@$u > /dev/null 2>&1
     systemctl start flood@$u
     if [[ ! -f /install/.nginx.lock ]]; then
