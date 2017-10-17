@@ -13,7 +13,7 @@ if [[ ! -f /etc/nginx/apps/syncthing.conf ]]; then
 cat > /etc/nginx/apps/syncthing.conf <<SYNC
 location /syncthing/ {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass              http://localhost:8384/;
+  proxy_pass              http://127.0.0.1:8384/;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }

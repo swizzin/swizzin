@@ -17,7 +17,7 @@ fi
 if [[ ! -f /etc/nginx/apps/medusa.conf ]]; then
   cat > /etc/nginx/apps/medusa.conf <<SRC
 location /medusa {
-  proxy_pass http://localhost:8081/medusa;
+  proxy_pass http://127.0.0.1:8081/medusa;
   proxy_set_header Host \$host;
   proxy_set_header X-Real-IP \$remote_addr;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;

@@ -15,7 +15,7 @@ if [[ ! -f /etc/nginx/apps/subsonic.conf ]]; then
 cat > /etc/nginx/apps/subsonic.conf <<SUB
 location /subsonic {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass              http://localhost:4040;
+  proxy_pass              http://127.0.0.1:4040;
 }
 SUB
 fi
