@@ -55,7 +55,8 @@ for u in "${users[@]}"; do
     fi
     echo "Building Flood for $u. This might take some time..."
     echo ""
-    sudo -H -u $u npm install>> $log 2>&1
+    sudo -H -u $u npm install >> $log 2>&1
+    sudo -H -u $u npm run build >> $log 2>&1
     systemctl enable flood@$u > /dev/null 2>&1
     systemctl start flood@$u
     if [[ ! -f /install/.nginx.lock ]]; then
