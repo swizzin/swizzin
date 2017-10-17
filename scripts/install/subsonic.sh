@@ -46,7 +46,7 @@ cd
 rm -rf /root/subsonic-tmp
 
 echo "Modifying Subsonic startup script ... " >>"${OUTTO}" 2>&1;
-cat > /usr/share/subsonic/subsonic.sh <<'SUBS'
+cat > /usr/share/subsonic/subsonic.sh <<SUBS
 #!/bin/sh
 MASTER=$(cat /root/.master.info | cut -d: -f1 )
 SUBSONICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
@@ -58,40 +58,40 @@ SUBSONIC_HTTPS_PORT=0
 SUBSONIC_CONTEXT_PATH=/
 SUBSONIC_MAX_MEMORY=200
 SUBSONIC_PIDFILE=
-SUBSONIC_DEFAULT_MUSIC_FOLDER=/home/$MASTER/Music
-SUBSONIC_DEFAULT_PODCAST_FOLDER=/home/$MASTER/Podcast
-SUBSONIC_DEFAULT_PLAYLIST_FOLDER=/home/$MASTER/Playlists
+SUBSONIC_DEFAULT_MUSIC_FOLDER=/home/\$MASTER/Music
+SUBSONIC_DEFAULT_PODCAST_FOLDER=/home/\$MASTER/Podcast
+SUBSONIC_DEFAULT_PLAYLIST_FOLDER=/home/\$MASTER/Playlists
 
 quiet=0
 # Use JAVA_HOME if set, otherwise assume java is in the path.
 JAVA=java
-if [ -e "${JAVA_HOME}" ]
+if [ -e "\${JAVA_HOME}" ]
     then
-    JAVA=${JAVA_HOME}/bin/java
+    JAVA=\${JAVA_HOME}/bin/java
 fi
 
 # Create Subsonic home directory.
-mkdir -p ${SUBSONIC_HOME}
-LOG=${SUBSONIC_HOME}/subsonic_sh.log
-rm -f ${LOG}
+mkdir -p \${SUBSONIC_HOME}
+LOG=\${SUBSONIC_HOME}/subsonic_sh.log
+rm -f \${LOG}
 
-cd $(dirname $0)
-if [ -L $0 ] && ([ -e /bin/readlink ] || [ -e /usr/bin/readlink ]); then
-    cd $(dirname $(readlink $0))
+cd \$(dirname \$0)
+if [ -L \$0 ] && ([ -e /bin/readlink ] || [ -e /usr/bin/readlink ]); then
+    cd \$(dirname \$(readlink \$0))
 fi
 
-${JAVA} -Xmx${SUBSONIC_MAX_MEMORY}m \
-  -Dsubsonic.home=${SUBSONIC_HOME} \
-  -Dsubsonic.host=${SUBSONIC_HOST} \
-  -Dsubsonic.port=${SUBSONIC_PORT} \
-  -Dsubsonic.httpsPort=${SUBSONIC_HTTPS_PORT} \
-  -Dsubsonic.contextPath=${SUBSONIC_CONTEXT_PATH} \
-  -Dsubsonic.defaultMusicFolder=${SUBSONIC_DEFAULT_MUSIC_FOLDER} \
-  -Dsubsonic.defaultPodcastFolder=${SUBSONIC_DEFAULT_PODCAST_FOLDER} \
-  -Dsubsonic.defaultPlaylistFolder=${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} \
+\${JAVA} -Xmx\${SUBSONIC_MAX_MEMORY}m \
+  -Dsubsonic.home=\${SUBSONIC_HOME} \
+  -Dsubsonic.host=\${SUBSONIC_HOST} \
+  -Dsubsonic.port=\${SUBSONIC_PORT} \
+  -Dsubsonic.httpsPort=\${SUBSONIC_HTTPS_PORT} \
+  -Dsubsonic.contextPath=\${SUBSONIC_CONTEXT_PATH} \
+  -Dsubsonic.defaultMusicFolder=\${SUBSONIC_DEFAULT_MUSIC_FOLDER} \
+  -Dsubsonic.defaultPodcastFolder=\${SUBSONIC_DEFAULT_PODCAST_FOLDER} \
+  -Dsubsonic.defaultPlaylistFolder=\${SUBSONIC_DEFAULT_PLAYLIST_FOLDER} \
   -Djava.awt.headless=true \
   -verbose:gc \
-  -jar subsonic-booter-jar-with-dependencies.jar > ${LOG} 2>&1
+  -jar subsonic-booter-jar-with-dependencies.jar > \${LOG} 2>&1
 SUBS
 
 echo "Enabling Subsonic Systemd configuration" >>"${OUTTO}" 2>&1;

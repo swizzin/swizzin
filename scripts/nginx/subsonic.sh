@@ -13,11 +13,9 @@ isactive=$(systemctl is-active subsonic)
 
 if [[ ! -f /etc/nginx/apps/subsonic.conf ]]; then
 cat > /etc/nginx/apps/subsonic.conf <<SUB
-location /subsonic/ {
+location /subsonic {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass              http://localhost:4040/subsonic;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+  proxy_pass              http://localhost:4040;
 }
 SUB
 fi
