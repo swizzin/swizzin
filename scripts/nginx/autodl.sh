@@ -13,6 +13,8 @@ if [[ -f /install/.rutorrent.lock ]]; then
   cd /srv/rutorrent/plugins/
   if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
     git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi >/dev/null 2>&1 || (echo "git of autodl plugin to main plugins seems to have failed ... ")
+    cd autodl-irssi
+    git reset --hard 17c689fa82e8ca1f1a55cd935ed41e2bf98f8237
     chown -R www-data:www-data autodl-irssi/
   fi
   for u in "${users[@]}"; do
