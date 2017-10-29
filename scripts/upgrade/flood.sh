@@ -19,7 +19,7 @@ for u in "${users[@]}"; do
     systemctl stop flood@$u
   fi
   cd /home/$u/.flood
-  sudo -u $u git pull
+  sudo -u $u git pull || (sudo -u $u git reset HEAD --hard; sudo -u $u git pull)
   rm -rf config.js
   cp -a config.template.js config.js
   sed -i "s/floodServerPort: 3000/floodServerPort: $port/g" config.js
