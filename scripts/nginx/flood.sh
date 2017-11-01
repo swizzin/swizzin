@@ -54,7 +54,12 @@ FLUP
   fi
   sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
   sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
-  su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+  if [[ ! -d /home/$u/.flood/server/assets ]]; then
+    # this may cause issues somewhere down the line if you for some reason decide to uninstall nginx; however it's impossible to make 
+    # this build section 100% foolproof without running a time-consuming build operation for all users unneccessarily (e.g. box upgrade nginx).
+    # If you uninstall nginx you can re-run `box upgrade flood` to rebuild assets as needed.
+    su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+  fi
   if [[ $isactive == "active" ]]; then
     systemctl restart flood@$u
   fi
