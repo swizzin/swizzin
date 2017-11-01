@@ -55,18 +55,19 @@ for u in "${users[@]}"; do
     fi
     echo "Building Flood for $u. This might take some time..."
     echo ""
-    sudo -H -u $u npm install >> $log 2>&1
-    sudo -H -u $u npm run build >> $log 2>&1
-    systemctl enable flood@$u > /dev/null 2>&1
-    systemctl start flood@$u
+    su - $u -c "cd /home/$u/.flood; npm install" >> $log 2>&1
     if [[ ! -f /install/.nginx.lock ]]; then
+      su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+      systemctl start flood@$u
       echo "Flood port for $u is $port"
+    elif [[ -f /install/.nginx.lock ]]; then    
+      bash /usr/local/bin/swizzin/nginx/flood.sh $u
+      systemctl start flood@$u
     fi
+    systemctl enable flood@$u > /dev/null 2>&1
   fi
 done
 
-if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/flood.sh
-fi
+
 
 touch /install/.flood.lock

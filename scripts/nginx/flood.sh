@@ -2,7 +2,18 @@
 # nginx configuration for flood
 # Author: liara
 
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  log="/srv/panel/db/output.log"
+else
+  log="/dev/null"
+fi
+
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+if [[ -n $1 ]]; then
+	users=($1)
+fi
 
 if [[ ! -f /etc/nginx/apps/flood.conf ]]; then
   cat > /etc/nginx/apps/flood.conf <<'FLO'
@@ -32,6 +43,7 @@ RIN
 fi
 
 for u in "${users[@]}"; do
+  isactive=$(systemctl is-active flood@$u)
   if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
   port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
   cat > /etc/nginx/conf.d/$u.flood.conf <<FLUP
@@ -42,7 +54,9 @@ FLUP
   fi
   sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
   sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
-
-  systemctl restart flood@$u
+  su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+  if [[ $isactive == "active" ]]; then
+    systemctl restart flood@$u
+  fi
 done
 systemctl reload nginx
