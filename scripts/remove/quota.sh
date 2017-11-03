@@ -20,6 +20,6 @@
 #################################################################################
 username=$(cat /root/.master.info | cut -d: -f1)
 
-sed -i 's/usrjquota=aquota.user,jqfmt=vfsv1,//g' /etc/fstab
+sed -i 's/,usrjquota=aquota.user,jqfmt=vfsv1//g' /etc/fstab
 apt-get remove -y -q quota >/dev/null 2>&1
 rm /install/.quota.lock
