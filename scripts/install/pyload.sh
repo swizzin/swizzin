@@ -100,6 +100,7 @@ function _installpyLoad7() {
   fi
   sleep 5
   /usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --setup --config=/home/${MASTER}/.pyload
+  chown -R ${MASTER}: /home/${MASTER}/.pyload
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/pyload.sh
     service nginx reload
