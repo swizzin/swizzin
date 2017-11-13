@@ -1,8 +1,26 @@
 # Changelog
 
-## [1.0.0 Pre-Stable]
+## [1.0 Stable]
 
-### Feature Freeze
+### November 13th, 2017
+
+### Added
+- ruTorrent now ships with a spectrogram plugin for analyzing audio files. Thus, installer now installs sox and applies the correct config for binary location
+
+### Changed
+- Default proxy addresses to 127.0.0.1 to avoid DNS resolution errors for localhost
+- Fixed flood installer for new build steps
+- `box help` is now a bit more helpful
+
+### Fixed
+- Subsonic install/reverse proxy issues
+- pyLoad install and configuration should now run properly
+- Fringe scenarios in which quotas might not apply fstab edits correctly
+- rtorrent download folder permissions for subusers
+- libfcgi binary wasn't being installed on Debian 9 and newer Ubuntu versions
+- `box upgrade plex` -- this command should not be run as root
+
+## [1.0.0 Pre-Stable]
 
 ### October 9th, 2017
 
