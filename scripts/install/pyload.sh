@@ -96,9 +96,15 @@ function _installpyLoad6() {
 }
 
 function _installpyLoad7() {
-  echo "Enabling and starting pyLoad services ... "
   touch /install/.pyload.lock
   systemctl daemon-reload >/dev/null 2>&1
+  echo "#### pyLoad setup will now run ####"
+  if [[ -f /install/.nginx.lock ]]; then
+    echo "#### To ensure proper proxy configuration, please do not alter the default port (8000) ####"
+  fi
+  sleep 5
+  /usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --setup --config=/home/${MASTER}/.pyload
+  echo "Enabling and starting pyLoad services ... "
   systemctl enable pyload@${MASTER}.service >/dev/null 2>&1
   systemctl start pyload@${MASTER}.service >/dev/null 2>&1
   service nginx reload
@@ -106,9 +112,7 @@ function _installpyLoad7() {
 
 function _installpyLoad8() {
   echo "pyLoad Install Complete!"
-  echo "Please type: 'setup-pyLoad' in ssh to complete your pyload installation"
   echo "pyLoad Install Complete!" >>"${OUTTO}" 2>&1;
-  echo "Please type: 'setup-pyLoad' in ssh to complete your pyload installation" >>"${OUTTO}" 2>&1;
   sleep 2
   echo >>"${OUTTO}" 2>&1;
   echo >>"${OUTTO}" 2>&1;
