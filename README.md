@@ -65,9 +65,13 @@ Box functions:
 
 
 #### TODO
+- [ ] SickGear
+- [ ] The Lounge
+- [ ] nzbGet
 - [ ] Better readme/docs
 - [ ] Bug fixes
 - [ ] Some ruTorrent plugin management (`box install rtplugs`)
+
 
 ### Donations
 
