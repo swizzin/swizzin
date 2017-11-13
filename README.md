@@ -39,9 +39,6 @@ Please note that curl|bash is **not** supported. Certain scripts **will** break 
 * Debian 8/9
 * Ubuntu 16.04 and above
 
-#### Untested:
-* pyLoad
-
 ### This is my box. There are many like it, but this one is mine.
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
 
