@@ -16,6 +16,9 @@ fi
 
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
+apt-get update -y -q >>/dev/null 2>&1
+apt-get install -y -q sox >>/dev/null 2>&1
+
 cd /srv
 if [[ ! -d /srv/rutorrent ]]; then
   git clone https://github.com/Novik/ruTorrent.git rutorrent >>/dev/null 2>&1
@@ -27,6 +30,8 @@ if [[ ! -d /srv/rutorrent ]]; then
 fi
 sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
 sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
+sed -i 's/\/usr\/local\/bin\/sox/\/usr\/bin\/sox/' /srv/rutorrent/plugins/spectrogram/conf.php
+
 if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   cd /srv/rutorrent/plugins/theme/themes
   git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
