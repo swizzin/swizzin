@@ -30,7 +30,7 @@ if [[ ! -d /srv/rutorrent ]]; then
 fi
 sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
 sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
-sed -i 's/\/usr\/local\/bin\/sox/\/usr\/bin\/sox/' /srv/rutorrent/plugins/spectrogram/conf.php
+sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
 if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   cd /srv/rutorrent/plugins/theme/themes
