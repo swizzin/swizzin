@@ -10,6 +10,10 @@ if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
   apt-get -y -q upgrade >> $log 2>&1
 fi
 
+if [[ ! $(which node-gyp) ]]; then
+  npm install -g node-gyp >> $log 2>&1
+fi
+
 for u in "${users[@]}"; do
   port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
   scgi=$(cat /home/$u/.rtorrent.rc | grep scgi | cut -d: -f2)

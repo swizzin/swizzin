@@ -20,6 +20,10 @@ if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
   apt-get -y -q install nodejs build-essential >> $log 2>&1
 fi
 
+if [[ ! $(which node-gyp) ]]; then
+  npm install -g node-gyp >> $log 2>&1
+fi
+
 cat > /etc/systemd/system/flood@.service <<SYSDF
 [Unit]
 Description=Flood rTorrent Web UI
