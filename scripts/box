@@ -330,6 +330,7 @@ function _chpasswd {
   echo -e "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+    echo "New password has been set to ${pass}"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
     echo "Cracklib detected. Checking password strength."
