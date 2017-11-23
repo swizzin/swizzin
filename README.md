@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# Feature Freeze 1.0 pre-stable
+# 1.0 Stable :tada:
 
 [website](https://swizzin.ltd)
 

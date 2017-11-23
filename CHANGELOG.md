@@ -2,6 +2,16 @@
 
 ## [1.0 Stable]
 
+### November 18th, 2017
+
+### Changed
+- Flood now requires node-gyp to build
+- ruTorrent now ships with a spectrogram plugin. sox is now installed as a dependency for ruTorrent
+
+### Fixed
+- `box chpasswd {user}` wasn't printing the password if it was generated randomly
+- Certain fringe ruTorrent installs might not have a required dependency for geo-ip resolution
+
 ### November 13th, 2017
 
 ### Added
