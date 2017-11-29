@@ -110,35 +110,12 @@ function _clr() {
 
 function _update() {
   echo -e "Updating swizzin local repository"
-      cd /etc/swizzin
-      git checkout master
-      git reset --hard origin/master
-      git pull
-      chmod -R 700 /etc/swizzin/scripts
-  if [[ -d /srv/panel ]]; then
-    cd /srv/panel
-    git reset HEAD --hard > /dev/null 2>&1
-    git pull || panelreset=1
-    if [[ $panelreset == 1 ]]; then
-      echo "Updating the panel appears to have failed. This is probably my fault, not yours."
-      echo ""
-      read -n 1 -s -r -p "Press any key to forcefully reset the panel. Your custom entires, theme and language will be backed up and restored"
-      echo ""
-      cd /srv
-      lang=$(grep \$language inc/localize.php | cut -d\' -f2)
-      if [[ -f /srv/panel/db/.defaulted.lock ]]; then default=1; fi;
-      cp -a /srv/panel/custom /tmp
-      /usr/local/bin/swizzin/remove/panel.sh
-      /usr/local/bin/swizzin/install/panel.sh
-      mv /tmp/custom/* /srv/panel/custom/
-      if [[ $default == 1 ]]; then
-        bash /usr/local/bin/swizzin/panel/theme/themeSelect-defaulted
-      fi
-      bash /usr/local/bin/swizzin/panel/lang/langSelect-$lang
-      systemctl restart php7.0-fpm
-      systemctl restart nginx
-    fi
-  fi
+  cd /etc/swizzin
+  git checkout master
+  git reset --hard origin/master
+  git pull
+  chmod -R 700 /etc/swizzin/scripts
+  for f in /etc/swizzin/scripts/update/*; do . $f; done
 }
 
 function _upgrade() {
@@ -277,7 +254,7 @@ function _adduser {
   cat > /etc/sudoers.d/${user} <<SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
-${user}     ALL = (ALL) NOPASSWD: ${USER}CMNDS
+${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
 if [[ -f /install/.nginx.lock ]]; then
   systemctl reload nginx
