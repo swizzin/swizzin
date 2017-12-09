@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.1]
+
+### December 9th, 2017
+
+### Added
+
+- Update sub-scripts to fix errors that may be present in existing installs. Will take two runs of `box update` to run for the first time.
+- Support for Ubuntu 17.10
+
+### Fixed
+
+- Updated dependencies for a few packages to prevent installation errors during minimal installs
+- Fixed an issue in the QuickBox dashboard that prevented installed applications from appearing the service manager
+- Sudo permissions sub-users (to restart rtorrent, chpasswd and the like)
+- PID permission issues in pyLoad
+
+
 ## [1.0 Stable]
 
 ### November 18th, 2017
