@@ -73,8 +73,8 @@ After=network.target
 Type=forking
 KillMode=process
 User=%I
-ExecStart=/usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --config=/home/${MASTER}/.pyload --pidfile=/var/run/pyload/pid --daemon
-PIDFile=/var/run/pyload/pid
+ExecStart=/usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --config=/home/${MASTER}/.pyload --pidfile=/home/${MASTER}/.pyload.pid --daemon
+PIDFile=/home/${MASTER}/.pyload.pid
 ExecStop=-/bin/kill -HUP
 WorkingDirectory=/home/%I/
 
