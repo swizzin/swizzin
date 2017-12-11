@@ -17,7 +17,7 @@ function _deluge() {
     fi
   apt-get -qy update >/dev/null 2>&1
   
-  LIST='build-essential checkinstall libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
+  LIST='build-essential checkinstall libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
   python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
   python-glade2 librsvg2-common xdg-utils python-mako'
   for depend in $LIST; do
