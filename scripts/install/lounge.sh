@@ -20,7 +20,7 @@ if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
   apt-get -y -q install nodejs build-essential >> $log 2>&1
 fi
 
-npm install -g thelounge
+npm install -g thelounge >> $log 2>&1
 
 mkdir -p /home/lounge/.lounge/
 
@@ -464,7 +464,7 @@ StartLimitBurst=3
 WantedBy=default.target
 EOSD
 
-systemctl enable lounge
+systemctl enable lounge >> $log 2>&1
 systemctl start lounge
 
 sleep 3
