@@ -76,11 +76,12 @@ module.exports = {
 
 	//
 	// Set the default theme.
+	// Find out how to add new themes at https://thelounge.github.io/docs/packages/themes
 	//
 	// @type     string
-	// @default  "themes/example.css"
+	// @default  "example"
 	//
-	theme: "themes/zenburn.css",
+	theme: "zenburn",
 
 	//
 	// Prefetch URLs
@@ -119,7 +120,7 @@ module.exports = {
 	// @type     int
 	// @default  512
 	//
-	prefetchMaxImageSize: 1024,
+	prefetchMaxImageSize: 2048,
 
 	//
 	// Display network
@@ -437,12 +438,12 @@ module.exports = {
 };
 EOF
 
+chown -R lounge: /home/lounge
+
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/lounge.sh
   service nginx reload
 fi
-
-su - lounge -c "lounge add $user"
 
 cat > /etc/systemd/system/lounge.service <<EOSD
 [Unit]
@@ -465,4 +466,9 @@ EOSD
 
 systemctl enable lounge
 systemctl start lounge
+
+echo "Adding user $user for The Lounge. Please enter a password when prompted."
+
+su - lounge -c "lounge add $user"
+
 touch /install/.lounge.lock
