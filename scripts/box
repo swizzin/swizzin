@@ -250,6 +250,9 @@ function _adduser {
     systemctl enable flood@${user}
     systemctl start flood@${user}
   fi
+  if [[ -f /install/.lounge.lock ]]; then
+    /usr/local/bin/swizzin/install/lounge.sh ${user}
+  fi
   USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
