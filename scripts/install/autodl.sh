@@ -42,7 +42,7 @@ function _autoconf {
       cp autodl-irssi.pl autorun/
       mkdir -p "/home/${u}/.autodl" >>"${OUTTO}" 2>&1
       touch "/home/${u}/.autodl/autodl.cfg"
-cat >"/home/${u}/.autodl/autodl2.cfg"<<ADC
+cat >"/home/${u}/.autodl/autodl.cfg"<<ADC
 [options]
 gui-server-port = ${IRSSI_PORT}
 gui-server-password = ${IRSSI_PASS}
