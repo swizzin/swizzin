@@ -24,7 +24,7 @@ npm install -g thelounge
 
 mkdir -p /home/lounge/.lounge/
 
-cat > /home/lounge/.lounge/config.js<<EOF
+cat > /home/lounge/.lounge/config.js<<'EOF'
 "use strict";
 
 module.exports = {
@@ -466,6 +466,8 @@ EOSD
 
 systemctl enable lounge
 systemctl start lounge
+
+sleep 3
 
 echo "Adding user $user for The Lounge. Please enter a password when prompted."
 
