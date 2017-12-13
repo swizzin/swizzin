@@ -2,15 +2,7 @@
 # Package installer for The Lounge IRC Web Client
 # Author: Liara
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  log="/srv/panel/db/output.log"
-else
-  log="/dev/null"
-fi
-
-user=$(cat /root/.master.info | cut -d: -f1)
+function _install {
 
 useradd lounge -m -s /bin/bash
 passwd lounge -l >> ${log} 2>&1
@@ -468,9 +460,47 @@ systemctl enable lounge >> $log 2>&1
 systemctl start lounge
 
 sleep 3
+}
 
-echo "Adding user $user for The Lounge. Please enter a password when prompted."
+function _adduser {
+master=$(cat /root/.master.info | cut -d: -f1)
+for u in "${users[@]}"; do
+  if [[ $u = "$master" ]]; then
+    password=$(cat /root/.master.info | cut -d: -f2)
+  else
+    password=$(cat /root/$u.info | cut -d: -f2)
+  fi
+  crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
+  cat > /home/lounge/.lounge/users/$u.json <<EOU
+{
+	"password": "${crypt}",
+	"log": true,
+	"awayMessage": "",
+	"networks": [],
+	"sessions": {}
+}
+EOU
+done
+chown -R lounge: /home/lounge
+}
 
-su - lounge -c "lounge add $user"
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  log="/srv/panel/db/output.log"
+else
+  log="/dev/null"
+fi
+
+users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+
+if [[ -n $1 ]]; then
+	users=$1
+	_adduser
+	exit 0
+fi
+
+_install
+_adduser
 
 touch /install/.lounge.lock
