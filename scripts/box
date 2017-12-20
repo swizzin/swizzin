@@ -160,7 +160,7 @@ function _help() {
   echo -e "The chpasswd function requires a single user to be specified, their password will be changed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   echo -e "               Example: box chpasswd forgetfulfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "update"
-  echo -e "The update command will update your local QuickBox repository to the latest version\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+  echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "upgrade"
   echo -e "Runs the associated upgrade script.\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "panel fix-disk"
