@@ -32,7 +32,7 @@ function _deluge() {
   python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
   python-glade2 librsvg2-common xdg-utils python-mako'
   for depend in $LIST; do
-    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good...")
+    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
   done
   #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
   #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then

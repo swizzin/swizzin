@@ -4,7 +4,7 @@ if [[ -d /srv/panel ]]; then
   echo "Updating panel"
   cd /srv/panel
   git reset HEAD --hard > /dev/null 2>&1
-  git pull || panelreset=1
+  git pull || { panelreset=1; }
   if [[ $panelreset == 1 ]]; then
     echo "Updating the panel appears to have failed. This is probably my fault, not yours."
     echo ""

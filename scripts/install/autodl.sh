@@ -26,7 +26,7 @@ function _installautodl() {
   APT='irssi screen unzip libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl
 	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl'
   for depends in $APT; do
-  apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || (echo "APT-GET could not find all the required sources. Script Ending." && echo "${warning}" && exit 1)
+  apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || { echo "APT-GET could not find all the required sources. Script Ending."; echo "${warning}"; exit 1; }
   done
 }
 

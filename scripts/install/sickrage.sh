@@ -42,7 +42,7 @@ function _rar () {
 }
 
 if [[ -z $(which rar) ]]; then
-  apt-get -y install rar unrar >>$log 2>&1 || (echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar)
+  apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
 fi
 sudo git clone https://github.com/SickRage/SickRage.git  /home/$user/.sickrage >/dev/null 2>&1
 

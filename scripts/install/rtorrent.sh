@@ -26,14 +26,14 @@ function _depends() {
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends"  >> $log 2>&1 || (echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good...")
+	apt-get -qq -y --yes --force-yes install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
 	done
 
 	# (un)rar
   if [[ $distribution == "Debian" ]]; then
 	_rar
   else
-    apt-get -y install rar unrar >>$log 2>&1 || (echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar)
+    apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
   fi
 
 	# mktorrent from source
@@ -50,7 +50,7 @@ function _depends() {
 function _xmlrpc() {
 		
 	cd "/tmp"
-	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1 || (svn co https://github.com/mirror/xmlrpc-c/trunk/stable xmlrpc-c >>$log 2>&1)
+	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/stable xmlrpc-c >>$log 2>&1; }
 	cd xmlrpc-c
 	./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
 	make -j${nproc} >>$log 2>&1
