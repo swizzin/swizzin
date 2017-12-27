@@ -32,7 +32,7 @@ case $yn in
 esac
 
 if [[ $main == yes ]]; then
-  sed -i "s/server_name _;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
+  sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
 read -p "Is your DNS managed by CloudFlare? (y/n) " yn
