@@ -53,6 +53,36 @@ function _preparation() {
   chmod -R 700 /etc/swizzin/scripts
 }
 
+function _nukeovh() {
+  grsec=$(uname -a | grep -i grs)
+  if [[ -n $grsec ]]; then
+    echo
+    echo -e "Your server is currently running with kernel version: $(uname -r)"
+    echo -e "While not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+    echo
+    echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
+      case $input in
+        [yY] | [yY][Ee][Ss] | "" ) kernel=yes; echo "Your distribution's default kernel will be installed. A reboot will be required."  ;;
+        [nN] | [nN][Oo] ) echo "Installer will continue as is. If you change your mind in the future run `box rmgrsec` after install." ;;
+      *) kernel=yes; echo "Your distribution's default kernel will be installed. A reboot will be required."  ;;
+      esac
+      if [[ $kernel == yes ]]; then
+        if [[ $DISTRO == Ubuntu ]]; then
+          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+        elif [[ $DISTRO == Debian ]]; then
+          arch=$(uname -m)
+          if [[ $arch =~ ("i686"|"i386") ]]; then
+            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+          elif [[ $arch == x86_64 ]]; then
+            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+          fi
+        fi
+        mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
+        update-grub >>"${OUTTO}" 2>&1
+      fi
+  fi
+}
+
 function _skel() {
   rm -rf /etc/skel
   cp -R /etc/swizzin/sources/skel /etc/skel
@@ -277,6 +307,7 @@ function _post {
 
 _os
 _preparation
+_nukeovh
 _skel
 _intro
 _adduser
