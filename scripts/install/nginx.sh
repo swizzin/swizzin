@@ -180,7 +180,7 @@ proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
 
-svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme /srv/fancyindex >> $log 2>&1
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
 cat > /etc/nginx/snippets/fancyindex.conf <<FIC
 fancyindex on;
 fancyindex_localtime on;
