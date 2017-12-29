@@ -110,11 +110,9 @@ else
   else
     service nginx stop
     /root/.acme.sh/acme.sh --issue --standalone -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
+    sleep 1
+    systemctl start nginx
   fi
-fi
-
-if [[ $exit = 1 ]]; then
-  exit 1
 fi
 
 /root/.acme.sh/acme.sh --install-cert -d ${hostname} --key-file /etc/nginx/ssl/${hostname}/key.pem --fullchain-file /etc/nginx/ssl/${hostname}/fullchain.pem --ca-file /etc/nginx/ssl/${hostname}/chain.pem --reloadcmd "service nginx force-reload"
@@ -122,8 +120,4 @@ fi
 sed -i "s/ssl_certificate .*/ssl_certificate \/etc\/nginx\/ssl\/${hostname}\/fullchain.pem;/g" /etc/nginx/sites-enabled/default
 sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
 
-if [[ $main == no ]]; then
-    systemctl start nginx
-  else
-    systemctl reload nginx
-fi
+systemctl reload nginx
