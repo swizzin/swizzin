@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nginx configuration for SickRage
+# Nginx configuration for sickgear
 # Author: liara
 # Copyright (C) 2017 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
@@ -9,23 +9,23 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 user=$(cat /root/.master.info | cut -d: -f1)
-isactive=$(systemctl is-active sickrage@$user)
+isactive=$(systemctl is-active sickgear@$user)
 if [[ $isactive == "active" ]]; then
-  systemctl stop sickrage@${user}
+  systemctl stop sickgear@${user}
 fi
 
-if [[ ! -f /etc/nginx/apps/sickrage.conf ]]; then
-  cat > /etc/nginx/apps/sickrage.conf <<SRC
-location /sickrage {
+if [[ ! -f /etc/nginx/apps/sickgear.conf ]]; then
+  cat > /etc/nginx/apps/sickgear.conf <<SGC
+location /sickgear {
     include /etc/nginx/snippets/proxy.conf;
-    proxy_pass        http://127.0.0.1:8081/sickrage;
+    proxy_pass        http://127.0.0.1:8081/sickgear;
     auth_basic "What's the password?";
     auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
-SRC
+SGC
 fi
-sed -i "s/web_root.*/web_root = \/sickrage/g" /home/${user}/.sickrage/config.ini
-sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/.sickrage/config.ini
+sed -i "s/web_root.*/web_root = \/sickgear/g" /home/${user}/.sickgear/config.ini
+sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/.sickgear/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start sickrage@${user}
+  systemctl start sickgear@${user}
 fi

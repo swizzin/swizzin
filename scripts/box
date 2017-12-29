@@ -160,7 +160,7 @@ function _help() {
   echo -e "The chpasswd function requires a single user to be specified, their password will be changed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   echo -e "               Example: box chpasswd forgetfulfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "update"
-  echo -e "The update command will update your local QuickBox repository to the latest version\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+  echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "upgrade"
   echo -e "Runs the associated upgrade script.\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
   printf "${sgformat}" "panel fix-disk"
@@ -203,6 +203,7 @@ function _adduser {
   echo -e "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+    echo "Password for ${user} has been set to ${pass}"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
     echo "Cracklib detected. Checking password strength."
@@ -250,9 +251,17 @@ function _adduser {
     systemctl enable flood@${user}
     systemctl start flood@${user}
   fi
+  if [[ -f /install/.nzbget.lock ]]; then
+    /usr/local/bin/swizzin/install/nzbget.sh ${user}
+    systemctl enable nzbget@${user}
+    systemctl start nzbget@${user}
+  fi
+  if [[ -f /install/.lounge.lock ]]; then
+    /usr/local/bin/swizzin/install/lounge.sh ${user}
+  fi
   USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD
-Cmnd_Alias   ${USER}CMDS = /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
+Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
@@ -350,6 +359,39 @@ function _panel () {
   /usr/local/bin/swizzin/panel/fix-disk $3
 }
 
+function _nukeovh() {
+  grsec=$(uname -a | grep -i grs)
+  if [[ -n $grsec ]]; then
+    echo
+    echo -e "Your server is currently running with kernel version: $(uname -r)"
+    echo -e "While not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+    echo
+    echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
+      case $input in
+        [yY] | [yY][Ee][Ss] | "" ) kernel=yes; echo "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
+        [nN] | [nN][Oo] ) echo "Why did you even run this function?" exit 1 ;;
+      *) kernel=yes; echo "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
+      esac
+      if [[ $kernel == yes ]]; then
+        if [[ $DISTRO == Ubuntu ]]; then
+          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+        elif [[ $DISTRO == Debian ]]; then
+          arch=$(uname -m)
+          if [[ $arch =~ ("i686"|"i386") ]]; then
+            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+          elif [[ $arch == x86_64 ]]; then
+            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+          fi
+        fi
+        mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
+        update-grub >>"${OUTTO}" 2>&1
+      fi
+    else
+    echo
+    echo -e "grsec not detected. Nothing to do."
+  fi
+}
+
 normal=$(tput sgr0)
 yellow=$(tput setaf 3)
 bold=$(tput bold)
@@ -410,6 +452,10 @@ case "$1" in
       exit 1
     fi
     _panel "$@"
+    exit 0
+  ;;
+  "rmgrsec")
+    _nukeovh
     exit 0
   ;;
   "update")

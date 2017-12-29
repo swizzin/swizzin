@@ -20,7 +20,7 @@ apt-get -y --force-yes install git-core python >/dev/null 2>&1;
 echo >>"${OUTTO}" 2>&1;
 echo >>"${OUTTO}" 2>&1;
 echo "Cloning CouchPotato git ... " >>"${OUTTO}" 2>&1;
-git clone -q https://github.com/CouchPotato/CouchPotatoServer.git /home/${MASTER}/.couchpotato || (echo "GIT failed" && exit 1)
+git clone -q https://github.com/CouchPotato/CouchPotatoServer.git /home/${MASTER}/.couchpotato || { echo "GIT failed"; exit 1; }
 chown ${MASTER}:${MASTER} -R /home/${MASTER}/.couchpotato
 }
 

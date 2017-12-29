@@ -59,7 +59,7 @@ fi
 apt-get -y -qq update
 APT='nginx-full nginx-extras subversion ssl-cert php7.0-fpm libfcgi0ldbl php7.0-cli php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-mbstring php7.0-opcache php-geoip php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >> $log 2>&1 || (echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good...")
+apt-get -qq -y --yes --force-yes install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
 done
 
 sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
@@ -180,7 +180,7 @@ proxy_no_cache \$cookie_session;
 proxy_buffers 32 4k;
 PROX
 
-svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme /srv/fancyindex >> $log 2>&1
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
 cat > /etc/nginx/snippets/fancyindex.conf <<FIC
 fancyindex on;
 fancyindex_localtime on;

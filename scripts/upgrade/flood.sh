@@ -23,7 +23,7 @@ for u in "${users[@]}"; do
     systemctl stop flood@$u
   fi
   cd /home/$u/.flood
-  sudo -u $u git pull || (sudo -u $u git reset HEAD --hard; sudo -u $u git pull)
+  sudo -u $u git pull || { sudo -u $u git reset HEAD --hard; sudo -u $u git pull; }
   rm -rf config.js
   cp -a config.template.js config.js
   sed -i "s/floodServerPort: 3000/floodServerPort: $port/g" config.js
@@ -36,7 +36,7 @@ for u in "${users[@]}"; do
     sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
   fi
   sudo -H -u $u npm install
-  sudo -H -u $u npm run build || (rm -rf /home/$u/.flood/node_modules; sudo -H -u $u npm install; sudo -H -u $u npm run build)
+  sudo -H -u $u npm run build || { rm -rf /home/$u/.flood/node_modules; sudo -H -u $u npm install; sudo -H -u $u npm run build; }
   if [[ $active == "yes" ]]; then
     systemctl start flood@$u
   fi
