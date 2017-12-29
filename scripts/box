@@ -251,6 +251,11 @@ function _adduser {
     systemctl enable flood@${user}
     systemctl start flood@${user}
   fi
+  if [[ -f /install/.nzbget.lock ]]; then
+    /usr/local/bin/swizzin/install/nzbget.sh ${user}
+    systemctl enable nzbget@${user}
+    systemctl start nzbget@${user}
+  fi
   if [[ -f /install/.lounge.lock ]]; then
     /usr/local/bin/swizzin/install/lounge.sh ${user}
   fi
