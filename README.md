@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 1.0 Stable :tada:
+# 1.1.0 Stable :tada:
 
 [website](https://swizzin.ltd)
 
@@ -62,12 +62,11 @@ Box functions:
   * Usage: `box upgrade nginx`
 * panel - hook for panel scripts. At this time, `fix-disk root` and `fix-disk home` are the only options
   * Usage: `box panel fix-disk home`
+* rmgrsec - removes grsec kernels installed by ovh
+  * Usage: `box rmgrsec`
 
 
 #### TODO
-- [ ] SickGear
-- [ ] The Lounge
-- [ ] nzbGet
 - [ ] Better readme/docs
 - [ ] Bug fixes
 - [ ] Some ruTorrent plugin management (`box install rtplugs`)
@@ -75,17 +74,10 @@ Box functions:
 
 ### Donations
 
-Bitcoin
-```
-1APGHxEa8xyh3EkwwjN7BfrEA4kQW3p8Y1
-```
-Monero
-```
-Coming soon
-```
+I accept donations on the (https://swizzin.ltd/#donate)[project website]. Please consider a donation if you enjoy the project.
 
-If you don't have spare funds, please consider donating the idle cycles on your CPU to my Monero mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
+If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 ```
-box install xmr-stak-cpu
+box install xmr-stak
 ```
-When asked `Do you want to donate your hashes to the dev?` Simply hit yes! The package installer will take care of the rest. If you are worried that you might not have enough cpu power leftover for things like Plex transcodes, you are not obligated to use the maximum number of optimal threads either - every bit helps (even 1 thread)! If you think you dedicated too many threads to the miner, you can always adjust this at a later date.
+The amount you choose to donate to me is up to you, though the minimum is 1.0. If you need help in setting up your own wallet, check out the (https://getmonero.org)[Monero Project].
