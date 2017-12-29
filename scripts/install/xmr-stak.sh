@@ -19,7 +19,7 @@ apt-get install -y -q bc screen >> $log 2>&1
 while true; do
 echo "Please choose a dev donation amount. Must be a decimal! Minimum fee is 1.0. You must recompile to change this value."
 read -r fee
-floatReg='^([0-9]*\.[0-9]+)$'
+floatReg='^([0-9]*\.[0-9])$'
     if [[ $fee =~ $floatReg ]]; then
         if (( $(echo "$fee < 1.0" | bc -l) )); then
             echo
