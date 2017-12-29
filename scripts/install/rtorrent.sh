@@ -163,7 +163,7 @@ KillMode=none
 User=%I
 ExecStartPre=-/bin/rm -f /home/%I/.sessions/rtorrent.lock
 ExecStart=/usr/bin/screen -d -m -fa -S rtorrent /usr/bin/rtorrent
-ExecStop=/usr/bin/killall -w -s 2 /usr/bin/rtorrent
+ExecStop=/usr/bin/screen -X -S rtorrent quit
 WorkingDirectory=/home/%I/
 
 [Install]
