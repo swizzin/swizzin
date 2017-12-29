@@ -453,7 +453,7 @@ StartLimitInterval=60s
 StartLimitBurst=3
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
 EOSD
 
 systemctl enable lounge >> $log 2>&1
