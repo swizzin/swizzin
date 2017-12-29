@@ -6,10 +6,10 @@
 
 ### Added
 
-- (https://github.com/fireice-uk/xmr-stak)[xmr-stak] xmr-stak-cpu has been deprecated. New dev fee minimum is 1.0. If you find this fee appaling, compile xmr-stak yourself and consider donating to the xmr-stak project.
-- (https://thelounge.github.io/)[The Lounge] - An IRC web client
-- (https://nzbget.net)[nzbget] - The most efficient usenet downloader (their words, not mine)
-- (https://github.com/SickGear/SickGear)[SickGear] - An alternative fork of SickRage/pyMedusa
+- [xmr-stak](https://github.com/fireice-uk/xmr-stak) xmr-stak-cpu has been deprecated. New dev fee minimum is 1.0. If you find this fee appaling, compile xmr-stak yourself and consider donating to the xmr-stak project.
+- [The Lounge](https://thelounge.github.io/) - An IRC web client
+- [nzbget](https://nzbget.net) - The most efficient usenet downloader (their words, not mine)
+- [SickGear](https://github.com/SickGear/SickGear) - An alternative fork of SickRage/pyMedusa
 - Standalone mode for Let's Encrypt -- run the installer as many times as you like
 - grsec kernel removal to the initial setup and by `box rmgrsec` in the event you have an ovh server and would like to remove it (recommended for panel and xmr-stak)
 
@@ -32,7 +32,7 @@
 
 ### Removed
 
--xmr-stak-cpu install script. The remove script has been left so that you may remove it before upgrading to xmr-stak
+- xmr-stak-cpu install script. The remove script has been left so that you may remove it before upgrading to xmr-stak
 
 ## [1.0.1]
 

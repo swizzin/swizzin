@@ -74,10 +74,10 @@ Box functions:
 
 ### Donations
 
-I accept donations on the (https://swizzin.ltd/#donate)[project website]. Please consider a donation if you enjoy the project.
+I accept donations on the [oroject website](https://swizzin.ltd/#donate). Please consider a donation if you enjoy the project.
 
 If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 ```
 box install xmr-stak
 ```
-The amount you choose to donate to me is up to you, though the minimum is 1.0. If you need help in setting up your own wallet, check out the (https://getmonero.org)[Monero Project].
+The amount you choose to donate to me is up to you, though the minimum is 1.0. If you need help in setting up your own wallet, check out the [Monero Project](https://getmonero.org).
