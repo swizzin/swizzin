@@ -57,7 +57,7 @@ function _rar () {
 if [[ -z $(which rar) ]]; then
   apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
 fi
-sudo git clone git clone https://github.com/SickGear/SickGear.git  /home/$user/.sickgear >/dev/null 2>&1
+sudo git clone https://github.com/SickGear/SickGear.git  /home/$user/.sickgear >/dev/null 2>&1
 
 chown -R $user:$user /home/$user/.sickgear
 
