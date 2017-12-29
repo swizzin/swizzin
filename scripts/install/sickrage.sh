@@ -10,20 +10,28 @@ else
 fi
 
 if [[ $(systemctl is-active medusa@${user}) == "active" ]]; then
-  echo "Sickrage and Medusa cannot be active at the same time."
-  echo "Do you want to disable Sickrage and continue with the installation?"
-  echo "Don't worry, your install will remain at /home/${user}/.medusa"
+  active=medusa
+fi
+
+if [[ $(systemctl is-active sickgear@${user}) == "active" ]]; then
+  active=sickgear
+fi
+
+if [[ -n $active]]; then
+  echo "Sickrage and Medusa and Sickgear cannot be active at the same time."
+  echo "Do you want to disable $active and continue with the installation?"
+  echo "Don't worry, your install will remain at /home/${user}/.$active"
   while true; do
-  read -p "Do you want to disable Sickrage? " yn
+  read -p "Do you want to disable $active? " yn
       case "$yn" in
-          [Yy]|[Yy][Ee][Ss]) sickrage=no; break;;
-          [Nn]|[Nn][Oo]) sickrage=; break;;
+          [Yy]|[Yy][Ee][Ss]) disable=yes; break;;
+          [Nn]|[Nn][Oo]) disable=; break;;
           *) echo "Please answer yes or no.";;
       esac
   done
-  if [[ $sickrage == "no" ]]; then
-    systemctl disable medusa@${user}
-    systemctl stop medusa@${user}
+  if [[ $disable == "yes" ]]; then
+    systemctl disable ${active}@${user}
+    systemctl stop ${active}@${user}
   else
     exit 1
   fi
