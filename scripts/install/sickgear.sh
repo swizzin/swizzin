@@ -42,7 +42,8 @@ if [[ -n $active]]; then
 fi
 
 apt-get -y -q update >> $log 2>&1
-apt-get -y -q install git-core openssl libssl-dev python-cheetah python2.7 >> $log 2>&1
+apt-get -y -q install git-core openssl libssl-dev python-cheetah python2.7 python-pip python-dev >> $log 2>&1
+pip install lxml regex scandir >> $log 2>&1
 
 function _rar () {
   cd /tmp
