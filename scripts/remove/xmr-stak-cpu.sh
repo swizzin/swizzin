@@ -4,7 +4,7 @@
 user=$(cat /root/.master.info | cut -d: -f1)
 systemctl disable xmr > /dev/null 2>&1
 systemctl stop xmr
-pkill -f xmr
+su - ${user} -c "screen -X -S xmr quit" > /dev/null 2>&1
 rm -rf /home/${user}/.xmr
 rm -rf /etc/systemd/system/xmr.service
 rm -rf /usr/local/bin/xmr-stak-cpu

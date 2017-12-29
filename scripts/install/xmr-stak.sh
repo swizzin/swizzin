@@ -12,7 +12,7 @@ else
   log="/dev/null"
 fi
 
-pkill -f xmr
+su - ${user} -c "screen -X -S xmr quit" >> $log 2>&1
 
 apt-get install -y -q bc screen >> $log 2>&1
 
@@ -106,6 +106,7 @@ User=$user
 Group=$user
 KillMode=none
 ExecStart=/usr/bin/screen -d -m -fa -S xmr /usr/local/bin/xmr-stak -c /home/${user}/.xmr/config.txt --cpu /home/${user}/.xmr/cpu.txt
+ExecStop=/usr/bin/screen -X -S xmr quit
 
 [Install]
 WantedBy=multi-user.target
