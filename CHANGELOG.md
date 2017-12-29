@@ -2,6 +2,8 @@
 
 ## [1.1.0]
 
+### December 28th, 2017
+
 ### Added
 
 - (https://github.com/fireice-uk/xmr-stak)[xmr-stak] xmr-stak-cpu has been deprecated. New dev fee minimum is 1.0. If you find this fee appaling, compile xmr-stak yourself and consider donating to the xmr-stak project.
