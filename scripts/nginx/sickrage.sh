@@ -8,7 +8,7 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+user=$(cat /root/.master.info | cut -d: -f1)
 isactive=$(systemctl is-active sickrage@$user)
 if [[ $isactive == "active" ]]; then
   systemctl stop sickrage@${user}
@@ -20,12 +20,12 @@ location /sickrage {
     include /etc/nginx/snippets/proxy.conf;
     proxy_pass        http://127.0.0.1:8081/sickrage;
     auth_basic "What's the password?";
-    auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 SRC
 fi
-sed -i "s/web_root.*/web_root = \"sickrage\"/g" /home/"${MASTER}"/.sickrage/config.ini
-sed -i "s/web_host.*/web_host = localhost/g" /home/"${MASTER}"/.sickrage/config.ini
+sed -i "s/web_root.*/web_root = \/sickrage/g" /home/${user}/.sickrage/config.ini
+sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/.sickrage/config.ini
 if [[ $isactive == "active" ]]; then
   systemctl start sickrage@${user}
 fi
