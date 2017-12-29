@@ -13,7 +13,7 @@
 
 function _download {
   cd /tmp
-  wget https://nzbget.net/download/nzbget-latest-bin-linux.run
+  wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> $log 2>&1
 }
 
 function _service {
@@ -40,7 +40,7 @@ NZBGD
 function _install {
   cd /tmp
     for u in "${users[@]}"; do
-      sh nzbget-latest-bin-linux.run --destdir /home/$u/nzbget
+      sh nzbget-latest-bin-linux.run --destdir /home/$u/nzbget >> $log 2>&1
       chown -R $u:$u /home/$u/nzbget
       if [[ $u == $master ]]; then
         :
@@ -65,9 +65,9 @@ function _install {
     commonname=$u
     password=""
 
-    openssl genrsa -out "/home/$u/.ssl/$u-self-signed.key" 2048
-    openssl req -new -key /home/$u/.ssl/$u-self-signed.key -out /home/$u/.ssl/$u-self-signed.csr -passin pass:$password -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname"
-    openssl x509 -req -days 1095 -in "/home/$u/.ssl/$u-self-signed.csr" -signkey "/home/$u/.ssl/$u-self-signed.key" -out "/home/$u/.ssl/$u-self-signed.crt"
+    openssl genrsa -out "/home/$u/.ssl/$u-self-signed.key" 2048 >> $log 2>&1
+    openssl req -new -key /home/$u/.ssl/$u-self-signed.key -out /home/$u/.ssl/$u-self-signed.csr -passin pass:$password -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname" >> $log 2>&1
+    openssl x509 -req -days 1095 -in "/home/$u/.ssl/$u-self-signed.csr" -signkey "/home/$u/.ssl/$u-self-signed.key" -out "/home/$u/.ssl/$u-self-signed.crt" >> $log 2>&1
     chown -R $u: /home/$u/.ssl
     chmod 750 /home/$u/.ssl
   fi
@@ -82,7 +82,7 @@ function _install {
   fi
 
   for u in "${users[@]}"; do
-    systemctl enable nzbget@$u
+    systemctl enable nzbget@$u >> $log 2>&1
     systemctl start nzbget@$u
   done
 }
@@ -91,6 +91,11 @@ function _cleanup {
   cd /tmp
   rm -rf nzbget-latest-bin-linux.run
 }
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/dev/null"
+fi
 
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 master=$(cat /root/.master.info | cut -d: -f1)
