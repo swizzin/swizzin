@@ -85,6 +85,12 @@ then
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  sock=php7.1-fpm
+else
+  sock=php7.0-fpm
+fi
+
 cat > /etc/nginx/apps/nextcloud.conf <<'EOF'
 location = /.well-known/carddav {
   return 301 $scheme://$host/nextcloud/remote.php/dav;
@@ -133,7 +139,7 @@ location ^~ /nextcloud {
         #Avoid sending the security headers twice
         fastcgi_param modHeadersAvailable true;
         fastcgi_param front_controller_active true;
-        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        fastcgi_pass unix:/run/php/$sock.sock;
         fastcgi_intercept_errors on;
         fastcgi_request_buffering off;
     }

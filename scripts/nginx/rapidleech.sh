@@ -1,6 +1,13 @@
 #!/bin/bash
 # Nginx Configuration for RapidLeech
 MASTER=$(cat /root/.master.info | cut -d: -f1)
+
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  sock=php7.1-fpm
+else
+  sock=php7.0-fpm
+fi
+
 if [[ ! -f /etc/nginx/apps/rapidleech.conf ]]; then
   cat > /etc/nginx/apps/rapidleech.conf <<RAP
 location /rapidleech {
@@ -13,7 +20,7 @@ location /rapidleech {
   location ~ \.php$
   {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_pass unix:/run/php/$sock.sock;
     #fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME /home/${MASTER}\$fastcgi_script_name;
   }

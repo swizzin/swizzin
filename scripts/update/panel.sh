@@ -21,7 +21,14 @@ if [[ -d /srv/panel ]]; then
       bash /usr/local/bin/swizzin/panel/theme/themeSelect-defaulted
     fi
     bash /usr/local/bin/swizzin/panel/lang/langSelect-$lang
-    systemctl restart php7.0-fpm
+    if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+      systemctl restart php7.1-fpm
+      if [[ $(systemctl is-active php7.0-fpm) == "active" ]];
+        systemctl stop php7.0-fpm
+      fi
+    else
+      systemctl restart php7.0-fpm
+    fi
     systemctl restart nginx
   fi
 fi

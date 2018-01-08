@@ -184,6 +184,12 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 ?>
 RUC
 
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  sock=php7.1-fpm
+else
+  sock=php7.0-fpm
+fi
+
 if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
 cat > /etc/nginx/apps/rutorrent.conf <<RUM
 location /rutorrent {
@@ -193,7 +199,7 @@ location /rutorrent {
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_pass unix:/run/php/$sock.sock;
     fastcgi_param SCRIPT_FILENAME /srv\$fastcgi_script_name;
   }
 }

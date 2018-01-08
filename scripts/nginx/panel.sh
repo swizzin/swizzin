@@ -31,6 +31,12 @@ sed -i "s/LOCALE/${LOCALE}/g" /srv/panel/inc/localize.php
 sed -i "s/LANG/${LANG}/g" /srv/panel/inc/localize.php
 echo "*/1 * * * * root bash /usr/local/bin/swizzin/panel/set_interface" > /etc/cron.d/set_interface
 
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  sock=php7.1-fpm
+else
+  sock=php7.0-fpm
+fi
+
 cat > /etc/nginx/apps/panel.conf <<PAN
 location / {
 alias /srv/panel/ ;
@@ -42,7 +48,7 @@ allow all;
 location ~ \.php$
   {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_pass unix:/run/php/$sock.sock;
     #fastcgi_index index.php;
     fastcgi_param SCRIPT_FILENAME /srv/panel\$fastcgi_script_name;
   }

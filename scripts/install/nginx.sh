@@ -52,26 +52,39 @@ if [[ $codename == "jessie" ]]; then
 #Pin: release o=debian
 #Pin-Priority: 1000
 #EOP
+  geoip=php7.0-geoip
   apt-get -y -qq update
+else
+  geoip=php-geoip
 fi
 
 
 apt-get -y -qq update
-APT='nginx-full nginx-extras subversion ssl-cert php7.0-fpm libfcgi0ldbl php7.0-cli php7.0-dev php7.0-xml php7.0-curl php7.0-xmlrpc php7.0-json php7.0-mcrypt php7.0-mbstring php7.0-opcache php-geoip php-xml'
+APT='nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mcrypt php-mbstring php-opcache '"${geoip}"' php-xml'
 for depends in $APT; do
-apt-get -qq -y --yes --force-yes install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
+apt-get -y install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
 done
 
-sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
-         -e "s/upload_max_filesize = 2M/upload_max_filesize = 92M/" \
-         -e "s/expose_php = On/expose_php = Off/" \
-         -e "s/128M/768M/" \
-         -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" \
-         -e "s/;opcache.enable=0/opcache.enable=1/" \
-         -e "s/;opcache.memory_consumption=64/opcache.memory_consumption=128/" \
-         -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
-         -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/7.0/fpm/php.ini
-phpenmod -v 7.0 opcache
+cd /etc/php
+phpv=$(ls -d */ | cut -d/ -f1)
+for version in $phpv; do
+  sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
+          -e "s/upload_max_filesize = 2M/upload_max_filesize = 92M/" \
+          -e "s/expose_php = On/expose_php = Off/" \
+          -e "s/128M/768M/" \
+          -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" \
+          -e "s/;opcache.enable=0/opcache.enable=1/" \
+          -e "s/;opcache.memory_consumption=64/opcache.memory_consumption=128/" \
+          -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
+          -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
+  phpenmod -v $version opcache
+done
+
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  sock=php7.1-fpm
+else
+  sock=php7.0-fpm
+fi
 
 rm -rf /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-enabled/default <<NGC
@@ -108,7 +121,7 @@ server {
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+    fastcgi_pass unix:/run/php/$sock.sock;
     fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
   }
 
@@ -203,5 +216,13 @@ for i in "${locks[@]}"; do
 done
 
 systemctl restart nginx
-systemctl restart php7.0-fpm
+if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  systemctl restart php7.1-fpm
+  if [[ $(systemctl is-active php7.0-fpm) == "active" ]];
+    systemctl stop php7.0-fpm
+    systemctl disable php7.0-fpm
+  fi
+else
+  systemctl restart php7.0-fpm
+fi
 touch /install/.nginx.lock
