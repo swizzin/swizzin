@@ -56,7 +56,7 @@ function _xmlrpc() {
 	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1
 	cd xmlrpc-c
 	./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
-	make -j${nproc} >>$log 2>&1
+	make -j$(nproc) >>$log 2>&1
 	make install >>$log 2>&1
 }
 
@@ -79,7 +79,7 @@ function _libtorrent() {
 	fi
 	./autogen.sh >>$log 2>&1
 	./configure --prefix=/usr >>$log 2>&1
-	make -j${nproc} >>$log 2>&1
+	make -j$(nproc) >>$log 2>&1
 	make install >>$log 2>&1
 }
 
@@ -98,7 +98,7 @@ function _rtorrent() {
 		./autogen.sh >>$log 2>&1
 	fi
 	./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
-	make -j${nproc} >/dev/null 2>&1
+	make -j$(nproc) >/dev/null 2>&1
 	make install >/dev/null 2>&1
 	cd "/tmp"
 	ldconfig >/dev/null 2>&1
