@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.1] January 10th, 2018
+
+### Fixed
+
+- Full compatibility for php7.1 (Ubuntu 17.10)
+  - Ubuntu 17.10+ now defaults to php7.1. The installer will now attempt to detect which php version you are running and compensate as needed.
+  - There is now an update nginx script (run with `box update` that will future-proof your installs by installing the appropriate metapackages (php-fpm vs php7.0-fpm) and  update your nginx configs to use php7.1 (if needed), so that if/when you update Ubuntu 16.04 to the next LTS version in a few months, you'll be covered! After running dist-upgrade, simply run the `box update` or `box upgrade nginx` command to reconfigure your confs.
+
+### Changed
+
+- rTorrent installs will now default to the "feature-bind" branch (git development version) if you are using Debian 9 or Ubuntu 17.10+. If issues arise, I may re-enable the patch route; however at the moment no patches are needed to compile rTorrent on Stretch or Artful. Additionally, feature-bind has been enabled on older branches (Ubuntu 16/Debian 8) as well.
+  - PLEASE NOTE: rTorrent has deprecated certain RPC calls in the new version. If you use filebot a post-processing script with rTorrent, rTorrent may fail to start because your configuration holds deprecated values. Please see [here](https://www.filebot.net/forums/viewtopic.php?f=4&t=4765) for info about updating your post-process command.
+
 ## [1.1.0]
 
 ### December 28th, 2017
