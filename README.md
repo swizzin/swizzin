@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 1.1.0 Stable :tada:
+# 1.1.1 Stable :tada:
 
 [website](https://swizzin.ltd)
 
