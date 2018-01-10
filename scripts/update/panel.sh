@@ -23,7 +23,7 @@ if [[ -d /srv/panel ]]; then
     bash /usr/local/bin/swizzin/panel/lang/langSelect-$lang
     if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
       systemctl restart php7.1-fpm
-      if [[ $(systemctl is-active php7.0-fpm) == "active" ]];
+      if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
         systemctl stop php7.0-fpm
       fi
     else
