@@ -91,6 +91,9 @@ function _rtorrent() {
 		tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
 	fi
 	cd rtorrent
+	if [[ ${codename} =~ ("artful") ]]; then
+			sed -i 's/AM_PATH_CPPUNIT(1.9.6)/#AM_PATH_CPPUNIT(1.9.6)/g' configure.ac
+	fi
 	if [[ ${rtorrentver} == feature-bind ]]; then
 		./autogen.sh >>$log 2>&1
 	fi
