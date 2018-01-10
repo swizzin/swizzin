@@ -26,7 +26,7 @@ function _depends() {
 	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
 	libfontconfig1-dev mediainfo'
 	for depends in $APT; do
-	apt-get -qq -y --yes --force-yes install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
+	apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
 	done
 
 	# (un)rar
@@ -68,11 +68,9 @@ function _libtorrent() {
 		wget -q ${libtorrentloc}
 		tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 		cd libtorrent >>$log 2>&1
-		if [[ ${codename} =~ ("stretch") ]]; then
-			patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
-		elif [[ ${codename} =~ ("artful") ]]; then
-			sed -i 's/AM_PATH_CPPUNIT(1.9.6)/#AM_PATH_CPPUNIT(1.9.6)/g' configure.ac
-		fi
+		#if [[ ${codename} =~ ("stretch") ]]; then
+		#	patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
+		#fi
 	fi
 	./autogen.sh >>$log 2>&1
 	./configure --prefix=/usr >>$log 2>&1
@@ -91,18 +89,15 @@ function _rtorrent() {
 		tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >>$log 2>&1
 	fi
 	cd rtorrent
-	if [[ ${codename} =~ ("artful") ]]; then
-			sed -i 's/AM_PATH_CPPUNIT(1.9.6)/#AM_PATH_CPPUNIT(1.9.6)/g' configure.ac
-	fi
 	if [[ ${rtorrentver} == feature-bind ]]; then
 		./autogen.sh >>$log 2>&1
 	fi
-	./configure --prefix=/usr --with-xmlrpc-c >/dev/null 2>&1
-	make -j$(nproc) >/dev/null 2>&1
-	make install >/dev/null 2>&1
+	./configure --prefix=/usr --with-xmlrpc-c >>$log 2>&1
+	make -j$(nproc) >>$log 2>&1
+	make install >>$log 2>&1
 	cd "/tmp"
-	ldconfig >/dev/null 2>&1
-	rm -rf rtorrent* >/dev/null 2>&1		
+	ldconfig >>$log 2>&1
+	rm -rf rtorrent* >>$log 2>&1		
 }
 
 function _rconf() {
@@ -115,7 +110,7 @@ execute.nothrow = chmod,777,/home/${user}/.config/rpc.socket
 execute.nothrow = chmod,777,/home/${user}/.sessions
 network.port_random.set = yes
 network.port_range.set = $port-$portend
-network.scgi.open_port = localhost:$port
+network.scgi.open_port = 127.0.0.1:$port
 network.tos.set = throughput
 pieces.hash.on_completion.set = no
 protocol.pex.set = no
@@ -188,25 +183,27 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   log="/dev/null"
 fi
-if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch") ]] && [[ -z $1 ]]; then
-	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							 0.9.6 "" 3>&1 1>&2 2>&3)
+if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch"|"artful") ]] && [[ -z $1 ]]; then
+	function=feature-bind
+	#function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							# 0.9.6 "" 3>&1 1>&2 2>&3)
 							#feature-bind "" \
 	 
 
 		if [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
 			export libtorrentver='0.13.6'
-		#elif [[ $function == feature-bind ]]; then
-		#	export rtorrentver='feature-bind'
-		#	export libtorrentver='feature-bind'
+		elif [[ $function == feature-bind ]]; then
+			export rtorrentver='feature-bind'
+			export libtorrentver='feature-bind'
 		fi
 elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							 feature-bind "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
 							 0.9.3 "" 3>&1 1>&2 2>&3)
-							 #feature-bind "" \
+
 
 
 		if [[ $function == 0.9.6 ]]; then
@@ -218,9 +215,9 @@ elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
 		elif [[ $function == 0.9.3 ]]; then
 			export rtorrentver='0.9.3'
 			export libtorrentver='0.13.3'
-		#elif [[ $function == feature-bind ]]; then
-		#	export rtorrentver='feature-bind'
-		#	export libtorrentver='feature-bind'
+		elif [[ $function == feature-bind ]]; then
+			export rtorrentver='feature-bind'
+			export libtorrentver='feature-bind'
 		fi
 fi
 
