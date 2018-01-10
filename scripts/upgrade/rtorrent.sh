@@ -73,6 +73,8 @@ function _libtorrent() {
 		cd libtorrent >>$log 2>&1
 		if [[ ${codename} =~ ("stretch") ]]; then
 			patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
+		elif [[ ${codename} =~ ("artful") ]]; then
+			sed -i 's/AM_PATH_CPPUNIT(1.9.6)/#AM_PATH_CPPUNIT(1.9.6)/g' configure.ac
 		fi
 	fi
 	./autogen.sh >>$log 2>&1
