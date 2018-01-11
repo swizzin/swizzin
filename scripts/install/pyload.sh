@@ -96,7 +96,9 @@ function _installpyLoad7() {
   systemctl daemon-reload >/dev/null 2>&1
   echo "#### pyLoad setup will now run ####"
   if [[ -f /install/.nginx.lock ]]; then
-    echo "#### To ensure proper proxy configuration, please do not alter the default port (8000) ####"
+    echo "#### To ensure proper proxy configuration:"
+    echo "#### please leave remote access enabled ####"
+    echo "#### and do not alter the default port (8000) ####"
   fi
   sleep 5
   /usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --setup --config=/home/${MASTER}/.pyload
