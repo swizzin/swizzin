@@ -22,7 +22,7 @@
 
 function _installpyLoad1() {
   echo "Installing any additional dependencies needed for pyLoad ... "
-  apt-get install -y tesseract-ocr gocr rhino pyqt4-dev-tools python-imaging >/dev/null 2>&1
+  apt-get install -y tesseract-ocr gocr rhino pyqt4-dev-tools python-imaging python-dev libcurl4-openssl-dev >/dev/null 2>&1
   apt-get -y autoremove >/dev/null 2>&1
 }
 
