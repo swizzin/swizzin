@@ -32,7 +32,7 @@ echo "Creating subsonic-tmp install directory ... " >>"${OUTTO}" 2>&1;
 mkdir /root/subsonic-tmp
 
 echo "Downloading Subsonic dependencies and installing ... " >>"${OUTTO}" 2>&1;
-apt -yf install openjdk-8-jre
+apt-get -y install openjdk-8-jre
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
 wget -O /root/subsonic-tmp/subsonic.deb $latest || { echo "Could not download Subsonic. Exiting."; exit 1; }
