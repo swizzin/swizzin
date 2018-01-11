@@ -13,7 +13,7 @@ if [[ ! -f /etc/nginx/apps/pyload.conf ]]; then
 cat > /etc/nginx/apps/pyload.conf <<PYLOAD
 location /pyload/ {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass http://localhost:8000/;
+  proxy_pass http://127.0.0.1:8000/;
   proxy_set_header Accept-Encoding "";
   sub_filter_types text/css text/xml text/javascript;
   sub_filter '/media/' '/pyload/media/';

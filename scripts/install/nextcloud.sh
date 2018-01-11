@@ -178,8 +178,8 @@ location ^~ /nextcloud {
 EOF
 
 mysql --user="root" --password="$password" --execute="CREATE DATABASE nextcloud;"
-mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
-mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
+mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@127.0.0.1 IDENTIFIED BY '$nextpass';"
+mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@127.0.0.1;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
 service nginx reload

@@ -2158,7 +2158,7 @@ ST_MYSQL = "0"
 # account can be used
 ST_MYSQL_USER = "root"
 ST_MYSQL_PASS = ""
-ST_MYSQL_HOST = "localhost"
+ST_MYSQL_HOST = "127.0.0.1"
 
 # If ST_SYSTEM is enabled, then this option can collect Apache statistical data
 # The value for PT_APACHESTATUS must be correctly set
