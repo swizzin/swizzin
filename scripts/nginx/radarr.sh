@@ -17,8 +17,11 @@ fi
 if [[ ! -f /etc/nginx/apps/radarr.conf ]]; then
   cat > /etc/nginx/apps/radarr.conf <<RAD
 location /radarr {
-  include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:7878/radarr;
+  proxy_set_header Host \$proxy_host;
+  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto \$scheme;
+  proxy_redirect off;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
