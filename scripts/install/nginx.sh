@@ -204,8 +204,8 @@ fancyindex_footer "/fancyindex/footer.html";
 #fancyindex_ignore "Nginx-Fancyindex-Theme"; # Making sure folder where files are don't show up in the listing. 
 fancyindex_name_length 255; # Maximum file name length in bytes, change as you like.
 FIC
-sed -i 's/href="\/Nginx-Fancyindex-Theme-dark/href="\/fancyindex/g' /srv/fancyindex/header.html
-sed -i 's/href="\/Nginx-Fancyindex-Theme-dark/href="\/fancyindex/g' /srv/fancyindex/footer.html
+sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
+sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
 
 
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
