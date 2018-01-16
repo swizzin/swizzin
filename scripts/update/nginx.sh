@@ -64,6 +64,14 @@ if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   fi
 fi
 
+if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
+  sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
+fi
+
+if grep -q "Nginx-Fancyindex" /srv/fancyindex/footer.html; then
+  sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+fi
+
 if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   systemctl restart php7.1-fpm
   if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
