@@ -26,10 +26,22 @@ else
 fi
 HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+DISTRO=$(lsb_release -is)
+CODENAME=$(lsb_release -cs)
+
+#versions=https://plex.tv/api/downloads/1.json
+#wgetresults="$(wget "${versions}" -O -)"
+#releases=$(grep -ioe '"label"[^}]*' <<<"${wgetresults}" | grep -i "\"distro\":\"ubuntu\"" | grep -m1 -i "\"build\":\"linux-ubuntu-x86_64\"")
+#latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
 echo "Installing plex keys and sources ... "
     wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
-    echo "deb https://downloads.plex.tv/repo/deb/ ./public main" > /etc/apt/sources.list.d/plexmediaserver.list
+    if [[ $CODENAME != "artful" ]]; then
+      # Hacky work around until plex team fixes their repository. Will result in ignorable warnings in apt.
+      echo "deb https://downloads.plex.tv/repo/deb/ public main" > /etc/apt/sources.list.d/plexmediaserver.list
+    else
+      echo "deb https://downloads.plex.tv/repo/deb/ ./public main" > /etc/apt/sources.list.d/plexmediaserver.list
+    fi
     echo
 
 echo "Updating system ... "
