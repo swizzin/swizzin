@@ -33,8 +33,8 @@ function _removepyLoad() {
                     rhino \
                     pyqt4-dev-tools \
                     python-imaging
-  apt -y autoremove >/dev/null 2>&1
-  apt -y autoclean >/dev/null 2>&1
+  apt-get -y autoremove >/dev/null 2>&1
+  apt-get -y autoclean >/dev/null 2>&1
   rm /install/.pyload.lock
 }
 

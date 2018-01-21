@@ -36,7 +36,7 @@ if [[ $DISTRO == "Debian" ]]; then
   gpg --export F13930B14BB9F05F > /etc/apt/trusted.gpg.d/jcfp_ubuntu_sab-addons.gpg
 fi
 
-apt update >/dev/null 2>&1
+apt-get update >/dev/null 2>&1
 apt-get -y install par2-tbb python-openssl python-pip python-sabyenc python-cheetah screen >/dev/null 2>&1
 cd /home/${username}/
 #wget -qO SABnzbd.tar.gz https://github.com/sabnzbd/sabnzbd/releases/download/1.1.1/SABnzbd-1.1.1-src.tar.gz
@@ -46,7 +46,7 @@ git clone -b 2.1.x https://github.com/sabnzbd/sabnzbd.git /home/${username}/SABn
 chown ${username}.${username} -R SABnzbd
 #rm SABnzbd.tar.gz
 pip install http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz >/dev/null 2>&1
-apt install p7zip-full -y >/dev/null 2>&1
+apt-get install p7zip-full -y >/dev/null 2>&1
 touch /install/.sabnzbd.lock
 
 cat >/etc/systemd/system/sabnzbd@.service<<EOF

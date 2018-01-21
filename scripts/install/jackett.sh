@@ -42,8 +42,8 @@ if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
   echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
 fi
 
-apt update -y >/dev/null 2>&1
-apt install -y mono-devel >/dev/null 2>&1
+apt-get update -y >/dev/null 2>&1
+apt-get install -y mono-devel >/dev/null 2>&1
 
 cd /home/$username
 wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.Mono.tar.gz

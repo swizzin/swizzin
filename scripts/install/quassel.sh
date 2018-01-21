@@ -29,7 +29,7 @@ else
   wget -r -l1 --no-parent --no-directories -A "quassel-core*.deb" https://iskrembilen.com/quassel-packages-debian/ >/dev/null 2>&1
   dpkg -i quassel-core* >/dev/null 2>&1
   rm quassel-core*
-  apt install -f -y -q >/dev/null 2>&1
+  apt-get install -f -y -q >/dev/null 2>&1
 	mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
 	systemctl enable quasselcore >/dev/null 2>&1
 	systemctl start quasselcore >/dev/null 2>&1

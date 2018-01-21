@@ -46,8 +46,8 @@ function _installRadarrDependencies() {
     echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
     echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
   fi
-	apt update >/dev/null 2>&1
-	apt install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
+	apt-get update >/dev/null 2>&1
+	apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
 }
 
 function _installRadarrCode() {

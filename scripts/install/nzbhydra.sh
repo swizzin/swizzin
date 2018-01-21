@@ -19,8 +19,8 @@ echo "Installing NZBHydra ... " >>"${OUTTO}" 2>&1;
 # for output to box
 #echo "Installing NZBHydra ... "
 warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
-apt -y update >/dev/null 2>&1
-apt -y install git-core python-dev >/dev/null 2>&1;
+apt-get -y update >/dev/null 2>&1
+apt-get -y install git-core python-dev >/dev/null 2>&1;
 ##echo >>"${OUTTO}" 2>&1;
 echo "Cloning NZBHydra git ... " >>"${OUTTO}" 2>&1;
 git clone -q https://github.com/theotherp/nzbhydra.git /home/${MASTER}/nzbhydra || { echo "GIT failed"; exit 1; }
