@@ -91,12 +91,12 @@ else
   sock=php7.0-fpm
 fi
 
-cat > /etc/nginx/apps/nextcloud.conf <<'EOF'
+cat > /etc/nginx/apps/nextcloud.conf <<EOF
 location = /.well-known/carddav {
-  return 301 $scheme://$host/nextcloud/remote.php/dav;
+  return 301 \$scheme://\$host/nextcloud/remote.php/dav;
 }
 location = /.well-known/caldav {
-  return 301 $scheme://$host/nextcloud/remote.php/dav;
+  return 301 \$scheme://\$host/nextcloud/remote.php/dav;
 }
 
 location /.well-known/acme-challenge { }
@@ -120,7 +120,7 @@ location ^~ /nextcloud {
     #pagespeed off;
 
     location /nextcloud {
-        rewrite ^ /nextcloud/index.php$uri;
+        rewrite ^ /nextcloud/index.php\$uri;
     }
 
     location ~ ^/nextcloud/(?:build|tests|config|lib|3rdparty|templates|data)/ {
@@ -131,10 +131,10 @@ location ^~ /nextcloud {
     }
 
     location ~ ^/nextcloud/(?:index|remote|public|cron|core/ajax/update|status|ocs/v[12]|updater/.+|ocs-provider/.+)\.php(?:$|/) {
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        fastcgi_split_path_info ^(.+\.php)(/.*)\$;
         include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param PATH_INFO \$fastcgi_path_info;
         fastcgi_param HTTPS on;
         #Avoid sending the security headers twice
         fastcgi_param modHeadersAvailable true;
@@ -144,15 +144,15 @@ location ^~ /nextcloud {
         fastcgi_request_buffering off;
     }
 
-    location ~ ^/nextcloud/(?:updater|ocs-provider)(?:$|/) {
-        try_files $uri/ =404;
+    location ~ ^/nextcloud/(?:updater|ocs-provider)(?:\$|/) {
+        try_files \$uri/ =404;
         index index.php;
     }
 
     # Adding the cache control header for js and css files
     # Make sure it is BELOW the PHP block
-    location ~ \.(?:css|js|woff|svg|gif)$ {
-        try_files $uri /nextcloud/index.php$uri$is_args$args;
+    location ~ \.(?:css|js|woff|svg|gif)\$ {
+        try_files \$uri /nextcloud/index.php\$uri\$is_args\$args;
         add_header Cache-Control "public, max-age=15778463";
         # Add headers to serve security related headers  (It is intended
         # to have those duplicated to the ones above)
@@ -169,8 +169,8 @@ location ^~ /nextcloud {
         access_log off;
     }
 
-    location ~ \.(?:png|html|ttf|ico|jpg|jpeg)$ {
-        try_files $uri /nextcloud/index.php$uri$is_args$args;
+    location ~ \.(?:png|html|ttf|ico|jpg|jpeg)\$ {
+        try_files \$uri /nextcloud/index.php\$uri\$is_args\$args;
         # Optional: Don't log access to other assets
         access_log off;
     }
