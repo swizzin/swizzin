@@ -44,10 +44,13 @@ else
   done
   echo -e "Please wait while nextcloud is installed ... "
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
+  if [[ $(systemctl is-active mariadb) != "active" ]]; then
+    systemctl start mariadb
+  fi
   mysqladmin -u root password ${password}
 fi
 #Depends
-apt-get install -y -q unzip php7.0-mysql libxml2-dev php7.0-common php7.0-gd php7.0-json php7.0-curl  php7.0-zip php7.0-xml php7.0-mbstring > /dev/null 2>&1
+apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring > /dev/null 2>&1
 #a2enmod rewrite > /dev/null 2>&1
 cd /tmp
 wget -q https://download.nextcloud.com/server/releases/latest.zip > /dev/null 2>&1
