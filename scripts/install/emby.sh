@@ -56,7 +56,7 @@ echo "Updating system & installing emby server ... " >>"${OUTTO}" 2>&1;
     sleep 5
 
     if [[ -f /etc/emby-server.conf ]]; then
-      printf "\n" /etc/emby-server.conf
+      printf "\n" >> /etc/emby-server.conf
       echo "EMBY_USER="${username}"" >> /etc/emby-server.conf
       echo "EMBY_GROUP="${username}"" >> /etc/emby-server.conf
     fi
