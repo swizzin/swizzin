@@ -1,6 +1,24 @@
 # Changelog
 
-## [1.1.1] January 10th, 2018
+## [1.1.1]
+
+### January 21st, 2018
+
+### Changed
+
+- Nginx reverse proxies will now default to the $host header rather than $proxy_host
+- Don't use apt in scripted scenarios, use apt-get
+
+### Fixed
+
+- Ubuntu 17.10 compatibilty for Emby Media Server, Plex Media Server and NextCloud
+  - NOTE: Plex's apt repository is technically not compliant with the new version of Ubuntu and thus you **will** see warnings on Ubuntu 17.10 each time you `apt update`. This is not in my control. I suggest you comment out the repository in `/etc/apt/sources.list.d/plexmediaserver.list` and `box upgrade plex` to use the update script to avoid warnings.
+- Better sed matching for potential changes in the fancyindex naming
+- Updated depends in various packages to improve stand-alone functionality
+
+## [1.1.1] 
+
+###January 10th, 2018
 
 ### Fixed
 
