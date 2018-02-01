@@ -27,9 +27,9 @@ After=network.target
 User=%I
 Group=%I
 Type=forking
-ExecStart=/home/%I/nzbget/nzbget -D
-ExecStop=/home/%I/nzbget/nzbget -Q
-ExecReload=/home/%I/nzbget/nzbget -O
+ExecStart=/bin/sh -c "/home/%I/nzbget/nzbget -D"
+ExecStop=/bin/sh -c "/home/%I/nzbget/nzbget -Q"
+ExecReload=/bin/sh -c "/home/%I/nzbget/nzbget -O"
 Restart=on-failure
 
 [Install]
