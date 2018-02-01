@@ -331,6 +331,10 @@ function _chpasswd {
       echo "OK"
     fi
   fi
+  master=$(cat /root/.master.info | cut -d: -f1)
+  if [[ $user = $master ]]; then
+    echo "$user:$pass" > /root/.master.info
+  fi
   echo "$user:$pass" > /root/${user}.info
   chpasswd<<<"${user}:${pass}"
   htpasswd -b /etc/htpasswd $user $pass
