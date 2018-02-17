@@ -13,7 +13,6 @@ if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
 fi
 
 npm -g config set user root
-mkdir -p /usr/lib/node_modules/thelounge/node_modules/dtrace-provider/.node-gyp
 npm install -g thelounge >> $log 2>&1
 
 mkdir -p /home/lounge/.lounge/
