@@ -225,40 +225,30 @@ function _adduser {
   mkdir -p /etc/htpasswd.d/
   htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
 
-  if [[ -f /install/.rtorrent.lock ]]; then
-    /usr/local/bin/swizzin/install/rtorrent.sh ${user}
-    systemctl enable rtorrent@${user}
-    systemctl start rtorrent@${user}
-  fi
-  if [[ -d /srv/rutorrent ]] || [[ -f /install/.rutorrent.lock ]]; then
-    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
-    /usr/local/bin/swizzin/install/rutorrent.sh
-  fi
-  if [[ -f /install/.deluge.lock ]]; then
-    /usr/local/bin/swizzin/install/deluge.sh ${user}
-    systemctl enable deluged@${user}
-    systemctl enable deluge-web@${user}
-    systemctl start deluged@${user}
-    systemctl start deluge-web@${user}
-  fi
-  if [[ -f /install/.autodl.lock ]]; then
-    /usr/local/bin/swizzin/install/autodl.sh ${user}
-    systemctl enable irssi@${user}
-    systemctl start irssi@${user}
-  fi
-  if [[ -f /install/.flood.lock ]]; then
-    /usr/local/bin/swizzin/install/flood.sh
-    systemctl enable flood@${user}
-    systemctl start flood@${user}
-  fi
-  if [[ -f /install/.nzbget.lock ]]; then
-    /usr/local/bin/swizzin/install/nzbget.sh ${user}
-    systemctl enable nzbget@${user}
-    systemctl start nzbget@${user}
-  fi
-  if [[ -f /install/.lounge.lock ]]; then
-    /usr/local/bin/swizzin/install/lounge.sh ${user}
-  fi
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
+    if [[ $app = "rutorrent" ]]; then
+      if [[ -d /srv/rutorrent ]]; then
+        if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+      fi
+    fi
+
+    if [[ -f /install/.${app}.lock ]]; then
+      if [[ $app = "flood" ]]; then
+        /usr/local/bin/swizzin/install/${app}.sh
+      else
+        /usr/local/bin/swizzin/install/${app}.sh ${user}
+        if [[ $app = "deluge" ]]; then
+          app="{deluged,deluge-web}"
+          eval systemctl enable ${app}@${user}
+          eval systemctl start ${app}@${user}
+        else
+          systemctl enable ${app}@${user}
+          systemctl start ${app}@${user}
+        fi
+      fi
+    fi
+  done
+
   USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
@@ -275,31 +265,31 @@ chown $user: /home/$user/.profile
 
 function _deluser {
   user=$2
-  read -rep $'WARNING: This will delete the user '${user}$' and all associated configs and subdirectories.\n\nPress enter to continue.'
-  if [[ -f /install/.rtorrent.lock ]]; then
-    systemctl disable rtorrent@${user}
-    systemctl stop rtorrent@${user}
-  fi
-  if [[ -d /srv/rutorrent ]] || [[ -f /install/.rutorrent.lock ]]; then
-    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
-    rm -rf /srv/rutorrent/conf/users/${user}
-    rm -f /etc/nginx/apps/${user}*
-    systemctl reload nginx
-  fi
-  if [[ -f /install/.deluge.lock ]]; then
-    systemctl disable deluged@${user}
-    systemctl disable deluge-web@${user}
-    systemctl stop deluged@${user}
-    systemctl stop deluge-web@${user}
-  fi
-  if [[ -f /install/.autodl.lock ]]; then
-    systemctl disable irssi@${user}
-    systemctl stop irssi@${user}
-  fi
-  if [[ -f /install/.flood.lock ]]; then
-    systemctl disable flood@${user}
-    systemctl stop flood@${user}
-  fi  
+  read -rep $'WARNING: This will delete the user '${user}' and all associated configs and subdirectories.\n\nPress enter to continue.'
+  
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
+    if [[ $app = "rutorrent" ]]; then
+      if [[ -d /srv/rutorrent ]]; then
+        if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+      fi
+    fi
+
+    if [[ -f /install/.${app}.lock ]]; then
+      if [[ $app = "rutorrent" ]]; then
+        rm -rf /srv/rutorrent/conf/users/${user}
+        rm -f /etc/nginx/apps/${user}*
+        systemctl reload nginx
+      elif [[ $app = "deluge" ]]; then
+        app="{deluged,deluge-web}"
+        eval systemctl disable ${app}@${user}
+        eval systemctl stop ${app}@${user}
+      else
+        systemctl disable ${app}@${user}
+        systemctl stop ${app}@${user}
+      fi
+    fi
+  done
+  
   deluser --force ${user}
   groupdel ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
