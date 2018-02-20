@@ -14,17 +14,17 @@ fi
 for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then
-    rm -rf /etc/nginx/apps/$app.conf
+    rm -f /etc/nginx/apps/$app.conf
   fi
 done
 
-rm -rf /etc/nginx/apps/dindex.conf
-rm -rf /etc/nginx/apps/rindex.conf
-rm -rf /etc/nginx/apps/*.scgi.conf
+rm -f /etc/nginx/apps/dindex.conf
+rm -f /etc/nginx/apps/rindex.conf
+rm -f /etc/nginx/apps/*.scgi.conf
 
-rm -rf /etc/nginx/sites-enabled/default
-rm -rf /etc/nginx/conf.d/*
-rm -rf /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
+rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/conf.d/*
+rm -f /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
 
 if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   sock=php7.1-fpm
