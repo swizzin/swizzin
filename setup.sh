@@ -303,8 +303,8 @@ function _post {
     echo "Your deluge web port is$(cat /home/${user}/.config/deluge/web.conf | grep port | cut -d: -f2 | cut -d"," -f1)"
     echo ""
   fi
-  echo "Please note, certain functions may not be fully functional until your server is rebooted"
-  echo "However you may issue the command 'source /root/.profile' to begin using box functions now"
+  echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in.\e[0m"
+  echo -e "\e[1m\e[31mHowever you may issue the command 'source /root/.profile' to begin using box and related functions now\e[0m"
 }
 
 _os
