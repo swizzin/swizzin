@@ -1,5 +1,5 @@
 #!/bin/bash
-# Automated installer script for xmr-stak-cpu
+# Automated installer script for xmr-stak
 # Written by liara for swizzin
 user=$(cat /root/.master.info | cut -d: -f1)
 noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
@@ -58,7 +58,7 @@ if [[ -z $address ]]; then
     fi
 fi
 
-echo "Installing dependencies and compiling xmr-stak-cpu"
+echo "Installing dependencies and compiling xmr-stak"
 apt-get -y -qq update >> $log 2>&1
 apt-get -y -qq install libmicrohttpd-dev libssl-dev cmake build-essential libhwloc-dev >> $log 2>&1
 
