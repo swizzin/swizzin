@@ -452,6 +452,9 @@ case "$1" in
     _nukeovh
     exit 0
   ;;
+  "rtx")
+    /usr/local/bin/swizzin/rtx
+  ;;
   "update")
     _update
     exit 0
