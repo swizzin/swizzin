@@ -68,8 +68,6 @@ Box functions:
 
 #### TODO
 - [ ] Better readme/docs
-- [ ] Bug fixes
-- [ ] Some ruTorrent plugin management (`box install rtplugs`)
 
 
 ### Donations

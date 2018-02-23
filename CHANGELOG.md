@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.2.0]
+
+### February 2018
+
+### Added
+
+- `rtx` or `box rtx` command for ruTorrent extras management like themes and plugins. The interface should feel similar to the installer/traditional box interface as it basically reuses the same code ;) Also added a few new plugins not currently included (fileshare, pausewebui, etc) that can be installed post-setup.
+
+### Changed
+
+- Some under the hood improvements for box add/remove user functions
+- Added bold-red post install info to help people better understand that box will not function unless you `source /root/.profile`
+- Cleaned up some old references to xmr-stak-cpu in the xmr-stak script
+
+### Fixed
+
+- npm permissions for global installs
+- Ensure all ruTorrent nginx confs are removed if ruTorrent is removed.
+- systemd execstart for nzbget to be compatible with older versions of systemd (Ubuntu 16.04)
+- Ensure .master.info is rewritten with current password info if master user password is changed with `box`
+- Netdata appstatus in panel
+
 ## [1.1.1]
 
 ### January 21st, 2018
