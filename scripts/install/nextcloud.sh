@@ -44,8 +44,8 @@ else
   done
   echo -e "Please wait while nextcloud is installed ... "
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
-  if [[ $(systemctl is-active mariadb) != "active" ]]; then
-    systemctl start mariadb
+  if [[ $(systemctl is-active mysql) != "active" ]]; then
+    systemctl start mysql
   fi
   mysqladmin -u root password ${password}
 fi
@@ -181,8 +181,8 @@ location ^~ /nextcloud {
 EOF
 
 mysql --user="root" --password="$password" --execute="CREATE DATABASE nextcloud;"
-mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@127.0.0.1 IDENTIFIED BY '$nextpass';"
-mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@127.0.0.1;"
+mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
+mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
 service nginx reload
