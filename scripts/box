@@ -243,6 +243,8 @@ function _adduser {
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
+        elif [[ $app = "rutorrent" ]]; then
+          :
         else
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
