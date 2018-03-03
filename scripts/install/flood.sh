@@ -45,14 +45,14 @@ for u in "${users[@]}"; do
   if [[ ! -d /home/$u/.flood ]]; then
     salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
     port=$(shuf -i 3501-4500 -n 1)
-    scgi=$(cat /home/$u/.rtorrent.rc | grep scgi | cut -d: -f2)
     cd /home/$u
     git clone https://github.com/jfurrow/flood.git .flood >> $log 2>&1
     chown -R $u: .flood
     cd .flood
     cp -a config.template.js config.js
     sed -i "s/floodServerPort: 3000/floodServerPort: $port/g" config.js
-    sed -i "s/port: 5000/port: $scgi/g" config.js
+    sed -i "s/socket: false/socket: true/g" config.js
+    sed -i "s/socketPath.*/socketPath: '\/var\/run\/${u}\/.rtorrent.sock'/g" config.js
     sed -i "s/secret: 'flood'/secret: '$salt'/g" config.js
     if [[ ! -f /install/.nginx.lock ]]; then
       sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js

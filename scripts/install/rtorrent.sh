@@ -110,7 +110,8 @@ execute.nothrow = chmod,777,/home/${user}/.config/rpc.socket
 execute.nothrow = chmod,777,/home/${user}/.sessions
 network.port_random.set = yes
 network.port_range.set = $port-$portend
-network.scgi.open_port = 127.0.0.1:$port
+network.scgi.open_local = /var/run/${user}/.rtorrent.sock
+schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}/.rtorrent.sock"
 network.tos.set = throughput
 pieces.hash.on_completion.set = no
 protocol.pex.set = no

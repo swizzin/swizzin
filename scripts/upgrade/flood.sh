@@ -16,7 +16,6 @@ fi
 
 for u in "${users[@]}"; do
   port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
-  scgi=$(cat /home/$u/.rtorrent.rc | grep scgi | cut -d: -f2)
   salt=$(grep secret /home/$u/.flood/config.js | cut -d\' -f2)
   if [[ $(systemctl is-active flood@$u) == "active" ]]; then
     active=yes
@@ -27,7 +26,8 @@ for u in "${users[@]}"; do
   rm -rf config.js
   cp -a config.template.js config.js
   sed -i "s/floodServerPort: 3000/floodServerPort: $port/g" config.js
-  sed -i "s/port: 5000/port: $scgi/g" config.js
+  sed -i "s/socket: false/socket: true/g" config.js
+  sed -i "s/socketPath.*/socketPath: '\/var\/run\/${u}\/.rtorrent.sock'/g" config.js
   sed -i "s/secret: 'flood'/secret: '$salt'/g" config.js
   if [[ ! -f /install/.nginx.lock ]]; then
     sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js

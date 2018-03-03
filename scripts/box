@@ -224,6 +224,8 @@ function _adduser {
   htpasswd -b /etc/htpasswd $user $pass
   mkdir -p /etc/htpasswd.d/
   htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+  echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
   for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
     if [[ $app = "rutorrent" ]]; then
@@ -294,8 +296,10 @@ function _deluser {
   groupdel ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}
-  rm -rf /etc/nginx/conf.d/${user}*
-  rm -rf /etc/sudoers.d/${user}
+  rm -f /etc/tmpfiles.d/${user}.conf
+  rm -f /etc/nginx/conf.d/${user}*
+  rm -f /etc/sudoers.d/${user}
+  rm -rf /var/run/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
   service nginx reload

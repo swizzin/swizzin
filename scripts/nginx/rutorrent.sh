@@ -151,7 +151,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 \$forbidUserSettings = false;
 
 //\$scgi_port = 5000;
-\$scgi_host = "127.0.0.1";
+//\$scgi_host = "127.0.0.1";
 
 // For web->rtorrent link through unix domain socket
 // (scgi_local in rtorrent conf file), change variables
@@ -225,7 +225,8 @@ for u in "${users[@]}"; do
     cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
 <?php
 \$topDirectory = '/home/${u}';
-\$scgi_port = $port;
+\$scgi_port = 0;
+\$scgi_host = "unix:///var/run/${u}/.rtorrent.sock"
 \$XMLRPCMountPoint = "/${u}";
 \$quotaUser = "${u}";
 ?>
@@ -237,7 +238,7 @@ RUU
   cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
 location /${u} {
 include scgi_params;
-scgi_pass 127.0.0.1:$port;
+scgi_pass unix:/var/run/${u}/.rtorrent.sock;
 auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }

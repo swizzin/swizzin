@@ -142,6 +142,8 @@ function _adduser() {
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
   fi
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
+  echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 }
 
 function _choices() {
