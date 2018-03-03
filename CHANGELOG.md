@@ -2,7 +2,7 @@
 
 ## [1.2.0]
 
-### February 2018
+### March 3rd 2018
 
 ### Added
 
@@ -10,9 +10,11 @@
 
 ### Changed
 
+- rTorrent will now use unix sockets rather than TCP sockets. While the TCP implementation was secured properly to prevent external access, there was still an issue of trust for local users (any user could access a TCP socket and execute arbitrary commands). This allows a finer grain of control for permissions and is ultimately the more secure/better way to implement the RPC layer.
 - Some under the hood improvements for box add/remove user functions
 - Added bold-red post install info to help people better understand that box will not function unless you `source /root/.profile`
 - Cleaned up some old references to xmr-stak-cpu in the xmr-stak script
+- Removed some unused permissions
 
 ### Fixed
 
@@ -21,6 +23,10 @@
 - systemd execstart for nzbget to be compatible with older versions of systemd (Ubuntu 16.04)
 - Ensure .master.info is rewritten with current password info if master user password is changed with `box`
 - Netdata appstatus in panel
+- Let's Encrypt installer was overwritting the default config certificates even when told not to.
+- Nextcloud compatibilty for Debian Jessie
+- Ensure home folders are not readable for "Others"
+- Ensure user's lounge accounts are also removed during `deluser`
 
 ## [1.1.1]
 
