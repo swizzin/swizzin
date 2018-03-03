@@ -65,12 +65,11 @@ cat > /etc/sudoers.d/panel <<SUD
 # User alias specification
 
 # Cmnd alias specification
-Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem, /proc/sys/vm/drop_caches
-Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/clean_log, /usr/local/bin/swizzin/panel/set_interface, /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*, /usr/local/bin/swizzin/box
-Cmnd_Alias   PACKAGECMNDS = /usr/local/bin/swizzin/install/*, /usr/local/bin/swizzin/remove/*
-Cmnd_Alias   GENERALCMNDS = /usr/bin/ifstat, /usr/bin/vnstat, /usr/sbin/repquota, /bin/grep, /usr/bin/awk, /usr/bin/reload, /bin/systemctl force-reload nginx, /usr/bin/pkill, /usr/bin/killall, /bin/sed, /bin/systemctl
+Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem
+Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*
+Cmnd_Alias   GENERALCMNDS = /usr/sbin/repquota, /bin/systemctl
 
-www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, PACKAGECMNDS, GENERALCMNDS
+www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
 
 SUD
 service nginx force-reload
