@@ -1,3 +1,3 @@
 #!/bin/bash
 
-find /home -type d -exec chmod 750 {} \;
+find /home -maxdepth 1 -type d -exec chmod 750 {} \;
