@@ -137,7 +137,7 @@ FMCONF
         #;;
         logoff)
         wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-        tar xf logoff-1.3.tar.gz
+        tar xf logoff-1.3.tar.gz >/dev/null 2>&1
         rm -rf logoff-1.3.tar.gz
         ;;
         mobile)
@@ -191,7 +191,7 @@ function _rmplugs() {
 
 function _itthemes() {
   installa=()
-  themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
+  themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark DarkBetter Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
   for i in "${themes[@]}"; do
     plug=${i}
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/${i} ]]; then
@@ -212,19 +212,22 @@ function _itthemes() {
     cd /srv/rutorrent/plugins/theme/themes
     case "$result" in
         Acid|Blue|Dark|Excel|Oblivion)
-        svn co https://github.com/Novik/ruTorrent.git/trunk/plugins/theme/themes/${result} ${result}
+        svn co https://github.com/Novik/ruTorrent.git/trunk/plugins/theme/themes/${result} ${result} >/dev/null 2>&1
         ;;
         Agent*|OblivionBlue)
-        svn co https://github.com/ArtyumX/ruTorrent-Themes/trunk/${result} ${result}
+        svn co https://github.com/ArtyumX/ruTorrent-Themes/trunk/${result} ${result} >/dev/null 2>&1
+        ;;
+        DarkBetter)
+        git clone https://github.com/chocolatkey/DarkBetter.git ${result} >/dev/null 2>&1
         ;;
         club-QuickBox)
-        git clone https://github.com/QuickBox/club-QuickBox.git ${result}
+        git clone https://github.com/QuickBox/club-QuickBox.git ${result} >/dev/null 2>&1
         ;;
         FlatUI*)
-        svn co https://github.com/exetico/FlatUI.git/trunk/${result} ${result}
+        svn co https://github.com/exetico/FlatUI.git/trunk/${result} ${result} >/dev/null 2>&1
         ;;
         MaterialDesign)
-        git clone https://github.com/phlooo/ruTorrent-MaterialDesign.git ${result}
+        git clone https://github.com/phlooo/ruTorrent-MaterialDesign.git ${result} >/dev/null 2>&1
         ;;
     esac
     done
