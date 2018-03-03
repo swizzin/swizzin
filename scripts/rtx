@@ -58,7 +58,7 @@ function _themes() {
 
 function _itplugs() {
   installa=()
-  plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare fileupload geoip history httprpc ipad loginmgr logoff lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
+  plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare geoip history httprpc ipad loginmgr logoff lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
   for i in "${plugs[@]}"; do
     plug=${i}
     if [[ ! -d /srv/rutorrent/plugins/${plug} ]]; then
@@ -132,9 +132,9 @@ FMCONF
         ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php >/dev/null 2>&1
         sed -i 's/$downloadpath .*/$downloadpath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/fileshare/conf.php
         ;;
-        fileupload)
-        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
-        ;;
+        #fileupload)
+        #svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
+        #;;
         logoff)
         wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
         tar xf logoff-1.3.tar.gz
