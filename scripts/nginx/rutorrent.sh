@@ -226,7 +226,7 @@ for u in "${users[@]}"; do
 <?php
 \$topDirectory = '/home/${u}';
 \$scgi_port = 0;
-\$scgi_host = "unix:///var/run/${u}/.rtorrent.sock"
+\$scgi_host = "unix:///var/run/${u}/.rtorrent.sock";
 \$XMLRPCMountPoint = "/${u}";
 \$quotaUser = "${u}";
 ?>
