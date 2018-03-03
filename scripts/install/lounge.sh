@@ -445,7 +445,7 @@ After=znc.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/lounge start
+ExecStart=/usr/bin/thelounge start
 User=lounge
 Group=lounge
 Restart=on-failure
