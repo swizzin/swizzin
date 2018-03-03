@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 1.1.1 Stable :tada:
+# 1.2.0 Stable :tada:
 
 [website](https://swizzin.ltd)
 
@@ -64,6 +64,8 @@ Box functions:
   * Usage: `box panel fix-disk home`
 * rmgrsec - removes grsec kernels installed by ovh
   * Usage: `box rmgrsec`
+* rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
+  * Usage: `box rtx` or `rtx`
 
 
 #### TODO
