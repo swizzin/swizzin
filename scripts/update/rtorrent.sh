@@ -34,4 +34,5 @@ for u in "${users[@]}"; do
       sed -i "s/socketPath.*/socketPath: '\/var\/run\/${u}\/.rtorrent.sock'/g" /home/${u}/.flood/config.js
       systemctl restart flood@${u}
     fi
+  fi
 done
