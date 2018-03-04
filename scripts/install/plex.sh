@@ -28,6 +28,7 @@ HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
 DISTRO=$(lsb_release -is)
 CODENAME=$(lsb_release -cs)
+master=$(cat /root/.master.info | cut -d: -f1)
 
 #versions=https://plex.tv/api/downloads/1.json
 #wgetresults="$(wget "${versions}" -O -)"
@@ -58,6 +59,7 @@ echo "Updating system ... "
     if [[ ! $perm == plex ]]; then
       chown -R plex:plex /var/lib/plexmediaserver
     fi
+    usermod -a -G ${master} plex
     service plexmediaserver restart >/dev/null 2>&1
     touch /install/.plex.lock
     echo
