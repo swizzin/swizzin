@@ -1,5 +1,6 @@
 #!/bin/bash
 
+if [[ -f /install/.nzbget.lock ]]; then
 if grep -q "ExecStart=/home/%I/nzbget/nzbget -D" /etc/systemd/system/nzbget@.service; then
   cat > /etc/systemd/system/nzbget@.service <<NZBGD
 [Unit]
@@ -21,3 +22,4 @@ WantedBy=multi-user.target
 NZBGD
 fi
 systemctl daemon-reload
+fi
