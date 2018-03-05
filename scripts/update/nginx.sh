@@ -72,6 +72,40 @@ if grep -q "Nginx-Fancyindex" /srv/fancyindex/footer.html; then
   sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
 fi
 
+if grep -q "php" /etc/nginx/apps/rindex.conf; then
+  :
+else
+  cat > /etc/nginx/apps/rindex.conf <<EOR
+location /rtorrent.downloads {
+  alias /home/\$remote_user/torrents/rtorrent;
+  include /etc/nginx/snippets/fancyindex.conf;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+  
+  location ~* \.php$ {
+
+  } 
+}
+EOR
+fi
+
+if grep -q "php" /etc/nginx/apps/dindex.conf; then
+  :
+else
+  cat > /etc/nginx/apps/dindex.conf <<DIN
+location /deluge.downloads {
+  alias /home/\$remote_user/torrents/deluge;
+  include /etc/nginx/snippets/fancyindex.conf;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+
+  location ~* \.php$ {
+
+  } 
+}
+DIN
+fi
+
 if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   systemctl restart php7.1-fpm
   if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then

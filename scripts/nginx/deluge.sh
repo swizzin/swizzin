@@ -17,6 +17,10 @@ location /deluge.downloads {
   include /etc/nginx/snippets/fancyindex.conf;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd;
+
+  location ~* \.php$ {
+
+  } 
 }
 DIN
 fi
