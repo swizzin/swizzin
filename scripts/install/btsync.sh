@@ -43,16 +43,15 @@ function _installBTSync3() {
 }
 function _installBTSync4() {
   cd && mkdir /home/"${MASTER}"/sync_folder
-  sudo chown ${MASTER}:rslsync /home/${MASTER}/sync_folder
-  sudo chmod 2775 /home/${MASTER}/sync_folder
-  sudo chown ${MASTER}:rslsync -R /home/${MASTER}/.config/resilio-sync
-  sudo usermod -a -G rslsync ${MASTER} >/dev/null 2>&1
+  chown ${MASTER}: /home/${MASTER}/sync_folder
+  chmod 2775 /home/${MASTER}/sync_folder
+  chown ${MASTER}: -R /home/${MASTER}/.config/resilio-sync
 }
 function _installBTSync5() {
   cat > /etc/resilio-sync/config.json <<RSCONF
 {
     "listening_port" : 0,
-    "storage_path" : "/var/lib/resilio-sync/",
+    "storage_path" : "/home/${MASTER}/.config/resilio-sync/",
     "pid_file" : "/var/run/resilio-sync/sync.pid",
     "agree_to_EULA": "yes",
 
@@ -62,22 +61,11 @@ function _installBTSync5() {
     }
 }
 RSCONF
-  cat > /etc/resilio-sync/user_config.json <<RSUCONF
-{
-  "listening_port" : 0,
-  "storage_path" : "{HOME}/.config/resilio-sync/storage",
-  "pid_file" : "{HOME}/.config/resilio-sync/sync.pid",
-  "agree_to_EULA": "yes",
+  cp -a /lib/systemd/system/resilio-sync.service /etc/systemd/system/
+  sed -i "s/rslsync/${MASTER}/g" /etc/systemd/system/resilio-sync.service
+  systemctl daemon-reload
+  sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/config.json
 
-  "webui" :
-  {
-      "listen" : "BTSGUIP:8888"
-  }
-}
-RSUCONF
-  sudo sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/config.json
-  sudo sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/user_config.json
-  cp /var/run/resilio-sync/sync.pid /home/${MASTER}/.config/resilio-sync/sync.pid
 }
 function _installBTSync6() {
   touch /install/.btsync.lock
