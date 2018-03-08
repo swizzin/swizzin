@@ -62,7 +62,8 @@ function _installBTSync5() {
 }
 RSCONF
   cp -a /lib/systemd/system/resilio-sync.service /etc/systemd/system/
-  sed -i "s/rslsync/${MASTER}/g" /etc/systemd/system/resilio-sync.service
+  sed -i "s/=rslsync/=${MASTER}/g" /etc/systemd/system/resilio-sync.service
+  sed -i "s/rslsync:rslsync/${MASTER}:${MASTER}/g" /etc/systemd/system/resilio-sync.service
   systemctl daemon-reload
   sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/config.json
 
