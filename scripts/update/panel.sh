@@ -3,6 +3,11 @@
 if [[ -d /srv/panel ]]; then
   echo "Updating panel"
   cd /srv/panel
+  git fetch origin master
+  menu=$(git diff master:custom/custom.menu.php  -- custom/custom.menu.php)
+  if [[ -n $menu ]]; then
+    cp -a custom/custom.menu.php /tmp/
+  fi
   git reset HEAD --hard > /dev/null 2>&1
   git pull || { panelreset=1; }
   if [[ $panelreset == 1 ]]; then
@@ -21,14 +26,18 @@ if [[ -d /srv/panel ]]; then
       bash /usr/local/bin/swizzin/panel/theme/themeSelect-defaulted
     fi
     bash /usr/local/bin/swizzin/panel/lang/langSelect-$lang
-    if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-      systemctl restart php7.1-fpm
-      if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-        systemctl stop php7.0-fpm
-      fi
-    else
-      systemctl restart php7.0-fpm
-    fi
-    systemctl restart nginx
   fi
+  if [[ -n $menu ]]; then
+    cd /srv/panel
+    cp -a /tmp/custom.menu.php custom/
+  fi
+  if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+    systemctl restart php7.1-fpm
+    if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
+      systemctl stop php7.0-fpm
+    fi
+  else
+    systemctl restart php7.0-fpm
+  fi
+   systemctl restart nginx
 fi
