@@ -66,7 +66,6 @@ function _libtorrent() {
 	if [[ ${libtorrentver} == feature-bind ]]; then
 		git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
 		cd libtorrent
-		git checkout 375b6bccef88944e1e506527fc46acb2af9cc526 .
 	else
 		mkdir libtorrent
 		wget -q ${libtorrentloc}
@@ -94,7 +93,6 @@ function _rtorrent() {
 	fi
 	cd rtorrent
 	if [[ ${rtorrentver} == feature-bind ]]; then
-		git checkout c38ec6fdae38e76101214f3b1edb84f17fae492a .
 		./autogen.sh >>$log 2>&1
 	fi
 	./configure --prefix=/usr --with-xmlrpc-c >>$log 2>&1
