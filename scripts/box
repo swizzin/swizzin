@@ -247,6 +247,7 @@ function _adduser {
         elif [[ $app =~ ("rutorrent"|"lounge") ]]; then
           :
         else
+          if [[ $app = "autodl" ]]; then app=irssi; fi
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
