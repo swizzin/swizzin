@@ -1,0 +1,20 @@
+diff --git a/php/settings.php b/php/settings.php
+index 83f4031f..5b18ee4f 100644
+--- a/php/settings.php
++++ b/php/settings.php
+@@ -185,6 +185,14 @@ class rTorrentSettings
+ 							$this->port = intval($req->val[0]);
+ 					}
+ 
++					if($this->apiVersion>=10)
++					{
++						$req = new rXMLRPCRequest( new rXMLRPCCommand("network.port") );
++						$req->important = false;
++						if($req->success())
++							$this->port = intval($req->val[0]);
++					}
++
+ 					if(isLocalMode())
+ 					{
+ 	                                        if(!empty($this->session))
+
