@@ -241,6 +241,7 @@ function _adduser {
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
+          /usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}

@@ -10,6 +10,10 @@
 #   under the GPL along with build & install instructions.
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
+if [[ -n $1 ]]; then
+  users=($1)
+fi
+
 if [[ ! -f /etc/nginx/apps/dindex.conf ]]; then
   cat > /etc/nginx/apps/dindex.conf <<DIN
 location /deluge.downloads {
