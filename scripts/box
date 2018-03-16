@@ -285,11 +285,11 @@ function _deluser {
       if [[ $app = "rutorrent" ]]; then
         rm -rf /srv/rutorrent/conf/users/${user}
         rm -f /etc/nginx/apps/${user}*
-        systemctl reload nginx
       elif [[ $app = "lounge" ]]; then
         rm -f /home/lounge/.lounge/users/${user}.json
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
+        rm -rf /etc/nginx/conf.d/${user}.deluge.conf
         eval systemctl disable ${app}@${user}
         eval systemctl stop ${app}@${user}
       else
