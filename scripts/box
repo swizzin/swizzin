@@ -284,6 +284,7 @@ function _deluser {
     if [[ -f /install/.${app}.lock ]]; then
       if [[ $app = "rutorrent" ]]; then
         rm -rf /srv/rutorrent/conf/users/${user}
+        rm -rf /srv/rutorrent/share/users/${user}
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
         rm -f /home/lounge/.lounge/users/${user}.json
