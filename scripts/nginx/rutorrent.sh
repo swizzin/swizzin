@@ -222,7 +222,6 @@ RIN
 fi
 
 for u in "${users[@]}"; do
-  port=$(cat /home/${u}/.rtorrent.rc | grep scgi | cut -d: -f2)
   if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
     mkdir -p /srv/rutorrent/conf/users/${u}/
 
