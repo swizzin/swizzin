@@ -8,3 +8,13 @@ if [[ -f /install/.plex.lock ]]; then
         usermod -a -G ${master} plex
     fi
 fi
+
+if grep -q 'export PATH=$PATH:/usr/local/bin/swizzin' /root/.profile; then
+    sed -i '/export PATH=$PATH:\/usr\/local\/bin\/swizzin/d' /root/.profile
+fi
+
+if grep -q 'export PATH=$PATH:/usr/local/bin/swizzin' /root/.bashrc; then
+    :
+else
+    echo 'export PATH=$PATH:/usr/local/bin/swizzin' >> /root/.bashrc
+fi
