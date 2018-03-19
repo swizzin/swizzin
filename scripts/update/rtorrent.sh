@@ -11,8 +11,15 @@ for u in "${users[@]}"; do
       :
     else
       sed -i 's/network.scgi.open_port.*/network.scgi.open_local = \/var\/run\/'${u}'\/.rtorrent.sock\nschedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\\"g+w,o=\\",\/var\/run\/'${u}'\/.rtorrent.sock"/' /home/${u}/.rtorrent.rc
-      systemctl restart rtorrent@${u}
+      restart=1
     fi
+    if grep -q /srv/rutorrent/php/initplugins.php /home/${u}/.rtorrent.rc; then
+      sed -i 's:/var/www/rutorrent/php/initplugins.php:/srv/rutorrent/php/initplugins.php:g' /home/${u}/.rtorrent.rc
+      restart=1
+    fi
+  fi
+  if [[ $restart = 1 ]]; then
+    systemctl restart rtorrent@${u}
   fi
   if [[ -f /etc/nginx/apps/${u}.scgi.conf ]]; then
     if grep -q "scgi_pass 127.0.0.1" /etc/nginx/apps/${u}.scgi.conf; then

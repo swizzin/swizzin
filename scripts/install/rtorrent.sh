@@ -126,7 +126,7 @@ throttle.min_peers.normal.set = 1
 throttle.min_peers.seed.set = -1
 trackers.use_udp.set = yes
 
-execute = {sh,-c,/usr/bin/php /var/www/rutorrent/php/initplugins.php ${user} &}
+execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
 # -- END HERE --
 EOF
