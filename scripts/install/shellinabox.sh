@@ -16,7 +16,6 @@ rm -rf /etc/init.d/shellinabox
 cat > /etc/systemd/system/shellinabox.service <<SIAB
 [Unit]
 Description=Shell in a Box service
-Required=sshd.service
 After=sshd.service
 
 [Service]
