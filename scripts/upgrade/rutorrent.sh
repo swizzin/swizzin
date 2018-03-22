@@ -19,13 +19,7 @@ cd /srv/rutorrent
 git reset > /dev/null 2>&1
 git checkout -- php/settings.php > /dev/null 2>&1
 git pull
-if grep -q network.port php/settings.php; then
-  :
-else
-  git apply /etc/swizzin/sources/network.port.patch > /dev/null 2>&1
-fi
-find . -user root -exec chown www-data: {} \;
-cd /srv/rutorrent/plugins
+find . -user root -not -path "./.git/*" -exec chown www-data: {} \;cd /srv/rutorrent/plugins
 newplugs=($(echo */|sed 's/\///g'))
 for i in ${newplugs[@]}; do
   if [[ ! ${plugs[@]} =~ $i ]]; then
