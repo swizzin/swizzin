@@ -19,7 +19,8 @@ cd /srv/rutorrent
 git reset > /dev/null 2>&1
 git checkout -- php/settings.php > /dev/null 2>&1
 git pull
-find . -user root -not -path "./.git/*" -exec chown www-data: {} \;cd /srv/rutorrent/plugins
+find . -user root -not -path "./.git/*" -exec chown www-data: {} \;
+cd /srv/rutorrent/plugins
 newplugs=($(echo */|sed 's/\///g'))
 for i in ${newplugs[@]}; do
   if [[ ! ${plugs[@]} =~ $i ]]; then
