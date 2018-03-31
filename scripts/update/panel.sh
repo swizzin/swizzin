@@ -3,6 +3,9 @@
 if [[ -d /srv/panel ]]; then
   echo "Updating panel"
   cd /srv/panel
+  if grep -q "repquota /home" /srv/panel/widgets/disk_data.php; then 
+    disk=home
+  fi
   git fetch origin master
   menu=$(git diff master:custom/custom.menu.php  -- custom/custom.menu.php)
   if [[ -n $menu ]]; then
@@ -30,6 +33,9 @@ if [[ -d /srv/panel ]]; then
   if [[ -n $menu ]]; then
     cd /srv/panel
     cp -a /tmp/custom.menu.php custom/
+  fi
+  if [[ $disk = "home" ]]; then
+    /usr/local/bin/swizzin/panel/fix-disk
   fi
   if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
     systemctl restart php7.1-fpm
