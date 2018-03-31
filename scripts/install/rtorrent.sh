@@ -146,8 +146,6 @@ function _makedirs() {
 
 function _perms() {
 	chown -R ${user}.${user} /home/${user}/ 2>> $log
-	sudo -u ${user} chmod 755 /home/${user}/ 2>> $log
-	chsh -s /bin/bash ${user}
 }
 
 
