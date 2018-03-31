@@ -43,7 +43,7 @@ echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
       dpkg -i emby.dpkg >> $OUTTO 2>&1
       rm emby.dpkg
     else
-      version=$(cat /etc/os-release | grep VERSION= | cut -d "\"" -f 2 | cut -d " " -f1)
+      version=$(cat /etc/os-release | grep VERSION= | cut -d "\"" -f 2 | cut -d " " -f1 | cut -d. -f1-2)
       sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/x$(lsb_release -is)_${version}/ /' > /etc/apt/sources.list.d/emby-server.list"
       wget --quiet http://download.opensuse.org/repositories/home:emby/x$(lsb_release -is)_${version}/Release.key -O - | apt-key add - > /dev/null 2>&1
     fi
