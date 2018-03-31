@@ -293,6 +293,9 @@ function _post {
   #echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
   #chown ${user}: /home/$user/.profile
   echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
+  if [[ $disitrbution = "Ubuntu" ]]; then
+    echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
+  fi
   echo "Installation complete!"
   echo ""
   echo "You may now login with the following info: ${user}:${pass}"

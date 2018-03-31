@@ -32,7 +32,7 @@ curl
 bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)
 ```
 
-Please note that curl|bash is **not** supported. Certain scripts **will** break if the setup is piped.
+Please note that if you are running Ubuntu and choose to run the initial setup though `sudo` you should include the `-H` argument to ensure that your home directory is modified to /root when you sudo up. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command.
 
 
 #### Supported:

@@ -2,6 +2,11 @@
 
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 master=$(cat /root/.master.info | cut -d: -f1)
+distribution=$(lsb_release -is)
+
+if [[ ! -f /etc/sudoers.d/env_keep ]] && [[ $distribution = "Ubuntu" ]]; then
+    echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
+fi
 
 for u in "${users[@]}"; do
   if [[ $u = "$master" ]]; then continue; fi
