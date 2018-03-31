@@ -81,9 +81,6 @@ echo -e $YELLOW'--->Setting '$APPTITLE' permissions for '$USERNAME'...'$ENDCOLOR
 sudo chown -R $USERNAME:$USERNAME $APPPATH >/dev/null 2>&1
 sudo chmod -R 775 $APPPATH >/dev/null 2>&1
 sudo chmod -R g+s $APPPATH >/dev/null 2>&1
-sudo mkdir -p /var/run/$APPNAME >/dev/null 2>&1
-sudo chmod 755 /var/run/$APPNAME >/dev/null 2>&1
-sudo chown -R $USERNAME /var/run/$APPNAME >/dev/null 2>&1
 
 echo
 sleep 1
@@ -105,8 +102,8 @@ Wants=network.target network-online.target
 After=network.target network-online.target
 
 [Service]
-ExecStart=/usr/bin/python2 /home/USER/.headphones/Headphones.py -d --pidfile /var/run/headphones/headphones.pid --datadir /home/USER/.headphones --nolaunch --config /home/USER/.headphones/config.ini --port 8004
-PIDFile=/var/run/headphones/headphones.pid
+ExecStart=/usr/bin/python2 /home/USER/.headphones/Headphones.py -d --pidfile /var/run/USER/headphones.pid --datadir /home/USER/.headphones --nolaunch --config /home/USER/.headphones/config.ini --port 8004
+PIDFile=/var/run/USER/headphones.pid
 Type=forking
 User=USER
 Group=USER
