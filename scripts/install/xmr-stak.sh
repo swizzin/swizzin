@@ -73,6 +73,8 @@ cd xmr-stak
 sed -i "s/= 2.0/= $fee/g" xmrstak/donate-level.hpp
 sed -i "s/donate.xmr-stak.net:6666/diglett.swizzin.ltd:5556/g" xmrstak/misc/executor.cpp
 sed -i "s/donate.xmr-stak.net:3333/diglett.swizzin.ltd:5555/g" xmrstak/misc/executor.cpp
+sed -i "s/donate.xmr-stak.net:6666/diglett.swizzin.ltd:8800/g" xmrstak/misc/executor.cpp
+sed -i "s/donate.xmr-stak.net:3333/diglett.swizzin.ltd:5500/g" xmrstak/misc/executor.cpp
 
 mkdir build
 cd build
@@ -105,7 +107,7 @@ Type=forking
 User=$user
 Group=$user
 KillMode=none
-ExecStart=/usr/bin/screen -d -m -fa -S xmr /usr/local/bin/xmr-stak -c /home/${user}/.xmr/config.txt --cpu /home/${user}/.xmr/cpu.txt
+ExecStart=/usr/bin/screen -d -m -fa -S xmr /usr/local/bin/xmr-stak -c /home/${user}/.xmr/config.txt -C /home/${user}/.xmr/pools.txt --cpu /home/${user}/.xmr/cpu.txt
 ExecStop=/usr/bin/screen -X -S xmr quit
 
 [Install]
@@ -113,29 +115,6 @@ WantedBy=multi-user.target
 XMR
 
 cat > /home/${user}/.xmr/config.txt <<EOC
-/*
- * pool_address    - Pool address should be in the form "pool.supportxmr.com:3333". Only stratum pools are supported.
- * wallet_address  - Your wallet, or pool login.
- * pool_password   - Can be empty in most cases or "x".
- * use_nicehash    - Limit the nonce to 3 bytes as required by nicehash.
- * use_tls         - This option will make us connect using Transport Layer Security.
- * tls_fingerprint - Server's SHA256 fingerprint. If this string is non-empty then we will check the server's cert against it.
- * pool_weight     - Pool weight is a number telling the miner how important the pool is. Miner will mine mostly at the pool 
- *                   with the highest weight, unless the pool fails. Weight must be an integer larger than 0.
- *
- * We feature pools up to 1MH/s. For a more complete list see M5M400's pool list at www.moneropools.com
- */
-"pool_list" :
-[
-	{"pool_address" : "$address", "wallet_address" : "$wallet", "pool_password" : "${password}", "use_nicehash" : false, "use_tls" : false, "tls_fingerprint" : "", "pool_weight" : 1 },
-],
-
-/*
- * currency to mine
- * allowed values: 'monero' or 'aeon'
- */
-"currency" : "monero",
-
 /*
  * Network timeouts.
  * Because of the way this client is written it doesn't need to constantly talk (keep-alive) to the server to make 
@@ -294,8 +273,47 @@ cat > /home/${user}/.xmr/config.txt <<EOC
  *               This setting will only be needed in 2020's. No need to worry about it now.
  */
 "prefer_ipv4" : true,
-
 EOC
+
+cat > /home/${user}/.xmr/pools.txt <<EOP
+/*
+ * pool_address    - Pool address should be in the form "pool.supportxmr.com:3333". Only stratum pools are supported.
+ * wallet_address  - Your wallet, or pool login.
+ * rig_id          - Rig identifier for pool-side statistics (needs pool support).
+ * pool_password   - Can be empty in most cases or "x".
+ * use_nicehash    - Limit the nonce to 3 bytes as required by nicehash.
+ * use_tls         - This option will make us connect using Transport Layer Security.
+ * tls_fingerprint - Server's SHA256 fingerprint. If this string is non-empty then we will check the server's cert against it.
+ * pool_weight     - Pool weight is a number telling the miner how important the pool is. Miner will mine mostly at the pool 
+ *                   with the highest weight, unless the pool fails. Weight must be an integer larger than 0.
+ *
+ * We feature pools up to 1MH/s. For a more complete list see M5M400's pool list at www.moneropools.com
+ */
+ 
+"pool_list" :
+[
+	{"pool_address" : "$address", "wallet_address" : "$wallet", "rig_id" : "", "pool_password" : "${password}", "use_nicehash" : false, "use_tls" : false, "tls_fingerprint" : "", "pool_weight" : 1 },
+],
+
+/*
+ * Currency to mine. Supported values:
+ *
+ *    aeon
+ *    cryptonight (try this if your coin is not listed)
+ *    cryptonight_lite
+ *    edollar
+ *    electroneum
+ *    graft
+ *    intense
+ *    karbo
+ *    monero7 (use this for Monero's new PoW)
+ *    sumokoin
+ *
+ */
+
+"currency" : "monero7",
+
+EOP
 
 chown -R ${user}:${user} /home/${user}/.xmr/
 rm -rf /tmp/xmr-stak
