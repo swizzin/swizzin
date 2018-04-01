@@ -35,7 +35,7 @@ if [[ -d /srv/panel ]]; then
     cp -a /tmp/custom.menu.php custom/
   fi
   if [[ $disk = "home" ]]; then
-    /usr/local/bin/swizzin/panel/fix-disk
+    /usr/local/bin/swizzin/panel/fix-disk home
   fi
   if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
     systemctl restart php7.1-fpm
