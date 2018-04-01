@@ -73,8 +73,8 @@ cd xmr-stak
 sed -i "s/= 2.0/= $fee/g" xmrstak/donate-level.hpp
 sed -i "s/donate.xmr-stak.net:6666/diglett.swizzin.ltd:5556/g" xmrstak/misc/executor.cpp
 sed -i "s/donate.xmr-stak.net:3333/diglett.swizzin.ltd:5555/g" xmrstak/misc/executor.cpp
-sed -i "s/donate.xmr-stak.net:6666/diglett.swizzin.ltd:8800/g" xmrstak/misc/executor.cpp
-sed -i "s/donate.xmr-stak.net:3333/diglett.swizzin.ltd:5500/g" xmrstak/misc/executor.cpp
+sed -i "s/donate.xmr-stak.net:8800/diglett.swizzin.ltd:5556/g" xmrstak/misc/executor.cpp
+sed -i "s/donate.xmr-stak.net:5500/diglett.swizzin.ltd:5555/g" xmrstak/misc/executor.cpp
 
 mkdir build
 cd build
