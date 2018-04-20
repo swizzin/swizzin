@@ -33,13 +33,11 @@ function _depends() {
 
 function _install() {
   cd /opt
-  curl -sL https://git.io/vKEJz | grep release | grep zip | cut -d "\"" -f 2 | sed -e 's/\/tidusjar/https:\/\/github.com\/tidusjar/g' | xargs wget --quiet -O Ombi.zip >/dev/null 2>&1
-  mkdir ombi
-  mv Ombi.zip ombi
-  cd ombi
+  #curl -sL https://git.io/vKEJz | grep release | grep zip | cut -d "\"" -f 2 | sed -e 's/\/tidusjar/https:\/\/github.com\/tidusjar/g' | xargs wget --quiet -O Ombi.zip >/dev/null 2>&1
+  wget -q -O Ombi.zip https://github.com/tidusjar/Ombi/releases/download/v2.2.1/Ombi.zip
   unzip Ombi.zip >/dev/null 2>&1
+  mv Release ombi
   rm Ombi.zip
-  cd /opt
   chown -R ${user}: ombi
 }
 

@@ -6,12 +6,12 @@ echo "Upgrading Ombi. Please wait ... "
 user=$(cat /root/.master.info | cut -d: -f1)
 systemctl stop ombi
 cd /opt
-curl -sL https://git.io/vKEJz | grep release | grep zip | cut -d "\"" -f 2 | sed -e 's/\/tidusjar/https:\/\/github.com\/tidusjar/g' | xargs wget --quiet -O Ombi.zip >/dev/null 2>&1
-mkdir ombi
-mv Ombi.zip ombi
-cd ombi
+cp ombi/Ombi.sqlite .
+rm -rf ombi
+wget -q -O Ombi.zip https://github.com/tidusjar/Ombi/releases/download/v2.2.1/Ombi.zip
 unzip Ombi.zip >/dev/null 2>&1
+mv Release ombi
+mv Ombi.sqlite ombi
 rm Ombi.zip
-cd /opt
 chown -R ${user}: ombi
 systemctl start ombi
