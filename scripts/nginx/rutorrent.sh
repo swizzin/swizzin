@@ -32,6 +32,7 @@ sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugi
 sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
 sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
+if [[ ! -f /install/.rutorrent.lock ]]; then
 if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   cd /srv/rutorrent/plugins/theme/themes
   git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
@@ -121,7 +122,7 @@ DSKSP
   fi
     touch /install/.quota.lock
 fi
-
+fi
 cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
