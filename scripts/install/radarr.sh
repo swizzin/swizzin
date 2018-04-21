@@ -37,7 +37,7 @@ function _installRadarrDependencies() {
   echo "Installing dependencies ... "
   if [[ $version == "jessie" ]]; then
     if [[ ! -f /etc/apt/sources.list.d/sonarr.list ]]; then
-        echo "deb https://apt.sonarr.tv/ master main" | sudo tee -a /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
+        echo "deb https://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     fi
   fi

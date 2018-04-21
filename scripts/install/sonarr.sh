@@ -59,7 +59,7 @@ function _installSonarr2() {
       gpg --export FDA5DFFC > /etc/apt/trusted.gpg.d/nzbdrone.gpg
     fi
   fi
-  echo "deb https://apt.sonarr.tv/ master main" | sudo tee -a /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
+  echo "deb https://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
 }
 
 function _installSonarr3() {
