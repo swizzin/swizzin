@@ -53,6 +53,10 @@ function _installSonarr2() {
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys FDA5DFFC >/dev/null 2>&1
   elif [[ $distribution == "Debian" ]]; then
     if [[ $version == "jessie" ]]; then
+      cd /tmp
+      wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
+      dpkg -i libjpeg8.deb
+      rm -rf libjpeg8.deb
       apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     else
       gpg --keyserver http://keyserver.ubuntu.com --recv FDA5DFFC >/dev/null 2>&1
