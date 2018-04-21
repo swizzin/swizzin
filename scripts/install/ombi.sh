@@ -21,14 +21,14 @@ function _depends() {
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
         cd /tmp
         wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-        dpkg -i libjpeg8.deb
+        dpkg -i libjpeg8.deb >/dev/null 2>&1
         rm -rf libjpeg8.deb
     fi
   fi
 }
 
 function _install() {
-  apt-get update -q
+  apt-get update -q  >/dev/null 2>&1
   apt-get install -q -y mono-devel mono-complete unzip screen >/dev/null 2>&1
   cd /opt
   #curl -sL https://git.io/vKEJz | grep release | grep zip | cut -d "\"" -f 2 | sed -e 's/\/tidusjar/https:\/\/github.com\/tidusjar/g' | xargs wget --quiet -O Ombi.zip >/dev/null 2>&1

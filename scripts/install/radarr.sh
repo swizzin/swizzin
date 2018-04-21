@@ -41,7 +41,7 @@ function _installRadarrDependencies() {
         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
         cd /tmp
         wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-        dpkg -i libjpeg8.deb
+        dpkg -i libjpeg8.deb >/dev/null 2>&1
         rm -rf libjpeg8.deb
     fi
   fi
@@ -51,7 +51,6 @@ function _installRadarrDependencies() {
 
 function _installRadarrCode() {
   # output to box
-  echo "Installing mono"
   apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
   echo "Installing Radar ... "
   cd /opt

@@ -55,7 +55,7 @@ function _installSonarr2() {
     if [[ $version == "jessie" ]]; then
       cd /tmp
       wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-      dpkg -i libjpeg8.deb
+      dpkg -i libjpeg8.deb >/dev/null 2>&1
       rm -rf libjpeg8.deb
       apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     else
