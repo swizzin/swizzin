@@ -35,23 +35,20 @@ function _installRadarrIntro() {
 function _installRadarrDependencies() {
   # output to box
   echo "Installing dependencies ... "
-  if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-    if [[ $distribution == "Ubuntu" ]]; then
-      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-    elif [[ $distribution == "Debian" ]]; then
-      gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-      gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
+  if [[ $version == "jessie" ]]; then
+    if [[ ! -f /etc/apt/sources.list.d/sonarr.list ]]; then
+        echo "deb https://apt.sonarr.tv/ master main" | sudo tee -a /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     fi
-    echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-    echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-    echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
   fi
 	apt-get update >/dev/null 2>&1
-	apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
+	
 }
 
 function _installRadarrCode() {
   # output to box
+  echo "Installing mono"
+  apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
   echo "Installing Radar ... "
   cd /opt
   wget $( curl -s https://api.github.com/repos/Radarr/Radarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 ) > /dev/null 2>&1
@@ -124,10 +121,11 @@ else
 fi
 username=$(cat /root/.master.info | cut -d: -f1)
 distribution=$(lsb_release -is)
+version=$(lsb_release -cs)
 ip=$(curl -s http://whatismyip.akamai.com)
 
 _installRadarrIntro
-echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
+# "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
 echo "Installing Radar ... " >>"${OUTTO}" 2>&1;_installRadarrCode
 echo "Configuring Radar ... " >>"${OUTTO}" 2>&1;_installRadarrConfigure
 _installRadarrFinish
