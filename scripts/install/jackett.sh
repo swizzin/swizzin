@@ -39,7 +39,7 @@ if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
       apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
       cd /tmp
       wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-      dpkg -i libjpeg8.deb
+      dpkg -i libjpeg8.deb >/dev/null 2>&1
       rm -rf libjpeg8.deb
     else
       gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
