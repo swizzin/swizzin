@@ -28,4 +28,5 @@ auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 RUC
     fi
   done
+  systemctl reload nginx
 fi
