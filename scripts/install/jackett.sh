@@ -31,15 +31,18 @@ jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | g
 echo >>"${OUTTO}" 2>&1;
 echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
 
-if [[ $version == "jessie" ]]; then
-  if [[ ! -f /etc/apt/sources.list.d/sonarr.list ]]; then
-      echo "deb https://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
-      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
-      cd /tmp
-      wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-      dpkg -i libjpeg8.deb >/dev/null 2>&1
-      rm -rf libjpeg8.deb
+if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
+  if [[ $distribution == "Ubuntu" ]]; then
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+  elif [[ $distribution == "Debian" ]]; then
+    if [[ $version == "jessie" ]]; then
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+    else
+      gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+      gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
+    fi
   fi
+  echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/4.8 main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
 fi
 
 apt-get update -y >/dev/null 2>&1

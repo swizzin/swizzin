@@ -33,19 +33,21 @@ function _installSonarrintro() {
   sleep 5
 }
 
-#function _installSonarr1() {
-#  if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-#    if [[ $distribution == "Ubuntu" ]]; then
-#      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-#    elif [[ $distribution == "Debian" ]]; then
-#      gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-#      gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
-#    fi
-#    echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-#    echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-#    echo "deb http://download.mono-project.com/repo/debian wheezy-apache24-compat main" | tee -a /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-#  fi
-#}
+function _installSonarr1() {
+  if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
+    if [[ $distribution == "Ubuntu" ]]; then
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+    elif [[ $distribution == "Debian" ]]; then
+      if [[ $version == "jessie" ]]; then
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+      else
+        gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+        gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
+      fi
+    fi
+    echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/4.8 main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
+  fi
+}
 
 function _installSonarr2() {
   sudo apt-get install apt-transport-https screen -y >/dev/null 2>&1
@@ -53,10 +55,6 @@ function _installSonarr2() {
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys FDA5DFFC >/dev/null 2>&1
   elif [[ $distribution == "Debian" ]]; then
     if [[ $version == "jessie" ]]; then
-      cd /tmp
-      wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-      dpkg -i libjpeg8.deb >/dev/null 2>&1
-      rm -rf libjpeg8.deb
       apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     else
       gpg --keyserver http://keyserver.ubuntu.com --recv FDA5DFFC >/dev/null 2>&1
@@ -136,6 +134,7 @@ distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
 _installSonarrintro
+_installSonarr1
 echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${OUTTO}" 2>&1;_installSonarr2
 echo "Updating your system with new sources ... " >>"${OUTTO}" 2>&1;_installSonarr3
 echo "Installing Sonarr-Nzbdrone ... " >>"${OUTTO}" 2>&1;_installSonarr4
