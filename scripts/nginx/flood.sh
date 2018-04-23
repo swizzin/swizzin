@@ -52,16 +52,31 @@ upstream $u.flood {
 }
 FLUP
   fi
+  
   sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
   base=$(cat /home/$u/.flood/config.js | grep baseURI | cut -d"'" -f2)
   sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
+
   if [[ ! -d /home/$u/.flood/server/assets ]]; then
     su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
   elif [[ -d /home/$u/.flood/server/assets ]] && [[ $base == "/" ]]; then
     su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
   fi
+
+  if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
+    cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
+location /${u} {
+include scgi_params;
+scgi_pass unix:/var/run/${u}/.rtorrent.sock;
+auth_basic "What's the password?";
+auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
+}
+RUC
+  fi
+
   if [[ $isactive == "active" ]]; then
     systemctl restart flood@$u
   fi
+
 done
 systemctl reload nginx
