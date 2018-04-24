@@ -77,6 +77,8 @@ Box functions:
 
 #### Feature Requests:
 
+You can request and vote on features at [feathub](https://feathub.com/liaralabs/swizzin).
+
 [![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
 
