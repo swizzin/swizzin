@@ -3,9 +3,7 @@
 
 # 1.2.0 Stable :tada:
 
-[website](https://swizzin.ltd)
-
-[reddit](https://reddit.com/r/swizzinltd)
+[website](https://swizzin.ltd) | [reddit](https://reddit.com/r/swizzinltd)
 
 irc: irc.swizzin.ltd 6697 #swizzin #swizzin-dev
 
@@ -76,6 +74,10 @@ Box functions:
 
 #### TODO
 - [ ] Better readme/docs
+
+#### Feature Requests:
+
+[![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
 
 ### Donations
