@@ -188,7 +188,7 @@ function _choices() {
     done
     rm -f /root/guis
 
-    if [[ ${codename} =~ ("stretch"|"artful") ]]; then
+    if [[ ${codename} =~ ("stretch"|"artful"|"bionic") ]]; then
       function=feature-bind
       #function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
               #  0.9.6 "" 3>&1 1>&2 2>&3)
