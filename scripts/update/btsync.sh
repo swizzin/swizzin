@@ -3,7 +3,7 @@ if [[ -f /install/.btsync.lock ]]; then
   if [[ ! -f /etc/systemd/system/resilio-sync.service ]]; then
     systemctl stop resilo-sync
     MASTER=$(cat /root/.master.info | cut -d: -f1)
-    BTSYNCIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+    BTSYNCIP=$(ip route get 8.8.8.8 | awk '{printf $7}')
     cat > /etc/resilio-sync/config.json <<RSCONF
 {
     "listening_port" : 0,

@@ -15,7 +15,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
     exit 1
 fi    
 
-ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+ip=$(ip route get 8.8.8.8 | awk '{printf $7}')
 
 echo -e "Enter domain name to secure with LE"
 read -e hostname

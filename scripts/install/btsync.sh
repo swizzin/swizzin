@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-BTSYNCIP=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+BTSYNCIP=$(ip route get 8.8.8.8 | awk '{printf $7}')
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then

@@ -323,7 +323,7 @@ users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 master=$(cat /root/.master.info | cut -d: -f1)
 pass=$(cat /root/.master.info | cut -d: -f2)
 codename=$(lsb_release -cs)
-ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+ip=$(ip route get 8.8.8.8 | awk '{printf $7}')
 noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
 
 if [[ -n $1 ]]; then
