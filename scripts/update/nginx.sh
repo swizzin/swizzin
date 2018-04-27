@@ -68,7 +68,7 @@ if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
   if [[ -z $v ]]; then
     oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
     for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.2-fpm.sock/g' $upgrade
+      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.2-fpm.sock;/g' $upgrade
     done
   fi
 elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
@@ -76,7 +76,7 @@ elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   if [[ -z $v ]]; then
     oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
     for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock/g' $upgrade
+      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock;/g' $upgrade
     done
   fi
 fi
