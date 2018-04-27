@@ -37,10 +37,21 @@ if [[ -d /srv/panel ]]; then
   if [[ $disk = "home" ]]; then
     /usr/local/bin/swizzin/panel/fix-disk home
   fi
+  if [[ -f /lib/systemd/system/php7.2-fpm-service ]]; then
+    systemctl restart php7.2-fpm
+    if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
+      systemctl stop php7.1-fpm
+      systemctl disable php7.1-fpm
+    fi
+    if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
+      systemctl stop php7.0-fpm
+      systemctl disable php7.0-fpm
+    fi
   if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
     systemctl restart php7.1-fpm
     if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
       systemctl stop php7.0-fpm
+      systemctl disable php7.0-fpm
     fi
   else
     systemctl restart php7.0-fpm

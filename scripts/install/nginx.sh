@@ -58,9 +58,14 @@ else
   geoip=php-geoip
 fi
 
+if [[ $codename == "bionic" ]]; then
+  mcrypt=
+else
+  mcrypt=php-mcrypt
+fi
 
 apt-get -y -qq update
-APT='nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mcrypt php-mbstring php-opcache '"${geoip}"' php-xml'
+APT='nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
 for depends in $APT; do
 apt-get -y install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
 done
@@ -80,7 +85,9 @@ for version in $phpv; do
   phpenmod -v $version opcache
 done
 
-if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+  sock=php7.2-fpm
+elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   sock=php7.1-fpm
 else
   sock=php7.0-fpm
@@ -218,6 +225,17 @@ for i in "${locks[@]}"; do
 done
 
 systemctl restart nginx
+
+if [[ -f /lib/systemd/system/php7.2-fpm-service ]]; then
+  systemctl restart php7.2-fpm
+  if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
+    systemctl stop php7.1-fpm
+    systemctl disable php7.1-fpm
+  fi
+  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
+    systemctl stop php7.0-fpm
+    systemctl disable php7.0-fpm
+  fi
 if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   systemctl restart php7.1-fpm
   if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then

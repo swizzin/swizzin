@@ -13,7 +13,13 @@ else
 fi
 
 
-APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mcrypt php-mbstring php-opcache '"${geoip}"' php-xml'
+if [[ $codename == "bionic" ]]; then
+  mcrypt=
+else
+  mcrypt=php-mcrypt
+fi
+
+APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
 for depends in $APT; do
   inst=$(dpkg -l | grep $depends)
   if [[ -z $inst ]]; then
@@ -34,7 +40,9 @@ if [[ $phpv =~ "7.1" ]]; then
   fi
 fi
 
-if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+  sock=php7.2-fpm
+elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   sock=php7.1-fpm
 else
   sock=php7.0-fpm
@@ -55,11 +63,20 @@ for version in $phpv; do
   fi
 done
 
-if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.0-fpm.sock" {} \;)
-  if [[ -n $oldv ]]; then
+if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.2-fpm.sock" {} \;)
+  if [[ -z $v ]]; then
+    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
     for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass unix:\/run\/php\/php7.0-fpm.sock/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock/g' $upgrade
+      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.2-fpm.sock/g' $upgrade
+    done
+  fi
+elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.1-fpm.sock" {} \;)
+  if [[ -z $v ]]; then
+    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
+    for upgrade in $oldv; do
+      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock/g' $upgrade
     done
   fi
 fi
@@ -106,6 +123,16 @@ location /deluge.downloads {
 DIN
 fi
 
+if [[ -f /lib/systemd/system/php7.2-fpm-service ]]; then
+  systemctl restart php7.2-fpm
+  if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
+    systemctl stop php7.1-fpm
+    systemctl disable php7.1-fpm
+  fi
+  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
+    systemctl stop php7.0-fpm
+    systemctl disable php7.0-fpm
+  fi
 if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   systemctl restart php7.1-fpm
   if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
