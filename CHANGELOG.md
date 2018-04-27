@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.3.0]
+
+### April 27, 2018
+
+### Added
+
+- Support for Ubuntu 18.04 (Bionic Beaver). Compatibility has not been thoroughly tested; however popular apps (rtorrent, nginx, deluge, mono-based, sickrage, etc) have been tested and should be working. Please report any issue you may have.
+- Upgrades from 16.04 to 18.04 should in theory be possible. The biggest change at this time is the transfer to php7.2 from php7.0. The update script accounts for this, but it might not be perfect!
+
+### Removed
+
+- Support for EOL Ubuntu 17.04.
+
+### Changed
+
+- Mono will now utilize the 4.8.1 snapshot for all mono-based applications. This will hopefully prevent breakage due to bleeding edge mono updates and reduce frequency of updates. It became clear that there were some issues in general with Debian Jessie and these compatiblity issues should now be fixed as well.
+- RPC mount (/{username}) will now be configured for Flood as well, even if ruTorrent is not installed (Compatibility for Sonarr/Radarr)
+- Updated the xmr-stak script to account for the PoW changes from the recent hard fork.
+- Added env_keep home for Ubuntu installs to negate the need to use `sudo -H` to reset your home folder to root every time.
+- swizzin custom path reverted back to being set in .bashrc as .profile was causing issues for the majority
+- btsync now runs as master user to prevent permission issues
+
+### Fixed
+
+- Only run ruTorrent plugin initialization on first install
+- Ombi install/upgrade issues (upgrade to v3 should be soon)
+- Update headphones PID path to prevent permission errors after reboot
+- Emby repository issues under Ubuntu
+- Removed some unneeded commands in rTorrent that might throw (ignorable) errors
+- Panel update script should now respect your diskspace widget settings (home or root)
+- Panel update script should now respect your custom.menu.php
+- Small issue with the shellinabox systemd script
+- Ensure ruTorrent plugins are properly initialized during rtorrent start
+- Cleaned up a few straggling files that might've been left behind when deleting a user
+- Fixed an issue where deluge configs for nginx weren't being generated for sub-users
+- Fix an issue where php files in rtorrent/deluge download folders were being returned as a 404 -- this fix allows them to be served directly as downloads (php will not be executed in these folders as it is a security issue)
+
 ## [1.2.0]
 
 ### March 3rd 2018
