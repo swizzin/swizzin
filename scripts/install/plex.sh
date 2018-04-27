@@ -37,11 +37,12 @@ master=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Installing plex keys and sources ... "
     wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
-    if [[ $CODENAME != "artful" ]]; then
-      echo "deb https://downloads.plex.tv/repo/deb/ ./public main" > /etc/apt/sources.list.d/plexmediaserver.list
-    else
+    if [[ $CODENAME =~ ("artful"|"bionic") ]]; then
       # Hacky work around until plex team fixes their repository. Will result in ignorable warnings in apt.
-      echo "deb https://downloads.plex.tv/repo/deb/ public main" > /etc/apt/sources.list.d/plexmediaserver.list
+      echo "deb https://downloads.plex.tv/repo/deb/ public main" > /etc/apt/sources.list.d/plexmediaserver.list     
+    else
+      echo "deb https://downloads.plex.tv/repo/deb/ ./public main" > /etc/apt/sources.list.d/plexmediaserver.list
+
     fi
     echo
 
