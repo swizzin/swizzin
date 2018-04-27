@@ -123,7 +123,7 @@ location /deluge.downloads {
 DIN
 fi
 
-if [[ -f /lib/systemd/system/php7.2-fpm-service ]]; then
+if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
   systemctl restart php7.2-fpm
   if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
     systemctl stop php7.1-fpm
