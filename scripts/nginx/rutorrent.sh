@@ -185,7 +185,9 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 ?>
 RUC
 
-if [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
+if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+  sock=php7.2-fpm
+elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   sock=php7.1-fpm
 else
   sock=php7.0-fpm
