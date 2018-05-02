@@ -14,7 +14,7 @@
 #   under the GPL along with build & install instructions.
 
 inst=$(which mysql)
-ip=$(ip route get 8.8.8.8 | awk 'NR==1 {print $NF}')
+ip=$(ip route get 8.8.8.8 | awk '{printf $7}')
 if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
   exit 1
