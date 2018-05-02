@@ -10,6 +10,7 @@ else
   read -p "Press enter to continue"
   echo "Upgrading Ombi. Please wait ... "
   systemctl stop ombi
+  rm -rf /opt/ombi
 
   echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list
   wget -qO - https://repo.ombi.turd.me/pubkey.txt | sudo apt-key add -
