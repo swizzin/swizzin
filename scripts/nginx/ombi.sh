@@ -10,7 +10,10 @@
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 if [[ ! -f /etc/nginx/apps/ombi.conf ]]; then
-  cat > /etc/nginx/apps/ombi.conf <<RAD
+  if grep -q '$scheme://$host' /etc/nginx/apps/ombi.conf; then
+    :
+  else
+  cat > /etc/nginx/apps/ombi.conf <<'RAD'
 location /ombi {		
      return 301 $scheme://$host/ombi/;		
 }
@@ -35,6 +38,7 @@ if ($http_referer ~* /ombi/) {
     rewrite ^/images/(.*) $scheme://$host/ombi/images/$1 permanent;
 }
 RAD
+fi
 fi
 
 if grep -q 0.0.0.0 /etc/systemd/system/ombi.service; then
