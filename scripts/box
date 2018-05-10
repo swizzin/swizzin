@@ -300,7 +300,12 @@ function _deluser {
     fi
   done
   
-  deluser --force ${user}
+  if [[ -z $(which lsof) ]]; then
+    apt-get install -y -q lsof > /dev/null 2>&1
+  fi
+
+  kill -9 $(lsof -t /home/${user})
+  deluser --force --remove-home ${user}
   groupdel ${user}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}

@@ -44,7 +44,7 @@ function _preparation() {
   echo "Updating system and grabbing core dependencies."
   apt-get -qq -y --force-yes update >> ${log} 2>&1
   apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
-  apt-get -qq -y --force-yes install whiptail git sudo curl wget fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
+  apt-get -qq -y --force-yes install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
