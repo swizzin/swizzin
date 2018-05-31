@@ -59,6 +59,7 @@ function _installRadarrCode() {
   apt-get -y -q update > /dev/null 2>&1
   apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
   echo "Installing Radar ... "
+  if [[ ! -d /opt ]]; then mkdir /opt; fi
   cd /opt
   wget $( curl -s https://api.github.com/repos/Radarr/Radarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 ) > /dev/null 2>&1
   tar -xvzf Radarr.develop.*.linux.tar.gz >/dev/null 2>&1
