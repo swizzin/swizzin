@@ -47,7 +47,7 @@ After=network-online.target
 User=ombi
 Group=nogroup
 WorkingDirectory=/opt/Ombi/
-ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://127.0.0.1:3000
+ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://0.0.0.0:3000
 Type=simple
 TimeoutStopSec=30
 Restart=on-failure
@@ -63,7 +63,7 @@ OMB
     service nginx reload
   fi
   systemctl enable ombi >/dev/null 2>&1
-  systemctl start ombi
+  systemctl restart ombi
 }
 
 
