@@ -126,8 +126,7 @@ if [[ $primaryroot == "root" ]]; then
 elif [[ $primaryroot == "home" ]]; then
     sed -i 's/MOUNT/\/home/g' /srv/rutorrent/plugins/diskspace/action.php
 fi
-  touch /install/.quota.lock
-  echo "${primaryroot}" > /install/.quota.lock
+
 fi
 }
 
@@ -143,4 +142,8 @@ DISTRO=$(lsb_release -is)
 
 
 _installquota
+
+touch /install/.quota.lock
+echo "${primaryroot}" > /install/.quota.lock
+
 echo "Quotas have been installed. Use the command setdisk to set quotas per user."
