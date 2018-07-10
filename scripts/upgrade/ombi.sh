@@ -2,6 +2,28 @@
 # Upgrade ombi
 # Author liara
 
+if grep -q "\-\-storage" /etc/systemd/system/ombi.service; then
+  :
+else
+  sed -i '/^ExecStart=/ s/$/ --storage \/etc\/Ombi/' /etc/systemd/system/ombi.service
+  systemctl daemon-reload
+  for f in Ombi.db Ombi.db.backup Schedules.db; do
+    if [[ -f /opt/Ombi/$f ]]; then
+      if [[ /opt/Ombi/$f -nt /etc/Ombi/$f ]] || [[ ! -f /etc/Ombi/$f ]]; then
+        cp -a /opt/Ombi/$f /etc/Ombi/$f
+      fi
+    fi
+  done
+  if [[ -f /etc/Ombi/Ombi.db ]] && [[ -f /etc/Ombi/Ombi.db.backup ]]; then
+    if [[ /etc/Ombi/Ombi.db.backup -nt /etc/Ombi/Ombi.db ]]; then
+      mv /etc/Ombi/Ombi.db /etc/Ombi/Ombi.db.backup.swizz
+      cp -a /etc/Ombi/Ombi.db.backup /etc/Ombi/Ombi.db
+    fi
+  fi
+  chown -R ombi:nogroup /etc/Ombi
+  systemctl restart ombi
+fi
+
 if [[ -f /etc/apt/sources.list.d/ombi.list ]]; then
   echo "Nothing to do! Please update ombi with apt-get"
   exit 1
@@ -25,7 +47,7 @@ After=network-online.target
 User=ombi
 Group=nogroup
 WorkingDirectory=/opt/Ombi/
-ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://0.0.0.0:3000
+ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://0.0.0.0:3000 --storage /etc/Ombi
 Type=simple
 TimeoutStopSec=30
 Restart=on-failure
