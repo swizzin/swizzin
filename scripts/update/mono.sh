@@ -8,7 +8,6 @@ if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]] || [[ -f /in
   sonarr=$(systemctl is-active sonarr@$master)
   radarr=$(systemctl is-active radarr)
   jackett=$(systemctl is-active jackett@$master)
-  ombi=$(systemctl is-active ombi)
 
 if [[ -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
   if grep -q "5.8" /etc/apt/sources.list.d/mono-xamarin.list; then
@@ -111,7 +110,7 @@ else
   apt-get -y -q install mono-complete
   apt-get -y -q upgrade
 fi
-  for a in sonarr jackett radarr ombi; do
+  for a in sonarr jackett radarr; do
   if [[ $a = "active" ]]; then
     if [[ $a =~ ("sonarr"|"jackett") ]]; then
       a=$a@$master
