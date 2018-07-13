@@ -1,7 +1,7 @@
 #!/bin/bash
 #Have I mentioned I hate mono?
 
-if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]] || [[ -f /install/.jackett.lock ]] || [[ -f /install/.ombi.lock ]]; then
+if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]] || [[ -f /install/.jackett.lock ]]; then
   version=$(lsb_release -cs)
   distro=$(lsb_release -is)
   master=$(cat /root/.master.info | cut -d : -f1)
