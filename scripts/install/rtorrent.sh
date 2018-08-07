@@ -131,6 +131,7 @@ execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 # -- END HERE --
 EOF
 chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+cp /home/${user}/.rtorrent.rc /home/${user}/.rtorrentbackup.rc
 }
 
 
