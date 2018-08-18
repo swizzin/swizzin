@@ -70,6 +70,11 @@ systemctl enable znc
     echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
     echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
   fi
+  # Check for LE cert, and copy it if available.
+  chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
+  if [[ -n $chkhost ]]; then
+    cat /etc/nginx/ssl/"$chkhost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+  fi
   systemctl start znc
   touch /install/.znc.lock
 echo "#### ZNC now installed! ####"
