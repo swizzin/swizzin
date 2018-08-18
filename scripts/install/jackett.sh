@@ -66,8 +66,8 @@ After=network.target
 [Service]
 Type=simple
 User=%I
-WorkingDirectory=/home/%I/
-ExecStart=/usr/bin/mono /home/%I/Jackett/JackettConsole.exe --NoRestart
+WorkingDirectory=/home/%I/Jackett
+ExecStart=/usr/bin/mono JackettConsole.exe --NoRestart
 Restart=always
 RestartSec=2
 [Install]

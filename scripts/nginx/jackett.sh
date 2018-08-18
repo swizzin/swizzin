@@ -23,7 +23,6 @@ location /jackett {
 location /jackett/ {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass http://127.0.0.1:9117/jackett/;
-  proxy_set_header Host \$proxy_host;
   proxy_set_header X-Real-IP \$remote_addr;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto https;
@@ -34,8 +33,6 @@ RAD
 fi
 sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
-# Disable native auto-update, since we have a command for that.
-sed -i "s/\"UpdateDisabled.*/\"UpdateDisabled\": true,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 
 if [[ $isactive == "active" ]]; then
   systemctl start jackett@$MASTER
