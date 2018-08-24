@@ -53,7 +53,7 @@ function _depends() {
 function _xmlrpc() {
 		
 	cd "/tmp"
-	svn co https://svn.code.sf.net/p/xmlrpc-c/code/stable xmlrpc-c >>$log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/stable xmlrpc-c >>$log 2>&1; }
+	svn co https://svn.code.sf.net/p/xmlrpc-c/code/advanced xmlrpc-c >>$log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced xmlrpc-c >>$log 2>&1; }
 	cd xmlrpc-c
 	./configure --prefix=/usr --disable-cplusplus >>$log 2>&1
 	make -j$(nproc) >>$log 2>&1
@@ -160,7 +160,7 @@ fi
 noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
 rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
 libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
-xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/stable"
+xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/advanced"
 user=$(cat /root/.master.info | cut -d: -f1)
 rutorrent="/srv/rutorrent/"
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
