@@ -143,13 +143,6 @@ function _makedirs() {
 	usermod -a -G ${user} www-data 2>> $log
 }
 
-
-function _perms() {
-	chown -R ${user}.${user} /home/${user}/ 2>> $log
-}
-
-
-
 _systemd() {
 cat >/etc/systemd/system/rtorrent@.service<<EOF
 [Unit]
@@ -245,7 +238,6 @@ fi
 		echo "Building libtorrent from source ... ";_libtorrent
 		echo "Building rtorrent from source ... ";_rtorrent
 		echo "Making ${user} directory structure ... ";_makedirs
-		echo "Setting permissions on ${user} ... ";_perms
 		echo "setting up rtorrent.rc ... ";_rconf;_systemd
 
 if [[ -n $noexec ]]; then
