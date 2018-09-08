@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nginx Configuration for Plexpy
+# Nginx Configuration for Tautulli
 # Author: liara
 # Copyright (C) 2017 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
@@ -9,22 +9,22 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-isactive=$(systemctl is-active plexpy)
+isactive=$(systemctl is-active tautulli)
 if [[ $isactive == "active" ]]; then
-  systemctl stop plexpy
+  systemctl stop tautulli
 fi
-if [[ ! -f /etc/nginx/apps/plexpy.conf ]]; then
-  cat > /etc/nginx/apps/plexpy.conf <<RAD
-location /plexpy {
+if [[ ! -f /etc/nginx/apps/tautulli.conf ]]; then
+  cat > /etc/nginx/apps/tautulli.conf <<RAD
+location /tautulli {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass        http://127.0.0.1:8181/plexpy;
+  proxy_pass        http://127.0.0.1:8181/tautulli;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 RAD
 fi
-sed -i "s/http_root.*/http_root = \"plexpy\"/g" /opt/plexpy/config.ini
-sed -i "s/http_host.*/http_host = 127.0.0.1/g" /opt/plexpy/config.ini
+sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
+sed -i "s/http_host.*/http_host = 127.0.0.1/g" /opt/tautulli/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start plexpy
+  systemctl start tautulli
 fi

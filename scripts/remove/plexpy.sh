@@ -1,8 +1,8 @@
 #!/bin/bash
-systemctl stop plexpy
-systemctl disable plexpy
-rm -rf /opt/plexpy
-rm /install/.plexpy.lock
-rm -f /etc/nginx/apps/plexpy.conf
+systemctl stop tautulli
+systemctl disable tautulli
+rm -rf /opt/tautulli
+rm /install/.tautulli.lock
+rm -f /etc/nginx/apps/tautulli.conf
 service nginx reload
-rm /etc/systemd/system/plexpy.service
+rm /etc/systemd/system/tautulli.service

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Plexpy installer
+# Tautulli installer
 #
 # Author             :   QuickBox.IO | liara
 # Ported to swizzin by liara
@@ -24,48 +24,50 @@ MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 
 cd /opt
-echo "Cloning PlexPy repository" >>"${OUTTO}" 2>&1;
-git clone https://github.com/drzoidberg33/plexpy.git > /dev/null 2>&1
+echo "Cloning Tautulli repository" >>"${OUTTO}" 2>&1;
+git clone https://github.com/Tautulli/Tautulli.git tautulli > /dev/null 2>&1
 
-echo "Adding user and setting up PlexPy" >>"${OUTTO}" 2>&1;
-adduser --system --no-create-home plexpy >>"${OUTTO}" 2>&1
+echo "Adding user and setting up Tautulli" >>"${OUTTO}" 2>&1;
+adduser --system --no-create-home tautulli >>"${OUTTO}" 2>&1
 
 echo "Adjusting permissions" >>"${OUTTO}" 2>&1;
-chown plexpy:nogroup -R /opt/plexpy
+chown tautulli:nogroup -R /opt/tautulli
 
 
 
 
-echo "Enabling PlexPy Systemd configuration"
-cat > /etc/systemd/system/plexpy.service <<PPY
+echo "Enabling Tautulli Systemd configuration"
+cat > /etc/systemd/system/tautulli.service <<PPY
 [Unit]
-Description=PlexPy - Stats for Plex Media Server usage
+Description=Tautulli - Stats for Plex Media Server usage
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-ExecStart=/opt/plexpy/PlexPy.py --quiet --daemon --nolaunch --config /opt/plexpy/config.ini --datadir /opt/plexpy
+ExecStart=/opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli
 GuessMainPID=no
 Type=forking
-User=plexpy
+User=tautulli
 Group=nogroup
 
 [Install]
 WantedBy=multi-user.target
 PPY
 
-systemctl enable plexpy > /dev/null 2>&1
-systemctl start plexpy
+systemctl enable tautulli > /dev/null 2>&1
+systemctl start tautulli
 
 if [[ -f /install/.nginx.lock ]]; then
-  while [ ! -f /opt/plexpy/config.ini ]
+  while [ ! -f /opt/tautulli/config.ini ]
   do
     sleep 2
   done
-  bash /usr/local/bin/swizzin/nginx/plexpy.sh
+  bash /usr/local/bin/swizzin/nginx/tautulli.sh
   service nginx reload
 fi
-touch /install/.plexpy.lock
+touch /install/.tautulli.lock
 
-echo "PlexPy Install Complete!" >>"${OUTTO}" 2>&1;
+echo "Tautulli Install Complete!" >>"${OUTTO}" 2>&1;
 sleep 5
 echo >>"${OUTTO}" 2>&1;
 echo >>"${OUTTO}" 2>&1;
