@@ -24,8 +24,10 @@ MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 
 cd /opt
-echo "Cloning Tautulli repository" >>"${OUTTO}" 2>&1;
-git clone https://github.com/Tautulli/Tautulli.git tautulli > /dev/null 2>&1
+LATEST=$(curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "\"name\":" | cut -d : -f 2 | tr -d \", | cut -d " " -f 3)
+echo "Downloading latest Tautulli version ${LATEST}" >>"${OUTTO}" 2>&1;
+mkdir -p /opt/tautulli
+curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "tarball" | cut -d : -f 2,3 | tr -d \", | wget -q -i- -O- | tar xz -C /opt/tautulli --strip-components 1
 
 echo "Adding user and setting up Tautulli" >>"${OUTTO}" 2>&1;
 adduser --system --no-create-home tautulli >>"${OUTTO}" 2>&1
