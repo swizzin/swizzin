@@ -42,6 +42,15 @@ _os() {
 
 function _preparation() {
   echo "Updating system and grabbing core dependencies."
+  if [[ $distribution = "Ubuntu" ]]; then
+    echo "Checking enabled repos"
+    if [[ -z $(which add-apt-repository) ]]; then
+      apt-get install -y -q software-properties-common >> ${log} 2>&1
+    fi
+    add-apt-repository universe >> ${log} 2>&1
+    add-apt-repository multiverse >> ${log} 2>&1
+    add-apt-repository restricted -u >> ${log} 2>&1
+  fi
   apt-get -qq -y --force-yes update >> ${log} 2>&1
   apt-get -qq -y --force-yes upgrade >> ${log} 2>&1
   apt-get -qq -y --force-yes install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
