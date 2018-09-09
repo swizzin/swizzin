@@ -5,7 +5,7 @@
 function _deluge() {
   if [[ $deluge == repo ]]; then
     apt-get -q -y update >>"${OUTTO}" 2>&1
-    apt-get -q -y install deluged deluge-web >>"${OUTTO}" 2>&1
+    apt-get -q -y install deluged deluge-web deluge-console >>"${OUTTO}" 2>&1
     systemctl stop deluged
     update-rc.d deluged remove
     rm /etc/init.d/deluged
