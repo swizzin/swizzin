@@ -36,7 +36,7 @@ function _removeDeluge() {
   rm /etc/systemd/system/deluge-web@.service > /dev/null 2>&1
   rm -rf /usr/lib/python2.7/dist-packages/deluge*
   dpkg -r libtorrent
-  apt-get purge -y deluge > /dev/null 2>&1
+  apt-get purge -y deluge deluge-web deluge-console > /dev/null 2>&1
 
   sudo rm /install/.deluge.lock
   for u in ${users}; do
