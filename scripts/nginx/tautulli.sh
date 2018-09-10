@@ -15,6 +15,11 @@ if [[ $isactive == "active" ]]; then
 fi
 if [[ ! -f /etc/nginx/apps/tautulli.conf ]]; then
   cat > /etc/nginx/apps/tautulli.conf <<RAD
+location /plexpy {
+  return 301 /tautulli/;
+}
+
+
 location /tautulli {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:8181/tautulli;
