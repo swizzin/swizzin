@@ -65,6 +65,7 @@ function _deluge() {
   ./autotool.sh >>"${OUTTO}" 2>&1
   ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1 >>"${OUTTO}" 2>&1
   make -j$(nproc) >>"${OUTTO}" 2>&1
+  mkdir -p /usr/local/include
   checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
   ldconfig
   cd ..
