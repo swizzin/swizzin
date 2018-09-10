@@ -16,7 +16,11 @@
 function _deluge() {
   if [[ $deluge == repo ]]; then
     apt-get -q -y update >>"${OUTTO}" 2>&1
-    apt-get -q -y install deluged deluge-web >>"${OUTTO}" 2>&1
+    apt-get -q -y install deluged deluge-web deluge-console >>"${OUTTO}" 2>&1
+    
+    chmod 644 ${local_packages}/deluge.UpdateTracker.py
+    cp ${local_packages}/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    
     systemctl stop deluged
     update-rc.d deluged remove
     rm /etc/init.d/deluged
@@ -68,6 +72,10 @@ function _deluge() {
   python setup.py build >>"${OUTTO}" 2>&1
   python setup.py install --install-layout=deb >>"${OUTTO}" 2>&1
   python setup.py install_data >>"${OUTTO}" 2>&1
+
+  chmod 644 ${local_packages}/deluge.UpdateTracker.py
+  cp ${local_packages}/deluge.UpdateTracker.py $(find /usr/lib/python2.7/dist-packages/ -name 'deluge*.egg')"/deluge/ui/console/commands/update-tracker.py"
+
   cd ..
   rm -r {deluge,libtorrent}
 
