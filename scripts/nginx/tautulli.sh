@@ -18,8 +18,6 @@ if [[ ! -f /etc/nginx/apps/tautulli.conf ]]; then
 location /tautulli {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:8181/tautulli;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 RAD
 fi
