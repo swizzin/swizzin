@@ -30,4 +30,5 @@ mv  /tmp/tautulli.db.tautulli_bak /opt/tautulli/tautulli.db &>/dev/null
 
 sed -i  's#/opt/plexpy#/opt/tautulli#g' /opt/tautulli/config.ini
 sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
+chown -R tautulli:nogroup /opt/tautulli
 systemctl start tautulli
