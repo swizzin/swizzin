@@ -120,4 +120,14 @@ if [[ $main == yes ]]; then
   sed -i "s/ssl_certificate .*/ssl_certificate \/etc\/nginx\/ssl\/${hostname}\/fullchain.pem;/g" /etc/nginx/sites-enabled/default
   sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
 fi
+
+if [[ -f /install/.znc.lock ]]; then
+    # Check for LE cert, and copy it if available.
+    chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
+    if [[ -n $chkhost ]]; then
+        cat /etc/nginx/ssl/"$chkhost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+        crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$chkhost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
+    fi
+fi
+
 systemctl reload nginx
