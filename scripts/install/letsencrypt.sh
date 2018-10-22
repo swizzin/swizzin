@@ -143,6 +143,7 @@ if [[ -f /install/.vsftpd.lock ]]; then
         if [[ $("$chkhost" | wc -l) -eq 1 ]]; then
             sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/${chkhost}/fullchain.pem#g" /etc/vsftpd.conf
             sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/${chkhost}/key.pem#g" /etc/vsftpd.conf
+            systemctl restart vsftpd
         fi
     fi
 fi
