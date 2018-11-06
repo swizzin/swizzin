@@ -6,7 +6,7 @@
 # GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
 # LOCAL REPOS
 # Local _ packages   :   /etc/QuickBox/packages
-# Author             :   DedSec
+# Author             :   DedSec | d2dyno
 # URL                :   https://quickbox.io
 #
 # QuickBox Copyright (C) 2017 QuickBox.io
@@ -25,45 +25,15 @@ else
   OUTTO="/dev/null"
 fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
-arch=$(arch)
 
-echo "Downloading rclone ... " >>"${OUTTO}" 2>&1;
+echo "Downloading and installing rclone ..." >>"${OUTTO}" 2>&1;
 
-if [[ $arch == x86_64 ]]; then
-  current=https://downloads.rclone.org/rclone-current-linux-amd64.zip
-  cd /tmp
-  wget -O rclone.zip $current
-  unzip -d rclone -j rclone.zip
-  cd rclone
-  cp rclone /usr/sbin/
-  chown root:root /usr/sbin/rclone
-  chmod 755 /usr/sbin/rclone
-  ln -s /usr/sbin/rclone /usr/bin/rclone
-  sudo mkdir -p /usr/local/share/man/man1
-  sudo cp rclone.1 /usr/local/share/man/man1/
-  sudo mandb
-  cd /tmp
-  rm -rf rclone*
-fi
-if [[ $arch == i386 ]]; then
-  #current=$(curl -s -N http://rclone.org/downloads/ | grep -m1 linux-386 | cut -d\" -f2)
-  current=https://downloads.rclone.org/rclone-current-linux-386.zip
-  cd /tmp
-  wget $current
-  unzip -d rclone -j rclone.zip
-  cd rclone
-  cp rclone /usr/sbin/
-  chown root:root /usr/sbin/rclone
-  chmod 755 /usr/sbin/rclone
-  ln -s /usr/sbin/rclone /usr/bin/rclone
-  sudo mkdir -p /usr/local/share/man/man1
-  sudo cp rclone.1 /usr/local/share/man/man1/
-  sudo mandb
-  cd /tmp
-  rm -rf rclone*
-fi
+# One-liner to check arch/os type, as well as download latest rclone for relevant system.
+curl https://rclone.org/install.sh | sudo bash
 
-echo "Installing rclone ... " >>"${OUTTO}" 2>&1;
+# Make sure rclone downloads and installs without error before proceeding
+if [ $? -eq 0 ]; then
+    echo "Adding rclone mount service..." >>"${OUTTO}" 2>&1;
 
 cat >/etc/systemd/system/rclone@.service<<EOF
 [Unit]
@@ -86,8 +56,11 @@ WantedBy=multi-user.target
 
 EOF
 
-touch /install/.rclone.lock
-echo "rclone installation complete!" >>"${OUTTO}" 2>&1;
+    touch /install/.rclone.lock
+    echo "rclone installation complete!" >>"${OUTTO}" 2>&1;
+else
+    echo "Issue occured during rclone installation." >>"${OUTTO}" 2>&1;
+fi
 echo >>"${OUTTO}" 2>&1;
 echo >>"${OUTTO}" 2>&1;
 echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
