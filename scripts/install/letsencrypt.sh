@@ -121,6 +121,7 @@ if [[ $main == yes ]]; then
   sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default
 fi
 
+# Add LE certs to ZNC, if installed.
 if [[ -f /install/.znc.lock ]]; then
     # Check for LE cert, and copy it if available.
     chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
@@ -128,6 +129,18 @@ if [[ -f /install/.znc.lock ]]; then
         defaulthost=$(cat /etc/nginx/sites-enabled/default | grep -m 1 server_name | awk '{print $2}' | sed 's/;//g')
         cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
         crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
+    fi
+fi
+
+# Add LE certs to VSFTPD, if installed.
+if [[ -f /install/.vsftpd.lock ]]; then
+    # Check for LE cert, and copy it if available.
+    chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
+    if [[ -n $chkhost ]]; then
+        defaulthost=$(cat /etc/nginx/sites-enabled/default | grep -m 1 server_name | awk '{print $2}' | sed 's/;//g')
+        sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/${defaulthost}/fullchain.pem#g" /etc/vsftpd.conf
+        sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/${defaulthost}/key.pem#g" /etc/vsftpd.conf
+        systemctl restart vsftpd
     fi
 fi
 

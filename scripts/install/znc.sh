@@ -73,8 +73,9 @@ systemctl enable znc
   # Check for LE cert, and copy it if available.
   chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
   if [[ -n $chkhost ]]; then
-    cat /etc/nginx/ssl/"$chkhost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-    crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$chkhost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
+    defaulthost=$(cat /etc/nginx/sites-enabled/default | grep -m 1 server_name | awk '{print $2}' | sed 's/;//g')
+    cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+    crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
   fi
   systemctl start znc
   touch /install/.znc.lock
