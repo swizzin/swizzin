@@ -62,8 +62,8 @@ function _installRadarrCode() {
   if [[ ! -d /opt ]]; then mkdir /opt; fi
   cd /opt
   wget $( curl -s https://api.github.com/repos/Radarr/Radarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 ) > /dev/null 2>&1
-  tar -xvzf Radarr.develop.*.linux.tar.gz >/dev/null 2>&1
-  rm -rf /opt/Radarr.develop.*.linux.tar.gz
+  tar -xvzf Radarr.*.linux.tar.gz >/dev/null 2>&1
+  rm -rf /opt/Radarr.*.linux.tar.gz
   touch /install/.radarr.lock
 }
 
