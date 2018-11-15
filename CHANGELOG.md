@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.4.0]
+
+### November 15, 2018
+
+### Added
+
+- Wireguard VPN package. Rejoice!
+- VSFTPD and ZNC will now use your Let's Encrypt certificate. (d2dyno)
+
+### Changed
+
+- Simplified the rclone install script. (d2dyno)
+- Plexpy is not Tautulli. (ooohhh)
+- deluge-console will now be installed if choosing a "repo" install. (quarreldazzle)
+- Ubuntu installer will now enable universe/multiverse repos
+- xmlrpc now uses the advanced version to fix message flooding in the rtorrent gui (kennydeckers)
+- Mono will use snapshot v5.8 to prevent issues arising from new versions (\#fuckmono)
+
+
+### Fixed
+
+- Fixed xmr-stak to use the new Monero PoW algorithm
+- Radarr archive names changed slightly, fixed to ensure they still unarchive proper
+- Fixed Ombi not starting
+- Libtorrent sometimes failed to create a .deb file during compile (quarreldazzle)
+- Emby URL structures to prevent install errors (kennydeckers)
+- Jackett issues due to their new webserver implementation
+- quota.lock wasn't created during install sometimes
+- Make /opt if not existing
+- `box deluser` will forcefully kill processes of users who are being deleted
+- Headphones reverse proxy
+
+### Removed
+
+- clean_log function was useless
+
 ## [1.3.0]
 
 ### April 27, 2018
