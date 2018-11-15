@@ -20,4 +20,4 @@ fi
 
 apt-get update -y -q >> /dev/null 2>&1
 
-rm /home/$u/.install/.wireguard.lock
+rm /.install/.wireguard.lock
