@@ -19,6 +19,7 @@
 
 username=$(cat /root/.master.info | cut -d: -f1)
 DISTRO=$(lsb_release -is)
+RELEASE=$(lsb_release -cs)
 PUBLICIP=$(ip route get 8.8.8.8 | awk '{printf $7}')
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
@@ -28,16 +29,40 @@ else
   OUTTO="/dev/null"
 fi
 
-apt-get -y install software-properties-common >/dev/null 2>&1
-add-apt-repository -y ppa:jcfp/sab-addons >/dev/null 2>&1
+function _rar() {
+	cd /tmp
+  	wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
+  	tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
+  	cp rar/*rar /bin >/dev/null 2>&1
+  	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
+  	rm -rf /tmp/rar >/dev/null 2>&1
+}
 
-if [[ $DISTRO == "Debian" ]]; then
-  gpg --keyserver http://keyserver.ubuntu.com --recv  F13930B14BB9F05F
-  gpg --export F13930B14BB9F05F > /etc/apt/trusted.gpg.d/jcfp_ubuntu_sab-addons.gpg
-fi
+#apt-get -y install software-properties-common >/dev/null 2>&1
+
+#if [[ $DISTRO == "Debian" ]]; then
+#  gpg --keyserver http://keyserver.ubuntu.com --recv  F13930B14BB9F05F
+#  gpg --export F13930B14BB9F05F > /etc/apt/trusted.gpg.d/jcfp_ubuntu_sab-addons.gpg
+#  if [[ $RELEASE = "stretch" ]]; then
+#    echo "deb http://ppa.launchpad.net/jcfp/ppa/ubuntu xenial main" > /etc/apt/sources.list.d/sab-addons.list
+#  elif [[ $RELEASE = "jessie" ]]; then
+#    echo "deb http://ppa.launchpad.net/jcfp/ppa/ubuntu precise main" > /etc/apt/sources.list.d/sab-addons.list
+#  fi
+#else
+#  add-apt-repository -y ppa:jcfp/sab-addons >/dev/null 2>&1
+#fi
 
 apt-get update >/dev/null 2>&1
-apt-get -y install par2-tbb python-openssl python-pip python-sabyenc python-cheetah screen >/dev/null 2>&1
+apt-get -y install par2 python-configobj python-dbus python-feedparser python-gi python-libxml2 \
+  python-utidylib python-yenc python-cheetah python-openssl screen > /dev/null 2&1
+
+if [[ -z $(which rar) ]]; then
+  if [[ $DISTRO == "Debian" ]]; then
+    _rar
+  else
+    apt-get -y install rar unrar >>/dev/null 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
+  fi
+fi
 cd /home/${username}/
 #wget -qO SABnzbd.tar.gz https://github.com/sabnzbd/sabnzbd/releases/download/1.1.1/SABnzbd-1.1.1-src.tar.gz
 #tar xf SABnzbd.tar.gz >/dev/null 2>&1
@@ -59,7 +84,7 @@ Type=forking
 KillMode=process
 User=%I
 ExecStart=/usr/bin/screen -f -a -d -m -S sabnzbd python SABnzbd/SABnzbd.py --browser 0 --server 127.0.0.1:65080 --https 65443
-ExecStop=/bin/kill -HUP $MAINPID
+ExecStop=/usr/bin/screen -X -S sabnzbd quit
 WorkingDirectory=/home/%I/
 
 [Install]
