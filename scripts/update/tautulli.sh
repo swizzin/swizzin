@@ -1,9 +1,8 @@
 #!/bin/bash
 
-if [[ ! -f /install/.plexpy.lock ]]; then
+if [[ -f /install/.plexpy.lock ]]; then
   # only update if plexpy is installed, otherwise use the app built-in updater
-  exit 0
-fi
+
 
 # backup plexpy config and remove it
 systemctl stop plexpy
@@ -32,3 +31,4 @@ sed -i  's#/opt/plexpy#/opt/tautulli#g' /opt/tautulli/config.ini
 sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
 chown -R tautulli:nogroup /opt/tautulli
 systemctl start tautulli
+fi
