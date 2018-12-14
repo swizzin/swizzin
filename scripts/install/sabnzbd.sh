@@ -54,7 +54,7 @@ function _rar() {
 
 apt-get update >/dev/null 2>&1
 apt-get -y install par2 python-configobj python-dbus python-feedparser python-gi python-libxml2 \
-  python-utidylib python-yenc python-cheetah python-openssl screen > /dev/null 2&1
+  python-utidylib python-yenc python-cheetah python-openssl screen > /dev/null 2>&1
 
 if [[ -z $(which rar) ]]; then
   if [[ $DISTRO == "Debian" ]]; then
