@@ -52,7 +52,7 @@ function _installRadarrDependencies() {
 
 function _installRadarrCode() {
   # output to box
-  echo "Installing Radar ... "
+  echo "Installing Radarr ... "
   cd /opt
   wget $( curl -s https://api.github.com/repos/Radarr/Radarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 ) > /dev/null 2>&1
   tar -xvzf Radarr.develop.*.linux.tar.gz >/dev/null 2>&1
@@ -62,7 +62,7 @@ function _installRadarrCode() {
 
 function _installRadarrConfigure() {
   # output to box
-  echo "Configuring Radar ... "
+  echo "Configuring Radarr ... "
 cat > /etc/systemd/system/radarr.service <<EOF
 [Unit]
 Description=Radarr Daemon
@@ -128,7 +128,7 @@ ip=$(curl -s http://whatismyip.akamai.com)
 
 _installRadarrIntro
 echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
-echo "Installing Radar ... " >>"${OUTTO}" 2>&1;_installRadarrCode
-echo "Configuring Radar ... " >>"${OUTTO}" 2>&1;_installRadarrConfigure
+echo "Installing Radarr ... " >>"${OUTTO}" 2>&1;_installRadarrCode
+echo "Configuring Radarr ... " >>"${OUTTO}" 2>&1;_installRadarrConfigure
 _installRadarrFinish
 _installRadarrExit
