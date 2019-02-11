@@ -23,6 +23,7 @@ fi
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 
+apt-get -y -q install python python-setuptools tzdata >>"${OUTTO}" 2>&1
 cd /opt
 LATEST=$(curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "\"name\":" | cut -d : -f 2 | tr -d \", | cut -d " " -f 3)
 echo "Downloading latest Tautulli version ${LATEST}" >>"${OUTTO}" 2>&1;
