@@ -14,10 +14,11 @@ fi
 
 npm -g config set user root
 npm install -g thelounge >> $log 2>&1
+sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
 
-mkdir -p /home/lounge/.lounge/
+mkdir -p /home/lounge/.thelounge/
 
-cat > /home/lounge/.lounge/config.js<<'EOF'
+cat > /home/lounge/.thelounge/config.js<<'EOF'
 "use strict";
 
 module.exports = {
@@ -74,7 +75,7 @@ module.exports = {
 	// @type     string
 	// @default  "example"
 	//
-	theme: "zenburn",
+	theme: "thelounge-theme-zenburn",
 
 	//
 	// Prefetch URLs
@@ -472,7 +473,7 @@ for u in "${users[@]}"; do
     password=$(cat /root/$u.info | cut -d: -f2)
   fi
   crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
-  cat > /home/lounge/.lounge/users/$u.json <<EOU
+  cat > /home/lounge/.thelounge/users/$u.json <<EOU
 {
 	"password": "${crypt}",
 	"log": true,
