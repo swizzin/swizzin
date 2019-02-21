@@ -18,48 +18,53 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  OUTTO="/srv/panel/db/output.log"
-else
-  OUTTO="/dev/null"
-fi
+function _installLidarrIntro() {
+  echo "Lidarr will now be installed." >>"${OUTTO}" 2>&1;
+  echo "This process may take up to 2 minutes." >>"${OUTTO}" 2>&1;
+  echo "Please wait until install is completed." >>"${OUTTO}" 2>&1;
+  # output to box
+  echo "Lidarr will now be installed."
+  echo "This process may take up to 2 minutes."
+  echo "Please wait until install is completed."
+  echo
+  sleep 5
+}
 
-distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-username=$(cat /root/.master.info | cut -d: -f1)
-lidarrver=$(wget -q https://github.com/lidarr/Lidarr/releases -O -| grep -E \/tag\/ | grep -v repository | awk -F "[><]" 'NR==1{print $3}')
-
-function _depends() {
-if ls /etc/apt/sources.list.d/mono-* >/dev/null 2>&1; then
-    ls /etc/apt/sources.list.d/mono-* >/dev/null 2>&1;
-fi
-for list in /etc/apt/sources.list.d/mono-*; do
-    if [[ -f $list ]]; then
-        rm -rf /etc/apt/sources.list.d/mono-*
-        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-        echo "deb http://download.mono-project.com/repo/ubuntu stable-xenial main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-        break
+function _installLidarrDependencies() {
+  if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
+    if [[ $distribution == "Ubuntu" ]]; then
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+    elif [[ $distribution == "Debian" ]]; then
+      if [[ $version == "jessie" ]]; then
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+        cd /tmp
+        wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
+        dpkg -i libjpeg8.deb >/dev/null 2>&1
+        rm -rf libjpeg8.deb
+      else
+        gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
+        gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/etc/apt/trusted.gpg.d/mono-xamarin.gpg
+      fi
     fi
-done
-	apt-get -y update && apt-get -y upgrade >/dev/null 2>&1
-	apt-get install -y libmono-cil-dev curl mediainfo >/dev/null 2>&1
+    echo "deb http://download.mono-project.com/repo/$(echo $distribution | awk '{print tolower($0)}') stable-$version main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
+  fi
+  apt-get -yqq update && apt-get -yqq upgrade >/dev/null 2>&1
+  apt-get install -yqq libmono-cil-dev curl mediainfo >/dev/null 2>&1
 }
 
 function _installLidarrCode() {
+  if [[ ! -d /opt ]]; then mkdir /opt; fi
   cd /opt
   wget -q https://github.com/lidarr/Lidarr/releases/download/v$lidarrver/Lidarr.develop.$lidarrver.linux.tar.gz
   tar -xvzf Lidarr.develop.*.linux.tar.gz >/dev/null 2>&1
   rm -rf /opt/Lidarr.develop.*.linux.tar.gz
-  chown ${username}.${username} -R Lidarr
   touch /install/.lidarr.lock
 }
 
 function _installLidarrConfigure() {
   # output to box
   echo "Configuring Lidarr ... "
-cat > /etc/systemd/system/lidarr.service <<LIDARR
+  cat >/etc/systemd/system/lidarr.service <<LIDARR
 [Unit]
 Description=Lidarr Daemon
 After=syslog.target network.target
@@ -77,42 +82,22 @@ Restart=on-failure
 WantedBy=multi-user.target
 LIDARR
 
-  if [[ -f /install/.nginx.lock ]]; then
-    sleep 10
-    bash /usr/local/bin/swizzin/nginx/sonarr.sh
-    service nginx reload
-  fi
-
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
   chmod 775 /home/${username}/.config
   chown -R ${username}:${username} /opt/Lidarr/
-  chown www-data:www-data /etc/apache2/sites-enabled/lidarr.conf
   systemctl daemon-reload
-  systemctl enable lidarr.service > /dev/null 2>&1
+  systemctl enable lidarr.service >/dev/null 2>&1
   systemctl start lidarr.service
-  sleep 10
-
-  cp ${local_setup}configs/Lidarr/config.xml /home/${username}/.config/Lidarr/config.xml
-  chown ${username}:${username} /home/${username}/.config/Lidarr/config.xml
-
-  systemctl stop lidarr.service
-  sleep 10
-}
-
-function _installLidarrStart() {
-  # output to box
-  echo "Starting Lidarr ... "
-  systemctl start lidarr.service
+  
+  if [[ -f /install/.nginx.lock ]]; then
+    sleep 10
+    bash /usr/local/bin/swizzin/nginx/lidarr.sh
+    service nginx reload
+  fi
 }
 
 function _installLidarrFinish() {
-  # output to dashboard
-  echo "Lidarr Install Complete!" >>"${OUTTO}" 2>&1;
-  echo "You can access it at  : http://$ip/lidarr" >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
   # output to box
   echo "Lidarr Install Complete!"
   echo "You can access it at  : http://$ip/lidarr"
@@ -121,20 +106,30 @@ function _installLidarrFinish() {
 }
 
 function _installLidarrExit() {
-	exit 0
+  exit 0
 }
 
-OUTTO=/srv/rutorrent/home/db/output.log
-local_setup=/etc/QuickBox/setup/
-local_packages=/etc/QuickBox/packages/
-username=$(cat /srv/rutorrent/home/db/master.txt)
-distribution=$(lsb_release -is)
+if [[ -f /tmp/.install.lock ]]; then
+  OUTTO="/root/logs/install.log"
+elif [[ -f /install/.panel.lock ]]; then
+  OUTTO="/srv/panel/db/output.log"
+else
+  OUTTO="/dev/null"
+fi
+
 ip=$(curl -s http://whatismyip.akamai.com)
+distribution=$(lsb_release -is)
+version=$(lsb_release -cs)
+username=$(cat /root/.master.info | cut -d: -f1)
+lidarrver=$(wget -q https://github.com/lidarr/Lidarr/releases -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" 'NR==1{print $3}')
 
 _installLidarrIntro
-echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installLidarrDependencies
-echo "Installing Lidarr ... " >>"${OUTTO}" 2>&1;_installLidarrCode
-echo "Configuring Lidarr ... " >>"${OUTTO}" 2>&1;_installLidarrConfigure
-echo "Starting Lidarr ... " >>"${OUTTO}" 2>&1;_installLidarrStart
+echo "Installing dependencies ... " >>"${OUTTO}" 2>&1
+_installLidarrDependencies
+echo "Installing Lidarr ... " >>"${OUTTO}" 2>&1
+_installLidarrCode
+echo "Configuring Lidarr ... " >>"${OUTTO}" 2>&1
+_installLidarrConfigure
+echo "Starting Lidarr ... " >>"${OUTTO}" 2>&1
 _installLidarrFinish
 _installLidarrExit
