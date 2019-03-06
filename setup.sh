@@ -54,8 +54,8 @@ function _preparation() {
   apt-get -q -y update >> ${log} 2>&1
   apt-get -q -y upgrade >> ${log} 2>&1
   apt-get -q -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https python-pip >> ${log} 2>&1
-  nofile=$(grep "DefaultLimitNOFILE=3072" /etc/systemd/system.conf)
-  if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=3072" >> /etc/systemd/system.conf; fi
+  nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
+  if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
   git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
