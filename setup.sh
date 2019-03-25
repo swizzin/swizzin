@@ -197,28 +197,39 @@ function _choices() {
     done
     rm -f /root/guis
 
-    if [[ ${codename} =~ ("stretch"|"artful"|"bionic") ]]; then
-      function=feature-bind
-      #function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-              #  0.9.6 "" 3>&1 1>&2 2>&3)
-              #feature-bind "" \
+    if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
+      #function=feature-bind
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                  feature-bind "" \
+                  0.9.7 "" \
+                  0.9.6 "" 3>&1 1>&2 2>&3)
+      
 
-        if [[ $function == 0.9.6 ]]; then
+        if [[ $function == 0.9.7 ]]; then
+          export rtorrentver='0.9.7'
+          export libtorrentver='0.13.7'
+        elif [[ $function == 0.9.6 ]]; then
           export rtorrentver='0.9.6'
           export libtorrentver='0.13.6'
         elif [[ $function == feature-bind ]]; then
-        	export rtorrentver='feature-bind'
-        	export libtorrentver='feature-bind'
+          export rtorrentver='feature-bind'
+          export libtorrentver='feature-bind'
         fi
-      else
-        function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-              feature-bind "" \
-              0.9.6 "" \
-              0.9.4 "" \
-              0.9.3 "" 3>&1 1>&2 2>&3)
+
+    else
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                  feature-bind "" \
+                  0.9.7 "" \
+                  0.9.6 "" \
+                  0.9.4 "" \
+                  0.9.3 "" 3>&1 1>&2 2>&3)
 
 
-        if [[ $function == 0.9.6 ]]; then
+
+        if [[ $function == 0.9.7 ]]; then
+          export rtorrentver='0.9.7'
+          export libtorrentver='0.13.7'
+        elif [[ $function == 0.9.6 ]]; then
           export rtorrentver='0.9.6'
           export libtorrentver='0.13.6'
         elif [[ $function == 0.9.4 ]]; then
@@ -228,8 +239,8 @@ function _choices() {
           export rtorrentver='0.9.3'
           export libtorrentver='0.13.3'
         elif [[ $function == feature-bind ]]; then
-        	export rtorrentver='feature-bind'
-        	export libtorrentver='feature-bind'
+          export rtorrentver='feature-bind'
+          export libtorrentver='feature-bind'
         fi
     fi
   fi
