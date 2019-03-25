@@ -71,9 +71,12 @@ function _libtorrent() {
 		wget -q ${libtorrentloc}
 		tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 		cd libtorrent >>$log 2>&1
-		#if [[ ${codename} =~ ("stretch") ]]; then
-		#	patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
-		#fi
+		if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
+			patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
+			if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
+				patch -p1 < /etc/swizzin/sources/cppunit.patch >>"$log" 2>&1
+			fi
+		fi
 	fi
 	./autogen.sh >>$log 2>&1
 	./configure --prefix=/usr >>$log 2>&1
@@ -119,30 +122,39 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   log="/dev/null"
 fi
-if [[ -z $rtorrentver ]] && [[ ${codename} =~ ("stretch"|"artful"|"bionic") ]]; then
-	function=feature-bind
-	#function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-							 #0.9.6 "" 3>&1 1>&2 2>&3)
-							#feature-bind "" \
+if [[ -z $rtorrentver ]] && [[ ! ${codename} =~ ("xenial"|"jessie") ]] && [[ -z $1 ]]; then
+	#function=feature-bind
+	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+							feature-bind "" \
+							0.9.7 "" \
+							0.9.6 "" 3>&1 1>&2 2>&3)
 	 
 
-		if [[ $function == 0.9.6 ]]; then
+		if [[ $function == 0.9.7 ]]; then
+			export rtorrentver='0.9.7'
+			export libtorrentver='0.13.7'
+		elif [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
 			export libtorrentver='0.13.6'
 		elif [[ $function == feature-bind ]]; then
 			export rtorrentver='feature-bind'
 			export libtorrentver='feature-bind'
 		fi
-elif [[ -z ${rtorrentver} ]]; then
+
+elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
 	function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
 							 feature-bind "" \
+							 0.9.7 "" \
 							 0.9.6 "" \
 							 0.9.4 "" \
 							 0.9.3 "" 3>&1 1>&2 2>&3)
 
 
 
-		if [[ $function == 0.9.6 ]]; then
+		if [[ $function == 0.9.7 ]]; then
+			export rtorrentver='0.9.7'
+			export libtorrentver='0.13.7'
+		elif [[ $function == 0.9.6 ]]; then
 			export rtorrentver='0.9.6'
 			export libtorrentver='0.13.6'
 		elif [[ $function == 0.9.4 ]]; then
