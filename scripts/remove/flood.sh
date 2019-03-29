@@ -19,6 +19,3 @@ systemctl reload nginx
 rm -rf /install/.flood.lock
 
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-
-rm -rf /srv/rutorrent
-rm -rf /etc/nginx/apps/rutorrent.conf
