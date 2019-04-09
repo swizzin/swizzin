@@ -17,7 +17,9 @@ fi
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 apt-get update -y -q >>/dev/null 2>&1
-apt-get install -y -q sox geoip-database >>/dev/null 2>&1
+apt-get install -y -q sox geoip-database python python-pip >>/dev/null 2>&1
+
+pip install cfscrape >> /dev/null 2>&1
 
 cd /srv
 if [[ ! -d /srv/rutorrent ]]; then
@@ -170,6 +172,8 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 "id" => '/usr/bin/id', // Something like /usr/bin/id. If empty, will be found in PATH.
 "stat" => '/usr/bin/stat', // Something like /usr/bin/stat. If empty, will be found in PATH.
 "bzip2" => '/bin/bzip2',
+"pgrep" => '/usr/bin/pgrep',
+"python" => '/usr/bin/python',
 );
 
 \$localhosts = array( // list of local interfaces
