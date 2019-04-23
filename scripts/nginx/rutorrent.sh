@@ -17,7 +17,7 @@ fi
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
 
 apt-get update -y -q >>/dev/null 2>&1
-apt-get install -y -q sox geoip-database python python-pip >>/dev/null 2>&1
+apt-get install -y -q sox geoip-database python python-setuptools python-pip >>/dev/null 2>&1
 
 pip install cfscrape >> /dev/null 2>&1
 
