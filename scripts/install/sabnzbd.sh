@@ -67,7 +67,7 @@ cd /home/${username}/
 #wget -qO SABnzbd.tar.gz https://github.com/sabnzbd/sabnzbd/releases/download/1.1.1/SABnzbd-1.1.1-src.tar.gz
 #tar xf SABnzbd.tar.gz >/dev/null 2>&1
 #mv SABnzbd-* SABnzbd
-git clone -b 2.1.x https://github.com/sabnzbd/sabnzbd.git /home/${username}/SABnzbd >/dev/null 2>&1
+git clone -b 2.3.x https://github.com/sabnzbd/sabnzbd.git /home/${username}/SABnzbd >/dev/null 2>&1
 chown ${username}.${username} -R SABnzbd
 #rm SABnzbd.tar.gz
 pip install http://www.golug.it/pub/yenc/yenc-0.4.0.tar.gz >/dev/null 2>&1
