@@ -9,6 +9,27 @@ if [[ -f /install/.jackett.lock ]]; then
     sleep 1; systemctl daemon-reload
   fi
 
+  if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/jackett@.service; then
+    user=$(cat /root/.master.info | cut -d1 -f:)
+    active=$(systemctl is-active jackett@$user)
+    jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
+    sed -i 's|ExecStart.*|ExecStart=/home/%I/Jackett/jackett --NoRestart|g' /etc/systemd/system/jackett@.service
+    systemctl daemon-reload
+    if [[ $active == "active" ]]; then
+      systemctl stop jackett@$user
+    fi
+    rm -rf /home/$user/Jackett
+    cd /home/$user
+    wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.LinuxAMDx64.tar.gz
+    tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
+    rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
+    chown ${username}.${username} -R Jackett
+    if [[ $active == "active" ]]; then
+      systemctl start jackett@$user
+    fi
+  else
+    :
+  fi
   if grep -q "proxy_set_header Host" /etc/nginx/apps/jackett.conf; then
     sed -i "/proxy_set_header Host/d" /etc/nginx/apps/jackett.conf
     systemctl reload nginx
