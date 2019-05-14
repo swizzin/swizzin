@@ -3,9 +3,11 @@
 
 # 1.4.0 Stable :tada:
 
-[website](https://swizzin.ltd) | [reddit](https://reddit.com/r/swizzinltd)
+[website](https://swizzin.ltd) | [discord](https://discord.gg/bDFqAUF) | [reddit](https://reddit.com/r/swizzinltd)
 
 irc: irc.swizzin.ltd 6697 #swizzin #swizzin-dev
+
+
 
 Please use reddit/irc for all community functions and leave issues for actual issues and feature requests.
 
