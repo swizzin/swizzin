@@ -1,5 +1,5 @@
 #!/bin/bash
-# Sickrage installer for swizzin
+# SickChill installer for swizzin
 # Author: liara
 
 user=$(cat /root/.master.info | cut -d: -f1)
@@ -18,7 +18,7 @@ if [[ $(systemctl is-active sickgear@${user}) == "active" ]]; then
 fi
 
 if [[ -n $active ]]; then
-  echo "Sickrage and Medusa and Sickgear cannot be active at the same time."
+  echo "SickChill and Medusa and Sickgear cannot be active at the same time."
   echo "Do you want to disable $active and continue with the installation?"
   echo "Don't worry, your install will remain at /home/${user}/.$active"
   while true; do
@@ -52,13 +52,13 @@ function _rar () {
 if [[ -z $(which rar) ]]; then
   apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
 fi
-sudo git clone https://github.com/SickRage/SickRage.git  /home/$user/.sickrage >/dev/null 2>&1
+sudo git clone https://github.com/SickChill/SickChill.git  /home/$user/.sickchill >/dev/null 2>&1
 
-chown -R $user:$user /home/$user/.sickrage
+chown -R $user:$user /home/$user/.sickchill
 
-cat > /etc/systemd/system/sickrage@.service <<SRS
+cat > /etc/systemd/system/sickchill@.service <<SSS
 [Unit]
-Description=SickRage
+Description=SickChill
 After=syslog.target network.target
 
 [Service]
@@ -66,20 +66,19 @@ Type=forking
 GuessMainPID=no
 User=%I
 Group=%I
-ExecStart=/usr/bin/python /home/%I/.sickrage/SickBeard.py -q --daemon --nolaunch --datadir=/home/%I/.sickrage
-ExecStop=-/bin/kill -HUP
+ExecStart=/usr/bin/python /home/%I/.sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/home/%I/.sickchill
 
 
 [Install]
 WantedBy=multi-user.target
-SRS
+SSS
 
-  systemctl enable sickrage@$user > /dev/null 2>&1
-  systemctl start sickrage@$user
+  systemctl enable sickchill@$user > /dev/null 2>&1
+  systemctl start sickchill@$user
 
 if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/sickrage.sh
+  bash /usr/local/bin/swizzin/nginx/sickchill.sh
   service nginx reload
 fi
 
-touch /install/.sickrage.lock
+touch /install/.sickchill.lock
