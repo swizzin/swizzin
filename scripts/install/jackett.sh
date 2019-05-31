@@ -31,31 +31,10 @@ jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | g
 echo >>"${OUTTO}" 2>&1;
 echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
 
-if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-  if [[ $distribution == "Ubuntu" ]]; then
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-  elif [[ $distribution == "Debian" ]]; then
-    if [[ $version == "jessie" ]]; then
-      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-      cd /tmp
-      wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-      dpkg -i libjpeg8.deb >/dev/null 2>&1
-      rm -rf libjpeg8.deb
-    else
-      gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-      gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
-    fi
-  fi
-  echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/5.8 main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
-fi
-
-apt-get update -y >/dev/null 2>&1
-apt-get install -y mono-devel >/dev/null 2>&1
-
 cd /home/$username
-wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.Mono.tar.gz
-tar -xvzf Jackett.Binaries.Mono.tar.gz > /dev/null 2>&1
-rm -f Jackett.Binaries.Mono.tar.gz
+wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.LinuxAMDx64.tar.gz
+tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
+rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
 chown ${username}.${username} -R Jackett
 
 cat > /etc/systemd/system/jackett@.service <<JAK
@@ -67,7 +46,7 @@ After=network.target
 Type=simple
 User=%I
 WorkingDirectory=/home/%I/Jackett
-ExecStart=/usr/bin/mono JackettConsole.exe --NoRestart
+ExecStart=/home/%I/Jackett/jackett --NoRestart
 Restart=always
 RestartSec=2
 [Install]

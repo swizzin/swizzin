@@ -1,14 +1,12 @@
 #!/bin/bash
 #Have I mentioned I hate mono?
 
-if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]] || [[ -f /install/.jackett.lock ]]; then
+if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]]; then
   version=$(lsb_release -cs)
   distro=$(lsb_release -is)
   master=$(cat /root/.master.info | cut -d : -f1)
   sonarr=$(systemctl is-active sonarr@$master)
   radarr=$(systemctl is-active radarr)
-  jackett=$(systemctl is-active jackett@$master)
-
 if [[ -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
   if grep -q "5.8" /etc/apt/sources.list.d/mono-xamarin.list; then
     :
@@ -110,9 +108,9 @@ else
   apt-get -y -q install mono-complete
   apt-get -y -q upgrade
 fi
-  for a in sonarr jackett radarr; do
+  for a in sonarr radarr; do
   if [[ $a = "active" ]]; then
-    if [[ $a =~ ("sonarr"|"jackett") ]]; then
+    if [[ $a =~ ("sonarr") ]]; then
       a=$a@$master
     fi
     systemctl restart $a
