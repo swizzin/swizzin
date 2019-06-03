@@ -191,16 +191,29 @@ function _list() {
 }
 
 function _adduser {
-  if [[ -z $2 ]]; then
-    echo "Error: You must specify a user"
-    exit 1
-  fi
   user=$2
   if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
   fi
+
+  if [[ -f /root/${user}.info ]]; then
+    echo "User already seems to exist"
+    exit 1
+  fi
+
+  id -u ${user} > /dev/null 2>&1
+  existing=$?
+
+  if [[ $existing == 0 ]]; then
+    echo "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
+    echo
+    read -rep 'Press enter to continue adding user.'
+    echo
+  fi
+
   echo -e "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
+
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     echo "Password for ${user} has been set to ${pass}"
@@ -219,7 +232,9 @@ function _adduser {
     fi
   fi
   echo "$user:$pass" > /root/${user}.info
-  useradd "${user}" -m -G www-data -s /bin/bash
+  if [[ $existing == 1 ]]; then
+    useradd "${user}" -m -G www-data -s /bin/bash
+  fi
   chpasswd<<<"${user}:${pass}"
   htpasswd -b /etc/htpasswd $user $pass
   mkdir -p /etc/htpasswd.d/
@@ -272,7 +287,19 @@ fi
 
 function _deluser {
   user=$2
-  read -rep $'WARNING: This will delete the user '${user}' and all associated configs and subdirectories.\n\nPress enter to continue.'
+  if [[ ! -f /root/${user}.info ]]; then
+    master=$(cat /root/.master.info | cut -d: -f1)
+    if [[ $user == $master ]]; then
+      echo "Master user deletion is not supported"
+      exit 1
+    fi
+    echo "Error: user ${user} not found. Exiting."
+    exit 1
+  fi
+
+  echo "WARNING: This will delete the user '${user}' and all associated configs and subdirectories. THIS ACTION CANNOT BE UNDONE."
+  echo
+  read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
   for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
     if [[ $app = "rutorrent" ]]; then
@@ -434,6 +461,10 @@ case "$1" in
     exit 0
   ;;
   "adduser")
+    if [[ -z $2 ]]; then
+      echo "Error: You must specify a user"
+      exit 1
+    fi
     if [[ -n $3 ]]; then
       echo -e "Error: too many arguments\nCorrect usage: box adduser <username>"
       exit 1
@@ -442,6 +473,10 @@ case "$1" in
   exit 0
   ;;
   "deluser")
+    if [[ -z $2 ]]; then
+      echo -e "Error: you must specify a username.\nCorrect usage: box deluser <username>"
+      exit 1
+    fi
     if [[ -n $3 ]]; then
       echo -e "Error: too many arguments\nCorrect usage: box deluser <username>"
       exit 1
