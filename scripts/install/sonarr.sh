@@ -49,7 +49,7 @@ function _installSonarr1() {
         gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
       fi
     fi
-    echo "deb http://download.mono-project.com/repo/debian wheezy/snapshots/5.8 main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list >/dev/null 2>&1
+    echo "deb https://download.mono-project.com/repo/${distribution,,} ${version}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
   fi
 }
 
