@@ -17,7 +17,7 @@ else
   OUTTO="/dev/null"
 fi
 distribution=$(lsb_release -is)
-ip=$(ip route get 8.8.8.8 | awk '{printf $7}')
+ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 u=$(cat /root/.master.info | cut -d: -f1)
 IFACE=($(ip link show|grep -i broadcast|grep -m1 UP |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g'))
 MASTER=$(ip link show|grep -i broadcast|grep -e MASTER |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g')

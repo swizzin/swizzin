@@ -308,7 +308,7 @@ function _install() {
 }
 
 function _post {
-  ip=$(ip route get 8.8.8.8 | awk '{printf $7}')
+  ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
   echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
   #echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
   #chown ${user}: /home/$user/.profile

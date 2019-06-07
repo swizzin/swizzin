@@ -25,7 +25,7 @@ else
   OUTTO="/dev/null"
 fi
 HOSTNAME1=$(hostname -s)
-PUBLICIP=$(ip route get 8.8.8.8 | awk '{printf $7}')
+PUBLICIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 DISTRO=$(lsb_release -is)
 CODENAME=$(lsb_release -cs)
 master=$(cat /root/.master.info | cut -d: -f1)

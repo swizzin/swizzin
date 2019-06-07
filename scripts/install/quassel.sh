@@ -50,7 +50,7 @@ else
   OUTTO="/dev/null"
 fi
 distribution=$(lsb_release -is)
-IP=$(ip route get 8.8.8.8 | awk '{printf $7}')
+IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 MASTER=$(cat /root/.master.info | cut -d: -f1)
 
 echo "Installing Quassel PPA (Ubuntu) or grabbing latest backport (Debian) ... " >>"${OUTTO}" 2>&1;_installQuassel1;echo
