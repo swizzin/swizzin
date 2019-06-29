@@ -28,6 +28,8 @@ distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 username=$(cat /root/.master.info | cut -d: -f1)
 jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
+password=$(cat /root/.master.info | cut -d: -f2)
+
 echo >>"${OUTTO}" 2>&1;
 echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
 
@@ -53,17 +55,44 @@ RestartSec=2
 WantedBy=multi-user.target
 JAK
 
-systemctl enable jackett@${username} >/dev/null 2>&1
-systemctl start jackett@${username}
+
+mkdir -p /home/${username}/.config/Jackett
+chown ${username}.${username} -R /home/${username}/.config/Jackett
+cat > /home/${username}/.config/Jackett/ServerConfig.json <<JSC
+{
+  "Port": 9117,
+  "AllowExternal": true,
+  "APIKey": "",
+  "AdminPassword": "",
+  "InstanceId": "",
+  "BlackholeDir": "",
+  "UpdateDisabled": false,
+  "UpdatePrerelease": false,
+  "BasePathOverride": "",
+  "OmdbApiKey": "",
+  "OmdbApiUrl": "",
+  "ProxyUrl": "",
+  "ProxyType": 0,
+  "ProxyPort": null,
+  "ProxyUsername": "",
+  "ProxyPassword": "",
+  "ProxyIsAnonymous": true
+}
+JSC
 
 if [[ -f /install/.nginx.lock ]]; then
-  while [ ! -f /home/${username}/.config/Jackett/ServerConfig.json ]
-  do
-    sleep 2
-  done
   bash /usr/local/bin/swizzin/nginx/jackett.sh
   service nginx reload
 fi
+
+systemctl enable --now jackett@${username} >/dev/null 2>&1
+
+sleep 10
+
+cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cookie | awk '{printf $3}' | sed 's/;//g')
+curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"'
+
+
 
 touch /install/.jackett.lock
 
