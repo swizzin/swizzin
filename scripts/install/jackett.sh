@@ -27,14 +27,15 @@ fi
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 username=$(cat /root/.master.info | cut -d: -f1)
-jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
+jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep AMDx64 | grep browser_download_url | cut -d \" -f4)
+#jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
 password=$(cat /root/.master.info | cut -d: -f2)
 
 echo >>"${OUTTO}" 2>&1;
 echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
 
 cd /home/$username
-wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.LinuxAMDx64.tar.gz
+wget -q $jackett
 tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
 chown ${username}.${username} -R Jackett
@@ -57,7 +58,7 @@ JAK
 
 
 mkdir -p /home/${username}/.config/Jackett
-chown ${username}.${username} -R /home/${username}/.config/Jackett
+chown ${username}.${username} -R /home/${username}/.config
 cat > /home/${username}/.config/Jackett/ServerConfig.json <<JSC
 {
   "Port": 9117,
