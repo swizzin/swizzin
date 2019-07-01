@@ -9,11 +9,18 @@ if [[ -f /install/.jackett.lock ]]; then
     sleep 1; systemctl daemon-reload
   fi
 
+  if grep -q 'ExecStart=/bin/sh -c "/home/%I/Jackett/jackett --NoRestart"' /etc/systemd/system/jackett@.service; then
+    :
+  else
+    sed -i 's|ExecStart.*|ExecStart=/bin/sh -c "/home/%I/Jackett/jackett --NoRestart"|g' /etc/systemd/system/jackett@.service
+    systemctl daemon-reload
+  fi
+
   if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/jackett@.service; then
     user=$(cat /root/.master.info | cut -d: -f1)
     active=$(systemctl is-active jackett@$user)
     jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
-    sed -i 's|ExecStart.*|ExecStart=/home/%I/Jackett/jackett --NoRestart|g' /etc/systemd/system/jackett@.service
+    sed -i 's|ExecStart.*|ExecStart=/bin/sh -c "/home/%I/Jackett/jackett --NoRestart"|g' /etc/systemd/system/jackett@.service
     systemctl daemon-reload
     if [[ $active == "active" ]]; then
       systemctl stop jackett@$user

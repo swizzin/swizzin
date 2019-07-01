@@ -49,7 +49,7 @@ After=network.target
 Type=simple
 User=%I
 WorkingDirectory=/home/%I/Jackett
-ExecStart=/home/%I/Jackett/jackett --NoRestart
+ExecStart=/bin/sh -c "/home/%I/Jackett/jackett --NoRestart"
 Restart=always
 RestartSec=2
 [Install]
