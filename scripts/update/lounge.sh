@@ -16,16 +16,23 @@ if [[ -f /install/.lounge.sh ]]; then
         sed -i "s/ExecStart=\/usr\/bin\/lounge/ExecStart=\/usr\/bin\/thelounge/g" /etc/systemd/system/lounge.service
         systemctl daemon-reload
     fi
-fi
 
-if [[ $(thelounge -v) =~ "v2" ]]; then
-echo "There is an update for The Lounge. Do you wish to upgrade?"
-select yn in "Yes" "No"; do
-    case $yn in
-        Yes ) _uplounge; break;;
-        No ) break;;
-    esac
-done
+    if grep -q 'bind: "127.0.0.1"' /home/lounge/.thelounge/config.js; then
+        sed -i 's/bind: "127.0.0.1",/bind: undefined,/g' /home/lounge/.thelounge/config.js
+        sed -i 's/host: undefined,/host: "127.0.0.1",/g' /home/lounge/.thelounge/config.js
+        systemctl restart lounge
+    fi
+
+    if [[ $(thelounge -v) =~ "v2" ]]; then
+        echo "There is an update for The Lounge. Do you wish to upgrade?"
+        select yn in "Yes" "No"; do
+            case $yn in
+                Yes ) _uplounge; break;;
+                No ) break;;
+            esac
+        done
+    fi
+
 fi
 
 

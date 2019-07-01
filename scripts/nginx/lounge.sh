@@ -14,7 +14,7 @@ proxy_set_header X-Forwarded-For \$remote_addr;
 proxy_read_timeout 1d;
 }
 EOF
-sed -i 's/bind: undefined,/bind: "127.0.0.1",/g' /home/lounge/.thelounge/config.js
+sed -i 's/host: undefined,/host: "127.0.0.1",/g' /home/lounge/.thelounge/config.js
 sed -i 's/reverseProxy: false,/reverseProxy: true,/g' /home/lounge/.thelounge/config.js
 
 if [[ $isactive == "active" ]]; then
