@@ -26,8 +26,13 @@ location /bazarr {
 
 LIDN
 
-sed -i "s/ip =.*/ip = 127.0.0.1/g" /home/${user}/bazarr/data/config/config.ini
-sed -i "s/base_url =.*/base_url = \/bazarr\//g" /home/${user}/bazarr/data/config/config.ini
+sed -i '/\[general\]/,$d' /home/${user}/bazarr/data/config/config.ini
+
+cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
+[general]
+ip = 127.0.0.1
+base_url = /bazarr/
+BAZC
 
 
 chown -R ${user}: /home/${user}/.config
