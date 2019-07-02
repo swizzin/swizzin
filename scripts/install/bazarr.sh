@@ -1,0 +1,68 @@
+#!/bin/bash
+user=$(cat /root/.master.info | cut -d: -f1 )
+apt-get -y -q install python-pip > /dev/null 2>&1
+cd /home/${user}
+echo "Cloning into 'bazarr'"
+git clone https://github.com/morpheus65535/bazarr.git > /dev/null 2>&1
+chown -R ${user}: bazarr
+cd bazarr
+echo "Checking python depends"
+sudo -u ${user} bash -c "pip install --user -r requirements.txt" > /dev/null 2>&1
+
+if [[ -f /install/.sonarr.lock ]]; then
+api=$(cat /home/${user}/.config/NzbDrone/config.xml | grep Api | cut -d\> -f2 | cut -d\< -f1)
+appport=$(cat /home/${user}/.config/NzbDrone/config.xml | grep \<Port | cut -d\> -f2 | cut -d\< -f1)
+cat >> /home/${user}/bazarr/data/config/config.ini <<SONC
+[sonarr]
+apikey = ${api} 
+full_update = Daily
+ip = 127.0.0.1
+only_monitored = False
+base_url = /sonarr
+ssl = False
+port = ${appport}
+SONC
+fi
+
+if [[ -f /install/.radarr.lock ]]; then
+api=$(cat /home/${user}/.config/Radarr/config.xml | grep Api | cut -d\> -f2 | cut -d\< -f1)
+appport=$(cat /home/${user}/.config/Radarr/config.xml | grep \<Port | cut -d\> -f2 | cut -d\< -f1)
+cat >> /home/${user}/bazarr/data/config/config.ini <<RADC
+
+[radarr]
+apikey = ${api}
+full_update = Daily
+ip = 127.0.0.1
+only_monitored = False
+base_url = /radarr
+ssl = False
+port = ${appport}
+RADC
+fi
+
+cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
+
+[general]
+ip = 0.0.0.0
+base_url = /bazarr/
+BAZC
+
+if [[ -f /home/${user}/.install/.sonarr.lock ]]; then
+echo "use_sonarr = True" >> /home/${user}/bazarr/data/config/config.ini
+fi
+
+if [[ -f /home/${user}/.install/.radarr.lock ]]; then
+echo "use_radarr = True" >> /home/${user}/bazarr/data/config/config.ini
+fi
+
+chown -R ${user}: /home/${user}/bazarr
+
+if [[ -f /install/.nginx.lock ]]; then
+    sleep 10
+    bash /usr/local/bin/swizzin/nginx/bazarr.sh
+    service nginx reload
+fi
+
+systemctl enable --now bazarr
+
+touch /install/.bazarr.lock
