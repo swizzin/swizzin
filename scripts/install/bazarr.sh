@@ -44,7 +44,7 @@ cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
 
 [general]
 ip = 0.0.0.0
-base_url = /bazarr/
+base_url =
 BAZC
 
 if [[ -f /home/${user}/.install/.sonarr.lock ]]; then
@@ -62,6 +62,28 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/bazarr.sh
     service nginx reload
 fi
+
+cat > /etc/systemd/system/bazarr.service <<BAZ
+[Unit]
+Description=Bazarr for ${user}
+After=syslog.target network.target
+
+[Service]
+WorkingDirectory=/home/${user}/bazarr
+User=${user}
+Group=${user}
+UMask=0002
+Restart=on-failure
+RestartSec=5
+Type=simple
+ExecStart=/usr/bin/python /home/${user}/bazarr/bazarr.py
+KillSignal=SIGINT
+TimeoutStopSec=20
+SyslogIdentifier=bazarr.${user}
+
+[Install]
+WantedBy=multi-user.target
+BAZ
 
 systemctl enable --now bazarr
 

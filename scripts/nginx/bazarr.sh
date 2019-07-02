@@ -21,13 +21,13 @@ location /bazarr {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass http://127.0.0.1:6767/bazarr;
   auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.${user};
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 
 LIDN
 
 sed -i "s/ip =.*/ip = 127.0.0.1/g" /home/${user}/bazarr/data/config/config.ini
-sed -i "s/base_url =.*/base_url = \/bazarr\/" /home/${user}/bazarr/data/config/config.ini
+sed -i "s/base_url =.*/base_url = \/bazarr\/g" /home/${user}/bazarr/data/config/config.ini
 
 
 chown -R ${user}: /home/${user}/.config

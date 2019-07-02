@@ -77,6 +77,6 @@ LID
   fi
 
 
-systemctl enable --now lidarr@${user}
+systemctl enable --now lidarr
 
 touch /install/.lidarr.lock
