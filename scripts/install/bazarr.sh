@@ -47,11 +47,11 @@ ip = 0.0.0.0
 base_url =
 BAZC
 
-if [[ -f /home/${user}/.install/.sonarr.lock ]]; then
+if [[ -f /install/.sonarr.lock ]]; then
 echo "use_sonarr = True" >> /home/${user}/bazarr/data/config/config.ini
 fi
 
-if [[ -f /home/${user}/.install/.radarr.lock ]]; then
+if [[ -f /install/.radarr.lock ]]; then
 echo "use_radarr = True" >> /home/${user}/bazarr/data/config/config.ini
 fi
 

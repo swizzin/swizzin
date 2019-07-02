@@ -16,7 +16,7 @@ if [[ $isactive == "active" ]]; then
   systemctl stop bazarr
 fi
 
-cat > /etc/nginx/apps/bazarr.conf <<LIDN
+cat > /etc/nginx/apps/bazarr.conf <<BAZN
 location /bazarr {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass http://127.0.0.1:6767/bazarr;
@@ -24,7 +24,7 @@ location /bazarr {
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 
-LIDN
+BAZN
 
 sed -i '/\[general\]/,$d' /home/${user}/bazarr/data/config/config.ini
 
@@ -33,6 +33,14 @@ cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
 ip = 127.0.0.1
 base_url = /bazarr/
 BAZC
+
+if [[ -f /install/.sonarr.lock ]]; then
+echo "use_sonarr = True" >> /home/${user}/bazarr/data/config/config.ini
+fi
+
+if [[ -f /install/.radarr.lock ]]; then
+echo "use_radarr = True" >> /home/${user}/bazarr/data/config/config.ini
+fi
 
 
 chown -R ${user}: /home/${user}/.config
