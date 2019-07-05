@@ -58,7 +58,7 @@ else
   geoip=php-geoip
 fi
 
-if [[ $codename == "bionic" ]]; then
+if [[ $codename =~ ("bionic"|"buster") ]]; then
   mcrypt=
 else
   mcrypt=php-mcrypt
@@ -85,7 +85,9 @@ for version in $phpv; do
   phpenmod -v $version opcache
 done
 
-if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
+  sock=php7.3-fpm
+elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
   sock=php7.2-fpm
 elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
   sock=php7.1-fpm
@@ -226,11 +228,25 @@ done
 
 systemctl restart nginx
 
-if [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  systemctl restart php7.2-fpm
+if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
+  systemctl restart php7.3-fpm
+  if [[ $(systemctl is-active php7.2-fpm) == "active" ]]; then
+    systemctl stop php7.2-fpm
+    systemctl disable php7.2-fpm
+  fi
   if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
     systemctl stop php7.1-fpm
     systemctl disable php7.1-fpm
+  fi
+  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
+    systemctl stop php7.0-fpm
+    systemctl disable php7.0-fpm
+  fi
+elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
+  systemctl restart php7.2-fpm
+  if [[ $(systemctl is-active php7.2-fpm) == "active" ]]; then
+    systemctl stop php7.2-fpm
+    systemctl disable php7.2-fpm
   fi
   if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
     systemctl stop php7.0-fpm
