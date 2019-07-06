@@ -34,23 +34,7 @@ function _installSonarrintro() {
 }
 
 function _installSonarr1() {
-  if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-    if [[ $distribution == "Ubuntu" ]]; then
-      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-    elif [[ $distribution == "Debian" ]]; then
-      if [[ $version == "jessie" ]]; then
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-        cd /tmp
-        wget -q -O libjpeg8.deb http://ftp.fr.debian.org/debian/pool/main/libj/libjpeg8/libjpeg8_8d-1+deb7u1_amd64.deb
-        dpkg -i libjpeg8.deb >/dev/null 2>&1
-        rm -rf libjpeg8.deb
-      else
-        gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-        gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
-      fi
-    fi
-    echo "deb https://download.mono-project.com/repo/${distribution,,} ${version}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
-  fi
+  mono_repo_setup
 }
 
 function _installSonarr2() {
@@ -101,8 +85,7 @@ WorkingDirectory=/home/%I/
 [Install]
 WantedBy=multi-user.target
 SONARR
-  systemctl enable sonarr@${username} >/dev/null 2>&1
-  systemctl start sonarr@${username}
+  systemctl enable --now sonarr@${username} >/dev/null 2>&1
   sleep 10
 
 
@@ -133,6 +116,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
+. /etc/swizzin/sources/functions/mono
 username=$(cat /root/.master.info | cut -d: -f1)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
