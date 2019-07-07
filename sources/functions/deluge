@@ -46,7 +46,7 @@ function build_libtorrent_rasterbar () {
       esac
   elif [[ $libtorrent =~ ("RC_1_0"|"RC_1_1") ]]; then
     LTRC=$libtorrent
-    LIST='build-essential checkinstall libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
+    LIST='build-essential libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
     geoip-database'
     for depend in $LIST; do
       apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
