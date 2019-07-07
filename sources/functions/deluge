@@ -110,10 +110,9 @@ function build_deluge () {
     install_fpm
     cd /tmp
     git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
-    sed -i 's/.dev0//g' deluge.egg-info/PKG-INFO
     VERSION=$(cat /tmp/deluge/setup.py | grep version\ \= | grep -v python | cut -d\" -f2)
     mkdir -p /root/dist
-    fpm -p /root/dist/deluge_VERSION.deb -s python -t deb /tmp/deluge/setup.py --description "Deluge compiled by swizzin" > /dev/null 2>&1
+    fpm -f -p /root/dist/deluge_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
     dpkg -i /root/dist/deluge_${VERSION}.deb
     chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
     cp /etc/swizzin/scripts/deluge.UpdateTracker.py $(find /usr/lib/python2.7/dist-packages/ -name 'deluge*.egg')"/deluge/ui/console/commands/update-tracker.py"
