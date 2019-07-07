@@ -70,9 +70,9 @@ function build_libtorrent_rasterbar () {
     cd /tmp
     git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
     cd libtorrent
-    VERSION=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
     ./autotool.sh >>"${OUTTO}" 2>&1
     ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1
+    VERSION=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
     make -j$(nproc) >>"${OUTTO}" 2>&1
     make DESTDIR=/tmp/dist/libtorrent
     mkdir -p /root/dist
