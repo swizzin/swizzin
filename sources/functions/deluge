@@ -74,7 +74,8 @@ function build_libtorrent_rasterbar () {
     ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1
     VERSION=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
     make -j$(nproc) >>"${OUTTO}" 2>&1
-    make DESTDIR=/tmp/dist/libtorrent
+
+    make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin" > /dev/null 2>&1
     #checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
@@ -109,7 +110,7 @@ function build_deluge () {
     cd /tmp
     git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
     sed -i 's/.dev0//g' deluge.egg-info/PKG-INFO
-    VERSION=$(cat deluge.egg-info/PKG-INFO | grep -i "version:" | grep -iv meta | sed 's/.*:\s//')
+    VERSION=$(cat setup.py | grep version\ \= | grep -v python | cut -d\" -f2)
     fpm -p /root/dist/deluge_VERSION.deb -s python -t deb /tmp/deluge/setup.py --description "Deluge compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/deluge_${VERSION}.deb
     chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
