@@ -13,78 +13,6 @@
 #
 #################################################################################
 
-function _deluge() {
-  if [[ $deluge == repo ]]; then
-    apt-get -q -y update >>"${OUTTO}" 2>&1
-    apt-get -q -y install deluged deluge-web deluge-console >>"${OUTTO}" 2>&1
-    
-    chmod 644 ${local_packages}/deluge.UpdateTracker.py
-    cp ${local_packages}/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
-    
-    systemctl stop deluged
-    update-rc.d deluged remove
-    rm /etc/init.d/deluged
-  elif [[ $deluge == stable ]] || [[ $deluge == dev ]]; then
-    if [[ $deluge == stable ]]; then
-      LTRC=RC_1_0
-    elif [[ $deluge == dev ]]; then
-      LTRC=RC_1_1
-    fi
-  apt-get -qy update >/dev/null 2>&1
-  
-  LIST='build-essential checkinstall libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
-  python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
-  python-glade2 librsvg2-common xdg-utils python-mako'
-  for depend in $LIST; do
-    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-  done
-  #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
-  #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
-  #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
-  #  for depend in $LIST; do
-  #    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
-  #  done
-  #else
-  #  cd /tmp
-  #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
-  #  tar xf boost_1_62_0.tar.gz
-  #  cd boost_1_62_0
-  #  ./bootstrap.sh --prefix=/usr
-  #  ./b2 install
-  #fi
-
-  if [[ -n $noexec ]]; then
-    mount -o remount,exec /tmp
-    noexec=1
-  fi
-
-  cd /tmp
-  git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
-  git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
-  cd libtorrent
-  ./autotool.sh >>"${OUTTO}" 2>&1
-  ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1 >>"${OUTTO}" 2>&1
-  make -j$(nproc) >>"${OUTTO}" 2>&1
-  mkdir -p /usr/local/include
-  checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
-  ldconfig
-  cd ..
-  cd deluge
-  python setup.py build >>"${OUTTO}" 2>&1
-  python setup.py install --install-layout=deb >>"${OUTTO}" 2>&1
-  python setup.py install_data >>"${OUTTO}" 2>&1
-
-  chmod 644 ${local_packages}/deluge.UpdateTracker.py
-  cp ${local_packages}/deluge.UpdateTracker.py $(find /usr/lib/python2.7/dist-packages/ -name 'deluge*.egg')"/deluge/ui/console/commands/update-tracker.py"
-
-  cd ..
-  rm -r {deluge,libtorrent}
-
-  if [[ -n $noexec ]]; then
-	  mount -o remount,noexec /tmp
-  fi
-fi
-}
 function _dconf {
   for u in "${users[@]}"; do
     if [[ ${u} == ${master} ]]; then
@@ -323,9 +251,9 @@ fi
 }
 
 if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
+  export OUTTO="/root/logs/install.log"
 else
-  OUTTO="/dev/null"
+  export OUTTO="/dev/null"
 fi
 local_packages=/usr/local/bin/swizzin
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
@@ -341,21 +269,24 @@ if [[ -n $1 ]]; then
   exit 0
 fi
 
-if [[ -z $deluge ]] && [[ -z $1 ]]; then
-  function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-               Repo "" \
-               Stable "" \
-               Dev "" 3>&1 1>&2 2>&3)
+. /etc/swizzin/sources/functions/deluge
+whiptail_deluge
 
-    if [[ $function == Repo ]]; then
-      export deluge=repo
-    elif [[ $function == Stable ]]; then
-      export deluge=stable
-    elif [[ $function == Dev ]]; then
-      export deluge=dev
-    fi
+if [[ -n $noexec ]]; then
+	mount -o remount,exec /tmp
+	noexec=1
 fi
 
-_deluge
+if [[ ! -f /install/libtorrent.lock ]]; then
+  echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
+fi
+
+echo "Building Deluge"; build_deluge
+
+if [[ -n $noexec ]]; then
+	mount -o remount,noexec /tmp
+fi
+
+echo "Configuring Deluge"
 _dconf
 _dservice

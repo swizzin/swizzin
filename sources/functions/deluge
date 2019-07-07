@@ -1,0 +1,119 @@
+#!/bin/bash
+
+function whiptail_deluge () {
+  if [[ -z $deluge ]]; then
+    function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+                Repo "" \
+                Stable "" \
+                Dev "" 3>&1 1>&2 2>&3)
+
+    if [[ $function == Repo ]]; then
+      export deluge=repo
+      export libtorrent=repo
+    elif [[ $function == Stable ]]; then
+      export deluge=stable
+      export libtorrent=RC_1_0
+    elif [[ $function == Dev ]]; then
+      export deluge=dev
+      export libtorrent=RC_1_1
+    fi
+  fi
+}
+
+function remove_ltcheckinstall () {
+  oldv=$(apt-cache show libtorrent | grep checkinstall)
+  if [[ -n $oldv ]]; then
+    echo "Removing checkinstall libtorrent"
+    dpkg -r libtorrent
+  fi
+}
+
+function build_libtorrent_rasterbar () {
+  release=$(lsb_release -cs)
+  . /etc/swizzin/sources/functions/fpm
+
+  if [[ $libtorrent = "repo" ]]; then
+      case $release in
+          "jessie")
+          apt-get install -y -q libtorrent-rasterbar7
+          ;;
+          "xenial")
+          apt-get install -y -q libtorrent-rasterbar8
+          ;;
+          *)
+          apt-get install -y -q libtorrent-rasterbar9
+          ;;
+      esac
+  elif [[ $libtorrent =~ ("RC_1_0"|"RC_1_1") ]]; then
+    LTRC=$libtorrent
+    LIST='build-essential checkinstall libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
+    geoip-database'
+    for depend in $LIST; do
+      apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+    done
+    install_fpm
+    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
+    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
+    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
+    #  for depend in $LIST; do
+    #    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
+    #  done
+    #else
+    #  cd /tmp
+    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
+    #  tar xf boost_1_62_0.tar.gz
+    #  cd boost_1_62_0
+    #  ./bootstrap.sh --prefix=/usr
+    #  ./b2 install
+    #fi
+
+    cd /tmp
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
+    cd libtorrent
+    VERSION=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
+    ./autotool.sh >>"${OUTTO}" 2>&1
+    ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1
+    make -j$(nproc) >>"${OUTTO}" 2>&1
+    make DESTDIR=/tmp/dist/libtorrent
+    mkdir -p /root/dist
+    fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin"
+    #checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
+    dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
+    ldconfig
+    cd /tmp
+    rm -r libtorrent
+  fi
+  if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
+}
+
+function build_deluge () {
+  if [[ $deluge == repo ]]; then
+    apt-get -q -y update >>"${OUTTO}" 2>&1
+    apt-get -q -y install deluged deluge-web deluge-console >>"${OUTTO}" 2>&1
+    
+    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
+    cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    
+    systemctl stop deluged
+    update-rc.d deluged remove
+    rm /etc/init.d/deluged
+  else
+    LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
+    python-glade2 librsvg2-common xdg-utils python-mako'
+    for depend in $LIST; do
+      apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+    done
+    . /etc/swizzin/sources/functions/fpm
+    install_fpm
+    cd /tmp
+    git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
+    sed -i 's/.dev0//g' deluge.egg-info/PKG-INFO
+    VERSION=$(cat deluge.egg-info/PKG-INFO | grep -i "version:" | grep -iv meta | sed 's/.*:\s//')
+    fpm -p /root/dist/deluge_VERSION.deb -s python -t deb /tmp/deluge/setup.py --description "Deluge compiled by swizzin"
+    dpkg -i /root/dist/deluge_${VERSION}.deb
+    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
+    cp /etc/swizzin/scripts/deluge.UpdateTracker.py $(find /usr/lib/python2.7/dist-packages/ -name 'deluge*.egg')"/deluge/ui/console/commands/update-tracker.py"
+    cd /tmp
+    rm -rf deluge
+  fi
+}
