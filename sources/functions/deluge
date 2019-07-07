@@ -72,7 +72,7 @@ function build_libtorrent_rasterbar () {
     cd libtorrent
     ./autotool.sh >>"${OUTTO}" 2>&1
     ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1
-    VERSION=$(cat Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
+    VERSION=$(cat /tmp/libtorrent/Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
     make -j$(nproc) >>"${OUTTO}" 2>&1
 
     make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
@@ -111,7 +111,7 @@ function build_deluge () {
     cd /tmp
     git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
     sed -i 's/.dev0//g' deluge.egg-info/PKG-INFO
-    VERSION=$(cat setup.py | grep version\ \= | grep -v python | cut -d\" -f2)
+    VERSION=$(cat /tmp/deluge/setup.py | grep version\ \= | grep -v python | cut -d\" -f2)
     mkdir -p /root/dist
     fpm -p /root/dist/deluge_VERSION.deb -s python -t deb /tmp/deluge/setup.py --description "Deluge compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/deluge_${VERSION}.deb
