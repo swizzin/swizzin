@@ -2,16 +2,15 @@
 #
 app_name="$1"
 port="$2"
-trailing="$3"
 #
 username="$(cat /root/.master.info | cut -d: -f1)"
 #
 cat > /etc/nginx/apps/${app_name}.conf <<-NGINGCONF
-location /${app_name}${trailing} {
+location /${app_name} {
     # access_log /home/${username}/${app_name}.access.log;
     # error_log /home/${username}/${app_name}.error.log;
     #
-    proxy_pass http://127.0.0.1:${port}${trailing};
+    proxy_pass http://127.0.0.1:${port};
     #
     proxy_pass_request_headers on;
     #
