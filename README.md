@@ -41,9 +41,12 @@ sudo -H su -c 'bash <(wget -O- -q https://raw.githubusercontent.com/liaralabs/sw
 ```
 
 
-#### Supported:
-* Debian 8/9
-* Ubuntu 16.04 and above
+#### Supported
+
+Long-term support branches only:
+
+* Debian 8/9/10
+* Ubuntu 16.04/18.04
 
 ### This is my box. There are many like it, but this one is mine.
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
