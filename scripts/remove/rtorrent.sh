@@ -10,15 +10,16 @@ for u in ${users}; do
   rm -f /home/${u}/.rtorrent.rc
 done
 
-rm -rf /usr/bin/rtorrent
-cd /tmp
-git clone https://github.com/rakshasa/libtorrent.git libtorrent >>/dev/null 2>&1
-cd libtorrent
-./autogen.sh > /dev/null 2>&1
-./configure --prefix=/usr > /dev/null 2>&1
-make uninstall > /dev/null 2>&1
-cd -
-rm -rf /tmp/libtorrent
+. /etc/swizzin/sources/functions/rtorrent
+isdeb=$(dpkg -l | grep rtorrent)
+if [[ -z $isdeb ]]; then
+	echo "Removing old rTorrent binaries and libraries ... ";remove_rtorrent_legacy
+fi
+
+if [[ -n $isdeb ]]; then
+  apt-get -y -q purge libtorrent-rakshasa > /dev/null 2>&1
+  apt-get -y -q purge rtorrent > /dev/null 2>&1
+fi
 
 #apt-get -y remove mktorrent mediainfo
 for a in rutorrent flood; do

@@ -196,53 +196,8 @@ function _choices() {
       sed -i "/rtorrent/a $g" /root/results
     done
     rm -f /root/guis
-
-    if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
-      #function=feature-bind
-      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                  feature-bind "" \
-                  0.9.7 "" \
-                  0.9.6 "" 3>&1 1>&2 2>&3)
-      
-
-        if [[ $function == 0.9.7 ]]; then
-          export rtorrentver='0.9.7'
-          export libtorrentver='0.13.7'
-        elif [[ $function == 0.9.6 ]]; then
-          export rtorrentver='0.9.6'
-          export libtorrentver='0.13.6'
-        elif [[ $function == feature-bind ]]; then
-          export rtorrentver='feature-bind'
-          export libtorrentver='feature-bind'
-        fi
-
-    else
-      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                  feature-bind "" \
-                  0.9.7 "" \
-                  0.9.6 "" \
-                  0.9.4 "" \
-                  0.9.3 "" 3>&1 1>&2 2>&3)
-
-
-
-        if [[ $function == 0.9.7 ]]; then
-          export rtorrentver='0.9.7'
-          export libtorrentver='0.13.7'
-        elif [[ $function == 0.9.6 ]]; then
-          export rtorrentver='0.9.6'
-          export libtorrentver='0.13.6'
-        elif [[ $function == 0.9.4 ]]; then
-          export rtorrentver='0.9.4'
-          export libtorrentver='0.13.4'
-        elif [[ $function == 0.9.3 ]]; then
-          export rtorrentver='0.9.3'
-          export libtorrentver='0.13.3'
-        elif [[ $function == feature-bind ]]; then
-          export rtorrentver='feature-bind'
-          export libtorrentver='feature-bind'
-        fi
-    fi
+    . /etc/swizzin/sources/functions/rtorrent
+    whiptail_rtorrent
   fi
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
