@@ -35,10 +35,11 @@ EOF
 apt-get -y update >/dev/null 2>&1
 if [[ $release == "jessie" ]]; then
 	gpg --keyserver keys.gnupg.net --recv E1F958385BFE2B6E >/dev/null 2>&1
+	gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
 else
-	gpg --keyserver http://keyserver.ubuntu.com --recv E1F958385BFE2B6E >/dev/null 2>&1
+  apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E > /dev/null 2>&1
 fi
-gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
+
 apt-get -y update >/dev/null 2>&1
 apt-get -y install x2go-keyring >/dev/null 2>&1 && apt-get update >/dev/null 2>&1
 fi

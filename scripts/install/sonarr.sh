@@ -45,8 +45,11 @@ function _installSonarr2() {
     if [[ $version == "jessie" ]]; then
       apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FDA5DFFC >/dev/null 2>&1
     else
-      gpg --keyserver http://keyserver.ubuntu.com --recv FDA5DFFC >/dev/null 2>&1
-      gpg --export FDA5DFFC > /etc/apt/trusted.gpg.d/nzbdrone.gpg
+      #buster friendly
+      apt-key --keyring /etc/apt/trusted.gpg.d/nzbdrone.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys FDA5DFFC
+      #older style -- buster friendly should work on stretch
+      #gpg --keyserver http://keyserver.ubuntu.com --recv FDA5DFFC >/dev/null 2>&1
+      #gpg --export FDA5DFFC > /etc/apt/trusted.gpg.d/nzbdrone.gpg
     fi
   fi
   echo "deb https://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
