@@ -9,7 +9,7 @@ function remove_filebrowser() {
 	#
 	kill -9 $(ps xU ${username} | grep "/home/${username}/bin/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db$" | awk '{print $1}') >/dev/null 2>&1
 	#
-	rm -rf "/home/${username}/bin/filebrowser"
+	rm -f "/home/${username}/bin/filebrowser"
 	rm -rf "/home/${username}/.config/Filebrowser"
 	rm -f "/etc/nginx/apps/filebrowser.conf"
 	rm -f "/install/.filebrowser.lock"
