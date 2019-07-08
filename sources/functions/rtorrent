@@ -159,6 +159,7 @@ function build_rtorrent () {
 	ldconfig >>$log 2>&1
 	rm -rf rtorrent* >>$log 2>&1
   rm -rf /tmp/dist/rtorrent
+  apt-mark hold rtorrent
 }
 
 function _rar() {
