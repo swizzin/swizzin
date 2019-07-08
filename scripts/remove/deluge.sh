@@ -1,15 +1,9 @@
 #!/bin/bash
+# Uninstall for deluge package on swizzin
+# [swizzin :: Uninstaller for Deluge package]
+# Author: liara
 #
-# [Quick Box :: Uninstaller for Deluge package]
-#
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | liara
-# URL                :   https://quickbox.io
-#
-# QuickBox Copyright (C) 2016
+# swizzin Copyright (C) 2019
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track
@@ -18,30 +12,20 @@
 #   under the GPL along with build & install instructions.
 #
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  OUTTO="/srv/panel/db/output.log"
-else
-  OUTTO="/dev/null"
-fi
+for u in ${users}; do
+  systemctl disable --now deluged@$u > /dev/null 2>&1
+  systemctl disable --now deluge-web@$u > /dev/null 2>&1
+  rm -rf /home/${u}/.config/deluge
+done
 
-function _removeDeluge() {
-  killall deluged
-  killall deluge-web
-    sleep 5
-  systemctl disable deluged@* > /dev/null 2>&1
-  systemctl stop deluged@* > /dev/null 2>&1
-  rm /etc/systemd/system/deluged@.service > /dev/null 2>&1
-  rm /etc/systemd/system/deluge-web@.service > /dev/null 2>&1
-  rm -rf /usr/lib/python2.7/dist-packages/deluge*
-  dpkg -r libtorrent
-  apt-get purge -y deluge deluge-web deluge-console > /dev/null 2>&1
+rm /etc/systemd/system/deluged@.service
+rm /etc/systemd/system/deluge-web@.service
+dpkg -r libtorrent
+dpkg -r libtorrent-rasterbar
+#dpkg -r deluge
+apt-get purge -y deluge> /dev/null 2>&1
+apt-get purge -y deluge-web deluge-console > /dev/null 2>&1
 
-  sudo rm /install/.deluge.lock
-  for u in ${users}; do
-    rm -rf /home/${u}/.config/deluge
-  done
-}
+rm -rf /usr/lib/python2.7/dist-packages/deluge*
 
-_removeDeluge
+rm /install/.deluge.lock
