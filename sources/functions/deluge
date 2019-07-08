@@ -49,14 +49,14 @@ function build_libtorrent_rasterbar () {
     LIST='build-essential libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
     geoip-database'
     for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
     done
     install_fpm
     #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
     #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
     #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
     #  for depend in $LIST; do
-    #    apt-get -qq -y install $depend >>"${OUTTO}" 2>&1
+    #    apt-get -qq -y install $depend >>"${log}" 2>&1
     #  done
     #else
     #  cd /tmp
@@ -68,18 +68,18 @@ function build_libtorrent_rasterbar () {
     #fi
 
     cd /tmp
-    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${OUTTO}" 2>&1
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1
     cd libtorrent
-    ./autotool.sh >>"${OUTTO}" 2>&1
-    ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${OUTTO}" 2>&1
+    ./autotool.sh >>"${log}" 2>&1
+    ./configure --enable-python-binding --with-lib-geoip --with-libiconv >>"${log}" 2>&1
     VERSION=$(cat /tmp/libtorrent/Makefile | grep -i package_version\ \= | cut -d= -f2 | sed 's/ //g')
-    make -j$(nproc) >>"${OUTTO}" 2>&1
+    make -j$(nproc) >>"${log}" 2>&1
 
     make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
     mv /tmp/dist/libtorrent/usr/local/lib/python2.7/site-packages /tmp/dist/libtorrent/usr/local/lib/python2.7/dist-packages
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin" > /dev/null 2>&1
-    #checkinstall -y --pkgversion=${LTRC} >>"${OUTTO}" 2>&1
+    #checkinstall -y --pkgversion=${LTRC} >>"${log}" 2>&1
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
     ldconfig
     cd /tmp
@@ -91,8 +91,8 @@ function build_libtorrent_rasterbar () {
 
 function build_deluge () {
   if [[ $deluge == repo ]]; then
-    apt-get -q -y update >>"${OUTTO}" 2>&1
-    apt-get -q -y install deluged deluge-web deluge-console >>"${OUTTO}" 2>&1
+    apt-get -q -y update >>"${log}" 2>&1
+    apt-get -q -y install deluged deluge-web deluge-console >>"${log}" 2>&1
     
     chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
     cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
@@ -104,12 +104,12 @@ function build_deluge () {
     LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet geoip-database python-notify python-pygame
     python-glade2 librsvg2-common xdg-utils python-mako'
     for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${OUTTO}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
     done
     . /etc/swizzin/sources/functions/fpm
     install_fpm
     cd /tmp
-    git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${OUTTO}" 2>&1
+    git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${log}" 2>&1
     VERSION=$(cat /tmp/deluge/setup.py | grep version\ \= | grep -v python | cut -d\" -f2)
     mkdir -p /root/dist
     fpm --python-setup-py-arguments=--install-layout=deb  -f -p /root/dist/deluge_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1

@@ -236,8 +236,8 @@ WantedBy=multi-user.target
 DW
   fi
 for u in "${users[@]}"; do
-  systemctl enable deluged@${u} >>"${OUTTO}" 2>&1
-  systemctl enable deluge-web@${u} >>"${OUTTO}" 2>&1
+  systemctl enable deluged@${u} >>"${log}" 2>&1
+  systemctl enable deluge-web@${u} >>"${log}" 2>&1
   systemctl start deluged@${u}
   systemctl start deluge-web@${u}
 done
@@ -251,9 +251,9 @@ fi
 }
 
 if [[ -f /tmp/.install.lock ]]; then
-  export OUTTO="/root/logs/install.log"
+  export log="/root/logs/install.log"
 else
-  export OUTTO="/dev/null"
+  export log="/dev/null"
 fi
 local_packages=/usr/local/bin/swizzin
 users=($(cat /etc/htpasswd | cut -d ":" -f 1))

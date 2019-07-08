@@ -7,9 +7,9 @@ if [[ ! -f /install/.deluge.lock ]]; then
 fi
 
 if [[ -f /tmp/.install.lock ]]; then
-  export OUTTO="/root/logs/install.log"
+  export log="/root/logs/install.log"
 else
-  export OUTTO="/dev/null"
+  export log="/dev/null"
 fi
 
 . /etc/swizzin/sources/functions/deluge
