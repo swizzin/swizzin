@@ -245,18 +245,8 @@ function _choices() {
     fi
   fi
   if grep -q deluge "$results"; then
-    function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-                Repo "" \
-                Stable "" \
-                Dev "" 3>&1 1>&2 2>&3)
-
-      if [[ $function == Repo ]]; then
-        export deluge=repo
-      elif [[ $function == Stable ]]; then
-        export deluge=stable
-      elif [[ $function == Dev ]]; then
-        export deluge=dev
-      fi
+    . /etc/swizzin/sources/functions/deluge
+    whiptail_deluge
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
