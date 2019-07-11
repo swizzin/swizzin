@@ -6,7 +6,7 @@ function install_fpm () {
   if [[ ! $exit == '0' ]]; then
     echo "Installing fpm package management with ruby/gem"
     apt-get -y -q update > /dev/null 2>&1
-    apt-get -y -q install ruby-dev > /dev/null 2>&1
+    apt-get -y -q install ruby ruby-dev > /dev/null 2>&1
     gem install fpm > /dev/null 2>&1
   fi
 }
