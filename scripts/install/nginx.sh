@@ -227,37 +227,8 @@ done
 
 systemctl restart nginx
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  systemctl restart php7.3-fpm
-  if [[ $(systemctl is-active php7.2-fpm) == "active" ]]; then
-    systemctl stop php7.2-fpm
-    systemctl disable php7.2-fpm
-  fi
-  if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
-    systemctl stop php7.1-fpm
-    systemctl disable php7.1-fpm
-  fi
-  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-    systemctl stop php7.0-fpm
-    systemctl disable php7.0-fpm
-  fi
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  systemctl restart php7.2-fpm
-  if [[ $(systemctl is-active php7.2-fpm) == "active" ]]; then
-    systemctl stop php7.2-fpm
-    systemctl disable php7.2-fpm
-  fi
-  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-    systemctl stop php7.0-fpm
-    systemctl disable php7.0-fpm
-  fi
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  systemctl restart php7.1-fpm
-  if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-    systemctl stop php7.0-fpm
-    systemctl disable php7.0-fpm
-  fi
-else
-  systemctl restart php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+restart_php_fpm
+
+
 touch /install/.nginx.lock
