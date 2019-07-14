@@ -39,5 +39,5 @@ if [[ -d /srv/panel ]]; then
   fi
   . /etc/swizzin/sources/functions/php
   restart_php_fpm
-   systemctl restart nginx
+  systemctl restart nginx
 fi

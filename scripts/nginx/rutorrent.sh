@@ -258,6 +258,9 @@ RUC
   fi
 done
 
+. /etc/swizzin/sources/functions/php
+restart_php_fpm
+
 chown -R www-data.www-data /srv/rutorrent
 systemctl reload nginx
 touch /install/.rutorrent.lock
