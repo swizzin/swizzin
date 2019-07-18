@@ -3,7 +3,7 @@
 function check_debian_backports () {
     codename=$(lsb_release -cs)
     if grep -q "${codename}-backports" /etc/apt/sources.list; then
-        echo "Debian ${codename} backports already enabled.
+        echo "Debian ${codename} backports already enabled."
     else
         echo "Enabling Debian ${codename} backports repository"
         echo "deb http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
