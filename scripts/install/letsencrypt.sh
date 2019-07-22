@@ -101,6 +101,7 @@ if [[ ! -f /root/.acme.sh/acme.sh ]]; then
 fi
 
 mkdir -p /etc/nginx/ssl/${hostname}
+chmod 700 /etc/nginx/ssl
 
 if [[ ${cf} == yes ]]; then
   /root/.acme.sh/acme.sh --issue --dns dns_cf -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
