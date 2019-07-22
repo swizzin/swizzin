@@ -3,11 +3,11 @@
 username="$(cat /root/.master.info | cut -d: -f1)"
 #
 function remove_filebrowser() {
-    systemctl stop "filebrowser@${username}.service"
+    systemctl stop "filebrowser.service"
     #
-    systemctl disable "filebrowser@${username}.service"
+    systemctl disable "filebrowser.service"
     #
-    rm -f "/etc/systemd/system/filebrowser@${username}.service"
+    rm -f "/etc/systemd/system/filebrowser.service"
     #
     kill -9 $(ps xU ${username} | grep "/home/${username}/bin/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db$" | awk '{print $1}') >/dev/null 2>&1
     #

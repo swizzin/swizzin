@@ -53,7 +53,7 @@ chown "${username}.${username}" -R "/home/${username}/.config" >/dev/null 2>&1
 chmod 700 "/home/${username}/bin/filebrowser" >/dev/null 2>&1
 #
 # Create the service file that will start and stop filebrowser.
-cat > "/etc/systemd/system/filebrowser@${username}.service" <<-SERVICE
+cat > "/etc/systemd/system/filebrowser.service" <<-SERVICE
 [Unit]
 Description=filebrowser
 After=network.target
@@ -83,7 +83,7 @@ fi
 #
 # Start the filebrowser service.
 systemctl daemon-reload >/dev/null 2>&1
-systemctl enable --now "filebrowser@${username}" >/dev/null 2>&1
+systemctl enable --now "filebrowser.service" >/dev/null 2>&1
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.filebrowser.lock"
