@@ -37,13 +37,14 @@ rm -f "/home/${username}/filebrowser.tar.gz" > /dev/null 2>&1
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
 #
 # Create a self signed cert in the config directory to use with filebrowser.
-openssl req -x509 -newkey rsa:2048 -keyout "/home/${username}/.config/Filebrowser/key.pem" -out "/home/${username}/.config/Filebrowser/cert.pem" -days 365 -subj "/C=/ST=/L=/O=/OU=/CN=" -nodes > /dev/null 2>&1
+. /etc/swizzin/sources/functions/ssl
+create_ssl_self ${username}
 #
 # This command initialise our database.
 "/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
 #
 # These commands configure some options in the database.
-"/home/${username}/bin/filebrowser" config set -t "/home/${username}/.config/Filebrowser/cert.pem" -k "/home/${username}/.config/Filebrowser/key.pem" -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
+"/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
 "/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
 "/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
 #
