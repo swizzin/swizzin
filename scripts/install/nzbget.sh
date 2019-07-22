@@ -58,7 +58,7 @@ function _install {
 
   . /etc/swizzin/sources/functions/ssl
 
-  create_ssl_self $u
+  create_self_ssl $u
 
   sed -i "s/SecureControl=no/SecureControl=yes/g" /home/$u/nzbget/nzbget.conf
   sed -i "s/SecureCert=/SecureCert=\/home\/$u\/.ssl\/$u-self-signed.crt/g" /home/$u/nzbget/nzbget.conf
