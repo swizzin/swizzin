@@ -38,7 +38,7 @@ rm -f "/home/${username}/filebrowser.tar.gz" > /dev/null 2>&1
 #
 # Create a self signed cert in the config directory to use with filebrowser.
 . /etc/swizzin/sources/functions/ssl
-create_ssl_self ${username}
+create_self_ssl ${username}
 #
 # This command initialise our database.
 "/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" > /dev/null 2>&1
