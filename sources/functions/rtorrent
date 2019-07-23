@@ -9,11 +9,15 @@ function whiptail_rtorrent () {
     #function=feature-bind
     function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
                 feature-bind "" \
+                0.9.8 "" \
                 0.9.7 "" \
                 0.9.6 "" 3>&1 1>&2 2>&3)
     
 
-      if [[ $function == 0.9.7 ]]; then
+      if [[ $function == 0.9.8 ]]; then
+        export rtorrentver='0.9.8'
+        export libtorrentver='0.13.8'
+      elif [[ $function == 0.9.7 ]]; then
         export rtorrentver='0.9.7'
         export libtorrentver='0.13.7'
       elif [[ $function == 0.9.6 ]]; then
@@ -27,6 +31,7 @@ function whiptail_rtorrent () {
   elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
     function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
                 feature-bind "" \
+                0.9.8 "" \
                 0.9.7 "" \
                 0.9.6 "" \
                 0.9.4 "" \
