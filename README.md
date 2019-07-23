@@ -3,13 +3,9 @@
 
 # 1.4.0 Stable :tada:
 
-[website](https://swizzin.ltd) | [discord](https://discord.gg/bDFqAUF) | [reddit](https://reddit.com/r/swizzinltd)
+[website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
 
-irc: irc.swizzin.ltd 6697 #swizzin #swizzin-dev
-
-
-
-Please use reddit/irc for all community functions and leave issues for actual issues and feature requests.
+Please use Discord for all community functions, [feathub](https://feathub.com/liaralabs/swizzin) for feature requests and leave issues for actual issues.
 
 ### What is swizzin?
 Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9 or Ubuntu 16.04 or newer. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
@@ -76,10 +72,6 @@ Box functions:
 * rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
   * Usage: `box rtx` or `rtx`
 
-
-#### TODO
-- [ ] Better readme/docs
-
 #### Feature Requests:
 
 You can request and vote on features at [feathub](https://feathub.com/liaralabs/swizzin).
@@ -89,7 +81,7 @@ You can request and vote on features at [feathub](https://feathub.com/liaralabs/
 
 ### Donations
 
-I accept donations on the [project website](https://swizzin.ltd/#donate). Please consider a donation if you enjoy the project.
+I accept donations on the [project website](https://swizzin.ltd/#donate) and also through [Liberapay](https://liberapay.com/liara/). Please consider a donation if you enjoy the project.
 
 If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 ```
