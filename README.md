@@ -12,10 +12,6 @@ Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9
 
 Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
 
-#### You wanna be a swizzie?
-
-Of course you do! You can help by testing untested stuff and reporting bugs to me by opening an issue here on github or by joining us on irc.swizzin.ltd #swizzin-dev
-
 ### Quick Start:
 
 wget
@@ -37,12 +33,18 @@ sudo -H su -c 'bash <(wget -O- -q https://raw.githubusercontent.com/liaralabs/sw
 ```
 
 
-#### Supported
+#### Supported Operating Systems
 
 Long-term support branches only:
 
 * Debian 8/9/10
 * Ubuntu 16.04/18.04
+
+### Support and Help
+
+If you have any questions, please read the [documentation](https://docs.swizzin.ltd) first. If you still have questions or would like to bounce some ideas off other humans, feel free to join us in [discord](https://discord.gg/bDFqAUF).
+
+Do not use GitHub issues for technical support or feature requests. GitHub issues are only to be used to report bugs and other issues with the project
 
 ### This is my box. There are many like it, but this one is mine.
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
@@ -72,7 +74,7 @@ Box functions:
 * rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
   * Usage: `box rtx` or `rtx`
 
-#### Feature Requests:
+### Feature Requests:
 
 You can request and vote on features at [feathub](https://feathub.com/liaralabs/swizzin).
 
