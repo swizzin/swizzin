@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.5.0]
+
+### July 23, 2019
+
+### Added
+
+- Documentation :boom: Please visit https://docs.swizzin.ltd. The wiki has been deprecated. Pull requests on the docs are welcome at https://github.com/liaralabs/docs.swizzin.ltd. Merge requests will automatically rebuild.
+- Support for Debian 10 (may still be bugs)
+- Support for PHP7.3
+- Bug report templates. Please use these for creating descriptive bug reports the first time, every time.
+- Spanish language support for panel
+
+#### Package Additions:
+
+- Filebrowser 2 (thanks to userdocs)
+- Bazarr
+- Lidarr
+
+### Changed
+
+- Many long-winded and re-used functions have been branched to separate function files for ease of future updates. Update the code in one place rather than 3. (eg. mono, rtorrent, deluge)
+- Debian 10 did not ship with checkinstall, thus a new package mangaement application has been pulled in: `fpm`
+- Split libtorrent compile function from deluge to prep further applications requiring libtorrent.
+- Migrated jackett to non-mono version.
+  - Beware, known issue: https://github.com/Jackett/Jackett/issues/5208
+- Update `ip` variable for `iproute2` version 5 compatibility (for use with xanmod custom kernels)
+- Update mono snapshot to 5.18. Less memory leaks! :tada:
+- Nextcloud version support has been limited to v15 for operating systems which will not upgrade beyond PHP7.0, as nextcloud has dropped support for 7.0 in its latest versions.
+- SickRage is now SickChill
+- Update sabnzbd to stable branch (khnielsen)
+- Update ruTorrent script for new plugin depends
+- rTorrent builds other than feature-bind have been re-enabled for all supported operating systems due to instability in `feature-bind`
+- Lounge script has been updated for v3 features
+- Plexpy is now Tautulli (I still can't spell that)
+
+### Fixed
+
+- Permissions on the `/etc/nginx/ssl` directory were global readable. This has been resolved.
+- Longstanding typo in Jessie for adding the dotdeb php repo key
+- Stuck jackett install :tada:
+- Added checks to `box adduser` and `box deluser` to prevent clobbering and potential data loss issues.
+- Removing flood will no longer remove ruTorrent (oops!)
+- xmr-stak build script for new PoW algorithms
+- systemd nofiles limit was too low
+- Emby install location
+- GPG key add for x2go on Debian
+- sabnzbd dependency issues during install
+- Stray exit 0 in update scripts was causing the update process to terminate early.
+
 ## [1.4.0]
 
 ### November 15, 2018
