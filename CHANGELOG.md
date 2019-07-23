@@ -17,6 +17,7 @@
 - Filebrowser 2 (thanks to userdocs)
 - Bazarr
 - Lidarr
+- rTorrent 0.9.8 enabled
 
 ### Changed
 
