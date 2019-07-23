@@ -149,6 +149,8 @@ mkdir -p /etc/nginx/ssl/
 mkdir -p /etc/nginx/snippets/
 mkdir -p /etc/nginx/apps/
 
+chmod 700 /etc/nginx/ssl
+
 cd /etc/nginx/ssl
 openssl dhparam -out dhparam.pem 2048 >>$log 2>&1
 
