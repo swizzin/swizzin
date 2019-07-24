@@ -3,6 +3,7 @@
 function create_self_ssl () {
   user=$1
   if [[ ! -f /home/$user/.ssl/$user-self-signed.key ]]; then
+    mkdir -p /home/$user/.ssl
     country=US
     state=California
     locality="San Fransisco"
