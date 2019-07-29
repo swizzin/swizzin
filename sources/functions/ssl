@@ -10,10 +10,10 @@ function create_self_ssl () {
     organization=swizzin
     organizationalunit=$user
     commonname=$user
-    password=""
+    ssl_password=""
 
     openssl genrsa -out "/home/$user/.ssl/$user-self-signed.key" 2048 >> /dev/null 2>&1
-    openssl req -new -key /home/$user/.ssl/$user-self-signed.key -out /home/$user/.ssl/$user-self-signed.csr -passin pass:$password -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname" >> /dev/null 2>&1
+    openssl req -new -key /home/$user/.ssl/$user-self-signed.key -out /home/$user/.ssl/$user-self-signed.csr -passin pass:$ssl_password -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname" >> /dev/null 2>&1
     openssl x509 -req -days 1095 -in "/home/$user/.ssl/$user-self-signed.csr" -signkey "/home/$user/.ssl/$user-self-signed.key" -out "/home/$user/.ssl/$user-self-signed.crt" >> /dev/null 2>&1
     chown -R $user: /home/$user/.ssl
     chmod 750 /home/$user/.ssl
