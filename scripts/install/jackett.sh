@@ -67,7 +67,7 @@ cat > /home/${username}/.config/Jackett/ServerConfig.json <<JSC
   "AdminPassword": "",
   "InstanceId": "",
   "BlackholeDir": "",
-  "UpdateDisabled": false,
+  "UpdateDisabled": true,
   "UpdatePrerelease": false,
   "BasePathOverride": "",
   "OmdbApiKey": "",
