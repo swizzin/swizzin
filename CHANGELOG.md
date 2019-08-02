@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.1]
+
+### August 2, 2019
+
+### Changed
+- Refactored code to remove useless cats
+- Disable automatic updates for Jackett due to broken updater (for now)
+
+### Fixed
+- Changed SSL function password name to prevent variable clobbering on first setups
+- Disable lightdm to prevent circumstances where servers might suspend after installing x2go
+
 ## [1.5.0]
 
 ### July 23, 2019
