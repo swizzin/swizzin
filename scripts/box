@@ -172,7 +172,7 @@ function _help() {
 function _list() {
   repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d. -f 1 | sort -d))
   if [[ -f /srv/panel/inc/localize.php ]]; then
-    lang=$(cat /srv/panel/inc/localize.php | grep language | cut -d "'" -f 2)
+    lang=$(grep language /srv/panel/inc/localize.php | cut -d "'" -f 2)
     locale=/srv/panel/lang/$lang
   else
     locale=/etc/swizzin/sources/lang_en
@@ -182,7 +182,7 @@ function _list() {
     if [[ $i == ombi ]]; then app=ombi; fi
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
-    description=$(cat $locale | grep -i -m 1 \\\[\'$app | cut -d= -f2 | sed "s/ '//g" | sed "s/';//g" | sed "s/\\\'/'/g")
+    description=$(grep -i -m 1 \\\[\'$app $locale | cut -d= -f2 | sed "s/ '//g" | sed "s/';//g" | sed "s/\\\'/'/g")
     if [[ -z $description ]]; then description="Description missing";fi
     printf "${sgformat}" "$i"
     echo -e "${description}\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
@@ -288,7 +288,7 @@ fi
 function _deluser {
   user=$2
   if [[ ! -f /root/${user}.info ]]; then
-    master=$(cat /root/.master.info | cut -d: -f1)
+    master=$(cut -d: -f1 < /root/.master.info)
     if [[ $user == $master ]]; then
       echo "Master user deletion is not supported"
       exit 1
@@ -365,7 +365,7 @@ function _chpasswd {
       echo "OK"
     fi
   fi
-  master=$(cat /root/.master.info | cut -d: -f1)
+  master=$(cut -d: -f1 < /root/.master.info)
   if [[ $user = $master ]]; then
     echo "$user:$pass" > /root/.master.info
   fi
@@ -377,7 +377,7 @@ function _chpasswd {
   if [[ -e /install/.deluge.lock ]]; then
     systemctl stop deluged@${user}
     systemctl stop deluge-web@${user}
-    DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
     DWP=$(python /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
     sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
     sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf

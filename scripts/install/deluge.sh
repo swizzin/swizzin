@@ -16,13 +16,13 @@
 function _dconf {
   for u in "${users[@]}"; do
     if [[ ${u} == ${master} ]]; then
-      pass=$(cat /root/.master.info | cut -d: -f2)
+      pass=$(cut -d: -f2 < /root/.master.info)
     else
-      pass=$(cat /root/${u}.info | cut -d: -f2)
+      pass=$(cut -d: -f2 < /root/${u}.info)
     fi
   n=$RANDOM
   DPORT=$((n%59000+10024))
-  DWSALT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+  DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
   DWP=$(python ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
   DUDID=$(python ${local_packages}/deluge.addHost.py)
   # -- Secondary awk command -- #
@@ -256,12 +256,12 @@ else
   export log="/dev/null"
 fi
 local_packages=/usr/local/bin/swizzin
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-master=$(cat /root/.master.info | cut -d: -f1)
-pass=$(cat /root/.master.info | cut -d: -f2)
+users=($(cut -d: -f1 < /etc/htpasswd))
+master=$(cut -d: -f1 < /root/.master.info)
+pass=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
+noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 
 if [[ -n $1 ]]; then
   users=($1)

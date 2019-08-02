@@ -20,7 +20,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 
 apt-get -y -q install python python-setuptools tzdata >>"${OUTTO}" 2>&1

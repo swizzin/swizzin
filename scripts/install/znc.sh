@@ -67,13 +67,13 @@ systemctl enable znc
   killall -u znc znc > /dev/null 2>&1
   sleep 1
   if [[ -f /install/.panel.lock ]]; then
-    echo "$(cat /home/znc/.znc/configs/znc.conf | grep Port | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
-    echo "$(cat /home/znc/.znc/configs/znc.conf | grep SSL |  sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
+    echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
+    echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
   fi
   # Check for LE cert, and copy it if available.
   chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
   if [[ -n $chkhost ]]; then
-    defaulthost=$(cat /etc/nginx/sites-enabled/default | grep -m 1 server_name | awk '{print $2}' | sed 's/;//g')
+    defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
     cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
     crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
   fi

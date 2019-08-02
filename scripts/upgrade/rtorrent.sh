@@ -17,9 +17,9 @@ fi
 . /etc/swizzin/sources/functions/rtorrent
 whiptail_rtorrent
 
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
   systemctl stop rtorrent@${u}

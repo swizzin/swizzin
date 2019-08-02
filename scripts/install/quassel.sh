@@ -25,7 +25,7 @@ fi
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 . /etc/swizzin/sources/functions/backports
 
 echo "Installing Quassel PPA (Ubuntu) or grabbing latest backport (Debian) ... "

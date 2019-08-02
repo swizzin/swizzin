@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-username="$(cat /root/.master.info | cut -d: -f1)"
+username="$(cut -d: -f1 < /root/.master.info)"
 #
 if [[ -n "$1" && ! -f /install/.filebrowser.lock ]]; then
     port="$1"

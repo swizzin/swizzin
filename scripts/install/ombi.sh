@@ -75,7 +75,7 @@ else
   OUTTO="/dev/null"
 fi
 distribution=$(lsb_release -is)
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 
 echo -ne "Initializing plex ... $i\033[0K\r"
 

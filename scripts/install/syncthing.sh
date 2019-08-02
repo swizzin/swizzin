@@ -24,7 +24,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 echo "Adding Syncthing Repository ... " >>"${OUTTO}" 2>&1;
 curl -s https://syncthing.net/release-key.txt | sudo apt-key add - > /dev/null 2>&1
@@ -61,7 +61,7 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 touch /install/.syncthing.lock
-echo "Syncthing installation complete!" >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+echo "Syncthing installation complete!" >>"${OUTTO}" 2>&1
+echo >>"${OUTTO}" 2>&1
+echo >>"${OUTTO}" 2>&1
+echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1

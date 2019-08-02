@@ -3,7 +3,7 @@
 # Beware, this script *will* overwrite any personal modifications you have made.
 # Author: liara
 
-hostname=$(cat /etc/nginx/sites-enabled/default | grep -m1 -i server_name | sed 's/server_name//g' | sed 's/ //'g | sed 's/;//g')
+hostname=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 
 if [[ ! -f /install/.nginx.lock ]]; then

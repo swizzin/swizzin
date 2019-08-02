@@ -36,8 +36,8 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-USERNAME=$(cat /root/.master.info | cut -d: -f1)
-PASSWD=$(cat /root/.master.info | cut -d: -f2)
+USERNAME=$(cut -d: -f1 < /root/.master.info)
+PASSWD=$(cut -d: -f2 < /root/.master.info)
 
 
 APPNAME='headphones'

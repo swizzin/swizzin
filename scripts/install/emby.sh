@@ -22,7 +22,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-username=$(cat /root/.master.info | cut -d: -f1)
+username=$(cut -d: -f1 < /root/.master.info)
 
 if [[ -f /install/.nginx.lock ]]; then
 echo "Setting up emby nginx configuration ... " >>"${OUTTO}" 2>&1;
@@ -32,7 +32,7 @@ fi
 
 echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
   if [[ $DISTRO == Debian ]]; then
-    version=$(cat /etc/os-release | grep VERSION= | cut -d "\"" -f 2 | cut -d " " -f1).0
+    version=$(grep VERSION= /etc/os-release| cut -d "\"" -f 2 | cut -d " " -f1).0
     echo "deb http://download.opensuse.org/repositories/home:/emby/$(lsb_release -is)_${version}/ /" > /etc/apt/sources.list.d/emby-server.list
     wget --quiet http://download.opensuse.org/repositories/home:emby/$(lsb_release -is)_${version}/Release.key -O - | apt-key add - > /dev/null 2>&1
   elif [[ $DISTRO == Ubuntu ]]; then
@@ -43,7 +43,7 @@ echo "Installing emby keys and sources ... " >>"${OUTTO}" 2>&1;
       dpkg -i emby.dpkg >> $OUTTO 2>&1
       rm emby.dpkg
     else
-      version=$(cat /etc/os-release | grep VERSION= | cut -d "\"" -f 2 | cut -d " " -f1 | cut -d. -f1-2)
+      version=$(grep VERSION= /etc/os-release | cut -d "\"" -f 2 | cut -d " " -f1 | cut -d. -f1-2)
       sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/emby/x$(lsb_release -is)_${version}/ /' > /etc/apt/sources.list.d/emby-server.list"
       wget --quiet http://download.opensuse.org/repositories/home:emby/x$(lsb_release -is)_${version}/Release.key -O - | apt-key add - > /dev/null 2>&1
     fi

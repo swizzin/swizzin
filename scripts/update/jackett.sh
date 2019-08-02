@@ -17,7 +17,7 @@ if [[ -f /install/.jackett.lock ]]; then
   fi
 
   if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/jackett@.service; then
-    user=$(cat /root/.master.info | cut -d: -f1)
+    user=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active jackett@$user)
     jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
     sed -i 's|ExecStart.*|ExecStart=/bin/sh -c "/home/%I/Jackett/jackett --NoRestart"|g' /etc/systemd/system/jackett@.service

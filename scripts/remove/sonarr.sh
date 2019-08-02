@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-username=$(cat /root/.master.info | cut -d: -f1)
+username=$(cut -d: -f1 < /root/.master.info)
 local_setup=/etc/QuickBox/setup/
 
 function _removeSonarr() {

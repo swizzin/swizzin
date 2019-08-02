@@ -1,8 +1,8 @@
 #!/bin/bash
 # Automated installer script for xmr-stak
 # Written by liara for swizzin
-user=$(cat /root/.master.info | cut -d: -f1)
-noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
+user=$(cut -d: -f1 < /root/.master.info)
+noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"

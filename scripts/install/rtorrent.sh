@@ -86,8 +86,8 @@ fi
 . /etc/swizzin/sources/functions/rtorrent
 whiptail_rtorrent
 
-noexec=$(cat /etc/fstab | grep "/tmp" | grep noexec)
-user=$(cat /root/.master.info | cut -d: -f1)
+noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))

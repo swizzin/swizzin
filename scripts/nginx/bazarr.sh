@@ -9,7 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active bazarr)
 
 if [[ $isactive == "active" ]]; then

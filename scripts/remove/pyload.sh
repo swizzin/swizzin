@@ -39,7 +39,7 @@ function _removepyLoad() {
 }
 
 
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 
 _removepyLoad

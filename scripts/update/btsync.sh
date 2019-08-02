@@ -2,7 +2,7 @@
 if [[ -f /install/.btsync.lock ]]; then
   if [[ ! -f /etc/systemd/system/resilio-sync.service ]]; then
     systemctl stop resilo-sync
-    MASTER=$(cat /root/.master.info | cut -d: -f1)
+    MASTER=$(cut -d: -f1 < /root/.master.info)
     BTSYNCIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
     cat > /etc/resilio-sync/config.json <<RSCONF
 {

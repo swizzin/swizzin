@@ -1,7 +1,7 @@
 #!/bin/bash
 # xmr-stak(-cpu) removal
 
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 systemctl disable xmr > /dev/null 2>&1
 systemctl stop xmr
 su - ${user} -c "screen -X -S xmr quit" > /dev/null 2>&1

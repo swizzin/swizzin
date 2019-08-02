@@ -11,7 +11,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
   systemctl disable --now deluged@$u > /dev/null 2>&1
   systemctl disable --now deluge-web@$u > /dev/null 2>&1

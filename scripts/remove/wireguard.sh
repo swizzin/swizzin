@@ -1,5 +1,5 @@
 #!/bin/bash
-u=$(cat /root/.master.info | cut -d: -f1)
+u=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 
 systemctl disable --now wg-quick@wg$(id -u $u)

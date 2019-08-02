@@ -28,7 +28,7 @@ HOSTNAME1=$(hostname -s)
 PUBLICIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 DISTRO=$(lsb_release -is)
 CODENAME=$(lsb_release -cs)
-master=$(cat /root/.master.info | cut -d: -f1)
+master=$(cut -d: -f1 < /root/.master.info)
 
 #versions=https://plex.tv/api/downloads/1.json
 #wgetresults="$(wget "${versions}" -O -)"

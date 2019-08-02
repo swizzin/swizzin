@@ -1,5 +1,5 @@
 #!/bin/bash
-user=$(cat /root/.master.info | cut -d: -f1 )
+user=$(cut -d: -f1 < /root/.master.info )
 apt-get -y -q install python-pip > /dev/null 2>&1
 cd /home/${user}
 echo "Cloning into 'bazarr'"
@@ -10,8 +10,8 @@ echo "Checking python depends"
 sudo -u ${user} bash -c "pip install --user -r requirements.txt" > /dev/null 2>&1
 
 if [[ -f /install/.sonarr.lock ]]; then
-api=$(cat /home/${user}/.config/NzbDrone/config.xml | grep Api | cut -d\> -f2 | cut -d\< -f1)
-appport=$(cat /home/${user}/.config/NzbDrone/config.xml | grep \<Port | cut -d\> -f2 | cut -d\< -f1)
+api=$(grep "Api" /home/${user}/.config/NzbDrone/config.xml | cut -d\> -f2 | cut -d\< -f1)
+appport=$(grep "\<Port" /home/${user}/.config/NzbDrone/config.xml | cut -d\> -f2 | cut -d\< -f1)
 cat >> /home/${user}/bazarr/data/config/config.ini <<SONC
 [sonarr]
 apikey = ${api} 
@@ -25,8 +25,8 @@ SONC
 fi
 
 if [[ -f /install/.radarr.lock ]]; then
-api=$(cat /home/${user}/.config/Radarr/config.xml | grep Api | cut -d\> -f2 | cut -d\< -f1)
-appport=$(cat /home/${user}/.config/Radarr/config.xml | grep \<Port | cut -d\> -f2 | cut -d\< -f1)
+api=$(grep "Api" /home/${user}/.config/Radarr/config.xml | cut -d\> -f2 | cut -d\< -f1)
+appport=$(grep "\<Port" /home/${user}/.config/Radarr/config.xml | cut -d\> -f2 | cut -d\< -f1)
 cat >> /home/${user}/bazarr/data/config/config.ini <<RADC
 
 [radarr]

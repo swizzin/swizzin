@@ -128,7 +128,7 @@ function _installpyLoad9() {
 
 
 ip=$(curl -s http://whatismyip.akamai.com)
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then

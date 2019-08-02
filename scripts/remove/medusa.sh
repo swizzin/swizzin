@@ -1,7 +1,7 @@
 #!/bin/bash
 # Medusa Uninstaller for Swizzin
 # Author: liara
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 
 systemctl disable medusa@${user}
 systemctl stop medusa@${user}
