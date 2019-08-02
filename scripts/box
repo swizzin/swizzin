@@ -84,7 +84,7 @@ function _cli() {
     if [[ -f /install/.${app}.lock ]]; then
       echo -e "Package $i already installed"
     else
-      if [[ "${repo[@]}" =~ $i ]]; then
+      if [[ "${repo[*]}" =~ $i ]]; then
         echo -e "Installing $i "
         bash /usr/local/bin/swizzin/install/$i.sh
       else
@@ -124,7 +124,7 @@ function _upgrade() {
   repo=($(find /usr/local/bin/swizzin/upgrade -type f -printf "%f\n" | cut -d "." -f 1))
   for i in "${packages[@]}"; do
     app=${i}
-    if [[ "${repo[@]}" =~ $i ]]; then
+    if [[ "${repo[*]}" =~ $i ]]; then
       echo -e "Upgrading $i "
       bash /usr/local/bin/swizzin/upgrade/$i.sh
     else
