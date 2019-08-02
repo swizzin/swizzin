@@ -25,7 +25,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 
 echo "Creating subsonic-tmp install directory ... " >>"${OUTTO}" 2>&1;
@@ -48,7 +48,7 @@ rm -rf /root/subsonic-tmp
 echo "Modifying Subsonic startup script ... " >>"${OUTTO}" 2>&1;
 cat > /usr/share/subsonic/subsonic.sh <<SUBS
 #!/bin/sh
-MASTER=$(cat /root/.master.info | cut -d: -f1 )
+MASTER=$(cut -d: -f1 < /root/.master.info )
 SUBSONICIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 SUBSONIC_HOME=/srv/subsonic

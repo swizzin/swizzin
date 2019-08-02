@@ -2,7 +2,7 @@
 # Nginx Configurator for nzbget
 # Author: liara
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ ! -f /etc/nginx/apps/nzbget.conf ]]; then
   cat > /etc/nginx/apps/nzbget.conf <<'NRP'
@@ -28,7 +28,7 @@ for u in "${users[@]}"; do
   sed -i "s/ControlPassword=tegbzn6789/ControlPassword=/g" /home/$u/nzbget/nzbget.conf
 
   if [[ ! -f /etc/nginx/conf.d/${u}.nzbget.conf ]]; then
-    NZBPORT=$(cat /home/$u/nzbget/nzbget.conf | grep ControlPort | cut -d= -f2)
+    NZBPORT=$(grep ControlPort /home/$u/nzbget/nzbget.conf | cut -d= -f2)
     cat > /etc/nginx/conf.d/${u}.nzbget.conf <<NZBUPS
 upstream $u.nzbget {
   server 127.0.0.1:$NZBPORT;

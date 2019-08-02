@@ -465,12 +465,12 @@ sleep 3
 }
 
 function _adduser {
-master=$(cat /root/.master.info | cut -d: -f1)
+master=$(cut -d: -f1 < /root/.master.info)
 for u in "${users[@]}"; do
   if [[ $u = "$master" ]]; then
-    password=$(cat /root/.master.info | cut -d: -f2)
+    password=$(cut -d: -f2 < /root/.master.info)
   else
-    password=$(cat /root/$u.info | cut -d: -f2)
+    password=$(cut -d: -f2 < /root/$u.info)
   fi
   crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
   cat > /home/lounge/.thelounge/users/$u.json <<EOU
@@ -494,7 +494,7 @@ else
   log="/dev/null"
 fi
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ -n $1 ]]; then
 	users=$1

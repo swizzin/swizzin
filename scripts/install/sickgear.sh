@@ -2,7 +2,7 @@
 # Sick Gear Installer for swizzin
 # Author: liara
 
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else

@@ -1,5 +1,5 @@
 #!/bin/bash
-USERNAME=$(cat /root/.master.info | cut -d: -f1)
+USERNAME=$(cut -d: -f1 < /root/.master.info)
 
 if [[ -f /install/.headphones.lock ]]; then
   if grep -q PIDFile=/var/run/headphones/headphones.pid /etc/systemd/system/headphones.service; then

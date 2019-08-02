@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 #
 IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else

@@ -22,7 +22,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
   exit 1
 fi
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 if [[ -f /tmp/.install.lock ]]; then
   OUTTO="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then

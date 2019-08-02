@@ -8,7 +8,7 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active jackett@$MASTER)
 if [[ $isactive == "active" ]]; then
   systemctl stop jackett@$MASTER

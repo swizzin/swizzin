@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nginx Configuration for RapidLeech
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
   sock=php7.3-fpm

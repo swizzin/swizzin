@@ -8,7 +8,7 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ -n $1 ]]; then
   users=($1)
@@ -45,7 +45,7 @@ for u in "${users[@]}"; do
   fi
   
   if [[ ! -f /etc/nginx/conf.d/${u}.deluge.conf ]]; then
-    DWPORT=$(cat /home/$u/.config/deluge/web.conf | grep port | cut -d: -f2| sed 's/ //g' | sed 's/,//g')
+    DWPORT=$(grep port /home/$u/.config/deluge/web.conf | cut -d: -f2| sed 's/ //g' | sed 's/,//g')
     cat > /etc/nginx/conf.d/${u}.deluge.conf <<DUPS
 upstream $u.deluge {
   server 127.0.0.1:$DWPORT;

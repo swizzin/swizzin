@@ -4,7 +4,7 @@
 if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.radarr.lock ]] || [[ -f /install/.lidarr.lock ]]; then
   version=$(lsb_release -cs)
   distro=$(lsb_release -is)
-  master=$(cat /root/.master.info | cut -d : -f1)
+  master=$(cut -d: -f1 < /root/.master.info)
   sonarr=$(systemctl is-active sonarr@$master)
   radarr=$(systemctl is-active radarr)
   lidarr=$(systemctl is-active lidarr)

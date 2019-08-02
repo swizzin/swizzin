@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
   systemctl disable couchpotato@*
   systemctl stop couchpotato@*
   rm /etc/systemd/system/couchpotato@.service

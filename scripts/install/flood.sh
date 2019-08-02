@@ -40,10 +40,10 @@ ExecStart=/usr/bin/npm start --production /home/%I/.flood
 WantedBy=multi-user.target
 SYSDF
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 for u in "${users[@]}"; do
   if [[ ! -d /home/$u/.flood ]]; then
-    salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+    salt=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
     port=$(shuf -i 3501-4500 -n 1)
     cd /home/$u
     git clone https://github.com/jfurrow/flood.git .flood >> $log 2>&1

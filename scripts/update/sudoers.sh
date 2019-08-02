@@ -1,7 +1,7 @@
 #!/bin/bash
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
-master=$(cat /root/.master.info | cut -d: -f1)
+users=($(cut -d: -f1 < /etc/htpasswd))
+master=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 
 if [[ ! -f /etc/sudoers.d/env_keep ]] && [[ $distribution = "Ubuntu" ]]; then

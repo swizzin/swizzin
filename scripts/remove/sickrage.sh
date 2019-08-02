@@ -2,7 +2,7 @@
 #
 # Uninstaller for sickrage
 #
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 systemctl disable sickrage@${user}
 systemctl stop sickrage@${user}
 sudo rm /etc/nginx/apps/sickrage.conf > /dev/null 2>&1

@@ -24,7 +24,7 @@ elif [[ -f /install/.panel.lock ]]; then
 else
   OUTTO="/dev/null"
 fi
-MASTER=$(cat /root/.master.info | cut -d: -f1)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 
 echo "Downloading and installing rclone ..." >>"${OUTTO}" 2>&1;
 

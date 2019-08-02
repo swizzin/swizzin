@@ -2,7 +2,7 @@
 #
 # Uninstaller for SickGear
 #
-user=$(cat /root/.master.info | cut -d: -f1)
+user=$(cut -d: -f1 < /root/.master.info)
 systemctl disable sickgear@${user}
 systemctl stop sickgear@${user}
 sudo rm /etc/nginx/apps/sickgear.conf > /dev/null 2>&1

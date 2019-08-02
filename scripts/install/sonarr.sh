@@ -120,7 +120,7 @@ else
   OUTTO="/dev/null"
 fi
 . /etc/swizzin/sources/functions/mono
-username=$(cat /root/.master.info | cut -d: -f1)
+username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 

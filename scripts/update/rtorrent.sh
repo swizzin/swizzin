@@ -1,5 +1,5 @@
 #!/bin/bash
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
   if [[ ! -f /etc/tmpfiles.d/${u}.conf ]]; then

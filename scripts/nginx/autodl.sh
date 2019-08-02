@@ -8,7 +8,7 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -f /install/.rutorrent.lock ]]; then
   cd /srv/rutorrent/plugins/
   if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
@@ -16,8 +16,8 @@ if [[ -f /install/.rutorrent.lock ]]; then
     chown -R www-data:www-data autodl-irssi/
   fi
   for u in "${users[@]}"; do
-    IRSSI_PORT=$(cat /home/${u}/.autodl/autodl.cfg | grep port | cut -d= -f2 | sed 's/ //g' )
-    IRSSI_PASS=$(cat /home/${u}/.autodl/autodl.cfg | grep password | cut -d= -f2 | sed 's/ //g' )
+    IRSSI_PORT=$(grep port /home/${u}/.autodl/autodl.cfg | cut -d= -f2 | sed 's/ //g' )
+    IRSSI_PASS=$(grep password /home/${u}/.autodl/autodl.cfg | cut -d= -f2 | sed 's/ //g' )
     if [[ -z $(grep autodl /srv/rutorrent/conf/users/${u}/config.php) ]]; then
       sed -i '/?>/d' /srv/rutorrent/conf/users/${u}/config.php
       sed -i '/autodl/d' /srv/rutorrent/conf/users/${u}/config.php

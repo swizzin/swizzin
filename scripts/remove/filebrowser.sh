@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-username="$(cat /root/.master.info | cut -d: -f1)"
+username="$(cut -d: -f1 < /root/.master.info)"
 #
 function remove_filebrowser() {
     systemctl stop "filebrowser.service"

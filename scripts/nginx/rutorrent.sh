@@ -14,7 +14,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   exit 1
 fi
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 apt-get update -y -q >>/dev/null 2>&1
 apt-get install -y -q sox geoip-database python python-setuptools python-pip >>/dev/null 2>&1

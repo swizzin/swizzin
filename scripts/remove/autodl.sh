@@ -20,7 +20,7 @@
 
 function _removepackage-autodl() {
   username=$(whoami);
-  users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+  users=($(cut -d: -f1 < /etc/htpasswd))
   rutorrent="/srv/rutorrent/";
   PLUGIN="autodl-irssi"
     for i in $PLUGIN; do

@@ -1,5 +1,5 @@
 #!/bin/bash
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 export log=/dev/null
 read -n 1 -s -r -p "This will remove rTorrent and all associated interfaces (ruTorrent/Flood). Press any key to continue."
 printf "\n"

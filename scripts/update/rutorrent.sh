@@ -15,7 +15,7 @@ if [[ -d /srv/rutorrent/plugins/theme/themes/DarkBetter ]]; then
 fi
 
 if [[ -f /install/.flood.lock ]]; then
-  users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+  users=($(cut -d: -f1 < /etc/htpasswd))
   for u in ${users[@]}; do
     if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
       cat > /etc/nginx/apps/${u}.scgi.conf <<RUC

@@ -3,7 +3,7 @@
 
 if [[ -f /install/.sickrage.lock ]]; then
     echo "Updating SickRage to SickChill"
-    master=$(cat /root/.master.info | cut -d: -f1)
+    master=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active sickrage@$master)
     if [[ $active == 'active' ]]; then
         systemctl disable --now sickrage@$master

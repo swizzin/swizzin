@@ -1,6 +1,6 @@
 #!/bin/bash
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
   #autodl2.cfg has been deprecated

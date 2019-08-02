@@ -10,7 +10,7 @@ else
   log="/dev/null"
 fi
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -n $1 ]]; then
 	users=($1)
 fi
@@ -54,7 +54,7 @@ FLUP
   fi
   
   sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
-  base=$(cat /home/$u/.flood/config.js | grep baseURI | cut -d"'" -f2)
+  base=$(grep baseURI /home/$u/.flood/config.js | cut -d"'" -f2)
   sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
 
   if [[ ! -d /home/$u/.flood/server/assets ]]; then

@@ -2,7 +2,7 @@
 # Flood Upgrade Script
 # Author: liara
 
-users=($(cat /etc/htpasswd | cut -d ":" -f 1))
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
   sed -i 's/node_6.x/node_8.x/g' /etc/apt/sources.list.d/nodesource.list >> $log 2>&1
