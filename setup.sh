@@ -202,6 +202,7 @@ function _choices() {
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
     whiptail_deluge
+    whiptail_libtorrent_rasterbar
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then

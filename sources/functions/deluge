@@ -4,18 +4,42 @@ function whiptail_deluge () {
   if [[ -z $deluge ]]; then
     function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
                 Repo "" \
-                Stable "" \
-                Dev "" 3>&1 1>&2 2>&3)
+                1.3 "" \
+                2.0 "" 3>&1 1>&2 2>&3)
 
     if [[ $function == Repo ]]; then
       export deluge=repo
+    elif [[ $function == 1.3 ]]; then
+      export deluge=1.3-stable
+    elif [[ $function == 2.0 ]]; then
+      export deluge=master
+    fi
+  fi
+}
+
+function whiptail_libtorrent_rasterbar () {
+  if [[ -z $libtorrent ]]; then
+    if [[ ! $deluge == master ]]; then
+      function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                  Repo "" \
+                  1.0 "" \
+                  1.2 "" 3>&1 1>&2 2>&3)
+    else
+      function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                  Repo "" \
+                  1.0 "" \
+                  1.1 "" \
+                  1.2 "" 3>&1 1>&2 2>&3)
+    fi
+
+    if [[ $function == Repo ]]; then
       export libtorrent=repo
-    elif [[ $function == Stable ]]; then
-      export deluge=stable
+    elif [[ $function == 1.0 ]]; then
       export libtorrent=RC_1_0
-    elif [[ $function == Dev ]]; then
-      export deluge=dev
+    elif [[ $function == 1.1 ]]; then
       export libtorrent=RC_1_1
+    elif [[ $function == 1.2 ]]; then
+      export libtorrent=RC_1_2
     fi
   fi
 }
@@ -44,7 +68,7 @@ function build_libtorrent_rasterbar () {
           apt-get install -y -q libtorrent-rasterbar9
           ;;
       esac
-  elif [[ $libtorrent =~ ("RC_1_0"|"RC_1_1") ]]; then
+  else
     LTRC=$libtorrent
     LIST='build-essential libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev
     geoip-database'
@@ -109,7 +133,7 @@ function build_deluge () {
     . /etc/swizzin/sources/functions/fpm
     install_fpm
     cd /tmp
-    git clone -b 1.3-stable git://deluge-torrent.org/deluge.git >>"${log}" 2>&1
+    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1
     VERSION=$(grep version\ \= /tmp/deluge/setup.py | grep -v python | cut -d\" -f2)
     mkdir -p /root/dist
     fpm --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
@@ -119,5 +143,34 @@ function build_deluge () {
     cd /tmp
     rm -rf deluge
     apt-mark hold deluge-common
+  fi
+}
+
+function ltconfig () {
+  dver=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g)
+  mkdir -p /etc/skel/.config/deluge/plugins
+  case $dver in
+    1.3*)
+      ltcver=0.3.1-py2.7
+      py=-py2.7
+      if ls /etc/skel/.config/deluge/plugins/ltConfig-2* > /dev/null 2>&1; then rm -f /etc/skel/.config/deluge/plugins/ltConfig-2*; fi
+      if ls /home/${u}/.config/deluge/plugins/ltConfig-2* > /dev/null 2>&1; then rm -f /home/${u}/.config/deluge/plugins/ltConfig-2*; fi
+    ;;
+    2.0*)
+      ltcver=2.0.0
+      py=
+      if [[ -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then rm -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg; fi
+      if [[ -f /home/${u}/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then rm -f /home/${u}/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg; fi
+    ;;
+  esac
+  if [[ ! -f /etc/skel/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg ]]; then
+    cd /etc/skel/.config/deluge/plugins/
+    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v${ltcver}/ltConfig-${ltcver}${py}.egg
+  fi
+  mkdir -p /home/${u}/.config/deluge/plugins
+  if [[ ! -f /home/${u}/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg ]]; then
+    cd /home/${u}/.config/deluge/plugins/
+    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v${ltcver}/ltConfig-${ltcver}${py}.egg
+    chown $u: /home/${u}/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg
   fi
 }
