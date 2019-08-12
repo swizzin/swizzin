@@ -17,7 +17,7 @@ whiptail_deluge
 whiptail_libtorrent_rasterbar
 dver=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g)
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
-  echo "Major version upgrade detected. Performing backup of user-data for ${u}."
+  echo "Major version upgrade detected. User-data will be backed-up."
 fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
