@@ -3,15 +3,15 @@
 function whiptail_deluge () {
   if [[ -z $deluge ]]; then
     function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-                Repo "" \
-                1.3 "" \
-                2.0 "" 3>&1 1>&2 2>&3)
+                "Repo" "From apt" \
+                "Deluge 1.3" "" \
+                "Deluge 2.0" "" 3>&1 1>&2 2>&3)
 
     if [[ $function == Repo ]]; then
       export deluge=repo
-    elif [[ $function == 1.3 ]]; then
+    elif [[ $function == "Deluge 1.3" ]]; then
       export deluge=1.3-stable
-    elif [[ $function == 2.0 ]]; then
+    elif [[ $function == "Deluge 2.0" ]]; then
       export deluge=master
     fi
   fi
@@ -20,15 +20,21 @@ function whiptail_deluge () {
 function whiptail_libtorrent_rasterbar () {
   if [[ -z $libtorrent ]]; then
     if [[ ! $deluge == master ]]; then
-      function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                  Repo "" \
-                  1.0 "" \
-                  1.1 "" 3>&1 1>&2 2>&3)
+      if [[ $(lsb_release -cs) =~ ("jessie"|"stretch"|"xenial"|"bionic") ]]; then
+        function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "from apt" \
+                    1.0 "compiled - branch RC_1_0" \
+                    1.1 "compiled - branch RC_1_1" 3>&1 1>&2 2>&3)
+      else
+        function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "" \
+                    1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
+      fi
     else
       function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
                   Repo "" \
-                  1.1 "" \
-                  1.2 "" 3>&1 1>&2 2>&3)
+                  1.1 "libtorrent branch RC_1_1" \
+                  1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
     fi
 
     if [[ $function == Repo ]]; then
