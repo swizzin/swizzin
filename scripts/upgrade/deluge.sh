@@ -50,7 +50,7 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 for u in "${users[@]}"; do
-  echo "Running ltconfig check ..." ltconfig
+  echo "Running ltconfig check ..."; ltconfig
   systemctl start deluged@${u}
   systemctl start deluge-web@${u}
 done
