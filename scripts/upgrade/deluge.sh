@@ -49,6 +49,8 @@ if [[ -f /install/.nginx.lock ]]; then
   service nginx reload
 fi
 
+echo "Fixing Web Service and Hostlist ... "; dweb_check
+
 for u in "${users[@]}"; do
   echo "Running ltconfig check ..."; ltconfig
   systemctl start deluged@${u}

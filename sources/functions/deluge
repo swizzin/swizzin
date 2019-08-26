@@ -172,6 +172,23 @@ function build_libtorrent_rasterbar () {
   if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
 }
 
+function dweb_check () {
+  if [[ $deluge == master ]]; then
+    sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
+    for u in ${users[@]}; do
+      if [[ -f /home/$u/.config/deluge/hostlist.conf.1.2 ]]; then
+        cp /home/$u/.config/deluge/hostlist.conf.1.2 /home/$u/.config/deluge/hostlist.conf
+      fi
+    done
+  else
+    sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
+    if [[ -f /home/$u/.config/deluge/hostlist.conf ]]; then
+      cp /home/$u/.config/deluge/hostlist.conf /home/$u/.config/deluge/hostlist.conf.1.2
+    fi
+  fi
+  systemctl daemon-reload
+}
+
 function build_deluge () {
   if [[ $deluge == repo ]]; then
     apt-get -q -y update >>"${log}" 2>&1
