@@ -237,4 +237,7 @@ function ltconfig () {
     wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v${ltcver}/ltConfig-${ltcver}${py}.egg
     chown $u: /home/${u}/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg
   fi
+  if grep -q user_agent /home/${u}/.config/deluge/ltconfig.conf; then
+    sed "s/Deluge[^\"]*/Deluge ${dver}/g" /home/${u}/.config/deluge/ltconfig.conf
+  fi
 }
