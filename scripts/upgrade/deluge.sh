@@ -15,7 +15,7 @@ fi
 . /etc/swizzin/sources/functions/deluge
 whiptail_deluge
 whiptail_libtorrent_rasterbar
-dver=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g)
+dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
   echo "Major version upgrade detected. User-data will be backed-up."
 fi

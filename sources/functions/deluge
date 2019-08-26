@@ -16,7 +16,7 @@ function whiptail_deluge () {
     fi
     if [[ -n $(command -v deluged) ]]; then
       dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
-      dvermajor=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g | cut -d. -f1)
+      dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
       if [[ $dverup -lt $dvermajor ]]; then
         if ! whiptail --yesno "You have chosen to perform a major version upgrade of deluge to $function. Please be advised that this will upgrade your Deluge configuration to a new version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch." --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING" --scrolltext 18 78; then
           exit 1
@@ -179,7 +179,7 @@ function dweb_check () {
     sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
   fi
   systemctl daemon-reload
-  dvermajor=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g | cut -d. -f1)
+  dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
   for u in ${users[@]}; do
     if [[ ! -f /home/${u}/.config/deluge/hostlist.conf${SUFFIX} ]]; then
       localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
@@ -259,7 +259,7 @@ function build_deluge () {
 }
 
 function ltconfig () {
-  dver=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g)
+  dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
   mkdir -p /etc/skel/.config/deluge/plugins
   case $dver in
     1.3*)

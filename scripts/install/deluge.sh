@@ -162,7 +162,7 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
 }
 DWC
 localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
-dvermajor=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g | cut -d. -f1)
+dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
 
 case $dvermajor in
   1)
