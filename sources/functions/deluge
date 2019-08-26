@@ -137,10 +137,10 @@ function build_libtorrent_rasterbar () {
     ./configure --with-lib-geoip --with-libiconv >>"${log}" 2>&1
     VERSION=$(git describe --tags | cut -d- -f2 | sed 's/_/./g')
     case $LTRC in
-      RC_1_0)
+      RC_1_1)
         sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
       ;;
-      RC_1_1)
+      RC_1_2)
         sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit' include/libtorrent/torrent_handle.hpp
       ;;
     esac
