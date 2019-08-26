@@ -161,7 +161,15 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "sidebar_multiple_filters": true
 }
 DWC
-cat > /home/${u}/.config/deluge/hostlist.conf.1.2 <<DHL
+localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
+dvermajor=$(deluged -v | grep deluged | awk '{print $2}' | sed 's/.dev0//'g | cut -d. -f1)
+
+case $dvermajor in
+  1)
+  SUFFIX=.1.2
+  ;;
+esac
+cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 {
   "file": 1,
   "format": 1
@@ -171,8 +179,8 @@ cat > /home/${u}/.config/deluge/hostlist.conf.1.2 <<DHL
       "${DUDID}",
       "127.0.0.1",
       ${DPORT},
-      "${u}",
-      "${pass}"
+      "localclient",
+      "${localpass}"
     ]
   ]
 }
