@@ -22,6 +22,8 @@ rm /etc/systemd/system/deluged@.service
 rm /etc/systemd/system/deluge-web@.service
 dpkg -r libtorrent
 dpkg -r libtorrent-rasterbar
+dpkg -r python-libtorrent
+dpkg -r python3-libtorrent
 #dpkg -r deluge
 apt-get purge -y deluge> /dev/null 2>&1
 apt-get purge -y deluge-web deluge-console > /dev/null 2>&1
