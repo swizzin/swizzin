@@ -4,12 +4,6 @@
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 
-if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
-  sed -i 's/node_6.x/node_8.x/g' /etc/apt/sources.list.d/nodesource.list >> $log 2>&1
-  apt-get update -y -q >> $log 2>&1
-  apt-get -y -q upgrade >> $log 2>&1
-fi
-
 if [[ ! $(which node-gyp) ]]; then
   npm install -g node-gyp >> $log 2>&1
 fi
