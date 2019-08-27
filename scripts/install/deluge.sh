@@ -28,16 +28,7 @@ function _dconf {
   # -- Secondary awk command -- #
   #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
   DWPORT=$(shuf -i 10001-11000 -n 1)
-  mkdir -p /etc/skel/.config/deluge/plugins
-  if [[ ! -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then
-    cd /etc/skel/.config/deluge/plugins/
-    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.3.1/ltConfig-0.3.1-py2.7.egg
-  fi
-  mkdir -p /home/${u}/.config/deluge/plugins
-  if [[ ! -f /home/${u}/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then
-    cd /home/${u}/.config/deluge/plugins/
-    wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v0.3.1/ltConfig-0.3.1-py2.7.egg
-  fi
+  ltconfig
   chmod 755 /home/${u}/.config
   chmod 755 /home/${u}/.config/deluge
   cat > /home/${u}/.config/deluge/core.conf <<DC
@@ -170,7 +161,15 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "sidebar_multiple_filters": true
 }
 DWC
-cat > /home/${u}/.config/deluge/hostlist.conf.1.2 <<DHL
+localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
+dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
+
+case $dvermajor in
+  1)
+  SUFFIX=.1.2
+  ;;
+esac
+cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 {
   "file": 1,
   "format": 1
@@ -180,8 +179,8 @@ cat > /home/${u}/.config/deluge/hostlist.conf.1.2 <<DHL
       "${DUDID}",
       "127.0.0.1",
       ${DPORT},
-      "${u}",
-      "${pass}"
+      "localclient",
+      "${localpass}"
     ]
   ]
 }
@@ -262,6 +261,7 @@ pass=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+. /etc/swizzin/sources/functions/deluge
 
 if [[ -n $1 ]]; then
   users=($1)
@@ -269,8 +269,10 @@ if [[ -n $1 ]]; then
   exit 0
 fi
 
-. /etc/swizzin/sources/functions/deluge
 whiptail_deluge
+if [[ ! -f /install/.libtorrent.lock ]]; then
+  whiptail_libtorrent_rasterbar
+fi
 
 if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
