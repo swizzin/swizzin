@@ -207,7 +207,7 @@ function dweb_check () {
   ]
 }
 DHL
-    sed "s/\"default_daemon\":.*/\"default_daemon\": \"${DUDID}\",/g" /home/${u}/.config/deluge/web.conf
+    sed -i "s/\"default_daemon\":.*/\"default_daemon\": \"${DUDID}\",/g" /home/${u}/.config/deluge/web.conf
     chown -R $u: /home/${u}/.config/deluge
     fi
 done
