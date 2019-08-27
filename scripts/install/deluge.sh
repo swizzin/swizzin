@@ -23,6 +23,7 @@ function _dconf {
   n=$RANDOM
   DPORT=$((n%59000+10024))
   DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+  localpass=$(tr -dc 'a-f0-9' < /dev/urandom | fold -w 40 | head -n 1)
   DWP=$(python ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
   DUDID=$(python ${local_packages}/deluge.addHost.py)
   # -- Secondary awk command -- #
@@ -161,7 +162,6 @@ cat > /home/${u}/.config/deluge/web.conf <<DWC
   "sidebar_multiple_filters": true
 }
 DWC
-localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
 dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
 
 case $dvermajor in
@@ -187,6 +187,7 @@ cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 DHL
 
   echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
+  echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
   chown -R ${u}.${u} /home/${u}/.config/
   mkdir /home/${u}/dwatch
@@ -197,6 +198,8 @@ done
 }
 function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
+  dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
+  if [[ $dvermajor == 2 ]]; then args=" -d"; fi
     cat > /etc/systemd/system/deluged@.service <<DD
 [Unit]
 Description=Deluge Bittorrent Client Daemon
@@ -225,7 +228,7 @@ After=network.target
 Type=simple
 User=%I
 
-ExecStart=/usr/bin/deluge-web
+ExecStart=/usr/bin/deluge-web${args}
 ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluge-web
 TimeoutStopSec=300
 Restart=on-failure

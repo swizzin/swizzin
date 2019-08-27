@@ -38,6 +38,7 @@ fi
 
 echo "Checking for outdated deluge install method."; remove_ltcheckinstall
 echo "Rebuilding libtorrent ... "; build_libtorrent_rasterbar
+cleanup_deluge
 echo "Upgrading Deluge. Please wait ... "; build_deluge
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
