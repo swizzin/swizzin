@@ -12,13 +12,11 @@ done
 
 . /etc/swizzin/sources/functions/rtorrent
 isdeb=$(dpkg -l | grep rtorrent)
+echo "Removing old rTorrent binaries and libraries ... ";
 if [[ -z $isdeb ]]; then
-	echo "Removing old rTorrent binaries and libraries ... ";remove_rtorrent_legacy
-fi
-
-if [[ -n $isdeb ]]; then
-  apt-get -y -q purge libtorrent-rakshasa > /dev/null 2>&1
-  apt-get -y -q purge rtorrent > /dev/null 2>&1
+	remove_rtorrent_legacy
+else
+  remove_rtorrent
 fi
 
 #apt-get -y remove mktorrent mediainfo

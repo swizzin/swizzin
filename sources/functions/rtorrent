@@ -5,70 +5,65 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent () {
-  if [[ -z $rtorrentver ]] && [[ ! ${codename} =~ ("xenial"|"jessie") ]] && [[ -z $1 ]]; then
-    #function=feature-bind
-    function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                feature-bind "" \
-                0.9.8 "" \
-                0.9.7 "" \
-                0.9.6 "" 3>&1 1>&2 2>&3)
-    
+  if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
+    if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                  0.9.8 "" \
+                  0.9.7 "" \
+                  0.9.6 "" \
+                  feature-bind "" \
+                  Repo "" 3>&1 1>&2 2>&3)
 
-      if [[ $function == 0.9.8 ]]; then
-        export rtorrentver='0.9.8'
-        export libtorrentver='0.13.8'
-      elif [[ $function == 0.9.7 ]]; then
-        export rtorrentver='0.9.7'
-        export libtorrentver='0.13.7'
-      elif [[ $function == 0.9.6 ]]; then
-        export rtorrentver='0.9.6'
-        export libtorrentver='0.13.6'
-      elif [[ $function == feature-bind ]]; then
-        export rtorrentver='feature-bind'
-        export libtorrentver='feature-bind'
-      fi
-
-  elif [[ -z ${rtorrentver} ]] && [[ -z $1 ]]; then
-    function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                feature-bind "" \
-                0.9.8 "" \
-                0.9.7 "" \
-                0.9.6 "" \
-                0.9.4 "" \
-                0.9.3 "" 3>&1 1>&2 2>&3)
+    else
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                  0.9.8 "" \
+                  0.9.7 "" \
+                  0.9.6 "" \
+                  0.9.4 "" \
+                  0.9.3 "" \
+                  feature-bind "" \
+                  Repo "" 3>&1 1>&2 2>&3)
+    fi
 
 
-
-      if [[ $function == 0.9.7 ]]; then
-        export rtorrentver='0.9.7'
-        export libtorrentver='0.13.7'
-      elif [[ $function == 0.9.6 ]]; then
-        export rtorrentver='0.9.6'
-        export libtorrentver='0.13.6'
-      elif [[ $function == 0.9.4 ]]; then
-        export rtorrentver='0.9.4'
-        export libtorrentver='0.13.4'
-      elif [[ $function == 0.9.3 ]]; then
-        export rtorrentver='0.9.3'
-        export libtorrentver='0.13.3'
-      elif [[ $function == feature-bind ]]; then
-        export rtorrentver='feature-bind'
-        export libtorrentver='feature-bind'
-      fi
+    if [[ $function == 0.9.8 ]]; then
+      export rtorrentver='0.9.8'
+      export libtorrentver='0.13.8'
+    elif [[ $function == 0.9.7 ]]; then
+      export rtorrentver='0.9.7'
+      export libtorrentver='0.13.7'
+    elif [[ $function == 0.9.6 ]]; then
+      export rtorrentver='0.9.6'
+      export libtorrentver='0.13.6'
+    elif [[ $function == 0.9.4 ]]; then
+      export rtorrentver='0.9.4'
+      export libtorrentver='0.13.4'
+    elif [[ $function == 0.9.3 ]]; then
+      export rtorrentver='0.9.3'
+      export libtorrentver='0.13.3'
+    elif [[ $function == feature-bind ]]; then
+      export rtorrentver='feature-bind'
+      export libtorrentver='feature-bind'
+    elif [[ $function == repo ]]; then
+      export rtorrentver='repo'
+      export libtorrentver='repo'
+    fi
   fi
 } 
 
 function depends_rtorrent () {
-	APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
-	dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
-	libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
-	libfontconfig1-dev mediainfo'
-	for depends in $APT; do
-	apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
-	done
+  if [[ ! $rtorrentver == repo ]]; then
+    APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
+    dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
+    libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
+    libfontconfig1-dev mediainfo'
+    for depends in $APT; do
+    apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
+    done
 
-  . /etc/swizzin/sources/functions/fpm
-  install_fpm
+    . /etc/swizzin/sources/functions/fpm
+    install_fpm
+  fi
 
 	# (un)rar
   if [[ $distribution == "Debian" ]]; then
@@ -167,6 +162,10 @@ function build_rtorrent () {
   apt-mark hold rtorrent
 }
 
+function rtorrent_apt () {
+  apt-get install -y -q rtorrent >> $log 2>&1
+}
+
 function _rar() {
 	cd /tmp
   wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
@@ -174,6 +173,17 @@ function _rar() {
   cp rar/*rar /bin >/dev/null 2>&1
   rm -rf rarlinux*.tar.gz >/dev/null 2>&1
   rm -rf /tmp/rar >/dev/null 2>&1
+}
+
+function remove_rtorrent () {
+  toclean=(rtorrent libtorrent-rakshasa)
+  repo=$(dpkg -l | grep -P libtorrent'\d+' | awk '{print $2}' | cut -d: -f1)
+  if [[ -n $repo ]]; then
+    toclean+=($repo)
+  fi
+  for c in ${toclean[@]}; do
+    apt-get remove -y -q $c >> $log 2>&1
+  done
 }
 
 function remove_rtorrent_legacy () {
