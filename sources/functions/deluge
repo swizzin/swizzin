@@ -16,9 +16,13 @@ function whiptail_deluge () {
     fi
     if [[ -n $(command -v deluged) ]]; then
       dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
-      dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
-      if [[ $dverup -lt $dvermajor ]]; then
-        if ! whiptail --yesno "You have chosen to perform a major version upgrade of deluge to $function. Please be advised that this will upgrade your Deluge configuration to a new version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch." --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING" --scrolltext 18 78; then
+      dvercurmajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
+      if [[ $dverup -lt $dvercurmajor ]]; then
+        message="You have chosen to perform a major version DOWNGRADE to $function. Please be advised that this will downgrade your Deluge binaries to an older version which is not compatible with the new version state.\n\nIf you have never had $function installed, you will not have a backup to restore. NO TORRENTS WILL BE LOADED. This is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to continue. I hope you know what you're doing."
+      elif [[ $dverup -gt $dvercurmajor ]]; then
+        message="You have chosen to perform a major version UPGRADE to $function. Please be advised that this will upgrade your Deluge binaries to a newer version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch."
+      fi
+        if ! whiptail --yesno "${message}" --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING!!" --scrolltext 18 78; then
           exit 1
         fi
       fi
