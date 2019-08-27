@@ -183,7 +183,7 @@ function dweb_check () {
   for u in ${users[@]}; do
     if [[ ! -f /home/${u}/.config/deluge/hostlist.conf${SUFFIX} ]]; then
       localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
-      DUDID=$(grep default_daemon /home/$u/.config/deluge/web.conf | cut -d\" -f4)
+      DUDID=$(/usr/local/bin/swizzin/deluge.addHost.py)
       DPORT=$(grep daemon_port /home/$u/.config/deluge/core.conf | grep -oP '\d+' )
 
       case $dvermajor in
@@ -193,7 +193,7 @@ function dweb_check () {
       esac
       cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 {
-  "file": 1,
+  "file": 3,
   "format": 1
 }{
   "hosts": [
@@ -207,6 +207,7 @@ function dweb_check () {
   ]
 }
 DHL
+    sed "s/\"default_daemon\":.*/\"default_daemon\": \"${DUDID}\",/g" /home/${u}/.config/deluge/web.conf
     fi
 done
 }
