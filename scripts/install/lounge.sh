@@ -8,8 +8,8 @@ useradd lounge -m -s /bin/bash
 passwd lounge -l >> ${log} 2>&1
 
 if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
-  bash <(curl -sL https://deb.nodesource.com/setup_8.x) >> $log 2>&1
-  apt-get -y -q install nodejs build-essential >> $log 2>&1
+  bash <(curl -sL https://deb.nodesource.com/setup_10.x) >> $log 2>&1
+  apt-get -y -q install nodejs build-essential npm >> $log 2>&1
 fi
 
 npm -g config set user root
