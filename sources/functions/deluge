@@ -181,17 +181,16 @@ function dweb_check () {
   systemctl daemon-reload
   dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
   for u in ${users[@]}; do
-    if [[ ! -f /home/${u}/.config/deluge/hostlist.conf${SUFFIX} ]]; then
-      localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
-      DUDID=$(/usr/local/bin/swizzin/deluge.addHost.py)
-      DPORT=$(grep daemon_port /home/$u/.config/deluge/core.conf | grep -oP '\d+' )
+    localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
+    DUDID=$(/usr/local/bin/swizzin/deluge.addHost.py)
+    DPORT=$(grep daemon_port /home/$u/.config/deluge/core.conf | grep -oP '\d+' )
 
-      case $dvermajor in
-        1)
-        SUFFIX=.1.2
-        ;;
-      esac
-      cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
+    case $dvermajor in
+      1)
+      SUFFIX=.1.2
+      ;;
+    esac
+    cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 {
   "file": 3,
   "format": 1
@@ -209,7 +208,6 @@ function dweb_check () {
 DHL
     sed -i "s/\"default_daemon\":.*/\"default_daemon\": \"${DUDID}\",/g" /home/${u}/.config/deluge/web.conf
     chown -R $u: /home/${u}/.config/deluge
-    fi
 done
 }
 
