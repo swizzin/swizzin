@@ -194,6 +194,12 @@ function dweb_check () {
       SUFFIX=.1.2
       ;;
     esac
+    if [[ -f /home/${u}/.config/deluge/hostlist.conf ]]; then
+      rm /home/${u}/.config/deluge/hostlist.conf
+    fi
+    if [[ -f /home/${u}/.config/deluge/hostlist.conf.1.2 ]]; then
+     rm /home/${u}/.config/deluge/hostlist.conf.1.2
+    fi
     cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
 {
   "file": 3,
