@@ -183,7 +183,7 @@ function dweb_check () {
   for u in ${users[@]}; do
     if [[ ! -f /home/${u}/.config/deluge/hostlist.conf${SUFFIX} ]]; then
       localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
-      DUDID=$(grep default_daemon /home/$u/.config/deluge/web.conf)
+      DUDID=$(grep default_daemon /home/$u/.config/deluge/web.conf | cut -d\" -f4)
       DPORT=$(grep daemon_port /home/$u/.config/deluge/core.conf | grep -oP '\d+' )
 
       case $dvermajor in
