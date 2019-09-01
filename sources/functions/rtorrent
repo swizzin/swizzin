@@ -58,11 +58,16 @@ function depends_rtorrent () {
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
     libfontconfig1-dev mediainfo'
     for depends in $APT; do
-    apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
+      apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
     done
 
     . /etc/swizzin/sources/functions/fpm
     install_fpm
+  else
+    APT='screen'
+    for depends in $APT; do
+      apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
+    done
   fi
 
 	# (un)rar
@@ -163,7 +168,6 @@ function build_rtorrent () {
 }
 
 function rtorrent_apt () {
-  apt-get install -y -q screen >> $log 2>&1
   apt-get install -y -q rtorrent >> $log 2>&1
 }
 
