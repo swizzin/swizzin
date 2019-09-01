@@ -55,7 +55,7 @@ function depends_rtorrent () {
   if [[ ! $rtorrentver == repo ]]; then
     APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
-    libsigc++-2.0-dev unzip curl libncurses5-dev yasm  fontconfig libfontconfig1
+    libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
     libfontconfig1-dev mediainfo'
     for depends in $APT; do
       apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
@@ -64,7 +64,7 @@ function depends_rtorrent () {
     . /etc/swizzin/sources/functions/fpm
     install_fpm
   else
-    APT='screen'
+    APT='screen zip unzip bc mediainfo curl'
     for depends in $APT; do
       apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
     done
