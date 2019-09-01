@@ -6,7 +6,7 @@ printf "\n"
 
 for u in ${users}; do
   systemctl disable rtorrent@${u}
-  systemctl stop rtorrent@{u}
+  systemctl stop rtorrent@${u}
   rm -f /home/${u}/.rtorrent.rc
 done
 
