@@ -163,6 +163,7 @@ function build_rtorrent () {
 }
 
 function rtorrent_apt () {
+  apt-get install -y -q screen >> $log 2>&1
   apt-get install -y -q rtorrent >> $log 2>&1
 }
 
