@@ -25,11 +25,10 @@ function _removePlex() {
   systemctl daemon-reload >/dev/null 2>&1
   rm -rf /var/lib/plexmediaserver
   rm -rf /usr/lib/plexmediaserver
-  rm /etc/init/plexmediaserver.conf
-  rm /etc/default/plexmediaserver
+  rm /etc/init/plexmediaserver.conf >/dev/null 2>&1
+  rm /etc/default/plexmediaserver >/dev/null 2>&1
   rm /install/.plex.lock
   userdel plex >/dev/null 2>&1
-  pkill -f plex
 }
 
 _removePlex
