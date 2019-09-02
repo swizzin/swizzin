@@ -33,31 +33,33 @@ echo "Please visit https://www.plex.tv/claim, login, copy your plex claim token 
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
 echo "Installing plex keys and sources ... "
-    wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
-    echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
-    echo
+  wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
+  echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
+  echo
 
 echo "Updating system ... "
-    apt-get install apt-transport-https -y >/dev/null 2>&1
-    apt-get -y update >/dev/null 2>&1
-    apt-get install -o Dpkg::Options::="--force-confold" -y -f plexmediaserver >/dev/null 2>&1
-    #DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o -f "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install plexmediaserver >/dev/null 2>&1
-    echo
+  apt-get install apt-transport-https -y >> ${log} 2>&1
+  apt-get -y update >> ${log} 2>&1
+  apt-get install -o Dpkg::Options::="--force-confold" -y -f plexmediaserver >> ${log} 2>&1
+  #DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o -f "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install plexmediaserver >/dev/null 2>&1
+  echo
 
-    if [[ ! -d /var/lib/plexmediaserver ]]; then
-      mkdir -p /var/lib/plexmediaserver
-    fi
-    perm=$(stat -c '%U' /var/lib/plexmediaserver/)
-    if [[ ! $perm == plex ]]; then
-      chown -R plex:plex /var/lib/plexmediaserver
-    fi
-    usermod -a -G ${master} plex
-    service plexmediaserver restart >/dev/null 2>&1
+  if [[ ! -d /var/lib/plexmediaserver ]]; then
+    mkdir -p /var/lib/plexmediaserver
+  fi
+  perm=$(stat -c '%U' /var/lib/plexmediaserver/)
+  if [[ ! $perm == plex ]]; then
+    chown -R plex:plex /var/lib/plexmediaserver
+  fi
+  usermod -a -G ${master} plex
+  service plexmediaserver restart >/dev/null 2>&1
 
-    . /etc/swizzin/sources/functions/plex
-    claimPlex
-
+if [[ -n $claim ]]; then
+  sleep 5
+  . /etc/swizzin/sources/functions/plex
+  claimPlex ${claim}
 fi
+
     touch /install/.plex.lock
     echo
 

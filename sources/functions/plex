@@ -18,28 +18,32 @@ function setPref {
 }
 
 function claimPlex {
-  if [[ -n $claim ]]; then
+  #Inspiration for swizzin addition: https://github.com/uglymagoo/plex-claim-server
+  # and https://github.com/plexinc/pms-docker
+  if [[ -n $1 ]]; then
+    claimtoken=$1
     echo "Claiming plex server ... "
     serial="$(getPref "MachineIdentifier")"
     clientId="$(getPref "ProcessedMachineIdentifier")"
     token="$(getPref "PlexOnlineToken")"
-    if [ ! -z "${claim}" ] && [ -z "${token}" ]; then
-    echo "Attempting to obtain server token from claim token"
-    loginInfo="$(curl -X POST \
-          -H 'X-Plex-Client-Identifier: '${clientId} \
-          -H 'X-Plex-Product: Plex Media Server'\
-          -H 'X-Plex-Version: 1.1' \
-          -H 'X-Plex-Provides: server' \
-          -H 'X-Plex-Platform: Linux' \
-          -H 'X-Plex-Platform-Version: 1.0' \
-          -H 'X-Plex-Device-Name: PlexMediaServer' \
-          -H 'X-Plex-Device: Linux' \
-          "https://plex.tv/api/claim/exchange?token=${claim}")"
-    token="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
-    
-    if [ "$token" ]; then
-      setPref "PlexOnlineToken" "${token}"
-      echo "Plex Media Server successfully claimed"
+    if [ ! -z "${claimtoken}" ] && [ -z "${token}" ]; then
+      echo "Attempting to obtain server token from claim token"
+      loginInfo="$(curl -X POST \
+            -H 'X-Plex-Client-Identifier: '${clientId} \
+            -H 'X-Plex-Product: Plex Media Server'\
+            -H 'X-Plex-Version: 1.1' \
+            -H 'X-Plex-Provides: server' \
+            -H 'X-Plex-Platform: Linux' \
+            -H 'X-Plex-Platform-Version: 1.0' \
+            -H 'X-Plex-Device-Name: PlexMediaServer' \
+            -H 'X-Plex-Device: Linux' \
+            "https://plex.tv/api/claim/exchange?token=${claimtoken}")"
+      token="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
+      
+      if [ "$token" ]; then
+        setPref "PlexOnlineToken" "${token}"
+        echo "Plex Media Server successfully claimed"
+      fi
     fi
   fi
 }
