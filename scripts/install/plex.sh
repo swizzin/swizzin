@@ -55,7 +55,7 @@ echo "Updating system ... "
   service plexmediaserver restart >/dev/null 2>&1
 
 if [[ -n $claim ]]; then
-  sleep 5
+  #sleep 5
   . /etc/swizzin/sources/functions/plex
   claimPlex ${claim}
 fi
@@ -63,9 +63,5 @@ fi
     touch /install/.plex.lock
     echo
 
-echo "Plex Install Complete!" >>"${log}" 2>&1;
-    sleep 5
-    echo >>"${log}" 2>&1;
-    echo >>"${log}" 2>&1;
-    echo "Close this dialog box to refresh your browser" >>"${log}" 2>&1;
-    exit
+echo "Plex Install Complete!"
+
