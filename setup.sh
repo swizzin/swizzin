@@ -21,6 +21,14 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+if [[ ! $(uname -m) == "x86_64" ]]; then
+  echo -e "\033[0;31mUnsupported architecture ($(uname -m)) detected! \033[0m"
+  echo
+  echo "Setup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
+  echo
+  read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
+fi
+
 _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
