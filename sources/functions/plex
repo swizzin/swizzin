@@ -2,18 +2,18 @@
 
 function getPref {
   local key="$1"
-  grep -oP ''$key'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Preferences.xml"
+  grep -oP ''$key'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
 }
 
 function setPref {
   local key="$1"
   local value="$2"
   
-  count="$(grep "${key}" "/var/lib/plexmediaserver/Library/Application Support/Preferences.xml")"
+  count="$(grep "${key}" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml")"
   if [[ -n $count ]]; then
-    sed -i -E "s/$key=\"[^\"]+\"/$key=\"$value\"/g" "/var/lib/plexmediaserver/Library/Application Support/Preferences.xml"
+    sed -i -E "s/$key=\"[^\"]+\"/$key=\"$value\"/g" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
   else
-    sed -i "s/<Preferences /<Preferences ${key}=\"${value}\" /g" "/var/lib/plexmediaserver/Library/Application Support/Preferences.xml"
+    sed -i "s/<Preferences /<Preferences ${key}=\"${value}\" /g" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
   fi
 }
 
