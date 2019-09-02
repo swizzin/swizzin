@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.6.0]
+
+### September 2, 2019
+
+### Added
+
+- Support for Deluge v2 for all OS except Debian Jessie
+- "Repo" install option for rTorrent
+- Option to claim plex server during installation
+
+### Changed
+
+- Nodejs will now install version 10 LTS
+
+### Fixed
+
+- Sonarr apt repo signing key
+- npm installation
+
 ## [1.5.1]
 
 ### August 2, 2019
