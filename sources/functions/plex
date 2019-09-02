@@ -1,0 +1,49 @@
+#!/bin/bash
+
+function getPref {
+  local key="$1"
+  grep -oP ''$key'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+}
+
+function setPref {
+  local key="$1"
+  local value="$2"
+  
+  count="$(grep "${key}" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml")"
+  if [[ -n $count ]]; then
+    sed -i -E "s/$key=\"[^\"]+\"/$key=\"$value\"/g" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+  else
+    sed -i "s/<Preferences /<Preferences ${key}=\"${value}\" /g" "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+  fi
+}
+
+function claimPlex {
+  #Inspiration for swizzin addition: https://github.com/uglymagoo/plex-claim-server
+  # and https://github.com/plexinc/pms-docker
+  if [[ -n $1 ]]; then
+    claimtoken=$1
+    echo "Claiming plex server ... "
+    serial="$(getPref "MachineIdentifier")"
+    clientId="$(getPref "ProcessedMachineIdentifier")"
+    token="$(getPref "PlexOnlineToken")"
+    if [ ! -z "${claimtoken}" ] && [ -z "${token}" ]; then
+      echo "Attempting to obtain server token from claim token"
+      loginInfo="$(curl -s -X POST \
+            -H 'X-Plex-Client-Identifier: '${clientId} \
+            -H 'X-Plex-Product: Plex Media Server'\
+            -H 'X-Plex-Version: 1.1' \
+            -H 'X-Plex-Provides: server' \
+            -H 'X-Plex-Platform: Linux' \
+            -H 'X-Plex-Platform-Version: 1.0' \
+            -H 'X-Plex-Device-Name: PlexMediaServer' \
+            -H 'X-Plex-Device: Linux' \
+            "https://plex.tv/api/claim/exchange?token=${claimtoken}")"
+      token="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
+      
+      if [ "$token" ]; then
+        setPref "PlexOnlineToken" "${token}"
+        echo "Plex Media Server successfully claimed"
+      fi
+    fi
+  fi
+}
