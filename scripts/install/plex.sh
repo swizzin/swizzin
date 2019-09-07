@@ -52,13 +52,14 @@ echo "Updating system ... "
     chown -R plex:plex /var/lib/plexmediaserver
   fi
   usermod -a -G ${master} plex
-  service plexmediaserver restart >/dev/null 2>&1
 
 if [[ -n $claim ]]; then
-  #sleep 5
+  sleep 5
   . /etc/swizzin/sources/functions/plex
   claimPlex ${claim}
 fi
+
+    service plexmediaserver restart >/dev/null 2>&1
 
     touch /install/.plex.lock
     echo
