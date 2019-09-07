@@ -7,11 +7,6 @@ function _install {
 useradd lounge -m -s /bin/bash
 passwd lounge -l >> ${log} 2>&1
 
-if [[ ! $(which npm) ]] || [[ $(node --version) =~ "v6" ]]; then
-  bash <(curl -sL https://deb.nodesource.com/setup_10.x) >> $log 2>&1
-  apt-get -y -q install nodejs build-essential npm >> $log 2>&1
-fi
-
 npm -g config set user root
 npm install -g thelounge >> $log 2>&1
 sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
@@ -458,8 +453,7 @@ StartLimitBurst=3
 WantedBy=multi-user.target
 EOSD
 
-systemctl enable lounge >> $log 2>&1
-systemctl start lounge
+systemctl enable --now lounge >> $log 2>&1
 
 sleep 3
 }
@@ -501,7 +495,8 @@ if [[ -n $1 ]]; then
 	_adduser
 	exit 0
 fi
-
+. /etc/swizzin/sources/functions/npm
+npm_install
 _install
 _adduser
 
