@@ -16,6 +16,7 @@ for u in ${users}; do
   systemctl disable --now deluged@$u > /dev/null 2>&1
   systemctl disable --now deluge-web@$u > /dev/null 2>&1
   rm -rf /home/${u}/.config/deluge
+  rm -rf /home/${u}/dwatch
 done
 
 rm /etc/systemd/system/deluged@.service
