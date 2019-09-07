@@ -42,6 +42,7 @@ function claimPlex {
       
       if [ "$token" ]; then
         setPref "PlexOnlineToken" "${token}"
+        setPref "PublishServerOnPlexOnlineKey" "1"
         echo "Plex Media Server successfully claimed"
       fi
     fi
