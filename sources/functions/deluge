@@ -144,7 +144,7 @@ function build_libtorrent_rasterbar () {
       fi
     done
     LTRC=$libtorrent
-    LIST='build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database python3-dev'
+    LIST='build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database python3-dev python-setuptools'
     for depend in $LIST; do
       apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
     done
@@ -186,7 +186,7 @@ function build_libtorrent_rasterbar () {
     if [[ -n $deluge ]]; then
       echo "Building python binding ..."
       PYTHON=${python} ./configure --enable-python-binding --with-libiconv ${configure_args} >>"${log}" 2>&1
-      fpm --python-bin=${python} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py > /dev/null 2>&1
+      fpm --verbose --python-bin=${python} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
       dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
     fi
     ldconfig
