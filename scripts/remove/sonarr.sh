@@ -21,8 +21,8 @@ username=$(cut -d: -f1 < /root/.master.info)
 local_setup=/etc/QuickBox/setup/
 
 function _removeSonarr() {
-  systemctl stop sonarr@{username}
-  systemctl disable sonarr@{username}
+  systemctl stop sonarr@${username}
+  systemctl disable sonarr@${username}
   sudo apt-get remove -y nzbdrone >/dev/null 2>&1
   sudo apt-get -y autoremove >/dev/null 2>&1
   rm -f /etc/apt/sources.list.d/sonarr.list
