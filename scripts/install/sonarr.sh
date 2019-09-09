@@ -18,19 +18,16 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
-function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
-#################################################################################
 
 function _installSonarrintro() {
-  echo "Sonarr will now be installed." >>"${OUTTO}" 2>&1;
-  echo "This process may take up to 2 minutes." >>"${OUTTO}" 2>&1;
-  echo "Please wait until install is completed." >>"${OUTTO}" 2>&1;
+  echo "Sonarr will now be installed." >>"${log}" 2>&1;
+  echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
+  echo "Please wait until install is completed." >>"${log}" 2>&1;
   # output to box
   echo "Sonarr will now be installed."
   echo "This process may take up to 2 minutes."
   echo "Please wait until install is completed."
   echo
-  sleep 5
 }
 
 function _installSonarr1() {
@@ -38,37 +35,37 @@ function _installSonarr1() {
 }
 
 function _installSonarr2() {
-  sudo apt-get install apt-transport-https screen -y >/dev/null 2>&1
+  apt-get install apt-transport-https screen -y >> ${log} 2>&1
   if [[ $distribution == "Ubuntu" ]]; then
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >/dev/null 2>&1
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
   elif [[ $distribution == "Debian" ]]; then
     if [[ $version == "jessie" ]]; then
-      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >/dev/null 2>&1
+      apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
     else
       #buster friendly
-      apt-key --keyring /etc/apt/trusted.gpg.d/nzbdrone.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493
+      apt-key --keyring /etc/apt/trusted.gpg.d/nzbdrone.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
       #older style -- buster friendly should work on stretch
       #gpg --keyserver http://keyserver.ubuntu.com --recv 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >/dev/null 2>&1
       #gpg --export 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /etc/apt/trusted.gpg.d/nzbdrone.gpg
     fi
   fi
-  echo "deb https://apt.sonarr.tv/ master main" | sudo tee /etc/apt/sources.list.d/sonarr.list >/dev/null 2>&1
+  echo "deb https://apt.sonarr.tv/ master main" | tee /etc/apt/sources.list.d/sonarr.list >> ${log} 2>&1
 }
 
 function _installSonarr3() {
-  sudo apt-get -y update >/dev/null 2>&1
+  apt-get -y update >> ${log} 2>&1
   if [[ $distribution == Debian ]]; then
-    sudo apt-get install -y mono-devel >/dev/null 2>&1
+    apt-get install -y mono-devel >> ${log} 2>&1
   fi
 }
 
 function _installSonarr4() {
-  sudo apt-get install -y nzbdrone >/dev/null 2>&1
+  apt-get install -y nzbdrone >> ${log} 2>&1
   touch /install/.sonarr.lock
 }
 
 function _installSonarr5() {
-  sudo chown -R "${username}":"${username}" /opt/NzbDrone
+  chown -R "${username}":"${username}" /opt/NzbDrone
 }
 
 function _installSonarr6() {
@@ -88,7 +85,7 @@ WorkingDirectory=/home/%I/
 [Install]
 WantedBy=multi-user.target
 SONARR
-  systemctl enable --now sonarr@${username} >/dev/null 2>&1
+  systemctl enable --now sonarr@${username} >> ${log} 2>&1
   sleep 10
 
 
@@ -102,10 +99,10 @@ SONARR
 
 
 function _installSonarr9() {
-  echo "Sonarr Install Complete!" >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+  echo "Sonarr Install Complete!" >>"${log}" 2>&1;
+  echo >>"${log}" 2>&1;
+  echo >>"${log}" 2>&1;
+  echo "Close this dialog box to refresh your browser" >>"${log}" 2>&1;
 }
 
 function _installSonarr10() {
@@ -113,11 +110,11 @@ function _installSonarr10() {
 }
 
 if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
+  log="/root/logs/install.log"
 elif [[ -f /install/.panel.lock ]]; then
-  OUTTO="/srv/panel/db/output.log"
+  log="/srv/panel/db/output.log"
 else
-  OUTTO="/dev/null"
+  log="/dev/null"
 fi
 . /etc/swizzin/sources/functions/mono
 username=$(cut -d: -f1 < /root/.master.info)
@@ -126,10 +123,10 @@ version=$(lsb_release -cs)
 
 _installSonarrintro
 _installSonarr1
-echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${OUTTO}" 2>&1;_installSonarr2
-echo "Updating your system with new sources ... " >>"${OUTTO}" 2>&1;_installSonarr3
-echo "Installing Sonarr-Nzbdrone ... " >>"${OUTTO}" 2>&1;_installSonarr4
-echo "Setting permissions to ${username} ... " >>"${OUTTO}" 2>&1;_installSonarr5
-echo "Setting up Sonarr as a service and enabling ... " >>"${OUTTO}" 2>&1;_installSonarr6
+echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2
+echo "Updating your system with new sources ... " >>"${log}" 2>&1;_installSonarr3
+echo "Installing Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr4
+echo "Setting permissions to ${username} ... " >>"${log}" 2>&1;_installSonarr5
+echo "Setting up Sonarr as a service and enabling ... " >>"${log}" 2>&1;_installSonarr6
 _installSonarr9
 _installSonarr10
