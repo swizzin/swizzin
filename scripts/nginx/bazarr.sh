@@ -1,5 +1,5 @@
 #!/bin/bash
-# Lidarr configuration for nginx
+# Bazarr configuration for nginx
 # Author: liara
 # Copyright (C) 2019 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
@@ -26,24 +26,15 @@ location /bazarr {
 
 BAZN
 
-sed -i '/\[general\]/,$d' /home/${user}/bazarr/data/config/config.ini
-
+if ! grep -q "\[general\]" /home/${user}/bazarr/data/config/config.ini > /dev/null 2>&1; then
 cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
+
 [general]
 ip = 127.0.0.1
 base_url = /bazarr/
 BAZC
-
-if [[ -f /install/.sonarr.lock ]]; then
-echo "use_sonarr = True" >> /home/${user}/bazarr/data/config/config.ini
 fi
 
-if [[ -f /install/.radarr.lock ]]; then
-echo "use_radarr = True" >> /home/${user}/bazarr/data/config/config.ini
-fi
-
-
-chown -R ${user}: /home/${user}/.config
 
 if [[ $isactive == "active" ]]; then
   systemctl start bazarr
