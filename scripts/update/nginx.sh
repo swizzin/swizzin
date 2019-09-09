@@ -1,4 +1,6 @@
 #!/bin/bash
+
+function update_nginx() {
 codename=$(lsb_release -cs)
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
@@ -136,3 +138,6 @@ fi
 . /etc/swizzin/sources/functions/php
 restart_php_fpm
 systemctl reload nginx
+}
+
+if [[ -f /install/.nginx.lock ]]; then update_nginx; fi
