@@ -51,7 +51,7 @@ function mono_repo_update () {
   #elif [[ $codename == "buster" ]]; then
   #  :
   else
-    if command -v mono > /dev/null 2>&1 ; then
+    if ! command -v mono > /dev/null 2>&1 ; then
       mono_repo_setup
       apt-get -y -q update
       apt-get -y -q install mono-complete
