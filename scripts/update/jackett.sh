@@ -37,8 +37,8 @@ if [[ -f /install/.jackett.lock ]]; then
   else
     :
   fi
-  if grep -q "proxy_set_header Host" /etc/nginx/apps/jackett.conf; then
-    sed -i "/proxy_set_header Host/d" /etc/nginx/apps/jackett.conf
+  if grep -q "proxy_set_header" /etc/nginx/apps/jackett.conf; then
+    sed -i "/proxy_set_header/d" /etc/nginx/apps/jackett.conf
     systemctl reload nginx
   fi
 fi
