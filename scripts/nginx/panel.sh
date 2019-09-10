@@ -71,7 +71,7 @@ cat > /etc/sudoers.d/panel <<SUD
 # Cmnd alias specification
 Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem
 Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*
-Cmnd_Alias   GENERALCMNDS = /usr/sbin/repquota, /bin/systemctl
+Cmnd_Alias   GENERALCMNDS = /usr/bin/quota, /bin/systemctl
 
 www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
 
