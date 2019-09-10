@@ -93,7 +93,6 @@ if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
 fi
 
 if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php ) ]]; then
-  primaryroot=$(cat /install/.quota.lock)
   cat > /srv/rutorrent/plugins/diskspace/action.php <<'DSKSP'
 <?php
 #################################################################################
@@ -109,20 +108,14 @@ if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/di
 #################################################################################
   require_once( '../../php/util.php' );
   if (isset($quotaUser) && file_exists('/install/.quota.lock')) {
-      $total = shell_exec("/usr/bin/sudo /usr/sbin/repquota -u MOUNT | /bin/grep ^".$quotaUser." | /usr/bin/awk '{printf $4*1024}'");
-      $free = shell_exec("/usr/bin/sudo /usr/sbin/repquota -u MOUNT | /bin/grep ^".$quotaUser." | /usr/bin/awk '{printf ($4-$3)*1024}'");
-      cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
+    $total = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
+    $used = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
+    $free = sprintf($total - $used);
   } else {
       cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
   }
 ?>
 DSKSP
-  if [[ $primaryroot == "root" ]]; then
-      sed -i 's/MOUNT/\//g' /srv/rutorrent/plugins/diskspace/action.php
-  elif [[ $primaryroot == "home" ]]; then
-      sed -i 's/MOUNT/\/home/g' /srv/rutorrent/plugins/diskspace/action.php
-  fi
-    touch /install/.quota.lock
 fi
 fi
 cat >/srv/rutorrent/conf/config.php<<RUC
