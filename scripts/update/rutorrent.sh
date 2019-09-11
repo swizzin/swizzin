@@ -31,7 +31,7 @@ RUC
   systemctl reload nginx
 fi
 
-if [[ -f /install/.quota.lock ]] && ! grep -q /usr/bin/quota /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1; then
+if [[ -f /install/.quota.lock ]] && { ! grep -q /usr/bin/quota /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -c cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]] ;} ; then
   cat > /srv/rutorrent/plugins/diskspace/action.php <<'DSKSP'
 <?php
 #################################################################################
@@ -50,10 +50,12 @@ if [[ -f /install/.quota.lock ]] && ! grep -q /usr/bin/quota /srv/rutorrent/plug
     $total = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
     $used = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
+    cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
   } else {
       cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
   }
 ?>
 DSKSP
-    touch /install/.quota.lock
+. /etc/swizzin/sources/functions/php
+restart_php_fpm
 fi
