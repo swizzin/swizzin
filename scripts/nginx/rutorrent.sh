@@ -108,8 +108,8 @@ if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/di
 #################################################################################
   require_once( '../../php/util.php' );
   if (isset($quotaUser) && file_exists('/install/.quota.lock')) {
-    $total = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
-    $used = shell_exec("sudo /usr/bin/quota -u ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
+    $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
+    $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
     cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
   } else {
