@@ -165,7 +165,7 @@ function build_libtorrent_rasterbar () {
     #fi
 
     cd /tmp
-    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
     ./autotool.sh >>"${log}" 2>&1
     ./configure --with-lib-geoip --with-libiconv >>"${log}" 2>&1
@@ -255,7 +255,7 @@ function build_deluge () {
       fi
     fi
     cd /tmp
-    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1
+    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from github failed"; exit 1; } ; }
     cd deluge
     VERSION=$(git describe | cut -d- -f2)
     mkdir -p /root/dist
