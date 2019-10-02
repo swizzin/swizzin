@@ -26,7 +26,7 @@ function _installautodl() {
   APT='irssi screen unzip libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl
 	libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl'
   for depends in $APT; do
-  apt-get -qq -y --yes --force-yes install "$depends" >/dev/null 2>&1 || { echo "APT-GET could not find all the required sources. Script Ending."; echo "${warning}"; exit 1; }
+    apt-get -y -q install "$depends" >> ${OUTTO} 2>&1 || { echo "ERROR: APT-GET could not find the required dependency: ${depends}. Script Ending."; exit 1; }
   done
 }
 
@@ -72,11 +72,9 @@ WorkingDirectory=/home/%I/
 [Install]
 WantedBy=multi-user.target
 ADC
+
 for u in "${users[@]}"; do
-systemctl enable irssi@${u} 2>>$log.log
-sleep 1
-service irssi@${u} start
-touch /install/.autodl.lock
+  systemctl enable --now irssi@${u} >>"${OUTTO}" 2>&1
 done
 }
 
@@ -98,3 +96,4 @@ fi
 _installautodl
 _autoconf
 _autoservice
+touch /install/.autodl.lock
