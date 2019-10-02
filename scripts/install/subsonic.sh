@@ -26,26 +26,40 @@ else
   OUTTO="/dev/null"
 fi
 MASTER=$(cut -d: -f1 < /root/.master.info)
+codename=$(lsb_release -cs)
 
 
-echo "Creating subsonic-tmp install directory ... " >>"${OUTTO}" 2>&1;
+echo "Creating subsonic-tmp install directory ... "
 mkdir /root/subsonic-tmp
 
-echo "Downloading Subsonic dependencies and installing ... " >>"${OUTTO}" 2>&1;
-apt-get -y install openjdk-8-jre
+echo "Downloading Subsonic dependencies and installing ... "
+case $codename in
+  "buster")
+  echo "Adding adoptopenjdk repository"
+  apt-get -y -q install software-properties-common >>"${OUTTO}" 2>&1
+  wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${OUTTO}" 2>&1
+  add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${OUTTO}" 2>&1
+  apt-get -y -q update >>"${OUTTO}" 2>&1
+  apt-get -y -q install adoptopenjdk-8-hotspot >>"${OUTTO}" 2>&1 || { echo "ERROR: Could not download Java. Exiting."; exit 1; }
+  ;;
+  *)
+  apt-get -y install openjdk-8-jre || { echo "ERROR: Could not download Java. Exiting."; exit 1; }
+  ;;
+esac
+
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
-wget -O /root/subsonic-tmp/subsonic.deb $latest || { echo "Could not download Subsonic. Exiting."; exit 1; }
+wget -qO /root/subsonic-tmp/subsonic.deb $latest || { echo "Could not download Subsonic. Exiting."; exit 1; }
 cd /root/subsonic-tmp
-dpkg -i subsonic.deb
+dpkg -i subsonic.deb >>"${OUTTO}" 2>&1
 
 touch /install/.subsonic.lock
 
-echo "Removing subsonic-tmp install directory ... " >>"${OUTTO}" 2>&1;
+echo "Removing subsonic-tmp install directory ... "
 cd
 rm -rf /root/subsonic-tmp
 
-echo "Modifying Subsonic startup script ... " >>"${OUTTO}" 2>&1;
+echo "Modifying Subsonic startup script ... "
 cat > /usr/share/subsonic/subsonic.sh <<SUBS
 #!/bin/sh
 MASTER=$(cut -d: -f1 < /root/.master.info )
@@ -94,7 +108,7 @@ fi
   -jar subsonic-booter-jar-with-dependencies.jar > \${LOG} 2>&1
 SUBS
 
-echo "Enabling Subsonic Systemd configuration" >>"${OUTTO}" 2>&1;
+echo "Enabling Subsonic Systemd configuration"
 service stop subsonic >/dev/null 2>&1
 cat > /etc/systemd/system/subsonic.service <<SUBSD
 [Unit]
@@ -115,16 +129,11 @@ SUBSD
 
 mkdir /srv/subsonic
 chown ${MASTER}: /srv/subsonic
-systemctl enable subsonic.service >/dev/null 2>&1
-systemctl start subsonic.service >/dev/null 2>&1
+systemctl enable --now subsonic.service >> ${OUTTO} 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/subsonic.sh
   service nginx reload
 fi
 
-echo "Subsonic Install Complete!" >>"${OUTTO}" 2>&1;
-sleep 2
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+echo "Subsonic Install Complete!"
