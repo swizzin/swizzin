@@ -34,6 +34,28 @@ if [[ -d /srv/panel ]]; then
     cd /srv/panel
     cp -a /tmp/custom.menu.php custom/
   fi
+  if !grep -q pam_session /etc/sudoers.d/panel; then
+  cat > /etc/sudoers.d/panel <<SUD
+#secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
+#Defaults  env_keep -="HOME"
+Defaults:www-data !logfile
+Defaults:www-data !syslog
+Defaults:www-data !pam_session
+
+
+# Host alias specification
+
+# User alias specification
+
+# Cmnd alias specification
+Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem
+Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*
+Cmnd_Alias   GENERALCMNDS = /usr/bin/quota, /bin/systemctl
+
+www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
+
+SUD
+  fi
   if grep -q /usr/sbin/repquota /etc/sudoers.d/panel; then
     sed -i 's|/usr/sbin/repquota|/usr/bin/quota|g' /etc/sudoers.d/panel
   fi

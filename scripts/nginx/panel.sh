@@ -63,6 +63,10 @@ PAN
 cat > /etc/sudoers.d/panel <<SUD
 #secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
 #Defaults  env_keep -="HOME"
+Defaults:www-data !logfile
+Defaults:www-data !syslog
+Defaults:www-data !pam_session
+
 
 # Host alias specification
 
