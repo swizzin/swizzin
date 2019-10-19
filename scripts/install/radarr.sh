@@ -75,7 +75,7 @@ EOF
 
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
-  chmod 775 /home/${username}/.config
+#  chmod 775 /home/${username}/.config
   chown -R ${username}:${username} /opt/Radarr/
   systemctl daemon-reload
   systemctl enable radarr.service > /dev/null 2>&1
