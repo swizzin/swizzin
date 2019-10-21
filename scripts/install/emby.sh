@@ -45,6 +45,8 @@ echo "Setting up emby nginx configuration ... "
   service nginx reload
 fi
 
+usermod -a -G ${username} emby
+
 systemctl restart emby-server >/dev/null 2>&1
 touch /install/.emby.lock
   
