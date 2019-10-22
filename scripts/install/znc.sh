@@ -28,24 +28,19 @@ echo "" >> ${OUTTO} 2>&1
 useradd znc -m -s /bin/bash
 passwd znc -l >> ${OUTTO} 2>&1
 
-if [[ $CODENAME == jessie ]]; then
-  if [[ -z $(cat /etc/apt/sources.list | grep backports) ]]; then
-    echo "deb http://deb.debian.org/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list
-  fi
+if [[ $DISTRO == Debian ]]; then
+  . /etc/swizzin/sources/functions/backports
+  check_debian_backports
   cat > /etc/apt/preferences.d/znc <<ZNCP
 Package: *znc*
-Pin: release a=jessie-backports
+Pin: release a=${CODENAME}-backports
 Pin-Priority: 500
 ZNCP
-  #echo "deb http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" > /etc/apt/sources.list.d/znc.list
-  #echo "#deb-src http://packages.temporal-intelligence.net/znc/debian/ ${CODENAME} main" >> /etc/apt/sources.list.d/znc.list
-  #wget --quiet http://packages.temporal-intelligence.net/repo.gpg.key -O - | apt-key add - > /dev/null 2>&1
-#elif [[ $DISTRO == Ubuntu ]]; then
-  #sudo apt-get install -q -y software-properties-common > /dev/null 2>&1
-  #sudo add-apt-repository -q -y ppa:teward/znc > /dev/null 2>&1
+elif [[ $DISTRO == Ubuntu ]]; then
+  add-apt-repository --yes ppa:teward/znc >> ${OUTTO} 2>&1
 fi
-  apt-get update -q -y > /dev/null 2>&1
-  apt-get install znc -q -y > /dev/null 2>&1
+  apt-get update -q -y >> ${OUTTO} 2>&1
+  apt-get install znc -q -y >> ${OUTTO} 2>&1
   #sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
   cat > /etc/systemd/system/znc.service <<ZNC
 [Unit]
