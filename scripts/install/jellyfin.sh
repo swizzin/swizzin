@@ -270,30 +270,30 @@ if lsof -Pi :1900 -t >/dev/null; then
 CONFIG
 fi
 
-# Configure the nginx proxypass using positional parameters.
+# Configure the nginx proxypass
 if [[ -f /install/.nginx.lock ]]; then
-  bash "/usr/local/bin/swizzin/nginx/jellyfin.sh" "${app_port_http}" "${app_port_https}"
+  bash "/usr/local/bin/swizzin/nginx/jellyfin.sh"
   service nginx reload
 fi
-#
+
 chown "${username}.${username}" -R "/home/${username}/.jellyfin"
 chown "${username}.${username}" -R "/home/${username}/.config"
 chown "${username}.${username}" "/home/${username}/.ssl/${username}-self-signed.pfx"
-#
+
 # Start the jellyfin service.
 systemctl daemon-reload
 systemctl enable --now "jellyfin.service" >>/dev/null 2>&1
-#
+
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.jellyfin.lock"
-#
+
 # A helpful echo to the terminal.
 echo -e "\nThe Jellyfin installation has completed\n"
-#
+
 if [[ ! -f /install/.nginx.lock ]]; then
   echo -e "Jellyfin is available at: https://${ip_address}:${app_port_https}\n"
 else
   echo -e "Jellyfin is now available in the panel\n"
 fi
-#
+
 exit

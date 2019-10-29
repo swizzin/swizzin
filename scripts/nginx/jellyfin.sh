@@ -8,24 +8,21 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-# username="$(cat /root/.master.info | cut -d: -f1)"
 username="$(cut </root/.master.info -d: -f1)"
 ip_address="$(curl -s4 icanhazip.com)"
-#
-if [[ -n "$1" && ! -f /install/.jellyfin.lock ]]; then
-  app_port_https="$2"
-  sed -r 's#<WanDdns>(.*)</WanDdns>#<WanDdns>https://'"${ip_address}"'/jellyfin</WanDdns>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
-  sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
+app_port_https=$(grep -oP "<PublicHttpsPort>\K[^<]+" /home/"${username}"/.config/Jellyfin/config/system.xml)
+
+if [[ -f /install/.jellyfin.lock ]]; then
+	service jellyfin stop
 fi
-#
-if [[ -z "$1" && -f /install/.jellyfin.lock ]]; then
-  service jellyfin stop
-  app_port_https="$(sed -rn 's#(.*)<HttpsPortNumber>(.*)</HttpsPortNumber>#\2#p' "/home/${username}/.config/Jellyfin/config/system.xml")"
-  sed -r 's#<WanDdns>(.*)</WanDdns>#<WanDdns>https://'"${ip_address}"'/jellyfin</WanDdns>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
-  sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
-  service jellyfin start
+
+sed -r 's#<WanDdns>(.*)</WanDdns>#<WanDdns>https://'"${ip_address}"'/jellyfin</WanDdns>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
+sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
+
+if [[ -f /install/.jellyfin.lock ]]; then
+	service jellyfin start
 fi
-#
+
 cat >/etc/nginx/apps/jellyfin.conf <<-NGINGCONF
 location /jellyfin/ {
 	proxy_pass https://127.0.0.1:${app_port_https}/;
