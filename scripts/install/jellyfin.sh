@@ -36,7 +36,8 @@ ip_address="$(curl -s4 icanhazip.com)"
 
 create_self_ssl "${username}"
 
-if [[ ! -f /home/"${username}"/.ssl/"${username}" ]]; then
+# Generate PKCS#12 certificate
+if [[ ! -f /home/"${username}"/.ssl/"${username}"-self-signed.pfx ]]; then
   openssl pkcs12 -export -nodes -out /home/"${username}"/.ssl/"${username}"-self-signed.pfx -inkey /home/"${username}"/.ssl/"${username}"-self-signed.key -in /home/"${username}"/.ssl/"${username}"-self-signed.crt -passout pass:
 fi
 
