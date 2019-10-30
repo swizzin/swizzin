@@ -24,8 +24,8 @@ if [[ -f /install/.jackett.lock ]]; then
     :
   fi
 
-  if [[ ! -f /home/${username}/Jackett/jackett_launcher.sh ]]; then
-  cat > /etc/systemd/system/jackett@.service <<JAK
+  if ! grep -q "jacket_launcher" /etc/systemd/system/jackett@.service; then
+    cat > /etc/systemd/system/jackett@.service <<JAK
 [Unit]
 Description=jackett for %I
 After=network.target
@@ -43,10 +43,16 @@ TimeoutStopSec=20
 WantedBy=multi-user.target
 JAK
 
-sleep 1
-systemctl daemon-reload
+    sleep 1
+    systemctl daemon-reload
 
-cat > /home/${username}/Jackett/jackett_launcher.sh <<'JL'
+    if [[ $active == "active" ]]; then
+      restartjackett=1
+    fi
+  fi
+
+  if [[ ! -f /home/${username}/Jackett/jackett_launcher.sh ]]; then
+    cat > /home/${username}/Jackett/jackett_launcher.sh <<'JL'
 #!/bin/bash
 user=$(whoami)
 
@@ -59,18 +65,11 @@ done
 echo "Jackett update complete"
 JL
 
-  chmod +x /home/${username}/Jackett/jackett_launcher.sh
+    chmod +x /home/${username}/Jackett/jackett_launcher.sh
 
     if [[ $active == "active" ]]; then
       restartjackett=1
     fi
-  fi
-
-  if grep -q "WorkingDirectory=/home/%I/Jackett" /etc/systemd/system/jackett@.service; then
-    :
-  else
-    sed -i 's/WorkingDirectory.*/WorkingDirectory=\/home\/%I\/Jackett/g' /etc/systemd/system/jackett@.service
-    sleep 1; systemctl daemon-reload
   fi
 
   if grep -q "proxy_set_header" /etc/nginx/apps/jackett.conf; then
