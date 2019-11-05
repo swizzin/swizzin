@@ -395,7 +395,7 @@ function _panel () {
     echo "fix-disk is the only acceptable panel argument at this time"
     exit 1
   fi
-  /usr/local/bin/swizzin/panel/fix-disk $3
+  /usr/local/bin/swizzin/panel/fix-disk $3 $4
 }
 
 function _nukeovh() {

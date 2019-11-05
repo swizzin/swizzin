@@ -1,20 +1,27 @@
 #!/bin/bash
-#Disk Widget Switcher root <-> home
+#Disk Widget Switcher mnt <->  root <-> home
 if [[ -z $1 ]]; then
-  echo "You must specify root or home"
+  echo "You must specify mnt, root or home"
   exit 1
 fi
 
-if [[ $1 == "home" ]]; then
+if [[ $1 == "home" ]] && [[ -z $2 ]]; then
   rm -f /srv/panel/widgets/disk_data.php
   wget -O /srv/panel/widgets/disk_data.php https://raw.githubusercontent.com/liaralabs/quickbox_dashboard/master/widgets/disk_datah.php > /dev/null 2>&1
   chown www-data: /srv/panel/widgets/disk_data.php
-elif [[ $1 == "root" ]]; then
+elif [[ $1 == "root" ]] && [[ -z $2 ]]; then
   rm -f /srv/panel/widgets/disk_data.php
   wget -O /srv/panel/widgets/disk_data.php https://raw.githubusercontent.com/liaralabs/quickbox_dashboard/master/widgets/disk_data.php > /dev/null 2>&1
   chown www-data: /srv/panel/widgets/disk_data.php
+elif [[ $1 == "mnt" ]] && [[ ! -z $2 ]]; then
+  mntPth=$2
+  echo "mntDevicePath=${mntPth}" > /srv/panel/inc/diskStatus.cfg
+  rm -f /srv/panel/widgets/disk_data.php
+  wget -O /srv/panel/widgets/disk_data.php https://raw.githubusercontent.com/GostLy/quickbox_dashboard/master/widgets/disk_datam.php > /dev/null 2>&1
+  chown www-data: /srv/panel/widgets/disk_data.php
+  chown www-data: /srv/panel/inc/diskStatus.cfg
 else
-  echo "You must specify root or home"
+  echo "You must specify root, home, or mnt. When the option is mnt, be sure to include the mounted storage device path as well. (ex: box panel fix-disk mnt \"/mnt/piStorage\")"
   exit 1
 fi
 
