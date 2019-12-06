@@ -1,5 +1,18 @@
 #!/bin/bash
 
+if [[ -f /install/.tautulli.lock ]]; then
+  if [[ ! -d /opt/tautulli/.git ]]; then
+    systemctl stop tautulli
+    cd /opt/tautulli
+    git init
+    git remote add origin https://github.com/Tautulli/Tautulli.git
+    git fetch origin
+    git reset --hard origin/master
+    systemctl start tautulli
+  fi
+fi
+
+
 if [[ -f /install/.plexpy.lock ]]; then
   # only update if plexpy is installed, otherwise use the app built-in updater
 

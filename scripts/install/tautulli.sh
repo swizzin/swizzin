@@ -25,10 +25,11 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 
 apt-get -y -q install python python-setuptools tzdata >>"${OUTTO}" 2>&1
 cd /opt
-LATEST=$(curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "\"name\":" | cut -d : -f 2 | tr -d \", | cut -d " " -f 3)
+#LATEST=$(curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "\"name\":" | cut -d : -f 2 | tr -d \", | cut -d " " -f 3)
 echo "Downloading latest Tautulli version ${LATEST}" >>"${OUTTO}" 2>&1;
-mkdir -p /opt/tautulli
-curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "tarball" | cut -d : -f 2,3 | tr -d \", | wget -q -i- -O- | tar xz -C /opt/tautulli --strip-components 1
+git clone https://github.com/Tautulli/Tautulli.git tautulli
+#mkdir -p /opt/tautulli
+#curl -s https://api.github.com/repos/tautulli/tautulli/releases/latest | grep "tarball" | cut -d : -f 2,3 | tr -d \", | wget -q -i- -O- | tar xz -C /opt/tautulli --strip-components 1
 
 echo "Adding user and setting up Tautulli" >>"${OUTTO}" 2>&1;
 adduser --system --no-create-home tautulli >>"${OUTTO}" 2>&1
