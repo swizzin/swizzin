@@ -76,6 +76,11 @@ JL
     sed -i "/proxy_set_header/d" /etc/nginx/apps/jackett.conf
     systemctl reload nginx
   fi
+
+  if [[ $(stat -c %U /home/${username}/.config/Jackett/ServerConfig.json) == "root" ]]; then
+    chown -R ${username}: /home/${username}/.config/Jackett
+  fi
+
   if [[ $restartjackett == 1 ]]; then
     systemctl restart jackett@${username}
   fi
