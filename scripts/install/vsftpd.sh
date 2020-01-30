@@ -33,6 +33,7 @@ use_localtime=YES
 xferlog_enable=YES
 connect_from_port_20=YES
 utf8_filesystem=YES
+require_ssl_reuse=NO
 rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
 rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
 ssl_enable=YES
