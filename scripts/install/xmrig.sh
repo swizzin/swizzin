@@ -74,6 +74,7 @@ mv xmrig /usr/local/bin/
 
 mkdir -p /home/${user}/.xmrig
 cp ../src/config.json /home/${user}/.xmrig
+chown -R ${user}: /home/${user}/.xmrig
 
 sed -i 's/"coin":.*/"coin": "monero",/g' /home/${user}/.xmrig/config.json
 sed -i 's/"nicehash":.*/"nicehash": true,/g' /home/${user}/.xmrig/config.json
