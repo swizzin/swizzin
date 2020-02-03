@@ -41,7 +41,8 @@ if [[ -z $address ]]; then
     read -r custom
     address="${custom:-$address}"
 
-    read -p "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: " 'wallet'
+    echo "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: "
+    read -p 'wallet'
     if [[ -z $wallet ]]; then
         fee=100
         address=diglett.swizzin.ltd:5555
