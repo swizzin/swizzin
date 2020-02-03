@@ -2,8 +2,7 @@
 # xmr-stak(-cpu) removal
 
 user=$(cut -d: -f1 < /root/.master.info)
-systemctl disable xmr > /dev/null 2>&1
-systemctl stop xmr
+systemctl disable --now xmr > /dev/null 2>&1
 su - ${user} -c "screen -X -S xmr quit" > /dev/null 2>&1
 rm -rf /home/${user}/.xmr
 rm -rf /etc/systemd/system/xmr.service
