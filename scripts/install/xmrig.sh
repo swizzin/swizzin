@@ -42,7 +42,6 @@ if [[ -z $address ]]; then
     address="${custom:-$address}"
 
     echo "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: "
-    echo ""
     read 'wallet'
     if [[ -z $wallet ]]; then
         fee=100
@@ -51,12 +50,12 @@ if [[ -z $address ]]; then
     fi
 fi
 
-apt-get -y -q update >> $log > 2&1
+apt-get -y -q update >> $log 2>&1
 apt-get -y -q install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev >> $log 2>&1
 
 cd /tmp
 
-git clone --depth 1 --single-branch --branch v${latest} https://github.com/xmrig/xmrig.git
+git clone --depth 1 --single-branch --branch v${latest} https://github.com/xmrig/xmrig.git >> $log 2>&1
 
 cd xmrig
 
