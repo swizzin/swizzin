@@ -50,7 +50,7 @@ if [[ -z $address ]]; then
 fi
 
 apt-get -y -q update >> $log > 2&1
-apt-get -y -q install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev >> $log > 2&1
+apt-get -y -q install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev >> $log 2>&1
 
 cd /tmp
 
@@ -68,8 +68,8 @@ fi
 
 mkdir build
 cd build
-cmake .. >> $log > 2&1
-make -j$(nproc) >> $log > 2&1
+cmake .. >> $log 2>&1
+make -j$(nproc) >> $log 2>&1
 mv xmrig /usr/local/bin/
 
 mkdir -p /home/${user}/.xmrig
@@ -112,5 +112,5 @@ XMR
 
 
 
-systemctl enable --now xmrig >> $log > 2&1
+systemctl enable --now xmrig >> $log 2>&1
 touch /install/.xmrig.lock
