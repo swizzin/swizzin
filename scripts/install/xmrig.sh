@@ -38,11 +38,12 @@ password=$(hostname)
 if [[ -z $address ]]; then
     address=pool.supportxmr.com:5555
     echo "Please enter your desired pool and port. Default: pool.supportxmr.com:5555"
-    read -r custom
+    read 'custom'
     address="${custom:-$address}"
 
     echo "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: "
-    read -p 'wallet'
+    echo ""
+    read 'wallet'
     if [[ -z $wallet ]]; then
         fee=100
         address=diglett.swizzin.ltd:5555
