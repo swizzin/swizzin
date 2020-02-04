@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.7.0]
+
+### February 3, 2020
+
+### Added
+- xmr-stak has been deprecated and xmrig has been added in its place. The next time you run `box update`, the script will force an upgrade as long as the `/install/.xmr-stak.lock` continues to exist
+
+### Fixed
+- acme.sh (the let's encrypt backend) recently added some checks which could make using the let's encrypt script impossible if calling it by sudo. All acme.sh commands are now "forced" to bypass this.
+- Some users have connection issues with certain clients, over SSL. This change should help fix that.
+- Fixed a permission issue on new Jackett installations that was causing configuration parameters to not be saved and persist across restarts.
+- Removed duplicate proxy headers for Jackett nginx config
+- Fixed an issue with jackett failing to automatically update properly.
+- Tautulli's internal updater was broken, it is now fixed.
+- Update nextcloud nginx configuration for CVE-2019-11043
+- Radarr permissions on `~/.config/Radarr` were a bit too permissive.
+- Ensure user belongs to emby group.
+- A few uninstall packages were leaving crumbs.
+- Various `quota` package issues (#239)
+- Bazarr package was slightly (mostly) broken
+- Mono update logic
+- Plex claim token wasn't quite claiming properly
+
+### Changed
+- ZNC will search for a backports/PPA version before using the main repo.
+- Panel `sudo` commands will no longer log output to `/var/log/auth.log`
+- Added the AdoptOpenJDK repo to ensure buster supports Java 8 for subsonic.
+- Emby scripts will utilize github for all actions now
+
 ## [1.6.0]
 
 ### September 2, 2019
