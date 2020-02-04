@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 1.6.0 Stable
+# 1.7.0 Stable
 
 [website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
 
@@ -87,6 +87,6 @@ I accept donations on the [project website](https://swizzin.ltd/#donate) and als
 
 If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 ```
-box install xmr-stak
+box install xmrig
 ```
 The amount you choose to donate to me is up to you, though the minimum is 1.0. If you need help in setting up your own wallet, check out the [Monero Project](https://getmonero.org).
