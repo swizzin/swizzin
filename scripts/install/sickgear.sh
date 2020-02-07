@@ -38,8 +38,8 @@ if [[ -n $active ]]; then
 fi
 
 apt-get -y -q update >> $log 2>&1
-apt-get -y -q install git-core openssl libssl-dev python-cheetah python2.7 python-pip python-dev >> $log 2>&1
-pip install lxml regex scandir >> $log 2>&1
+apt-get -y -q install git-core openssl libssl-dev python3-cheetah python3 python3-pip python3-dev >> $log 2>&1
+pip3 install lxml regex scandir soupsieve>> $log 2>&1
 
 function _rar () {
   cd /tmp
@@ -59,24 +59,25 @@ chown -R $user:$user /home/$user/.sickgear
 
 cat > /etc/systemd/system/sickgear@.service <<SRS
 [Unit]
-Description=SickGear
+Description=SickGear for %i
 After=syslog.target network.target
 
 [Service]
-Type=forking
-GuessMainPID=no
-User=%I
-Group=%I
-ExecStart=/usr/bin/python /home/%I/.sickgear/SickBeard.py -q --daemon --nolaunch --datadir=/home/%I/.sickgear
-ExecStop=-/bin/kill -HUP
+User=%i
+Group=%i
+ExecStart=/usr/bin/python3 /home/%i/.sickgear/sickgear.py -q --nolaunch --datadir=/home/%i/.sickgear
 
 
 [Install]
 WantedBy=multi-user.target
 SRS
-
-  systemctl enable sickgear@$user > /dev/null 2>&1
-  systemctl start sickgear@$user
+  systemctl daemon-reload
+  systemctl enable --now sickgear@$user > /dev/null 2>&1
+  sleep 5
+  # Restart because first start doesn't always generate the config.ini
+  systemctl restart sickgear@$user
+  # Sleep to allow time for background processes
+  sleep 5
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/sickgear.sh
