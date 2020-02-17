@@ -258,6 +258,7 @@ function build_deluge () {
     git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo "WARN: Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from github failed"; exit 1; } ; }
     cd deluge
     VERSION=$(git describe | cut -d- -f2)
+    sed -i 's/-dev//g' setup.cfg
     mkdir -p /root/dist
     fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
     dpkg -i /root/dist/deluge-common_${VERSION}.deb
