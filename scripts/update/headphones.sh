@@ -26,7 +26,7 @@ HEADP
   if [[ -f /install/.nginx.lock ]]; then
     if grep -q 'http_proxy = 1' /home/$USERNAME/.headphones/config.ini; then
       sed -i 's/http_proxy = 1/http_proxy = 0/g' /home/$USERNAME/.headphones/config.ini
-      systemctl restart headphones
+      systemctl try-restart headphones
     fi
   fi
 fi

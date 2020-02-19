@@ -21,10 +21,6 @@ user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
 users=($(cut -d: -f1 < /etc/htpasswd))
 
-for u in "${users[@]}"; do
-  systemctl stop rtorrent@${u}
-done
-
 if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
 	noexec=1
@@ -51,5 +47,5 @@ fi
 
 for u in "${users[@]}"; do
 	if grep -q localhost /home/$u/.rtorrent.rc; then sed -i 's/localhost/127.0.0.1/g' /home/$u/.rtorrent.rc; fi
-  systemctl start rtorrent@${u}
+  systemctl try-restart rtorrent@${u}
 done

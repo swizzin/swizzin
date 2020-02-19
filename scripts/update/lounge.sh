@@ -1,14 +1,20 @@
 #!/bin/bash
 
 function _uplounge () {
-systemctl stop lounge
+active=$(systemctl is-active lounge)
+
+if [[ $active == "active" ]]; then
+    systemctl stop lounge
+fi
 npm install -g thelounge@latest >> /dev/null 2>&1
 sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> /dev/null 2>&1
     if [[ ! -d /home/lounge/.thelounge ]]; then
         mv /home/lounge/.lounge /home/lounge/.thelounge
         sed -i 's|theme: "zenburn"|theme: "thelounge-theme-zenburn"|g' /home/lounge/.thelounge/config.js
     fi
-systemctl start lounge
+if [[ $active == "active" ]]; then
+    systemctl start lounge
+fi
 }
 
 if [[ -f /install/.lounge.sh ]]; then
@@ -20,7 +26,7 @@ if [[ -f /install/.lounge.sh ]]; then
     if grep -q 'bind: "127.0.0.1"' /home/lounge/.thelounge/config.js; then
         sed -i 's/bind: "127.0.0.1",/bind: undefined,/g' /home/lounge/.thelounge/config.js
         sed -i 's/host: undefined,/host: "127.0.0.1",/g' /home/lounge/.thelounge/config.js
-        systemctl restart lounge
+        systemctl try-restart lounge
     fi
 
     if [[ $(thelounge -v) =~ "v2" ]]; then

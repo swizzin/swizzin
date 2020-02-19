@@ -18,7 +18,10 @@ if [[ -f /install/.plexpy.lock ]]; then
 
 
 # backup plexpy config and remove it
-systemctl stop plexpy
+active=$(systemctl is-active plexpy)
+if [[ $active == "active" ]]; then
+  systemctl stop plexpy
+fi
 cp -a /opt/plexpy/config.ini /tmp/config.ini.tautulli_bak &>/dev/null
 cp -a /opt/plexpy/plexpy.db /tmp/tautulli.db.tautulli_bak &>/dev/null
 cp -a /opt/plexpy/tautulli.db /tmp/tautulli.db.tautulli_bak &>/dev/null
@@ -43,5 +46,7 @@ mv  /tmp/tautulli.db.tautulli_bak /opt/tautulli/tautulli.db &>/dev/null
 sed -i  's#/opt/plexpy#/opt/tautulli#g' /opt/tautulli/config.ini
 sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
 chown -R tautulli:nogroup /opt/tautulli
-systemctl start tautulli
+if [[ $active == "active" ]]; then
+  systemctl enable --now tautulli
+fi
 fi
