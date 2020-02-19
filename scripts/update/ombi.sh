@@ -19,6 +19,6 @@ else
     fi
   fi
   chown -R ombi:nogroup /etc/Ombi
-  systemctl restart ombi
+  systemctl try-restart ombi
 fi
 fi
