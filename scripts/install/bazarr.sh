@@ -10,14 +10,14 @@
 #   under the GPL along with build & install instructions.
 
 user=$(cut -d: -f1 < /root/.master.info )
-apt-get -y -q install python-pip > /dev/null 2>&1
+apt-get -y -q install python3-pip python3-dev > /dev/null 2>&1
 cd /home/${user}
 echo "Cloning into '/home/${user}/bazarr'"
 git clone https://github.com/morpheus65535/bazarr.git > /dev/null 2>&1
 chown -R ${user}: bazarr
 cd bazarr
 echo "Checking python depends"
-sudo -u ${user} bash -c "pip install --user -r requirements.txt" > /dev/null 2>&1
+sudo -u ${user} bash -c "pip3 install --user -r requirements.txt" > /dev/null 2>&1
 mkdir -p /home/${user}/bazarr/data/config/
 
 
@@ -95,7 +95,7 @@ UMask=0002
 Restart=on-failure
 RestartSec=5
 Type=simple
-ExecStart=/usr/bin/python /home/${user}/bazarr/bazarr.py
+ExecStart=/usr/bin/python3 /home/${user}/bazarr/bazarr.py
 KillSignal=SIGINT
 TimeoutStopSec=20
 SyslogIdentifier=bazarr.${user}
