@@ -16,3 +16,4 @@ if [[ -f /install/.bazarr.lock ]]; then
     systemctl daemon-reload
     systemctl try-restart bazarr
   fi
+fi
