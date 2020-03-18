@@ -22,7 +22,7 @@ OUTTO="/root/quick-box.log"
 
 function _removeRapidleech() {
   sudo rm -r  /home/"${MASTER}"/rapidleech
-  sudo rm /etc/nginx/apps/${MASTER}.rapidleech.conf
+  sudo rm /etc/nginx/apps/rapidleech.conf
   sudo rm /install/.rapidleech.lock
   service nginx reload
 }
