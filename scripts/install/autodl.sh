@@ -36,7 +36,7 @@ function _autoconf {
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
       mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${OUTTO}" 2>&1
       cd "/home/${u}/.irssi/scripts/"
-      curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url": ")(.*-v[\d.]+.zip)' | xargs wget --quiet -O autodl-irssi.zip
+      curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget --quiet -O autodl-irssi.zip
       unzip -o autodl-irssi.zip >>"${OUTTO}" 2>&1
       rm autodl-irssi.zip
       cp autodl-irssi.pl autorun/
