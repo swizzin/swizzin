@@ -84,4 +84,3 @@ systemctl enable --now panel
 
   fi
 fi
-fi
