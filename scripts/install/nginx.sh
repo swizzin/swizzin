@@ -15,7 +15,7 @@ codename=$(lsb_release -cs)
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 if [[ -n $(pidof apache2) ]]; then

@@ -13,7 +13,7 @@
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 master=$(cut -d: -f1 < /root/.master.info)

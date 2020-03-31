@@ -83,7 +83,7 @@ function _cleanup {
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
