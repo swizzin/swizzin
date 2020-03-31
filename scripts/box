@@ -390,14 +390,6 @@ function _chpasswd {
 
 }
 
-function _panel () {
-  if [[ $2 != "fix-disk" ]]; then
-    echo "fix-disk is the only acceptable panel argument at this time"
-    exit 1
-  fi
-  /usr/local/bin/swizzin/panel/fix-disk $3
-}
-
 function _nukeovh() {
   grsec=$(uname -a | grep -i grs)
   if [[ -n $grsec ]]; then
@@ -491,14 +483,6 @@ case "$1" in
       exit 1
     fi
     _chpasswd "$@"
-    exit 0
-  ;;
-  "panel")
-    if [[ ! -f /install/.panel.lock ]]; then
-      echo "Panel not installed..."
-      exit 1
-    fi
-    _panel "$@"
     exit 0
   ;;
   "rmgrsec")
