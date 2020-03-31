@@ -1,68 +1,86 @@
 #! /bin/bash
 
-if [[ -d /srv/panel ]]; then
-  echo "Updating panel"
-  cd /srv/panel
-  if ! grep -q 'disk_total_space(".")' /srv/panel/widgets/disk_data.php; then 
-    disk=home
-  fi
-  git fetch origin master
-  menu=$(git diff master:custom/custom.menu.php  -- custom/custom.menu.php)
-  if [[ -n $menu ]]; then
-    cp -a custom/custom.menu.php /tmp/
-  fi
-  git reset HEAD --hard > /dev/null 2>&1
-  git pull || { panelreset=1; }
-  if [[ $panelreset == 1 ]]; then
-    echo "Updating the panel appears to have failed. This is probably my fault, not yours."
-    echo ""
-    read -n 1 -s -r -p "Press any key to forcefully reset the panel. Your custom entires, theme and language will be backed up and restored"
-    echo ""
-    cd /srv
-    lang=$(grep \$language inc/localize.php | cut -d\' -f2)
-    if [[ -f /srv/panel/db/.defaulted.lock ]]; then default=1; fi;
-    cp -a /srv/panel/custom /tmp
-    /usr/local/bin/swizzin/remove/panel.sh
-    /usr/local/bin/swizzin/install/panel.sh
-    mv /tmp/custom/* /srv/panel/custom/
-    if [[ $default == 1 ]]; then
-      bash /usr/local/bin/swizzin/panel/theme/themeSelect-defaulted
-    fi
-    bash /usr/local/bin/swizzin/panel/lang/langSelect-$lang
-  fi
-  if [[ -n $menu ]]; then
-    cd /srv/panel
-    cp -a /tmp/custom.menu.php custom/
-  fi
-  if ! grep -q pam_session /etc/sudoers.d/panel; then
-  cat > /etc/sudoers.d/panel <<SUD
-#secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
+if [[ -f /install/.panel.lock ]]; then
+  if [[ ! -d /opt/swizzin ]]; then
+master=$(cut -d: -f1 < /root/.master.info)
+
+apt-get -y -q install python3-venv git > /dev/null 2>&1
+mkdir -p /opt/swizzin/
+python3 -m venv /opt/swizzin/venv
+git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin > /dev/null 2>&1
+/opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt > /dev/null 2>&1
+useradd -r swizzin > /dev/null 2>&1
+chown -R swizzin: /opt/swizzin
+mkdir -p /etc/nginx/apps
+
+if [[ -f /install/.deluge.lock ]]; then
+  touch /install/.delugeweb.lock
+fi
+
+
+if [[ $master == $(id -nu 1000) ]]; then
+  :
+else
+  echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin/swizzin.cfg
+fi
+
+
+if [[ -f /install/.nginx.lock ]]; then
+  echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin/swizzin.cfg
+
+  cat > /etc/nginx/apps/panel.conf <<'EON'
+location / {
+  #rewrite ^/panel/(.*) /$1 break;
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header Origin "";
+  proxy_pass http://127.0.0.1:8333;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
+}
+EON
+  systemctl reload nginx
+
+fi
+
+cat > /etc/systemd/system/panel.service <<EOS
+[Unit]
+Description=swizzin panel service
+After=nginx.service
+
+[Service]
+Type=simple
+User=swizzin
+
+ExecStart=/opt/swizzin/venv/bin/python swizzin.py
+WorkingDirectory=/opt/swizzin/swizzin
+Restart=on-failure
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOS
+
+cat > /etc/sudoers.d/panel <<EOSUD
 #Defaults  env_keep -="HOME"
-Defaults:www-data !logfile
-Defaults:www-data !syslog
-Defaults:www-data !pam_session
+Defaults:swizzin !logfile
+Defaults:swizzin !syslog
+Defaults:swizzin !pam_session
+
+Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
+
+swizzin     ALL = (ALL) NOPASSWD: CMNDS
+EOSUD
+
+rm -rf /srv/panel
+rm -f /etc/cron.d/set_interface
+
+systemctl enable --now panel
 
 
-# Host alias specification
-
-# User alias specification
-
-# Cmnd alias specification
-Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem
-Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*
-Cmnd_Alias   GENERALCMNDS = /usr/bin/quota, /bin/systemctl
-
-www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
-
-SUD
   fi
-  if grep -q /usr/sbin/repquota /etc/sudoers.d/panel; then
-    sed -i 's|/usr/sbin/repquota|/usr/bin/quota|g' /etc/sudoers.d/panel
-  fi
-  if [[ $disk = "home" ]]; then
-    /usr/local/bin/swizzin/panel/fix-disk home
-  fi
-  . /etc/swizzin/sources/functions/php
-  restart_php_fpm
-  systemctl restart nginx
 fi
