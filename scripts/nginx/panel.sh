@@ -9,76 +9,22 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-IFACE=$(ip link show|grep -i broadcast|grep -m1 UP|cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g');
-user=$(cut -d: -f1 < /root/.master.info)
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/dev/null"
-fi
 
-cd /srv/
-git clone https://github.com/liaralabs/quickbox_dashboard.git panel >>$log 2>&1
+echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin/swizzin.cfg
 
-chown -R www-data: /srv/panel
-
-touch /srv/panel/db/output.log
-printf "${IFACE}" > /srv/panel/db/interface.txt
-printf "${user}" > /srv/panel/db/master.txt
-LOCALE=en_GB.UTF-8
-LANG=lang_en
-sed -i "s/LOCALE/${LOCALE}/g" /srv/panel/inc/localize.php
-sed -i "s/LANG/${LANG}/g" /srv/panel/inc/localize.php
-echo "*/1 * * * * root bash /usr/local/bin/swizzin/panel/set_interface" > /etc/cron.d/set_interface
-
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
-
-cat > /etc/nginx/apps/panel.conf <<PAN
+cat > /etc/nginx/apps/panel.conf <<'EON'
 location / {
-alias /srv/panel/ ;
-auth_basic "What's the password?";
-auth_basic_user_file /etc/htpasswd;
-try_files \$uri \$uri/ /index.php?q=\$uri&\$args;
-index index.php;
-allow all;
-location ~ \.php$
-  {
-    include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/$sock.sock;
-    #fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME /srv/panel\$fastcgi_script_name;
-  }
+  #rewrite ^/panel/(.*) /$1 break;
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host $host;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header Origin "";
+  proxy_pass http://127.0.0.1:8333;
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection "Upgrade";
 }
-
-PAN
-
-cat > /etc/sudoers.d/panel <<SUD
-#secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
-#Defaults  env_keep -="HOME"
-Defaults:www-data !logfile
-Defaults:www-data !syslog
-Defaults:www-data !pam_session
-
-
-# Host alias specification
-
-# User alias specification
-
-# Cmnd alias specification
-Cmnd_Alias   CLEANMEM = /usr/local/bin/swizzin/panel/clean_mem
-Cmnd_Alias   SYSCMNDS = /usr/local/bin/swizzin/panel/lang/langSelect-*, /usr/local/bin/swizzin/panel/theme/themeSelect-*
-Cmnd_Alias   GENERALCMNDS = /usr/bin/quota, /bin/systemctl
-
-www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
-
-SUD
-service nginx force-reload
+EON
 
