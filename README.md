@@ -1,7 +1,7 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 1.7.0 Stable
+# 2.0.0 Stable
 
 [website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
 
@@ -67,8 +67,6 @@ Box functions:
   * Usage: `box update`
 * upgrade - upgrade the given package (available scripts are in scripts/upgrade)
   * Usage: `box upgrade nginx`
-* panel - hook for panel scripts. At this time, `fix-disk root` and `fix-disk home` are the only options
-  * Usage: `box panel fix-disk home`
 * rmgrsec - removes grsec kernels installed by ovh
   * Usage: `box rmgrsec`
 * rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)

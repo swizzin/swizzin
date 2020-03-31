@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.0.0]
+
+### March 30,2020
+
+### Added
+- swizzin no longer uses the quickbox_dashboard for system and service information. Introducing a new in-house panel for swizzin by swizzin with <3.
+
+### Updated
+- bazarr will now use python3
+
+### Removed
+- quickbox_dashboard has been permanently removed. 
+
+### Fixed
+- GitHub API changed the output of some of their commands. Autodl was having some issues as a result, but the API change has been worked around.
+- Some services which were stopped by the user were restarted erroneously during `box update`
+- Deluge 1.3 installs will no longer utilize the `-dev` tag
+- Ensure rapidleech sets group permissions for www-data
+- Ensure rapidleech nginx conf is actually removed
+- SickGear had some install issues
+- Libtorrent lock was not properly detected in deluge installation
+
+
 ## [1.7.0]
 
 ### February 3, 2020
