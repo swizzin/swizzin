@@ -75,5 +75,4 @@ EOSUD
 
 systemctl enable --now panel > ${log} 2>&1
 
-usr/local/bin/swizzin/nginx/panel.sh
 touch /install/.panel.lock
