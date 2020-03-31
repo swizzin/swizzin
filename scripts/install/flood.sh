@@ -9,10 +9,8 @@ fi
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  log="/srv/panel/db/output.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 . /etc/swizzin/sources/functions/npm

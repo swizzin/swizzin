@@ -255,7 +255,7 @@ fi
 if [[ -f /tmp/.install.lock ]]; then
   export log="/root/logs/install.log"
 else
-  export log="/dev/null"
+  export log="/root/logs/swizzin.log"
 fi
 local_packages=/usr/local/bin/swizzin
 users=($(cut -d: -f1 < /etc/htpasswd))

@@ -17,10 +17,8 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  log="/srv/panel/db/output.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 if [ $codename = "jessie" ]; then

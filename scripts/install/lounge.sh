@@ -482,10 +482,8 @@ chown -R lounge: /home/lounge
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
-elif [[ -f /install/.panel.lock ]]; then
-  log="/srv/panel/db/output.log"
 else
-  log="/dev/null"
+  log="/root/logs/swizzin.log"
 fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
