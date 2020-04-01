@@ -207,7 +207,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=%I
+User=%i
 
 ExecStart=/usr/bin/deluged -d
 ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluged
@@ -226,7 +226,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=%I
+User=%i
 
 ExecStart=/usr/bin/deluge-web${args}
 ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluge-web

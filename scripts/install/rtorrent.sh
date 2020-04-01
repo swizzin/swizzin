@@ -63,11 +63,11 @@ After=network.target
 [Service]
 Type=forking
 KillMode=none
-User=%I
-ExecStartPre=-/bin/rm -f /home/%I/.sessions/rtorrent.lock
+User=%i
+ExecStartPre=-/bin/rm -f /home/%i/.sessions/rtorrent.lock
 ExecStart=/usr/bin/screen -d -m -fa -S rtorrent /usr/bin/rtorrent
 ExecStop=/usr/bin/screen -X -S rtorrent quit
-WorkingDirectory=/home/%I/
+WorkingDirectory=/home/%i/
 
 [Install]
 WantedBy=multi-user.target

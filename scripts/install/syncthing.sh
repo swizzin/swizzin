@@ -35,7 +35,7 @@ sudo apt-get -qy install syncthing > /dev/null 2>&1
 echo "Configuring Syncthing & Starting ... " >>"${OUTTO}" 2>&1;
 cat > /etc/systemd/system/syncthing@.service <<SYNC
 [Unit]
-Description=Syncthing - Open Source Continuous File Synchronization for %I
+Description=Syncthing - Open Source Continuous File Synchronization for %i
 Documentation=man:syncthing(1)
 After=network.target
 Wants=syncthing-inotify@.service

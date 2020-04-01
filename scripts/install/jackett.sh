@@ -40,15 +40,15 @@ chown ${username}.${username} -R Jackett
 
 cat > /etc/systemd/system/jackett@.service <<JAK
 [Unit]
-Description=jackett for %I
+Description=jackett for %i
 After=network.target
 
 [Service]
-SyslogIdentifier=jackett.%I
+SyslogIdentifier=jackett.%i
 Type=simple
-User=%I
-WorkingDirectory=/home/%I/Jackett
-ExecStart=/bin/sh -c "/home/%I/Jackett/jackett_launcher.sh"
+User=%i
+WorkingDirectory=/home/%i/Jackett
+ExecStart=/bin/sh -c "/home/%i/Jackett/jackett_launcher.sh"
 Restart=always
 RestartSec=5
 TimeoutStopSec=20

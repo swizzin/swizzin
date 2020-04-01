@@ -80,10 +80,10 @@ After=network.target
 [Service]
 Type=forking
 KillMode=process
-User=%I
+User=%i
 ExecStart=/usr/bin/screen -f -a -d -m -S sabnzbd python SABnzbd/SABnzbd.py --browser 0 --server 127.0.0.1:65080 --https 65443
 ExecStop=/usr/bin/screen -X -S sabnzbd quit
-WorkingDirectory=/home/%I/
+WorkingDirectory=/home/%i/
 
 [Install]
 WantedBy=multi-user.target

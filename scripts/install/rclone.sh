@@ -40,10 +40,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=%I
-Group=%I
-ExecStart=/usr/sbin/rclone mount /home/%I/cloud --allow-non-empty --allow-other --dir-cache-time 10m --max-read-ahead 9G --checkers 32 --contimeout 15s --quiet
-ExecStop=/bin/fusermount -u /home/%I/cloud
+User=%i
+Group=%i
+ExecStart=/usr/sbin/rclone mount /home/%i/cloud --allow-non-empty --allow-other --dir-cache-time 10m --max-read-ahead 9G --checkers 32 --contimeout 15s --quiet
+ExecStop=/bin/fusermount -u /home/%i/cloud
 Restart=on-failure
 RestartSec=30
 StartLimitInterval=60s
