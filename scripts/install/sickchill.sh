@@ -64,9 +64,9 @@ After=syslog.target network.target
 [Service]
 Type=forking
 GuessMainPID=no
-User=%I
-Group=%I
-ExecStart=/usr/bin/python /home/%I/.sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/home/%I/.sickchill
+User=%i
+Group=%i
+ExecStart=/usr/bin/python /home/%i/.sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/home/%i/.sickchill
 
 
 [Install]

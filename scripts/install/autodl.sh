@@ -64,10 +64,10 @@ After=network.target
 [Service]
 Type=forking
 KillMode=none
-User=%I
+User=%i
 ExecStart=/usr/bin/screen -d -m -fa -S irssi /usr/bin/irssi
 ExecStop=/usr/bin/screen -S irssi -X stuff '/quit\n'
-WorkingDirectory=/home/%I/
+WorkingDirectory=/home/%i/
 
 [Install]
 WantedBy=multi-user.target

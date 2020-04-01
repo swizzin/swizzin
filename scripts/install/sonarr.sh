@@ -77,10 +77,10 @@ After=syslog.target network.target
 [Service]
 Type=forking
 KillMode=process
-User=%I
+User=%i
 ExecStart=/usr/bin/screen -f -a -d -m -S nzbdrone mono /opt/NzbDrone/NzbDrone.exe
 ExecStop=-/bin/kill -HUP
-WorkingDirectory=/home/%I/
+WorkingDirectory=/home/%i/
 
 [Install]
 WantedBy=multi-user.target

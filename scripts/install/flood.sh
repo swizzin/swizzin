@@ -26,10 +26,10 @@ Description=Flood rTorrent Web UI
 After=network.target
 
 [Service]
-User=%I
-Group=%I
-WorkingDirectory=/home/%I/.flood
-ExecStart=/usr/bin/npm start --production /home/%I/.flood
+User=%i
+Group=%i
+WorkingDirectory=/home/%i/.flood
+ExecStart=/usr/bin/npm start --production /home/%i/.flood
 
 
 [Install]

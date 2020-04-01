@@ -36,9 +36,9 @@ After=syslog.target network.target
 [Service]
 Type=forking
 KillMode=control-group
-User=%I
-Group=%I
-ExecStart=/usr/bin/python /home/%I/.couchpotato/CouchPotato.py --daemon
+User=%i
+Group=%i
+ExecStart=/usr/bin/python /home/%i/.couchpotato/CouchPotato.py --daemon
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 
