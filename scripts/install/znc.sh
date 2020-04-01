@@ -59,10 +59,7 @@ systemctl enable znc
   sudo -H -u znc znc --makeconf
   killall -u znc znc > /dev/null 2>&1
   sleep 1
-  if [[ -f /install/.panel.lock ]]; then
-    echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /srv/panel/db/znc.txt
-    echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /srv/panel/db/znc.txt
-  fi
+
   # Check for LE cert, and copy it if available.
   chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
   if [[ -n $chkhost ]]; then
@@ -71,5 +68,6 @@ systemctl enable znc
     crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
   fi
   systemctl start znc
-  touch /install/.znc.lock
+  echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /install/.znc.lock
+  echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /install/.znc.lock
 echo "#### ZNC now installed! ####"
