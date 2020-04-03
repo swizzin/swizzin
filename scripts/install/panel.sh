@@ -16,6 +16,12 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+if [[ ! -f /install/.nginx.lock ]]; then
+  echo "This package requires nginx to be installed!"
+  read -p "Press enter to proceed with installing nginx before the panel."
+  bash /usr/local/bin/swizzin/scripts/install/nginx.sh
+fi
+
 master=$(cut -d: -f1 < /root/.master.info)
 
 apt-get -y -q install python3-venv git > /dev/null 2>&1
