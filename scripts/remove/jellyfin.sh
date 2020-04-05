@@ -14,7 +14,7 @@ function remove_jellyfin() {
     kill -9 $(ps xU ${username} | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') >/dev/null 2>&1
     #
     rm -rf "/opt/jellyfin"
-	rm -rf "/opt/ffmpeg"
+    rm -rf "/opt/ffmpeg"
     rm -rf "/home/${username}/.config/Jellyfin"
     #
     if [[ -f /install/.nginx.lock ]]; then
