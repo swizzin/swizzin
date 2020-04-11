@@ -22,7 +22,7 @@ function _installLibreSpeed1() {
 	git clone https://github.com/librespeed/speedtest.git $lspdpath >/dev/null 2>&1
 	cp $lspdpath/example-singleServer-gauges.html $lspdpath/index.html
 	swizname=$(sed -ne '/server_name/{s/.*server_name //; s/[; ].*//; p; q}' /etc/nginx/sites-enabled/default)
-	if [[ ! -z $swizname ]]; then
+	if [ ! -z "$swizname" ] && [ "$swizname" != "_" ]; then
 		sed -i "s/LibreSpeed Example/LibreSpeed - $swizname/g" $lspdpath/index.html
 	else
 		sed -i "s/LibreSpeed Example/LibreSpeed/g" $lspdpath/index.html
