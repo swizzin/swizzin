@@ -62,6 +62,8 @@ After=network.target
 
 [Service]
 Type=forking
+Restart=always
+RestartSec=5s
 KillMode=none
 User=%i
 ExecStartPre=-/bin/rm -f /home/%i/.sessions/rtorrent.lock
