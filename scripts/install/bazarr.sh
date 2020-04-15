@@ -9,15 +9,36 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
+codename=$(lsb_release -cs)
+
 user=$(cut -d: -f1 < /root/.master.info )
-apt-get -y -q install python3-pip python3-dev > /dev/null 2>&1
+if [[ $codename =~ ("bionic"|"stretch"|"xenial"|"jessie") ]]; then
+  . /etc/swizzin/sources/functions/pyenv
+  pyenv_install
+  pyenv_install_version 3.7.7
+  pyenv_create_venv 3.7.7 /home/${user}/.venv/bazarr
+  chown -R ${user}: /home/${user}/.venv/bazarr
+else
+  apt-get -y -q install python3-pip python3-dev python3-venv > $log 2>&1
+  mkdir -p /home/${user}/.venv/bazarr
+  python3 -m venv /home/${user}/.venv/bazarr
+  chown -R ${user}: /home/${user}/.venv/bazarr
+fi
+
 cd /home/${user}
+
 echo "Cloning into '/home/${user}/bazarr'"
-git clone https://github.com/morpheus65535/bazarr.git > /dev/null 2>&1
+git clone https://github.com/morpheus65535/bazarr.git > $log 2>&1
 chown -R ${user}: bazarr
 cd bazarr
 echo "Checking python depends"
-sudo -u ${user} bash -c "pip3 install --user -r requirements.txt" > /dev/null 2>&1
+sudo -u ${user} bash -c "/home/${user}/.venv/bazarr/bin/pip3 install --user -r requirements.txt" > $log 2>&1
 mkdir -p /home/${user}/bazarr/data/config/
 
 
@@ -95,7 +116,7 @@ UMask=0002
 Restart=on-failure
 RestartSec=5
 Type=simple
-ExecStart=/usr/bin/python3 /home/${user}/bazarr/bazarr.py
+ExecStart=/home/${user}/.venv/bazarr/bin/python3 /home/${user}/bazarr/bazarr.py
 KillSignal=SIGINT
 TimeoutStopSec=20
 SyslogIdentifier=bazarr.${user}
