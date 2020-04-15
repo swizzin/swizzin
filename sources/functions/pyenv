@@ -6,6 +6,7 @@ function pyenv_install() {
     git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
     echo 'export PYENV_ROOT="/opt/pyenv"' >> /root/.bashrc
     echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
+    . /root/.bashrc
     sudo apt-get -y -q update >> $log 2>&1
     sudo apt-get -y -q install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev >> $log 2>&1
   else
