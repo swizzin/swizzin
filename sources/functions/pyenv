@@ -1,0 +1,38 @@
+function pyenv_install() {
+  if [[ ! -d /opt/pyenv ]]; then
+    echo "Setting up pyenv version manager"
+    git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
+    git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
+    git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
+    echo 'export PYENV_ROOT="/opt/pyenv"' >> /root/.bashrc
+    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
+    export PYENV_ROOT="/opt/pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    sudo apt-get -y -q update >> $log 2>&1
+    sudo apt-get -y -q install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev >> $log 2>&1
+  else
+    pyenv_update
+  fi
+}
+
+function pyenv_update() {
+  /opt/pyenv/bin/pyenv update  >> $log 2>&1
+}
+
+function pyenv_install_version() {
+  version=$1
+  versions=$(/opt/pyenv/bin/pyenv versions)
+  if [[ ! $versions =~ $version ]]; then
+    echo "Compiling Python $version. This may take some time ... "
+    /opt/pyenv/bin/pyenv install $version
+  else
+    echo "Python $version already installed!"
+  fi
+}
+
+function pyenv_create_venv() {
+  version=$1
+  destination=$2
+  mkdir -p $destination
+  /opt/pyenv/versions/3.7.7/bin/python3 -m venv $destination
+}
