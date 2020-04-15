@@ -1,5 +1,5 @@
 function pyenv_install() {
-  if [[ ! -d /root/.pyenv ]]; then
+  if [[ ! -d /opt/pyenv ]]; then
     echo "Setting up pyenv version manager"
     git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
     git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
