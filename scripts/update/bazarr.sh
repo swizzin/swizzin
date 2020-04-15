@@ -7,6 +7,7 @@ if [[ -f /install/.bazarr.lock ]]; then
     echo "Updating bazarr to python3 virtualenv"
     if [[ $codename =~ ("bionic"|"stretch"|"xenial"|"jessie") ]]; then
       . /etc/swizzin/sources/functions/pyenv
+      log=/root/logs/swizzin.log
       pyenv_install
       pyenv_install_version 3.7.7
       pyenv_create_venv 3.7.7 /home/${user}/.venv/bazarr
