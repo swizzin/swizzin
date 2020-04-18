@@ -11,7 +11,7 @@ git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzi
 /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt > /dev/null 2>&1
 useradd -r swizzin > /dev/null 2>&1
 chown -R swizzin: /opt/swizzin
-setacl -m g:swizzin:rx /home/*
+setfacl -m g:swizzin:rx /home/*
 mkdir -p /etc/nginx/apps
 
 if [[ -f /install/.deluge.lock ]]; then
