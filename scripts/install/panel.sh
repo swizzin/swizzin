@@ -24,13 +24,14 @@ fi
 
 master=$(cut -d: -f1 < /root/.master.info)
 
-apt-get -y -q install python3-venv git > /dev/null 2>&1
+apt-get -y -q install python3-venv git acl > /dev/null 2>&1
 mkdir -p /opt/swizzin/
 python3 -m venv /opt/swizzin/venv
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin >> ${log} 2>&1
 /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
 useradd -r swizzin > /dev/null 2>&1
 chown -R swizzin: /opt/swizzin
+setfacl -m g:swizzin:rx /home/*
 mkdir -p /etc/nginx/apps
 
 if [[ -f /install/.deluge.lock ]]; then
