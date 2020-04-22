@@ -7,8 +7,8 @@ version=$(cat $nginxconfpath | grep -o -P '(?<=/php/).*(?=.sock)')
 serv="php${version}-fpm.service"
 #serv=(ls /etc/systemd/system | grep php7 | tail -1)
 systemctl restart $serv
-    if [[ $(systemctl is-active $serv) == "active" ]]; then
-      systemctl stop $serv
-      systemctl disable $serv
+#    if [[ $(systemctl is-active $serv) == "active" ]]; then
+#      systemctl stop $serv
+#      systemctl disable $serv
     fi
 }
