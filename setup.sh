@@ -42,7 +42,7 @@ _os() {
     if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
       echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
     fi
-    if [[ ! $codename =~ ("xenial"|"bionic"|"jessie"|"stretch"|"buster") ]]; then
+    if [[ ! $codename =~ ("xenial"|"bionic"|"jessie"|"stretch"|"buster"|"focal") ]]; then
       echo "Your release ($codename) of $distribution is not supported." && exit 1
     fi
   echo "I have determined you are using $distribution $release."
