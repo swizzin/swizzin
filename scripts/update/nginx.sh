@@ -60,31 +60,15 @@ for version in $phpv; do
   fi
 done
 
-##TODO
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.3-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.3-fpm.sock;/g' $upgrade
-    done
-  fi
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.2-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.2-fpm.sock;/g' $upgrade
-    done
-  fi
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.1-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock;/g' $upgrade
-    done
-  fi
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+
+v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" {} \;)
+if [[ -z $v ]]; then
+  oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
+  for upgrade in $oldv; do
+    sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $upgrade
+  done
 fi
 
 if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
