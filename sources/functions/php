@@ -15,7 +15,7 @@ function restart_php_fpm () {
 #Returns for example '7.4'
 function php_v_from_nginxconf () { 
     nginxconfpath='/etc/nginx/sites-enabled/default'
-    version=$(cat $nginxconfpath | grep -o -P '(?<=/php/).*(?=.sock)')
+    version=$(cat $nginxconfpath | grep -o -P '(?<=/php/php).*(?=-fpm.sock)')
     echo "${version}"
 }
 
