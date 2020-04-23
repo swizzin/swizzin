@@ -111,7 +111,6 @@ function build_libtorrent_rakshasa () {
 	cd "/tmp"
 
   if [[ -d /tmp/libtorrent ]]; then
-    echo "Cleaning up previous libtorrent source files"
     rm -rf /tmp/libtorrent
   fi
 
