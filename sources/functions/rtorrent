@@ -109,6 +109,12 @@ function build_xmlrpc-c () {
 function build_libtorrent_rakshasa () {
   libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
 	cd "/tmp"
+
+  if [[ -d /tmp/libtorrent ]]; then
+    echo "Cleaning up previous libtorrent source files"
+    rm -rf /tmp/libtorrent
+  fi
+
 	if [[ ${libtorrentver} == feature-bind ]]; then
 		git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
 		cd libtorrent
