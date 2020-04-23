@@ -57,7 +57,7 @@ else
   geoip=php-geoip
 fi
 
-if [[ $codename =~ ("bionic"|"buster") ]]; then
+if [[ $codename =~ ("bionic"|"buster"|"focal") ]]; then
   mcrypt=
 else
   mcrypt=php-mcrypt
@@ -84,7 +84,11 @@ for version in $phpv; do
   phpenmod -v $version opcache
 done
 
-sock=$(ls /lib/systemd/system | grep php | grep fpm | sort | tail -1 | grep -o -P '.*(?=.service)')
+
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
+echo "Using ${sock} for the service"
 
 rm -rf /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-enabled/default <<NGC

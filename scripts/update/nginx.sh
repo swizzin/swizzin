@@ -42,15 +42,8 @@ if [[ $phpv =~ "7.1" ]]; then
   fi
 fi
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 for version in $phpv; do
   if [[ -f /etc/php/$version/fpm/php.ini ]]; then
@@ -67,6 +60,7 @@ for version in $phpv; do
   fi
 done
 
+##TODO
 if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
   v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.3-fpm.sock" {} \;)
   if [[ -z $v ]]; then
