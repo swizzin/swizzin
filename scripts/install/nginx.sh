@@ -88,7 +88,7 @@ done
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
-echo "Using ${sock} for the service"
+echo "Using ${sock} in the nginx config"
 
 rm -rf /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-enabled/default <<NGC

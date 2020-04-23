@@ -103,7 +103,7 @@ if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
 	noexec=1
 fi
-	  echo "Installing rTorrent Dependencies ... ";depends_rtorrent
+	  echo "Installing rTorrent Dependencies ... (Your CPU might cry)";depends_rtorrent
 		if [[ ! $rtorrentver == repo ]]; then
 			echo "Building xmlrpc-c from source ... ";build_xmlrpc-c
 			echo "Building libtorrent from source ... ";build_libtorrent_rakshasa
