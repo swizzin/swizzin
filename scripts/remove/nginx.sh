@@ -22,7 +22,7 @@ if [[ -d /srv/rutorrent ]]; then
     rm -rf /srv/rutorrent
 fi
 
-if [[ -f /install/.panel.lock]]; then
+if [[ -f /install/.panel.lock ]]; then
     rm /install/.panel.lock
 fi
 
