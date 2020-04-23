@@ -46,8 +46,8 @@ function whiptail_rtorrent () {
       export rtorrentver='feature-bind'
       export libtorrentver='feature-bind'
     elif [[ $function == Repo ]]; then
-      export rtorrentver='Repo'
-      export libtorrentver='Repo'
+      export rtorrentver='repo'
+      export libtorrentver='repo'
     fi
   fi
 } 
