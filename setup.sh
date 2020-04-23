@@ -33,6 +33,8 @@ _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
   export log=/root/logs/install.log
+  echo "To follow the progress of the script alongside, run \`sudo watch -n1 tail ${log}\` in another terminal session."
+  echo "#### Log from ${time} " >> ${log}
   echo "Checking OS version and release ... "
   apt-get -y -qq update >> ${log} 2>&1
   apt-get -y -qq install lsb-release >> ${log} 2>&1
@@ -61,11 +63,21 @@ function _preparation() {
   fi
   apt-get -q -y update >> ${log} 2>&1
   apt-get -q -y upgrade >> ${log} 2>&1
-  apt-get -q -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https python-pip apache2-utils>> ${log} 2>&1
+
+  if [[ $codename =~ ("focal") ]]; then 
+      pipv='python3-pip'
+      else
+      pipv='python-pip'
+  fi
+
+  echo "Installing dependencies"
+  # this apt-get should be checked and handled if fails, otherwise the install borks. 
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https ${pipv} >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
-  git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+  # TODO remove this
+  git clone https://github.com/flying-sausages/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
 }
