@@ -8,7 +8,7 @@ function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
     if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
-                  Repo ""\
+                  repo ""\
                   0.9.8 "" \
                   0.9.7 "" \
                   0.9.6 "" \
@@ -23,7 +23,7 @@ function whiptail_rtorrent () {
                   0.9.4 "" \
                   0.9.3 "" \
                   feature-bind "" \
-                  Repo "" 3>&1 1>&2 2>&3)
+                  repo "" 3>&1 1>&2 2>&3)
     fi
 
 
@@ -45,7 +45,7 @@ function whiptail_rtorrent () {
     elif [[ $function == feature-bind ]]; then
       export rtorrentver='feature-bind'
       export libtorrentver='feature-bind'
-    elif [[ $function == Repo ]]; then
+    elif [[ $function == repo ]]; then
       export rtorrentver='repo'
       export libtorrentver='repo'
     fi
@@ -53,7 +53,7 @@ function whiptail_rtorrent () {
 } 
 
 function depends_rtorrent () {
-  if [[ ! $rtorrentver == Repo ]]; then
+  if [[ ! $rtorrentver == repo ]]; then
     APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
