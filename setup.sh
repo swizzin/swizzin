@@ -33,8 +33,6 @@ _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
   export log=/root/logs/install.log
-  echo "You can run \`sudo tail -f ${log}\` in another terminal session to follow the installation's progress."
-  echo "#### Log from ${time} " >> ${log}
   echo "Checking OS version and release ... "
   apt-get -y -qq update >> ${log} 2>&1
   apt-get -y -qq install lsb-release >> ${log} 2>&1
@@ -76,7 +74,6 @@ function _preparation() {
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
-  # TODO remove this
   git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
