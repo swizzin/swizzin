@@ -21,5 +21,9 @@ fi
 if [[ -d /srv/rutorrent ]]; then
     rm -rf /srv/rutorrent
 fi
-rm /install/.panel.lock
+
+if [[ -f /install/.panel.lock]]; then
+    rm /install/.panel.lock
+fi
+
 rm /install/.nginx.lock
