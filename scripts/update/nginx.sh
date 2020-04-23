@@ -42,6 +42,7 @@ if [[ $phpv =~ "7.1" ]]; then
   fi
 fi
 
+. /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
 
@@ -60,7 +61,6 @@ for version in $phpv; do
   fi
 done
 
-. /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 
 v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" {} \;)
