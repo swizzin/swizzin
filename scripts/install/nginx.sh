@@ -84,7 +84,7 @@ for version in $phpv; do
   phpenmod -v $version opcache
 done
 
-sock=$(ls /lib/systemd/system | grep php | sort | tail -1 | grep -o -P '.*(?=.service)')
+sock=$(ls /lib/systemd/system | grep php | grep fpm | sort | tail -1 | grep -o -P '.*(?=.service)')
 
 rm -rf /etc/nginx/sites-enabled/default
 cat > /etc/nginx/sites-enabled/default <<NGC
