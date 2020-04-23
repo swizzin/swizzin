@@ -92,7 +92,7 @@ function depends_rtorrent () {
 function build_xmlrpc-c () {
   xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/advanced"
 	cd "/tmp"
-  
+
   if [[ -d /tmp/xmlrpc-c ]]; then 
     rm -rf xmlrpc-c
   fi
@@ -161,7 +161,7 @@ function build_rtorrent () {
     rm -rf rtorrent* >>$log 2>&1
   fi
 
-  if [[ -f /tmp/dist/rtorrent]]; then
+  if [[ -f /tmp/dist/rtorrent ]]; then
     rm -rf /tmp/dist/rtorrent
   fi
 
