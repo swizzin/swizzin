@@ -172,7 +172,14 @@ function _adduser() {
   fi
   chmod 750 /home/${user}
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
-  echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  
+  if [[ $codename =~ "focal" ]] ; then
+    echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  else
+    echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+
+  fi
+  
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 }
 
