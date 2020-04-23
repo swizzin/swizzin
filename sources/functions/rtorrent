@@ -7,22 +7,23 @@ export codename=$(lsb_release -cs)
 function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
     if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
-      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+                  Repo ""\
                   0.9.8 "" \
                   0.9.7 "" \
                   0.9.6 "" \
                   feature-bind "" \
-                  repo "" 3>&1 1>&2 2>&3)
+                   3>&1 1>&2 2>&3)
 
     else
-      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+      function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
                   0.9.8 "" \
                   0.9.7 "" \
                   0.9.6 "" \
                   0.9.4 "" \
                   0.9.3 "" \
                   feature-bind "" \
-                  repo "" 3>&1 1>&2 2>&3)
+                  Repo "" 3>&1 1>&2 2>&3)
     fi
 
 
@@ -44,15 +45,15 @@ function whiptail_rtorrent () {
     elif [[ $function == feature-bind ]]; then
       export rtorrentver='feature-bind'
       export libtorrentver='feature-bind'
-    elif [[ $function == repo ]]; then
-      export rtorrentver='repo'
-      export libtorrentver='repo'
+    elif [[ $function == Repo ]]; then
+      export rtorrentver='Repo'
+      export libtorrentver='Repo'
     fi
   fi
 } 
 
 function depends_rtorrent () {
-  if [[ ! $rtorrentver == repo ]]; then
+  if [[ ! $rtorrentver == Repo ]]; then
     APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
