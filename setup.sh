@@ -33,7 +33,7 @@ _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
   export log=/root/logs/install.log
-  echo "To follow the progress of the script alongside, run \`sudo watch -n1 tail ${log}\` in another terminal session."
+  echo "You can run \`sudo tail -f ${log}\` in another terminal session to follow the installation's progress."
   echo "#### Log from ${time} " >> ${log}
   echo "Checking OS version and release ... "
   apt-get -y -qq update >> ${log} 2>&1
