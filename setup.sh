@@ -53,7 +53,7 @@ _os() {
 function _preparation() {
   echo "Updating system and grabbing core dependencies."
   if [[ $distribution = "Ubuntu" ]]; then
-    echo "Fetching updates from enabled repos"
+    echo "Checking enabled repos"
     if [[ -z $(which add-apt-repository) ]]; then
       apt-get install -y -q software-properties-common >> ${log} 2>&1
     fi
@@ -75,7 +75,7 @@ function _preparation() {
   apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https ${pipv} >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-  echo "Installing swizzin files from git"
+  echo "Cloning swizzin repo to localhost"
   # TODO remove this
   git clone https://github.com/flying-sausages/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
