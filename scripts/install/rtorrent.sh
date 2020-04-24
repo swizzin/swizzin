@@ -12,7 +12,6 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _makedirs() {
-	_set_rt_vars
 	mkdir -p /home/${user}/${download_dir} 2>> $log
 	mkdir -p /home/${user}/${session_dir}
 	mkdir -p /home/${user}/${default_watch_dir}
@@ -22,7 +21,6 @@ function _makedirs() {
 }
 
 function _rconf() {
-	_set_rt_vars
 cat >/home/${user}/.rtorrent.rc<<EOF
 # -- START HERE --
 directory.default.set = /home/${user}/${download_dir}
@@ -105,6 +103,7 @@ portend=$((${port} + 1500))
 
 if [[ -n $1 ]]; then
 	user=$1
+	_set_rt_vars
 	_makedirs
 	_rconf
 	exit 0

@@ -24,7 +24,6 @@ function _set_deluge_vars () {
 }
 
 function _dconf {
-  _set_deluge_vars
   for u in "${users[@]}"; do
     if [[ ${u} == ${master} ]]; then
       pass=$(cut -d: -f2 < /root/.master.info)
@@ -196,7 +195,6 @@ cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
   ]
 }
 DHL
-  _set_deluge_vars
   echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
   echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
@@ -305,5 +303,6 @@ if [[ -n $noexec ]]; then
 fi
 
 echo "Configuring Deluge"
+_set_deluge_vars
 _dconf
 _dservice
