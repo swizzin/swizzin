@@ -11,14 +11,25 @@
 #
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
+function _makedirs() {
+	_set_rt_vars
+	mkdir -p /home/${user}/${download_dir} 2>> $log
+	mkdir -p /home/${user}/${session_dir}
+	mkdir -p /home/${user}/${default_watch_dir}
+	chown -R ${user}.${user} /home/${user}/{${download_dir},${session_dir},${default_watch_dir}} 2>> $log
+	usermod -a -G www-data ${user} 2>> $log
+	usermod -a -G ${user} www-data 2>> $log
+}
+
 function _rconf() {
+	_set_rt_vars
 cat >/home/${user}/.rtorrent.rc<<EOF
 # -- START HERE --
-directory.default.set = /home/${user}/torrents/rtorrent
+directory.default.set = /home/${user}/${download_dir}
 encoding.add = UTF-8
 encryption = allow_incoming,try_outgoing,enable_retry
 execute.nothrow = chmod,777,/home/${user}/.config/rpc.socket
-execute.nothrow = chmod,777,/home/${user}/.sessions
+execute.nothrow = chmod,777,/home/${user}/${session_dir}
 network.port_random.set = yes
 network.port_range.set = $port-$portend
 network.scgi.open_local = /var/run/${user}/.rtorrent.sock
@@ -26,8 +37,8 @@ schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}
 network.tos.set = throughput
 pieces.hash.on_completion.set = no
 protocol.pex.set = no
-schedule = watch_directory,5,5,load.start=/home/${user}/rwatch/*.torrent
-session.path.set = /home/${user}/.sessions/
+schedule = watch_directory,5,5,load.start=/home/${user}/${default_watch_dir}/*.torrent
+session.path.set = /home/${user}/${session_dir}/
 throttle.global_down.max_rate.set = 0
 throttle.global_up.max_rate.set = 0
 throttle.max_peers.normal.set = 100
@@ -41,17 +52,18 @@ execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
 # -- END HERE --
 EOF
-chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+chown ${user}.${user} /home/${user}/.rtorrent.rc
 }
 
-
-function _makedirs() {
-	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
-	mkdir -p /home/${user}/.sessions
-	mkdir -p /home/${user}/rwatch
-	chown -R ${user}.${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
-	usermod -a -G www-data ${user} 2>> $log
-	usermod -a -G ${user} www-data 2>> $log
+function _set_rt_vars() {
+	config_file="/root/.config/rtorrent.rc.defaults"
+	export download_dir="torrents/rtorrent"
+	export session_dir=".sessions"
+	export default_watch_dir="rwatch"
+	if [[ -f ${config_file} ]]; then 
+		. "${config_file}"
+		export $(cut -d= -f1 ${config_file})
+	fi
 }
 
 _systemd() {
