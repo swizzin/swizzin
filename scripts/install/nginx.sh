@@ -223,6 +223,7 @@ for i in "${locks[@]}"; do
   fi
 done
 
+rm -f /etc/nginx/modules-enabled/50-mod-nchan.conf
 systemctl restart nginx
 
 . /etc/swizzin/sources/functions/php
