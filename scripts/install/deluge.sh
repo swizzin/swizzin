@@ -13,7 +13,19 @@
 #
 #################################################################################
 
+function _set_deluge_vars () {
+  config_file="/root/.config/delugecore.conf.defaults"
+  export complete_dir="Downloads"
+  export watch_dir="dwatch"
+  export download_dir="torrents/deluge"
+	if [[ -f ${config_file} ]]; then 
+		. "${config_file}"
+		export $(cut -d= -f1 ${config_file})
+	fi
+}
+
 function _dconf {
+  _set_deluge_vars
   for u in "${users[@]}"; do
     if [[ ${u} == ${master} ]]; then
       pass=$(cut -d: -f2 < /root/.master.info)
@@ -42,14 +54,14 @@ function _dconf {
     "max_download_speed": -1.0,
     "send_info": false,
     "natpmp": true,
-    "move_completed_path": "/home/${u}/Downloads",
+    "move_completed_path": "/home/${u}/${complete_dir}",
     "peer_tos": "0x08",
     "enc_in_policy": 1,
     "queue_new_to_top": false,
     "ignore_limits_on_local_network": true,
     "rate_limit_ip_overhead": true,
     "daemon_port": ${DPORT},
-    "torrentfiles_location": "/home/${u}/dwatch",
+    "torrentfiles_location": "/home/${u}/${watch_dir}",
     "max_active_limit": -1,
     "geoip_db_location": "/usr/share/GeoIP/GeoIP.dat",
     "upnp": false,
@@ -65,7 +77,7 @@ function _dconf {
       "ltConfig"
     ],
     "max_half_open_connections": 50,
-    "download_location": "/home/${u}/torrents/deluge",
+    "download_location": "/home/${u}/${download_dir}",
     "compact_allocation": true,
     "max_upload_speed": -1.0,
     "plugins_location": "/home/${u}/.config/deluge/plugins",
@@ -128,7 +140,7 @@ function _dconf {
     "enc_out_policy": 1,
     "seed_time_ratio_limit": 7.0,
     "remove_seed_at_ratio": false,
-    "autoadd_location": "/home/${u}/dwatch/",
+    "autoadd_location": "/home/${u}/${watch_dir}/",
     "max_upload_slots_global": -1,
     "seed_time_limit": 180,
     "cache_size": 512,
@@ -190,10 +202,10 @@ DHL
   echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
   chown -R ${u}.${u} /home/${u}/.config/
-  mkdir /home/${u}/dwatch
-  chown ${u}: /home/${u}/dwatch
-  mkdir -p /home/${u}/torrents/deluge
-  chown ${u}: /home/${u}/torrents/deluge
+  mkdir "/home/${u}/${watch_dir}"
+  chown ${u}: "/home/${u}/${watch_dir}"
+  mkdir -p "/home/${u}/$download_dir"
+  chown ${u}: "/home/${u}/${download_dir}"
 done
 }
 function _dservice {
