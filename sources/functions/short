@@ -4,7 +4,7 @@
 function import_values_if_exists () {
     config_file="$1"
 	if [[ -f "${config_file}" ]]; then
-		echo "Found ${confid_file}, importing values"
+		echo "Found ${config_file}, importing values"
 		. "${config_file}"
 		export $(cut -d= -f1 "${config_file}")
 	fi
