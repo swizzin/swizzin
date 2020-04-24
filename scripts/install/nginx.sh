@@ -57,10 +57,10 @@ else
   geoip=php-geoip
 fi
 
-if [[ $codename =~ ("bionic"|"buster"|"focal") ]]; then
-  mcrypt=
-else
+if [[ $codename =~ ("jessie"|"xenial"|"stretch") ]]; then
   mcrypt=php-mcrypt
+else
+  mcrypt=
 fi
 
 apt-get -y -qq update
