@@ -3,7 +3,7 @@ systemctl disable ombi
 systemctl stop ombi
 rm /etc/systemd/system/ombi.service
 rm -f /etc/nginx/apps/ombi.conf
-service nginx reload
+systemctl reload nginx
 
 apt remove -y -q ombi >> /dev/null 2>&1
 

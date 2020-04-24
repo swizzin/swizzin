@@ -96,5 +96,5 @@ systemctl start sabnzbd@${username}.service >/dev/null 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
-  service nginx reload
+  systemctl reload nginx
 fi

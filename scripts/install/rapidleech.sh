@@ -38,11 +38,11 @@ function _installRapidleech2() {
 function _installRapidleech3() {
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/rapidleech.sh
-    service nginx reload
+    systemctl reload nginx
   fi
 }
 function _installRapidleech4() {
-  service nginx reload
+  systemctl reload nginx
 }
 function _installRapidleech5() {
     echo "Rapidleech Install Complete!" >>"${OUTTO}" 2>&1;
@@ -50,7 +50,7 @@ function _installRapidleech5() {
     echo >>"${OUTTO}" 2>&1;
     echo >>"${OUTTO}" 2>&1;
     echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-    service nginx reload
+    systemctl reload nginx
 }
 function _installRapidleech6() {
     exit

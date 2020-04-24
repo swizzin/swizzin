@@ -78,7 +78,7 @@ SSS
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/sickchill.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 touch /install/.sickchill.lock

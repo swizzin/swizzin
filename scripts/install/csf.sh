@@ -36,7 +36,7 @@ function _installCSF() {
   wget https://download.configserver.com/csf.tgz >/dev/null 2>&1;
   tar -xzf csf.tgz >/dev/null 2>&1;
   ufw disable >>"${OUTTO}" 2>&1;
-  service fail2ban stop >>"${OUTTO}" 2>&1;
+  systemctl stop fail2ban >>"${OUTTO}" 2>&1;
   apt-get -y remove fail2ban >>"${OUTTO}" 2>&1;
   apt-get -y autoremove >>"${OUTTO}" 2>&1;
   cd csf
@@ -2342,7 +2342,7 @@ PIDFile=/var/run/lfd.pid
 WantedBy=multi-user.target
 LFDSERV
   systemctl daemon-reload >/dev/null 2>&1
-  service lfd stop >/dev/null 2>&1
+  systemctl stop lfd >/dev/null 2>&1
   csf -x >/dev/null 2>&1
   systemctl enable csf >/dev/null 2>&1
   systemctl start csf >/dev/null 2>&1

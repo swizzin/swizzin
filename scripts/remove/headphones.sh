@@ -37,7 +37,7 @@ rm -f /install/.$APPNAME.lock
 echo -e "Reloading apache ..."
 # for output to dashboard
 echo -e "Reloading apache ..." >>"${OUTTO}" 2>&1;
-service nginx reload
+systemctl reload nginx
 
 # for output to box
 echo "$APPTITLE has been removed"

@@ -344,7 +344,7 @@ function _deluser {
   rm -rf /var/run/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
-  service nginx reload
+  systemctl reload nginx
 }
 
 function _chpasswd {

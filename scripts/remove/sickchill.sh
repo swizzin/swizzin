@@ -8,6 +8,6 @@ systemctl stop sickchill@${user}
 sudo rm /etc/nginx/apps/sickchill.conf > /dev/null 2>&1
 sudo rm /etc/systemd/sickchill@.service > /dev/null 2>&1
 sudo rm /install/.sickchill.lock
-service nginx force-reload
+systemctl reload nginx
 rm -rf /home/$user/.sickchill
 rm -f /install/.sickchill.lock

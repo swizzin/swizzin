@@ -23,14 +23,14 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
   systemctl disable nzbhydra@${MASTER}
   rm /etc/systemd/system/nzbhydra@.service
 if [[ -f /etc/init.d/nzbhydra ]]; then
-  service nzbhydra stop
+  systemctl stop nzbhydra
   rm /etc/init.d/nzbhydra
   rm /etc/default/nzbhydra
 fi
 rm -rf /home/${MASTER}/nzbhydra
 rm -f /etc/nginx/apps/nzbhydra.conf
 rm /install/.nzbhydra.lock
-service nginx reload
+systemctl reload nginx
   echo -n "Verifying nzbhydra removal from /home/$MASTER."
   echo ""
   echo "NZBhydra Uninstall Complete. App data is not removed. To remove run the following command: rm -rf /home/$MASTER/.nzbhyra."

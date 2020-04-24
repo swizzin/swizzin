@@ -63,7 +63,7 @@ systemctl start nzbhydra@${MASTER} >/dev/null 2>&1
 if [[ -f /install/.nginx.lock ]]; then
   sleep 30
   bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 touch /install/.nzbhydra.lock

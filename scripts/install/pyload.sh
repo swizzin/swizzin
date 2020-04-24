@@ -105,12 +105,11 @@ function _installpyLoad7() {
   chown -R ${MASTER}: /home/${MASTER}/.pyload
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/pyload.sh
-    service nginx reload
+    systemctl reload nginx
   fi
   echo "Enabling and starting pyLoad services ... "
-  systemctl enable pyload@${MASTER}.service >/dev/null 2>&1
-  systemctl start pyload@${MASTER}.service >/dev/null 2>&1
-  service nginx reload
+  systemctl enable --now pyload@${MASTER}.service >/dev/null 2>&1
+  systemctl reload nginx
 }
 
 function _installpyLoad8() {

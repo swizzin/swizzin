@@ -80,7 +80,7 @@ fi
 if [[ -f /install/.nginx.lock ]]; then
   sleep 10
   bash /usr/local/bin/swizzin/nginx/bazarr.sh
-  service nginx reload
+  systemctl reload nginx
   echo "Please ensure during bazarr wizard that baseurl is set to: /bazarr/"
 else
   cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC

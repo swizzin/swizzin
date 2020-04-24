@@ -65,7 +65,7 @@ if [[ -f /install/.nginx.lock ]]; then
     sleep 2
   done
   bash /usr/local/bin/swizzin/nginx/tautulli.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 touch /install/.tautulli.lock
 

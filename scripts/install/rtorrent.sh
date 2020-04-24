@@ -72,8 +72,7 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable rtorrent@${user} 2>> $log
-service rtorrent@${user} start
+systemctl enable --now rtorrent@${user} 2>> $log
 }
 
 export DEBIAN_FRONTEND=noninteractive

@@ -7,5 +7,5 @@ systemctl disable sabnzbd@$username
 systemctl stop sabnzbd@$username
 rm /etc/systemd/system/sabnzbd@.service
 rm -f /etc/nginx/apps/sabnzbd.conf
-service nginx force-reload
+systemctl reload nginx
 rm /install/.sabnzbd.lock

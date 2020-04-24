@@ -19,7 +19,7 @@ function remove_jellyfin() {
     #
     if [[ -f /install/.nginx.lock ]]; then
         rm -f "/etc/nginx/apps/jellyfin.conf"
-        service nginx reload
+        systemctl reload nginx
     fi
     #
     rm -f "/install/.jellyfin.lock"

@@ -39,14 +39,14 @@ function _installLibreSpeed2() {
 function _installLibreSpeed3() {
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/librespeed.sh
-    service nginx reload
+    systemctl reload nginx
   fi
 }
 
 function _installLibreSpeed4() {
     echo "LibreSpeed Install Complete!" >>"${OUTTO}" 2>&1;
     sleep 5
-    service nginx reload
+    systemctl reload nginx
 }
 
 function _installLibreSpeed5() {

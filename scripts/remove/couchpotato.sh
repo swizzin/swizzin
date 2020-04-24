@@ -23,11 +23,11 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
   systemctl stop couchpotato@*
   rm /etc/systemd/system/couchpotato@.service
 if [[ -f /etc/init.d/couchpotato ]]; then
-  service couchpotato stop
+  systemctl stop couchpotato
   rm /etc/init.d/couchpotato
   rm /etc/default/couchpotato
 fi
 rm -rf /home/${MASTER}/.couchpotato
 rm -f /etc/nginx/apps/couchpotato.conf
-service nginx reload
+systemctl reload nginx
 rm /install/.couchpotato.lock

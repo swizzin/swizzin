@@ -51,7 +51,7 @@ systemctl start couchpotato@${MASTER} >/dev/null 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/couchpotato.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 touch /install/.couchpotato.lock

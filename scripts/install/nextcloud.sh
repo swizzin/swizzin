@@ -211,7 +211,7 @@ mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@loca
 mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
-service nginx reload
+systemctl reload nginx
 touch /install/.nextcloud.lock
 
 echo -e "Visit https://${ip}/nextcloud to finish installation."

@@ -9,7 +9,7 @@ systemctl stop medusa@${user}
 sudo rm /etc/nginx/apps/medusa.conf > /dev/null 2>&1
 sudo rm /etc/systemd/medusa@.service > /dev/null 2>&1
 sudo rm /install/.medusa.lock
-service nginx force-reload
+systemctl reload nginx
 rm -rf /home/${user}/.medusa
 
 

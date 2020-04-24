@@ -55,7 +55,7 @@ systemctl start syncthing@${MASTER} > /dev/null 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/syncthing.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 touch /install/.syncthing.lock
