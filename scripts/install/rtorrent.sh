@@ -11,6 +11,16 @@
 #
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
+function _set_rt_vars() {
+	#If you found this code, this is an unsupported feature introduced by community.
+	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
+	export download_dir="torrents/rtorrent"
+	export session_dir=".sessions"
+	export default_watch_dir="rwatch"
+	. /etc/swizzin/sources/functions/short
+	import_values_if_exists "/root/.config/rtorrent.rc.defaults"
+}
+
 function _makedirs() {
 	mkdir -p /home/${user}/${download_dir} 2>> $log
 	mkdir -p /home/${user}/${session_dir}
@@ -53,15 +63,7 @@ EOF
 chown ${user}.${user} /home/${user}/.rtorrent.rc
 }
 
-function _set_rt_vars() {
-	#If you found this code, this is an unsupported feature introduced by community.
-	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
-	export download_dir="torrents/rtorrent"
-	export session_dir=".sessions"
-	export default_watch_dir="rwatch"
-	. /etc/swizzin/sources/functions/short
-	import_values_if_exists "/root/.config/rtorrent.rc.defaults"
-}
+
 
 _systemd() {
 cat >/etc/systemd/system/rtorrent@.service<<EOF
