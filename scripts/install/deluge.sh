@@ -201,7 +201,7 @@ DHL
   echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
   chown -R ${u}.${u} /home/${u}/.config/
-  mkdir "/home/${u}/${watch_dir}"
+  mkdir -p "/home/${u}/${watch_dir}"
   chown ${u}: "/home/${u}/${watch_dir}"
   mkdir -p "/home/${u}/$download_dir"
   chown ${u}: "/home/${u}/${download_dir}"
