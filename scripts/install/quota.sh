@@ -84,14 +84,14 @@ function _installquota(){
   echo "Installing dependencies"
   if [[ $DISTRO == Ubuntu ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confold" linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
     service quota start >>"${OUTTO}" 2>&1
   elif [[ $DISTRO == Debian ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confold" quota >>"${OUTTO}" 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" quota >>"${OUTTO}" 2>&1
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
