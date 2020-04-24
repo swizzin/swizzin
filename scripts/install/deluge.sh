@@ -14,11 +14,14 @@
 #################################################################################
 
 function _set_deluge_vars () {
+  #If you found this code, this is an unsupported feature introduced by community.
+	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
   config_file="/root/.config/delugecore.conf.defaults"
   export complete_dir="Downloads"
   export watch_dir="dwatch"
   export download_dir="torrents/deluge"
 	if [[ -f ${config_file} ]]; then 
+ 		echo "Found ${confid_file}, importing values"
 		. "${config_file}"
 		export $(cut -d= -f1 ${config_file})
 	fi
@@ -197,7 +200,7 @@ cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} <<DHL
   ]
 }
 DHL
-
+  _set_deluge_vars
   echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
   echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
@@ -208,6 +211,7 @@ DHL
   chown ${u}: "/home/${u}/${download_dir}"
 done
 }
+
 function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
   dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)

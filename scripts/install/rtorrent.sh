@@ -56,11 +56,14 @@ chown ${user}.${user} /home/${user}/.rtorrent.rc
 }
 
 function _set_rt_vars() {
+	#If you found this code, this is an unsupported feature introduced by community.
+	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
 	config_file="/root/.config/rtorrent.rc.defaults"
 	export download_dir="torrents/rtorrent"
 	export session_dir=".sessions"
 	export default_watch_dir="rwatch"
-	if [[ -f ${config_file} ]]; then 
+	if [[ -f ${config_file} ]]; then
+		echo "Found ${confid_file}, importing values"
 		. "${config_file}"
 		export $(cut -d= -f1 ${config_file})
 	fi
