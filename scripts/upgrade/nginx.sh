@@ -26,15 +26,10 @@ rm -f /etc/nginx/sites-enabled/default
 rm -f /etc/nginx/conf.d/*
 rm -f /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 for i in NGC SSC PROX FIC; do
   cmd=$(sed -n -e '/'$i'/,/'$i'/ p' /etc/swizzin/scripts/install/nginx.sh)
