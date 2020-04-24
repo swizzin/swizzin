@@ -18,6 +18,7 @@ function _set_deluge_vars () {
 	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
   export complete_dir="Downloads"
   export watch_dir="dwatch"
+  export torrent_dir="dwatch"
   export download_dir="torrents/deluge"
   . /etc/swizzin/sources/functions/short
 	import_values_if_exists "/root/.config/delugecore.conf.defaults"
@@ -59,7 +60,7 @@ function _dconf {
     "ignore_limits_on_local_network": true,
     "rate_limit_ip_overhead": true,
     "daemon_port": ${DPORT},
-    "torrentfiles_location": "/home/${u}/${watch_dir}",
+    "torrentfiles_location": "/home/${u}/${torrent_dir}",
     "max_active_limit": -1,
     "geoip_db_location": "/usr/share/GeoIP/GeoIP.dat",
     "upnp": false,
