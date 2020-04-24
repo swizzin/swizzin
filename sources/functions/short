@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#please make sure to give this full paths
+function rm_if_exists () {
+    path="$1"
+    if [[ -e "$path" ]]; then
+      rm -rf "$path"
+    fi
+}
+
+#Imports and exports values from a file if the file exists.
+function import_values_if_exists () {
+    config_file="$1"
+	if [[ -f "${config_file}" ]]; then
+		echo "Found ${confid_file}, importing values"
+		. "${config_file}"
+		export $(cut -d= -f1 "${config_file}")
+	fi
+}
+

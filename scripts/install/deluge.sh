@@ -16,15 +16,11 @@
 function _set_deluge_vars () {
   #If you found this code, this is an unsupported feature introduced by community.
 	#These paths are appended after "/home/${USER}/" in the config files. Notice the slashes.
-  config_file="/root/.config/delugecore.conf.defaults"
   export complete_dir="Downloads"
   export watch_dir="dwatch"
   export download_dir="torrents/deluge"
-	if [[ -f ${config_file} ]]; then 
- 		echo "Found ${confid_file}, importing values"
-		. "${config_file}"
-		export $(cut -d= -f1 ${config_file})
-	fi
+  . /etc/swizzin/sources/functions/short
+	import_values_if_exists "/root/.config/delugecore.conf.defaults"
 }
 
 function _dconf {
