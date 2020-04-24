@@ -12,14 +12,11 @@ apt-get -y -q purge nginx-* php7.0-* >/dev/null 2>&1
 rm -rf /etc/nginx
 rm -rf /etc/php
 
-if [[ -d /srv/panel ]]; then
-    rm -rf /srv/panel
-    /etc/sudoers.d/panel
-    rm /etc/cron.d/set_interface
-fi
+. /etc/swizzin/source/functions/short
+rm_if_exists "/tmp/libtorrent"
+rm_if_exists "/srv/rutorrent"
+rm_if_exists "/srv/panel"
+rm_if_exists "/etc/sudoers.d/panel"
+rm_if_exists "/etc/cron.d/set_interface"
 
-if [[ -d /srv/rutorrent ]]; then
-    rm -rf /srv/rutorrent
-fi
-rm /install/.panel.lock
 rm /install/.nginx.lock
