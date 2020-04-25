@@ -21,6 +21,14 @@ else
   mcrypt=php-mcrypt
 fi
 
+#Deprecate nginx-extras in favour of installing fancyindex alone
+if dpkg -s nginx-extras > /dev/null 2>&1; then
+  apt-get -y -q remove nginx-extras >> ${log} 2>&1
+  apt-get -y -q install nginx libnginx-mod-http-fancyindex >> ${log} 2>&1
+  apt-get -y -q autoremove >> ${log} 2>&1
+  rm $(ls -d /etc/nginx/modules-enabled/*.removed)
+fi
+
 APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
 for depends in $APT; do
   inst=$(dpkg -l | grep $depends)

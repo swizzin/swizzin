@@ -64,7 +64,7 @@ else
 fi
 
 apt-get -y -qq update
-APT='nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
+APT='nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
 for depends in $APT; do
 apt-get -y install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
 done
@@ -222,9 +222,6 @@ for i in "${locks[@]}"; do
     /usr/local/bin/swizzin/nginx/$app.sh
   fi
 done
-
-rm -f /etc/nginx/modules-enabled/50-mod-nchan.conf
-rm -f /etc/nginx/modules-enabled/50-mod-http-perl.conf
 
 systemctl restart nginx
 
