@@ -36,3 +36,9 @@ function pyenv_create_venv() {
   mkdir -p $destination
   /opt/pyenv/versions/3.7.7/bin/python3 -m venv $destination
 }
+
+function python_getpip() {
+  if ! command -v pip > /dev/null 2>&1; then
+    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
+  fi
+}
