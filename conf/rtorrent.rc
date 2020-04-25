@@ -1,7 +1,7 @@
-# -- START HERE --
 # This is the default config, please keep intact as it is in source control.
 # Place your alternative config in "/etc/swizzin/conf/conf.d/rtorrent.rc"
-# Notice "${user}" will be replaced by the new user's username
+# Notice the variables enclosed by ${}.
+# Directories specified here will be created.
 
 directory.default.set = /home/${user}/torrents/rtorrent
 encoding.add = UTF-8

@@ -17,12 +17,15 @@ function _rconf() {
 	if [[ -f "$custom_config" ]]; then 
 		config="$custom_config"
 	fi
+	export user
+	export port
+	export portend 
 	envsubst < ${config} > /home/${user}/.rtorrent.rc
 	chown ${user}.${user} /home/${user}/.rtorrent.rc
 }
 
-
 function _makedirs() {
+
 	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
 	mkdir -p /home/${user}/.sessions
 	mkdir -p /home/${user}/rwatch
