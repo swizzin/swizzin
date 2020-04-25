@@ -120,6 +120,7 @@ function build_libtorrent_rasterbar () {
       case $deluge in
         master)
           python=python3
+          pythonbin=$python
           pythonapt=python3-dev
           case $release in
             "stretch"|"xenial")
@@ -132,7 +133,8 @@ function build_libtorrent_rasterbar () {
           remove=python-libtorrent
         ;;
         1.3-stable)
-          python=python2
+          python=python
+          pythonbin=python2
           pythonapt=python2-dev
           remove=python3-libtorrent
         ;;
@@ -187,8 +189,8 @@ function build_libtorrent_rasterbar () {
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
     if [[ -n $deluge ]]; then
       echo "Building python binding ..."
-      PYTHON=${python} ./configure --enable-python-binding --with-libiconv ${configure_args} >>"${log}" 2>&1
-      fpm --verbose --python-bin=${python} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
+      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${configure_args} >>"${log}" 2>&1
+      fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
       dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
     fi
     ldconfig
