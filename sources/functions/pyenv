@@ -39,6 +39,8 @@ function pyenv_create_venv() {
 
 function python_getpip() {
   if ! command -v pip > /dev/null 2>&1; then
+    cd /tmp
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
+    python2 get-pip.py
   fi
 }
