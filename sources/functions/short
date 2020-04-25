@@ -16,10 +16,10 @@ function _make_custom_user_dirs () {
         do
             folder=$(echo "$line" | awk '{$1=$1};1' )
             if [[ -n "$folder" ]]; then 
-                fullpath="/home/${arg_user}/${folder}"
-                mkdir -p "$fullpath"
-                chown -R "$arg_user":"$arg_user" "$fullpath"
-                chmod 755 "$fullpath"
+                fulldirpath="/home/${arg_user}/${folder}"
+                mkdir -p "$fulldirpath"
+                chown -R "$arg_user":"$arg_user" "$fulldirpath"
+                chmod 755 "$fulldirpath"
             fi
         done <"$dirfile"
         export custom_dirs_made=true
