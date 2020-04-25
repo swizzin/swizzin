@@ -234,7 +234,7 @@ function build_deluge () {
       apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
     done
     if [[ -n $PIP ]]; then
-      . /etc/swizzin/sources/function/pyenv
+      . /etc/swizzin/sources/functions/pyenv
       python_getpip
       for p in $PIP; do
         pip install $p >> $log 2>&1
