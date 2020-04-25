@@ -30,38 +30,36 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
 fi
 
 function _args () {
-  interactive=false
+  export interactive=false
   while [ "$1" != "" ]; do
     case $1 in   
         -u | --user )           shift        
-                                arg_username=$1
-                                exit
+                                export arg_username=$1
                                 ;;
         -p | --pass )           shift
-                                arg_pass=$1
-                                exit
+                                export arg_pass=$1
                                 ;;
         --rand )                shift
-                                arg_pw_length=$1
-                                exit
+                                export arg_pw_length=$1
                                 ;;
-        --install )             shift
-                                arg_install=$1
-                                exit
+        -i | --install )        shift
+                                export arg_install=$1
                                 ;;
         --rtver )               shift
-                                arg_rtversion=$1
+                                export arg_rtversion=$1
                                 ;;
         --delugever )           shift
-                                arg_delugeversion=$1
+                                export arg_delugeversion=$1
                                 ;;
         --rasterver )           shift
-                                arg_libtorrrasterbar=$1
+                                export arg_libtorrrasterbar=$1
+                                ;;
+        --rmgrsc )              export arg_rmgrsec=true
                                 ;;
         -h | --help )           _usage
                                 exit
                                 ;;        
-        -i | --interacrive )    interactive=true
+        --interacrive )         interactive=true
                                 exit
                                 ;;
         * )                     interactive=true
@@ -70,18 +68,26 @@ function _args () {
     shift
   done
 
-  # If password is empty and there is a user defined
-  if [[ -z "$arg_pass" && -n "$arg_username" ]]; then
-    #Generate password
-    if [[ -z "$arg_pw_length" ]]; then
-      arg_pw_length=18
+  if [[ $interactive = true ]]; then 
+    echo "Running in interactive mode"
+  else
+      # If password is empty and there is a user defined
+    if [[ -z "$arg_pass" && -n "$arg_username" ]]; then
+      #Generate password
+      if [[ -z "$arg_pw_length" ]]; then
+        arg_pw_length=18
+      fi
+      #catch $arg_pw_length being non-integer
+      randpass=$(date +%s | sha256sum | base64 | head -c "$arg_pw_length") ;
+      echo "Random generated password for ${arg_username} = ${randpass}"
+      ${arg_pass}
     fi
-    #catch $arg_pw_length being non-integer
-    randpass=$(date +%s | sha256sum | base64 | head -c "$arg_pw_length") ;
-    echo "Random generated password for ${arg_username} = ${randpass}"
-    ${arg_pass}
-
+    #TODO check the versions of the torrent clients
   fi
+
+  
+
+
 }
 
 function _usage() {
@@ -95,20 +101,56 @@ If no arguments are specified, the installer is ran in interactive mode by defau
 In the event some parameters do not conform the required format, the interactive mode will kick in.
 
   -u | --user           Username of box master
+                        Example: ... -u testusr2 ...
 
   -p | --pass           Master's password
                         Please escape special characters
+                        Example: ... -p "p@55w0rdzyeeeah" ...
 
   -r | --rand           Length of generated password
                         (generated when master's password is not specified)
+                        Example: ... -r 32 ...
 
-  --install             A comma separated list of applications for box to install
-                        e.g. "nginx,rtorrent,rutorrent,panel,sonarr"
-                        If left unspecified, no applications will be installed.
+  -i | --install        A comma separated list of applications for box to install
+                        Please refer to the application list to retrieve these.
+                        If unspecified, no applications will be installed.
+                        Example: ... -i "nginx,rtorrent,rutorrent,panel,sonarr" ...
+                        
 
-  -i | --interactive    force installer into interactive mode
+  --rtver               Specifies which version of libtorrent-rakshasa to install
+                        If unspecified, repository version is assumed
+                        Possible options:
+                          "8" = 0.9.8
+                          "7" = 0.9.7
+                          "6" = 0.9.6
+                          "f" = feature-bind
+                          "r" = repo
+                        Example: ... --rtver 8 ...
 
-  -h | --help      this very helpful section
+  --delugever           Specifies which version of deluge to install
+                        If unspecified, repository version is assumed
+                        Possible options:
+                          "feat" = feature-bind
+                          "repo" = repo
+                          #TODO more
+                        Example: ... --delugever repo ...
+
+                        
+  --rasterver           Specifies which version of libtorrent-rasterbar to install
+                        If unspecified, repository version is assumed
+                        Possible options:
+                          "feat" = feature-bind
+                          "repo" = repo
+                          #TODO more
+                        Example: ... --delugever repo ...                     
+
+  --rmgrsc              Will attempt to remove OVH's kernel in place for default one (if it's present)
+                        Example: ... --rmgrsc ...                     
+
+  --interactive         Force installer into interactive mode
+                        This will clear any o
+
+  -h | --help           this very helpful section
 
 For further documentation, please visit https://docs.swizzin.ltd
 
