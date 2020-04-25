@@ -29,6 +29,92 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
   read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
 
+function _args () {
+  interactive=false
+  while [ "$1" != "" ]; do
+    case $1 in   
+        -u | --user )           shift        
+                                arg_username=$1
+                                exit
+                                ;;
+        -p | --pass )           shift
+                                arg_pass=$1
+                                exit
+                                ;;
+        --rand )                shift
+                                arg_pw_length=$1
+                                exit
+                                ;;
+        --install )             shift
+                                arg_install=$1
+                                exit
+                                ;;
+        --rtver )               shift
+                                arg_rtversion=$1
+                                ;;
+        --delugever )           shift
+                                arg_delugeversion=$1
+                                ;;
+        --rasterver )           shift
+                                arg_libtorrrasterbar=$1
+                                ;;
+        -h | --help )           _usage
+                                exit
+                                ;;        
+        -i | --interacrive )    interactive=true
+                                exit
+                                ;;
+        * )                     interactive=true
+                                exit 1
+    esac
+    shift
+  done
+
+  # If password is empty and there is a user defined
+  if [[ -z "$arg_pass" && -n "$arg_username" ]]; then
+    #Generate password
+    if [[ -z "$arg_pw_length" ]]; then
+      arg_pw_length=18
+    fi
+    #catch $arg_pw_length being non-integer
+    randpass=$(date +%s | sha256sum | base64 | head -c "$arg_pw_length") ;
+    echo "Random generated password for ${arg_username} = ${randpass}"
+    ${arg_pass}
+
+  fi
+}
+
+function _usage() {
+
+programname=$0
+
+  cat << HELP_FILE
+Usage: $programname [-u username] [--install 'app1,app2,app3'] 
+
+If no arguments are specified, the installer is ran in interactive mode by default.
+In the event some parameters do not conform the required format, the interactive mode will kick in.
+
+  -u | --user           Username of box master
+
+  -p | --pass           Master's password
+                        Please escape special characters
+
+  -r | --rand           Length of generated password
+                        (generated when master's password is not specified)
+
+  --install             A comma separated list of applications for box to install
+                        e.g. "nginx,rtorrent,rutorrent,panel,sonarr"
+                        If left unspecified, no applications will be installed.
+
+  -i | --interactive    force installer into interactive mode
+
+  -h | --help      this very helpful section
+
+For further documentation, please visit https://docs.swizzin.ltd
+
+HELP_FILE
+}
+
 _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
@@ -111,7 +197,18 @@ function _intro() {
 
 function _adduser() {
   while [[ -z $user ]]; do
-    user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    if [[ -n "$arg_username"]]; then 
+      user=$arg_username
+      #Clear variable to not re-use the value in case it is invalid
+      $arg_username=
+    else 
+      user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    fi
+    #TODO catch other invalid usernames
+    #can't begin with number
+    #less than 32 chars
+    # here's a regex [a-z_][a-z0-9_-]*[$]?
+    # ^ https://www.unix.com/man-page/linux/8/useradd/
     if [[ $user =~ [A-Z] ]]; then
       read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
       printf "\n"
@@ -119,7 +216,14 @@ function _adduser() {
     fi
   done
   while [[ -z "${pass}" ]]; do
-    pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    if [[ -n "${arg_pass}"]]; then 
+      pass="$arg_pass"
+      #Clear variable to not re-use the value in case it is invalid
+      $arg_pass=
+    else
+      pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    fi
+
     if [[ -z "${pass}" ]]; then
       pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     fi
@@ -286,6 +390,7 @@ function _post {
   echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now\e[0m"
 }
 
+_args
 _os
 _preparation
 _nukeovh
