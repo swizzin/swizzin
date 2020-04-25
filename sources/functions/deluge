@@ -234,7 +234,7 @@ function build_deluge () {
     if [[ -n $PIP ]]; then
       . /etc/swizzin/sources/function/pyenv
       python_getpip
-      for p in $PIP; then
+      for p in $PIP; do
         pip install $p >> $log 2>&1
       done
     fi
