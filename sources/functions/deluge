@@ -137,6 +137,12 @@ function build_libtorrent_rasterbar () {
           pythonbin=python2
           pythonapt=python2-dev
           remove=python3-libtorrent
+          case $release in
+            "focal")
+              #configure_args="--with-boost-python=boost_python27"
+              LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
+            ;;
+          esac
         ;;
       esac
     fi
@@ -148,7 +154,9 @@ function build_libtorrent_rasterbar () {
       fi
     done
     LTRC=$libtorrent
-    LIST="build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
+    if [[ -z $LIST ]]; then
+      LIST="build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
+    fi
     for depend in $LIST; do
       apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
     done
