@@ -15,6 +15,7 @@ function _rconf() {
 	config="/etc/swizzin/conf/rtorrent.rc"
 	custom_config="/etc/swizzin/conf/conf.d/rtorrent.rc"
 	if [[ -f "$custom_config" ]]; then 
+		echo "Using custom .rtorrent.rc template"
 		config="$custom_config"
 	fi
 	export user
@@ -26,7 +27,7 @@ function _rconf() {
 
 function _makedirs() {
 	. /etc/swizzin/sources/functions/short
-	_make_custom_user_dirs ${u}
+	_make_custom_user_dirs ${user}
 	if [[ $custom_dirs_made = false ]]; then
 		mkdir -p /home/${user}/torrents/rtorrent 2>> $log
 		mkdir -p /home/${user}/.sessions

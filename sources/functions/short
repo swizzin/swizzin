@@ -5,15 +5,21 @@
 function _make_custom_user_dirs () {
     arg_user="$1"
     export custom_dirs_made=false
+
     dirfile='/etc/swizzin/conf/conf.d/userdirstomake'
+    #Appending a white line to the dirfile in case the last line didn't have a linebreaker
+    #TODO see if this is the right thing to do
+    echo "" >> $dirfile
     if [[ -f "$dirfile" ]]; then
+        echo "Creating custom user directories for $arg_user"
         while IFS= read -r line
         do
-            #Trim whitespace if any
             folder=$(echo "$line" | awk '{$1=$1};1' )
-            if [[-z "$folder" ]]; then 
-                mkdir -p /home/${arg_user}/${folder}
-                chown -R ${arg_user}:${arg_user} /home/${arg_user}/${folder}
+            if [[ -n "$folder" ]]; then 
+                fullpath="/home/${arg_user}/${folder}"
+                mkdir -p "$fullpath"
+                chown -R "$arg_user":"$arg_user" "$fullpath"
+                chmod 755 "$fullpath"
             fi
         done <"$dirfile"
         export custom_dirs_made=true
