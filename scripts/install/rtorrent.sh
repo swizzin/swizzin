@@ -12,14 +12,13 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _rconf() {
-	default_config="/etc/swizzin/conf/rtorrent.rc"
+	config="/etc/swizzin/conf/rtorrent.rc"
 	custom_config="/etc/swizzin/conf/conf.d/rtorrent.rc"
-	config_path=default_config
 	if [[ -f "$custom_config" ]]; then 
-		config_path="$custom_config"
+		config="$custom_config"
 	fi
-	envsubst < ${config_path} > /home/${user}/.rtorrent.rc
-	chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+	envsubst < ${config} > /home/${user}/.rtorrent.rc
+	chown ${user}.${user} /home/${user}/.rtorrent.rc
 }
 
 
