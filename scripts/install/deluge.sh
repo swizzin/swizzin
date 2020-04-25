@@ -32,10 +32,17 @@ function _dconf {
   ltconfig
   chmod 755 /home/${u}/.config
   chmod 755 /home/${u}/.config/deluge
+
+  config="/etc/swizzin/conf/deluge.core.conf"
+  custom_config="/etc/swizzin/conf/conf.d/deluge.core.conf"
+  if [[ -f "$custom_config" ]]; then 
+    echo "Using custom deluge/core.conf template"
+    config="$custom_config"
+  fi
   export u
   export DPORT
   export ip
-  envsubst < /etc/swizzin/conf/deluge.core.conf > /home/${u}/.config/deluge/core.conf
+  envsubst < $config > /home/${u}/.config/deluge/core.conf
 
 cat > /home/${u}/.config/deluge/web.conf <<DWC
 {
