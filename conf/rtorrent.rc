@@ -1,8 +1,3 @@
-# This is the default config, please keep intact as it is in source control.
-# Place your alternative config in "/etc/swizzin/conf/conf.d/rtorrent.rc"
-# Notice the variables enclosed by ${}.
-# Make sure to create your directories by specifying them in "conf.d/userdirstomake" or manually (with a service restart)
-
 directory.default.set = /home/${user}/torrents/rtorrent
 encoding.add = UTF-8
 encryption = allow_incoming,try_outgoing,enable_retry
@@ -27,5 +22,3 @@ throttle.min_peers.seed.set = -1
 trackers.use_udp.set = yes
 
 execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
-
-# -- END HERE --
