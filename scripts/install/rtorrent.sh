@@ -12,36 +12,14 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 
 function _rconf() {
-cat >/home/${user}/.rtorrent.rc<<EOF
-# -- START HERE --
-directory.default.set = /home/${user}/torrents/rtorrent
-encoding.add = UTF-8
-encryption = allow_incoming,try_outgoing,enable_retry
-execute.nothrow = chmod,777,/home/${user}/.config/rpc.socket
-execute.nothrow = chmod,777,/home/${user}/.sessions
-network.port_random.set = yes
-network.port_range.set = $port-$portend
-network.scgi.open_local = /var/run/${user}/.rtorrent.sock
-schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}/.rtorrent.sock"
-network.tos.set = throughput
-pieces.hash.on_completion.set = no
-protocol.pex.set = no
-schedule = watch_directory,5,5,load.start=/home/${user}/rwatch/*.torrent
-session.path.set = /home/${user}/.sessions/
-throttle.global_down.max_rate.set = 0
-throttle.global_up.max_rate.set = 0
-throttle.max_peers.normal.set = 100
-throttle.max_peers.seed.set = -1
-throttle.max_uploads.global.set = 100
-throttle.min_peers.normal.set = 1
-throttle.min_peers.seed.set = -1
-trackers.use_udp.set = yes
-
-execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
-
-# -- END HERE --
-EOF
-chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+	default_config="/etc/swizzin/conf/rtorrent.rc"
+	custom_config="/etc/swizzin/conf/conf.d/rtorrent.rc"
+	config_path=default_config
+	if [[ -f "$custom_config" ]]; then 
+		config_path="$custom_config"
+	fi
+	envsubst < ${config_path} > /home/${user}/.rtorrent.rc
+	chown ${user}.${user} -R /home/${user}/.rtorrent.rc
 }
 
 
@@ -93,7 +71,7 @@ port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))
 
 if [[ -n $1 ]]; then
-	user=$1
+	export user=$1
 	_makedirs
 	_rconf
 	exit 0

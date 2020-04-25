@@ -1,0 +1,5 @@
+# exclude everything
+conf/conf.d/*
+
+# exception to the rule
+!conf/conf.d/.gitkeep 
