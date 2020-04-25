@@ -3,3 +3,4 @@ conf/conf.d/*
 
 # exception to the rule
 !conf/conf.d/.gitkeep 
+!conf/conf.d/userdirstomake.example 

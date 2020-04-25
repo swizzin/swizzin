@@ -25,11 +25,14 @@ function _rconf() {
 }
 
 function _makedirs() {
-
-	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
-	mkdir -p /home/${user}/.sessions
-	mkdir -p /home/${user}/rwatch
-	chown -R ${user}.${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
+	. /etc/swizzin/sources/functions/short
+	_make_custom_user_dirs ${u}
+	if [[ $custom_dirs_made = false ]]; then
+		mkdir -p /home/${user}/torrents/rtorrent 2>> $log
+		mkdir -p /home/${user}/.sessions
+		mkdir -p /home/${user}/rwatch
+		chown -R ${user}.${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
+	fi
 	usermod -a -G www-data ${user} 2>> $log
 	usermod -a -G ${user} www-data 2>> $log
 }

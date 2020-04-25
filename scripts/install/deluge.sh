@@ -90,12 +90,18 @@ DHL
   echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
   chmod 600 /home/${u}/.config/deluge/auth
   chown -R ${u}.${u} /home/${u}/.config/
-  mkdir /home/${u}/dwatch
-  chown ${u}: /home/${u}/dwatch
-  mkdir -p /home/${u}/torrents/deluge
-  chown ${u}: /home/${u}/torrents/deluge
+
+ 	. /etc/swizzin/sources/functions/short
+  _make_custom_user_dirs ${u}
+  if [[ $custom_dirs_made = false ]]; then 
+    mkdir /home/${u}/dwatch
+    chown ${u}: /home/${u}/dwatch
+    mkdir -p /home/${u}/torrents/deluge
+    chown ${u}: /home/${u}/torrents/deluge
+  fi
 done
 }
+
 function _dservice {
   if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
   dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)

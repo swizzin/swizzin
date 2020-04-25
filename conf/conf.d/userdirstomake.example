@@ -1,0 +1,11 @@
+This file lists relative directories to be created inside of a users home directory
+It is called each time a rtorrent or a deluge instance is created for a user.
+Each line (regardless of it being a comment or not) is passed directly into "mkdir -p /home/${user}/${line}"
+If you wanted to create the directories for the defaults, the file would look something like This
+------
+rwatch
+.sessions
+torrents/rtorrent
+------
+or something of the likes
+Make sure not to leave

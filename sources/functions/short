@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Creates directories from a file within a user directory
+# Accepts the user as an argument as the variables for that are not standard in swizzin
+function _make_custom_user_dirs () {
+    user="$1"
+    export custom_dirs_made=false
+    dirfile='/etc/swizzin/conf/conf.d/userdirstomake'
+    [[ -f "$dirfile" ]]; then
+        while IFS= read -r line
+        do
+            #Trim whitespace if any
+            folder=$(echo "$line" | awk '{$1=$1};1' )
+            if [[-z "$folder" ]]; then 
+                mkdir -p /home/${user}/${folder}
+                chown -R ${user}:${user} /home/${user}/${folder}
+            fi
+        done <"$dirfile"
+        export custom_dirs_made=true
+    fi
+}
