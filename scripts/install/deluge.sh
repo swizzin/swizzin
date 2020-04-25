@@ -24,8 +24,8 @@ function _dconf {
   DPORT=$((n%59000+10024))
   DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
   localpass=$(tr -dc 'a-f0-9' < /dev/urandom | fold -w 40 | head -n 1)
-  DWP=$(python ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
-  DUDID=$(python ${local_packages}/deluge.addHost.py)
+  DWP=$(python2 ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
+  DUDID=$(python2 ${local_packages}/deluge.addHost.py)
   # -- Secondary awk command -- #
   #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
   DWPORT=$(shuf -i 10001-11000 -n 1)
