@@ -267,6 +267,7 @@ function _adduser {
           :
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
+
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
@@ -304,7 +305,7 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi

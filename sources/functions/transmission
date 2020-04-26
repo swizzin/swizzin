@@ -1,8 +1,26 @@
 #!/bin/bash
 # Author Flying_sausages for Swizzin 2020
 
-function _getversion () {
+function _get_next_port_from_json () {
+    key="$1"
+    path=".config/transmission-daemon/settings.json"
+    highestvalue=0
 
+    for d in /home; do
+         value=$(grep "$key" "$fullpath" | tr -d -c 0-9)
+         if [[ $value > $highestvalue ]]; then 
+            highestvalue=$value
+         fi
+    done
+
+    [[ $highestvalue = 0 ]] && highestvalue=9091
+
+    highestvalue+=1
+    echo "$highestvalue"
+}
+
+
+function _getversion () {
     if [[ -z $arg_transmissionsource ]]; then
         
         if [[ "ubuntu" = true ]]; then 
@@ -14,8 +32,6 @@ function _getversion () {
             version="Repo"
         fi
         export version
-
-    
     fi
 
 }
@@ -29,8 +45,11 @@ function _install () {
         fi
         add-apt-repository ppa:transmissionbt/ppa
     fi
-
+    echo "Fetching updates"
     apt-get update
+    echo "Installing Transmission"
     apt-get install transmission-cli transmission-common transmission-daemon
+    systemctl disable --now transmission-daemon
+    
 }
 

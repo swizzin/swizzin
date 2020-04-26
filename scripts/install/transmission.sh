@@ -29,11 +29,13 @@ _enable_service () {
 }
 
 _setenv(){
+    . /etc/swizzin/sources/functions/transmission
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     [[ -z $incomomplete_dir ]] && export incomomplete_dir='transmission/incomplete'
     [[ -z $incomomplete_dir_enabled ]] && export incomomplete_dir_enabled='false'
-    [[ -z $peer_port ]] && export peer_port= #This needs to be retrieved from somewhere
-    [[ -z $rpc_port ]] && export rpc_port=#Also needs to be dynamically retrieved
+    [[ -z $peer_port ]] && export peer_port=$(_get_next_port 'peer-port')
+    [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port 'rpc-port')
+    echo "Using RPC port $rpc_port"
     [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='false'
 }
 
@@ -44,13 +46,12 @@ _mkdir (){
     mkdir -p /home/.config/transmission-daemon/resume
     mkdir -p /home/.config/transmission-daemon/torrents
     [[ $incomomplete_dir_enabled = "true" ]] &&  mkdir -p /home/${user}/${incomomplete_dir}
-
 }
 
 _mkconf () {
 
     export $user
-    export $rpc_password=#Retrieve from /root/, can be plaintext. Cannot contain anything that will fuck the json.
+    export $rpc_password='nothing_yet' #Retrieve from /root/, can be plaintext. Cannot contain anything that will fuck the json.
 
     _setenv 
     # "rpc-password": "*(Hh09ajdf-9djfd89ash7a8ggG&*g98h8009hj90": the password for the web interface, replace the hash with a plain text password and it will be hashed on reload 
@@ -68,7 +69,7 @@ cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
     "blocklist-enabled": false,
     "blocklist-url": "http://www.example.com/blocklist",
     "cache-size-mb": 4,
-    "dht-enabled": true,
+    "dht-enabled": false,
     "download-dir": "/home/${user}/transmission/downloads",
     "download-limit": 100,
     "download-limit-enabled": 0,
@@ -106,7 +107,7 @@ cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
     "rpc-host-whitelist": "",
     "rpc-host-whitelist-enabled": true,
     "rpc-password": "{6d080fa454e2c1146ef431803785631af64538f9jjARJrkc",
-    "rpc-port": 9091,
+    "rpc-port": $rpc-port,
     "rpc-url": "/transmission/",
     "rpc-username": "${user}",
     "rpc-whitelist": "127.0.0.1",
@@ -154,7 +155,6 @@ if [[ -n $1 ]]; then
 	user=$1
 	_makedirs
     _mkconf
-    _enable_service
 	exit 0
 fi
 
