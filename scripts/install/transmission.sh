@@ -31,10 +31,11 @@ _setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     [[ -z $incomplete_dir ]] && export incomplete_dir='transmission/incomplete'
     [[ -z $incomplete_dir_enabled ]] && export incomplete_dir_enabled="false"
+    [[ -z $rpc_whitelist ]] && export rpc_whitelist='*.*.*.*'
+    [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='0'
     . /etc/swizzin/sources/functions/transmission
-    [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
     [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port_from_json 'rpc-port' 9091)
-    [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='false'
+    [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
     . /etc/swizzin/sources/functions/swizzin
     [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
 }
@@ -108,10 +109,10 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "rpc-host-whitelist": "",
     "rpc-host-whitelist-enabled": true,
     "rpc-password": "{6d080fa454e2c1146ef431803785631af64538f9jjARJrkc",
-    "rpc-port": $rpc-port,
+    "rpc-port": ${rpc_port},
     "rpc-url": "/transmission/",
     "rpc-username": "${user}",
-    "rpc-whitelist": "127.0.0.1",
+    "rpc-whitelist": "${rpc_whitelist}",
     "rpc-whitelist-enabled": ${rpc_whitelist_enabled},
     "scrape-paused-torrents-enabled": true,
     "script-torrent-done-enabled": false,
@@ -131,7 +132,7 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "utp-enabled": true
 }
 EOF
-echo "RPC port =  $rpc_port"
+echo "RPC port for ${user} =  ${rpc_port}"
 echo "Use the RPC port above and your user credentials to log into Transmission Remote"
 echo "   More info: https://github.com/transmission-remote-gui/transgui"
 }
