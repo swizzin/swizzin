@@ -34,7 +34,7 @@ function pyenv_create_venv() {
   version=$1
   destination=$2
   mkdir -p $destination
-  /opt/pyenv/versions/3.7.7/bin/python3 -m venv $destination
+  /opt/pyenv/versions/$version/bin/python3 -m venv $destination
 }
 
 function python_getpip() {
