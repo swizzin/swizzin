@@ -3,27 +3,34 @@
 
 function _get_next_port_from_json () {
     key="$1"
-    path=".config/transmission-daemon/settings.json"
-    highestvalue=0
+    defaultport="$2"
+    relpath=".config/transmission-daemon/settings.json"
+    highestvalue=$defaultport
 
     for d in /home; do
-         value=$(grep "$key" "$fullpath" | tr -d -c 0-9)
-         if [[ $value > $highestvalue ]]; then 
+        confpath="/home/$d/$relpath"
+        echo "DEBUG: Config path $confpath"
+        if [[ -f $confpath ]];then 
+            value=$(grep "$key" "$confpath" | tr -d -c 0-9)
+        fi
+
+        if [[ $value >= $highestvalue ]]; then 
             highestvalue=$value
-         fi
+        fi
     done
 
-    [[ $highestvalue = 0 ]] && highestvalue=9091
+    if [[ ! $highestvalue = $defaultport ]];     then 
+        (($highestvalue++))
+    fi
 
-    highestvalue+=1
     echo "$highestvalue"
 }
 
 
 function _getversion () {
     if [[ -z $arg_transmissionsource ]]; then
-        
-        if [[ "ubuntu" = true ]]; then 
+        distribution=$(lsb_release -is)
+        if [[ "distribution" =~ ubuntu ]]; then 
             version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
                   PPA "(Directly from Transmission)" \
                   Repo "(Packaged and tested by Ubuntu)" \
@@ -36,19 +43,21 @@ function _getversion () {
 
 }
 
-function _install () {
+function _install_transmission () {
     _getversion
+    distribution=$(lsb_release -is)
     if [[ $version = "PPA" ]]; then 
-        if [[ "ubuntu" = false ]]; then 
+        if [[ ! $distribution =~ 'ubuntu' ]]; then 
             echo "PPA not available on this system, exiting"
             exit 1
         fi
         add-apt-repository ppa:transmissionbt/ppa
     fi
     echo "Fetching updates"
-    apt-get update
-    echo "Installing Transmission"
-    apt-get install transmission-cli transmission-common transmission-daemon
+    apt-get update >> $log 2>&1
+    echo "Getting Transmission from apt"
+    apt-get install transmission-cli transmission-common transmission-daemon -yq >> $log 2>&1
+    echo "Disabling default non-multiuser service"
     systemctl disable --now transmission-daemon
     
 }

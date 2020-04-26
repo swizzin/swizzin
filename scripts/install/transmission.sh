@@ -1,13 +1,13 @@
 #!/bin/bash
 # Author: Flying_sausages 2020 for Swizzin
+
 ############################################################
-#Functions
+# Functions
 ############################################################
 
-_mkservice() {
-    systemctl disable --now transmission-daemon.service
-
-cat >/etc/systemd/system/transmission@.service<<EOF
+_mkservice_transmission() {
+    echo "Creating systemd services"
+    cat > /etc/systemd/system/transmission@.service <<EOF
 [Unit]
 Description=Transmission BitTorrent Daemon
 After=network.target
@@ -22,38 +22,33 @@ ExecReload=/bin/kill -s HUP $MAINPID
 [Install]
 WantedBy=multi-user.target
 EOF
+    systemctl daemon-reload
 }
 
-_enable_service () {
-    systemctl enable --now transmission@${user} 2>> $log
-}
-
-_setenv(){
-    . /etc/swizzin/sources/functions/transmission
+_setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     [[ -z $incomomplete_dir ]] && export incomomplete_dir='transmission/incomplete'
     [[ -z $incomomplete_dir_enabled ]] && export incomomplete_dir_enabled='false'
-    [[ -z $peer_port ]] && export peer_port=$(_get_next_port 'peer-port')
-    [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port 'rpc-port')
-    echo "RPC port =  $rpc_port"
+    . /etc/swizzin/sources/functions/transmission
+    [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
+    [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port_from_json 'rpc-port' 9091)
     [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='false'
     . /etc/swizzin/sources/functions/swizzin
     [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
 }
 
-_mkdir (){
+_mkdir_transmission (){
     mkdir -p /home/${user}/${download_dir}
-    mkdir -p /home/.config/transmission-daemon
-    mkdir -p /home/.config/transmission-daemon/blocklists
-    mkdir -p /home/.config/transmission-daemon/resume
-    mkdir -p /home/.config/transmission-daemon/torrents
+    mkdir -p /home/${user}/.config/transmission-daemon
+    mkdir -p /home/${user}/.config/transmission-daemon/blocklists
+    mkdir -p /home/${user}/.config/transmission-daemon/resume
+    mkdir -p /home/${user}/.config/transmission-daemon/torrents
     [[ $incomomplete_dir_enabled = "true" ]] &&  mkdir -p /home/${user}/${incomomplete_dir}
 }
 
-_mkconf () {
-    _setenv 
-    # "rpc-password": "*(Hh09ajdf-9djfd89ash7a8ggG&*g98h8009hj90": the password for the web interface, replace the hash with a plain text password and it will be hashed on reload 
-cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
+_mkconf_transmission () {
+    _setenv_transmission 
+cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
 {
     "alt-speed-down": 50,
     "alt-speed-enabled": false,
@@ -128,11 +123,14 @@ cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
     "utp-enabled": true
 }
 EOF
-echo "You can use the RPC port specified above and your user credentials to log into Transmission using the Remote application"
-echo "FInd out more here https://github.com/transmission-remote-gui/transgui"
+echo "RPC port =  $rpc_port"
+echo "Use the RPC port above and your user credentials to log into Transmission Remote"
+echo "   More info: https://github.com/transmission-remote-gui/transgui"
 }
 
 
+##########################################################################
+# Script Main
 ##########################################################################
 
 export DEBIAN_FRONTEND=noninteractive
@@ -145,15 +143,12 @@ fi
 
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
-# rutorrent="/srv/rutorrent/"
-# port=$((RANDOM%64025+1024))
-# portend=$((${port} + 1500))
 
 # Extra-user-only functions
 if [[ -n $1 ]]; then
 	user=$1
-	_makedirs
-    _mkconf
+	_mkdir_transmission
+    _mkconf_transmission
 	exit 0
 fi
 
@@ -173,10 +168,10 @@ if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
 fi
 
-echo "Installing Transmission"; _install
-echo "Creating directories"; _mkdir
-echo "Creating config"; _mkconf
-_systemd
+_install_transmission
+_mkservice_transmission
+echo "Creating directories"; _mkdir_transmission
+echo "Creating config"; _mkconf_transmission
 
 
 # echo "Installing rTorrent Dependencies ... ";depends_rtorrent
