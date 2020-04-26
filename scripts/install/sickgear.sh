@@ -41,6 +41,7 @@ fi
 
 
 mkdir -p /home/${user}/.venv
+chown ${user}: /home/${user}/.venv
 apt-get -y -q update >> $log 2>&1
 
 if [[ ! $codename == ("jessie"|"xenial"|"stretch"|"bionic") ]]; then
@@ -55,6 +56,8 @@ else
 fi
 
 /home/${user}/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> $log 2>&1
+
+chown -R ${user}: /home/${user}/.venv/sickgear
 
 function _rar () {
   cd /tmp

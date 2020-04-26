@@ -40,6 +40,8 @@ if [[ -n $active ]]; then
 fi
 
 mkdir -p /home/${user}/.venv
+chown ${user}: /home/${user}/.venv
+
 apt-get -y -q update >> $log 2>&1
 
 if [[ ! $codename == "jessie" ]]; then
@@ -53,6 +55,7 @@ else
   pyenv_create_venv 3.7.7 /home/${user}/.venv/medusa
 fi
 
+chown -R ${user}: /home/${user}/.venv/medusa
 
 function _rar () {
   cd /tmp

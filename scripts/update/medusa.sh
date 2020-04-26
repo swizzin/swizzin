@@ -12,6 +12,7 @@ if [[ -f /install/.medusa.lock ]]; then
         fi
         if [[ ! -d /home/${user}/.venv ]]; then
             mkdir -p /home/${user}/.venv
+            chown ${user}: /home/${user}/.venv
         fi
 
         if [[ ! $codename == "jessie" ]]; then
@@ -24,7 +25,7 @@ if [[ -f /install/.medusa.lock ]]; then
             pyenv_install_version 3.7.7
             pyenv_create_venv 3.7.7 /home/${user}/.venv/medusa
         fi
-
+        chown -R ${user}: /home/${user}/.venv/medusa
         cd /home/${user}
         mv .medusa medusa
 

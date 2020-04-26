@@ -12,6 +12,7 @@ if [[ -f /install/.sickgear.lock ]]; then
         fi
         if [[ ! -d /home/${user}/.venv ]]; then
             mkdir -p /home/${user}/.venv
+            chown ${user}: /home/${user}/.venv
         fi
 
         if [[ ! $codename == ("jessie"|"xenial"|"stretch"|"bionic") ]]; then
@@ -25,7 +26,8 @@ if [[ -f /install/.sickgear.lock ]]; then
             pyenv_create_venv 3.7.7 /home/${user}/.venv/sickgear
         fi
 
-/home/${user}/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> $log 2>&1
+        /home/${user}/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> $log 2>&1
+        chown -R ${user}: /home/${user}/.venv/sickgear
 
         cd /home/${user}
         mv .sickgear sickgear
