@@ -35,8 +35,10 @@ _setenv(){
     [[ -z $incomomplete_dir_enabled ]] && export incomomplete_dir_enabled='false'
     [[ -z $peer_port ]] && export peer_port=$(_get_next_port 'peer-port')
     [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port 'rpc-port')
-    echo "Using RPC port $rpc_port"
+    echo "RPC port =  $rpc_port"
     [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='false'
+    . /etc/swizzin/sources/functions/swizzin
+    [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
 }
 
 _mkdir (){
@@ -49,10 +51,6 @@ _mkdir (){
 }
 
 _mkconf () {
-
-    export $user
-    export $rpc_password='nothing_yet' #Retrieve from /root/, can be plaintext. Cannot contain anything that will fuck the json.
-
     _setenv 
     # "rpc-password": "*(Hh09ajdf-9djfd89ash7a8ggG&*g98h8009hj90": the password for the web interface, replace the hash with a plain text password and it will be hashed on reload 
 cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
@@ -130,7 +128,8 @@ cat >/home/${user}/.config/transmission-daemon/settings.json<<EOF
     "utp-enabled": true
 }
 EOF
-
+echo "You can use the RPC port specified above and your user credentials to log into Transmission using the Remote application"
+echo "FInd out more here https://github.com/transmission-remote-gui/transgui"
 }
 
 
@@ -174,10 +173,9 @@ if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
 fi
 
-echo "Installing Transmission";
-_install
-_mkdir
-_mkconf
+echo "Installing Transmission"; _install
+echo "Creating directories"; _mkdir
+echo "Creating config"; _mkconf
 _systemd
 
 

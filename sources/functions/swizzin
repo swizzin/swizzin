@@ -1,0 +1,6 @@
+#!/bin/bash
+
+function _get_user_password () {
+    user_to_get="$1"
+    echo $(grep "$1" /root/.master.info | cut -d: -f2)
+}
