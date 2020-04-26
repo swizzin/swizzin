@@ -23,12 +23,14 @@ ExecReload=/bin/kill -s HUP $MAINPID
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload
+    systemctl enable transmission@${user} 2>> $log
+    service transmission@${user} start
 }
 
 _setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
-    [[ -z $incomomplete_dir ]] && export incomomplete_dir='transmission/incomplete'
-    [[ -z $incomomplete_dir_enabled ]] && export incomomplete_dir_enabled='false'
+    [[ -z $incomplete_dir ]] && export incomplete_dir='transmission/incomplete'
+    [[ -z $incomplete_dir_enabled ]] && export incomplete_dir_enabled="false"
     . /etc/swizzin/sources/functions/transmission
     [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
     [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port_from_json 'rpc-port' 9091)
@@ -43,7 +45,7 @@ _mkdir_transmission (){
     mkdir -p /home/${user}/.config/transmission-daemon/blocklists
     mkdir -p /home/${user}/.config/transmission-daemon/resume
     mkdir -p /home/${user}/.config/transmission-daemon/torrents
-    [[ $incomomplete_dir_enabled = "true" ]] &&  mkdir -p /home/${user}/${incomomplete_dir}
+    [[ $incomplete_dir_enabled = "true" ]] &&  mkdir -p /home/${user}/${incomplete_dir}
 }
 
 _mkconf_transmission () {
@@ -128,7 +130,6 @@ echo "Use the RPC port above and your user credentials to log into Transmission 
 echo "   More info: https://github.com/transmission-remote-gui/transgui"
 }
 
-
 ##########################################################################
 # Script Main
 ##########################################################################
@@ -152,40 +153,22 @@ if [[ -n $1 ]]; then
 	exit 0
 fi
 
-
-
 #Not sure what this does but I'll copy it for now
 if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
 	noexec=1
 fi
-	  
-. /etc/swizzin/sources/functions/transmission
-
-_getversion
 
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
 fi
 
+. /etc/swizzin/sources/functions/transmission
 _install_transmission
 _mkservice_transmission
-echo "Creating directories"; _mkdir_transmission
-echo "Creating config"; _mkconf_transmission
-
-
-# echo "Installing rTorrent Dependencies ... ";depends_rtorrent
-# if [[ ! $rtorrentver == repo ]]; then
-#     echo "Building xmlrpc-c from source ... ";build_xmlrpc-c
-#     echo "Building libtorrent from source ... ";build_libtorrent_rakshasa
-#     echo "Building rtorrent from source ... ";build_rtorrent
-# else
-#     echo "Installing rtorrent with apt-get ... ";rtorrent_apt
-# fi
-# echo "Making ${user} directory structure ... ";_makedirs
-# echo "setting up rtorrent.rc ... ";_rconf;_systemd
-
-
-
+echo "Creating directories"
+_mkdir_transmission
+echo "Creating config"
+_mkconf_transmission
 
 touch /install/.transmission.lock

@@ -7,14 +7,13 @@ function _get_next_port_from_json () {
     relpath=".config/transmission-daemon/settings.json"
     highestvalue=$defaultport
 
-    for d in /home; do
-        confpath="/home/$d/$relpath"
-        echo "DEBUG: Config path $confpath"
+    for d in /home/*/; do
+        confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
             value=$(grep "$key" "$confpath" | tr -d -c 0-9)
         fi
 
-        if [[ $value >= $highestvalue ]]; then 
+        if [[ $value > $highestvalue ]]; then 
             highestvalue=$value
         fi
     done
@@ -30,7 +29,7 @@ function _get_next_port_from_json () {
 function _getversion () {
     if [[ -z $arg_transmissionsource ]]; then
         distribution=$(lsb_release -is)
-        if [[ "distribution" =~ ubuntu ]]; then 
+        if [[ $distribution =~ "Ubuntu" ]]; then 
             version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
                   PPA "(Directly from Transmission)" \
                   Repo "(Packaged and tested by Ubuntu)" \
@@ -47,11 +46,11 @@ function _install_transmission () {
     _getversion
     distribution=$(lsb_release -is)
     if [[ $version = "PPA" ]]; then 
-        if [[ ! $distribution =~ 'ubuntu' ]]; then 
+        if [[ ! $distribution =~ 'Ubuntu' ]]; then 
             echo "PPA not available on this system, exiting"
             exit 1
         fi
-        add-apt-repository ppa:transmissionbt/ppa
+        add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
     fi
     echo "Fetching updates"
     apt-get update >> $log 2>&1
@@ -59,6 +58,4 @@ function _install_transmission () {
     apt-get install transmission-cli transmission-common transmission-daemon -yq >> $log 2>&1
     echo "Disabling default non-multiuser service"
     systemctl disable --now transmission-daemon
-    
 }
-

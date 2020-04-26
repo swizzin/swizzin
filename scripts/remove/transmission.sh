@@ -10,11 +10,10 @@ fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
-  systemctl disable --now transmission@$u > /dev/null 2>&1
-#   rm -rf /home/${u}/.config/transmission-daemon
+    systemctl disable --now transmission@$u > /dev/null 2>&1
     mv /home/${u}/.config/transmission-daemon/settings.json /home/${u}/.config/transmission-daemon/settings.json.bak
 done
-
+add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
 apt-get purge -y transmission-common transmission-cli transmission-daemon >> $log 2>&1
 rm /etc/systemd/system/transmission@.service
 systemctl daemon-reload
