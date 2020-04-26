@@ -6,20 +6,23 @@ function _get_next_port_from_json () {
     defaultport="$2"
     relpath=".config/transmission-daemon/settings.json"
     highestvalue=$defaultport
+    wasincreased='false'
 
     for d in /home/*/; do
         confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
             value=$(grep "$key" "$confpath" | tr -d -c 0-9)
         fi
-
-        if [[ $value > $highestvalue ]]; then 
-            highestvalue=$value
+        if [[ -n $value ]]; then
+            if [[ $value -ge $highestvalue ]]; then
+                highestvalue=$value
+                wasincreased='true'
+            fi
         fi
     done
 
-    if [[ ! $highestvalue = $defaultport ]];     then 
-        (($highestvalue++))
+    if [[ $wasincreased = 'true' ]]; then 
+        ((highestvalue++))
     fi
 
     echo "$highestvalue"
