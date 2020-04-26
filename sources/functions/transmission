@@ -1,0 +1,36 @@
+#!/bin/bash
+# Author Flying_sausages for Swizzin 2020
+
+function _getversion () {
+
+    if [[ -z $arg_transmissionsource]]; then
+        
+        if [[ "ubuntu" = true ]]; then 
+            version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
+                  PPA "(Directly from Transmission)" \
+                  Repo "(Packaged and tested by Ubuntu)" \
+                   3>&1 1>&2 2>&3)
+        else
+            version="Repo"
+        fi
+        export version
+
+    
+    fi
+
+}
+
+function _install () {
+
+    if [[ $version = "PPA" ]]; then 
+        if [[ "ubuntu" = false ]]; then 
+            echo "PPA not available on this system, exiting"
+            exit 1
+        fi
+        add-apt-repository ppa:transmissionbt/ppa
+    fi
+
+    apt-get update
+    apt-get install transmission-cli transmission-common transmission-daemon
+}
+
