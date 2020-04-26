@@ -1,7 +1,5 @@
 #!/bin/bash
 # Author: Flying_sausages 2020 for Swizzin
-
-
 ############################################################
 #Functions
 ############################################################
@@ -30,7 +28,6 @@ _enable_service () {
     systemctl enable --now transmission@${user} 2>> $log
 }
 
-
 _setenv(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     [[ -z $incomomplete_dir ]] && export incomomplete_dir='transmission/incomplete'
@@ -40,9 +37,14 @@ _setenv(){
     [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='false'
 }
 
-
 _mkdir (){
-    mkdir 
+    mkdir -p /home/${user}/${download_dir}
+    mkdir -p /home/.config/transmission-daemon
+    mkdir -p /home/.config/transmission-daemon/blocklists
+    mkdir -p /home/.config/transmission-daemon/resume
+    mkdir -p /home/.config/transmission-daemon/torrents
+    [[ $incomomplete_dir_enabled = "true" ]] &&  mkdir -p /home/${user}/${incomomplete_dir}
+
 }
 
 _mkconf () {

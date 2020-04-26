@@ -3,7 +3,7 @@
 
 function _getversion () {
 
-    if [[ -z $arg_transmissionsource]]; then
+    if [[ -z $arg_transmissionsource ]]; then
         
         if [[ "ubuntu" = true ]]; then 
             version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
@@ -21,7 +21,7 @@ function _getversion () {
 }
 
 function _install () {
-
+    _getversion
     if [[ $version = "PPA" ]]; then 
         if [[ "ubuntu" = false ]]; then 
             echo "PPA not available on this system, exiting"
