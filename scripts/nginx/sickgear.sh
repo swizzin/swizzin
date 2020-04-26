@@ -9,9 +9,9 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 user=$(cut -d: -f1 < /root/.master.info)
-isactive=$(systemctl is-active sickgear@$user)
+isactive=$(systemctl is-active sickgear)
 if [[ $isactive == "active" ]]; then
-  systemctl stop sickgear@${user}
+  systemctl stop sickgear
 fi
 
 if [[ ! -f /etc/nginx/apps/sickgear.conf ]]; then
@@ -24,8 +24,8 @@ location /sickgear {
 }
 SGC
 fi
-sed -i "s/web_root.*/web_root = \/sickgear/g" /home/${user}/.sickgear/config.ini
-sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/.sickgear/config.ini
+sed -i "s/web_root.*/web_root = \/sickgear/g" /home/${user}/sickgear/config.ini
+sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/sickgear/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start sickgear@${user}
+  systemctl start sickgear
 fi
