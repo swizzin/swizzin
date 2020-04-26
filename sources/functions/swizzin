@@ -2,5 +2,17 @@
 
 function _get_user_password () {
     user_to_get="$1"
-    echo $(grep "$1" /root/.master.info | cut -d: -f2)
+    password=''
+    for file in /root/*.info /root/.master.info; do 
+        user_in_file=$(cat $file | cut -d: -f1)
+        if [ "$user_in_file" = "$user_to_get" ]; then 
+            password="$(cat $file | cut -d: -f2)"
+        fi
+    done
+    
+    if [[ -z $password ]]; then 
+        exit 1
+        # echo "We fucked up m8"
+    fi
+    echo $password
 }

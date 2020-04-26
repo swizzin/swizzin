@@ -108,7 +108,7 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "rpc-enabled": true,
     "rpc-host-whitelist": "",
     "rpc-host-whitelist-enabled": true,
-    "rpc-password": "{6d080fa454e2c1146ef431803785631af64538f9jjARJrkc",
+    "rpc-password": "${rpc_password}",
     "rpc-port": ${rpc_port},
     "rpc-url": "/transmission/",
     "rpc-username": "${user}",
@@ -132,9 +132,9 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "utp-enabled": true
 }
 EOF
-echo "RPC port for ${user} =  ${rpc_port}"
-echo "Use the RPC port above and your user credentials to log into Transmission Remote"
-echo "   More info: https://github.com/transmission-remote-gui/transgui"
+echo "Transmission RPC port for ${user} = ${rpc_port}"
+# echo "Use the RPC port above and your user credentials to log into Transmission Remote"
+# echo "   More info: https://github.com/transmission-remote-gui/transgui"
 }
 
 ##########################################################################
