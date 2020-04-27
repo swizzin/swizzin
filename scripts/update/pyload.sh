@@ -46,20 +46,18 @@ if [[ -f /install/.pyload.lock ]]; then
         cd /home/${user}
         mv .pyload pyload
 
-        cat >/etc/systemd/system/pyload.service<<PYSD
+cat >/etc/systemd/system/pyload.service<<PYSD
 [Unit]
 Description=pyLoad
 After=network.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload --pidfile=/home/${user}/.pyload.pid --daemon
-PIDFile=/home/${user}/.pyload.pid
+ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload
 WorkingDirectory=/home/${user}/pyload
 
 [Install]
 WantedBy=multi-user.target
-
 PYSD
         systemctl daemon-reload
         if [[ $isactive == "active" ]]; then

@@ -168,8 +168,7 @@ After=network.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload --pidfile=/home/${user}/.pyload.pid --daemon
-PIDFile=/home/${user}/.pyload.pid
+ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload
 WorkingDirectory=/home/${user}/pyload
 
 [Install]
