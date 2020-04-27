@@ -56,7 +56,7 @@ cd /tmp
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
 codename=$(lsb_release -cs)
-if [[ $codename =~ ("stretch"|"jessie"|"xenial") ]]; then
+if [[ $codename =~ ("stretch"|"xenial") ]]; then
   version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
 else
   version=latest

@@ -8,13 +8,6 @@ else
   log="/dev/null"
 fi
 
-if [[ $codename == "jessie" ]]; then
-  geoip=php7.0-geoip
-else
-  geoip=php-geoip
-fi
-
-
 if [[ $codename == "bionic" ]]; then
   mcrypt=
 else
@@ -30,7 +23,7 @@ if dpkg -s nginx-extras > /dev/null 2>&1; then
   systemctl reload nginx
 fi
 
-APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
+APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache php-geoip php-xml'
 for depends in $APT; do
   inst=$(dpkg -l | grep $depends)
   if [[ -z $inst ]]; then

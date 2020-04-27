@@ -18,7 +18,7 @@ fi
 codename=$(lsb_release -cs)
 
 user=$(cut -d: -f1 < /root/.master.info )
-if [[ $codename =~ ("bionic"|"stretch"|"xenial"|"jessie") ]]; then
+if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
   . /etc/swizzin/sources/functions/pyenv
   pyenv_install
   pyenv_install_version 3.7.7

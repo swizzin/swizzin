@@ -16,7 +16,7 @@ if [[ -f /install/.sickgear.lock ]]; then
         fi
         apt-get -y -q update >> $log 2>&1
 
-        if [[ ! $codename == ("jessie"|"xenial"|"stretch"|"bionic") ]]; then
+        if [[ ! $codename == ("xenial"|"stretch"|"bionic") ]]; then
             apt-get -y -q install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv >> $log 2>&1
             python3 -m venv /home/${user}/.venv/sickgear
         else

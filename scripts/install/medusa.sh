@@ -44,16 +44,8 @@ chown ${user}: /home/${user}/.venv
 
 apt-get -y -q update >> $log 2>&1
 
-if [[ ! $codename == "jessie" ]]; then
-  apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
-  python3 -m venv /home/${user}/.venv/medusa
-else
-  apt-get -y -q install git-core openssl libssl-dev >> $log 2>&1
-  . /etc/swizzin/sources/functions/pyenv
-  pyenv_install
-  pyenv_install_version 3.7.7
-  pyenv_create_venv 3.7.7 /home/${user}/.venv/medusa
-fi
+apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
+python3 -m venv /home/${user}/.venv/medusa
 
 chown -R ${user}: /home/${user}/.venv/medusa
 

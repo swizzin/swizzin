@@ -6,7 +6,7 @@ export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
-    if [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
+    if [[ ! ${codename} == "xenial" ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
                   0.9.8 "" \
                   0.9.7 "" \
@@ -119,7 +119,7 @@ function build_libtorrent_rakshasa () {
     VERSION=$libtorrentver
 		tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >>$log 2>&1
 		cd libtorrent >>$log 2>&1
-		if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} =~ ("xenial"|"jessie") ]]; then
+		if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} == "xenial" ]]; then
 			patch -p1 < /etc/swizzin/sources/openssl.patch >>"$log" 2>&1
 			if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
 				patch -p1 < /etc/swizzin/sources/cppunit.patch >>"$log" 2>&1
