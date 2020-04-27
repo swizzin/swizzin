@@ -5,6 +5,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         password=$(cut -d: -f2 < /root/.master.info)
         codename=$(lsb_release -cs)
+        log=/root/logs/swizzin.log
         active=$(systemctl is-active sabnzbd@${user})
         systemctl stop sabnzbd@${user}
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then

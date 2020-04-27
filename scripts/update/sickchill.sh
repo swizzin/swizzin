@@ -58,6 +58,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         active=$(systemctl is-active sickchill@$user)
         codename=$(lsb_release -cs)
+        log=/root/logs/swizzin.log
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2-dev virtualenv python-pip'
