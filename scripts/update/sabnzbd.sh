@@ -33,7 +33,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         /home/${user}/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
         chown -R ${user}: /home/${user}/.venv/sabnzbd
 
-        mkdir /home/${user}/.config
+        mkdir /home/${user}/.config > /dev/null 2>&1
         chown ${user}: /home/${user}/.config
 
         mv /home/${user}/.sabnzbd /home/${user}/.config/sabnzbd
