@@ -63,7 +63,7 @@ if [[ -z $(which rar) ]]; then
 fi
 
 cd /home/${user}/
-git clone https://github.com/pymedusa/Medusa.git medusa
+git clone https://github.com/pymedusa/Medusa.git medusa >> ${log} 2>&1
 chown -R ${user}:${user} medusa
 
 cat > /etc/systemd/system/medusa.service <<MSD
