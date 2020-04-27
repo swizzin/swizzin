@@ -257,14 +257,18 @@ function _adduser {
       if [[ $app = "flood" ]]; then
         /usr/local/bin/swizzin/install/${app}.sh
       else
+
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
           /usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
+        elif [[ $app = "transmission" ]]; then
+          /usr/local/bin/swizzin/nginx/transmission.sh ${user}
+          systemctl enable --now ${app}@${user}
         elif [[ $app =~ ("rutorrent"|"lounge") ]]; then
-          :
+          : #do nothing
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
 
