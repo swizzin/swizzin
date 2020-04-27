@@ -15,9 +15,17 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
+codename=$(lsb_release -cs)
 
 apt-get update -y -q >>/dev/null 2>&1
-apt-get install -y -q sox geoip-database python python-setuptools python-pip >>/dev/null 2>&1
+apt-get install -y -q sox geoip-database python2-dev python-setuptools >>/dev/null 2>&1
+
+if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
+  apt-get install -y -q python-pip
+else
+  . /etc/swizzin/sources/functions/pyenv
+  python_getpip
+fi
 
 pip install cloudscraper >> /dev/null 2>&1
 
