@@ -54,7 +54,7 @@ PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparse
 /home/${user}/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
 chown -R ${user}: /home/${user}/.venv/pyload
 
-git clone --branch "stable" https://github.com/pyload/pyload.git pyload >>"${log}" 2>&1
+git clone --branch "stable" https://github.com/pyload/pyload.git /home/${user}/pyload >>"${log}" 2>&1
 
 echo "/home/${user}/pyload" > /home/${user}/pyload/module/config/configdir
 
