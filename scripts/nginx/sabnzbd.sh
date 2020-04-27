@@ -22,7 +22,7 @@ location /sabnzbd {
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 SAB
-
+fi
 
 sed -i "s|^host = .*|host = 127.0.0.1|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
 sed -i "s|^url_base = .*|url_base = /sabnzbd|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
