@@ -23,7 +23,7 @@ location /couchpotato {
 }
 RAD
 fi
-sed -i "s/url_base.*/url_base = couchpotato\nhost = 127.0.0.1/g" /home/${user}/couchpotato/settings.conf
+sed -i "s/url_base.*/url_base = couchpotato\nhost = 127.0.0.1/g" /home/${user}/.config/couchpotato/settings.conf
 if [[ $isactive == "active" ]]; then
   systemctl start couchpotato
 fi

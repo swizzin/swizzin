@@ -32,6 +32,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         cd /home/${user}
         mv .couchpotato couchpotato
         cat > /etc/systemd/system/couchpotato.service <<CPSD
+[Unit]
 Description=CouchPotato
 After=syslog.target network.target
 
@@ -39,7 +40,7 @@ After=syslog.target network.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon
+ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon --data-dir /home/${user}/.config/couchpotato
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 
@@ -47,6 +48,10 @@ ExecStop=-/bin/kill -HUP
 [Install]
 WantedBy=multi-user.target
 CPSD
+        mkdir -p /home/${user}/.config/couchpotato
+        chown ${user}: /home/${user}/.config
+        chown ${user}: /home/${user}/.config/couchpotato
+        mv /home/${user}/couchpotato/{cache,custom_plugins,database,db_backup,logs,settings.conf} /home/${user}/.config/couchpotato
         systemctl daemon-reload
 
         if [[ $isactive == "active" ]]; then
