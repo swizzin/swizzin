@@ -19,7 +19,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='git python2-dev virtualenv'
+  LIST='git python2-dev python-virtualenv virtualenv'
 else
   LIST='git python2-dev'
 fi

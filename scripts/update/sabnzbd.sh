@@ -9,7 +9,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         active=$(systemctl is-active sabnzbd@${user})
         systemctl stop sabnzbd@${user}
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='par2 p7zip-full python2-dev python-pip virtualenv libglib2.0-dev libdbus-1-dev'
+            LIST='par2 p7zip-full python2-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else
             LIST='par2 p7zip-full python2-dev libxml2-dev libxslt1-dev libglib2.0-dev'
         fi

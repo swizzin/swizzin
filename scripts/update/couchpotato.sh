@@ -8,7 +8,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         isactive=$(systemctl is-active couchpotato@${user})
         log="/root/logs/swizzin.log"
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2-dev virtualenv'
+            LIST='git python2-dev python-virtualenv virtualenv'
         else
             LIST='git python2-dev'
         fi

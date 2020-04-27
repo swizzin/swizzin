@@ -61,7 +61,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         log=/root/logs/swizzin.log
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2-dev virtualenv python-pip'
+            LIST='git python2-dev virtualenv python-virtualenv python-pip'
         else
             LIST='git python2-dev'
         fi

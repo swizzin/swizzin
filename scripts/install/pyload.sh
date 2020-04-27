@@ -29,7 +29,7 @@ fi
 echo "Installing dependencies needed for pyLoad ... "
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='tesseract-ocr gocr rhino python2-dev python-pip virtualenv libcurl4-openssl-dev sqlite3'
+  LIST='tesseract-ocr gocr rhino python2-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
 else
   LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2-dev sqlite3'
 fi

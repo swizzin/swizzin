@@ -11,7 +11,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         fi
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2-dev virtualenv'
+            LIST='git python2-dev virtualenv python-virtualenv'
         else
             LIST='git python2-dev'
         fi
