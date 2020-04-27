@@ -19,6 +19,7 @@ if [[ -f /install/.pyload.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
         log="/root/logs/swizzin.log"
+        systemctl disable --now pyload@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='tesseract-ocr gocr rhino python2-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
@@ -60,8 +61,9 @@ WorkingDirectory=/home/${user}/pyload
 WantedBy=multi-user.target
 PYSD
         systemctl daemon-reload
+        rm /etc/systemd/system/pyload@.service
         if [[ $isactive == "active" ]]; then
-            systemctl restart pyload
+            systemctl enable --now pyload >> ${log} 2>&1
         fi
     fi
 fi

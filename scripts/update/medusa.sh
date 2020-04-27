@@ -8,7 +8,7 @@ if [[ -f /install/.medusa.lock ]]; then
         codename=$(lsb_release -cs)
 
         if [[ $isactive == "active" ]]; then
-            systemctl stop medusa@${user}
+            systemctl disable --now medusa@${user}
         fi
         if [[ ! -d /home/${user}/.venv ]]; then
             mkdir -p /home/${user}/.venv
@@ -41,9 +41,9 @@ WantedBy=multi-user.target
 MSD
 
         systemctl daemon-reload
-
+        rm -rf /etc/systemd/system/medusa@.service
         if [[ $isactive == "active" ]]; then
-            systemctl restart medusa
+            systemctl enable --now medusa >> ${log} 2>&1
         fi
     fi
 fi

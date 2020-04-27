@@ -8,7 +8,7 @@ if [[ -f /install/.sickgear.lock ]]; then
         codename=$(lsb_release -cs)
 
         if [[ $isactive == "active" ]]; then
-            systemctl stop sickgear@${user}
+            systemctl disable --now sickgear@${user}
         fi
         if [[ ! -d /home/${user}/.venv ]]; then
             mkdir -p /home/${user}/.venv
@@ -49,9 +49,9 @@ WantedBy=multi-user.target
 MSD
 
         systemctl daemon-reload
-
+        rm /etc/systemd/system/sickchill@.service
         if [[ $isactive == "active" ]]; then
-            systemctl restart sickgear
+            systemctl enable --now sickgear >> ${log} 2>&1
         fi
     fi
 fi

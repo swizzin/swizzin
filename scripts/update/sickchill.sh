@@ -59,7 +59,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         active=$(systemctl is-active sickchill@$user)
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
-
+        systemctl disable --now sickchill@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2-dev virtualenv python-virtualenv python-pip'
         else
@@ -102,9 +102,9 @@ ExecStart=/home/${user}/.venv/sickchill/bin/python /home/${user}/sickchill/SickB
 WantedBy=multi-user.target
 SCSD
         systemctl daemon-reload
-
+        rm -rf /etc/systemd/system/sickchill@.service
         if [[ $active == "active" ]]; then
-            systemctl restart sickchill
+            systemctl enable --now sickchill >> ${log} 2>&1
         fi
     fi
 fi

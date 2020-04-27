@@ -7,7 +7,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
         active=$(systemctl is-active sabnzbd@${user})
-        systemctl stop sabnzbd@${user}
+        systemctl disable --now sabnzbd@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='par2 p7zip-full python2-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else
@@ -39,8 +39,6 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         mv /home/${user}/.sabnzbd /home/${user}/.config/sabnzbd
         mv /home/${user}/SABnzbd /home/${user}/sabnzbd
 
-        rm /etc/systemd/system/sabnzbd@.service
-
         cat >/etc/systemd/system/sabnzbd.service<<SABSD
 [Unit]
 Description=Sabnzbd
@@ -58,9 +56,10 @@ WantedBy=multi-user.target
 
 SABSD
         systemctl daemon-reload
+        rm /etc/systemd/system/sabnzbd@.service
 
         if [[ $active == "active" ]]; then
-            systemctl start sabnzbd
+            systemctl enable --now sabnzbd >> ${log} 2>&1
         fi
     fi
 fi
