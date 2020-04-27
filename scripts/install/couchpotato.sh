@@ -1,9 +1,6 @@
 #!/bin/bash
 #
-# [Swizzin :: Couchpotato Installer]
-#
-# Originally written for QuickBox.io by liara
-# Modified for Swizzin by liara
+# CouchPotato Installer by liara
 #
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
@@ -12,42 +9,61 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-function _install() {
-echo "Installing CouchPotato ... " >>"${OUTTO}" 2>&1;
-warning=$(echo -e "[ \e[1;91mWARNING\e[0m ]")
-apt-get -y --force-yes update >/dev/null 2>&1
-apt-get -y --force-yes install git-core python >/dev/null 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Cloning CouchPotato git ... " >>"${OUTTO}" 2>&1;
-git clone -q https://github.com/CouchPotato/CouchPotatoServer.git /home/${MASTER}/.couchpotato || { echo "GIT failed"; exit 1; }
-chown ${MASTER}:${MASTER} -R /home/${MASTER}/.couchpotato
-}
 
-function _services(){
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Installing and enabling service ... " >>"${OUTTO}" 2>&1;
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+user=$(cut -d: -f1 < /root/.master.info)
+codename=$(lsb_release -cs)
 
-cat > /etc/systemd/system/couchpotato@.service <<CPS
+
+if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+  LIST='git python2-dev virtualenv'
+else
+  LIST='git python2-dev'
+fi
+
+for depend in $LIST; do
+  apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+done
+
+if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+  . /etc/swizzin/sources/functions/pyenv
+  python_getpip
+  pip install -m virtualenv >>"${log}" 2>&1
+fi
+
+echo "Setting up the pyload venv ..."
+mkdir -p /home/${user}/.venv
+chown ${user}: /home/${user}/.venv
+python2 -m virtualenv /home/${user}/.venv/couchpotato >>"${log}" 2>&1
+/home/${user}/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
+
+git clone https://github.com/CouchPotato/CouchPotatoServer.git /home/${user}/couchpotato >> ${log} 2>&1 || { echo "git clone for couchpotato failed"; exit 1; }
+chown ${user}: -R /home/${user}/couchpotato
+chown ${user}: -R /home/${user}/.venv/couchpotato
+
+
+cat > /etc/systemd/system/couchpotato.service <<CPSD
 Description=CouchPotato
 After=syslog.target network.target
 
 [Service]
 Type=forking
-KillMode=control-group
-User=%i
-Group=%i
-ExecStart=/usr/bin/python /home/%i/.couchpotato/CouchPotato.py --daemon
+User=${user}
+Group=${user}
+ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 
 
 [Install]
 WantedBy=multi-user.target
-CPS
-systemctl enable couchpotato@${MASTER} >/dev/null 2>&1
-systemctl start couchpotato@${MASTER} >/dev/null 2>&1
+CPSD
+
+systemctl enable --now couchpotato >> ${log} 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/couchpotato.sh
@@ -55,16 +71,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 touch /install/.couchpotato.lock
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-}
 
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
-MASTER=$(cut -d: -f1 < /root/.master.info)
-_install
-_services
