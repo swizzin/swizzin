@@ -20,7 +20,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install -m virtualenv >>"${log}" 2>&1
+            pip install virtualenv >>"${log}" 2>&1
         fi
 
         mkdir -p /home/${user}/.venv

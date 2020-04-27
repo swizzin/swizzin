@@ -21,7 +21,7 @@ if [[ -f /install/.headphones.lock ]]; then
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install -m virtualenv >>"${log}" 2>&1
+            pip install virtualenv >>"${log}" 2>&1
         fi
 
         echo "Setting up the headphones venv ..."
