@@ -52,12 +52,9 @@ Description=pyLoad
 After=network.target
 
 [Service]
-Type=forking
-KillMode=process
 User=${user}
 ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload --pidfile=/home/${user}/.pyload.pid --daemon
 PIDFile=/home/${user}/.pyload.pid
-ExecStop=-/bin/kill -HUP
 WorkingDirectory=/home/${user}/pyload
 
 [Install]

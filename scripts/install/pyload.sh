@@ -143,9 +143,9 @@ read < <( /home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore
 PID=$REPLY
 sleep 10
 #kill -9 $PID
-while kill -0 $PID; do
+while kill -0 $PID > /dev/null 2>&1; do
   sleep 1
-  kill $PID
+  kill $PID > /dev/null 2>&1
 done
 
 if [ -f "/home/${user}/pyload/files.db" ]; then
@@ -167,17 +167,13 @@ Description=pyLoad
 After=network.target
 
 [Service]
-Type=forking
-KillMode=process
 User=${user}
 ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload --pidfile=/home/${user}/.pyload.pid --daemon
 PIDFile=/home/${user}/.pyload.pid
-ExecStop=-/bin/kill -HUP
 WorkingDirectory=/home/${user}/pyload
 
 [Install]
 WantedBy=multi-user.target
-
 PYSD
 
 if [[ -f /install/.nginx.lock ]]; then
