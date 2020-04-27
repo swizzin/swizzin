@@ -16,11 +16,8 @@ if [[ -f /install/.medusa.lock ]]; then
         fi
         
         apt-get -y -q update >> $log 2>&1
-        apt-get -y -q install git-core openssl libssl-dev >> $log 2>&1
-        . /etc/swizzin/sources/functions/pyenv
-        pyenv_install
-        pyenv_install_version 3.7.7
-        pyenv_create_venv 3.7.7 /home/${user}/.venv/medusa
+        apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
+        python3 -m venv /home/${user}/.venv/medusa
         chown -R ${user}: /home/${user}/.venv/medusa
         cd /home/${user}
         mv .medusa medusa
