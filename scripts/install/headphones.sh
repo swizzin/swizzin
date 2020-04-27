@@ -22,14 +22,13 @@ user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
 
-
-
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
     LIST='git python2-dev virtualenv python-pip'
 else
     LIST='git python2-dev'
 fi
 
+apt-get -y update >>"${log}" 2>&1
 for depend in $LIST; do
   apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done

@@ -36,6 +36,8 @@ if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
 else
   LIST='par2 p7zip-full python2-dev libxml2-dev libxslt1-dev libglib2.0-dev'
 fi
+
+apt-get -y update >>"${log}" 2>&1
 for depend in $LIST; do
   apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done

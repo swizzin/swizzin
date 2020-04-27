@@ -25,6 +25,7 @@ if [[ $codename =~ ("bionic"|"stretch"|"xenial"|"jessie") ]]; then
   pyenv_create_venv 3.7.7 /home/${user}/.venv/bazarr
   chown -R ${user}: /home/${user}/.venv/bazarr
 else
+  apt-get -y update >>"${log}" 2>&1
   apt-get -y -q install python3-pip python3-dev python3-venv > $log 2>&1
   mkdir -p /home/${user}/.venv/bazarr
   python3 -m venv /home/${user}/.venv/bazarr

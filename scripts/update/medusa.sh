@@ -14,7 +14,8 @@ if [[ -f /install/.medusa.lock ]]; then
             mkdir -p /home/${user}/.venv
             chown ${user}: /home/${user}/.venv
         fi
-
+        
+        apt-get -y -q update >> $log 2>&1
         if [[ ! $codename == "jessie" ]]; then
             apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
             python3 -m venv /home/${user}/.venv/medusa

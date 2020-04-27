@@ -25,6 +25,7 @@ else
   LIST='git python2-dev'
 fi
 
+apt-get -y -q update >>"${log}" 2>&1
 for depend in $LIST; do
   apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done
@@ -35,7 +36,7 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   pip install -m virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the pyload venv ..."
+echo "Setting up the couchpotato venv ..."
 mkdir -p /home/${user}/.venv
 chown ${user}: /home/${user}/.venv
 python2 -m virtualenv /home/${user}/.venv/couchpotato >>"${log}" 2>&1

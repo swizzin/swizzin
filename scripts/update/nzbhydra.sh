@@ -15,9 +15,9 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         else
             LIST='git python2-dev'
         fi
-
-        for depend in $LIST; do
+        
         apt-get -y update >>"${log}" 2>&1
+        for depend in $LIST; do
         apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
         done
 
