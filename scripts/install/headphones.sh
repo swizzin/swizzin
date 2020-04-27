@@ -64,7 +64,7 @@ Type=forking
 User=${user}
 Group=${user}
 ExecStart=/home/${user}/.venv/headphones/bin/python2 /home/${user}/headphones/Headphones.py -d --pidfile /run/${user}/headphones.pid --datadir /home/${user}/headphones --nolaunch --config /home/${user}/headphones/config.ini --port 8004
-PIDFile=/run/USER/headphones.pid
+PIDFile=/run/${user}/headphones.pid
 
 
 [Install]

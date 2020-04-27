@@ -353,7 +353,7 @@ idtag = 0
 [MPC]
 mpc_enabled = 0
 HPCONF
-chown -R ${user}: /home/${user}/.headphones
+
 if [[ $active == "active" ]]; then
   systemctl start headphones
 fi
