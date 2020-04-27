@@ -40,7 +40,7 @@ After=syslog.target network.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon --data-dir /home/${user}/.config/couchpotato
+ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon --data_dir /home/${user}/.config/couchpotato
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 
