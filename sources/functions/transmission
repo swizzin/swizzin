@@ -11,8 +11,7 @@ function _get_next_port_from_json () {
     for d in /home/*/; do
         confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
-            # value=$(grep "$key" "$confpath" | tr -d -c 0-9)
-            value=$(_get_port_from_conf $key)
+            value=$(grep "$key" "$confpath" | tr -d -c 0-9)
         fi
         if [[ -n $value ]]; then
             if [[ $value -ge $highestvalue ]]; then
@@ -27,15 +26,6 @@ function _get_next_port_from_json () {
     fi
 
     echo "$highestvalue"
-}
-
-#retireves the value of the port from the user's config
-#takes key of the port as parameter
-function _get_port_from_conf () {
-    key="$1"
-    relpath=".config/transmission-daemon/settings.json"
-    confpath="/home/${user}/${relpath}"
-    echo $(grep "$key" "$confpath" | tr -d -c 0-9)
 }
 
 

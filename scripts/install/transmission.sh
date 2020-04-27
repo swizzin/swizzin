@@ -25,14 +25,6 @@ EOF
     systemctl daemon-reload
 }
 
-_mkproxy_transmission () {
-    if [[ -f /install/.nginx.lock ]]; then
-        echo "Creating nginx proxies"
-        bash /usr/local/bin/swizzin/nginx/transmission.sh
-        service nginx reload
-    fi
-}
-
 _start_transmission () {
     #This always needs to be done only after the configs have been made, otherwise transmission will overwrite them.
     systemctl enable transmission@${user} 2>> $log
@@ -171,7 +163,6 @@ if [[ -n $1 ]]; then
 	user=$1
 	_mkdir_transmission
     _mkconf_transmission
-    _mkproxy_transmission
 	exit 0
 fi
 
@@ -192,9 +183,7 @@ echo "Creating directories"
 _mkdir_transmission
 echo "Creating config"
 _mkconf_transmission
-_mkproxy_transmission
+
 _start_transmission
-
-
 
 touch /install/.transmission.lock
