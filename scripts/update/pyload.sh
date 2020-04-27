@@ -63,6 +63,7 @@ WorkingDirectory=/home/${user}/pyload
 WantedBy=multi-user.target
 
 PYSD
+        systemctl daemon-reload
         if [[ $isactive == "active" ]]; then
             systemctl restart pyload
         fi
