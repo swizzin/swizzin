@@ -175,7 +175,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 "stat" => '/usr/bin/stat', // Something like /usr/bin/stat. If empty, will be found in PATH.
 "bzip2" => '/bin/bzip2',
 "pgrep" => '/usr/bin/pgrep',
-"python" => '/usr/bin/python',
+"python" => '/usr/bin/python2',
 );
 
 \$localhosts = array( // list of local interfaces
