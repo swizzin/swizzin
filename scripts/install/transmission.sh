@@ -23,9 +23,15 @@ ExecReload=/bin/kill -s HUP $MAINPID
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload
+}
+
+_start_transmission () {
+    #This always needs to be done only after the configs have been made, otherwise transmission will overwrite them.
     systemctl enable transmission@${user} 2>> $log
     service transmission@${user} start
 }
+
+
 
 _setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
@@ -177,5 +183,7 @@ echo "Creating directories"
 _mkdir_transmission
 echo "Creating config"
 _mkconf_transmission
+
+_start_transmission
 
 touch /install/.transmission.lock

@@ -11,7 +11,8 @@ fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
     systemctl disable --now transmission@$u > /dev/null 2>&1
-    mv /home/${u}/.config/transmission-daemon/settings.json /home/${u}/.config/transmission-daemon/settings.json.bak
+    #TODO decide if other stuff should be deleted too
+    rm -f /home/${u}/.config/transmission-daemon/settings.json
 done
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
 apt-get purge -y transmission-common transmission-cli transmission-daemon >> $log 2>&1
