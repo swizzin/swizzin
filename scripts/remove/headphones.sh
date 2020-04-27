@@ -15,5 +15,6 @@ rm -rf /home/${user}/.venv/headphones
 if [ -z "$(ls -A /home/$user/.venv)" ]; then
    rm -rf  /home/$user/.venv
 fi
+rm /install/.headphones.lock
 systemctl reload nginx
 
