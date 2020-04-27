@@ -90,10 +90,10 @@ ExecStart=/home/${user}/.venv/sickgear/bin/python /home/${user}/sickgear/sickgea
 WantedBy=multi-user.target
 SRS
   systemctl daemon-reload
-  systemctl enable --now sickgear@$user > /dev/null 2>&1
+  systemctl enable --now sickgear > /dev/null 2>&1
   sleep 5
   # Restart because first start doesn't always generate the config.ini
-  systemctl restart sickgear@$user
+  systemctl restart sickgear
   # Sleep to allow time for background processes
   sleep 5
 
