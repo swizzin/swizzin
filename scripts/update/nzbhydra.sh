@@ -7,7 +7,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         active=$(systemctl is-active nzbhydra@${user})
         log=/root/logs/swizzin.log
         if [[ $active == "active" ]]; then
-            systemctl disable --now nzbhydra@${user}
+            systemctl disable --now nzbhydra@${user} >> ${log} 2>&1
         fi
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
