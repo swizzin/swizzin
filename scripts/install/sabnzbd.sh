@@ -15,20 +15,14 @@ password=$(cut -d: -f2 < /root/.master.info)
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
+. /etc/swizzin/sources/functions/pyenv
+. /etc/swizzin/sources/functions/utils
+
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
   log="/root/logs/swizzin.log"
 fi
-
-function _rar() {
-	cd /tmp
-  	wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-  	tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
-  	cp rar/*rar /bin >/dev/null 2>&1
-  	rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-  	rm -rf /tmp/rar >/dev/null 2>&1
-}
 
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -43,28 +37,16 @@ for depend in $LIST; do
 done
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  . /etc/swizzin/sources/functions/pyenv
   python_getpip
-  pip install virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the sabnzbd venv ..."
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
-python2 -m virtualenv /home/${user}/.venv/sabnzbd >>"${log}" 2>&1
+python2_home_venv ${user} sabnzbd
 
 PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc cheetah pyOpenSSL'
 /home/${user}/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
 chown -R ${user}: /home/${user}/.venv/sabnzbd
 
-
-if [[ -z $(which rar) ]]; then
-  if [[ $distribution == "Debian" ]]; then
-    _rar
-  else
-    apt-get -y install rar unrar >>/dev/null 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
-  fi
-fi
+install_rar
 
 cd /home/${user}
 mkdir -p /home/${user}/sabnzbd

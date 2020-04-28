@@ -6,6 +6,7 @@ if [[ -f /install/.headphones.lock ]]; then
         active=$(systemctl is-active headphones)
         log=/root/logs/swizzin.log
         codename=$(lsb_release -cs)
+        . /etc/swizzin/sources/functions/pyenv
         systemctl stop headphones
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2-dev virtualenv python-virtualenv python-pip'
@@ -19,15 +20,10 @@ if [[ -f /install/.headphones.lock ]]; then
         done
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install virtualenv >>"${log}" 2>&1
         fi
 
-        echo "Setting up the headphones venv ..."
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/headphones >>"${log}" 2>&1
+        python2_home_venv ${user} headphones
 
         PIP='wheel cheetah asn1'
         /home/${user}/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1

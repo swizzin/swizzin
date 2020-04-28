@@ -21,6 +21,7 @@ fi
 user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
     LIST='git python2-dev virtualenv python-virtualenv python-pip'
@@ -34,15 +35,10 @@ for depend in $LIST; do
 done
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  . /etc/swizzin/sources/functions/pyenv
   python_getpip
-  pip install virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the headphones venv ..."
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
-python2 -m virtualenv /home/${user}/.venv/headphones >>"${log}" 2>&1
+python2_home_venv ${app} headphones
 
 PIP='wheel cheetah asn1'
 /home/${user}/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1

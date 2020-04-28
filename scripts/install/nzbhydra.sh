@@ -17,6 +17,7 @@ fi
 
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   LIST='git python2-dev python-virtualenv virtualenv'
@@ -30,18 +31,11 @@ for depend in $LIST; do
 done
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  . /etc/swizzin/sources/functions/pyenv
   python_getpip
-  pip install virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the nzbhydra venv ..."
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
-python2 -m virtualenv /home/${user}/.venv/nzbhydra >>"${log}" 2>&1
-chown ${user}: -R /home/${user}/.venv/nzbhydra
+python2_home_venv ${user} nzbhydra
 
-##echo >>"${log}" 2>&1;
 echo "Cloning NZBHydra ... "
 git clone -q https://github.com/theotherp/nzbhydra.git /home/${user}/nzbhydra
 chown ${user}: -R /home/${user}/nzbhydra

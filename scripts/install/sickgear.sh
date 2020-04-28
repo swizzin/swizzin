@@ -4,6 +4,7 @@
 
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/utils
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
@@ -59,19 +60,9 @@ fi
 
 chown -R ${user}: /home/${user}/.venv/sickgear
 
-function _rar () {
-  cd /tmp
-  wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-  tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
-  cp rar/*rar /bin >/dev/null 2>&1
-  rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-  rm -rf /tmp/rar >/dev/null 2>&1
-}
+install_rar
 
-if [[ -z $(which rar) ]]; then
-  apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
-fi
-sudo git clone https://github.com/SickGear/SickGear.git  /home/$user/sickgear >/dev/null 2>&1
+sudo git clone https://github.com/SickGear/SickGear.git  /home/$user/sickgear >> ${log} 2>&1
 
 chown -R $user:$user /home/$user/sickgear
 

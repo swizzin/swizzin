@@ -6,6 +6,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         codename=$(lsb_release -cs)
         active=$(systemctl is-active nzbhydra@${user})
         log=/root/logs/swizzin.log
+        . /etc/swizzin/sources/functions/pyenv
         if [[ $active == "active" ]]; then
             systemctl disable --now nzbhydra@${user} >> ${log} 2>&1
         fi
@@ -22,16 +23,10 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         done
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install virtualenv >>"${log}" 2>&1
         fi
 
-        echo "Setting up the nzbhydra venv ..."
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/nzbhydra >>"${log}" 2>&1
-        chown ${user}: -R /home/${user}/.venv/nzbhydra
+        python2_home_venv ${user} nzbhydra
 
         if [[ ! -d /home/${user}/.config ]]; then
             mkdir /home/${user}/.config

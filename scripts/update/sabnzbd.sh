@@ -6,6 +6,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         password=$(cut -d: -f2 < /root/.master.info)
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
+        . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
         systemctl disable --now sabnzbd@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -19,15 +20,10 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         done
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install virtualenv >>"${log}" 2>&1
         fi
 
-        echo "Setting up the sabnzbd venv ..."
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/sabnzbd >>"${log}" 2>&1
+        python2_home_venv ${user} sabnzbd
 
         PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc cheetah pyOpenSSL'
         /home/${user}/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1

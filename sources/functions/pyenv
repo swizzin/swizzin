@@ -42,5 +42,16 @@ function python_getpip() {
     cd /tmp
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
     python2 get-pip.py >> $log 2>&1
+    pip install virtualenv >>"${log}" 2>&1
   fi
+}
+
+function python2_home_venv {
+  user=$1
+  app=$2
+  echo "Setting up the ${app} venv ..."
+  mkdir -p /home/${user}/.venv
+  chown ${user}: /home/${user}/.venv
+  python2 -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
+  chown -R ${user}: /home/${user}/.venv/${app}
 }

@@ -4,6 +4,9 @@
 
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/pyenv
+. /etc/swizzin/sources/functions/utils
+
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
@@ -50,33 +53,16 @@ for depend in $LIST; do
 done
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  . /etc/swizzin/sources/functions/pyenv
   python_getpip
-  pip install virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the SickChill venv ..."
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
-python2 -m virtualenv /home/${user}/.venv/sickchill >>"${log}" 2>&1
-chown -R ${user}: /home/${user}/.venv/sickchill
+python2_home_venv ${user} sickchill
 
 git clone https://github.com/SickChill/SickChill.git  /home/$user/sickchill >> ${log} 2>&1
 chown -R $user: /home/${user}/sickchill
 
 
-function _rar () {
-  cd /tmp
-  wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-  tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
-  cp rar/*rar /bin >/dev/null 2>&1
-  rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-  rm -rf /tmp/rar >/dev/null 2>&1
-}
-
-if [[ -z $(which rar) ]]; then
-  apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
-fi
+install_rar
 
 cat > /etc/systemd/system/sickchill.service <<SCSD
 [Unit]

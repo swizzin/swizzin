@@ -7,6 +7,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
         log="/root/logs/swizzin.log"
+        . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now couchpotato@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2-dev python-virtualenv virtualenv'
@@ -19,14 +20,9 @@ if [[ -f /install/.couchpotato.lock ]]; then
         done
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            . /etc/swizzin/sources/functions/pyenv
             python_getpip
-            pip install virtualenv >>"${log}" 2>&1
         fi
-
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/couchpotato >>"${log}" 2>&1
+        python2_home_venv ${user} couchpotato
         /home/${user}/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
         chown -R ${user}: /home/${user}/.venv/couchpotato
 

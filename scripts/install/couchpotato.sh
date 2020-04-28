@@ -17,6 +17,7 @@ else
 fi
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/pyenv
 
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -31,15 +32,11 @@ for depend in $LIST; do
 done
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  . /etc/swizzin/sources/functions/pyenv
   python_getpip
-  pip install virtualenv >>"${log}" 2>&1
 fi
 
-echo "Setting up the couchpotato venv ..."
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
-python2 -m virtualenv /home/${user}/.venv/couchpotato >>"${log}" 2>&1
+
+python2_home_venv ${user} couchpotato
 /home/${user}/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
 
 git clone https://github.com/CouchPotato/CouchPotatoServer.git /home/${user}/couchpotato >> ${log} 2>&1 || { echo "git clone for couchpotato failed"; exit 1; }

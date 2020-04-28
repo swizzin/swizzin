@@ -19,6 +19,7 @@ if [[ -f /install/.pyload.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
         log="/root/logs/swizzin.log"
+        . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now pyload@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='tesseract-ocr gocr rhino python2-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
@@ -30,15 +31,11 @@ if [[ -f /install/.pyload.lock ]]; then
             apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
         done
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            . /etc/swizzin/sources/functions/pyenv
+        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then            
             python_getpip
-            pip install virtualenv >>"${log}" 2>&1
         fi
 
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/pyload >>"${log}" 2>&1
+        python2_home_venv ${user} pyload
 
         PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
         /home/${user}/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1

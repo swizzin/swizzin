@@ -59,6 +59,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         active=$(systemctl is-active sickchill@$user)
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
+        . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now sickchill@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2-dev virtualenv python-virtualenv python-pip'
@@ -72,16 +73,10 @@ if [[ -f /install/.sickchill.lock ]]; then
         done
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-        . /etc/swizzin/sources/functions/pyenv
-        python_getpip
-        pip install virtualenv >>"${log}" 2>&1
+            python_getpip
         fi
 
-        echo "Setting up the SickChill venv ..."
-        mkdir -p /home/${user}/.venv
-        chown ${user}: /home/${user}/.venv
-        python2 -m virtualenv /home/${user}/.venv/sickchill >>"${log}" 2>&1
-        chown -R ${user}: /home/${user}/.venv/sickchill
+        python2_home_venv ${user} sickchill
 
         mv /home/${user}/.sickchill /home/${user}/sickchill
 
