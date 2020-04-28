@@ -60,7 +60,7 @@ OMB
   touch /install/.ombi.lock
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/ombi.sh
-    service nginx reload
+    systemctl reload nginx
   fi
   systemctl enable ombi >/dev/null 2>&1
   systemctl restart ombi

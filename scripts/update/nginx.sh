@@ -8,20 +8,22 @@ else
   log="/dev/null"
 fi
 
-if [[ $codename == "jessie" ]]; then
-  geoip=php7.0-geoip
-else
-  geoip=php-geoip
-fi
-
-
-if [[ $codename == "bionic" ]]; then
-  mcrypt=
-else
+if [[ $codename =~ ("xenial"|"stretch") ]]; then
   mcrypt=php-mcrypt
+else
+  mcrypt=
 fi
 
-APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache '"${geoip}"' php-xml'
+#Deprecate nginx-extras in favour of installing fancyindex alone
+if dpkg -s nginx-extras > /dev/null 2>&1; then
+  apt-get -y -q remove nginx-extras >> ${log} 2>&1
+  apt-get -y -q install nginx libnginx-mod-http-fancyindex >> ${log} 2>&1
+  apt-get -y -q autoremove >> ${log} 2>&1
+  rm $(ls -d /etc/nginx/modules-enabled/*.removed)
+  systemctl reload nginx
+fi
+
+APT="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 for depends in $APT; do
   inst=$(dpkg -l | grep $depends)
   if [[ -z $inst ]]; then
@@ -42,15 +44,9 @@ if [[ $phpv =~ "7.1" ]]; then
   fi
 fi
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 for version in $phpv; do
   if [[ -f /etc/php/$version/fpm/php.ini ]]; then
@@ -67,31 +63,16 @@ for version in $phpv; do
   fi
 done
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.3-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.3-fpm.sock;/g' $upgrade
-    done
-  fi
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.2-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.2-fpm.sock;/g' $upgrade
-    done
-  fi
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php7.1-fpm.sock" {} \;)
-  if [[ -z $v ]]; then
-    oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-    for upgrade in $oldv; do
-      sed -i 's/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php7.1-fpm.sock;/g' $upgrade
-    done
-  fi
-fi
+phpversion=$(php_service_version)
+
+fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))
+err=()
+for f in ${fcgis[@]}; do
+  err+=($(grep -L "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" $f))
+done
+for fix in ${err[@]}; do
+  sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $fix
+done
 
 if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
   sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html

@@ -346,7 +346,7 @@ function _deluser {
   rm -rf /var/run/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
-  service nginx reload
+  systemctl reload nginx
 }
 
 function _chpasswd {
@@ -382,7 +382,7 @@ function _chpasswd {
     systemctl stop deluged@${user}
     systemctl stop deluge-web@${user}
     DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-    DWP=$(python /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+    DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
     sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
     sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
     sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf

@@ -80,21 +80,22 @@ function _installquota(){
     echo "ERROR: Could not find a hook in /etc/fstab for quotas to install to. Quota requires either defaults or errors=remount-ro to be present as a mount option for the intended quota partition."
     exit 1
   fi
-
+  
+  echo "Installing dependencies"
   if [[ $DISTRO == Ubuntu ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    apt-get install -y linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
-    service quota start >>"${OUTTO}" 2>&1
+    systemctl start quota >>"${OUTTO}" 2>&1
   elif [[ $DISTRO == Debian ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    apt-get install -y quota >>"${OUTTO}" 2>&1
+    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" quota >>"${OUTTO}" 2>&1
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
-    service quota start >>"${OUTTO}" 2>&1
+    systemctl start quota >>"${OUTTO}" 2>&1
   fi
 
   if [[ -d /srv/rutorrent ]]; then

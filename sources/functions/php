@@ -1,37 +1,29 @@
 #!/bin/bash
 
+#Gets the version nginx is using and restarts it
 function restart_php_fpm () {
-  if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-    systemctl restart php7.3-fpm
-    if [[ $(systemctl is-active php7.2-fpm) == "active" ]]; then
-      systemctl stop php7.2-fpm
-      systemctl disable php7.2-fpm
-    fi
-    if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
-      systemctl stop php7.1-fpm
-      systemctl disable php7.1-fpm
-    fi
-    if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-      systemctl stop php7.0-fpm
-      systemctl disable php7.0-fpm
-    fi
-  elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-    systemctl restart php7.2-fpm
-    if [[ $(systemctl is-active php7.1-fpm) == "active" ]]; then
-      systemctl stop php7.1-fpm
-      systemctl disable php7.1-fpm
-    fi
-    if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-      systemctl stop php7.0-fpm
-      systemctl disable php7.0-fpm
-    fi
-  elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-    systemctl restart php7.1-fpm
-    if [[ $(systemctl is-active php7.0-fpm) == "active" ]]; then
-      systemctl stop php7.0-fpm
-      systemctl disable php7.0-fpm
-    fi
-  else
-    systemctl restart php7.0-fpm
-  fi
+    version=$(php_v_from_nginxconf)
+    serv="php${version}-fpm.service"
+    #serv=(ls /etc/systemd/system | grep php7 | tail -1)
+    systemctl restart $serv
 }
+
+# function disable_other_phps () {
+#     #TODO
+# }
+
+#Returns for example '7.4'
+function php_v_from_nginxconf () { 
+    nginxconfpath='/etc/nginx/sites-enabled/default'
+    version=$(cat $nginxconfpath | grep -o -P '(?<=/php/php).*(?=-fpm.sock)')
+    echo "${version}"
+}
+
+#returns for example '7.4'
+function php_service_version () {
+    echo "$(ls /lib/systemd/system | grep php | grep fpm | sort | tail -1 | grep -o -P '(?<=php).*(?=-fpm)')"
+}
+
+
+
+
