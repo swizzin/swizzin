@@ -7,7 +7,10 @@ for depends in $APT; do
 apt-get -y -q remove "$depends" >/dev/null 2>&1
 done
 
-apt-get -y -q purge nginx-* php7.0-* php-* >/dev/null 2>&1
+LIST='nginx-* php7.0-* php-*'
+for remove in $LIST; do
+    apt-get -y -q purge nginx-* php7.0-* php-* >/dev/null 2>&1
+done
 apt-get -y -q autoremove >/dev/null 2>&1
 
 rm -rf /etc/nginx

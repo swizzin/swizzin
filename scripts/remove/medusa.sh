@@ -3,8 +3,7 @@
 # Author: liara
 user=$(cut -d: -f1 < /root/.master.info)
 
-systemctl disable medusa
-systemctl stop medusa
+systemctl disable --now medusa
 
 sudo rm /etc/nginx/apps/medusa.conf > /dev/null 2>&1
 sudo rm /etc/systemd/medusa.service > /dev/null 2>&1

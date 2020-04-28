@@ -33,8 +33,7 @@ if [[ -n $active ]]; then
       esac
   done
   if [[ $disable == "yes" ]]; then
-    systemctl disable ${active}
-    systemctl stop ${active}
+    systemctl disable --now ${active}
   else
     exit 1
   fi

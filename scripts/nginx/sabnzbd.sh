@@ -11,7 +11,9 @@
 user=$(cut -d: -f1 < /root/.master.info)
 active=$(systemctl is-active sabnzbd)
 
-systemctl stop sabnzbd
+if [[ $active == "active" ]]; then
+  systemctl stop sabnzbd
+fi
 
 if [[ ! -f /etc/nginx/apps/sabnzbd.conf ]]; then
   cat > /etc/nginx/apps/sabnzbd.conf <<SAB
@@ -28,5 +30,5 @@ sed -i "s|^host = .*|host = 127.0.0.1|g" /home/${user}/.config/sabnzbd/sabnzbd.i
 sed -i "s|^url_base = .*|url_base = /sabnzbd|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
 
 if [[ $active == "active" ]]; then
-  systemctl restart sabnzbd
+  systemctl start sabnzbd
 fi
