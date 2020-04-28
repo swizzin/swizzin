@@ -16,9 +16,9 @@ codename=$(lsb_release -cs)
 user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
-SALTWORD=$(echo "${SALT}${password}")
+SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
-HASH=$(echo "${SALT}${SALTWORDHASH}")
+HASH=${SALT}${SALTWORDHASH}
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ -f /tmp/.install.lock ]]; then
