@@ -42,7 +42,7 @@ _setenv_transmission(){
     . /etc/swizzin/sources/functions/transmission
     [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port_from_json 'rpc-port' 9091)
     [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
-    . /etc/swizzin/sources/functions/swizzin
+    . /etc/swizzin/sources/functions/utils
     [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
 }
 
