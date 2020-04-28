@@ -42,7 +42,7 @@ _os() {
     if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
       echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
     fi
-    if [[ ! $codename =~ ("xenial"|"bionic"|"jessie"|"stretch"|"buster") ]]; then
+    if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
       echo "Your release ($codename) of $distribution is not supported." && exit 1
     fi
   echo "I have determined you are using $distribution $release."
@@ -61,7 +61,10 @@ function _preparation() {
   fi
   apt-get -q -y update >> ${log} 2>&1
   apt-get -q -y upgrade >> ${log} 2>&1
-  apt-get -q -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https python-pip >> ${log} 2>&1
+
+  echo "Installing dependencies"
+  # this apt-get should be checked and handled if fails, otherwise the install borks. 
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
@@ -75,7 +78,7 @@ function _nukeovh() {
   if [[ -n $grsec ]]; then
     echo
     echo -e "Your server is currently running with kernel version: $(uname -r)"
-    echo -e "While not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+    echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
     echo
     echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
       case $input in
@@ -160,7 +163,9 @@ function _adduser() {
   fi
   chmod 750 /home/${user}
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
-  echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  
+  echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 }
 

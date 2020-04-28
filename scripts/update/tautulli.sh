@@ -31,7 +31,7 @@ systemctl disable plexpy
 rm -rf /opt/plexpy
 rm /install/.plexpy.lock
 rm -f /etc/nginx/apps/plexpy.conf
-service nginx reload
+systemctl reload nginx
 rm /etc/systemd/system/plexpy.service
 
 

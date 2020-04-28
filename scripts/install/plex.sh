@@ -57,7 +57,7 @@ if [[ -n $claim ]]; then
   claimPlex ${claim}
 fi
 
-    service plexmediaserver restart >/dev/null 2>&1
+    systemctl restart plexmediaserver >/dev/null 2>&1
 
     touch /install/.plex.lock
     echo

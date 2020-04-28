@@ -84,7 +84,7 @@ EOF
   if [[ -f /install/.nginx.lock ]]; then
     sleep 10
     bash /usr/local/bin/swizzin/nginx/radarr.sh
-    service nginx reload
+    systemctl reload nginx
   fi
 }
 

@@ -307,7 +307,7 @@ SERVICE
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     bash "/usr/local/bin/swizzin/nginx/jellyfin.sh" "${app_port_http}" "${app_port_https}"
-    service nginx reload
+    systemctl reload nginx
 fi
 #
 # Set the correct and required permissions of any directories we created or modified.

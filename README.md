@@ -1,14 +1,14 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
 
-# 2.0.0 Stable
+# 2.1.0 Stable
 
 [website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
 
 Please use Discord for all community functions, [feathub](https://feathub.com/liaralabs/swizzin) for feature requests and leave issues for actual issues.
 
 ### What is swizzin?
-Swizzin is a light, modular seedbox solution that can be installed on Debian 8/9/10 or Ubuntu 16.04/18.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
+Swizzin is a light, modular seedbox solution that can be installed on Debian 9/10 or Ubuntu 16.04/18.04/20.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
 Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
 
@@ -37,8 +37,8 @@ sudo -H su -c 'bash <(wget -O- -q https://raw.githubusercontent.com/liaralabs/sw
 
 Long-term support branches only:
 
-* Debian 8/9/10
-* Ubuntu 16.04/18.04
+* Debian 9/10
+* Ubuntu 16.04/18.04/20.04
 
 ### Support and Help
 
@@ -81,7 +81,7 @@ You can request and vote on features at [feathub](https://feathub.com/liaralabs/
 
 ### Donations
 
-I accept donations on the [project website](https://swizzin.ltd/#donate) and also through [Liberapay](https://liberapay.com/liara/). Please consider a donation if you enjoy the project.
+I accept donations on the [project website](https://swizzin.ltd/#donate) and also through [GitHub Sponsors](https://github.com/sponsors/liaralabs) and [Liberapay](https://liberapay.com/liara/). If you are a vendor who profits off the project by deploying the project in a commercial setting, please consider sponsoring the project. Contributions from single users are also greatly appreciated!
 
 If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 ```

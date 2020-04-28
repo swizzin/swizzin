@@ -1,17 +1,10 @@
 #!/bin/bash
 #
-# [Quick Box :: Install pyLoad package]
+# [swizzin :: Install pyLoad package]
 #
-# QUICKLAB REPOS
-# QuickLab _ packages  :   https://github.com/QuickBox/QB/packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | JMSolo
-# URL                :   https://quickbox.io
+# Swizzin by liara
 #
-# Modifications for Swizzin by liara
-#
-# QuickBox Copyright (C) 2017 QuickBox.io
+# swizzin Copyright (C) 2020 swizzin.ltd
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track
@@ -19,129 +12,171 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
+codename=$(lsb_release -cs)
+user=$(cut -d: -f1 < /root/.master.info)
+password=$(cut -d: -f2 < /root/.master.info)
+SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
+SALTWORD=${SALT}${password}
+SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
+HASH=${SALT}${SALTWORDHASH}
+. /etc/swizzin/sources/functions/pyenv
 
-function _installpyLoad1() {
-  echo "Installing any additional dependencies needed for pyLoad ... "
-  apt-get install -y tesseract-ocr gocr rhino pyqt4-dev-tools python-imaging python-dev libcurl4-openssl-dev >/dev/null 2>&1
-  apt-get -y autoremove >/dev/null 2>&1
-}
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
 
-function _installpyLoad2() {
-  echo "Setting up python package management system in /home/${MASTER}/.pip ... "
-  mkdir /home/${MASTER}/.pip && cd /home/${MASTER}/.pip
-  wget https://bootstrap.pypa.io/get-pip.py >/dev/null 2>&1
-  python get-pip.py >/dev/null 2>&1
-}
+echo "Installing dependencies needed for pyLoad ... "
 
-function _installpyLoad3() {
-  echo "Installing pyLoad packages ... "
-  pip install wheel --upgrade >/dev/null 2>&1
-  pip install setuptools --upgrade >/dev/null 2>&1
-  pip install ply --upgrade >/dev/null 2>&1
-  pip install cryptography --upgrade >/dev/null 2>&1
-  pip install distribute >/dev/null 2>&1
-  pip install pyOpenSSL >/dev/null 2>&1
-  pip install cffi --upgrade >/dev/null 2>&1
-  pip install pycurl >/dev/null 2>&1
-  pip install django >/dev/null 2>&1
-  pip install pyimaging >/dev/null 2>&1
-  pip install web2py >/dev/null 2>&1
-  pip install beaker >/dev/null 2>&1
-  pip install thrift >/dev/null 2>&1
-  pip install pycrypto >/dev/null 2>&1
-  pip install feedparser >/dev/null 2>&1
-  pip install beautifulsoup >/dev/null 2>&1
-  pip install tesseract >/dev/null 2>&1
-}
+if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+  LIST='tesseract-ocr gocr rhino python2-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
+else
+  LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2-dev sqlite3'
+fi
 
-function _installpyLoad4() {
-  echo "Grabbing latest stable pyLoad repository ... "
-  mkdir /home/${MASTER}/.pyload
-  cd /home/${MASTER} && git clone --branch "stable" https://github.com/pyload/pyload.git .pyload >/dev/null 2>&1
-  printf "/home/${MASTER}/.pyload" > /home/${MASTER}/.pyload/module/config/configdir
-  mkdir -p /var/run/pyload
-}
+apt-get -y update >>"${log}" 2>&1
+for depend in $LIST; do
+  apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+done
 
-function _installpyLoad5() {
-  echo "Building pyLoad systemd template ... "
-cat >/etc/systemd/system/pyload@.service<<PYSV
+if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+  python_getpip
+fi
+
+python2_home_venv ${user} pyload
+
+PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+/home/${user}/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
+chown -R ${user}: /home/${user}/.venv/pyload
+
+git clone --branch "stable" https://github.com/pyload/pyload.git /home/${user}/pyload >>"${log}" 2>&1
+
+echo "/home/${user}/pyload" > /home/${user}/pyload/module/config/configdir
+
+cat > /home/${user}/pyload/pyload.conf <<PYCONF
+version: 1 
+
+download - "Download":
+        int chunks : "Max connections for one download" = 3
+        str interface : "Download interface to bind (ip or Name)" = None
+        bool ipv6 : "Allow IPv6" = False
+        bool limit_speed : "Limit Download Speed" = False
+        int max_downloads : "Max Parallel Downloads" = 3
+        int max_speed : "Max Download Speed in kb/s" = -1
+        bool skip_existing : "Skip already existing files" = False
+
+downloadTime - "Download Time":
+        time end : "End" = 0:00
+        time start : "Start" = 0:00
+
+general - "General":
+        bool checksum : "Use Checksum" = False
+        bool debug_mode : "Debug Mode" = False
+        folder download_folder : "Download Folder" = /home/${user}/Downloads
+        bool folder_per_package : "Create folder for each package" = True
+        en;de;fr;it;es;nl;sv;ru;pl;cs;sr;pt_BR language : "Language" = en
+        int min_free_space : "Min Free Space (MB)" = 200
+        int renice : "CPU Priority" = 0
+
+log - "Log":
+        bool file_log : "File Log" = True
+        int log_count : "Count" = 5
+        folder log_folder : "Folder" = Logs
+        bool log_rotate : "Log Rotate" = True
+        int log_size : "Size in kb" = 100
+
+permission - "Permissions":
+        bool change_dl : "Change Group and User of Downloads" = False
+        bool change_file : "Change file mode of downloads" = False
+        bool change_group : "Change group of running process" = False
+        bool change_user : "Change user of running process" = False
+        str file : "Filemode for Downloads" = 0644
+        str folder : "Folder Permission mode" = 0755
+        str group : "Groupname" = users
+        str user : "Username" = user
+
+proxy - "Proxy":
+        str address : "Address" = "localhost"
+        password password : "Password" = None
+        int port : "Port" = 7070
+        bool proxy : "Use Proxy" = False
+        http;socks4;socks5 type : "Protocol" = http
+        str username : "Username" = None
+
+reconnect - "Reconnect":
+        bool activated : "Use Reconnect" = False
+        time endTime : "End" = 0:00
+        str method : "Method" = None
+        time startTime : "Start" = 0:00
+
+remote - "Remote":
+        bool activated : "Activated" = False
+        ip listenaddr : "Adress" = 0.0.0.0
+        bool nolocalauth : "No authentication on local connections" = True
+        int port : "Port" = 7227
+
+ssl - "SSL":
+        bool activated : "Activated" = False
+        file cert : "SSL Certificate" = ssl.crt
+        file key : "SSL Key" = ssl.key
+
+webinterface - "Webinterface":
+        bool activated : "Activated" = True
+        bool basicauth : "Use basic auth" = False
+        ip host : "IP" = 0.0.0.0
+        bool https : "Use HTTPS" = False
+        int port : "Port" = 8000
+        str prefix : "Path Prefix" = 
+        builtin;threaded;fastcgi;lightweight server : "Server" = builtin
+        modern;pyplex;classic template : "Template" = modern
+PYCONF
+
+
+
+echo "Initalizing database"
+read < <( /home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py > /dev/null 2>&1 & echo $! )
+PID=$REPLY
+sleep 10
+#kill -9 $PID
+while kill -0 $PID > /dev/null 2>&1; do
+  sleep 1
+  kill $PID > /dev/null 2>&1
+done
+
+if [ -f "/home/${user}/pyload/files.db" ]; then
+  sqlite3 /home/${user}/pyload/files.db "\
+    INSERT INTO users('name', 'password') \
+      VALUES('${user}','${HASH}');\
+      "
+else
+  echo "Something went wrong with user setup -- you will be unable to login"
+fi
+
+chown -R ${user}: /home/${user}/pyload
+mkdir -p /home/${user}/Downloads
+chown ${user}: /home/${user}/Downloads
+
+cat >/etc/systemd/system/pyload.service<<PYSD
 [Unit]
 Description=pyLoad
 After=network.target
 
 [Service]
-Type=forking
-KillMode=process
-User=%i
-ExecStart=/usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --config=/home/${MASTER}/.pyload --pidfile=/home/${MASTER}/.pyload.pid --daemon
-PIDFile=/home/${MASTER}/.pyload.pid
-ExecStop=-/bin/kill -HUP
-WorkingDirectory=/home/%i/
+User=${user}
+ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload
+WorkingDirectory=/home/${user}/pyload
 
 [Install]
 WantedBy=multi-user.target
+PYSD
 
-PYSV
-}
-
-function _installpyLoad6() {
-  echo "Adjusting permissions ... "
-  chown -R ${MASTER}.${MASTER} /home/${MASTER}/.pip
-  chown -R ${MASTER}.${MASTER} /home/${MASTER}/.pyload
-  chown -R ${MASTER}.${MASTER} /var/run/pyload
-}
-
-function _installpyLoad7() {
-  touch /install/.pyload.lock
-  systemctl daemon-reload >/dev/null 2>&1
-  echo "#### pyLoad setup will now run ####"
-  if [[ -f /install/.nginx.lock ]]; then
-    echo "#### To ensure proper proxy configuration:"
-    echo "#### please leave remote access enabled ####"
-    echo "#### and do not alter the default port (8000) ####"
-  fi
-  sleep 5
-  /usr/bin/python /home/${MASTER}/.pyload/pyLoadCore.py --setup --config=/home/${MASTER}/.pyload
-  chown -R ${MASTER}: /home/${MASTER}/.pyload
-  if [[ -f /install/.nginx.lock ]]; then
-    bash /usr/local/bin/swizzin/nginx/pyload.sh
-    service nginx reload
-  fi
-  echo "Enabling and starting pyLoad services ... "
-  systemctl enable pyload@${MASTER}.service >/dev/null 2>&1
-  systemctl start pyload@${MASTER}.service >/dev/null 2>&1
-  service nginx reload
-}
-
-function _installpyLoad8() {
-  echo "pyLoad Install Complete!"
-  echo "pyLoad Install Complete!" >>"${OUTTO}" 2>&1;
-  sleep 2
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-}
-
-function _installpyLoad9() {
-  exit
-}
-
-
-ip=$(curl -s http://whatismyip.akamai.com)
-MASTER=$(cut -d: -f1 < /root/.master.info)
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
+if [[ -f /install/.nginx.lock ]]; then
+  bash /usr/local/bin/swizzin/nginx/pyload.sh
+  systemctl reload nginx
 fi
+echo "Enabling and starting pyLoad services ... "
+systemctl enable --now pyload.service >> ${log} 2>&1
+touch /install/.pyload.lock
 
 
-echo "Installing any additional dependencies needed for pyLoad ... " >>"${OUTTO}" 2>&1;_installpyLoad1
-echo "Setting up python package management system in /home/${MASTER}/.pip ... " >>"${OUTTO}" 2>&1;_installpyLoad2
-echo "Installing pyLoad packages ... " >>"${OUTTO}" 2>&1;_installpyLoad3
-echo "Grabbing latest stable pyLoad repository ... " >>"${OUTTO}" 2>&1;_installpyLoad4
-echo "Building pyLoad systemd template ... " >>"${OUTTO}" 2>&1;_installpyLoad5
-echo "Adjusting permissions ... " >>"${OUTTO}" 2>&1;_installpyLoad6
-echo "Enabling and starting pyLoad services ... " >>"${OUTTO}" 2>&1;_installpyLoad7
-_installpyLoad8
-_installpyLoad9

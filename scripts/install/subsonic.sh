@@ -107,7 +107,7 @@ fi
 SUBS
 
 echo "Enabling Subsonic Systemd configuration"
-service stop subsonic >/dev/null 2>&1
+systemctl stop subsonic >/dev/null 2>&1
 cat > /etc/systemd/system/subsonic.service <<SUBSD
 [Unit]
 Description=Subsonic Sound-Server
@@ -131,7 +131,7 @@ systemctl enable --now subsonic.service >> ${OUTTO} 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/subsonic.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 echo "Subsonic Install Complete!"

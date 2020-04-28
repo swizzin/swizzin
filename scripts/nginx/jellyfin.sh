@@ -19,12 +19,12 @@ fi
 #
 # Do this for jellyfin if is already installed
 if [[ -f /install/.jellyfin.lock ]]; then
-    service jellyfin stop
+    systemctl stop jellyfin
     app_port_https="$(sed -rn 's#(.*)<HttpsPortNumber>(.*)</HttpsPortNumber>#\2#p' "/home/${username}/.config/Jellyfin/config/system.xml")"
     #
     reused_commands
     #
-    service jellyfin start
+    systemctl start jellyfin
 fi
 #
 # Create our nginx application conf for jellyfin

@@ -8,10 +8,10 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cut -d: -f1 < /root/.master.info)
+user=$(cut -d: -f1 < /root/.master.info)
 
-isactive=$(systemctl is-active headphones)
-if [[ $isactive == "active" ]]; then
+active=$(systemctl is-active headphones)
+if [[ $active == "active" ]]; then
   systemctl stop headphones
 fi
 
@@ -21,11 +21,11 @@ location /headphones {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:8004/headphones;
   auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+  auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 RAD
 fi
-cat > /home/${MASTER}/.headphones/config.ini <<HPCONF
+cat > /home/${user}/headphones/config.ini <<HPCONF
 [General]
 nzb_downloader = 0
 download_torrent_dir = ""
@@ -66,7 +66,7 @@ cue_split = 1
 autowant_all = 0
 official_releases_only = 0
 magnet_links = 0
-log_dir = /home/USER/.headphones/logs
+log_dir = /home/${user}/headphones/logs
 torrentblackhole_dir = ""
 update_db_interval = 24
 ignored_words = ""
@@ -74,7 +74,7 @@ hppass = ""
 freeze_db = 0
 encoder_multicore_count = 0
 git_branch = master
-https_cert = /home/USER/.headphones/server.crt
+https_cert = /home/${user}/headphones/server.crt
 http_root = /headphones
 download_dir = ""
 http_proxy = 0
@@ -84,8 +84,8 @@ required_words = ""
 advancedencoder = ""
 http_username = ""
 lossless_destination_dir = ""
-https_key = /home/USER/.headphones/server.key
-cache_dir = /home/USER/.headphones/cache
+https_key = /home/${user}/headphones/server.key
+cache_dir = /home/${user}/headphones/cache
 cue_split_flac_path = ""
 mb_ignore_age = 365
 libraryscan_interval = 300
@@ -353,8 +353,7 @@ idtag = 0
 [MPC]
 mpc_enabled = 0
 HPCONF
-sed -i "s/USER/${MASTER}/g" /home/${MASTER}/.headphones/config.ini
-chown -R ${MASTER}: /home/${MASTER}/.headphones
-if [[ $isactive == "active" ]]; then
+
+if [[ $active == "active" ]]; then
   systemctl start headphones
 fi

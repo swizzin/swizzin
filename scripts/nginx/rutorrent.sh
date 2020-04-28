@@ -15,9 +15,17 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
+codename=$(lsb_release -cs)
 
 apt-get update -y -q >>/dev/null 2>&1
-apt-get install -y -q sox geoip-database python python-setuptools python-pip >>/dev/null 2>&1
+apt-get install -y -q sox geoip-database python2-dev python-setuptools >>/dev/null 2>&1
+
+if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
+  apt-get install -y -q python-pip
+else
+  . /etc/swizzin/sources/functions/pyenv
+  python_getpip
+fi
 
 pip install cloudscraper >> /dev/null 2>&1
 
@@ -167,7 +175,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 "stat" => '/usr/bin/stat', // Something like /usr/bin/stat. If empty, will be found in PATH.
 "bzip2" => '/bin/bzip2',
 "pgrep" => '/usr/bin/pgrep',
-"python" => '/usr/bin/python',
+"python" => '/usr/bin/python2',
 );
 
 \$localhosts = array( // list of local interfaces
@@ -183,15 +191,9 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 ?>
 RUC
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
 cat > /etc/nginx/apps/rutorrent.conf <<RUM
