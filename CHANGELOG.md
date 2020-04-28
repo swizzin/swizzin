@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.1.0]
+
+## April 28, 2020
+
+This is a **massive** release! Over 100 files have been touched and updated with new standards and new ways of handling things like python packages. Special thanks to [@flying-sausages](https://github.com/flying-sausages) for all their help in getting this release ready and offering help with code review.
+
+### Added
+- Support for Ubuntu 20.04. This includes marginal python2 support and support for Deluge 1.3.15. Please be advised this may be the last LTS release which supports 1.3.15.
+- Jellyfin media server ([@userdocs](https://github.com/userdocs))
+- Librespeed speedtest page for your server ([@hwcltjn](https://github.com/hwcltjn))
+- New functions for python2 virtual environments, PHP version management ([@flying-sausages](https://github.com/flying-sausages)) and a general place for repeated utils.
+- pyenv has been added to add support for python versions which aren't natively supported by the OS
+- pyLoad will now automatically configure itself, removing the need for user setup
+
+### Updated
+- Most python applications will now utilize a virtual environment in the master user's home directory
+- Applications which support Python3 have been upgraded to use it.
+- `service` commands have been removed in favour of `systemctl` to create a standard of service management
+- `nginx-extras` will no longer be installed. `nginx-full` + the fancy index modules is enough and requires less packages (`extras` modules that are unused were causing new bugs in focal)
+
+### Removed
+- Support for Debian Jessie has been officially removed
+- The CSF package has been removed. You may still remove the package with `box remove csf` but you can no longer install it.
+- python-pip is not a global depend and has been removed from the initial setup
+
+### Fixed
+- Version 3.7.7 was accidentally hard-coded into the pyenv virtualenv function
+- Lounge lockfile was incorrectly named
+- `setfacl` was incorrectly called as `setacl`
+- Update scripts should not start services if they were left in a disabled/stopped state
+- An issue in the panel update script was resetting custom profiles, this has been fixed.
+- `box update` now updates the panel again
+
 ## [2.0.0]
 
 ### March 30,2020
