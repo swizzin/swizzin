@@ -390,6 +390,11 @@ function _chpasswd {
     systemctl start deluged@${user}
     systemctl start deluge-web@${user}
   fi
+  if [[ -e /install/.transmission.lock ]]; then 
+    systemctl stop transmission@${user}
+    sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
+    systemctl start transmission@${user}
+  fi
 
 }
 
