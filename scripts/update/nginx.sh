@@ -65,13 +65,14 @@ done
 
 phpversion=$(php_service_version)
 
-v=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" {} \;)
-if [[ -z $v ]]; then
-  oldv=$(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;)
-  for upgrade in $oldv; do
-    sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $upgrade
-  done
-fi
+fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))
+err=()
+for f in ${fcgis[@]}; do
+  err+=($(grep -L "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" $f))
+done
+for fix in ${err[@]}; do
+  sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $fix
+done
 
 if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
   sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
