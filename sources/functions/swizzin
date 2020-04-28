@@ -4,7 +4,7 @@ function _get_user_password () {
     user_to_get="$1"
     password=''
 
-    ##TODO fix when there is no addition users other than .master
+    ##TODO fix when there is no addition users other than .master. It works but it's just ugly
     for file in /root/*.info /root/.master.info; do 
         user_in_file=$(cat $file | cut -d: -f1)
         if [ "$user_in_file" = "$user_to_get" ]; then 
@@ -13,9 +13,7 @@ function _get_user_password () {
     done
     
     if [[ -z $password ]]; then 
-        #TODO figure out how to handle this
-        exit 1
-        # echo " EEEEEEEEE We fucked up m8"
+        return 1
     fi
     echo $password
 }
