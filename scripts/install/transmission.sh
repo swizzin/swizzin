@@ -31,8 +31,6 @@ _start_transmission () {
     service transmission@${user} start
 }
 
-
-
 _setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     [[ -z $incomplete_dir ]] && export incomplete_dir='transmission/incomplete'
