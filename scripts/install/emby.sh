@@ -40,7 +40,7 @@ echo "Installing emby from GitHub releases ... "
 if [[ -f /install/.nginx.lock ]]; then
 echo "Setting up emby nginx configuration ... "
   bash /usr/local/bin/swizzin/nginx/emby.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 usermod -a -G ${username} emby

@@ -79,7 +79,7 @@ SERVICE
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
-    service nginx reload
+    systemctl reload nginx
 fi
 #
 # Start the filebrowser service.

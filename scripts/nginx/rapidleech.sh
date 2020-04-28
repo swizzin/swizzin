@@ -2,15 +2,9 @@
 # Nginx Configuration for RapidLeech
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 usermod -a -G ${MASTER} www-data
 

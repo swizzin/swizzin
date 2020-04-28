@@ -45,7 +45,7 @@ fi
 if [[ -f /install/.nginx.lock ]]; then
   echo "Reconfiguring deluge nginx configs"
   bash /usr/local/bin/swizzin/nginx/deluge.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 echo "Fixing Web Service and Hostlist ... "; dweb_check

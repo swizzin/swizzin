@@ -33,7 +33,7 @@ function _removeSonarr() {
     sudo rm /etc/init.d/sonarr
   fi
     sudo rm /install/.sonarr.lock
-    service nginx reload
+    systemctl reload nginx
 }
 
 _removeSonarr

@@ -59,7 +59,7 @@ OMB
 
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/ombi.sh
-    service nginx reload
+    systemctl reload nginx
   fi
 fi
 

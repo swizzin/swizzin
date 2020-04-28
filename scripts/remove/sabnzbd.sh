@@ -1,11 +1,14 @@
 #!/bin/bash
-username=$(cut -d: -f1 < /root/.master.info)
+user=$(cut -d: -f1 < /root/.master.info)
 
-apt-get -y remove par2-tbb python-openssl python-sabyenc python-cheetah >/dev/null 2>&1
-rm -rf /home/$username/SABnzbd
-systemctl disable sabnzbd@$username
-systemctl stop sabnzbd@$username
-rm /etc/systemd/system/sabnzbd@.service
+systemctl disable --now sabnzbd
+rm -rf /home/$user/sabnzbd
+rm -rf /home/$user/.config/sabnzbd
+rm -rf /home/$user/.venv/sabnzbd
+if [ -z "$(ls -A /home/$user/.venv)" ]; then
+   rm -rf  /home/$user/.venv
+fi
+rm /etc/systemd/system/sabnzbd.service
 rm -f /etc/nginx/apps/sabnzbd.conf
-service nginx force-reload
+systemctl reload nginx
 rm /install/.sabnzbd.lock

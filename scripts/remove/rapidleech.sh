@@ -24,7 +24,7 @@ function _removeRapidleech() {
   sudo rm -r  /home/"${MASTER}"/rapidleech
   sudo rm /etc/nginx/apps/rapidleech.conf
   sudo rm /install/.rapidleech.lock
-  service nginx reload
+  systemctl reload nginx
 }
 
 _removeRapidleech
