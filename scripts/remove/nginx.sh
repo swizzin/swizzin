@@ -16,7 +16,7 @@ apt-get -y -q autoremove >/dev/null 2>&1
 rm -rf /etc/nginx
 rm -rf /etc/php
 
-. /etc/swizzin/source/functions/short
+. /etc/swizzin/source/functions/utils
 rm_if_exists "/tmp/libtorrent"
 rm_if_exists "/srv/rutorrent"
 rm_if_exists "/srv/panel"

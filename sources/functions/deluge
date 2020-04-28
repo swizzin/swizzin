@@ -176,7 +176,7 @@ function build_libtorrent_rasterbar () {
     #fi
 
     cd /tmp
-    . /etc/swizzin/source/functions/short
+    . /etc/swizzin/source/functions/utils
     rm_if_exists "/tmp/libtorrent"
 
     git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }

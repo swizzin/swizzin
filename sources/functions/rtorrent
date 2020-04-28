@@ -82,7 +82,7 @@ function depends_rtorrent () {
 	# mktorrent from source
 	cd /tmp
 	wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >>$log 2>&1
-  . /etc/swizzin/sources/functions/short
+  . /etc/swizzin/sources/functions/utils
   rm_if_exists "/tmp/mktorrent"
 	unzip -d mktorrent -j mktorrent.zip >>$log 2>&1
 	cd mktorrent
@@ -95,7 +95,7 @@ function depends_rtorrent () {
 function build_xmlrpc-c () {
   xmlrpc="https://svn.code.sf.net/p/xmlrpc-c/code/advanced"
 	cd "/tmp"
-  . /etc/swizzin/sources/functions/short
+  . /etc/swizzin/sources/functions/utils
   rm_if_exists "/tmp/xmlrpc-c"
   rm_if_exists "/tmp/dist/xmlrpc-c "
 	svn co https://svn.code.sf.net/p/xmlrpc-c/code/advanced xmlrpc-c >>$log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced xmlrpc-c >>$log 2>&1; }
@@ -116,7 +116,7 @@ function build_xmlrpc-c () {
 function build_libtorrent_rakshasa () {
   libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
 	cd "/tmp"
-  . /etc/swizzin/sources/functions/short
+  . /etc/swizzin/sources/functions/utils
   rm_if_exists "/tmp/libtorrent"
 	if [[ ${libtorrentver} == feature-bind ]]; then
 		git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >>$log 2>&1
@@ -151,7 +151,7 @@ function build_libtorrent_rakshasa () {
 function build_rtorrent () {
   rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
 	cd "/tmp"
-  . /etc/swizzin/source/functions/short
+  . /etc/swizzin/source/functions/utils
   rm_if_exists "/tmp/rtorrent*"
 	if [[ ${rtorrentver} == feature-bind ]]; then
 		git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1
