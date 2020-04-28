@@ -13,6 +13,7 @@ This is a **massive** release! Over 100 files have been touched and updated with
 - New functions for python2 virtual environments, PHP version management ([@flying-sausages](https://github.com/flying-sausages)) and a general place for repeated utils.
 - pyenv has been added to add support for python versions which aren't natively supported by the OS
 - pyLoad will now automatically configure itself, removing the need for user setup
+- `box upgrade curl` will compile the latest version of curl on your server to help combat the curl bug present in Debian Buster.
 
 ### Updated
 - Most python applications will now utilize a virtual environment in the master user's home directory
