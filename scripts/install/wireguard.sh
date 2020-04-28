@@ -15,6 +15,7 @@ else
   OUTTO="/root/logs/swizzin.log"
 fi
 distribution=$(lsb_release -is)
+codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 u=$(cut -d: -f1 < /root/.master.info)
 IFACE=($(ip link show|grep -i broadcast|grep -m1 UP |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g'))
@@ -49,7 +50,7 @@ echo "Groovy. Please wait a few moments while wireguard is installed ..."
 if [[ $distribution == "Debian" ]]; then
     echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
     printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
-elif [[ $distribution == "Ubuntu" ]]; then
+elif [[ $codename =~ ("bionic"|"xenial") ]]; then
     add-apt-repository -y ppa:wireguard/wireguard >> $OUTTO 2>&1
 fi
 

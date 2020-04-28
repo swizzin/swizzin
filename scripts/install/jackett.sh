@@ -100,7 +100,7 @@ chown ${username}.${username} -R /home/${username}/.config/Jackett
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/jackett.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 systemctl enable --now jackett@${username} >/dev/null 2>&1

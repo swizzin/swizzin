@@ -431,7 +431,7 @@ chown -R lounge: /home/lounge
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/lounge.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 cat > /etc/systemd/system/lounge.service <<EOSD

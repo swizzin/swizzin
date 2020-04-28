@@ -56,7 +56,7 @@ cd /tmp
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
 codename=$(lsb_release -cs)
-if [[ $codename =~ ("stretch"|"jessie"|"xenial") ]]; then
+if [[ $codename =~ ("stretch"|"xenial") ]]; then
   version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
 else
   version=latest
@@ -96,15 +96,9 @@ then
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 
-if [[ -f /lib/systemd/system/php7.3-fpm.service ]]; then
-  sock=php7.3-fpm
-elif [[ -f /lib/systemd/system/php7.2-fpm.service ]]; then
-  sock=php7.2-fpm
-elif [[ -f /lib/systemd/system/php7.1-fpm.service ]]; then
-  sock=php7.1-fpm
-else
-  sock=php7.0-fpm
-fi
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
 
 cat > /etc/nginx/apps/nextcloud.conf <<EOF
 # The following 2 rules are only needed for the user_webfinger app.
@@ -217,7 +211,7 @@ mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@loca
 mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
 
-service nginx reload
+systemctl reload nginx
 touch /install/.nextcloud.lock
 
 echo -e "Visit https://${ip}/nextcloud to finish installation."

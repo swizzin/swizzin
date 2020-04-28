@@ -3,24 +3,27 @@
 # Author: liara
 
 user=$(cut -d: -f1 < /root/.master.info)
+codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/utils
+
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
 else
   log="/root/logs/swizzin.log"
 fi
 
-if [[ $(systemctl is-active medusa@${user}) == "active" ]]; then
+if [[ $(systemctl is-active medusa) == "active" ]]; then
   active=medusa
 fi
 
-if [[ $(systemctl is-active sickchill@${user}) == "active" ]]; then
+if [[ $(systemctl is-active sickchill) == "active" ]]; then
   active=sickchill
 fi
 
 if [[ -n $active ]]; then
   echo "SickChill and Medusa and Sickgear cannot be active at the same time."
   echo "Do you want to disable $active and continue with the installation?"
-  echo "Don't worry, your install will remain at /home/${user}/.$active"
+  echo "Don't worry, your install will remain at /home/${user}/$active"
   while true; do
   read -p "Do you want to disable $active? " yn
       case "$yn" in
@@ -30,58 +33,63 @@ if [[ -n $active ]]; then
       esac
   done
   if [[ $disable == "yes" ]]; then
-    systemctl disable ${active}@${user}
-    systemctl stop ${active}@${user}
+    systemctl disable --now ${active}
   else
     exit 1
   fi
 fi
 
+
+mkdir -p /home/${user}/.venv
+chown ${user}: /home/${user}/.venv
 apt-get -y -q update >> $log 2>&1
-apt-get -y -q install git-core openssl libssl-dev python3-cheetah python3 python3-pip python3-dev >> $log 2>&1
-pip3 install lxml regex scandir soupsieve>> $log 2>&1
 
-function _rar () {
-  cd /tmp
-  wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-  tar -xzf rarlinux-x64-5.5.0.tar.gz >/dev/null 2>&1
-  cp rar/*rar /bin >/dev/null 2>&1
-  rm -rf rarlinux*.tar.gz >/dev/null 2>&1
-  rm -rf /tmp/rar >/dev/null 2>&1
-}
-
-if [[ -z $(which rar) ]]; then
-  apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
+if [[ ! $codename =~ ("xenial"|"stretch"|"bionic") ]]; then
+  apt-get -y -q install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv >> $log 2>&1
+  python3 -m venv /home/${user}/.venv/sickgear
+else
+  apt-get -y -q install git-core openssl libssl-dev >> $log 2>&1
+  . /etc/swizzin/sources/functions/pyenv
+  pyenv_install
+  pyenv_install_version 3.7.7
+  pyenv_create_venv 3.7.7 /home/${user}/.venv/sickgear
 fi
-sudo git clone https://github.com/SickGear/SickGear.git  /home/$user/.sickgear >/dev/null 2>&1
 
-chown -R $user:$user /home/$user/.sickgear
+/home/${user}/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> $log 2>&1
 
-cat > /etc/systemd/system/sickgear@.service <<SRS
+chown -R ${user}: /home/${user}/.venv/sickgear
+
+install_rar
+
+sudo git clone https://github.com/SickGear/SickGear.git  /home/$user/sickgear >> ${log} 2>&1
+
+chown -R $user:$user /home/$user/sickgear
+
+cat > /etc/systemd/system/sickgear.service <<SRS
 [Unit]
-Description=SickGear for %i
+Description=SickGear
 After=syslog.target network.target
 
 [Service]
-User=%i
-Group=%i
-ExecStart=/usr/bin/python3 /home/%i/.sickgear/sickgear.py -q --nolaunch --datadir=/home/%i/.sickgear
+User=${user}
+Group=${user}
+ExecStart=/home/${user}/.venv/sickgear/bin/python /home/${user}/sickgear/sickgear.py -q --nolaunch --datadir=/home/${user}/sickgear
 
 
 [Install]
 WantedBy=multi-user.target
 SRS
   systemctl daemon-reload
-  systemctl enable --now sickgear@$user > /dev/null 2>&1
+  systemctl enable --now sickgear > /dev/null 2>&1
   sleep 5
   # Restart because first start doesn't always generate the config.ini
-  systemctl restart sickgear@$user
+  systemctl restart sickgear
   # Sleep to allow time for background processes
   sleep 5
 
 if [[ -f /install/.nginx.lock ]]; then
   bash /usr/local/bin/swizzin/nginx/sickgear.sh
-  service nginx reload
+  systemctl reload nginx
 fi
 
 touch /install/.sickgear.lock

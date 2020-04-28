@@ -22,7 +22,7 @@ if [[ ! -f /install/.jellyfin.lock ]]; then
 fi
 #
 # Stop the jellyfin service
-service jellyfin stop
+systemctl stop jellyfin
 #
 # Create the required directories for this application.
 mkdir -p "$install_dir"
@@ -57,7 +57,7 @@ rm -rf "$install_tmp" > /dev/null 2>&1
 chown "${username}.${username}" -R "$install_dir"
 chown "${username}.${username}" -R "$install_ffmpeg"
 #
-service jellyfin start
+systemctl start jellyfin
 #
 echo -e "\nJellyfin upgrade completed and service restarted\n"
 #

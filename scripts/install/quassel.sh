@@ -32,7 +32,7 @@ if [[ $distribution == Ubuntu ]]; then
   echo "Installing Quassel PPA"
   apt-get install -q -y software-properties-common > /dev/null 2>&1
 	apt-add-repository ppa:mamarley/quassel -y >/dev/null 2>&1
-	apt-get -qq -y --force-yes update >/dev/null 2>&1
+	apt-get -q -y update >/dev/null 2>&1
   apt-get -q -y install quassel-core >/dev/null 2>&1
 else
   if [[ $codename == "buster" ]]; then

@@ -48,12 +48,7 @@ deb-src http://packages.x2go.org/debian ${release} main
 EOF
 
 apt-get -y update>> ${log} 2>&1
-if [[ $release == "jessie" ]]; then
-	gpg --keyserver keys.gnupg.net --recv E1F958385BFE2B6E >> ${log} 2>&1
-	gpg --export E1F958385BFE2B6E > /etc/apt/trusted.gpg.d/x2go.gpg
-else
-  apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
-fi
+apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
 
 apt-get -y update >> ${log} 2>&1
 apt-get -y install x2go-keyring >> ${log} 2>&1 && apt-get update >> ${log} 2>&1

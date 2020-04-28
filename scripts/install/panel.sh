@@ -24,7 +24,7 @@ fi
 
 master=$(cut -d: -f1 < /root/.master.info)
 
-apt-get -y -q install python3-venv git acl > /dev/null 2>&1
+apt-get -y -q install python3-pip python3-venv git acl > /dev/null 2>&1
 mkdir -p /opt/swizzin/
 python3 -m venv /opt/swizzin/venv
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin >> ${log} 2>&1

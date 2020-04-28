@@ -7,9 +7,9 @@ rm /install/.jackett.lock
   systemctl disable jackett@${username}
   rm /etc/systemd/system/jackett@.service
   rm -f /etc/nginx/apps/jackett.conf
-  service nginx reload
+  systemctl reload nginx
 if [[ -f /etc/init.d/jackett ]]; then
   rm /etc/init.d/jackett
   update-rc.d -f jackett remove
-  service jackett stop
+  systemctl stop jackett
 fi

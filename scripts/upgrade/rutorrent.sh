@@ -13,4 +13,4 @@ if [[ ! -f /install/.rutorrent.lock ]]; then
 fi
 
 bash /usr/local/bin/swizzin/nginx/rutorrent.sh
-systemctl force-reload nginx
+systemctl reload nginx
