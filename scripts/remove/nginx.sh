@@ -17,7 +17,6 @@ rm -rf /etc/nginx
 rm -rf /etc/php
 
 . /etc/swizzin/source/functions/utils
-rm_if_exists "/tmp/libtorrent"
 rm_if_exists "/srv/rutorrent"
 rm_if_exists "/srv/panel"
 rm_if_exists "/etc/sudoers.d/panel"
