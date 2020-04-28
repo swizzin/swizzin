@@ -71,11 +71,11 @@ mkdir -p /home/${user}/sabnzbd
 wget -q -O sabnzbd.tar.gz $latest
 tar xzf sabnzbd.tar.gz --strip-components=1 -C /home/${user}/sabnzbd >> ${log} 2>&1
 rm -rf sabnzbd.tar.gz
-mkdir -p .config/sabnzbd
+mkdir -p /home/${user}/.config/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
-chown -R ${user}: sabnzbd
-chown ${user}: .config
-chown -R ${user}: .config/sabnzbd
+chown -R ${user}: /home/${user}/sabnzbd
+chown ${user}: /home/${user}/.config
+chown -R ${user}: /home/${user}/.config/sabnzbd
 chown ${user}: /home/${user}/Downloads
 chown ${user}: /home/${user}/Downloads/{complete,incomplete}
 

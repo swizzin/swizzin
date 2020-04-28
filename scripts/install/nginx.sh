@@ -45,7 +45,7 @@ else
 fi
 
 apt-get -y -qq update
-APT='nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache php-geoip php-xml'
+APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 for depends in $APT; do
 apt-get -y install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
 done

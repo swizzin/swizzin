@@ -8,10 +8,10 @@ else
   log="/dev/null"
 fi
 
-if [[ $codename == "bionic" ]]; then
-  mcrypt=
-else
+if [[ $codename =~ ("xenial"|"stretch") ]]; then
   mcrypt=php-mcrypt
+else
+  mcrypt=
 fi
 
 #Deprecate nginx-extras in favour of installing fancyindex alone
@@ -23,7 +23,7 @@ if dpkg -s nginx-extras > /dev/null 2>&1; then
   systemctl reload nginx
 fi
 
-APT='php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json '"${mcrypt}"' php-mbstring php-opcache php-geoip php-xml'
+APT="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 for depends in $APT; do
   inst=$(dpkg -l | grep $depends)
   if [[ -z $inst ]]; then

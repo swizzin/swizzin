@@ -7,8 +7,6 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   log="/root/logs/swizzin.log"
 fi
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
 user=$(cut -d: -f1 < /root/.master.info)
 
 if [[ $(systemctl is-active sickgear) == "active" ]]; then
@@ -32,8 +30,7 @@ if [[ -n $active ]]; then
       esac
   done
   if [[ $disable == "yes" ]]; then
-    systemctl disable ${active}
-    systemctl stop ${active}
+    systemctl disable --now ${active}
   else
     exit 1
   fi

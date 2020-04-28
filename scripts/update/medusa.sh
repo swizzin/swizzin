@@ -5,7 +5,6 @@ if [[ -f /install/.medusa.lock ]]; then
         log=/root/logs/swizzin.log
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active medusa@${user})
-        codename=$(lsb_release -cs)
 
         if [[ $isactive == "active" ]]; then
             systemctl disable --now medusa@${user}

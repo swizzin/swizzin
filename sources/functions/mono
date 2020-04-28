@@ -7,9 +7,7 @@ function mono_repo_setup () {
     if [[ $distribution == "Ubuntu" ]]; then
       apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
     elif [[ $distribution == "Debian" ]]; then
-      if [[ $codename == "buster" ]]; then
-        :
-      else
+      if [[ ! $codename == "buster" ]]; then
         apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /dev/null 2>&1
         #gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
         #gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
