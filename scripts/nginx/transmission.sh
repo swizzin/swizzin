@@ -12,9 +12,9 @@ location /transmission {
 }
 
 location /transmission/ {
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header Host \$http_host;
     proxy_set_header X-NginX-Proxy true;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
@@ -22,7 +22,7 @@ location /transmission/ {
     add_header   Front-End-Https   on;
     auth_basic "What's the password?";
     auth_basic_user_file /etc/htpasswd;
-    proxy_pass http://$remote_user.transmission;
+    proxy_pass http://\$remote_user.transmission;
 }
 TCONF
 fi
