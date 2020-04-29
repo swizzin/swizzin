@@ -71,4 +71,7 @@ EOF
 _install_webmin
 _webmin_conf
 
+echo 
+echo "Webmin has been installed, please use any account with sudo permissions to log in"
+
 touch /install/.webmin.lock
