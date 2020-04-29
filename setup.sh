@@ -103,11 +103,6 @@ function _nukeovh() {
   fi
 }
 
-function _skel() {
-  rm -rf /etc/skel
-  cp -R /etc/swizzin/sources/skel /etc/skel
-}
-
 function _intro() {
   whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 15 50
 }
@@ -143,9 +138,7 @@ function _adduser() {
   echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
     echo "User directory already exists ... "
-    #_skel
-    #cd /etc/skel
-    #cp -R * /home/$user/
+
     echo "Changing password to new password"
     chpasswd<<<"${user}:${pass}"
     htpasswd -b -c /etc/htpasswd $user $pass
@@ -154,7 +147,6 @@ function _adduser() {
     chown -R $user:$user /home/${user}
   else
     echo -e "Creating new user \e[1;95m$user\e[0m ... "
-    #_skel
     useradd "${user}" -m -G www-data -s /bin/bash
     chpasswd<<<"${user}:${pass}"
     htpasswd -b -c /etc/htpasswd $user $pass
@@ -294,7 +286,6 @@ function _post {
 _os
 _preparation
 _nukeovh
-_skel
 _intro
 _adduser
 _choices
