@@ -22,12 +22,11 @@ if [[ -f /install/.couchpotato.lock ]]; then
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
-        python2_home_venv ${user} couchpotato
-        /home/${user}/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
-        chown -R ${user}: /home/${user}/.venv/couchpotato
+        python2_venv ${user} couchpotato
+        /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
+        chown -R ${user}: /opt/.venv/couchpotato
 
-        cd /home/${user}
-        mv .couchpotato couchpotato
+        mv /home/${user}/.couchpotato /opt/couchpotato
         cat > /etc/systemd/system/couchpotato.service <<CPSD
 [Unit]
 Description=CouchPotato
@@ -37,7 +36,7 @@ After=syslog.target network.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon --data_dir /home/${user}/.config/couchpotato
+ExecStart=/opt/.venv/couchpotato/bin/python2 /opt/couchpotato/CouchPotato.py --daemon --data_dir /home/${user}/.config/couchpotato
 GuessMainPID=no
 
 [Install]
@@ -46,7 +45,7 @@ CPSD
         mkdir -p /home/${user}/.config/couchpotato
         chown ${user}: /home/${user}/.config
         chown ${user}: /home/${user}/.config/couchpotato
-        mv /home/${user}/couchpotato/{cache,custom_plugins,database,db_backup,logs,settings.conf} /home/${user}/.config/couchpotato
+        mv /opt/couchpotato/{cache,custom_plugins,database,db_backup,logs,settings.conf} /home/${user}/.config/couchpotato
         rm /etc/systemd/system/couchpotato@.service
         systemctl daemon-reload
 

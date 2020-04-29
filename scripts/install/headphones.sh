@@ -38,15 +38,15 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${app} headphones
+python2_venv ${app} headphones
 
 PIP='wheel cheetah asn1'
-/home/${user}/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
-chown -R ${user}: /home/${user}/.venv/headphones
+/opt/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
+chown -R ${user}: /opt/.venv/headphones
 
-git clone https://github.com/rembo10/headphones.git /home/${user}/headphones >>"${log}" 2>&1
+git clone https://github.com/rembo10/headphones.git /opt/headphones >>"${log}" 2>&1
 
-chown -R $user: /home/${user}/headphones
+chown -R $user: /opt/headphones
 
 
 cat > /etc/systemd/system/headphones.service <<HEADSD
@@ -59,7 +59,7 @@ After=network.target network-online.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/headphones/bin/python2 /home/${user}/headphones/Headphones.py -d --pidfile /run/${user}/headphones.pid --datadir /home/${user}/headphones --nolaunch --config /home/${user}/headphones/config.ini --port 8004
+ExecStart=/opt/.venv/headphones/bin/python2 /opt/headphones/Headphones.py -d --pidfile /run/${user}/headphones.pid --datadir /opt/headphones --nolaunch --config /opt/headphones/config.ini --port 8004
 PIDFile=/run/${user}/headphones.pid
 
 

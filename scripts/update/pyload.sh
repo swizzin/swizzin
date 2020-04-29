@@ -35,14 +35,13 @@ if [[ -f /install/.pyload.lock ]]; then
             python_getpip
         fi
 
-        python2_home_venv ${user} pyload
+        python2_venv ${user} pyload
 
         PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-        /home/${user}/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
-        chown -R ${user}: /home/${user}/.venv/pyload
+        /opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
+        chown -R ${user}: /opt/.venv/pyload
 
-        cd /home/${user}
-        mv .pyload pyload
+        mv /home/${user}/.pyload /opt
 
 cat >/etc/systemd/system/pyload.service<<PYSD
 [Unit]
@@ -51,8 +50,8 @@ After=network.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload
-WorkingDirectory=/home/${user}/pyload
+ExecStart=/opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py --config=/opt/pyload
+WorkingDirectory=/opt/pyload
 
 [Install]
 WantedBy=multi-user.target

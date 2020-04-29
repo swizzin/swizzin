@@ -34,7 +34,7 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${user} nzbhydra
+python2_venv ${user} nzbhydra
 
 echo "Cloning NZBHydra ... "
 git clone -q https://github.com/theotherp/nzbhydra.git /home/${user}/nzbhydra

@@ -26,8 +26,8 @@ location /bazarr {
 
 BAZN
 
-if ! grep -q "\[general\]" /home/${user}/bazarr/data/config/config.ini > /dev/null 2>&1; then
-cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
+if ! grep -q "\[general\]" /opt/bazarr/data/config/config.ini > /dev/null 2>&1; then
+cat >> /opt/bazarr/data/config/config.ini <<BAZC
 
 [general]
 ip = 127.0.0.1

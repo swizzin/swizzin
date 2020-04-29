@@ -21,7 +21,7 @@ fi
 if [[ -n $active ]]; then
   echo "SickChill and Medusa and Sickgear cannot be active at the same time."
   echo "Do you want to disable $active and continue with the installation?"
-  echo "Don't worry, your install will remain at /home/${user}/$active"
+  echo "Don't worry, your install will remain at /opt/$active"
   while true; do
   read -p "Do you want to disable $active? " yn
       case "$yn" in
@@ -37,20 +37,20 @@ if [[ -n $active ]]; then
   fi
 fi
 
-mkdir -p /home/${user}/.venv
-chown ${user}: /home/${user}/.venv
+mkdir -p /opt/.venv
+chown ${user}: /opt/.venv
 
 apt-get -y -q update >> $log 2>&1
 
 apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
-python3 -m venv /home/${user}/.venv/medusa
+python3 -m venv /opt/.venv/medusa
 
-chown -R ${user}: /home/${user}/.venv/medusa
+chown -R ${user}: /opt/.venv/medusa
 
 
 install_rar
 
-cd /home/${user}/
+cd /opt/
 git clone https://github.com/pymedusa/Medusa.git medusa >> ${log} 2>&1
 chown -R ${user}:${user} medusa
 
@@ -64,7 +64,7 @@ Type=forking
 GuessMainPID=no
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/medusa/bin/python3 /home/${user}/medusa/SickBeard.py -q --daemon --nolaunch --datadir=/home/${user}/medusa
+ExecStart=/opt/.venv/medusa/bin/python3 /opt/medusa/SickBeard.py -q --daemon --nolaunch --datadir=/opt/medusa
 ExecStop=-/bin/kill -HUP
 
 

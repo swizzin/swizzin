@@ -25,7 +25,7 @@ location /headphones {
 }
 RAD
 fi
-cat > /home/${user}/headphones/config.ini <<HPCONF
+cat > /opt/headphones/config.ini <<HPCONF
 [General]
 nzb_downloader = 0
 download_torrent_dir = ""
@@ -66,7 +66,7 @@ cue_split = 1
 autowant_all = 0
 official_releases_only = 0
 magnet_links = 0
-log_dir = /home/${user}/headphones/logs
+log_dir = /opt/headphones/logs
 torrentblackhole_dir = ""
 update_db_interval = 24
 ignored_words = ""
@@ -74,7 +74,7 @@ hppass = ""
 freeze_db = 0
 encoder_multicore_count = 0
 git_branch = master
-https_cert = /home/${user}/headphones/server.crt
+https_cert = /opt/headphones/server.crt
 http_root = /headphones
 download_dir = ""
 http_proxy = 0
@@ -84,8 +84,8 @@ required_words = ""
 advancedencoder = ""
 http_username = ""
 lossless_destination_dir = ""
-https_key = /home/${user}/headphones/server.key
-cache_dir = /home/${user}/headphones/cache
+https_key = /opt/headphones/server.key
+cache_dir = /opt/headphones/cache
 cue_split_flac_path = ""
 mb_ignore_age = 365
 libraryscan_interval = 300

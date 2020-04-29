@@ -36,15 +36,15 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
 fi
 
 
-python2_home_venv ${user} couchpotato
-/home/${user}/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
+python2_venv ${user} couchpotato
+/opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
 
-git clone https://github.com/CouchPotato/CouchPotatoServer.git /home/${user}/couchpotato >> ${log} 2>&1 || { echo "git clone for couchpotato failed"; exit 1; }
-chown ${user}: -R /home/${user}/couchpotato
-chown ${user}: -R /home/${user}/.venv/couchpotato
-mkdir -p /home/${user}/.config/couchpotato
-chown ${user}: /home/${user}/.config
-chown ${user}: /home/${user}/.config/couchpotato
+git clone https://github.com/CouchPotato/CouchPotatoServer.git /opt/couchpotato >> ${log} 2>&1 || { echo "git clone for couchpotato failed"; exit 1; }
+chown ${user}: -R /opt/couchpotato
+chown ${user}: -R /opt/.venv/couchpotato
+mkdir -p /opt/.config/couchpotato
+chown ${user}: /opt/.config
+chown ${user}: /opt/.config/couchpotato
 
 
 cat > /etc/systemd/system/couchpotato.service <<CPSD
@@ -56,7 +56,7 @@ After=syslog.target network.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/couchpotato/bin/python2 /home/${user}/couchpotato/CouchPotato.py --daemon --data_dir /home/${user}/.config/couchpotato
+ExecStart=/opt/.venv/couchpotato/bin/python2 /opt/couchpotato/CouchPotato.py --daemon --data_dir /home/${user}/.config/couchpotato
 GuessMainPID=no
 
 [Install]
