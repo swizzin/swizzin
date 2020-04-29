@@ -49,7 +49,7 @@ PIDFile=/run/${user}/headphones.pid
 WantedBy=multi-user.target
 HEADSD
         systemctl daemon-reload
-        sed -i "s|/home/${user}/.headphones|/opt/headphones/g" /opt/headphones/config.ini
+        sed -i "s|/home/${user}/.headphones|/opt/headphones|g" /opt/headphones/config.ini
 
         if [[ $active == "active" ]]; then
             systemctl enable --now headphones >> ${log} 2>&1
