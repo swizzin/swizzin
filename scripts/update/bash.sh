@@ -10,6 +10,7 @@ if [[ ! -f /etc/skel/.bashrc ]]; then
         newbashrc="/etc/skel/.bashrc"
         if [[ ! -f $d/.bashrc ]]; then 
             cp $newbashrc $d/.bashrc
+            echo "Installed $d/.bashrc. Re-open your terminal or run \`exec \"$SHELL\"\` to apply the changes."
         else
             if [[ ! $(cpm --silent $d/.bashrc $newbashrc) ]]; then
                 cp $newbashrc $d/.bashrc-default
