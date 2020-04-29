@@ -136,9 +136,11 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "utp-enabled": true
 }
 EOF
+if [[ ! -f /install/.nginx.lock ]]; then
 echo "Transmission RPC port for ${user} = ${rpc_port}"
-# echo "Use the RPC port above and your user credentials to log into Transmission Remote"
+# echo "Use the RPC port above and your user credentials to log into Transmission"
 # echo "   More info: https://github.com/transmission-remote-gui/transgui"
+fi
 }
 
 _nginx_transmission () {
