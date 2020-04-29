@@ -17,6 +17,9 @@ done
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
 apt-get purge -y transmission-common transmission-cli transmission-daemon >> $log 2>&1
 rm /etc/systemd/system/transmission@.service
+rm /etc/nginx/apps/transmission.conf > /dev/null 2>&1
+rm /etc/nginx/conf.d/*.transmission.conf > /dev/null 2>&1
+systemctl reload nginx > /dev/null 2>&1
 systemctl daemon-reload
 
 rm /install/.transmission.lock
