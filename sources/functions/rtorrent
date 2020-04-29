@@ -151,7 +151,7 @@ function build_libtorrent_rakshasa () {
 function build_rtorrent () {
   rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
 	cd "/tmp"
-  . /etc/swizzin/source/functions/utils
+  . /etc/swizzin/sources/functions/utils
   rm_if_exists "/tmp/rtorrent*"
 	if [[ ${rtorrentver} == feature-bind ]]; then
 		git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1
