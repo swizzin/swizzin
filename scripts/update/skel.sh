@@ -8,7 +8,6 @@ if [[ ! -f /etc/skel/.bashrc ]]; then
     rm -rf /tmp/bash*
     rm /etc/skel/.bashrc.bak
 
-
     for d in /home/*/; do
         newbashrc="/etc/skel/.bashrc"
         if [[ ! -f $d.bashrc ]]; then 
