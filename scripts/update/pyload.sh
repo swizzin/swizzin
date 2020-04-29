@@ -41,7 +41,7 @@ if [[ -f /install/.pyload.lock ]]; then
         /opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
         chown -R ${user}: /opt/.venv/pyload
 
-        mv /home/${user}/.pyload /opt
+        mv /home/${user}/.pyload /opt/pyload
 
 cat >/etc/systemd/system/pyload.service<<PYSD
 [Unit]
