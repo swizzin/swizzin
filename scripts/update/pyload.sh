@@ -42,6 +42,7 @@ if [[ -f /install/.pyload.lock ]]; then
         chown -R ${user}: /opt/.venv/pyload
 
         mv /home/${user}/.pyload /opt/pyload
+        echo "/opt/pyload" > /opt/pyload/module/config/configdir
 
 cat >/etc/systemd/system/pyload.service<<PYSD
 [Unit]
