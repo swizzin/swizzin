@@ -40,22 +40,22 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${user} sabnzbd
+python2_venv ${user} sabnzbd
 
 PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc cheetah pyOpenSSL'
-/home/${user}/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
-chown -R ${user}: /home/${user}/.venv/sabnzbd
+/opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
+chown -R ${user}: /opt/.venv/sabnzbd
 
 install_rar
 
-cd /home/${user}
-mkdir -p /home/${user}/sabnzbd
+cd /opt
+mkdir -p /opt/sabnzbd
 wget -q -O sabnzbd.tar.gz $latest
-tar xzf sabnzbd.tar.gz --strip-components=1 -C /home/${user}/sabnzbd >> ${log} 2>&1
+tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
 rm -rf sabnzbd.tar.gz
 mkdir -p /home/${user}/.config/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
-chown -R ${user}: /home/${user}/sabnzbd
+chown -R ${user}: /opt/sabnzbd
 chown ${user}: /home/${user}/.config
 chown -R ${user}: /home/${user}/.config/sabnzbd
 chown ${user}: /home/${user}/Downloads
@@ -69,8 +69,8 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/sabnzbd/bin/python2 /home/${user}/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
-WorkingDirectory=/home/${user}/sabnzbd
+ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 
 [Install]

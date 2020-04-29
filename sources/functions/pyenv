@@ -46,6 +46,16 @@ function python_getpip() {
   fi
 }
 
+function python2_venv {
+  user=$1
+  app=$2
+  echo "Setting up the ${app} venv ..."
+  mkdir -p /opt/.venv
+  chown ${user}: /opt/.venv
+  python2 -m virtualenv /opt/.venv/${app} >>"${log}" 2>&1
+  chown -R ${user}: /opt/.venv/${app}
+}
+
 function python2_home_venv {
   user=$1
   app=$2

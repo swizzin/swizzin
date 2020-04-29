@@ -26,7 +26,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
             python_getpip
         fi
 
-        python2_home_venv ${user} nzbhydra
+        python2_venv ${user} nzbhydra
 
         if [[ ! -d /home/${user}/.config ]]; then
             mkdir /home/${user}/.config
@@ -34,7 +34,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         fi
 
         mv /home/${user}/.nzbhydra /home/${user}/.config/nzbhydra
-
+        mv /home/${user}/nzbhydra /opt
         cat > /etc/systemd/system/nzbhydra.service <<NZBH
 [Unit]
 Description=NZBHydra
@@ -46,7 +46,7 @@ Type=forking
 KillMode=control-group
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/nzbhydra/bin/python2 /home/${user}/nzbhydra/nzbhydra.py --daemon --nobrowser --pidfile /home/${user}/nzbhydra/nzbhydra.pid --logfile /home/${user}/.config/nzbhydra/nzbhydra.log --database /home/${user}/.config/nzbhydra/nzbhydra.db --config /home/${user}/.config/nzbhydra/settings.cfg
+ExecStart=/opt/.venv/nzbhydra/bin/python2 /opt/nzbhydra/nzbhydra.py --daemon --nobrowser --pidfile /opt/nzbhydra/nzbhydra.pid --logfile /home/${user}/.config/nzbhydra/nzbhydra.log --database /home/${user}/.config/nzbhydra/nzbhydra.db --config /home/${user}/.config/nzbhydra/settings.cfg
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 Restart=on-failure
