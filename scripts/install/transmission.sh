@@ -141,6 +141,13 @@ echo "Transmission RPC port for ${user} = ${rpc_port}"
 # echo "   More info: https://github.com/transmission-remote-gui/transgui"
 }
 
+_nginx_transmission () {
+    if [[ -f /install/.nginx.lock ]]; then
+        bash /usr/local/bin/swizzin/nginx/transmission.sh
+        systemctl reload nginx
+    fi
+}
+
 ##########################################################################
 # Script Main
 ##########################################################################
@@ -161,6 +168,7 @@ if [[ -n $1 ]]; then
 	user=$1
 	_mkdir_transmission
     _mkconf_transmission
+    _nginx_transmission
 	exit 0
 fi
 
@@ -181,7 +189,7 @@ echo "Creating directories"
 _mkdir_transmission
 echo "Creating config"
 _mkconf_transmission
-
+_nginx_transmission
 _start_transmission
 
 touch /install/.transmission.lock
