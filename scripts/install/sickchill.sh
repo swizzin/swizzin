@@ -56,9 +56,9 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${user} sickchill
+python2_venv ${user} sickchill
 
-git clone https://github.com/SickChill/SickChill.git  /home/$user/sickchill >> ${log} 2>&1
+git clone https://github.com/SickChill/SickChill.git  /opt/sickchill >> ${log} 2>&1
 chown -R $user: /opt/sickchill
 
 

@@ -38,7 +38,7 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_venv ${app} headphones
+python2_venv ${user} headphones
 
 PIP='wheel cheetah asn1'
 /opt/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
