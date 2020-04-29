@@ -32,8 +32,7 @@ for u in ${users[@]}; do
     if [[ $active == "active" ]]; then
         systemctl stop transmission@${u}
     fi
-    sed -i 's/"0.0.0.0"/"127.0.0.1"/g' /home/${u}/.config/transmission-daemon/settings.json
-    sed -i 's/"::"/"::1"/g' /home/${u}/.config/transmission-daemon/settings.json
+    sed -i 's/"rpc-bind-address": "0.0.0.0",/"rpc-bind-address": "127.0.0.1",/g' /home/${u}/.config/transmission-daemon/settings.json
     RPCPORT=$(grep rpc-port /home/${u}/.config/transmission-daemon/settings.json | grep -o '[[:digit:]]*')
     if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
         cat > /etc/nginx/conf.d/${u}.transmission.conf <<TDCONF
