@@ -20,9 +20,9 @@ codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='git python2-dev python-virtualenv virtualenv'
+  LIST='git python2.7-dev python-virtualenv virtualenv'
 else
-  LIST='git python2-dev'
+  LIST='git python2.7-dev'
 fi
 
 apt-get -y update >>"${log}" 2>&1

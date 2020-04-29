@@ -133,7 +133,7 @@ function build_libtorrent_rasterbar () {
         1.3-stable)
           python=python
           pythonbin=python2
-          pythonapt=python2-dev
+          pythonapt=python2.7-dev
           remove=python3-libtorrent
           case $release in
             "focal")
@@ -230,7 +230,7 @@ function build_deluge () {
       ;;
       1.3-stable)
         if [[ $release == "focal" ]]; then
-          LIST='python2-dev intltool xdg-utils librsvg2-common'
+          LIST='python2.7-dev intltool xdg-utils librsvg2-common'
           PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
         else
           LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'

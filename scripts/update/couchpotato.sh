@@ -10,9 +10,9 @@ if [[ -f /install/.couchpotato.lock ]]; then
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now couchpotato@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2-dev python-virtualenv virtualenv'
+            LIST='git python2.7-dev python-virtualenv virtualenv'
         else
-            LIST='git python2-dev'
+            LIST='git python2.7-dev'
         fi
         apt-get -y -q update >> $log 2>&1
         for depend in $LIST; do
