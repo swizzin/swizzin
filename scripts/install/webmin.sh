@@ -30,7 +30,6 @@ _get_domain_for_webmin () {
             if [[ $guess = '_' ]]; then 
                 guess=''
             fi
-            echo "guess = $guess"
             if [[ -n $guess ]]; then
                 guesstext="\nBelow is a possible match from your nginx configuration."
             fi
