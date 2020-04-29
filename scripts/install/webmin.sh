@@ -23,9 +23,9 @@ _install_webmin () {
 _get_domain_for_webmin () {
     if [[ -z $webmin_referers ]]; then
         if [[ -f /install/.letsencrypt.lock ]]; then 
-            webmin_referers=$(grep "server_name" /etc/nginx/sites-enabled/default |head -1|sed 's/^\s*//g'|cut -d ' ' -f2 | cut -d\; -f1)
+            webmin_referers=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
         else
-            guess=$(grep "server_name" /etc/nginx/sites-enabled/default |head -1|sed 's/^\s*//g'|cut -d ' ' -f2 | cut -d\; -f1)
+            guess=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
             if [[ $guess = '_' ]]; then 
                 guess=''
             fi
