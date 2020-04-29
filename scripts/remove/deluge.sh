@@ -29,6 +29,11 @@ dpkg -r python-libtorrent > /dev/null 2>&1
 dpkg -r python3-libtorrent > /dev/null 2>&1
 dpkg -r deluge-common > /dev/null 2>&1
 
+if [[ -f /install/.nginx.lock ]]; then
+  rm -f /etc/nginx/apps/deluge.conf > /dev/null 2>&1
+  rm -f /etc/nginx/apps/dindex.conf > /dev/null 2>&1
+  rm -f /etc/nginx/conf.d/*.deluge.conf > /dev/null 2>&1
+fi
 
 rm -rf /usr/lib/python2.7/dist-packages/deluge*
 
