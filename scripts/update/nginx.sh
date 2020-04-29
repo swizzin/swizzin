@@ -63,6 +63,10 @@ for version in $phpv; do
   fi
 done
 
+if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
+fi
+
 phpversion=$(php_service_version)
 
 fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))

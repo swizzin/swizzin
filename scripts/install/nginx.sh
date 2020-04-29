@@ -65,6 +65,9 @@ for version in $phpv; do
   phpenmod -v $version opcache
 done
 
+if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
+fi
 
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
