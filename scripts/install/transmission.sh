@@ -45,6 +45,7 @@ _setenv_transmission(){
 }
 
 _mkdir_transmission (){
+    _setenv_transmission 
     mkdir -p /home/${user}/${download_dir}
     chown ${user}:${user} -R /home/${user}/${download_dir}
     mkdir -p /home/${user}/.config/transmission-daemon
