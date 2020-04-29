@@ -22,7 +22,7 @@ if [[ -f /install/.bazarr.lock ]]; then
     mv /home/${user}/bazarr /opt
     sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" > /dev/null 2>&1
     sed -i "s|ExecStart=.*|ExecStart=/opt/.venv/bazarr/bin/python3 /opt/bazarr/bazarr.py|g" /etc/systemd/system/bazarr.service
-    sed -i "s|WorkingDirectory=.*|WorkingDirectory=/opt/bazarr|" /etc/systemd/system/bazarr.service
+    sed -i "s|WorkingDirectory=.*|WorkingDirectory=/opt/bazarr|g" /etc/systemd/system/bazarr.service
     systemctl daemon-reload
     systemctl try-restart bazarr
   fi
