@@ -44,17 +44,17 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${user} pyload
+python2_venv ${user} pyload
 
 PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-/home/${user}/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
-chown -R ${user}: /home/${user}/.venv/pyload
+/opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
+chown -R ${user}: /opt/.venv/pyload
 
-git clone --branch "stable" https://github.com/pyload/pyload.git /home/${user}/pyload >>"${log}" 2>&1
+git clone --branch "stable" https://github.com/pyload/pyload.git /opt/pyload >>"${log}" 2>&1
 
-echo "/home/${user}/pyload" > /home/${user}/pyload/module/config/configdir
+echo "/opt/pyload" > /opt/pyload/module/config/configdir
 
-cat > /home/${user}/pyload/pyload.conf <<PYCONF
+cat > /opt/pyload/pyload.conf <<PYCONF
 version: 1 
 
 download - "Download":
@@ -135,7 +135,7 @@ PYCONF
 
 
 echo "Initalizing database"
-read < <( /home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py > /dev/null 2>&1 & echo $! )
+read < <( /opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py > /dev/null 2>&1 & echo $! )
 PID=$REPLY
 sleep 10
 #kill -9 $PID
@@ -144,8 +144,8 @@ while kill -0 $PID > /dev/null 2>&1; do
   kill $PID > /dev/null 2>&1
 done
 
-if [ -f "/home/${user}/pyload/files.db" ]; then
-  sqlite3 /home/${user}/pyload/files.db "\
+if [ -f "/opt/pyload/files.db" ]; then
+  sqlite3 /opt/pyload/files.db "\
     INSERT INTO users('name', 'password') \
       VALUES('${user}','${HASH}');\
       "
@@ -153,7 +153,7 @@ else
   echo "Something went wrong with user setup -- you will be unable to login"
 fi
 
-chown -R ${user}: /home/${user}/pyload
+chown -R ${user}: /opt/pyload
 mkdir -p /home/${user}/Downloads
 chown ${user}: /home/${user}/Downloads
 
@@ -164,8 +164,8 @@ After=network.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/pyload/bin/python2 /home/${user}/pyload/pyLoadCore.py --config=/home/${user}/pyload
-WorkingDirectory=/home/${user}/pyload
+ExecStart=/opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py --config=/opt/pyload
+WorkingDirectory=/opt/pyload
 
 [Install]
 WantedBy=multi-user.target

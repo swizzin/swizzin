@@ -24,8 +24,8 @@ location /sickgear {
 }
 SGC
 fi
-sed -i "s/web_root.*/web_root = \/sickgear/g" /home/${user}/sickgear/config.ini
-sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/sickgear/config.ini
+sed -i "s/web_root.*/web_root = \/sickgear/g" /opt/sickgear/config.ini
+sed -i "s/web_host.*/web_host = 127.0.0.1/g" /opt/sickgear/config.ini
 if [[ $isactive == "active" ]]; then
   systemctl start sickgear
 fi
