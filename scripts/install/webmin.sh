@@ -11,15 +11,15 @@ _install_webmin () {
     apt-get install webmin -yq
 }
 
-_get_refers () {
+_get_domain_for_webmin () {
     if [[ -z $webmin_referers ]]; then
-        referers=$(whiptail --inputbox "Enter your host's domain or IP address, which you expect to find webmind under.\ne.g. \"sub.domain.com\", \"123.234.32.21\", etc." 10 50 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+        webmin_referers=$(whiptail --inputbox "Enter your host's domain or IP address, which you expect to find webmind under.\ne.g. \"sub.domain.com\", \"123.234.32.21\", etc." 10 50 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then return 1; fi
     fi
     echo $webmin_referers
 }
 
 _webmin_conf () {
-    referers=${_get_refers}
+    referers=$(_get_domain_for_webmin)
     # /etc/webmin/config
     #TODO get nginx domain name
     cat >> /etc/webmin/config << EOF
