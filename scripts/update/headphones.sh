@@ -9,9 +9,9 @@ if [[ -f /install/.headphones.lock ]]; then
         . /etc/swizzin/sources/functions/pyenv
         systemctl stop headphones
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2-dev virtualenv python-virtualenv python-pip'
+            LIST='git python2.7-dev virtualenv python-virtualenv python-pip'
         else
-            LIST='git python2-dev'
+            LIST='git python2.7-dev'
         fi
         apt-get -y -q update >> $log 2>&1
 

@@ -22,9 +22,9 @@ if [[ -f /install/.pyload.lock ]]; then
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now pyload@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='tesseract-ocr gocr rhino python2-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
+            LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
-            LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2-dev sqlite3'
+            LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
         fi
         apt-get -y update >>"${log}" 2>&1
         for depend in $LIST; do
