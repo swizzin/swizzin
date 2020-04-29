@@ -1,5 +1,6 @@
 ![swizzin](http://i.imgur.com/JZlDKP1.png)
 
+[![CodeFactor](https://www.codefactor.io/repository/github/liaralabs/swizzin/badge)](https://www.codefactor.io/repository/github/liaralabs/swizzin)
 
 # 2.1.0 Stable
 
