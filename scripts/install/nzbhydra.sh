@@ -37,13 +37,13 @@ fi
 python2_venv ${user} nzbhydra
 
 echo "Cloning NZBHydra ... "
-git clone -q https://github.com/theotherp/nzbhydra.git /home/${user}/nzbhydra
-chown ${user}: -R /home/${user}/nzbhydra
+git clone -q https://github.com/theotherp/nzbhydra.git /opt/nzbhydra
+chown ${user}: -R /opt/nzbhydra
 
-mkdir -p /home/${user}/.config/nzbhydra
+mkdir -p /opt/.config/nzbhydra
 
-chown ${user}: /home/${user}/.config
-chown ${user}: /home/${user}/.config/nzbhydra
+chown ${user}: /opt/.config
+chown ${user}: /opt/.config/nzbhydra
 
 cat > /etc/systemd/system/nzbhydra.service <<NZBH
 [Unit]
@@ -56,7 +56,7 @@ Type=forking
 KillMode=control-group
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/nzbhydra/bin/python2 /home/${user}/nzbhydra/nzbhydra.py --daemon --nobrowser --pidfile /home/${user}/nzbhydra/nzbhydra.pid --logfile /home/${user}/.config/nzbhydra/nzbhydra.log --database /home/${user}/.config/nzbhydra/nzbhydra.db --config /home/${user}/.config/nzbhydra/settings.cfg
+ExecStart=/opt/.venv/nzbhydra/bin/python2 /opt/nzbhydra/nzbhydra.py --daemon --nobrowser --pidfile /opt/nzbhydra/nzbhydra.pid --logfile /home/${user}/.config/nzbhydra/nzbhydra.log --database /home/${user}/.config/nzbhydra/nzbhydra.db --config /home/${user}/.config/nzbhydra/settings.cfg
 GuessMainPID=no
 ExecStop=-/bin/kill -HUP
 Restart=on-failure
