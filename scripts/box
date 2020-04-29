@@ -241,11 +241,12 @@ function _adduser {
   mkdir -p /etc/htpasswd.d/
   htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
   chmod 750 /home/${user}
+
   if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -266,6 +267,7 @@ function _adduser {
           :
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
+
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
@@ -303,7 +305,7 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -387,6 +389,11 @@ function _chpasswd {
     sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
     systemctl start deluged@${user}
     systemctl start deluge-web@${user}
+  fi
+  if [[ -e /install/.transmission.lock ]]; then 
+    systemctl stop transmission@${user}
+    sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
+    systemctl start transmission@${user}
   fi
 
 }
