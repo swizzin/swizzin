@@ -40,10 +40,10 @@ echo "Cloning NZBHydra ... "
 git clone -q https://github.com/theotherp/nzbhydra.git /opt/nzbhydra
 chown ${user}: -R /opt/nzbhydra
 
-mkdir -p /opt/.config/nzbhydra
+mkdir -p /home/${user}/.config/nzbhydra
 
-chown ${user}: /opt/.config
-chown ${user}: /opt/.config/nzbhydra
+chown ${user}: /home/${user}/.config
+chown ${user}: /home/${user}/.config/nzbhydra
 
 cat > /etc/systemd/system/nzbhydra.service <<NZBH
 [Unit]
