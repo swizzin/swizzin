@@ -16,9 +16,11 @@ apt-get -y -q autoremove >/dev/null 2>&1
 rm -rf /etc/nginx
 rm -rf /etc/php
 
-if [[ -d /srv/rutorrent ]]; then
-    rm -rf /srv/rutorrent
-    rm /install/.rutorrent.lock
-fi
+. /etc/swizzin/sources/functions/utils
+rm_if_exists "/srv/rutorrent"
+rm_if_exists "/srv/panel"
+rm_if_exists "/etc/sudoers.d/panel"
+rm_if_exists "/etc/cron.d/set_interface"
+rm_if_exists "/install/.rutorrent.lock"
 
 rm /install/.nginx.lock
