@@ -1,7 +1,14 @@
 #! /bin/bash
 # Webmin yeeter 
 # flying_sausages 2020 for swizzin
-apt-get remove webmin -yq
+
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
+apt-get remove webmin -yq >> $log 2>&1
 rm -rf /etc/webmin
 rm /etc/apt/sources.list.d/webmin.list
 
