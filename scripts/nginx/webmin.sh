@@ -1,3 +1,4 @@
+#! /bin/bash
 # Webmin nginx installer
 # flying_sausages for swizzin 2020
 
