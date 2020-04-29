@@ -23,17 +23,17 @@ if [[ -f /install/.sabnzbd.lock ]]; then
             python_getpip
         fi
 
-        python2_home_venv ${user} sabnzbd
+        python2_venv ${user} sabnzbd
 
         PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc cheetah pyOpenSSL'
-        /home/${user}/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
-        chown -R ${user}: /home/${user}/.venv/sabnzbd
+        /opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
+        chown -R ${user}: /opt/.venv/sabnzbd
 
         mkdir /home/${user}/.config > /dev/null 2>&1
         chown ${user}: /home/${user}/.config
 
         mv /home/${user}/.sabnzbd /home/${user}/.config/sabnzbd
-        mv /home/${user}/SABnzbd /home/${user}/sabnzbd
+        mv /home/${user}/SABnzbd /opt/sabnzbd
 
         cat >/etc/systemd/system/sabnzbd.service<<SABSD
 [Unit]
@@ -43,8 +43,8 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/home/${user}/.venv/sabnzbd/bin/python2 /home/${user}/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
-WorkingDirectory=/home/${user}/sabnzbd
+ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 
 [Install]

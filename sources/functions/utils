@@ -34,3 +34,11 @@ function _get_user_password () {
     fi
     echo $password
 }
+
+# Removes a file or a directory in case it exists
+function rm_if_exists () {
+    path="$1"
+    if [[ -e "$path" ]]; then
+      rm -rf "$path"
+    fi
+}

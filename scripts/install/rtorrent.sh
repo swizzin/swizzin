@@ -83,8 +83,6 @@ else
   log="/root/logs/swizzin.log"
 fi
 . /etc/swizzin/sources/functions/rtorrent
-whiptail_rtorrent
-
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
@@ -97,6 +95,8 @@ if [[ -n $1 ]]; then
 	_rconf
 	exit 0
 fi
+
+whiptail_rtorrent
 
 if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp

@@ -9,17 +9,16 @@ if [[ -f /install/.medusa.lock ]]; then
         if [[ $isactive == "active" ]]; then
             systemctl disable --now medusa@${user}
         fi
-        if [[ ! -d /home/${user}/.venv ]]; then
-            mkdir -p /home/${user}/.venv
-            chown ${user}: /home/${user}/.venv
+        if [[ ! -d /opt/.venv ]]; then
+            mkdir -p /opt/.venv
+            chown ${user}: /opt/.venv
         fi
         
         apt-get -y -q update >> $log 2>&1
         apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
-        python3 -m venv /home/${user}/.venv/medusa
-        chown -R ${user}: /home/${user}/.venv/medusa
-        cd /home/${user}
-        mv .medusa medusa
+        python3 -m venv /opt/.venv/medusa
+        chown -R ${user}: /opt/.venv/medusa
+        mv /home/${user}/.medusa /opt/medusa
 
         cat > /etc/systemd/system/medusa.service <<MSD
 [Unit]
@@ -31,7 +30,7 @@ Type=forking
 GuessMainPID=no
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/medusa/bin/python3 /home/${user}/medusa/SickBeard.py -q --daemon --nolaunch --datadir=/home/${user}/medusa
+ExecStart=/opt/.venv/medusa/bin/python3 /opt/medusa/SickBeard.py -q --daemon --nolaunch --datadir=/opt/medusa
 ExecStop=-/bin/kill -HUP
 
 

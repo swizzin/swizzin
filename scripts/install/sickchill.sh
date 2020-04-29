@@ -25,7 +25,7 @@ fi
 if [[ -n $active ]]; then
   echo "SickChill and Medusa and Sickgear cannot be active at the same time."
   echo "Do you want to disable $active and continue with the installation?"
-  echo "Don't worry, your install will remain at /home/${user}/$active"
+  echo "Don't worry, your install will remain at /opt/$active"
   while true; do
   read -p "Do you want to disable $active? " yn
       case "$yn" in
@@ -56,10 +56,10 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-python2_home_venv ${user} sickchill
+python2_venv ${user} sickchill
 
-git clone https://github.com/SickChill/SickChill.git  /home/$user/sickchill >> ${log} 2>&1
-chown -R $user: /home/${user}/sickchill
+git clone https://github.com/SickChill/SickChill.git  /opt/sickchill >> ${log} 2>&1
+chown -R $user: /opt/sickchill
 
 
 install_rar
@@ -74,7 +74,7 @@ Type=forking
 GuessMainPID=no
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/sickchill/bin/python /home/${user}/sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/home/${user}/sickchill
+ExecStart=/opt/.venv/sickchill/bin/python /opt/sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/opt/sickchill
 
 
 [Install]

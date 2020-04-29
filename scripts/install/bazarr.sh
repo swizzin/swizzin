@@ -22,25 +22,25 @@ if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
   . /etc/swizzin/sources/functions/pyenv
   pyenv_install
   pyenv_install_version 3.7.7
-  pyenv_create_venv 3.7.7 /home/${user}/.venv/bazarr
-  chown -R ${user}: /home/${user}/.venv/bazarr
+  pyenv_create_venv 3.7.7 /opt/.venv/bazarr
+  chown -R ${user}: /opt/.venv/bazarr
 else
   apt-get -y update >>"${log}" 2>&1
   apt-get -y -q install python3-pip python3-dev python3-venv > $log 2>&1
-  mkdir -p /home/${user}/.venv/bazarr
-  python3 -m venv /home/${user}/.venv/bazarr
-  chown -R ${user}: /home/${user}/.venv/bazarr
+  mkdir -p /opt/.venv/bazarr
+  python3 -m venv /opt/.venv/bazarr
+  chown -R ${user}: /opt/.venv/bazarr
 fi
 
-cd /home/${user}
+cd /opt
 
-echo "Cloning into '/home/${user}/bazarr'"
+echo "Cloning into '/opt/bazarr'"
 git clone https://github.com/morpheus65535/bazarr.git > $log 2>&1
 chown -R ${user}: bazarr
 cd bazarr
 echo "Checking python depends"
-sudo -u ${user} bash -c "/home/${user}/.venv/bazarr/bin/pip3 install --user -r requirements.txt" > $log 2>&1
-mkdir -p /home/${user}/bazarr/data/config/
+sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install --user -r requirements.txt" > $log 2>&1
+mkdir -p /opt/bazarr/data/config/
 
 
 if [[ -f /install/.sonarr.lock ]]; then
@@ -48,7 +48,7 @@ if [[ -f /install/.sonarr.lock ]]; then
   sonarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
   sonarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
 
-  cat >> /home/${user}/bazarr/data/config/config.ini <<SONC
+  cat >> /opt/bazarr/data/config/config.ini <<SONC
 [sonarr]
 apikey = ${sonarrapi} 
 full_update = Daily
@@ -65,7 +65,7 @@ if [[ -f /install/.radarr.lock ]]; then
   radarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
   radarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
 
-  cat >> /home/${user}/bazarr/data/config/config.ini <<RADC
+  cat >> /opt/bazarr/data/config/config.ini <<RADC
 
 [radarr]
 apikey = ${radarrapi}
@@ -84,7 +84,7 @@ if [[ -f /install/.nginx.lock ]]; then
   systemctl reload nginx
   echo "Please ensure during bazarr wizard that baseurl is set to: /bazarr/"
 else
-  cat >> /home/${user}/bazarr/data/config/config.ini <<BAZC
+  cat >> /opt/bazarr/data/config/config.ini <<BAZC
 
 [general]
 ip = 0.0.0.0
@@ -93,15 +93,15 @@ BAZC
 fi
 
 if [[ -f /install/.sonarr.lock ]]; then
-    echo "use_sonarr = True" >> /home/${user}/bazarr/data/config/config.ini
+    echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
 else
-    echo "use_sonarr = False" >> /home/${user}/bazarr/data/config/config.ini
+    echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
 fi
 
 if [[ -f /install/.radarr.lock ]]; then
-    echo "use_radarr = True" >> /home/${user}/bazarr/data/config/config.ini
+    echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
 else
-    echo "use_radarr = False" >> /home/${user}/bazarr/data/config/config.ini
+    echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini
 fi
 
 cat > /etc/systemd/system/bazarr.service <<BAZ
@@ -110,14 +110,14 @@ Description=Bazarr for ${user}
 After=syslog.target network.target
 
 [Service]
-WorkingDirectory=/home/${user}/bazarr
+WorkingDirectory=/opt/bazarr
 User=${user}
 Group=${user}
 UMask=0002
 Restart=on-failure
 RestartSec=5
 Type=simple
-ExecStart=/home/${user}/.venv/bazarr/bin/python3 /home/${user}/bazarr/bazarr.py
+ExecStart=/opt/.venv/bazarr/bin/python3 /opt/bazarr/bazarr.py
 KillSignal=SIGINT
 TimeoutStopSec=20
 SyslogIdentifier=bazarr.${user}
@@ -126,7 +126,7 @@ SyslogIdentifier=bazarr.${user}
 WantedBy=multi-user.target
 BAZ
 
-chown -R ${user}: /home/${user}/bazarr
+chown -R ${user}: /opt/bazarr
 
 systemctl enable --now bazarr
 
