@@ -76,9 +76,9 @@ if [[ -f /install/.sickchill.lock ]]; then
             python_getpip
         fi
 
-        python2_home_venv ${user} sickchill
+        python2_venv ${user} sickchill
 
-        mv /home/${user}/.sickchill /home/${user}/sickchill
+        mv /home/${user}/.sickchill /opt/sickchill
 
         cat > /etc/systemd/system/sickchill.service <<SCSD
 [Unit]
@@ -90,7 +90,7 @@ Type=forking
 GuessMainPID=no
 User=${user}
 Group=${user}
-ExecStart=/home/${user}/.venv/sickchill/bin/python /home/${user}/sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/home/${user}/sickchill
+ExecStart=/opt/.venv/sickchill/bin/python /opt/sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/opt/sickchill
 
 
 [Install]

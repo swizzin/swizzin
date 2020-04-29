@@ -24,8 +24,8 @@ location /sickchill {
 }
 SRC
 fi
-sed -i "s/web_root.*/web_root = \/sickchill/g" /home/${user}/sickchill/config.ini
-sed -i "s/web_host.*/web_host = 127.0.0.1/g" /home/${user}/sickchill/config.ini
+sed -i "s/web_root.*/web_root = \/sickchill/g" /opt/sickchill/config.ini
+sed -i "s/web_host.*/web_host = 127.0.0.1/g" /opt/sickchill/config.ini
 if [[ $isactive == "active" ]]; then
   systemctl start sickchill
 fi
