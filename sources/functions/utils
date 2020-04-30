@@ -15,6 +15,26 @@ function _rar () {
     rm -rf /tmp/rar >/dev/null 2>&1
 }
 
+function _get_user_password () {
+    user_to_get="$1"
+    password=''
+
+    for file in /root/*.info /root/.master.info; do 
+        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+        if [[ -f $file ]]; then 
+            user_in_file=$(cat $file | cut -d: -f1)
+            if [ "$user_in_file" = "$user_to_get" ]; then 
+                password="$(cat $file | cut -d: -f2)"
+            fi
+        fi
+    done
+    
+    if [[ -z $password ]]; then 
+        return 1
+    fi
+    echo $password
+}
+
 # Removes a file or a directory in case it exists
 function rm_if_exists () {
     path="$1"

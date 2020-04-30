@@ -20,9 +20,9 @@ codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='git python2-dev python-virtualenv virtualenv'
+  LIST='git python2.7-dev python-virtualenv virtualenv'
 else
-  LIST='git python2-dev'
+  LIST='git python2.7-dev'
 fi
 
 apt-get -y update >>"${log}" 2>&1
@@ -40,10 +40,10 @@ echo "Cloning NZBHydra ... "
 git clone -q https://github.com/theotherp/nzbhydra.git /opt/nzbhydra
 chown ${user}: -R /opt/nzbhydra
 
-mkdir -p /opt/.config/nzbhydra
+mkdir -p /home/${user}/.config/nzbhydra
 
-chown ${user}: /opt/.config
-chown ${user}: /opt/.config/nzbhydra
+chown ${user}: /home/${user}/.config
+chown ${user}: /home/${user}/.config/nzbhydra
 
 cat > /etc/systemd/system/nzbhydra.service <<NZBH
 [Unit]

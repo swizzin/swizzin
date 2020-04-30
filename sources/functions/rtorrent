@@ -8,7 +8,7 @@ function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
     . /etc/swizzin/sources/functions/apt
     repov=$(get_repo_version rtorrent)
-    if [[ ! ${codename} == ("xenial") ]]; then
+    if [[ ! ${codename} == "xenial" ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
                   Repo "(${repov})"\
                   0.9.8 "" \
@@ -151,7 +151,7 @@ function build_libtorrent_rakshasa () {
 function build_rtorrent () {
   rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
 	cd "/tmp"
-  . /etc/swizzin/source/functions/utils
+  . /etc/swizzin/sources/functions/utils
   rm_if_exists "/tmp/rtorrent*"
 	if [[ ${rtorrentver} == feature-bind ]]; then
 		git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >>$log 2>&1

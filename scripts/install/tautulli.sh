@@ -21,7 +21,7 @@ fi
 user=$(cut -d: -f1 < /root/.master.info)
 
 
-apt-get -y -q install python2-dev python-setuptools tzdata >>"${log}" 2>&1
+apt-get -y -q install python2.7-dev python-setuptools tzdata >>"${log}" 2>&1
 cd /opt
 echo "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli

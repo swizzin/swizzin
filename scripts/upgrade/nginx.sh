@@ -31,6 +31,10 @@ rm -f /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
 
+if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
+fi
+
 for i in NGC SSC PROX FIC; do
   cmd=$(sed -n -e '/'$i'/,/'$i'/ p' /etc/swizzin/scripts/install/nginx.sh)
   eval "$cmd"

@@ -1,0 +1,65 @@
+#!/bin/bash
+# Author Flying_sausages for Swizzin 2020
+
+function _get_next_port_from_json () {
+    key="$1"
+    defaultport="$2"
+    relpath=".config/transmission-daemon/settings.json"
+    highestvalue=$defaultport
+    wasincreased='false'
+
+    for d in /home/*/; do
+        confpath="${d}${relpath}"
+        if [[ -f $confpath ]];then 
+            value=$(grep "$key" "$confpath" | tr -d -c 0-9)
+        fi
+        if [[ -n $value ]]; then
+            if [[ $value -ge $highestvalue ]]; then
+                highestvalue=$value
+                wasincreased='true'
+            fi
+        fi
+    done
+
+    if [[ $wasincreased = 'true' ]]; then 
+        ((highestvalue++))
+    fi
+
+    echo "$highestvalue"
+}
+
+
+function _getversion () {
+    if [[ -z $arg_transmissionsource ]]; then
+        distribution=$(lsb_release -is)
+        if [[ $distribution =~ "Ubuntu" ]]; then 
+            version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
+                  PPA "(Directly from Transmission)" \
+                  Repo "(Packaged and tested by Ubuntu)" \
+                   3>&1 1>&2 2>&3)
+        else
+            version="Repo"
+        fi
+        export version
+    fi
+
+}
+
+function _install_transmission () {
+    _getversion
+    distribution=$(lsb_release -is)
+    if [[ $version = "PPA" ]]; then 
+        if [[ ! $distribution =~ 'Ubuntu' ]]; then 
+            echo "PPA not available on this system, using normal repo."
+            return 1
+        else
+        add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
+        fi
+    fi
+    echo "Fetching updates"
+    apt-get update >> $log 2>&1
+    echo "Getting Transmission from apt"
+    apt-get install transmission-cli transmission-common transmission-daemon -yq >> $log 2>&1
+    echo "Disabling default non-multiuser service"
+    systemctl disable --now transmission-daemon
+}
