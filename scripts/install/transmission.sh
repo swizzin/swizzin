@@ -47,7 +47,7 @@ _setenv_transmission(){
 _mkdir_transmission (){
     _setenv_transmission 
     mkdir -p /home/${user}/${download_dir}
-    chown ${user}:${user} -R /home/${user}/${download_dir}
+    chown ${user}:${user} -R /home/${user}/"$($download_dir| cut -d/ -f 1)"
     mkdir -p /home/${user}/.config/transmission-daemon
     mkdir -p /home/${user}/.config/transmission-daemon/blocklists
     mkdir -p /home/${user}/.config/transmission-daemon/resume
@@ -56,7 +56,7 @@ _mkdir_transmission (){
 
     if [[ $incomplete_dir_enabled = "true" ]]; then 
         mkdir -p /home/${user}/${incomplete_dir}
-        chown ${user}:${user} -R /home/${user}/${incomplete_dir}
+        chown ${user}:${user} -R /home/${user}/"$($incomplete_dir| cut -d/ -f 1)"
     fi
 }
 
