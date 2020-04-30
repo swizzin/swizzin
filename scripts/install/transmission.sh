@@ -57,7 +57,7 @@ _mkdir_transmission (){
 
     if [[ $incomplete_dir_enabled = "true" ]]; then 
         mkdir -p /home/${user}/${incomplete_dir}
-        chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
+        chown ${user}:${user} -R /home/${user}/${incomplete_dir%%/*}
     fi
 }
 
