@@ -13,7 +13,7 @@ function mono_repo_setup () {
         #gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
       fi
     fi
-    if [[ ! $codename == "buster" ]]; then
+    if [[ ! $codename =~ ("buster"|"focal") ]]; then
       echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
     fi
   fi
@@ -26,7 +26,7 @@ function mono_repo_update () {
     if grep -q "5.18" /etc/apt/sources.list.d/mono-xamarin.list; then
       :
     else
-      echo "deb https://download.mono-project.com/repo/${distro,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
+      echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
       echo "Upgrading to mono 5.18 snapshot"
       
       fuckmono=()
