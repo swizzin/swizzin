@@ -39,7 +39,7 @@ _get_domain_for_webmin () {
             webmin_referers=$(whiptail --inputbox "Enter your host's domain or IP address.\ne.g. \"sub.domain.com\", \"123.234.32.21\", etc.${guesstext}\nLeave empty to configure manually later" 10 50 "${guess}" 3>&1 1>&2 2>&3)
         fi
     fi
-    echo $webmin_referers
+    echo "$webmin_referers"
 }
 
 #TODO figure out if there's a cleaner way to get this from nginx or something

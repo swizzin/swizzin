@@ -1,4 +1,5 @@
 #! /bin/bash
+# shellcheck disable=SC2024
 # Webmin installer
 # flying_sausages for swizzin 2020
 
