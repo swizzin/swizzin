@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 # Author: Flying_sausages 2020 for Swizzin
 
 ############################################################
@@ -47,7 +48,7 @@ _setenv_transmission(){
 _mkdir_transmission (){
     _setenv_transmission 
     mkdir -p /home/${user}/${download_dir}
-    chown ${user}:${user} -R /home/${user}/"$(echo $download_dir| cut -d/ -f 1)"
+    chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
     mkdir -p /home/${user}/.config/transmission-daemon
     mkdir -p /home/${user}/.config/transmission-daemon/blocklists
     mkdir -p /home/${user}/.config/transmission-daemon/resume
@@ -56,7 +57,7 @@ _mkdir_transmission (){
 
     if [[ $incomplete_dir_enabled = "true" ]]; then 
         mkdir -p /home/${user}/${incomplete_dir}
-        chown ${user}:${user} -R /home/${user}/"$(echo $incomplete_dir| cut -d/ -f 1)"
+        chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
     fi
 }
 
