@@ -39,14 +39,18 @@ case "$SIZE" in
     if [[ $fstabid =~ "UUID" ]]; then
       uuid=$(echo "$fstabid" | cut -d= -f 2)
       disk=$(blkid -U "$uuid")
+    elif [[ $fstabid =~ "LABEL" ]]; then
+      label=$(echo "$fstabid" | cut -d= -f 2)
+      disk=$(blkid -L "$label")
     else
       disk=$fstabid
     fi
-    onekblocks=$(df | grep "$disk" | awk '{print $2}')
-    humansize=$(df | grep "$disk" | awk '{print $2}')
+
+    onekblocks=$(df $disk --output=source,size | tail -1 | awk '{printf $2}')
+    humansize=$(df $disk -h --output=source,size | tail -1 | awk '{printf $2}')
     echo "Maximum on $disk is $onekblocks (approx $humansize)"
 
-    setquota -u "${username}" "$onekblocks" "$onekblocks" 0 0 -a
+    # setquota -u "${username}" "$onekblocks" "$onekblocks" 0 0 -a
   ;;
   *TB)
     QUOTASIZE=$(echo "$SIZE"|cut -d'T' -f1)
