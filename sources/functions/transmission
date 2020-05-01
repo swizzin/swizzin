@@ -11,7 +11,7 @@ function _get_next_port_from_json () {
     for d in /home/*/; do
         confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
-            value=$(grep "$key" "$confpath" | tr -d -c 0-9)
+            value=$(grep \""$key"\" "$confpath" | tr -d -c 0-9)
         fi
         if [[ -n $value ]]; then
             if [[ $value -ge $highestvalue ]]; then
