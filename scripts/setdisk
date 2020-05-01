@@ -15,8 +15,8 @@ if [[ -z $1 ]]; then
   echo "Disk Space MUST be in GB/TB or max - Do not attempt to add decimals in space settings,"
   echo "Example - Good: 711GB, 2TB, or max"
   echo "Example - Bad: 711.5GB, 2.5TB, or MAX"
-  echo "You can also use $0 username size to set the values non-interactively"
-  echo "Example - $0 myuser 20GB"
+  echo "You can also use setdisk username size to set the values non-interactively"
+  echo "Example - 'setdisk myuser 20GB'"
   echo "======================================================================================"
   echo
 fi
@@ -26,7 +26,7 @@ if [[ -z $username ]]; then
   else 
     if [[ ! $(id -u "$username") ]]; then
       echo "User does not exist. Exiting"
-      exit 1
+      return 1
     fi
 fi
 if [[ -z "$SIZE" ]]; then
@@ -46,8 +46,8 @@ case "$SIZE" in
       disk=$fstabid
     fi
 
-    onekblocks=$(df $disk --output=source,size | tail -1 | awk '{printf $2}')
-    humansize=$(df $disk -h --output=source,size | tail -1 | awk '{printf $2}')
+    onekblocks=$(df "$disk" --output=source,size | tail -1 | awk '{printf $2}')
+    humansize=$(df "$disk" -h --output=source,size | tail -1 | awk '{printf $2}')
     echo "Maximum on $disk is $onekblocks (approx $humansize)"
 
     # setquota -u "${username}" "$onekblocks" "$onekblocks" 0 0 -a
@@ -68,11 +68,10 @@ case "$SIZE" in
                 setquota -u "${username}" "${DISKSIZE}" "${DISKSIZE}" 0 0 -a
   ;;
   *)
-    echo "======================================================================================"
-    echo "Disk Space MUST be in GB/TB or max- Do not attempt to add deciamals in space settings,"
-    echo "Example - Good: 711GB OR 2TB, Example - Bad: 711.5GB OR 2.5TB"
-    echo "Exiting script, type bash $0 and try again"
-    echo "======================================================================================";exit 1
+    echo "============================================================="
+    echo "QUOTA ERROR Size MUST be in either 'max' or integer of GB/TB."
+    echo "Type 'setdisk $*' and try again"
+    echo "=============================================================";return 1
   ;;
 esac
 }
@@ -81,5 +80,5 @@ if [[ -f /install/.quota.lock ]]; then
   _setdisk "$1" "$2"
 else
   echo "Quota not installed"
-  exit 1
+  return 1
 fi
