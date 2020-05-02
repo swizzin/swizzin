@@ -12,8 +12,8 @@ username="$1"
 SIZE="$2"
 if [[ -z $1 ]]; then 
   echo "======================================================================================"
-  echo "Disk Space MUST be in GB/TB or max - Do not attempt to add decimals in space settings,"
-  echo "Example - Good: 711GB, 2TB, or max"
+  echo "Disk Space MUST be in MB/GB/TB or max - Do not attempt to add decimals in space settings,"
+  echo "Example - Good: 711GB, 2TB,, or max"
   echo "Example - Bad: 711.5GB, 2.5TB, or MAX"
   echo "You can also use setdisk username size to set the values non-interactively"
   echo "Example - 'setdisk myuser 20GB'"
@@ -33,6 +33,16 @@ if [[ -z "$SIZE" ]]; then
   echo "Quota size for user: (EX: 500GB, 2TB, max): "
   read -r SIZE
 fi
+
+if [[ $SIZE = 'max' ]]; then 
+  echo "Using max size. Please notice this is more than what is actually available on the disk."
+elif echo "$SIZE" | grep -q -E '^[0-9]+(M|T|G)B$'; then
+  # echo "Using $SIZE" 
+  :
+else
+  SIZE='Invalid'
+fi
+
 case "$SIZE" in
   max)
     fstabid=$(grep quota /etc/fstab | awk '{printf $1}')
@@ -68,10 +78,10 @@ case "$SIZE" in
                 setquota -u "${username}" "${DISKSIZE}" "${DISKSIZE}" 0 0 -a
   ;;
   *)
-    echo "============================================================="
-    echo "QUOTA ERROR Size MUST be in either 'max' or integer of GB/TB."
-    echo "Type 'setdisk $*' and try again"
-    echo "=============================================================";return 1
+    echo "================================================================"
+    echo "QUOTA ERROR Size MUST be in either 'max' or integer of MB/GB/TB."
+    echo "Type 'setdisk $1' and try again"
+    echo "================================================================";return 1
   ;;
 esac
 }
