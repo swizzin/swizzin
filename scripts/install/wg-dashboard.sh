@@ -80,6 +80,3 @@ fi
 # http://localhost:3000/api/createuser
 # application/json; charset=utf-8
 # {"username":"test","password":"test123","password_confirm":"test123"}
-
-
-
