@@ -21,22 +21,27 @@ fi
 npm_install
 
 # delete wg-dashboard folder and wg-dashboard.tar.gz to make sure it does not exist
-rm -rf /opt/wg-dashboard
-rm -rf /tmp/wg-dashboard.tar.gz
+optdir="/opt/wg-dashboard"
+tmptar="/tmp/wg-dashboard.tar.gz"
+rm -rf "${optdir}"
+rm -rf "${tmptar}"
 
 echo "Downloading Latest stable wg-dashboard release"
-curl -L https://github.com/"$(wget https://github.com/wg-dashboard/wg-dashboard/releases/latest -O - | grep -e '/.*/.*/.*tar.gz' -o)" --output /tmp/wg-dashboard.tar.gz
+dlurl=$(wget https://github.com/wg-dashboard/wg-dashboard/releases/latest -O - | grep -e '/.*/.*/.*tar.gz' -o)
+echo "DL URL is $dlurl"
+curl -L https://github.com/"$dlurl" --output "${tmptar}"
 
-mkdir /opt/wg-dashboard
-tar -xzf /tmp/wg-dashboard.tar.gz --strip-components=1 -C /opt/wg-dashboard -v
+mkdir "${optdir}"
+tar -xzf "${tmptar}" --strip-components=1 -C "${optdir}" -v
+tar -xzf "${tmptar}" --strip-components=1 -C "${optdir}" -v
 
 # https://www.youtube.com/watch?v=hAKaNVtiQdU
 #TODO make sure to change this from 3000 becuase ombi clashes with this
-# sed -i 's/3000/3024/g' /opt/wg-dashboard/src/server.js
-# sed -i 's/3000/3024/g' /opt/wg-dashboard/src/dataManager.js
-# sed -i 's/3000/3024/g' /opt/wg-dashboard/server_config.js
+# sed -i 's/3000/3024/g' "${optdir}"/src/server.js
+# sed -i 's/3000/3024/g' "${optdir}"/src/dataManager.js
+# sed -i 's/3000/3024/g' "${optdir}"/server_config.js
 
-npm i --production --unsafe-perm /opt/wg-dashboard
+npm i --production --unsafe-perm "${optdir}"
 
 # create service unit file
 echo "[Unit]
@@ -44,8 +49,8 @@ Description=wg-dashboard service
 After=network.target
 [Service]
 Restart=always
-WorkingDirectory=/opt/wg-dashboard
-ExecStart=/usr/bin/node /opt/wg-dashboard/src/server.js
+WorkingDirectory=${optdir}
+ExecStart=/usr/bin/node ${optdir}/src/server.js
 [Install]
 WantedBy=multi-user.target" > /etc/systemd/system/wg-dashboard.service
 
