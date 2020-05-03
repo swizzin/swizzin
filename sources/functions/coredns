@@ -7,10 +7,7 @@ _install_coredns () {
 	# make and enter coredns folder
 	mkdir -p /etc/coredns
 	cd /etc/coredns || return 1
-	if [[ "$(lsb_release -is)" == "Raspbian" ]]; then
-		# download coredns
-		curl -L https://github.com/coredns/coredns/releases/download/v1.5.1/coredns_1.5.1_linux_arm.tgz --output coredns.tgz
-	elif [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
+	if [[ "$(lsb_release -is)" == "Ubuntu" ]]; then
 		# download coredns
 		curl -L https://github.com/coredns/coredns/releases/download/v1.5.1/coredns_1.5.1_linux_amd64.tgz --output coredns.tgz
 	elif [[ "$(lsb_release -is)" == "Debian" ]]; then
