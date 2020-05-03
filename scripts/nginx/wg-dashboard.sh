@@ -1,6 +1,7 @@
 #!/bin/bash
 # Nginx configuration for wg-daashboard
 
+MASTER=$(cut -d: -f1 < /root/.master.info)
 cat > /etc/nginx/apps/wg-dashboard.conf <<EOF
 location /wg-dashboard/ {
 proxy_pass http://127.0.0.1:3024/;
@@ -10,6 +11,8 @@ proxy_set_header Upgrade \$http_upgrade;
 proxy_set_header X-Forwarded-For \$remote_addr;
 # by default nginx times out connections in one minute
 proxy_read_timeout 1d;
+auth_basic "What's the password?";
+auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 EOF
 
