@@ -28,12 +28,13 @@ echo "Downloading Latest stable wg-dashboard release"
 curl -L https://github.com/"$(wget https://github.com/wg-dashboard/wg-dashboard/releases/latest -O - | grep -e '/.*/.*/.*tar.gz' -o)" --output /tmp/wg-dashboard.tar.gz
 
 mkdir /opt/wg-dashboard
-tar -xzf /tmp/wg-dashboard.tar.gz --strip-components=1 -C /opt/wg-dashboard
+tar -xzf /tmp/wg-dashboard.tar.gz --strip-components=1 -C /opt/wg-dashboard -v
 
 # https://www.youtube.com/watch?v=hAKaNVtiQdU
 #TODO make sure to change this from 3000 becuase ombi clashes with this
 # sed -i 's/3000/3024/g' /opt/wg-dashboard/src/server.js
 # sed -i 's/3000/3024/g' /opt/wg-dashboard/src/dataManager.js
+# sed -i 's/3000/3024/g' /opt/wg-dashboard/server_config.js
 
 npm i --production --unsafe-perm /opt/wg-dashboard
 
@@ -61,13 +62,13 @@ _install_coredns
 
 touch /install/.wg-dashboard.lock
 
-# if [[ -f /install/.nginx.lock ]]; then
-#     bash /etc/swizzin/scripts/nginx/wg-dashboard.sh
-# else
+if [[ -f /install/.nginx.lock ]]; then
+    bash /etc/swizzin/scripts/nginx/wg-dashboard.sh
+else
     echo "You can access the dashboard through an SSH tunnel over port 3024."
     echo "e.g. ssh <destination> -L 3024:localhost:3024"
     echo "After that, visit http://localhost:3024"
-# fi
+fi
 
 
 #TODO Create user via POST over CURL
