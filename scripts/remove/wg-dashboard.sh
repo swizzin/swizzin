@@ -9,3 +9,5 @@ systemctl daemon-reload
 # shellcheck source=sources/functions/coredns
 . /etc/swizzin/sources/functions/coredns
 _remove_coredns
+
+rm /install/.wg-dashboard.lock

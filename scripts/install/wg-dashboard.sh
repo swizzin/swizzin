@@ -13,7 +13,7 @@ fi
 
 if [[ ! -f /install/.wireguard.lock ]]; then
     echo "Please first install wireguard"
-    return 1
+    exit 1
 fi
 
 # shellcheck source=sources/functions/npm
@@ -31,7 +31,9 @@ mkdir /opt/wg-dashboard
 tar -xzf /tmp/wg-dashboard.tar.gz --strip-components=1 -C /opt/wg-dashboard
 
 # https://www.youtube.com/watch?v=hAKaNVtiQdU
-sed -i 's/3000/3024/g' /opt/wg-dashboard
+#TODO make sure to change this from 3000 becuase ombi clashes with this
+# sed -i 's/3000/3024/g' /opt/wg-dashboard/src/server.js
+# sed -i 's/3000/3024/g' /opt/wg-dashboard/src/dataManager.js
 
 npm i --production --unsafe-perm /opt/wg-dashboard
 
@@ -59,11 +61,19 @@ _install_coredns
 
 touch /install/.wg-dashboard.lock
 
-if [[ -f /install/.nginx.lock ]]; then
-    bash /etc/swizzin/scripts/nginx/wg-dashboard
-else
+# if [[ -f /install/.nginx.lock ]]; then
+#     bash /etc/swizzin/scripts/nginx/wg-dashboard.sh
+# else
     echo "You can access the dashboard through an SSH tunnel over port 3024."
     echo "e.g. ssh <destination> -L 3024:localhost:3024"
     echo "After that, visit http://localhost:3024"
-fi
+# fi
+
+
+#TODO Create user via POST over CURL
+# http://localhost:3000/api/createuser
+# application/json; charset=utf-8
+# {"username":"test","password":"test123","password_confirm":"test123"}
+
+
 
