@@ -10,7 +10,7 @@ _mkservice_transmission() {
     echo "Creating systemd services"
     cat > /etc/systemd/system/transmission@.service <<EOF
 [Unit]
-Description=Transmission BitTorrent Daemon
+Description=Transmission BitTorrent Daemon for %i
 After=network.target
 
 [Service]
@@ -166,10 +166,12 @@ fi
 
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
+users=($(cut -d: -f1 < /etc/htpasswd))
 
 # Extra-user-only functions
 if [[ -n $1 ]]; then
 	user=$1
+    echo "Configuring transmission for $user"
 	_mkdir_transmission
     _mkconf_transmission
     _nginx_transmission
@@ -189,11 +191,14 @@ fi
 . /etc/swizzin/sources/functions/transmission
 _install_transmission
 _mkservice_transmission
-echo "Creating directories"
+for user in ${users[@]}; do
+echo "Creating directories for $user"
 _mkdir_transmission
-echo "Creating config"
+echo "Creating config for $user"
 _mkconf_transmission
-_nginx_transmission
 _start_transmission
+done
+echo "Creating nginx config"
+_nginx_transmission
 
 touch /install/.transmission.lock
