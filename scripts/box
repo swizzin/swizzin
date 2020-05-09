@@ -329,6 +329,8 @@ function _deluser {
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
         eval systemctl disable ${app}@${user}
         eval systemctl stop ${app}@${user}
+      elif [[ $app == "autodl" ]]; then
+        systemctl disable --now irssi@${user}
       else
         systemctl disable ${app}@${user}
         systemctl stop ${app}@${user}
