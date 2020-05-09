@@ -209,7 +209,7 @@ for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then
     echo "Installing nginx config for $app"
-    /usr/local/bin/swizzin/nginx/$app.sh
+    bash /usr/local/bin/swizzin/nginx/$app.sh
   fi
 done
 

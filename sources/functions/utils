@@ -42,3 +42,4 @@ function rm_if_exists () {
       rm -rf "$path"
     fi
 }
+
