@@ -114,9 +114,10 @@ function _update() {
   git checkout master
   git fetch origin master
   git reset --hard origin/master
-  #git pull
-  chmod -R 700 /etc/swizzin/scripts
-  for f in /etc/swizzin/scripts/update/*; do . $f; done
+
+  for f in /etc/swizzin/scripts/update/*; do 
+    bash "$f"; 
+  done
 }
 
 function _upgrade() {
@@ -242,6 +243,10 @@ function _adduser {
   htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
   chmod 750 /home/${user}
 
+  if [[ -f /install/.quota.lock ]]; then 
+    setdisk "$user"
+  fi
+
   if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
@@ -324,6 +329,8 @@ function _deluser {
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
         eval systemctl disable ${app}@${user}
         eval systemctl stop ${app}@${user}
+      elif [[ $app == "autodl" ]]; then
+        systemctl disable --now irssi@${user}
       else
         systemctl disable ${app}@${user}
         systemctl stop ${app}@${user}
