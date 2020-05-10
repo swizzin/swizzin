@@ -18,7 +18,7 @@ if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
     echo "https://docs.swizzin.ltd/applications/duckdns"
     echo
 
-    read -p "Would you like to continue? (y/N)" yn
+    read -r -p "Would you like to continue? (y/N)" yn
     case $yn in
         [Yy]* ) : ;;
         * ) exit 0;;
