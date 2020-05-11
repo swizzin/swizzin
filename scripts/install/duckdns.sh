@@ -63,7 +63,14 @@ if [[ ! -d $duckPath ]]; then
     mkdir -p $duckPath
 fi
 
-echo "echo url=\"https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=\" | curl -k -o $duckLog -K -" > $duckScript
+cat > $duckScript << EOS
+subdomain=$subdomain
+token=$token
+
+echo url="https://www.duckdns.org/update?domains=\$subdomain&token=\$token&ip=" | curl -k -o $duckLog -K -
+EOS
+
+#echo "echo url=\"https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=\" | curl -k -o $duckLog -K -" > $duckScript
 chmod 700 $duckScript
 
 ## Installing into cron
