@@ -8,10 +8,9 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-duckPath="/opt/duckdns"
-duckLog="$duckPath/duck.log"
-duckScript="$duckPath/duck.sh"
-
+##########################################################
+# Gathering variables and gettin go-ahead
+##########################################################
 if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
     echo "This script requires an account at duckdns.org."
     echo "You can always refer to the swizzin documentation for guidance."
@@ -50,12 +49,24 @@ else
     token=$duck_token
 fi
 
+##########################################################
+# Doing stuff
+##########################################################
+
+## Making script file and directories
+
+duckPath="/opt/duckdns"
+duckLog="$duckPath/duck.log"
+duckScript="$duckPath/duck.sh"
+
 if [[ ! -d $duckPath ]]; then
     mkdir -p $duckPath
 fi
 
 echo "echo url=\"https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=\" | curl -k -o $duckLog -K -" > $duckScript
 chmod 700 $duckScript
+
+## Installing into cron
 
 checkCron=$( crontab -l | grep -c $duckScript )
 if [ "$checkCron" -eq 0 ] 
@@ -65,10 +76,8 @@ then
     crontab -l | { cat; echo "*/5 * * * * bash $duckScript"; } | crontab - > $log 2>&1
 fi
 
-if [[ -f $duckLog ]]; then
-    rm $duckLog
-    touch $duckLog
-fi
+## Running script
+
 echo "Registering domain with Duck DNS"
 bash $duckScript > $log 2>&1
 duckResponse=$( cat $duckLog )
