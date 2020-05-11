@@ -24,7 +24,6 @@ if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
     esac
 fi
 
-
 if [[ -z $duck_subdomain ]]; then
     echo -ne "Enter your full Duck DNS domain (e.g mydomain.duckdns.org): "
     read -r fulldomain
@@ -38,7 +37,6 @@ else
     subdomain=$duck_subdomain
     echo "Domain set to $subdomain.duckdns.org"
 fi
-
 
 if [[ -z $duck_token ]]; then 
     echo -ne "Enter your Duck DNS Token value: "
@@ -78,7 +76,6 @@ chmod 700 $duckScript
 checkCron=$( crontab -l | grep -c $duckScript )
 if [ "$checkCron" -eq 0 ] 
 then
-    # Add cronjob
     echo "Adding Cron job for Duck DNS"
     crontab -l | { cat; echo "*/5 * * * * bash $duckScript"; } | crontab - > $log 2>&1
 fi
@@ -87,18 +84,15 @@ fi
 
 echo "Registering domain with Duck DNS"
 bash $duckScript > $log 2>&1
-duckResponse=$( cat $duckLog )
-echo "Duck DNS server response : $duckResponse"
-if [ "$duckResponse" != "OK" ]
+response=$( cat $duckLog )
+if [ "$response" != "OK" ]
 then
     echo "[Error] Duck DNS did not update correctly. Please check your settings or run the setup again."
 else
-    echo "Duck DNS setup complete."
+    echo "Duck DNS setup succesfully completed!"
     if [[ -f /install/.nginx.lock ]]; then
-        echo
-        echo "Please install LetsEncrypt using the domain \"$subdomain.duckdns.org\""
-        echo "Consult https://docs.swizzin.org/guides/troubleshooting in case you need help setting up your port forwarding."
+        echo "> Please install LetsEncrypt using the domain \"$subdomain.duckdns.org\""
+        echo "> Consult https://docs.swizzin.org/guides/troubleshooting for help with port forwarding."
     fi
+    touch /install/.duckdns.lock
 fi
-
-touch /install/.duckdns.lock
