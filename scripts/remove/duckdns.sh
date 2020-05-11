@@ -1,6 +1,7 @@
 #! /bin/bash
 #duckdns yeeter
 #flying_sausages 2020 swizzin gplv3 respect mah autooritah
+# shellcheck disable=SC2154
 
 eval "$(grep subdomain /opt/duckdns/duck.sh | head -1)"
 eval "$(grep token /opt/duckdns/duck.sh | head -1)"

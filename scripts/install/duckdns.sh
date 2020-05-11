@@ -1,6 +1,7 @@
 #! /bin/bash
 # Duck DNS installer
 # Flying_sausages 2020 swizzin gplv3
+# shellcheck disable=SC2154
 
 if [[ -f /tmp/.install.lock ]]; then
   log="/root/logs/install.log"
