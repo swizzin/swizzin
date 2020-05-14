@@ -11,6 +11,7 @@ location /webmin/ {
     # Tell nginx that we want to proxy everything here to the local webmin server
     # Last slash is important
     proxy_pass https://127.0.0.1:10000/;
+    proxy_redirect https://\$host /webmin/;
     proxy_set_header Host \$host:\$server_port;
 
     auth_basic "What's the password?";
