@@ -45,7 +45,7 @@ function _get_user_password () {
 
 #Returns all users managed by swizzin as a newline separated list
 function _get_user_list () {
-    for file in /root/*.info; do 
+    for file in /root/*.info /root/.master.info; do 
         ##TODO fix when there is no addition users other than .master. It works but it's just ugly
         if [[ -f $file ]]; then 
             cut -d: -f1 < "$file"
