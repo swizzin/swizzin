@@ -15,6 +15,8 @@ function _rar () {
     rm -rf /tmp/rar >/dev/null 2>&1
 }
 
+# Returns a password for a user in case one exists.
+# If password is not found, returns with error code 1 
 function _get_user_password () {
     user_to_get="$1"
     password=''
@@ -32,7 +34,32 @@ function _get_user_password () {
     if [[ -z $password ]]; then 
         return 1
     fi
-    echo $password
+    echo "$password"
+}
+
+# OLD way to get users from htpasswd
+# Rather wouldn't use this as 3rd party applications migh be playing with this as well
+# function _get_user_list () {
+#     users=($(cut -d: -f1 < /etc/htpasswd))
+# }
+
+#Returns all users managed by swizzin
+#e.g. "test test4 test5 test6 test7 test8 test9"
+function _get_user_list () {
+    users=()
+    for file in /root/*.info; do 
+        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+        if [[ -f $file ]]; then 
+            user_in_file=$(cat $file | cut -d: -f1)
+            users+=("$user_in_file")
+        fi
+    done
+    echo "${users[*]}"
+}
+
+#Returns the username of the master
+function _get_master_username (){
+    echo "$(cat /root/.master.info | cut -d: -f1)"
 }
 
 # Removes a file or a directory in case it exists
