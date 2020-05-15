@@ -57,11 +57,17 @@ function _install_wg () {
 	fi
 
 	chown -R root:root /etc/wireguard/
-	chmod 700 /etc/wireguard
-	sudo chmod -R og-rwx /etc/wireguard/*
+	chmod -R 700 /etc/wireguard
 	# echo ""
-	modprobe wireguard
-	systemctl daemon-reload
+	modprobe wireguard >> $log 2>&1
+
+	if [[ $? != "0" ]]; then
+		echo "Could not modprobe Wireguard, script will now terminate."
+		echo "Please consult the swizzin log."
+		exit 1
+	fi
+	
+	systemctl daemon-reload >> $log 2>&1
 
 	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 	sysctl -p > /dev/null 2>&1
@@ -148,9 +154,12 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-	systemctl enable --now wg-quick@wg$(id -u $u)
-	systemctl start wg-quick@wg$(id -u $u)
-	echo "Wireguard enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
+	if [[ $? == 0 ]]; then 
+		echo "  |  Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+	else
+		echo "  |  Configuration failed"
+	fi
 }
 
 
