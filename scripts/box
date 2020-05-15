@@ -251,7 +251,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -310,7 +310,7 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -324,6 +324,9 @@ function _deluser {
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
         rm -f /home/lounge/.lounge/users/${user}.json
+      elif [[ $app = "wireguard" ]]; then
+        rm -f /home/${user}/.wireguard/client
+        systemctl disable --now wg-quick@wg$(id -u "$user")
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
