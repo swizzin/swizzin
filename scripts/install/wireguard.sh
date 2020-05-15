@@ -37,12 +37,12 @@ function _install_wg () {
 		esac
 	done
 
-	echo "Adding Wireguard repoository"
 	if [[ $distribution == "Debian" ]]; then
+		echo "Adding Wireguard repoository"
 		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 		printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
 	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-		echo "Adding apt"
+		echo "Adding Wireguard PPA"
 		add-apt-repository -y ppa:wireguard/wireguard >> $log 2>&1
 	fi
 
@@ -82,7 +82,7 @@ function _selectiface () {
 
 
 function _mkconf_wg () {
-	echo "Configuring Wireguard for $u"
+	echo -n "Configuring Wireguard for $u"
 
 	mkdir -p /home/$u/.wireguard/{server,client}
 
@@ -150,9 +150,7 @@ EOWGC
 
 	systemctl enable --now wg-quick@wg$(id -u $u)
 	systemctl start wg-quick@wg$(id -u $u)
-	echo "Wireguard has been enabled (wg$(id -u $u)). Your client configuration is stored in /home/$u/.wireguard/$u.conf"
-	echo "To generate a QR code of this configuration automatically for the android client, use the command:"
-	echo "qrencode -t ansiutf8 < ~/.wireguard/$u.conf"
+	echo "Wireguard enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
 }
 
 
@@ -172,3 +170,8 @@ users=($(_get_user_list))
 for u in ${users[@]}; do
 	_mkconf_wg
 done
+echo
+echo "Configuration QR code can be generated with the following command:"
+masteruser=$(_get_master_username)
+echo "  qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
+echo
