@@ -354,7 +354,7 @@ function _deluser {
   rm -f /etc/nginx/conf.d/${user}*
   rm -f /etc/sudoers.d/${user}
   rm -rf /var/run/${user}
-  rm -rf /home/${user}
+  rm -rf /home/"${user:?}"
   rm /root/${user}.info
   systemctl reload nginx
 }
