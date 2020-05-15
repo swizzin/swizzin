@@ -43,23 +43,19 @@ function _get_user_password () {
 #     users=($(cut -d: -f1 < /etc/htpasswd))
 # }
 
-#Returns all users managed by swizzin
-#e.g. "test test4 test5 test6 test7 test8 test9"
+#Returns all users managed by swizzin as a newline separated list
 function _get_user_list () {
-    users=()
     for file in /root/*.info; do 
         ##TODO fix when there is no addition users other than .master. It works but it's just ugly
         if [[ -f $file ]]; then 
-            user_in_file=$(cat $file | cut -d: -f1)
-            users+=("$user_in_file")
+            cut -d: -f1 < "$file"
         fi
     done
-    echo "${users[*]}"
 }
 
 #Returns the username of the master
 function _get_master_username (){
-    echo "$(cat /root/.master.info | cut -d: -f1)"
+    cut -d: -f1 < /root/.master.info
 }
 
 # Removes a file or a directory in case it exists
