@@ -102,7 +102,6 @@ function _mkconf_wg () {
 	net=$(id -u $u | cut -c 1-3)
 	sub=$(id -u $u | rev | cut -c 1 | rev)
 	subnet=10.$net.$sub.
-
 	cat > /etc/wireguard/wg$(id -u $u).conf <<EOWGS
 [Interface]
 Address = ${subnet}1
@@ -168,7 +167,7 @@ fi
 
 _install_wg
 
-users=("$(_get_user_list)")
-for u in "${users[@]}"; do
-    _mkconf_wg
+users=($(_get_user_list))
+for u in ${users[@]}; do
+	_mkconf_wg
 done
