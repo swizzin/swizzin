@@ -37,6 +37,7 @@ function _install_wg () {
 		esac
 	done
 
+	echo "Adding Wireguard repoository"
 	if [[ $distribution == "Debian" ]]; then
 		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 		printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
@@ -44,7 +45,9 @@ function _install_wg () {
 		add-apt-repository -y ppa:wireguard/wireguard >> $OUTTO 2>&1
 	fi
 
+	echo "Fetching APT updates"
 	apt-get -q update >> $OUTTO 2>&1
+	echo "Installing Wireguard from APT"
 	apt-get -y install wireguard qrencode >> $OUTTO 2>&1
 
 
@@ -155,8 +158,6 @@ EOWGC
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-
-u=$(_get_master_usernam)
 
 #When a new user is being installed
 if [[ -n $1 ]]; then
