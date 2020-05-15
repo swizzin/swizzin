@@ -19,32 +19,34 @@ if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
   exit 1
 else
-echo "Please choose a password for the nextcloud mysql user."
-read -s -p "Password: " 'nextpass'
+echo "Please choose a password for the Nextcloud MySQL user."
+read -r -s -p "Password: " 'nextpass'
+echo
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
-  echo -n -e "Existing mysql server detected!\n"
-  echo -n -e "Please enter mysql root password so that installation may continue:\n"
-  read -s -p "Password: " 'password'
+  echo -n -e "Existing MySQL server detected!\n"
+  echo -n -e "Please enter MySQL root password so that installation may continue:\n"
+  read -r -s -p "Password: " 'password'
+  echo
   echo -e "Please wait while nextcloud is installed ... "
 
 else
-  echo -n -e "No mysql server found! Setup will install. \n"
-  echo -n -e "Please enter a mysql root password \n"
+  echo -n -e "No MySQL server found! Setup will install. \n"
+  echo -n -e "Please enter a MySQL root password \n"
   while [ -z "$password" ]; do
-    read -s -p "Password: " 'pass1'
+    read -r -s -p "Password: " 'pass1'
     echo
-    read -s -p "Re-enter password to verify: " 'pass2'
-    if [ $pass1 = $pass2 ]; then
+    read -r -s -p "Re-enter password to verify: " 'pass2'
+    echo
+    if [ "$pass1" = "$pass2" ]; then
        password=$pass1
     else
-       echo
-       echo "Passwords do not match"
+       echo "Passwords do not match. Please try again."
     fi
   done
   echo -e "Please wait while nextcloud is installed ... "
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
-  if [[ $(systemctl is-active mysql) != "active" ]]; then
+  if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
   fi
   mysqladmin -u root password ${password}
@@ -96,6 +98,7 @@ then
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 
+# shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
