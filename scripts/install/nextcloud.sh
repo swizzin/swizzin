@@ -237,6 +237,27 @@ sudo -u www-data php occ  maintenance:install --database \
 "mysql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass \
 "$nextpass" --admin-user "$masteruser" --admin-pass "$masterpass" 
 
+# i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
+i=1
+
+sudo -u www-data php occ config:system:set trusted_domains $i --value="localhost"
+((i++))
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$ip"
+((i++))
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname)"
+((i++))
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname -f)"
+
+for value in $(cat /etc/nginx/sites-enabled/default | grep server_name | cut -d' ' -f 4 | cut -d\; -f 1); do
+  if [[ $value != "_"]]; then 
+    sudo -u www-data php occ config:system:set trusted_domains $i --value="$value"
+    ((i++))
+  fi
+done
+
+
+nginx
+
 
 
 echo "Please log in using your master credentials."
