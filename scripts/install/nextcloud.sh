@@ -278,7 +278,7 @@ for u in "${users[@]}"; do
     OC_PASS=$(_get_user_password "$u")
     export OC_PASS
     #TODO decide what happens wih the stdout from this
-    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" 2>&1 | tee -a $log
+    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" >> $log 2>&1
     unset OC_PASS
 done
 echo "Please log in using your master credentials."
