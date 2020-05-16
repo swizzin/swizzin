@@ -232,10 +232,16 @@ echo "Setting up Nextcloud"
 masteruser=$(cut -d: -f1 < /root/.master.info)
 masterpass=$(_get_user_password "$masteruser")
 
+
+
 cd $ocpath
-sudo -u www-data php occ  maintenance:install --database \
-"mysql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass \
-"$nextpass" --admin-user "$masteruser" --admin-pass "$masterpass" 
+sudo -u www-data php occ  maintenance:install \
+--database "mysql" \
+--database-name "nextcloud"  \
+--database-user "nextcloud" \
+--database-pass "$nextpass" \
+--admin-user "$masteruser" \
+--admin-pass "$masterpass" 
 
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
 
@@ -248,8 +254,8 @@ sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostnam
 ((i++))
 sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname -f)"
 
-for value in $(cat /etc/nginx/sites-enabled/default | grep server_name | cut -d' ' -f 4 | cut -d\; -f 1); do
-  if [[ $value != "_"]]; then 
+for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
+  if [[ $value != "_" ]]; then 
     sudo -u www-data php occ config:system:set trusted_domains $i --value="$value"
     ((i++))
   fi
