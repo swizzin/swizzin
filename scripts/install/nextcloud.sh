@@ -261,6 +261,15 @@ for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 
   fi
 done
 
+
+users=$(cut -d: -f1 /etc/htpasswd | grep -v "$masteruser")
+for u in "${users[@]}"; do
+    OC_PASS=$(_get_user_password "$u")
+    export OC_PASS
+    #TODO decide what happens wih the stdout from this
+    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" > /dev/null
+    unset OC_PASS
+done
 echo "Please log in using your master credentials."
 
 
