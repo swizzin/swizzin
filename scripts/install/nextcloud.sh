@@ -229,10 +229,11 @@ touch /install/.nextcloud.lock
 echo "Setting up Nextcloud"
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-masteruser=$(cut -d: -f1 < /etc/.master.info)
+masteruser=$(cut -d: -f1 < /root/.master.info)
 masterpass=$(_get_user_password "$masteruser")
 
-sudo -u www-data php $ocpath/occ  maintenance:install --database \
+cd $ocpath
+sudo -u www-data php occ  maintenance:install --database \
 "mysql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass \
 "$nextpass" --admin-user "$masteruser" --admin-pass "$masterpass" 
 
