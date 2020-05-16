@@ -13,6 +13,12 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
 inst=$(which mysql)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ ! -f /install/.nginx.lock ]]; then
@@ -46,7 +52,7 @@ echo
 
 if [[ $installmysql = "true" ]]; then 
   echo "Installing MySQL*" #MariaDB yeeee
-  DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
+  DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server >> $log 2>&1
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
   fi
@@ -62,8 +68,8 @@ mysql --execute="FLUSH PRIVILEGES;"
 
 #Depends
 echo "Installing dependencies"
-apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-imagick php-intl php-zip php-xml php-mbstring > /dev/null 2>&1
-#a2enmod rewrite > /dev/null 2>&1
+apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-imagick php-intl php-zip php-xml php-mbstring >> $log 2>&1
+#a2enmod rewrite >> $log 2>&1
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
 codename=$(lsb_release -cs)
@@ -73,8 +79,8 @@ else
   version=latest
 fi
 echo "Downloading Nextcloud source files"
-wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip > /dev/null 2>&1
-unzip /tmp/nextcloud.zip -d /srv > /dev/null 2>&1
+wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip >> $log 2>&1
+unzip /tmp/nextcloud.zip -d /srv >> $log 2>&1
 rm -rf /tmp/nextcloud.zip
 
 #Set permissions as per nextcloud
@@ -241,22 +247,22 @@ sudo -u www-data php occ  maintenance:install \
 --database-user "nextcloud" \
 --database-pass "$nextpass" \
 --admin-user "$masteruser" \
---admin-pass "$masterpass" 
+--admin-pass "$masterpass" 2>&1 | tee -a $log
 
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
 
 i=1
-sudo -u www-data php occ config:system:set trusted_domains $i --value="localhost"
+sudo -u www-data php occ config:system:set trusted_domains $i --value="localhost" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$ip"
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$ip" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname)"
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname)" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname -f)"
+sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname -f)" 2>&1 | tee -a $log
 
 for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
   if [[ $value != "_" ]]; then 
-    sudo -u www-data php occ config:system:set trusted_domains $i --value="$value"
+    sudo -u www-data php occ config:system:set trusted_domains $i --value="$value" | tee -a $log
     ((i++))
   fi
 done
@@ -267,7 +273,7 @@ for u in "${users[@]}"; do
     OC_PASS=$(_get_user_password "$u")
     export OC_PASS
     #TODO decide what happens wih the stdout from this
-    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" > /dev/null
+    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" 2>&1 | tee -a $log
     unset OC_PASS
 done
 echo "Please log in using your master credentials."
