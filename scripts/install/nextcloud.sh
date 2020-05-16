@@ -28,8 +28,6 @@ if [[ -n $inst ]]; then
   echo -n -e "Please enter MySQL root password so that installation may continue:\n"
   read -r -s -p "Password: " 'password'
   echo
-  echo -e "Please wait while nextcloud is installed ... "
-
 else
   echo -n -e "No MySQL server found! Setup will install. \n"
   echo -n -e "Please enter a MySQL root password \n"
@@ -44,17 +42,18 @@ else
        echo "Passwords do not match. Please try again."
     fi
   done
-  echo -e "Please wait while nextcloud is installed ... "
+  echo "Installing MySQL*" #MariaDB yeeee
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
   fi
-  mysqladmin -u root password ${password}
+  mysqladmin -u root password "${password}"
 fi
+echo -e "Please wait while Nextcloud is installed ... "
 #Depends
+echo "Installing dependencies"
 apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring > /dev/null 2>&1
 #a2enmod rewrite > /dev/null 2>&1
-cd /tmp
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
 codename=$(lsb_release -cs)
@@ -63,10 +62,11 @@ if [[ $codename =~ ("stretch"|"xenial") ]]; then
 else
   version=latest
 fi
-wget -q https://download.nextcloud.com/server/releases/${version}.zip > /dev/null 2>&1
-unzip ${version}.zip > /dev/null 2>&1
+echo "Downloading Nextcloud source files"
+wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip> /dev/null 2>&1
+unzip nextcloud.zip > /dev/null 2>&1
 mv nextcloud /srv
-rm -rf /tmp/${version}.zip
+rm -rf /tmp/nextcloud.zip
 
 #Set permissions as per nextcloud
 ocpath='/srv/nextcloud'
