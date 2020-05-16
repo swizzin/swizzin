@@ -64,7 +64,7 @@ fi
 
 # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
 
-mysql --execute="CREATE DATABASE nextcloud;"
+mysql --execute="CREATE DATABASE nextcloud character set UTF8mb4 collate utf8mb4_bin;"
 mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextcldMySqlPW';"
 mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --execute="FLUSH PRIVILEGES;"
