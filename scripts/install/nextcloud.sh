@@ -19,10 +19,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
   exit 1
 else
-echo "Please choose a password for the Nextcloud MySQL user."
-read -r -s -p "Password: " 'nextpass'
-echo
-echo "Nextcloud Password set to $nextpass"
+
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
   echo -n -e "Existing MySQL server detected!\n"
@@ -40,6 +37,14 @@ else
        echo "Passwords do not match. Please try again."
     fi
   done
+  installmysql=true
+fi
+
+echo "Please choose a password for the Nextcloud MySQL user."
+read -r -s -p "Password: " 'nextpass'
+echo
+
+if [[ $installmysql = "true" ]]; then 
   echo "Installing MySQL*" #MariaDB yeeee
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server > /dev/null 2>&1
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
@@ -47,6 +52,14 @@ else
   fi
   mysqladmin -u root password "${password}"
 fi
+
+
+mysql --execute="CREATE DATABASE nextcloud;"
+mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
+mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
+mysql --execute="FLUSH PRIVILEGES;"
+
+
 #Depends
 echo "Installing dependencies"
 apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring > /dev/null 2>&1
@@ -62,7 +75,6 @@ fi
 echo "Downloading Nextcloud source files"
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip > /dev/null 2>&1
 unzip /tmp/nextcloud.zip -d /srv > /dev/null 2>&1
-# mv /tmp/nextcloud /srv
 rm -rf /tmp/nextcloud.zip
 
 #Set permissions as per nextcloud
@@ -205,11 +217,6 @@ location ^~ /nextcloud {
     }
 }
 EOF
-
-mysql --execute="CREATE DATABASE nextcloud;"
-mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
-mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
-mysql --execute="FLUSH PRIVILEGES;"
 
 systemctl reload nginx
 touch /install/.nextcloud.lock
