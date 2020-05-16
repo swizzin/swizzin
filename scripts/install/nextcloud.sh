@@ -59,6 +59,7 @@ if [[ $installmysql = "true" ]]; then
   mysqladmin -u root password "${password}"
 fi
 
+# BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
 
 mysql --execute="CREATE DATABASE nextcloud;"
 mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
@@ -112,6 +113,11 @@ then
  chmod 0644 ${ocpath}/data/.htaccess
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
+
+crontab -l -u $htuser > /tmp/newcron.txt
+echo "*/5  *  *  *  * php -f /var/www/nextcloud/" >> /tmp/newcron.txt
+crontab -u $htuser /tmp/newcron.txt
+rm newcron.txt
 
 # shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php

@@ -8,6 +8,10 @@ if [[ $? != "0" ]]; then
     exit 1
 fi
 echo "Removing all Nextcloud data"
+
+crontab -l -u www-data | grep -v nextcloud > /tmp/.lol
+crontab -u www-data /tmp/.lol
+
 rm -rf /srv/nextcloud
 rm /etc/nginx/apps/nextcloud.conf
 systemctl reload nginx
