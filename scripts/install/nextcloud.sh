@@ -25,9 +25,17 @@ echo
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
   echo -n -e "Existing MySQL server detected!\n"
-  echo -n -e "Please enter MySQL root password so that installation may continue:\n"
-  read -r -s -p "Password: " 'password'
-  echo
+  echo -n -e "Please enter MySQL root password:\n"
+  while [[ -n $pwgood ]]; do
+    read -r -s -p "Password: " 'password'
+    echo
+    if [[ $(mysql --user="root" --password="$password" -e"quit") ]]; then
+      pwgood=true
+    else
+      echo "Password didn't work"
+    fi
+  done
+
 else
   echo -n -e "No MySQL server found! Setup will install. \n"
   echo -n -e "Please enter a MySQL root password \n"
@@ -63,7 +71,7 @@ else
   version=latest
 fi
 echo "Downloading Nextcloud source files"
-wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip> /dev/null 2>&1
+wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip > /dev/null 2>&1
 unzip nextcloud.zip > /dev/null 2>&1
 mv nextcloud /srv
 rm -rf /tmp/nextcloud.zip
