@@ -238,8 +238,8 @@ sudo -u www-data php occ  maintenance:install --database \
 "$nextpass" --admin-user "$masteruser" --admin-pass "$masterpass" 
 
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
-i=1
 
+i=1
 sudo -u www-data php occ config:system:set trusted_domains $i --value="localhost"
 ((i++))
 sudo -u www-data php occ config:system:set trusted_domains $i --value="$ip"
@@ -254,11 +254,6 @@ for value in $(cat /etc/nginx/sites-enabled/default | grep server_name | cut -d'
     ((i++))
   fi
 done
-
-
-nginx
-
-
 
 echo "Please log in using your master credentials."
 
