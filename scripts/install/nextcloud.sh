@@ -221,20 +221,23 @@ EOF
 systemctl reload nginx
 touch /install/.nextcloud.lock
 
-echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values below"
-echo -e "   Database user: nextcloud"
-echo -e "   Database password: ${nextpass}"
-echo -e "   Database name: nextcloud"
+# echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values below"
+# echo -e "   Database user: nextcloud"
+# echo -e "   Database password: ${nextpass}"
+# echo -e "   Database name: nextcloud"
 
-# # shellcheck source=sources/functions/utils
-# . /etc/swizzin/sources/functions/utils
-# masteruser=$(cut -d: -f1 < /etc/.master.info)
-# masterpass=$(_get_user_password "$masteruser")
+echo "Setting up Nextcloud"
+# shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+masteruser=$(cut -d: -f1 < /etc/.master.info)
+masterpass=$(_get_user_password "$masteruser")
 
-# cd $ocpath
-# sudo -u www-data php occ  maintenance:install --database
-# "mysql" --database-name "nextcloud"  --database-user "root" --database-pass
-# "password" --admin-user "$masteruser" --admin-pass "$masterpass"
-# echo "Nextcloud was successfully installed, please log in using your master credentials."
+sudo -u www-data php $ocpath/occ  maintenance:install --database \
+"mysql" --database-name "nextcloud"  --database-user "nextcloud" --database-pass \
+"$nextpass" --admin-user "$masteruser" --admin-pass "$masterpass" 
+
+
+
+echo "Please log in using your master credentials."
 
 
