@@ -21,8 +21,8 @@ if [[ ! -f /install/.nginx.lock ]]; then
 else
 echo "Please choose a password for the Nextcloud MySQL user."
 read -r -s -p "Password: " 'nextpass'
-echo "Nextcloud Password set to $nextpass"
 echo
+echo "Nextcloud Password set to $nextpass"
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
   echo -n -e "Existing MySQL server detected!\n"
@@ -47,7 +47,6 @@ else
   fi
   mysqladmin -u root password "${password}"
 fi
-echo -e "Please wait while Nextcloud is installed ... "
 #Depends
 echo "Installing dependencies"
 apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring > /dev/null 2>&1
@@ -62,8 +61,8 @@ else
 fi
 echo "Downloading Nextcloud source files"
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip > /dev/null 2>&1
-unzip nextcloud.zip > /dev/null 2>&1
-mv /tmp/nextcloud /srv
+unzip /tmp/nextcloud.zip -d /srv > /dev/null 2>&1
+# mv /tmp/nextcloud /srv
 rm -rf /tmp/nextcloud.zip
 
 #Set permissions as per nextcloud
@@ -215,8 +214,8 @@ mysql --execute="FLUSH PRIVILEGES;"
 systemctl reload nginx
 touch /install/.nextcloud.lock
 
-echo -e "Visit https://${ip}/nextcloud to finish installation."
-echo -e "Database user: nextcloud"
-echo -e "Database password: ${nextpass}"
-echo -e "Database name: nextcloud"
+echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values below"
+echo -e "   Database user: nextcloud"
+echo -e "   Database password: ${nextpass}"
+echo -e "   Database name: nextcloud"
 fi
