@@ -62,7 +62,7 @@ mysql --execute="FLUSH PRIVILEGES;"
 
 #Depends
 echo "Installing dependencies"
-apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring > /dev/null 2>&1
+apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-imagick php-intl php-zip php-xml php-mbstring > /dev/null 2>&1
 #a2enmod rewrite > /dev/null 2>&1
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
