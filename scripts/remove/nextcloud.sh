@@ -7,6 +7,7 @@ if [[ $? != "0" ]]; then
     echo "MySQL Drop failed. Please try again or investigate"
     exit 1
 fi
+echo "Removing all Nextcloud data"
 rm -rf /srv/nextcloud
 rm /etc/nginx/apps/nextcloud.conf
 systemctl reload nginx

@@ -251,6 +251,8 @@ sudo -u www-data php occ  maintenance:install \
 
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
 
+# Possible woraround to skip this here, but I'd rather avoid this to be honest as we're exposed to the internet in most cases here.
+# https://github.com/owncloud/core/issues/21922#issuecomment-247605455
 i=1
 sudo -u www-data php occ config:system:set trusted_domains "$i" --value="localhost" 2>&1 | tee -a $log
 ((i++))
@@ -268,8 +270,10 @@ for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 
   fi
 done
 
-
-users=$(cut -d: -f1 /etc/htpasswd | grep -v "$masteruser")
+#All users but the master user
+users=($(cut -d: -f1 < /etc/htpasswd |sed "/^$masteruser\b/Id"))
+# shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 for u in "${users[@]}"; do
     OC_PASS=$(_get_user_password "$u")
     export OC_PASS
