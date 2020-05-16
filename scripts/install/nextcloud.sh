@@ -31,14 +31,14 @@ if [[ -n $inst ]]; then
   echo -n -e "Existing MySQL server detected!\n"
 else
   echo -n -e "No MySQL server found! Setup will install. \n"
+  while [ -z "$mysqlRootPW" ]; do
   echo -n -e "Please enter a MySQL root password \n"
-  while [ -z "$password" ]; do
     read -r -s -p "Password: " 'pass1'
     echo
     read -r -s -p "Re-enter password to verify: " 'pass2'
     echo
     if [ "$pass1" = "$pass2" ]; then
-       password=$pass1
+       mysqlRootPW=$pass1
     else
        echo "Passwords do not match. Please try again."
     fi
@@ -46,9 +46,12 @@ else
   installmysql=true
 fi
 
-echo "Please choose a password for the Nextcloud MySQL user."
-read -r -s -p "Password: " 'nextpass'
-echo
+if [[ -z $nextcldMySqlPW ]]; then 
+  echo "Please choose a password for the Nextcloud MySQL user."
+  read -r -s -p "Password: " 'nextcldMySqlPW'
+  echo
+fi
+
 
 if [[ $installmysql = "true" ]]; then 
   echo "Installing MySQL*" #MariaDB yeeee
@@ -56,13 +59,13 @@ if [[ $installmysql = "true" ]]; then
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
   fi
-  mysqladmin -u root password "${password}"
+  mysqladmin -u root password "${mysqlRootPW}"
 fi
 
 # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
 
 mysql --execute="CREATE DATABASE nextcloud;"
-mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
+mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextcldMySqlPW';"
 mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --execute="FLUSH PRIVILEGES;"
 
@@ -235,7 +238,7 @@ touch /install/.nextcloud.lock
 
 # echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values below"
 # echo -e "   Database user: nextcloud"
-# echo -e "   Database password: ${nextpass}"
+# echo -e "   Database password: ${nextcldMySqlPW}"
 # echo -e "   Database name: nextcloud"
 
 echo "Setting up Nextcloud"
@@ -251,7 +254,7 @@ sudo -u www-data php occ  maintenance:install \
 --database "mysql" \
 --database-name "nextcloud"  \
 --database-user "nextcloud" \
---database-pass "$nextpass" \
+--database-pass "$nextcldMySqlPW" \
 --admin-user "$masteruser" \
 --admin-pass "$masterpass" 2>&1 | tee -a $log
 
