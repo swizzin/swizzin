@@ -251,7 +251,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -261,6 +261,13 @@ function _adduser {
     if [[ -f /install/.${app}.lock ]]; then
       if [[ $app = "flood" ]]; then
         /usr/local/bin/swizzin/install/${app}.sh
+      elif [[ $app = "nextcloud" ]]; then
+        cd /srv/nextcloud || echo "ERROR /srv/nexcloud does not exist"
+        export OC_PASS="$pass"
+        #TODO decide what happens wih the stdout from this (prints three lines with no context that it's nextcloud, applies to the other nextcloud commands too)
+        su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${user} --group='users' ${user}"
+        unset OC_PASS
+        cd - || :
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
@@ -310,7 +317,7 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -322,6 +329,10 @@ function _deluser {
         rm -rf /srv/rutorrent/conf/users/${user}
         rm -rf /srv/rutorrent/share/users/${user}
         rm -f /etc/nginx/apps/${user}*
+      elif [[ $app = "nextcloud" ]]; then
+        cd /srv/nextcloud || echo "ERROR /srv/nextcloud does not exist"
+        sudo -u www-data php occ user:delete "${user}"
+        cd - || :
       elif [[ $app = "lounge" ]]; then
         rm -f /home/lounge/.lounge/users/${user}.json
       elif [[ $app = "deluge" ]]; then
@@ -401,6 +412,13 @@ function _chpasswd {
     systemctl stop transmission@${user}
     sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
     systemctl start transmission@${user}
+  fi
+  if [[ -e /install/.nextcloud.lock ]]; then 
+    cd /srv/nextcloud || echo "ERROR /srv/nextcloud does not exist"
+    export OC_PASS="$pass"
+    su -s /bin/sh www-data -c 'php occ user:resetpassword --password-from-env'
+    unset OC_PASS
+    cd - || :
   fi
 
 }
