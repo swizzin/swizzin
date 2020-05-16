@@ -73,7 +73,7 @@ fi
 echo "Downloading Nextcloud source files"
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip > /dev/null 2>&1
 unzip nextcloud.zip > /dev/null 2>&1
-mv nextcloud /srv
+mv /tmp/nextcloud /srv
 rm -rf /tmp/nextcloud.zip
 
 #Set permissions as per nextcloud
