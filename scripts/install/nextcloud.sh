@@ -240,7 +240,7 @@ masterpass=$(_get_user_password "$masteruser")
 
 
 
-cd $ocpath
+cd $ocpath || : #shut up linter
 sudo -u www-data php occ  maintenance:install \
 --database "mysql" \
 --database-name "nextcloud"  \
@@ -252,17 +252,18 @@ sudo -u www-data php occ  maintenance:install \
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
 
 i=1
-sudo -u www-data php occ config:system:set trusted_domains $i --value="localhost" 2>&1 | tee -a $log
+sudo -u www-data php occ config:system:set trusted_domains "$i" --value="localhost" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$ip" 2>&1 | tee -a $log
+sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$ip" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname)" 2>&1 | tee -a $log
+sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$(hostname)" 2>&1 | tee -a $log
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains $i --value="$(hostname -f)" 2>&1 | tee -a $log
+sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$(hostname -f)" 2>&1 | tee -a $log
 
+# shellcheck disable=SC2013
 for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
   if [[ $value != "_" ]]; then 
-    sudo -u www-data php occ config:system:set trusted_domains $i --value="$value" | tee -a $log
+    sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$value" | tee -a $log
     ((i++))
   fi
 done
