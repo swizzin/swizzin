@@ -18,7 +18,7 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ ! -f /install/.nginx.lock ]]; then
   echo "ERROR: Web server not detected. Please install nginx and restart panel install."
   exit 1
-else
+fi
 
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
@@ -225,4 +225,16 @@ echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values be
 echo -e "   Database user: nextcloud"
 echo -e "   Database password: ${nextpass}"
 echo -e "   Database name: nextcloud"
-fi
+
+# # shellcheck source=sources/functions/utils
+# . /etc/swizzin/sources/functions/utils
+# masteruser=$(cut -d: -f1 < /etc/.master.info)
+# masterpass=$(_get_user_password "$masteruser")
+
+# cd $ocpath
+# sudo -u www-data php occ  maintenance:install --database
+# "mysql" --database-name "nextcloud"  --database-user "root" --database-pass
+# "password" --admin-user "$masteruser" --admin-pass "$masterpass"
+# echo "Nextcloud was successfully installed, please log in using your master credentials."
+
+
