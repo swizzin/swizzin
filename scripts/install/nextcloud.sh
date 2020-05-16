@@ -21,21 +21,11 @@ if [[ ! -f /install/.nginx.lock ]]; then
 else
 echo "Please choose a password for the Nextcloud MySQL user."
 read -r -s -p "Password: " 'nextpass'
+echo "Nextcloud Password set to $nextpass"
 echo
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
   echo -n -e "Existing MySQL server detected!\n"
-  echo -n -e "Please enter MySQL root password:\n"
-  while [[ -n $pwgood ]]; do
-    read -r -s -p "Password: " 'password'
-    echo
-    if [[ $(mysql --user="root" --password="$password" -e"quit") ]]; then
-      pwgood=true
-    else
-      echo "Password didn't work"
-    fi
-  done
-
 else
   echo -n -e "No MySQL server found! Setup will install. \n"
   echo -n -e "Please enter a MySQL root password \n"
@@ -217,10 +207,10 @@ location ^~ /nextcloud {
 }
 EOF
 
-mysql --user="root" --password="$password" --execute="CREATE DATABASE nextcloud;"
-mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
-mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
-mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
+mysql --execute="CREATE DATABASE nextcloud;"
+mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
+mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
+mysql --execute="FLUSH PRIVILEGES;"
 
 systemctl reload nginx
 touch /install/.nextcloud.lock
