@@ -323,7 +323,7 @@ function _deluser {
         rm -rf /srv/rutorrent/share/users/${user}
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
-        su -s /bin/sh lounge -c "thelounge remove ${user}" >> $log 2>&1
+        su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
