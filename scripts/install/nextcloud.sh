@@ -274,7 +274,7 @@ masterpass=$(_get_user_password "$masteruser")
 # shellcheck source=sources/functions/nextcloud
 . /etc/swizzin/sources/functions/nextcloud
 
-_occ "--database mysql --database-name nextcloud  --database-user nextcloud --database-pass $nextcldMySqlPW --admin-user $masteruser --admin-pass $masterpass "
+_occ "maintenance:install --database 'mysql' --database-name 'nextcloud'  --database-user 'nextcloud' --database-pass '$nextcldMySqlPW' --admin-user '$masteruser' --admin-pass '$masterpass' "
 _occ "maintenance:mode --on"
 _occ "db:add-missing-indices"
 _occ "db:convert-filecache-bigint --no-interaction"
