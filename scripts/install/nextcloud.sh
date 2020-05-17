@@ -64,11 +64,21 @@ fi
 
 # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
 
-mysql --execute="CREATE DATABASE nextcloud character set UTF8mb4 collate utf8mb4_bin;"
+mysql --execute="CREATE DATABASE nextcloud character set UTF8mb4 COLLATE utf8mb4_general_ci;"
 mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextcldMySqlPW';"
 mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
+mysql --execute="SET GLOBAL innodb_file_format=Barracuda;"
 mysql --execute="FLUSH PRIVILEGES;"
 
+
+if ! grep -Fxq innodb_file_per_table=1 /etc/mysql/my.cnf; then 
+  cat >> /etc/mysql/my.cnf << EOF
+[mysqld]
+innodb_file_per_table=1
+EOF
+fi
+
+systemctl restart mysqld
 
 #Depends
 echo "Installing dependencies"
@@ -120,7 +130,7 @@ fi
 crontab -l -u $htuser > /tmp/newcron.txt
 echo "*/5  *  *  *  * php -f /var/www/nextcloud/" >> /tmp/newcron.txt
 crontab -u $htuser /tmp/newcron.txt
-rm newcron.txt
+rm /tmp/newcron.txt
 
 # shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
@@ -233,7 +243,21 @@ location ^~ /nextcloud {
 }
 EOF
 
+
 systemctl reload nginx
+
+#shellcheck source=sources/functions/php
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+
+sed -i '/;env\[HOSTNAME/s/^;//g' /etc/php/"$phpversion"/fpm/pool.d/www.conf
+sed -i '/;env\[PATH/s/^;//g' /etc/php/"$phpversion"/fpm/pool.d/www.conf
+sed -i '/;env\[TMP/s/^;//g' /etc/php/"$phpversion"/fpm/pool.d/www.conf
+sed -i '/;env\[TEMP/s/^;//g' /etc/php/"$phpversion"/fpm/pool.d/www.conf
+sed -i '/;env\[TMPDIR/s/^;//g' /etc/php/"$phpversion"/fpm/pool.d/www.conf
+
+restart_php_fpm
+
 touch /install/.nextcloud.lock
 
 # echo -e "Visit https://${ip}/nextcloud to finish installation. Use the values below"
@@ -250,6 +274,8 @@ masterpass=$(_get_user_password "$masteruser")
 
 
 cd $ocpath || : #shut up linter
+
+
 sudo -u www-data php occ  maintenance:install \
 --database "mysql" \
 --database-name "nextcloud"  \
@@ -258,10 +284,20 @@ sudo -u www-data php occ  maintenance:install \
 --admin-user "$masteruser" \
 --admin-pass "$masterpass" 2>&1 | tee -a $log
 
+{
+  su -s /bin/sh www-data -c "php occ maintenance:mode --on" 2>&1 ;
+  su -s /bin/sh www-data -c "php occ db:add-missing-indices" 2>&1 ;
+  su -s /bin/sh www-data -c "php occ db:convert-filecache-bigint --no-interaction" 2>&1 ;
+} >> $log 2>&1
+
+
+
+
 # i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
 
 # Possible woraround to skip this here, but I'd rather avoid this to be honest as we're exposed to the internet in most cases here.
 # https://github.com/owncloud/core/issues/21922#issuecomment-247605455
+echo "Adding trusted domains"
 i=1
 sudo -u www-data php occ config:system:set trusted_domains "$i" --value="localhost" 2>&1 | tee -a $log
 ((i++))
@@ -290,6 +326,11 @@ for u in "${users[@]}"; do
     su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" >> $log 2>&1
     unset OC_PASS
 done
-echo "Please log in using your master credentials."
 
+su -s /bin/sh www-data -c "php occ maintenance:mode --off" >> $log 2>&1
+restart_php_fpm
+
+echo
+echo "Installation finished. Please log in using your master credentials."
+echo
 
