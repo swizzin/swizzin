@@ -403,7 +403,7 @@ function _chpasswd {
     systemctl start transmission@${user}
   fi
   if [[ -f /install/.lounge.lock ]]; then 
-    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}"
+    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
   fi
 
 }
