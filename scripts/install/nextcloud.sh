@@ -54,7 +54,7 @@ fi
 
 
 if [[ $installmysql = "true" ]]; then 
-  echo "Installing MySQL*" #MariaDB yeeee
+  echo "Installing MySQL*" | tee -a $log #MariaDB yeeee 
   DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server >> $log 2>&1
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
@@ -92,7 +92,7 @@ if [[ $codename =~ ("stretch"|"xenial") ]]; then
 else
   version=latest
 fi
-echo "Downloading Nextcloud source files"
+echo "Downloading Nextcloud source files" | tee -a $log
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip >> $log 2>&1
 unzip /tmp/nextcloud.zip -d /srv >> $log 2>&1
 rm -rf /tmp/nextcloud.zip
@@ -265,52 +265,36 @@ touch /install/.nextcloud.lock
 # echo -e "   Database password: ${nextcldMySqlPW}"
 # echo -e "   Database name: nextcloud"
 
-echo "Setting up Nextcloud"
+echo "Setting up Nextcloud" | tee -a $log
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 masteruser=$(cut -d: -f1 < /root/.master.info)
 masterpass=$(_get_user_password "$masteruser")
 
+# shellcheck source=sources/functions/nextcloud
+. /etc/swizzin/sources/functions/nextcloud
 
-
-cd $ocpath || : #shut up linter
-
-
-sudo -u www-data php occ  maintenance:install \
---database "mysql" \
---database-name "nextcloud"  \
---database-user "nextcloud" \
---database-pass "$nextcldMySqlPW" \
---admin-user "$masteruser" \
---admin-pass "$masterpass" 2>&1 | tee -a $log
-
-{
-  su -s /bin/sh www-data -c "php occ maintenance:mode --on" 2>&1 ;
-  su -s /bin/sh www-data -c "php occ db:add-missing-indices" 2>&1 ;
-  su -s /bin/sh www-data -c "php occ db:convert-filecache-bigint --no-interaction" 2>&1 ;
-} >> $log 2>&1
-
-
-
-
-# i=$(sudo -u www-data php occ config:system:get trusted_domains | wc -l)
+_occ "--database mysql --database-name nextcloud  --database-user nextcloud --database-pass $nextcldMySqlPW --admin-user $masteruser --admin-pass $masterpass "
+_occ "maintenance:mode --on"
+_occ "db:add-missing-indices"
+_occ "db:convert-filecache-bigint --no-interaction"
 
 # Possible woraround to skip this here, but I'd rather avoid this to be honest as we're exposed to the internet in most cases here.
 # https://github.com/owncloud/core/issues/21922#issuecomment-247605455
-echo "Adding trusted domains"
+echo "Adding trusted domains" | tee -a $log
 i=1
-sudo -u www-data php occ config:system:set trusted_domains "$i" --value="localhost" 2>&1 | tee -a $log
+_occ "config:system:set trusted_domains $i --value='localhost'"
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$ip" 2>&1 | tee -a $log
+_occ "config:system:set trusted_domains $i --value=$ip"
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$(hostname)" 2>&1 | tee -a $log
+_occ "config:system:set trusted_domains $i --value=$(hostname)"
 ((i++))
-sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$(hostname -f)" 2>&1 | tee -a $log
+_occ "config:system:set trusted_domains $i --value=$(hostname)"
 
 # shellcheck disable=SC2013
 for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
   if [[ $value != "_" ]]; then 
-    sudo -u www-data php occ config:system:set trusted_domains "$i" --value="$value" | tee -a $log
+    _occ "config:system:set trusted_domains $i --value=$value"
     ((i++))
   fi
 done
@@ -323,11 +307,11 @@ for u in "${users[@]}"; do
     OC_PASS=$(_get_user_password "$u")
     export OC_PASS
     #TODO decide what happens wih the stdout from this
-    su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${u} --group='users' ${u}" >> $log 2>&1
+    _occ "user:add --password-from-env --display-name=${u} --group='users' ${u}"
     unset OC_PASS
 done
 
-su -s /bin/sh www-data -c "php occ maintenance:mode --off" >> $log 2>&1
+_occ "maintenance:mode --off"
 restart_php_fpm
 
 echo

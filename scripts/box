@@ -264,8 +264,9 @@ function _adduser {
       elif [[ $app = "nextcloud" ]]; then
         cd /srv/nextcloud || echo "ERROR /srv/nexcloud does not exist"
         export OC_PASS="$pass"
-        #TODO decide what happens wih the stdout from this (prints three lines with no context that it's nextcloud, applies to the other nextcloud commands too)
-        su -s /bin/sh www-data -c "php occ user:add --password-from-env --display-name=${user} --group='users' ${user}"
+        # shellcheck source=sources/functions/nextcloud
+        . /etc/swizzin/sources/functions/nextcloud
+        _occ "user:add --password-from-env --display-name=${user} --group='users' ${user}"
         unset OC_PASS
         cd - || :
       else
@@ -330,9 +331,9 @@ function _deluser {
         rm -rf /srv/rutorrent/share/users/${user}
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "nextcloud" ]]; then
-        cd /srv/nextcloud || echo "ERROR /srv/nextcloud does not exist"
-        sudo -u www-data php occ user:delete "${user}"
-        cd - || :
+        # shellcheck source=sources/functions/nextcloud
+        . /etc/swizzin/sources/functions/nextcloud
+        _occ "user:delete ${user}"
       elif [[ $app = "lounge" ]]; then
         rm -f /home/lounge/.lounge/users/${user}.json
       elif [[ $app = "deluge" ]]; then
@@ -414,11 +415,12 @@ function _chpasswd {
     systemctl start transmission@${user}
   fi
   if [[ -e /install/.nextcloud.lock ]]; then 
-    cd /srv/nextcloud || echo "ERROR /srv/nextcloud does not exist"
+    # shellcheck source=sources/functions/nextcloud
+    . /etc/swizzin/sources/functions/nextcloud
     export OC_PASS="$pass"
-    su -s /bin/sh www-data -c 'php occ user:resetpassword --password-from-env'
+    _occ 'user:resetpassword --password-from-env'
     unset OC_PASS
-    cd - || :
+
   fi
 
 }
