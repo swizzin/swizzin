@@ -1,0 +1,15 @@
+#! /bin/bash
+# flying_sausages 2020 for swizzin
+# Some stuff for nextcloud
+
+if [[ -f /tmp/.install.lock ]]; then
+  log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
+function _occ () {
+    torun="$1"
+    echo "Passing \"${torun}\" to occ" >> $log
+    su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" >> $log 2>&1
+}
