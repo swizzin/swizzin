@@ -8,8 +8,14 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+#Passes a command to the nextcloud OCC command
+# You can specify "needret" as the second parameter in order to not swallow the output into the logs.
 function _occ () {
     torun="$1"
     echo "Passing \"${torun}\" to occ" >> $log
-    su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" >> $log 2>&1
+    if [[ $2 = "needret" ]]; then 
+        su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" | tee -a $log
+    else
+        su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" >> $log 2>&1
+    fi
 }
