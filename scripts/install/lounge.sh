@@ -163,33 +163,6 @@ module.exports = {
 	webirc: null,
 
 	//
-	// Log settings
-	//
-	// Logging has to be enabled per user. If enabled, logs will be stored in
-	// the 'logs/<user>/<network>/' folder.
-	//
-	// @type     object
-	// @default  {}
-	//
-	logs: {
-		//
-		// Timestamp format
-		//
-		// @type     string
-		// @default  "YYYY-MM-DD HH:mm:ss"
-		//
-		format: "YYYY-MM-DD HH:mm:ss",
-
-		//
-		// Timezone
-		//
-		// @type     string
-		// @default  "UTC+00:00"
-		//
-		timezone: "UTC+00:00"
-	},
-
-	//
 	// Maximum number of history lines per channel
 	//
 	// Defines the maximum number of history lines that will be kept in
@@ -199,87 +172,6 @@ module.exports = {
 	// @type     integer
 	// @default  10000
 	maxHistory: 10000,
-
-	//
-	// Default values for the 'Connect' form.
-	//
-	// @type     object
-	// @default  {}
-	//
-	defaults: {
-		//
-		// Name
-		//
-		// @type     string
-		// @default  "Freenode"
-		//
-		name: "SwizzNet",
-
-		//
-		// Host
-		//
-		// @type     string
-		// @default  "chat.freenode.net"
-		//
-		host: "irc.swizzin.ltd",
-
-		//
-		// Port
-		//
-		// @type     int
-		// @default  6697
-		//
-		port: 6697,
-
-		//
-		// Password
-		//
-		// @type     string
-		// @default  ""
-		//
-		password: "",
-
-		//
-		// Enable TLS/SSL
-		//
-		// @type     boolean
-		// @default  true
-		//
-		tls: true,
-
-		//
-		// Nick
-		//
-		// @type     string
-		// @default  "lounge-user"
-		//
-		nick: "swizzie",
-
-		//
-		// Username
-		//
-		// @type     string
-		// @default  "lounge-user"
-		//
-		username: "swizzie",
-
-		//
-		// Real Name
-		//
-		// @type     string
-		// @default  "The Lounge User"
-		//
-		realname: "swizzin",
-
-		//
-		// Channels
-		// This is a comma-separated list.
-		//
-		// @type     string
-		// @default  "#thelounge"
-		//
-		join: "#swizzin"
-	},
 
 	//
 	// Set socket.io transports
