@@ -15,13 +15,13 @@ fi
 ####### Source download
 
 export DEBIAN_FRONTEND=noninteractive
-echo "Fetching Updates"
+echo "Fetching Updates" | tee -a $log
 apt-get update -y -q >> $log 2>&1
-echo "Installing dependencies"
+echo "Installing dependencies" | tee -a $log
 apt-get install -y -q php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl >> $log 2>&1
 
 if [[ ! -d /srv/organizr ]]; then
-  echo "Cloning the Organizr Repo"
+  echo "Cloning the Organizr Repo" | tee -a $log
   git clone https://github.com/causefx/Organizr /srv/organizr --depth 1 >> $log 2>&1
   chown -R www-data:www-data /srv/organizr
 fi
@@ -42,9 +42,9 @@ pass=$(cut -d: -f2 < /root/.master.info)
 
 #TODO check that passwords with weird characters will send right
 if [[ $user == $pass ]]; then 
-  echo "Your username and password seem to be identical, please finish the Organizr setup manually."
+  echo "Your username and password seem to be identical, please finish the Organizr setup manually." | tee -a $log
 else
-  echo "Setting up the organizr database"
+  echo "Setting up the organizr database" | tee -a $log
   curl --location --request POST 'https://localhost/organizr/api/?v1/wizard_path' \
   --header 'content-type: application/x-www-form-urlencoded' \
   --header 'charset: UTF-8' \
