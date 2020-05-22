@@ -26,21 +26,8 @@ if [[ $phpversion == '7.0' ]]; then
   exit 1
 fi
 
-export DEBIAN_FRONTEND=noninteractive
 
 ###################################
-
-echo "Fetching Updates"
-apt-get update -y -q >> $log 2>&1
-echo "Installing dependencies"
-apt-get install -y -q php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl >> $log 2>&1
-
-
-if [[ ! -d /srv/organizr ]]; then
-  echo "Cloning the Organizr Repo"
-  git clone https://github.com/causefx/Organizr /srv/organizr --depth 1 >> $log 2>&1
-  chown -R www-data:www-data /srv/organizr
-fi
 
 phpv=$(php_v_from_nginxconf)
 sock="php${phpv}-fpm"

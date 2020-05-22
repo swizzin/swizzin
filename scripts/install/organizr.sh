@@ -12,6 +12,22 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+####### Source download
+
+export DEBIAN_FRONTEND=noninteractive
+echo "Fetching Updates"
+apt-get update -y -q >> $log 2>&1
+echo "Installing dependencies"
+apt-get install -y -q php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl >> $log 2>&1
+
+if [[ ! -d /srv/organizr ]]; then
+  echo "Cloning the Organizr Repo"
+  git clone https://github.com/causefx/Organizr /srv/organizr --depth 1 >> $log 2>&1
+  chown -R www-data:www-data /srv/organizr
+fi
+
+####### nginx setup
+
 bash /usr/local/bin/swizzin/nginx/organizr.sh
 systemctl reload nginx
 
@@ -78,6 +94,10 @@ EOF
   -sk --user "$user":"$pass" \
   | python -m json.tool \
   >> $log 2>&1
+    #shellcheck source=sources/functions/php
+    . /etc/swizzin/sources/functions/php
+    reload_php_fpm
+
     echo "You can use your credentials to log into organizr."
     echo "Please reload your PHP service manually, or wait until your OPcache empties"
 
