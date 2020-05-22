@@ -23,6 +23,12 @@ function reload_php_fpm () {
     systemctl reload $serv >> $log 2>&1
 }
 
+function reload_php_opcache (){
+    echo "Reloading OPcache"
+    /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset() ?>';
+    reload_php_fpm
+}
+
 # function disable_other_phps () {
 #     #TODO
 # }
