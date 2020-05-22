@@ -101,10 +101,11 @@ EOF
   >> $log 2>&1
     #shellcheck source=sources/functions/php
     . /etc/swizzin/sources/functions/php
-    reload_php_opcache
-
-    echo "You can use your credentials to log into organizr."
-    echo "Please reload your PHP service manually, or wait until your OPcache empties"
+    restart_php_fpm
+    phpv=$(php_v_from_nginxconf)
+    sock="php${phpv}-fpm"
+    echo "  Please run the following command to finish the installation. You can then use your master credentials to log into organizr."
+    echo "  sudo systemctl reload $sock "
 
 fi
 

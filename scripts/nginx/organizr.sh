@@ -44,6 +44,8 @@ location /organizr {
     include snippets/fastcgi-php.conf;
     fastcgi_pass unix:/run/php/$sock.sock;
     fastcgi_param SCRIPT_FILENAME /srv\$fastcgi_script_name;
+    fastcgi_buffers 32 32k;
+    fastcgi_buffer_size 32k;
   }
 }
 RUM
