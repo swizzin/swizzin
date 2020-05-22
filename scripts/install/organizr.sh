@@ -97,6 +97,11 @@ EOF
     #shellcheck source=sources/functions/php
     . /etc/swizzin/sources/functions/php
     reload_php_opcache
+    sleep 10
+    reload_php_fpm
+    sleep 5
+    reload_php_opcache
+
 
     echo "You can use your credentials to log into organizr."
     echo "Please reload your PHP service manually, or wait until your OPcache empties"
