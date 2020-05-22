@@ -323,7 +323,7 @@ function _deluser {
         rm -rf /srv/rutorrent/share/users/${user}
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
-        rm -f /home/lounge/.lounge/users/${user}.json
+        su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -350,6 +350,7 @@ function _deluser {
   rm -f /etc/tmpfiles.d/${user}.conf
   rm -f /etc/nginx/conf.d/${user}*
   rm -f /etc/sudoers.d/${user}
+  rm -rf /run/screen/S-${user}
   rm -rf /var/run/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
@@ -401,6 +402,9 @@ function _chpasswd {
     systemctl stop transmission@${user}
     sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
     systemctl start transmission@${user}
+  fi
+  if [[ -f /install/.lounge.lock ]]; then 
+    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
   fi
 
 }

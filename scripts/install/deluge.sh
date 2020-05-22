@@ -250,6 +250,7 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
   touch /install/.deluge.lock
+  touch /install/.delugeweb.lock
 }
 
 if [[ -f /tmp/.install.lock ]]; then
