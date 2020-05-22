@@ -8,6 +8,13 @@ function restart_php_fpm () {
     systemctl restart $serv
 }
 
+function reload_php_fpm () {
+    version=$(php_service_version)
+    serv="php${version}-fpm.service"
+    #serv=(ls /etc/systemd/system | grep php7 | tail -1)
+    systemctl reload $serv
+}
+
 # function disable_other_phps () {
 #     #TODO
 # }

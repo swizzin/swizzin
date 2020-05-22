@@ -114,10 +114,9 @@ function _update() {
   git checkout master
   git fetch origin master
   git reset --hard origin/master
-
-  for f in /etc/swizzin/scripts/update/*; do 
-    bash "$f"; 
-  done
+  #git pull
+  chmod -R 700 /etc/swizzin/scripts
+  for f in /etc/swizzin/scripts/update/*; do . $f; done
 }
 
 function _upgrade() {
@@ -251,7 +250,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission organizr; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -261,6 +260,9 @@ function _adduser {
     if [[ -f /install/.${app}.lock ]]; then
       if [[ $app = "flood" ]]; then
         /usr/local/bin/swizzin/install/${app}.sh
+      elif [[ $app = "organizr" ]]; then
+        #TODO fix when organizr API can do this
+        echo "Please add the user to organizr manually"
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
@@ -272,7 +274,6 @@ function _adduser {
           :
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
-
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
@@ -310,7 +311,7 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge organizr transmission; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -398,6 +399,7 @@ function _chpasswd {
     systemctl start deluged@${user}
     systemctl start deluge-web@${user}
   fi
+
   if [[ -e /install/.transmission.lock ]]; then 
     systemctl stop transmission@${user}
     sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
@@ -405,6 +407,10 @@ function _chpasswd {
   fi
   if [[ -f /install/.lounge.lock ]]; then 
     su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
+  fi
+  if [[ -f /install/.organizr.lock ]]; then 
+    #TODO fix when API allows to
+    echo "Your organizr password has not yet been changed, please do so manually"
   fi
 
 }
