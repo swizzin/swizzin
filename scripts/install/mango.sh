@@ -24,6 +24,7 @@ function _install_mango () {
     mkdir -p "$mangodir"
 
     wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
+    # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
         echo "Failed to download binary"
         exit 1
