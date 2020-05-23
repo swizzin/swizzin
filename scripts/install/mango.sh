@@ -19,9 +19,15 @@ function _install_mango () {
         echo "Failed to query github"
         exit 1
     fi
-    wget "${dlurl}" -O /$mangodir/mango.bin >> $log 2>&1
-
     mkdir -p "$mangodir"
+
+    wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
+    if [[ $? != 0 ]]; then
+        echo "Failed to download binary"
+        exit 1
+    fi
+
+    cp /tmp/mango.bin $mangodir/mango.bin
     chmod +x "$mangodir"/mango.bin
 }
 
