@@ -8,6 +8,7 @@ else
 fi
 
 mangodir="/opt/mango"
+mangousr="mango"
 
 
 # Downloading the latest binary
@@ -19,6 +20,7 @@ function _install_mango () {
         echo "Failed to query github"
         exit 1
     fi
+
     mkdir -p "$mangodir"
 
     wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
@@ -27,7 +29,6 @@ function _install_mango () {
         exit 1
     fi
 
-    cp /tmp/mango.bin $mangodir/mango.bin
     chmod +x "$mangodir"/mango.bin
 }
 
@@ -57,20 +58,20 @@ function _initialise_mango () {
     sleep 5
     pkill mango.bin >> $log 2>&1
 
-    mangouser=$(grep "password" $mangodir/pass | head -1 | cut -d\" -f 4)
+    mangoacc=$(grep "password" $mangodir/pass | head -1 | cut -d\" -f 4)
     mangopass=$(grep "password" $mangodir/pass | head -1 | cut -d\" -f 8)
     rm $mangodir/pass
 
     echo "Please use the following credentials to log in to mango. You can find them saved into /root/mango.info"
-    echo "  User: \"$mangouser\"" | tee -a /root/mango.info
+    echo "  User: \"$mangoacc\"" | tee -a /root/mango.info
     echo "  Pass: '$mangopass'" | tee -a /root/mango.info
     chmod o+rx $mangodir $mangodir/library
 }
 
 # Creating systemd unit
 function _mkservice_mango(){
-    useradd mango --system -d "$mangodir" >> $log 2>&1
-    sudo chown -R mango:mango $mangodir 
+    useradd $mangousr --system -d "$mangodir" >> $log 2>&1
+    sudo chown -R $mangousr:$mangousr $mangodir 
 
 cat > /etc/systemd/system/mango.service <<SYSD
 # Service file example for Mango
@@ -79,7 +80,7 @@ Description=Mango - Manga Server and Web Reader
 After=network.target
 
 [Service]
-User=mango
+User=$mangousr
 ExecStart=$mangodir/mango.bin --config=$mangodir/config.yml
 Restart=on-abort
 TimeoutSec=20
