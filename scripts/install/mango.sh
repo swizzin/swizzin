@@ -7,21 +7,18 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-## Downloading the binary
+mangodir="/opt/mango"
 
+
+# Downloading the latest binary
 function _install_mango () {
-    # Slow connection debugging necessities
-    if [[ ! -f /tmp/mango.bin ]]; then 
-        echo "Downloading binary" | tee -a $log
-        dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
-        if [[ $? != 0 ]]; then
-            echo "Failed to query github"
-            exit 1
-        fi
-        wget "${dlurl}" -O /tmp/mango.bin >> $log 2>&1
+    echo "Downloading binary" | tee -a $log
+    dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+    if [[ $? != 0 ]]; then
+        echo "Failed to query github"
+        exit 1
     fi
-
-    mangodir="/opt/mango"
+    wget "${dlurl}" -O /tmp/mango.bin >> $log 2>&1
 
     mkdir -p "$mangodir"
     cp /tmp/mango.bin $mangodir/mango.bin
@@ -29,7 +26,6 @@ function _install_mango () {
 }
 
 ## Creating config
-
 function _mkconf_mango () {
 cat > "$mangodir/config.yml" <<CONF
 port: 9003
@@ -48,8 +44,7 @@ mangadex:
 CONF
 }
 
-##### Resucing the admin password
-
+# Retrieving the admin password
 function _initialise_mango () {
     echo "Initialising Mango"
     $mangodir/mango.bin --config=$mangodir/config.yml > $mangodir/pass &
@@ -65,8 +60,7 @@ function _initialise_mango () {
     echo "  Pass: '$mangopass'" | tee -a /root/mango.info
 }
 
-##### Creating systemd unit
-
+# Creating systemd unit
 function _mkservice_mango(){
     useradd mango --system -d "$mangodir" >> $log 2>&1
     sudo chown -R mango:mango $mangodir 
@@ -91,16 +85,16 @@ SYSD
     systemctl enable --now mango >> $log 2>&1
 }
 
-
-
 ########## MAIN
-
 
 _install_mango
 _mkconf_mango
 _initialise_mango
 _mkservice_mango
 
+if [[ -f /install/.nginx.lock ]]; then 
+    bash /etc/swizzin/scripts/nginx/mango.sh
+fi
 
 
 touch /install/.mango.lock
