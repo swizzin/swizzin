@@ -19,10 +19,9 @@ function _install_mango () {
         echo "Failed to query github"
         exit 1
     fi
-    wget "${dlurl}" -O /tmp/mango.bin >> $log 2>&1
+    wget "${dlurl}" -O /$mangodir/mango.bin >> $log 2>&1
 
     mkdir -p "$mangodir"
-    cp /tmp/mango.bin $mangodir/mango.bin
     chmod +x "$mangodir"/mango.bin
 }
 
@@ -59,6 +58,7 @@ function _initialise_mango () {
     echo "Please use the following credentials to log in to mango. You can find them saved into /root/mango.info"
     echo "  User: \"$mangouser\"" | tee -a /root/mango.info
     echo "  Pass: '$mangopass'" | tee -a /root/mango.info
+    chmod o+rx $mangodir $mangodir/library
 }
 
 # Creating systemd unit
