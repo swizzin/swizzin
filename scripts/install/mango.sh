@@ -14,6 +14,7 @@ mangodir="/opt/mango"
 function _install_mango () {
     echo "Downloading binary" | tee -a $log
     dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+    # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
         echo "Failed to query github"
         exit 1
