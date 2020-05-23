@@ -335,7 +335,7 @@ function _deluser {
         . /etc/swizzin/sources/functions/nextcloud
         _occ "user:delete ${user}"
       elif [[ $app = "lounge" ]]; then
-        rm -f /home/lounge/.lounge/users/${user}.json
+        su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -362,6 +362,7 @@ function _deluser {
   rm -f /etc/tmpfiles.d/${user}.conf
   rm -f /etc/nginx/conf.d/${user}*
   rm -f /etc/sudoers.d/${user}
+  rm -rf /run/screen/S-${user}
   rm -rf /var/run/${user}
   rm -rf /home/${user}
   rm /root/${user}.info
@@ -420,7 +421,10 @@ function _chpasswd {
     export OC_PASS="$pass"
     _occ 'user:resetpassword --password-from-env'
     unset OC_PASS
+  fi
 
+  if [[ -f /install/.lounge.lock ]]; then 
+    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
   fi
 
 }
