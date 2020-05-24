@@ -68,6 +68,7 @@ function _initialise_mango () {
     echo "Please use the following credentials to log in to mango. You can find them saved into /root/mango.info"
     echo "  User: \"$mangoacc\"" | tee -a /root/mango.info
     echo "  Pass: '$mangopass'" | tee -a /root/mango.info
+    echo "You can access your files in $mangodir/library" | tee -a /root/mango.info
     chmod o+rx $mangodir $mangodir/library
 }
 
