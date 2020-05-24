@@ -12,6 +12,11 @@ systemctl disable --now mango >> $log 2>&1
 rm /etc/systemd/system/mango.service
 systemctl daemon-reload >> $log 2>&1
 
+if [[ -f /install/.nginx.lock ]]; then
+  rm /etc/nginx/apps/mango.sh
+  systemctl reload nginx
+fi
+
 userdel mango -f -r >> $log 2>&1
 
 rm /install/.mango.lock
