@@ -36,7 +36,9 @@ function _install_mango () {
 ## Creating config
 function _mkconf_mango () {
 cat > "$mangodir/config.yml" <<CONF
+#Please do not edit as swizzin will be replacing this file as updates roll out. 
 port: 9003
+base_url: /mango
 library_path: $mangodir/library
 db_path: $mangodir/mango.db
 scan_interval_minutes: 5
