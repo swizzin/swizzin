@@ -13,7 +13,7 @@ rm /etc/systemd/system/mango.service
 systemctl daemon-reload >> $log 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
-  rm /etc/nginx/apps/mango.sh
+  rm /etc/nginx/apps/mango.conf
   systemctl reload nginx
 fi
 
