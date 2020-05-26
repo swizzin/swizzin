@@ -48,6 +48,12 @@ esac
 
 
 if [[ ${cf} == yes ]]; then
+
+  if [[ $hostname =~ (.cf|.ga|.gq|.ml|.tk) ]]; then 
+    echo "ERROR Cloudflare does not support API calls for the following TLDs: cf, .ga, .gq, .ml, or .tk"
+    exit 1
+  fi
+
   read -p "Does the record for this subdomain already exist? (y/n) " yn
   case $yn in
       [Yy] )
