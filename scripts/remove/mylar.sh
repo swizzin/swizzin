@@ -8,16 +8,20 @@ else
     log="/root/logs/swizzin.log"
 fi
 
-user=$(cut -d: -f1 < /root/.master.info)
-
-systemctl disable --now mylar
-
-rm /etc/systemd/system/mylar.service
-rm -f /etc/nginx/apps/mylar.conf
 rm -rf /opt/mylar
 rm -rf /opt/.venv/mylar
 if [ -z "$(ls -A /opt/.venv)" ]; then
    rm -rf  /opt/.venv
 fi
+
+systemctl disable --now mylar >> $log 2>&1
+
+rm /etc/systemd/system/mylar.service
+systemctl daemon-reload >> $log 2>&1
+
+if [[ -f /install/.nginx.lock ]]; then
+    rm -f /etc/nginx/apps/mylar.conf
+    systemctl reload nginx
+fi
+
 rm /install/.mylar.lock
-systemctl reload nginx

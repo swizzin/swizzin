@@ -9,7 +9,6 @@ else
 fi
 
 user=$(cut -d: -f1 < /root/.master.info)
-password=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 
@@ -19,9 +18,9 @@ else
     LIST='git build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev'
 fi
 
-apt-get -y update >>"${log}" 2>&1
+apt-get -y update >>"$log" 2>&1
 for depend in $LIST; do
-    apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+    apt-get -qq -y install $depend >>"$log" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done
 
 if [[ ! $codename =~ ("buster"|"focal") ]]; then
@@ -37,8 +36,8 @@ fi
 
 python3_venv ${user} mylar
 
-git clone https://github.com/mylar3/mylar3.git /opt/mylar >>"${log}" 2>&1
-/opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >>"${log}" 2>&1
+git clone https://github.com/mylar3/mylar3.git /opt/mylar >>"$log" 2>&1
+/opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
 
 chown -R ${user}: /opt/.venv/mylar
 chown -R $user: /opt/mylar
