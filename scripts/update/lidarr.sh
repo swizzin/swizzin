@@ -7,10 +7,10 @@ if [[ -f /install/.lidarr.lock ]]; then
         wasActive=$(systemctl is-active lidarr)
         systemctl stop lidarr
 
-        mv /home/$user/Lidarr /opt/lidarr
-        sudo chown -R $user:$user /opt/lidarr
+        mv /home/$user/Lidarr /opt/Lidarr
+        sudo chown -R $user:$user /opt/Lidarr
 
-        sed -i "/ExecStart/c\ExecStart=/usr/bin/mono /opt/lidarr/Lidarr.exe -nobrowser" /etc/systemd/system/lidarr.service
+        sed -i "/ExecStart/c\ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser" /etc/systemd/system/lidarr.service
         systemctl daemon-reload
 
         if [[ $wasActive = "active" ]]; then
