@@ -12,7 +12,7 @@ export DEBIAN_FRONTEND=noninteractive
 if [[ -f /tmp/.install.lock ]]; then
   export log="/root/logs/install.log"
 else
-  export log="/dev/null"
+  export log="/root/logs/swizzin.log"
 fi
 . /etc/swizzin/sources/functions/rtorrent
 whiptail_rtorrent
