@@ -9,9 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 user=$(cut -d: -f1 < /root/.master.info )
-ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
 #shellcheck source=sources/functions/mono
 . /etc/swizzin/sources/functions/mono
 mono_repo_setup
