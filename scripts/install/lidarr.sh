@@ -12,19 +12,15 @@ user=$(cut -d: -f1 < /root/.master.info )
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
+#shellcheck source=sources/functions/mono
 . /etc/swizzin/sources/functions/mono
-
-
 mono_repo_setup
-
 apt-get install -y libmono-cil-dev >/dev/null 2>&1
 
-
-cd /home/${user}/
-wget -O lidarr.tar.gz -q $( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )
-tar xf lidarr.tar.gz
-rm -rf lidarr.tar.gz
-chown -R ${user}: /home/${user}/Lidarr
+wget -O /tmp/lidarr.tar.gz -q $( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )
+tar xf /tmp/lidarr.tar.gz --directory /opt/
+rm -rf /tmp/lidarr.tar.gz
+chown -R ${user}: /opt/Lidarr
 if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p /home/${user}/.config/Lidarr/; fi
 cat > /home/${user}/.config/Lidarr/config.xml <<LID
 <Config>
@@ -47,7 +43,7 @@ Type=simple
 User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/usr/bin/mono /home/${user}/Lidarr/Lidarr.exe -nobrowser
+ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser
 ExecStop=-/bin/kill -HUP
 WorkingDirectory=/home/${user}/
 Restart=on-failure
@@ -61,7 +57,6 @@ LID
     bash /usr/local/bin/swizzin/nginx/lidarr.sh
     systemctl reload nginx
   fi
-
 
 systemctl enable --now lidarr
 
