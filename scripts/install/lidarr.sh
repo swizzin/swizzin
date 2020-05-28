@@ -17,15 +17,18 @@ fi
 
 user=$(cut -d: -f1 < /root/.master.info )
 distribution=$(lsb_release -is)
+echo "Satisfying mono dependencies" | tee -a $log
 #shellcheck source=sources/functions/mono
 . /etc/swizzin/sources/functions/mono
 mono_repo_setup
 apt-get install -y libmono-cil-dev >> $log 2>&1
-
+echo "Fetching Lidarr source files" | tee -a $log
 wget -O /tmp/lidarr.tar.gz "$( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )" >> $log 2>&1
+echo "Extracting..." | tee -a $log
 tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
 rm -rf /tmp/lidarr.tar.gz
 chown -R "${user}": /opt/Lidarr
+echo "Creating configuration and service files" | tee -a $log
 if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
 cat > "/home/${user}/.config/Lidarr/config.xml" <<LID
 <Config>
@@ -58,11 +61,15 @@ WantedBy=multi-user.target
 LID
 
   if [[ -f /install/.nginx.lock ]]; then
+    echo "Installing nginx configuration" | tee -a $log
     sleep 10
     bash /usr/local/bin/swizzin/nginx/lidarr.sh
     systemctl reload nginx
   fi
 
-systemctl enable --now lidarr
+echo "Enabling auto-start and executing Lidarr" | tee -a $log
+systemctl enable --now lidarr >> $log 2>&1
+
+echo "All done! Enjoy Lidarr :)" | tee -a $log
 
 touch /install/.lidarr.lock
