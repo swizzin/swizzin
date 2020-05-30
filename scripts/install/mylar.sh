@@ -20,7 +20,7 @@ fi
 
 apt-get -y update >>"$log" 2>&1
 for depend in $LIST; do
-    apt-get -qq -y install $depend >>"$log" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
+    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install $depend >>"$log" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done
 
 if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
@@ -34,7 +34,13 @@ if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
     python3_getpip
 fi
 
-git clone https://github.com/mylar3/mylar3.git /opt/mylar >>"$log" 2>&1
+mkdir /opt/mylar
+curl -s https://api.github.com/repos/mylar3/mylar3/releases/latest \
+    | grep tarball_url \
+    | cut -d '"' -f 4 \
+    | tr -d \" \
+    | xargs -n 1 curl -sSL \
+    | tar -xz -C mylar --strip-components=1  >>"$log" 2>&1
 pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
 
 chown -R $user: /opt/mylar
