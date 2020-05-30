@@ -40,7 +40,7 @@ curl -s https://api.github.com/repos/mylar3/mylar3/releases/latest \
     | cut -d '"' -f 4 \
     | tr -d \" \
     | xargs -n 1 curl -sSL \
-    | tar -xz -C mylar --strip-components=1  >>"$log" 2>&1
+    | tar -xz -C /opt/mylar --strip-components=1  >>"$log" 2>&1
 pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
 
 chown -R $user: /opt/mylar
