@@ -24,14 +24,10 @@ for depend in $LIST; do
 done
 
 if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
-    mkdir /tmp/python
-    curl -s https://api.github.com/repos/python/cpython/releases/latest \
-        | grep tarball_url \
-        | cut -d '"' -f 4 \
-        | tr -d \" \
-        | xargs -n 1 curl -sSL \
-        | tar -xz -C /tmp/python --strip-components=1  >>"$log" 2>&1
-    cd /tmp/python
+    cd /tmp
+    curl -O https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tar.xz
+    tar -xf Python-3.8.1.tar.xz
+    cd Python-3.8.1
     make
     make install
 fi
