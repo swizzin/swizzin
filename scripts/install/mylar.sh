@@ -15,7 +15,7 @@ codename=$(lsb_release -cs)
 if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
     LIST='git build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev'
 else
-    LIST='git python3-dev virtualenv python3-virtualenv python3-pip'
+    LIST='git python3-dev python3-pip'
 fi
 
 apt-get -y update >>"$log" 2>&1
@@ -34,12 +34,9 @@ if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
     python3_getpip
 fi
 
-python3_venv ${user} mylar
-
 git clone https://github.com/mylar3/mylar3.git /opt/mylar >>"$log" 2>&1
-/opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
+pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
 
-chown -R ${user}: /opt/.venv/mylar
 chown -R $user: /opt/mylar
 
 cat > /etc/systemd/system/mylar.service <<MYLRSD
@@ -52,7 +49,7 @@ After=network.target network-online.target
 Type=forking
 User=${user}
 Group=${user}
-ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py -d --pidfile /run/${user}/mylar.pid --datadir /opt/mylar --nolaunch --config /opt/mylar/config.ini --port 8090
+ExecStart=python3 /opt/mylar/Mylar.py -d --pidfile /run/${user}/mylar.pid --datadir /opt/mylar --nolaunch --config /opt/mylar/config.ini --port 8090
 PIDFile=/run/${user}/mylar.pid
 
 
