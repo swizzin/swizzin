@@ -24,14 +24,16 @@ for depend in $LIST; do
 done
 
 if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
-    cd /tmp
-    curl -O https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tar.xz
-    tar -xf Python-3.8.1.tar.xz
-    cd Python-3.8.1
+    mkdir /tmp/python
+    curl -s https://api.github.com/repos/python/cpython/releases/latest \
+        | grep tarball_url \
+        | cut -d '"' -f 4 \
+        | tr -d \" \
+        | xargs -n 1 curl -sSL \
+        | tar -xz -C /tmp/python --strip-components=1  >>"$log" 2>&1
+    cd /tmp/python
     make
     make install
-
-    python3_getpip
 fi
 
 mkdir /opt/mylar
@@ -460,10 +462,9 @@ After=network.target network-online.target
 [Service]
 Type=forking
 User=${user}
-Group=${user}
 ExecStart=python3 /opt/mylar/Mylar.py -d --pidfile /run/${user}/mylar.pid --datadir /opt/mylar --nolaunch --config /opt/mylar/config.ini --port 8090
 PIDFile=/run/${user}/mylar.pid
-
+Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target
