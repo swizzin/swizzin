@@ -20,6 +20,8 @@ location /mylar {
 MYNG
 fi
 
+systemctl reload nginx
+
 if [[ $isactive == "active" ]]; then
   systemctl restart mylar
 fi
