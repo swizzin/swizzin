@@ -22,7 +22,9 @@ _install_webmin () {
 }
 
 _install_webmin
-bash /etc/swizzin/scripts/nginx/webmin.sh
+if [[ -f /install/.nginx.lock ]]; then
+  bash /etc/swizzin/scripts/nginx/webmin.sh
+fi
 
 echo 
 echo "Webmin has been installed, please use any account with sudo permissions to log in"
