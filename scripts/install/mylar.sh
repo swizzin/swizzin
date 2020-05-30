@@ -12,10 +12,10 @@ user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 
-if [[ $codename =~ ("buster"|"focal") ]]; then
-    LIST='git python3-dev virtualenv python3-virtualenv python3-pip'
-else
+if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
     LIST='git build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev'
+else
+    LIST='git python3-dev virtualenv python3-virtualenv python3-pip'
 fi
 
 apt-get -y update >>"$log" 2>&1
@@ -23,7 +23,7 @@ for depend in $LIST; do
     apt-get -qq -y install $depend >>"$log" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done
 
-if [[ ! $codename =~ ("buster"|"focal") ]]; then
+if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
     cd /tmp
     curl -O https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tar.xz
     tar -xf Python-3.8.1.tar.xz
