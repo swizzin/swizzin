@@ -9,6 +9,10 @@ else
 fi
 
 rm -rf /opt/mylar
+rm -rf /opt/.venv/mylar
+if [ -z "$(ls -A /home/$user/.venv)" ]; then
+   rm -rf  /opt/.venv
+fi
 
 systemctl disable --now mylar >> $log 2>&1
 

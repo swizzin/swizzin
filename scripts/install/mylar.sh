@@ -9,27 +9,20 @@ else
 fi
 
 user=$(cut -d: -f1 < /root/.master.info)
+password=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
-. /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
-    LIST='git build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev curl libbz2-dev'
+    . /etc/swizzin/sources/functions/pyenv
+    pyenv_install
+    pyenv_install_version 3.8.1
+    pyenv_create_venv 3.8.1 /opt/.venv/mylar
 else
-    LIST='git python3-dev python3-pip'
-fi
-
-apt-get -y update >>"$log" 2>&1
-for depend in $LIST; do
-    DEBIAN_FRONTEND=noninteractive apt-get -qq -y install $depend >>"$log" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-done
-
-if [[ $codename =~ ("xenial"|"bionic"|"stretch") ]]; then
-    cd /tmp
-    curl -O https://www.python.org/ftp/python/3.8.1/Python-3.8.1.tar.xz
-    tar -xf Python-3.8.1.tar.xz
-    cd Python-3.8.1
-    make
-    make install
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get -y update >> $log 2>&1
+    apt-get -q -y install python3-dev python3-pip python3-venv >> $log 2>&1
+    mkdir -p /opt/.venv/mylar
+    python3 -m venv /opt/.venv/mylar
 fi
 
 mkdir /opt/mylar
@@ -38,10 +31,11 @@ curl -s https://api.github.com/repos/mylar3/mylar3/releases/latest \
     | cut -d '"' -f 4 \
     | tr -d \" \
     | xargs -n 1 curl -sSL \
-    | tar -xz -C /opt/mylar --strip-components=1  >>"$log" 2>&1
-pip install -r /opt/mylar/requirements.txt >>"$log" 2>&1
+    | tar -xz -C /opt/mylar --strip-components=1  >> $log 2>&1
+/opt/.venv/mylar/bin/pip3 install -r /opt/mylar/requirements.txt >> $log 2>&1
 
-chown -R $user: /opt/mylar
+chown -R ${user}: /opt/mylar
+chown -R ${user}: /opt/.venv/mylar
 
 cat > /opt/mylar/config.ini <<MYCONF
 [General]
@@ -131,8 +125,8 @@ reset_pullist_pagination = True
 [Interface]
 http_port = 8090
 http_host = 127.0.0.1
-http_username = None
-http_password = None
+http_username = ${user}
+http_password = ${password}
 http_root = /mylar
 enable_https = False
 https_cert = /opt/mylar/server.crt
@@ -452,22 +446,22 @@ MYCONF
 cat > /etc/systemd/system/mylar.service <<MYLRSD
 [Unit]
 Description=Mylar
-Wants=network.target network-online.target
-After=network.target network-online.target
+After=syslog.target network.target
 
 [Service]
 Type=forking
 User=${user}
-ExecStart=python3 /opt/mylar/Mylar.py -d --pidfile /run/${user}/mylar.pid --datadir /opt/mylar --nolaunch --config /opt/mylar/config.ini --port 8090
+Group=${user}
+ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py -d --pidfile /run/${user}/mylar.pid --datadir /opt/mylar --nolaunch --config /opt/mylar/config.ini --port 8090
 PIDFile=/run/${user}/mylar.pid
-Restart=on-abort
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 MYLRSD
 
-systemctl enable --now mylar >>$log 2>&1
-sleep 10
+systemctl daemon-reload >> $log 2>&1
+systemctl enable --now mylar >> $log 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/mylar.sh
