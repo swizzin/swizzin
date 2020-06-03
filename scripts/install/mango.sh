@@ -45,12 +45,13 @@ function _install_mango () {
 
 ## Creating config
 function _mkconf_mango () {
-cat > "$mangodir/config.yml" <<CONF
+    mkdir -p $mangodir/.config/mango
+cat > "$mangodir/.config/mango/config.yml" <<CONF
 #Please do not edit as swizzin will be replacing this file as updates roll out. 
 port: 9003
 base_url: /mango
 library_path: $mangodir/library
-db_path: $mangodir/mango.db
+db_path: $mangodir/.config/mango/mango.db
 scan_interval_minutes: 5
 log_level: info
 upload_path: $mangodir/uploads
@@ -60,24 +61,14 @@ mangadex:
   api_url: https://mangadex.org/api
   download_wait_seconds: 5
   download_retries: 4
-  download_queue_db_path: $mangodir/queue.db
+  download_queue_db_path: $mangodir/.config/mango/queue.db
 CONF
-}
-
-# Retrieving the admin password
-function _initialise_mango () {
-    echo "Initialising Mango"
-    pass=$(cut -d: -f2 < /root/.master.info)
-
-    $mangodir/mango.bin admin user add -u "$master" -p "$pass" --admin true --config=$mangodir/config.yml
-    sudo chown $mangousr:$mangousr $mangodir/mango.db
-
+    sudo chown $mangousr:$mangousr -R $mangodir
 }
 
 # Creating systemd unit
 function _mkservice_mango(){
-
-cat > /etc/systemd/system/mango.service <<SYSD
+    cat > /etc/systemd/system/mango.service <<SYSD
 # Service file example for Mango
 [Unit]
 Description=Mango - Manga Server and Web Reader
@@ -85,32 +76,33 @@ After=network.target
 
 [Service]
 User=$mangousr
-ExecStart=$mangodir/mango.bin --config=$mangodir/config.yml
+ExecStart=$mangodir/mango.bin
 Restart=on-abort
 TimeoutSec=20
 
 [Install]
 WantedBy=multi-user.target
 SYSD
-
     systemctl daemon-reload >> $log 2>&1
     systemctl enable --now mango >> $log 2>&1
 }
 
 # Creating all users' accounts
 _addusers_mango () {
+    echo "Adding user(s)"
     for u in "${users[@]}"; do
      if [[ $u == $master ]]; then 
-        : #Do nothing as the master has already been initialised
+        pass=$(cut -d: -f2 < /root/.master.info)
+        su $mangousr -c "$mangodir/mango.bin admin user add -u $master -p $pass --admin"
      else
         pass=$(cut -d: -f2 < /root/"$u".info)
         passlen=${#pass}
         if [[ $passlen -ge 6 ]]; then 
-            $mangodir/mango.bin admin user add -u "$u" -p "$pass" --config=$mangodir/config.yml
+            su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
         else
             echo "$u's password too short for mango, please change the password using 'box chpasswd $u' (Setting up using random, discareded password)"
             pass=$(openssl rand -base64 10)
-            $mangodir/mango.bin admin user add -u "$u" -p "$pass" --config=$mangodir/config.yml
+            su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
         fi
      fi
     done
@@ -129,12 +121,9 @@ fi
 
 _install_mango
 _mkconf_mango
-_initialise_mango
-    sleep 1
-_mkservice_mango
-    sleep 1
 _addusers_mango
-
+_mkservice_mango
+    
 if [[ -f /install/.nginx.lock ]]; then 
     bash /etc/swizzin/scripts/nginx/mango.sh
 fi
