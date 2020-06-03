@@ -22,8 +22,13 @@ function _install_mango () {
     fi
 
     mkdir -p "$mangodir"
-
-    wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
+    mkdir -p "$mangodir"/library
+    if [[ -f /tmp/mango.bin ]]; then 
+        #testing hack, please remove
+        cp /tmp/mango.bin $mangodir/mango.bin
+    else 
+        wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
+    fi
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
         echo "Failed to download binary"
@@ -31,6 +36,11 @@ function _install_mango () {
     fi
 
     chmod +x "$mangodir"/mango.bin
+    chmod o+rx $mangodir $mangodir/library
+
+    useradd $mangousr --system -d "$mangodir" >> $log 2>&1
+    sudo chown -R $mangousr:$mangousr $mangodir 
+
 }
 
 ## Creating config
@@ -57,25 +67,15 @@ CONF
 # Retrieving the admin password
 function _initialise_mango () {
     echo "Initialising Mango"
-    $mangodir/mango.bin --config=$mangodir/config.yml > $mangodir/pass &
-    sleep 5
-    pkill mango.bin >> $log 2>&1
+    pass=$(cut -d: -f2 < /root/.master.info)
 
-    mangoacc=$(grep "password" $mangodir/pass | head -1 | cut -d\" -f 4)
-    mangopass=$(grep "password" $mangodir/pass | head -1 | cut -d\" -f 8)
-    rm $mangodir/pass
+    $mangodir/mango.bin admin user add -u "$master" -p "$pass" --admin true --config=$mangodir/config.yml
+    sudo chown $mangousr:$mangousr $mangodir/mango.db
 
-    echo "Please use the following credentials to log in to mango. You can find them saved into /root/mango.info"
-    echo "  User: \"$mangoacc\"" | tee -a /root/mango.info
-    echo "  Pass: '$mangopass'" | tee -a /root/mango.info
-    echo "You can access your files in $mangodir/library" | tee -a /root/mango.info
-    chmod o+rx $mangodir $mangodir/library
 }
 
 # Creating systemd unit
 function _mkservice_mango(){
-    useradd $mangousr --system -d "$mangodir" >> $log 2>&1
-    sudo chown -R $mangousr:$mangousr $mangodir 
 
 cat > /etc/systemd/system/mango.service <<SYSD
 # Service file example for Mango
@@ -97,16 +97,50 @@ SYSD
     systemctl enable --now mango >> $log 2>&1
 }
 
+# Creating all users' accounts
+_addusers_mango () {
+    for u in "${users[@]}"; do
+     if [[ $u == $master ]]; then 
+        : #Do nothing as the master has already been initialised
+     else
+        echo "Creating user $u within mango"
+        pass=$(cut -d: -f2 < /root/"$u".info)
+        passlen=${#pass}
+        if [[ $passlen -ge 6 ]]; then 
+            $mangodir/mango.bin admin user add -u "$u" -p "$pass" --config=$mangodir/config.yml
+        else
+            echo "$u's password too short for mango, please change the password using 'box chpasswd $u' (Setting up using random, discareded password)"
+            pass=$(openssl rand -base64 10)
+            $mangodir/mango.bin admin user add -u "$u" -p "$pass" --config=$mangodir/config.yml
+        fi
+     fi
+    done
+}
+
 ########## MAIN
+
+master=$(cut -d: -f1 < /root/.master.info)
+users=($(cut -d: -f1 < /etc/htpasswd))
+
+if [[ -n $1 ]]; then
+  users=("$1")
+  _addusers_mango
+  exit 0
+fi
 
 _install_mango
 _mkconf_mango
 _initialise_mango
+    sleep 1
 _mkservice_mango
+    sleep 1
+_addusers_mango
 
 if [[ -f /install/.nginx.lock ]]; then 
     bash /etc/swizzin/scripts/nginx/mango.sh
 fi
 
+echo "Please use your existing credentials when logging in."
+echo "You can access your files in $mangodir/library" | tee -a /root/mango.info
 
 touch /install/.mango.lock
