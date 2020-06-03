@@ -21,7 +21,7 @@ fi
 rm -rf /tmp/mangobak
 
 mkdir /tmp/mangobak
-cp -t /tmp/mangobak /opt/mango/mango.bin /opt/mango/config.yml
+cp -t /tmp/mangobak /opt/mango/mango /opt/mango/config.yml
 
 echo "Downloading binary" | tee -a $log
 dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
@@ -30,14 +30,14 @@ if [[ $? != 0 ]]; then
     echo "Failed to query github"
     exit 1
 fi
-wget "${dlurl}" -O /tmp/mango.bin >> $log 2>&1
+wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
 
 
 mangodir="/opt/mango"
 
-mkdir -p "$mangodir"
-cp /tmp/mango.bin $mangodir/mango.bin
-chmod +x "$mangodir"/mango.bin
+# mkdir -p "$mangodir"
+# cp /tmp/mango $mangodir/mango
+chmod +x "$mangodir"/mango
 
 
 if [[ $wasActive = "true" ]]; then

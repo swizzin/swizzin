@@ -23,11 +23,11 @@ function _install_mango () {
 
     mkdir -p "$mangodir"
     mkdir -p "$mangodir"/library
-    if [[ -f /tmp/mango.bin ]]; then 
+    if [[ -f /tmp/mango ]]; then 
         #testing hack, please remove
-        cp /tmp/mango.bin $mangodir/mango.bin
+        cp /tmp/mango $mangodir/mango
     else 
-        wget "${dlurl}" -O $mangodir/mango.bin >> $log 2>&1
+        wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
     fi
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
@@ -35,7 +35,7 @@ function _install_mango () {
         exit 1
     fi
 
-    chmod +x "$mangodir"/mango.bin
+    chmod +x "$mangodir"/mango
     chmod o+rx $mangodir $mangodir/library
 
     useradd $mangousr --system -d "$mangodir" >> $log 2>&1
@@ -76,7 +76,7 @@ After=network.target
 
 [Service]
 User=$mangousr
-ExecStart=$mangodir/mango.bin
+ExecStart=$mangodir/mango
 Restart=on-abort
 TimeoutSec=20
 
@@ -93,17 +93,17 @@ _addusers_mango () {
     for u in "${users[@]}"; do
      if [[ $u == $master ]]; then 
         pass=$(cut -d: -f2 < /root/.master.info)
-        su $mangousr -c "$mangodir/mango.bin admin user add -u $master -p $pass --admin"
+        su $mangousr -c "$mangodir/mango admin user add -u $master -p $pass --admin"
      else
         pass=$(cut -d: -f2 < /root/"$u".info)
         passlen=${#pass}
         if [[ $passlen -ge 6 ]]; then 
-            su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
+            su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
         else
             pass=$(openssl rand -base64 32)
             echo "WARNING: $u's password too short for mango, please change the password using 'box chpasswd $u'"
             echo "Mango account temporarily set up with the password '$pass'"
-            su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
+            su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
         fi
      fi
     done

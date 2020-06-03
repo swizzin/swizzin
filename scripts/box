@@ -326,7 +326,7 @@ function _deluser {
         su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
       elif [[ $app = "mango" ]]; then
         if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-        su mango -c "$mangodir/mango.bin admin user delete ${user}"
+        su mango -c "$mangodir/mango admin user delete ${user}"
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -411,7 +411,7 @@ function _chpasswd {
   fi
   if [[ -f /install/.mango.lock ]]; then
       if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-      su mango -c "$mangodir/mango.bin admin user update ${user} -p ${pass}"
+      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
   fi
 
 }
