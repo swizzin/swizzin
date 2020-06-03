@@ -411,7 +411,7 @@ function _chpasswd {
   fi
   if [[ -f /install/.mango.lock ]]; then
       if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-      su mango -c "$mangodir/mango.bin admin user delete ${user}"
+      su mango -c "$mangodir/mango.bin admin user update ${user} -p ${pass}"
   fi
 
 }
