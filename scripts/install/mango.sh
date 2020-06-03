@@ -103,7 +103,6 @@ _addusers_mango () {
      if [[ $u == $master ]]; then 
         : #Do nothing as the master has already been initialised
      else
-        echo "Creating user $u within mango"
         pass=$(cut -d: -f2 < /root/"$u".info)
         passlen=${#pass}
         if [[ $passlen -ge 6 ]]; then 
