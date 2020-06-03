@@ -100,8 +100,9 @@ _addusers_mango () {
         if [[ $passlen -ge 6 ]]; then 
             su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
         else
-            echo "$u's password too short for mango, please change the password using 'box chpasswd $u' (Setting up using random, discareded password)"
-            pass=$(openssl rand -base64 10)
+            pass=$(openssl rand -base64 32)
+            echo "WARNING: $u's password too short for mango, please change the password using 'box chpasswd $u'"
+            echo "Mango account temporarily set up with the password '$pass'"
             su $mangousr -c "$mangodir/mango.bin admin user add -u $u -p $pass"
         fi
      fi
