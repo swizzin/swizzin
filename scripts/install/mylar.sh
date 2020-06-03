@@ -34,9 +34,6 @@ curl -s https://api.github.com/repos/mylar3/mylar3/releases/latest \
     | tar -xz -C /opt/mylar --strip-components=1  >> $log 2>&1
 /opt/.venv/mylar/bin/pip3 install -r /opt/mylar/requirements.txt >> $log 2>&1
 
-chown -R ${user}: /opt/mylar
-chown -R ${user}: /opt/.venv/mylar
-
 cat > /opt/mylar/config.ini <<MYCONF
 [General]
 oldconfig_version = None
@@ -125,8 +122,8 @@ reset_pullist_pagination = True
 [Interface]
 http_port = 8090
 http_host = 127.0.0.1
-http_username = ${user}
-http_password = ${password}
+http_username = None
+http_password = None
 http_root = /mylar
 enable_https = False
 https_cert = /opt/mylar/server.crt
@@ -459,6 +456,9 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 MYLRSD
+
+chown -R ${user}: /opt/mylar
+chown -R ${user}: /opt/.venv/mylar
 
 systemctl daemon-reload >> $log 2>&1
 systemctl enable --now mylar >> $log 2>&1
