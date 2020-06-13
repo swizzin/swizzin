@@ -117,7 +117,7 @@ function _adduser() {
     fi
   done
   while [[ -z "${pass}" ]]; do
-    pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ -z "${pass}" ]]; then
       pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     fi
