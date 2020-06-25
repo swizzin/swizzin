@@ -193,6 +193,7 @@ DHL
   mkdir /home/${u}/dwatch
   chown ${u}: /home/${u}/dwatch
   mkdir -p /home/${u}/torrents/deluge
+  chown ${u}: /home/${u}/torrents
   chown ${u}: /home/${u}/torrents/deluge
 done
 }
