@@ -79,6 +79,10 @@ You can request and vote on features at [feathub](https://feathub.com/liaralabs/
 
 [![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
+### Contributing
+We welcome any bugfixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organised and keep your submissions supported properly.
+
+We're more than happy to talk about any changes to our codebase on the Discord server which you can find an invite link to on the top of this page. 
 
 ### Donations
 
