@@ -104,12 +104,12 @@ function _nukeovh() {
 }
 
 function _intro() {
-  whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 15 50
+  whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 7 43
 }
 
 function _adduser() {
   while [[ -z $user ]]; do
-    user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ $user =~ [A-Z] ]]; then
       read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
       printf "\n"
@@ -117,7 +117,7 @@ function _adduser() {
     fi
   done
   while [[ -z "${pass}" ]]; do
-    pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ -z "${pass}" ]]; then
       pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     fi
