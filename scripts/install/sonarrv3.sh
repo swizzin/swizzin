@@ -97,18 +97,19 @@ _setup_apt_sonarrv3 () {
 }
 
 _install_sonarrv3 () {
-    echo "Installing SOnarr v3 from apt" | tee -a $log
+    echo "Installing Sonarr v3 from apt" | tee -a $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
     master=$(cut -d: -f1 < /root/.master.info)
-    echo "sonarr/owning_user ${master}" | debconf-set-selections >> $log 2>&1
-    echo "sonarr/owning_group ${master}" | debconf-set-selections >> $log 2>&1
+    echo "sonarr sonarr/owning_user  string ${master}" | debconf-set-selections >> $log 2>&1
+    echo "sonarr sonarr/owning_group string ${master}" | debconf-set-selections >> $log 2>&1
     DEBIAN_FRONTEND=non-interactive apt-get install -yq sonarr >> $log 2>&1
 }
 
 _nginx_sonarr () {
+    sleep 10
     echo "Installing nginx configuration" | tee -a $log
     if [[ -f /install/.nginx.lock ]]; then
-        bash /usr/local/bin/swizzin/nginx/sonarr.sh
+        bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
     fi
 }
@@ -117,6 +118,7 @@ _sonarrv2_flow
 _setup_apt_sonarrv3
 _install_sonarrv3
 _nginx_sonarr
+
 touch /install/.sonarrv3.lock
 
 if [[ -f /install/.ombi.lock ]]; then
