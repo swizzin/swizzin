@@ -24,7 +24,7 @@ function _check_for_sonarr3 () {
     v3present=true
   fi
 
-  if dpkg -l | grep "sonarr"; then 
+  if dpkg -s "sonarr" > /dev/null 2>&1 ; then 
     v3present=true
   fi
 
@@ -32,6 +32,13 @@ function _check_for_sonarr3 () {
     echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
     exit 1
   fi
+
+  if [[ -d /root/sonarrv2.bak ]]; then 
+    echo "Please make sure to follow the migration steps here after the installation is finished. https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore"
+    #TODO implement restore procedure if user wants that to happen?
+    #TODO check if unit is still masked. Unmaks it if that's the case.
+  fi
+
 }
 
 function _installSonarrintro() {
