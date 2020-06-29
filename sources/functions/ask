@@ -1,6 +1,7 @@
 # This is a general-purpose function to ask Yes/No questions in Bash, either
 # with or without a default answer. It keeps repeating the question until it
 # gets a valid answer.
+# Last updated Jun 29 2020
 # https://djm.me/ask
 
 ask() {
