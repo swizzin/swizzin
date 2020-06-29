@@ -2,6 +2,6 @@
 apt-get remove -yq sonarr --purge
 rm -rf /var/lib/sonarr
 if [[ -f /install/.nginx.lock ]]; then 
-    rm /etc/nginx/apps/sonarr.conf
+    rm /etc/nginx/apps/sonarrv3.conf
     systemctl reload nginx
 fi

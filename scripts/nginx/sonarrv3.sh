@@ -2,8 +2,8 @@
 # Nginx conf for Sonarr v3
 # Flying sausages 2020
 
-if [[ ! -f /etc/nginx/apps/sonarr.conf ]]; then
-    cat > /etc/nginx/apps/sonarr.conf <<SONARR
+if [[ ! -f /etc/nginx/apps/sonarrv3.conf ]]; then
+    cat > /etc/nginx/apps/sonarrv3.conf <<SONARR
 location /sonarr {
   proxy_pass        http://127.0.0.1:8989/sonarr;
   proxy_set_header Host \$proxy_host;
