@@ -2,13 +2,11 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
-
 if [[ -f /tmp/.install.lock ]]; then
   export log="/root/logs/install.log"
 else
   log="/root/logs/swizzin.log"
 fi
-
 
 #Handles existing v2 instances
 _sonarrv2_flow(){
@@ -34,11 +32,13 @@ _sonarrv2_flow(){
 
         # TODO make backup
         # TODO 
-        echo "Backing up Sonarr v2"
+        echo "Backing up Sonarr v2" | tee -a $log
 
         address="http://localhost:8989/sonarr/api"
         master=$(cut -d: -f1 < /root/.master.info)
         apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${master}"/.config/NzbDrone/config.xml)
+
+        #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
         id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" | jq '.id' )
         
         if [[ -z $id ]]; then 
@@ -48,18 +48,18 @@ _sonarrv2_flow(){
                 exit 1
             fi
         else
-            echo "Sonarr backup Job ID = $id, waiting to finish" | tee -a $log
+            echo "Sonarr backup Job ID = $id, waiting to finish" >> $log
 
             status=""
             while [[ $status != "\"completed\"" ]]; do 
                 status=$(curl -s "${address}/command/$id?apikey=${apikey}" | jq '.status')
+                sleep 0.1
             done
-            echo "Sonarr backup completed" | tee -a $log
+            echo "Sonarr backup completed" >> $log
         fi
 
         cp -R /home/"${master}"/.config/NzbDrone /root/sonarrv2.bak
         
-        # echo "Disabling Sonarr v2"
         systemctl stop sonarr@"${master}" 
 
         # We don't have the debconf configuration yet so we can't migrate the data.
@@ -70,16 +70,16 @@ _sonarrv2_flow(){
             mkdir -p "/usr/lib/sonarr"
         fi
         ln -s /home/"${master}"/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
-        chown -R "$master":"$master" /usr/lib/sonarr/nzbdrone-appdata
+        # chown -R "$master":"$master" /usr/lib/sonarr/nzbdrone-appdata
         
-        echo "Removing Sonarr v2"
+        echo "Removing Sonarr v2" | tee -a $log
         # shellcheck source=scripts/remove/sonarr.sh 
         bash /etc/swizzin/scripts/remove/sonarr.sh
     fi
 }
 
 _setup_apt_sonarrv3 () {
-    echo "Adding apt sources for Sonarr v3"
+    echo "Adding apt sources for Sonarr v3" | tee -a $log
     codename=$(lsb_release -cs)
     distribution=$(lsb_release -is)
 
@@ -92,9 +92,6 @@ _setup_apt_sonarrv3 () {
 
     apt-get update >> $log 2>&1
 
-    # if [[ $? != 0 ]]; then 
-    #     echo "The apt-get update call failed. Please consult the swizzin log for more information, and try to run the installation again." | tee -a $log
-    # fi
 }
 
 _install_sonarrv3 () {
