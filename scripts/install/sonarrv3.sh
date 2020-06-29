@@ -60,7 +60,6 @@ _sonarrv2_flow(){
         
         echo "Disabling Sonarr v2"
         systemctl stop sonarr@${master} 
-        systemctl mask sonarr@${master}
 
         # We don't have the debconf configuration yet so we can't migrate the data.
         # Instead we symlink so postinst knows where it's at.
@@ -69,11 +68,11 @@ _sonarrv2_flow(){
         else
             mkdir -p "/usr/lib/sonarr"
         fi
-        ln -s /home/${master}/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
+        cp -R /home/${master}/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
         
         echo "Removing Sonarr v2"
-        #TODO cleanup the rest of Sonarr install
-        # rm /install/.sonarr.lock
+        # shellcheck source=scripts/remove/sonarr.sh 
+        bash /etc/swizzin/scripts/remove/sonarr.sh
     fi
 }
 
