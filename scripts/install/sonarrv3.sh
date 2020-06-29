@@ -1,3 +1,4 @@
+#!/bin/bash
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
@@ -37,8 +38,8 @@ _sonarrv2_flow(){
 
         address="http://localhost:8989/sonarr/api"
         master=$(cut -d: -f1 < /root/.master.info)
-        apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/${master}/.config/NzbDrone/config.xml)
-        id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey=${apikey} | jq '.id' )
+        apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${master}"/.config/NzbDrone/config.xml)
+        id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" | jq '.id' )
         
         if [[ -z $id ]]; then 
             echo "Sonarr is not reachable." | tee -a $log
@@ -56,10 +57,10 @@ _sonarrv2_flow(){
             echo "Sonarr backup completed" | tee -a $log
         fi
 
-        cp -R /home/${master}/.config/NzbDrone /root/sonarrv2.bak
+        cp -R /home/"${master}"/.config/NzbDrone /root/sonarrv2.bak
         
-        echo "Disabling Sonarr v2"
-        systemctl stop sonarr@${master} 
+        # echo "Disabling Sonarr v2"
+        systemctl stop sonarr@"${master}" 
 
         # We don't have the debconf configuration yet so we can't migrate the data.
         # Instead we symlink so postinst knows where it's at.
@@ -68,7 +69,8 @@ _sonarrv2_flow(){
         else
             mkdir -p "/usr/lib/sonarr"
         fi
-        cp -R /home/${master}/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
+        ln -s /home/"${master}"/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
+        chown -R "$master":"$master" /usr/lib/sonarr/nzbdrone-appdata
         
         echo "Removing Sonarr v2"
         # shellcheck source=scripts/remove/sonarr.sh 
@@ -90,17 +92,17 @@ _setup_apt_sonarrv3 () {
 
     apt-get update >> $log 2>&1
 
-    if [[ $? != 0 ]]; then 
-        echo "The apt-get update call failed. Please consult the swizzin log for more information, and try to run the installation again." | tee -a $log
-    fi
+    # if [[ $? != 0 ]]; then 
+    #     echo "The apt-get update call failed. Please consult the swizzin log for more information, and try to run the installation again." | tee -a $log
+    # fi
 }
 
 _install_sonarrv3 () {
     echo "Installing Sonarr v3 from apt" | tee -a $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
     master=$(cut -d: -f1 < /root/.master.info)
-    echo "sonarr sonarr/owning_user  string ${master}" | debconf-set-selections >> $log 2>&1
-    echo "sonarr sonarr/owning_group string ${master}" | debconf-set-selections >> $log 2>&1
+    echo "sonarr sonarr/owning_user  string ${master}" | debconf-set-selections
+    echo "sonarr sonarr/owning_group string ${master}" | debconf-set-selections
     DEBIAN_FRONTEND=non-interactive apt-get install -yq sonarr >> $log 2>&1
 }
 
