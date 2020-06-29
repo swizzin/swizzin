@@ -24,7 +24,7 @@ function _check_for_sonarr3 () {
     v3present=true
   fi
 
-  if dpkg -s "sonarr" > /dev/null 2>&1 ; then 
+  if dpkg -l | grep sonarr > /dev/null 2>&1 ; then 
     v3present=true
   fi
 
@@ -42,6 +42,12 @@ function _check_for_sonarr3 () {
 }
 
 function _installSonarrintro() {
+  echo "Sonarr v3 is available as a separate application (sonarrv3)"
+  . /etc/swizzin/sources/functions/ask
+  if ! ask "Would you like to continue installing Sonarr v2?" Y; then
+    exit 0
+  fi
+
   echo "Sonarr will now be installed." >>"${log}" 2>&1;
   echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
   echo "Please wait until install is completed." >>"${log}" 2>&1;
