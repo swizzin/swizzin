@@ -19,6 +19,21 @@
 #
 #################################################################################
 
+function _check_for_sonarr3 () {
+  if [[ -f /install/.sonarrv3.lock ]]; then 
+    v3present=true
+  fi
+
+  if dpkg -l | grep "sonarr"; then 
+    v3present=true
+  fi
+
+  if [[ $v3present == "true" ]]; then
+    echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
+    exit 1
+  fi
+}
+
 function _installSonarrintro() {
   echo "Sonarr will now be installed." >>"${log}" 2>&1;
   echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
@@ -115,6 +130,8 @@ username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
+
+_check_for_sonarr3
 _installSonarrintro
 _installSonarr1
 echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2
