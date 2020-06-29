@@ -1,6 +1,14 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
+
+if [[ -f /tmp/.install.lock ]]; then
+  export log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
+
 #Handles existing v2 instances
 _sonarrv2_flow(){
 
@@ -13,8 +21,9 @@ _sonarrv2_flow(){
     fi
 
     if [[ $v2present == "true" ]]; then 
-        echo "Sonarr v2 is detected. Continuing will upgrade your current installation."
-        echo "An additional copy of the backup will be made into /root/sonarrv2.bak/"
+        echo "Sonarr v2 is detected. Continuing will upgrade your current installation." | tee -a $log
+        echo "You can read more about the v2->v3 migration at https://docs.swizzin.ltd/applications/sonarrv3"
+        echo "An additional copy of the backup will be made into /root/sonarrv2.bak/" | tee -a $log
         #shellcheck source=sources/functions/ask
         . /etc/swizzin/sources/functions/ask
 
@@ -24,52 +33,95 @@ _sonarrv2_flow(){
 
         # TODO make backup
         # TODO 
-        echo "Backing up Sonarr v2 (takes minimum 2 minutes)"
+        echo "Backing up Sonarr v2"
 
         address="http://localhost:8989/sonarr/api"
         master=$(cut -d: -f1 < /root/.master.info)
         apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/${master}/.config/NzbDrone/config.xml)
         id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey=${apikey} | jq '.id' )
-        echo "Job ID = $id, waiting to finish"
+        
+        if [[ -z $id ]]; then 
+            echo "Sonarr is not reachable." | tee -a $log
+            echo "We cannot trigger Sonarr to dump a current backup, but the current files and previous weekly backups can still be copied" | tee -a $log
+            if ! ask "Continue without triggering internal Sonarr backup?" N; then 
+                exit 1
+            fi
+        else
+            echo "Sonarr backup Job ID = $id, waiting to finish" | tee -a $log
 
-        status=""
-        while [[ $status != "\"completed\"" ]]; do 
-            status=$(curl -s "${address}/command/$id?apikey=${apikey}" | jq '.status')
-        done
+            status=""
+            while [[ $status != "\"completed\"" ]]; do 
+                status=$(curl -s "${address}/command/$id?apikey=${apikey}" | jq '.status')
+            done
+            echo "Sonarr backup completed" | tee -a $log
+        fi
+
         cp -R /home/${master}/.config/NzbDrone /root/sonarrv2.bak
-        echo "Backup completed"
+        
+        echo "Disabling Sonarr v2"
+        systemctl stop sonarr@${master} 
+        systemctl mask sonarr@${master}
 
+        # We don't have the debconf configuration yet so we can't migrate the data.
+        # Instead we symlink so postinst knows where it's at.
+        if [ -f "/usr/lib/sonarr/nzbdrone-appdata" ]; then
+            rm "/usr/lib/sonarr/nzbdrone-appdata"
+        else
+            mkdir -p "/usr/lib/sonarr"
+        fi
+        ln -s /home/${master}/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
+        
+        echo "Removing Sonarr v2"
+        #TODO cleanup the rest of Sonarr install
         # rm /install/.sonarr.lock
     fi
 }
 
 _setup_apt_sonarrv3 () {
+    echo "Adding apt sources for Sonarr v3"
     codename=$(lsb_release -cs)
     distribution=$(lsb_release -is)
 
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8
-    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | sudo tee /etc/apt/sources.list.d/sonarr.list
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> $log 2>&1
+    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> $log 2>&1
 
     #shellcheck source=sources/functions/mono
     . /etc/swizzin/sources/functions/mono
     mono_repo_setup
 
-    apt-get update
+    apt-get update >> $log 2>&1
+
+    if [[ $? != 0 ]]; then 
+        echo "The apt-get update call failed. Please consult the swizzin log for more information, and try to run the installation again." | tee -a $log
+    fi
 }
 
 _install_sonarrv3 () {
-    # https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-
+    echo "Installing SOnarr v3 from apt" | tee -a $log
+    # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
     master=$(cut -d: -f1 < /root/.master.info)
-    echo "sonarr/owning_user ${master}" | debconf-set-selections
-    echo "sonarr/owning_group ${master}" | debconf-set-selections
-    DEBIAN_FRONTEND=non-interactive apt-get install -yq sonarr
+    echo "sonarr/owning_user ${master}" | debconf-set-selections >> $log 2>&1
+    echo "sonarr/owning_group ${master}" | debconf-set-selections >> $log 2>&1
+    DEBIAN_FRONTEND=non-interactive apt-get install -yq sonarr >> $log 2>&1
 }
+
+_nginx_sonarr () {
+    echo "Installing nginx configuration" | tee -a $log
+    if [[ -f /install/.nginx.lock ]]; then
+        bash /usr/local/bin/swizzin/nginx/sonarr.sh
+        systemctl reload nginx >> $log 2>&1
+    fi
+}
+
+_sonarrv2_flow
+_setup_apt_sonarrv3
+_install_sonarrv3
+_nginx_sonarr
+touch /install/.sonarrv3.lock
 
 if [[ -f /install/.ombi.lock ]]; then
     echo "Please adjust your Ombi setup accordingly"
 fi
-
-_sonarrv2_flow
-_setup_apt_sonarrv3
-# _install_sonarrv3
+if [[ -f /install/.bazarr.lock ]]; then
+    echo "Please adjust your Bazarr setup accordingly"
+fi
