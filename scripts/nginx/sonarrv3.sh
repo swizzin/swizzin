@@ -15,7 +15,6 @@ location /sonarr {
 }
 SONARR
 
-
 isactive=$(systemctl is-active sonarr)
 
 if [[ $isactive == "active" ]]; then
