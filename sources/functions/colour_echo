@@ -3,7 +3,10 @@
 
 #Whether or not Warning and Error should trigger the bell
 bell=true
-
+#Whether output should be as wide as the terminal.
+#Setting to false will still wrap when terminal is less than default width
+max_width=false
+default_width=140
 
 #colours
 red="\e[1;31m"
@@ -73,9 +76,14 @@ echo_log_only () {
 # $log = location of the file to log into
 function colorprint () {
     # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
-    width=100
+    width=$default_width
+    tpwidth=$(tput cols)
+    if [[ $tpwidth -lt $width  || $max_width == "true" ]]; then
+        width=$(( tpwidth - 12 ))
+    fi
     # If the optional logfile was specified...
-    if [[ -n $log ]]; then 
+    if [[ -n $log ]]; then
+        LANG=en_US date >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
             echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' >> "$log"
@@ -92,7 +100,7 @@ function echo_tests () {
     echo
     echo_test_wrap
     echo
-    # echo_test_log
+    echo_test_log
 }
 
 function echo_test_basic () {
