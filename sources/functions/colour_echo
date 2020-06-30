@@ -1,11 +1,20 @@
 #! /bin/bash
-# A Function to wrap stdout in colours
+# A little tool to help make more stylish bash output with colours and indentation
+
+#Whether or not Warning and Error should trigger the bell
+bell=true
+
 
 #colours
 red="\e[1;31m"
 green="\e[1;32m"
 yellow="\e[1;33m"
 blue="\e[1;34m"
+magenta="\e[95m"
+darkgray="\e[90m"
+
+#backgrounds
+magentabg="\e[45m"
 
 #reset
 nc="\e[0m"
@@ -13,99 +22,115 @@ nc="\e[0m"
 #mmodifiers
 bold="\e[1m"
 dim="\e[2m"
+underline="\e[4m"
+resetmode="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 
+############ FUNCTIONS
+# Unless otherwise specified, the following parameters apply:
+# $1    the message to print
+# $log  (optionally declared outside) the file to log to
 
-echo_good () {
-    colorprint "${green}" "\u2705${nc}\t$1"
-}
 
 echo_warn () {
-    colorprint "$yellow" "\aWARN:\t$1"
+    if [[ $bell = "true" ]]; then echo -en "\a"; fi
+    colorprint "${yellow}" "${underline}WARN${resetmode}\t$1"
 }
 
 echo_error () {
-    colorprint "$red" "\aERROR:\t$1"
+    if [[ $bell = "true" ]]; then echo -en "\a"; fi
+    colorprint "$red" "${underline}${bold}ERROR${resetmode}${bold}\t$1"
 }
 
 echo_info () {
-    colorprint "$bold" "INFO:\t$1   "
+    colorprint "$bold" "INFO\t$1   "
 }
 
-# Does not print a line ending, as it is expecting an echo_progres_done
 echo_progress_start () {
-    colorprint "$dim" "WERK:\t$1"
+    colorprint "$dim" "...\t$1"
 }
 
 echo_progress_done () {
-    colorprint "${green}${dim}" "\t\u2714 $1"
+    colorprint "${green}${dim}" "\t\u2714   $1"
 }
 
 echo_success () {
-    colorprint "${green}${bold}" "SUCCESS\t$1"
+    colorprint "${green}" "${bold}SUCCESS${resetmode}\t$1"
 }
 
 echo_query () {
-    colorprint "$blue$bold" "???\t$1"
+    colorprint "${blue}${bold}" "INPUT\t$1"
 }
 
 #Prints only into the logpath
 echo_log_only () {
-    colorprint "" "LOG:\t$1"
+    colorprint "${darkgray}" "LOG:\t$1"
 }
 
 # $1 = colour
 # $2 = message
-# $3 = extra flags for echo
+# $3 = extra flags for echo (e.g. "n" if you don't want to print a newline)
+# $log = location of the file to log into
 function colorprint () {
+    # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
+    width=100
+    # If the optional logfile was specified...
     if [[ -n $log ]]; then 
+        # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/' >> "$log"
-        else
-            echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/' | tee -a "$log"
+            echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' >> "$log"
+        else # otherwise append it
+            echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' | tee -a "$log"
         fi
-    else
-        echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/'
+    else # If log was not specified...
+        echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/'
     fi
 }
 
 function echo_tests () {
-    # echo_good "Something went well"
+    echo_test_basic
+    echo
+    echo_test_wrap
+    echo
+    # echo_test_log
+}
+
+function echo_test_basic () {
+    echo "Here are some basic echos"
     echo_success "Installation complete"
     echo_warn "Some hiccups"
     echo_error "wOoopsie fwings awe fucky wucky"
     echo_info "Something of note to user"
     echo_progress_start "Something started";    echo_progress_done "Done message"
     echo_query "Can you tell me this please"
-    echo
-    echo "Look at this nice wrapping biz going on"
-    echo_success "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_warn "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_error "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_info "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_progress_start "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_progress_done "Duis bibendum justo lorem"
-    echo_query "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    
-    echo
-    echo "Hidden helpful logging stuff, check source"
-    log="/tmp/dumblog.txt"
-    rm $log
-    echo_info "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo_log_only "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-    echo
-    echo "This is the log file result"
-    cat $log
-    log=""
 }
 
-# function textpad () {
-#     text=$1
-#     length=$2
+function echo_test_wrap () {
+    echo -E "Look at this nice wrapping biz going on"
+    # Really long text just for illustration.
+    # the "<Line Break> is there just to show where the actual escape char is"
+    echo "Base string = "
+    lipsum="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo -E "$lipsum"
+    echo
+    echo_success "${lipsum}"
+    echo_warn "${lipsum}"
+    echo_error "${lipsum}"
+    echo_info "${lipsum}"
+    echo_progress_start "${lipsum}"
+    echo_progress_done "Duis bibendum justo lorem"
+    echo_query "${lipsum}"
+}
 
-#     textchrlen=${#text}
-
-#     if [[ textchrlen -lt $length ]]; then 
-        
-#     fi
-# }
+function echo_test_log () {
+    echo "And this is what happens when you set the \$log variable. (check source)"
+    echo "What the screen sees:"
+    log="/tmp/dumblog.txt"
+    echo_info "${lipsum}"
+    echo_log_only "${lipsum}"
+    echo
+    echo "The contents of the log:"
+    cat $log
+    rm $log
+    log=""
+}
