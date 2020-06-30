@@ -92,6 +92,11 @@ _setup_apt_sonarrv3 () {
 
     apt-get update >> $log 2>&1
 
+    if ! apt policy sonarr | grep apt.sonarr.tv; then
+        echo "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
+        exit 1
+    fi
+
 }
 
 _install_sonarrv3 () {
@@ -100,7 +105,14 @@ _install_sonarrv3 () {
     master=$(cut -d: -f1 < /root/.master.info)
     echo "sonarr sonarr/owning_user  string ${master}" | debconf-set-selections
     echo "sonarr sonarr/owning_group string ${master}" | debconf-set-selections
-    DEBIAN_FRONTEND=non-interactive apt-get install -yq sonarr >> $log 2>&1
+    DEBIAN_FRONTEND=non-interactive apt-get install -y sonarr >> $log 2>&1
+    if [[ $? -gt 0 ]];              then failure=true; fi
+    if [[ ! -d /var/lib/sonarr ]];  then failure=true; fi
+
+    if [[ $failure = "true" ]]; then
+        echo "ERROR: The Sonarr v3 pacakge did not install correctly. Please try again. (Is sonarr repo reachable?)"
+        exit 1
+    fi
 }
 
 _nginx_sonarr () {
