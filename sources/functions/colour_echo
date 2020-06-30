@@ -1,0 +1,61 @@
+#! /bin/bash
+# A Function to wrap stdout in colours
+
+#colours
+red="\e[1;31m"
+green="\e[1;32m"
+yellow="\e[1;33m"
+blue="\e[1;34m"
+
+#reset
+nc="\e[0m"
+
+#mmodifiers
+bold="\e[1m"
+dim="\e[2m"
+
+
+
+echo_success () {
+    colorprint "${green}" "\u2705${nc}${bold} $1"
+}
+
+echo_warn () {
+    colorprint "$yellow" "\xF0\x9F\x9A\xA7 $1"
+    
+}
+
+echo_error () {
+    colorprint "$red" "\u26D4 $1"
+}
+
+echo_info () {
+    colorprint "$dim" "\u2139 $1"
+}
+
+echo_progress () {
+    colorprint "" "\xE2\x8C\x9B $1"
+}
+
+echo_finish () {
+    colorprint "${green}${bold}" "\xF0\x9F\x8F\x81 $1"
+}
+
+echo_query () {
+    colorprint "$blue$bold" "\xE2\x9D\x93 $1"
+}
+
+
+function colorprint () {
+    echo -e "$1 $2 $nc"
+}
+
+function echo_tests () {
+    echo_success "Something succeeded"
+    echo_finish "Installation complete"
+    echo_warn "Some hiccups"
+    echo_error "wOoopsie fwings awe fucky wucky"
+    echo_info "Something unimportant happened"
+    echo_progress "Something started"
+    echo_query "Can you tell me this please"
+}
