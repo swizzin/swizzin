@@ -16,46 +16,96 @@ dim="\e[2m"
 
 
 
-echo_success () {
-    colorprint "${green}" "\u2705${nc}${bold} $1"
+echo_good () {
+    colorprint "${green}" "\u2705${nc}\t$1"
 }
 
 echo_warn () {
-    colorprint "$yellow" "\xF0\x9F\x9A\xA7 $1"
-    
+    colorprint "$yellow" "\aWARN:\t$1"
 }
 
 echo_error () {
-    colorprint "$red" "\u26D4 $1"
+    colorprint "$red" "\aERROR:\t$1"
 }
 
 echo_info () {
-    colorprint "$dim" "\u2139 $1"
+    colorprint "$bold" "INFO:\t$1   "
 }
 
-echo_progress () {
-    colorprint "" "\xE2\x8C\x9B $1"
+# Does not print a line ending, as it is expecting an echo_progres_done
+echo_progress_start () {
+    colorprint "$dim" "WERK:\t$1"
 }
 
-echo_finish () {
-    colorprint "${green}${bold}" "\xF0\x9F\x8F\x81 $1"
+echo_progress_done () {
+    colorprint "${green}${dim}" "\t\u2714 $1"
+}
+
+echo_success () {
+    colorprint "${green}${bold}" "SUCCESS\t$1"
 }
 
 echo_query () {
-    colorprint "$blue$bold" "\xE2\x9D\x93 $1"
+    colorprint "$blue$bold" "???\t$1"
 }
 
+#Prints only into the logpath
+echo_log_only () {
+    colorprint "" "LOG:\t$1"
+}
 
+# $1 = colour
+# $2 = message
+# $3 = extra flags for echo
 function colorprint () {
-    echo -e "$1 $2 $nc"
+    if [[ -n $log ]]; then 
+        if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
+            echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/' >> "$log"
+        else
+            echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/' | tee -a "$log"
+        fi
+    else
+        echo -e"${3}" "${1}${2}${nc}" | fold -s -w80 | sed -e '2,$s/^/\t/'
+    fi
 }
 
 function echo_tests () {
-    echo_success "Something succeeded"
-    echo_finish "Installation complete"
+    # echo_good "Something went well"
+    echo_success "Installation complete"
     echo_warn "Some hiccups"
     echo_error "wOoopsie fwings awe fucky wucky"
-    echo_info "Something unimportant happened"
-    echo_progress "Something started"
+    echo_info "Something of note to user"
+    echo_progress_start "Something started";    echo_progress_done "Done message"
     echo_query "Can you tell me this please"
+    echo
+    echo "Look at this nice wrapping biz going on"
+    echo_success "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_warn "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_error "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_info "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_progress_start "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_progress_done "Duis bibendum justo lorem"
+    echo_query "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    
+    echo
+    echo "Hidden helpful logging stuff, check source"
+    log="/tmp/dumblog.txt"
+    rm $log
+    echo_info "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo_log_only "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo
+    echo "This is the log file result"
+    cat $log
+    log=""
 }
+
+# function textpad () {
+#     text=$1
+#     length=$2
+
+#     textchrlen=${#text}
+
+#     if [[ textchrlen -lt $length ]]; then 
+        
+#     fi
+# }
