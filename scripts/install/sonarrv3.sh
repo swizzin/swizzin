@@ -92,7 +92,7 @@ _setup_apt_sonarrv3 () {
 
     apt-get update >> $log 2>&1
 
-    if ! apt policy sonarr | grep apt.sonarr.tv; then
+    if ! apt-cache policy sonarr | grep apt.sonarr.tv > /dev/null; then
         echo "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
         exit 1
     fi
