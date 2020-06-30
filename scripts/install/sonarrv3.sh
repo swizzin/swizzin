@@ -104,7 +104,7 @@ _install_sonarrv3 () {
 }
 
 _nginx_sonarr () {
-    sleep 10
+    sleep 20
     echo "Installing nginx configuration" | tee -a $log
     if [[ -f /install/.nginx.lock ]]; then
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
