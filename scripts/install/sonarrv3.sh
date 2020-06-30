@@ -21,7 +21,7 @@ _sonarrv2_flow(){
 
     if [[ $v2present == "true" ]]; then 
         echo "Sonarr v2 is detected. Continuing will upgrade your current installation." | tee -a $log
-        echo "You can read more about the v2->v3 migration at https://docs.swizzin.ltd/applications/sonarrv3"
+        echo "You can read more about the v2->v3 migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2"
         echo "An additional copy of the backup will be made into /root/sonarrv2.bak/" | tee -a $log
         #shellcheck source=sources/functions/ask
         . /etc/swizzin/sources/functions/ask
