@@ -24,9 +24,12 @@ nc="\e[0m"
 
 #mmodifiers
 bold="\e[1m"
+rbold="\e[21m"
 dim="\e[2m"
+rdim="\e[22m"
 underline="\e[4m"
-resetmode="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
+runderline="\e[24m"
+resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 
 ############ FUNCTIONS
@@ -37,12 +40,12 @@ resetmode="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 echo_warn () {
     if [[ $bell = "true" ]]; then echo -en "\a"; fi
-    colorprint "${yellow}" "${underline}WARN${resetmode}\t$1"
+    colorprint "${yellow}" "${underline}WARN${runderline}\t$1"
 }
 
 echo_error () {
     if [[ $bell = "true" ]]; then echo -en "\a"; fi
-    colorprint "$red" "${underline}${bold}ERROR${resetmode}${bold}\t$1"
+    colorprint "${red}${bold}" "${underline}ERROR${runderline}\t$1"
 }
 
 echo_info () {
@@ -58,7 +61,7 @@ echo_progress_done () {
 }
 
 echo_success () {
-    colorprint "${green}" "${bold}SUCCESS${resetmode}\t$1"
+    colorprint "${green}" "SUCCESS\t${dim}$1"
 }
 
 echo_query () {
