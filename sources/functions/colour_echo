@@ -70,7 +70,7 @@ echo_query () {
 
 #Prints only into the logpath
 echo_log_only () {
-    colorprint "${darkgray}" "LOG:\t$1"
+    colorprint "${magenta}" "LOG:\t$1"
 }
 
 # $1 = colour
@@ -86,7 +86,7 @@ function colorprint () {
     fi
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
-        LANG=en_US date >> "$log"
+        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
             echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' >> "$log"
