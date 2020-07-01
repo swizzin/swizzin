@@ -88,14 +88,22 @@ function colorprint () {
     if [[ -n $log ]]; then
         echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
+        # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' >> "$log"
+            echo -e"${3}" "${1}${2}${nc}" >> "$log"
         else # otherwise append it
-            echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/' | tee -a "$log"
+            #Wrapped for the user
+            echo -e"${3}" "${1}${2}${nc}" | do_the_wrap
+            #Unwrapped for the log
+            echo -e"${3}" "${1}${2}${nc}" >> "$log"
         fi
     else # If log was not specified...
-        echo -e"${3}" "${1}${2}${nc}" | fold -s -w${width} | sed -e '2,$s/^/\t/'
+        echo -e"${3}" "${1}${2}${nc}" | do_the_wrap 
     fi
+}
+
+function do_the_wrap () {
+    fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
 
 function echo_tests () {
