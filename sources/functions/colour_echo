@@ -7,6 +7,7 @@ bell=true
 #Setting to false will still wrap when terminal is less than default width
 max_width=false
 default_width=140
+strip_log_color=false
 
 #colours
 red="\e[1;31m"
@@ -78,25 +79,25 @@ echo_log_only () {
 # $3 = extra flags for echo (e.g. "n" if you don't want to print a newline)
 # $log = location of the file to log into
 function colorprint () {
-
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
-        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " >> "$log"
+        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " | strip_color >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            echo -e"${3}" "${1}${2}${nc}" >> "$log"
+            echo -e"${3}" "${1}${2}${nc}" | strip_color  >> "$log"
         else # otherwise append it
             #Wrapped for the user
             echo -e"${3}" "${1}${2}${nc}" | do_the_wrap
             #Unwrapped for the log
-            echo -e"${3}" "${1}${2}${nc}" >> "$log"
+            echo -e"${3}" "${1}${2}${nc}" | strip_color >> "$log"
         fi
     else # If log was not specified...
         echo -e"${3}" "${1}${2}${nc}" | do_the_wrap 
     fi
 }
 
+#Wraps indents the text according to variables / terminal output
 function do_the_wrap () {
     # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
     width=$default_width
@@ -105,6 +106,14 @@ function do_the_wrap () {
         width=$(( tpwidth - 12 ))
     fi
     fold -s -w${width} | sed -e '2,$s/^/\t/'
+}
+
+function strip_color () {
+    if [[ $strip_log_color == "true" ]]; then 
+        sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
+    else
+        less
+    fi
 }
 
 function echo_tests () {
@@ -146,6 +155,7 @@ function echo_test_log () {
     echo "And this is what happens when you set the \$log variable. (check source)"
     echo "What the screen sees:"
     log="/tmp/dumblog.txt"
+    if [[ -f $log ]]; then rm $log; fi
     echo_info "${lipsum}"
     echo_log_only "${lipsum}"
     echo
