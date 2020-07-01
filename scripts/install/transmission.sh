@@ -2,12 +2,15 @@
 # shellcheck disable=SC1091
 # Author: Flying_sausages 2020 for Swizzin
 
+# shellcheck source=sources/functions/colour_echo
+. /etc/swizzin/sources/functions/colour_echo
+
 ############################################################
 # Functions
 ############################################################
 
 _mkservice_transmission() {
-    echo "Creating systemd services"
+    echo_progress_start "Creating systemd services"
     cat > /etc/systemd/system/transmission@.service <<EOF
 [Unit]
 Description=Transmission BitTorrent Daemon for %i
@@ -24,6 +27,7 @@ ExecReload=/bin/kill -s HUP $MAINPID
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload
+    echo_progress_done "Done"
 }
 
 _start_transmission () {
@@ -34,13 +38,27 @@ _start_transmission () {
 
 _setenv_transmission(){
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
+    echo_log_only "download_dir = $download_dir"
+
     [[ -z $incomplete_dir ]] && export incomplete_dir='transmission/incomplete'
+    echo_log_only "incomplete_dir = $incomplete_dir"
+
     [[ -z $incomplete_dir_enabled ]] && export incomplete_dir_enabled="false"
+    echo_log_only "incomplete_dir_enabled = $incomplete_dir_enabled"
+
     [[ -z $rpc_whitelist ]] && export rpc_whitelist='*.*.*.*'
+    echo_log_only "rpc_whitelist = $rpc_whitelist"
+
     [[ -z $rpc_whitelist_enabled ]] && export rpc_whitelist_enabled='0'
+    echo_log_only "rpc_whitelist_enabled = $rpc_whitelist_enabled"
+
     . /etc/swizzin/sources/functions/transmission
     [[ -z $rpc_port ]] && export rpc_port=$(_get_next_port_from_json 'rpc-port' 9091)
+    echo_log_only "rpc_port = $rpc_port"
+
     [[ -z $peer_port ]] && export peer_port=$(_get_next_port_from_json 'peer-port' 51314)
+    echo_log_only "peer_port = $peer_port"
+
     . /etc/swizzin/sources/functions/utils
     [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
 }
@@ -139,9 +157,7 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
 }
 EOF
 if [[ ! -f /install/.nginx.lock ]]; then
-echo "Transmission RPC port for ${user} = ${rpc_port}"
-# echo "Use the RPC port above and your user credentials to log into Transmission"
-# echo "   More info: https://github.com/transmission-remote-gui/transgui"
+    echo_info "Transmission RPC port for ${bold}${user} = ${rpc_port}"
 fi
 }
 
@@ -149,6 +165,7 @@ _nginx_transmission () {
     if [[ -f /install/.nginx.lock ]]; then
         bash /usr/local/bin/swizzin/nginx/transmission.sh
         systemctl reload nginx
+        echo_log_only "RET = r$RET"
     fi
 }
 
@@ -171,7 +188,7 @@ users=($(cut -d: -f1 < /etc/htpasswd))
 # Extra-user-only functions
 if [[ -n $1 ]]; then
 	user=$1
-    echo "Configuring transmission for $user"
+    echo_info "Configuring transmission for ${bold}$user"
 	_mkdir_transmission
     _mkconf_transmission
     _nginx_transmission
@@ -192,13 +209,21 @@ fi
 _install_transmission
 _mkservice_transmission
 for user in ${users[@]}; do
-echo "Creating directories for $user"
-_mkdir_transmission
-echo "Creating config for $user"
-_mkconf_transmission
-_start_transmission
+    echo_progress_start "Creating directories for ${bold}$user"
+    _mkdir_transmission
+    echo_progress_done "Directories created"
+    echo_progress_start "Creating config for ${bold}$user"
+    _mkconf_transmission
+    echo_progress_done "Config created"
+    echo_progress_start "Starting transmission instance for ${bold}$user"
+    _start_transmission
+    echo_progress_done "Instance started"
+
 done
-echo "Creating nginx config"
+echo_progress_start "Creating nginx config"
 _nginx_transmission
+echo_progress_done "Nginx configured"
+
+echo_success "Transmission installed"
 
 touch /install/.transmission.lock
