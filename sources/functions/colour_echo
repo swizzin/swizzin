@@ -78,12 +78,7 @@ echo_log_only () {
 # $3 = extra flags for echo (e.g. "n" if you don't want to print a newline)
 # $log = location of the file to log into
 function colorprint () {
-    # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
-    width=$default_width
-    tpwidth=$(tput cols)
-    if [[ $tpwidth -lt $width  || $max_width == "true" ]]; then
-        width=$(( tpwidth - 12 ))
-    fi
+
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
         echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " >> "$log"
@@ -103,6 +98,12 @@ function colorprint () {
 }
 
 function do_the_wrap () {
+    # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
+    width=$default_width
+    tpwidth=$(tput cols)
+    if [[ $tpwidth -lt $width  || $max_width == "true" ]]; then
+        width=$(( tpwidth - 12 ))
+    fi
     fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
 
