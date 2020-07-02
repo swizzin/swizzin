@@ -114,7 +114,7 @@ function _update() {
   git checkout master
   git fetch origin master
   git reset --hard origin/master
-  
+
   for f in /etc/swizzin/scripts/update/*; do 
     bash "$f"; 
   done
