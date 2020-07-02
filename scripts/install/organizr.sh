@@ -142,6 +142,14 @@ EOF
   fail2ban-client reload
 }
 
+#Catch script being called with parameter
+if [[ -n $1 ]]; then
+	users=$1
+	# _adduser
+  echo "Remember to manually create the organizr account!"
+	exit 0
+fi
+
 organizr_install
 organizr_nginx
 touch /install/.organizr.lock
