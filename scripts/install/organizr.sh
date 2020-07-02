@@ -109,6 +109,32 @@ EOF
   -sk \
   | python3 -m json.tool \
   >> $log 2>&1
+
+  # sleep 10
+  curl -k https://127.0.0.1/organizr/api/functions.php
+  #shellcheck source=sources/functions/php
+  . /etc/swizzin/sources/functions/php
+  reload_php_opcache
+
 fi
 
-touch /install/.organizr.lock
+echo "Setting up Fail2Ban for organizr"
+
+touch /srv/organizr_db/organizrLoginLog.json
+
+cat > /etc/fail2ban/filter.d/organizr-auth.conf << EOF
+[Definition]
+failregex = ","username":"\S+","ip":"<HOST>","auth_type":"error"}*
+ignoreregex =
+EOF
+
+cat > /etc/fail2ban/jail.d/organizr-auth.conf << EOF
+[organizr-auth]
+enabled = true
+port = http,https
+filter = organizr-auth
+logpath = /srv/organizr_db/organizrLoginLog.json
+ignoreip = 127.0.0.1/24
+EOF
+
+fail2ban-client reload

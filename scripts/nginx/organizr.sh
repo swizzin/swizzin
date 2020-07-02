@@ -42,15 +42,15 @@ location /organizr {
 RUM
 fi
 
-blacklist_path="/etc/php/$phpv/opcache-blacklist.txt"
+# blacklist_path="/etc/php/$phpv/opcache-blacklist.txt"
 
-if [[ ! -f $blacklist_path ]]; then 
-  touch "$blacklist_path"
-fi
-echo "/srv/organizr/*" >> "$blacklist_path"
-echo "opcache.blacklist_filename=$blacklist_path" >> /etc/php/$phpv/fpm/php.ini
+# if [[ ! -f $blacklist_path ]]; then 
+#   touch "$blacklist_path"
+# fi
+# echo "/srv/organizr/*" >> "$blacklist_path"
+# echo "opcache.blacklist_filename=$blacklist_path" >> /etc/php/$phpv/fpm/php.ini
 
-reload_php_fpm
+# reload_php_fpm
 
 chown -R www-data:www-data /srv/organizr
 systemctl reload nginx
