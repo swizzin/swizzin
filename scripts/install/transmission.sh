@@ -2,9 +2,6 @@
 # shellcheck disable=SC1091
 # Author: Flying_sausages 2020 for Swizzin
 
-# shellcheck source=sources/functions/colour_echo
-. /etc/swizzin/sources/functions/colour_echo
-
 ############################################################
 # Functions
 ############################################################
