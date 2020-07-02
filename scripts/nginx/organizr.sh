@@ -19,13 +19,6 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
-phpversion=$(php_service_version)
-
-if [[ $phpversion == '7.0' ]]; then 
-  echo "Your version of PHP is too old for Organizr"
-  exit 1
-fi
-
 
 ###################################
 

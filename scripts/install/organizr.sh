@@ -6,6 +6,14 @@ if [[ ! -f /install/.nginx.lock ]]; then
   exit 1
 fi
 
+. /etc/swizzin/sources/functions/php
+phpversion=$(php_service_version)
+
+if [[ $phpversion == '7.0' ]]; then 
+  echo "Your version of PHP is too old for Organizr"
+  exit 1
+fi
+
 if [[ -f /tmp/.install.lock ]]; then
   export log="/root/logs/install.log"
 else
