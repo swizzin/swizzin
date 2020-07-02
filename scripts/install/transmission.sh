@@ -37,6 +37,7 @@ _start_transmission () {
 }
 
 _setenv_transmission(){
+    echo_log_only "Setting environment variables"
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     echo_log_only "download_dir = $download_dir"
 
