@@ -39,7 +39,7 @@ estout=$(   tput rmso   || tput se      ) # End stand-out
 ring_the_bell(){
     [[ $bell == "true" ]] && tput bel
 }
-export
+export -f ring_the_bell
 
 ############ FUNCTIONS
 # Unless otherwise specified, the following parameters apply:
@@ -77,7 +77,7 @@ export -f echo_progress_done
 
 
 echo_success () {
-    colorprint "${green}" "SUCCESS\t${dim}$1"
+    colorprint "${green}" "SUCCESS\t$1"
 }
 export -f echo_success
 
