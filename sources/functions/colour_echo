@@ -8,7 +8,7 @@ bell=true
 max_width=false
 default_width=140
 #Whether the log should keep ansi escape characters or not to ensure human readability
-strip_ansi_from_log=true
+strip_ansi_from_log=false
 
 #colours
     red=$(      tput setaf 1|| tput AF 1    )
@@ -25,15 +25,16 @@ magentabg="\e[45m"
 nc="$(tput sgr0)"
 
 #mmodifiers
-bold="\e[1m"
-rbold="\e[21m"
-dim="\e[2m"
+bold=$(     tput bold   || tput md      ) # Start boldrbold="\e[21m"
+dim=$(      tput dim                    ) # Start dim
 rdim="\e[22m"
 under=$(    tput smul   || tput us      ) # Start under
 runder=$(   tput rmul   || tput ue      ) # End   under
 italic=$(   tput sitm   || tput ZH      ) # Start italic
 eitalic=$(  tput ritm   || tput ZR      ) # End   italic
-resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
+stout=$(    tput smso   || tput so      ) # Start stand-out
+estout=$(   tput rmso   || tput se      ) # End stand-out
+# resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 
 ############ FUNCTIONS
@@ -47,7 +48,7 @@ echo_warn () {
 
 echo_error () {
     if [[ $bell = "true" ]]; then echo -en "\a"; fi
-    colorprint "${red}${bold}" "${under}ERROR${runder}\t$1"
+    colorprint "${red}${bold}" "ERROR\t${stout}$1"
 }
 
 echo_info () {
@@ -59,7 +60,7 @@ echo_progress_start () {
 }
 
 echo_progress_done () {
-    colorprint "${green}${dim}" "\t\u2714   $1"
+    colorprint "${green}${dim}" "\t\u2714   ${italic}$1"
 }
 
 echo_success () {
@@ -67,7 +68,7 @@ echo_success () {
 }
 
 echo_query () {
-    colorprint "${blue}${bold}" "INPUT\t$1"
+    colorprint "${blue}${bold}" "INPUT\t${italic}$1"
 }
 
 #Prints only into the logpath
@@ -77,24 +78,23 @@ echo_log_only () {
 
 # $1 = colour
 # $2 = message
-# $3 = extra flags for echo (e.g. "n" if you don't want to print a newline)
 # $log = location of the file to log into
 function colorprint () {
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
-        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " | strip_ansi >> "$log"
+        printf '%b' "${dim}$(LANG=en_US date +"%a %b %d %T")${nc}\t" | strip_ansi >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            echo -e"${3}" "${1}${2}${nc}" | strip_ansi  >> "$log"
+            printf '%b\n' "${1}${2}${nc}" | strip_ansi  >> "$log"
         else # otherwise append it
             #Wrapped for the user
-            echo -e"${3}" "${1}${2}${nc}" | do_the_wrap
+            printf '%b\n' "${1}${2}${nc}" | do_the_wrap
             #Unwrapped for the log
-            echo -e"${3}" "${1}${2}${nc}" | strip_ansi >> "$log"
+            printf '%b\n' "${1}${2}${nc}" | strip_ansi >> "$log"
         fi
     else # If log was not specified...
-        echo -e"${3}" "${1}${2}${nc}" | do_the_wrap 
+        printf '%b\n'  "${1}${2}${nc}" | do_the_wrap 
     fi
 }
 
