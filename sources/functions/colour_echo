@@ -36,18 +36,21 @@ stout=$(    tput smso   || tput so      ) # Start stand-out
 estout=$(   tput rmso   || tput se      ) # End stand-out
 # resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
+bell(){
+    [[ $bell == "true" ]] && tput bel
+}
 
 ############ FUNCTIONS
 # Unless otherwise specified, the following parameters apply:
 # $1    the message to print
 # $log  (optionally declared outside) the file to log to
 echo_warn () {
-    if [[ $bell = "true" ]]; then echo -en "\a"; fi
+    bell
     colorprint "${yellow}" "${under}WARN${runder}\t$1"
 }
 
 echo_error () {
-    if [[ $bell = "true" ]]; then echo -en "\a"; fi
+    $bell
     colorprint "${red}${bold}" "ERROR\t${stout}$1"
 }
 
