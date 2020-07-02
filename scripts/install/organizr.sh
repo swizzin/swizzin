@@ -61,7 +61,7 @@ if [[ $user == "$pass" ]]; then
   echo "Your username and password seem to be identical, please finish the Organizr setup manually." | tee -a $log
 else
   echo "Setting up the organizr database" | tee -a $log
-  curl --location --request POST 'https://localhost/organizr/api/?v1/wizard_path' \
+  curl --location --request POST 'https://127.0.0.1/organizr/api/?v1/wizard_path' \
   --header 'content-type: application/x-www-form-urlencoded' \
   --header 'charset: UTF-8' \
   --header 'Content-Encoding: gzip' \
@@ -81,7 +81,7 @@ API key = $api_key
 Hash key = $hash_key
 Registration pass = $reg_pass
 EOF
-  curl --location --request POST 'https://localhost/organizr/api/?v1/wizard_config' \
+  curl --location --request POST 'https://127.0.0.1/organizr/api/?v1/wizard_config' \
   --header 'content-type: application/x-www-form-urlencoded' \
   --header 'charset: UTF-8' \
   --header 'Content-Encoding: gzip' \
