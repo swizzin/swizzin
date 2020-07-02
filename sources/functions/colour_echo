@@ -77,7 +77,7 @@ export -f echo_progress_done
 
 
 echo_success () {
-    colorprint "${green}" "SUCCESS\t$1"
+    colorprint "${green}" "${bold}SUCCESS\t$1"
 }
 export -f echo_success
 
