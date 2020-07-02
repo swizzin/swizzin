@@ -413,7 +413,7 @@ function _chpasswd {
   fi
   if [[ -f /install/.organizr.lock ]]; then 
     #TODO fix when API allows to
-    echo "Your organizr password has not yet been changed, please do so manually"
+    echo "Remember to manually change the organizr account's password!"
   fi
 
 }
