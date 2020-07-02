@@ -70,7 +70,7 @@ else
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --data-urlencode "data[path]=${organizr_dir}_db" \
   --data-urlencode 'data[formKey]=' \
-  -k \
+  -sk \
   | python3 -m json.tool >> $log 2>&1
   sleep 2
 
@@ -106,7 +106,7 @@ EOF
   --data-urlencode "data[7][value]=db" \
   --data-urlencode "data[8][name]=location" \
   --data-urlencode "data[8][value]=${organizr_dir}_db" \
-  -k \
+  -sk \
   | python3 -m json.tool \
   >> $log 2>&1
 fi
