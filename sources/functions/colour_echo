@@ -11,25 +11,28 @@ default_width=140
 strip_ansi_from_log=true
 
 #colours
-red="\e[1;31m"
-green="\e[1;32m"
-yellow="\e[1;33m"
-blue="\e[1;34m"
-magenta="\e[95m"
+    red=$(      tput setaf 1|| tput AF 1    )
+    green=$(    tput setaf 2|| tput AF 2    )
+    yellow=$(   tput setaf 3|| tput AF 3    )
+    blue=$(     tput setaf 4|| tput AF 4    )
+    magenta=$(  tput setaf 5|| tput AF 5    )
+    cyan=$(     tput setaf 6|| tput AF 6    )
 
 #backgrounds
 magentabg="\e[45m"
 
 #reset
-nc="\e[0m"
+nc="$(tput sgr0)"
 
 #mmodifiers
 bold="\e[1m"
 rbold="\e[21m"
 dim="\e[2m"
 rdim="\e[22m"
-underline="\e[4m"
-runderline="\e[24m"
+under=$(    tput smul   || tput us      ) # Start under
+runder=$(   tput rmul   || tput ue      ) # End   under
+italic=$(   tput sitm   || tput ZH      ) # Start italic
+eitalic=$(  tput ritm   || tput ZR      ) # End   italic
 resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 
@@ -39,12 +42,12 @@ resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 # $log  (optionally declared outside) the file to log to
 echo_warn () {
     if [[ $bell = "true" ]]; then echo -en "\a"; fi
-    colorprint "${yellow}" "${underline}WARN${runderline}\t$1"
+    colorprint "${yellow}" "${under}WARN${runder}\t$1"
 }
 
 echo_error () {
     if [[ $bell = "true" ]]; then echo -en "\a"; fi
-    colorprint "${red}${bold}" "${underline}ERROR${runderline}\t$1"
+    colorprint "${red}${bold}" "${under}ERROR${runder}\t$1"
 }
 
 echo_info () {
