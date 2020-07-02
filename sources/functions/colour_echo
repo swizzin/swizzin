@@ -36,48 +36,64 @@ stout=$(    tput smso   || tput so      ) # Start stand-out
 estout=$(   tput rmso   || tput se      ) # End stand-out
 # resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
-bell(){
+ring_the_bell(){
     [[ $bell == "true" ]] && tput bel
 }
+export
 
 ############ FUNCTIONS
 # Unless otherwise specified, the following parameters apply:
 # $1    the message to print
 # $log  (optionally declared outside) the file to log to
 echo_warn () {
-    bell
+    ring_the_bell
     colorprint "${yellow}" "${under}WARN${runder}\t$1"
 }
+export -f echo_warn
 
 echo_error () {
-    $bell
+    ring_the_bell
     colorprint "${red}${bold}" "ERROR\t${stout}$1"
 }
+export -f echo_error
+
 
 echo_info () {
     colorprint "$bold" "INFO\t$1   "
 }
+export -f echo_info
+
 
 echo_progress_start () {
     colorprint "$dim" "...\t$1"
 }
+export -f echo_progress_start
+
 
 echo_progress_done () {
     colorprint "${green}${dim}" "\t\u2714   ${italic}$1"
 }
+export -f echo_progress_done
+
 
 echo_success () {
     colorprint "${green}" "SUCCESS\t${dim}$1"
 }
+export -f echo_success
+
 
 echo_query () {
     colorprint "${blue}${bold}" "INPUT\t${italic}$1"
 }
+export -f echo_query
+
 
 #Prints only into the logpath
 echo_log_only () {
     colorprint "${magenta}" "LOG\t$1"
 }
+export -f echo_log_only
+
 
 # $1 = colour
 # $2 = message
@@ -100,6 +116,7 @@ function colorprint () {
         printf '%b\n'  "${1}${2}${nc}" | do_the_wrap 
     fi
 }
+export -f colorprint
 
 #Wraps indents the text according to variables / terminal output
 function do_the_wrap () {
@@ -111,6 +128,8 @@ function do_the_wrap () {
     fi
     fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
+export -f do_the_wrap
+
 
 function strip_ansi () {
     if [[ $strip_ansi_from_log == "true" ]]; then 
@@ -119,6 +138,7 @@ function strip_ansi () {
         less
     fi
 }
+export -f strip_ansi
 
 function echo_tests () {
     echo_test_basic
