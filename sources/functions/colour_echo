@@ -7,7 +7,8 @@ bell=true
 #Setting to false will still wrap when terminal is less than default width
 max_width=false
 default_width=140
-strip_log_color=false
+#Whether the log should keep ansi escape characters or not to ensure human readability
+strip_ansi_from_log=true
 
 #colours
 red="\e[1;31m"
@@ -15,7 +16,6 @@ green="\e[1;32m"
 yellow="\e[1;33m"
 blue="\e[1;34m"
 magenta="\e[95m"
-darkgray="\e[90m"
 
 #backgrounds
 magentabg="\e[45m"
@@ -81,16 +81,16 @@ echo_log_only () {
 function colorprint () {
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
-        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " | strip_color >> "$log"
+        echo -en "${dim}$(LANG=en_US date +"%a %b %d %T")${nc} " | strip_ansi >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            echo -e"${3}" "${1}${2}${nc}" | strip_color  >> "$log"
+            echo -e"${3}" "${1}${2}${nc}" | strip_ansi  >> "$log"
         else # otherwise append it
             #Wrapped for the user
             echo -e"${3}" "${1}${2}${nc}" | do_the_wrap
             #Unwrapped for the log
-            echo -e"${3}" "${1}${2}${nc}" | strip_color >> "$log"
+            echo -e"${3}" "${1}${2}${nc}" | strip_ansi >> "$log"
         fi
     else # If log was not specified...
         echo -e"${3}" "${1}${2}${nc}" | do_the_wrap 
@@ -108,8 +108,8 @@ function do_the_wrap () {
     fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
 
-function strip_color () {
-    if [[ $strip_log_color == "true" ]]; then 
+function strip_ansi () {
+    if [[ $strip_ansi_from_log == "true" ]]; then 
         sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
     else
         less
