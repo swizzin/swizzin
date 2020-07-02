@@ -17,7 +17,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
   exit 1
 fi
-
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 
@@ -37,8 +37,6 @@ if [[ ! -f /etc/nginx/apps/organizr.conf ]]; then
 cat > /etc/nginx/apps/organizr.conf <<RUM
 location /organizr {
   alias /srv/organizr;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd;
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
@@ -50,6 +48,16 @@ location /organizr {
 }
 RUM
 fi
+
+blacklist_path="/etc/php/$phpv/opcache-blacklist.txt"
+
+if [[ ! -f $blacklist_path ]]; then 
+  touch "$blacklist_path"
+fi
+echo "/srv/organizr/*" >> "$blacklist_path"
+echo "opcache.blacklist_filename=$blacklist_path" >> /etc/php/$phpv/fpm/php.ini
+
+reload_php_fpm
 
 chown -R www-data:www-data /srv/organizr
 systemctl reload nginx

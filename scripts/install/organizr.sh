@@ -13,6 +13,8 @@ else
 fi
 
 ####### Source download
+#This won't recurse into the nginx, please change that there manually if you wish to move it. I just found this convenient.
+organizr_dir="/srv/organizr"
 
 export DEBIAN_FRONTEND=noninteractive
 echo "Fetching Updates" | tee -a $log
@@ -20,13 +22,13 @@ apt-get update -y -q >> $log 2>&1
 echo "Installing dependencies" | tee -a $log
 apt-get install -y -q php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl >> $log 2>&1
 
-if [[ ! -d /srv/organizr ]]; then
+if [[ ! -d $organizr_dir ]]; then
   echo "Cloning the Organizr Repo" | tee -a $log
-  git clone https://github.com/causefx/Organizr /srv/organizr --depth 1 >> $log 2>&1
-  chown -R www-data:www-data /srv/organizr
+  git clone https://github.com/causefx/Organizr $organizr_dir --depth 1 >> $log 2>&1
+  chown -R www-data:www-data $organizr_dir
 fi
 
-if [[ ! -d /srv/organizr ]]; then
+if [[ ! -d $organizr_dir ]]; then
   echo "Failed to clone the repository"
   exit 1
 fi
@@ -39,14 +41,15 @@ systemctl reload nginx
 touch /install/.organizr.lock
 
 ####### Databse bootstrapping
-mkdir /srv/organizr_db -p
-chown -R www-data:www-data /srv/organizr_db  
+
+mkdir ${organizr_dir}_db -p
+chown -R www-data:www-data ${organizr_dir}_db  
 
 user=$(cut -d: -f1 < /root/.master.info)
 pass=$(cut -d: -f2 < /root/.master.info)
 
 #TODO check that passwords with weird characters will send right
-if [[ $user == $pass ]]; then 
+if [[ $user == "$pass" ]]; then 
   echo "Your username and password seem to be identical, please finish the Organizr setup manually." | tee -a $log
 else
   echo "Setting up the organizr database" | tee -a $log
@@ -55,13 +58,11 @@ else
   --header 'charset: UTF-8' \
   --header 'Content-Encoding: gzip' \
   --header 'Content-Type: application/x-www-form-urlencoded' \
-  --data-urlencode 'data[path]=/srv/organizr_db' \
+  --data-urlencode "data[path]=${organizr_dir}_db" \
   --data-urlencode 'data[formKey]=' \
-  -sk --user "$user":"$pass" \
-  | python -m json.tool >> $log 2>&1
+  -k \
+  | python3 -m json.tool >> $log 2>&1
   sleep 2
-
-      # pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
 
   api_key="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
   hash_key="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
@@ -72,7 +73,6 @@ API key = $api_key
 Hash key = $hash_key
 Registration pass = $reg_pass
 EOF
-
   curl --location --request POST 'https://localhost/organizr/api/?v1/wizard_config' \
   --header 'content-type: application/x-www-form-urlencoded' \
   --header 'charset: UTF-8' \
@@ -95,17 +95,11 @@ EOF
   --data-urlencode "data[7][name]=dbName" \
   --data-urlencode "data[7][value]=db" \
   --data-urlencode "data[8][name]=location" \
-  --data-urlencode "data[8][value]=/srv/organizr_db" \
-  -sk --user "$user":"$pass" \
-  | python -m json.tool \
+  --data-urlencode "data[8][value]=${organizr_dir}_db" \
+  -k \
+  | python3 -m json.tool \
   >> $log 2>&1
-    #shellcheck source=sources/functions/php
-    . /etc/swizzin/sources/functions/php
-    restart_php_fpm
-    phpv=$(php_v_from_nginxconf)
-    sock="php${phpv}-fpm"
-    echo "  Please run the following command to finish the installation. You can then use your master credentials to log into organizr."
-    echo "  sudo systemctl reload $sock "
+
 
 fi
 
