@@ -14,8 +14,8 @@
 #
 #################################################################################
 
-# shellcheck source=sources/functions/colour_echo
-. /etc/swizzin/sources/functions/colour_echo
+# shellcheck source=sources/functions/color_echo
+. /etc/swizzin/sources/functions/color_echo
 export log="/root/logs/swizzin.log"
 
 function _intro() {
