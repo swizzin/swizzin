@@ -34,6 +34,7 @@ if [[ ! -d $organizr_dir ]]; then
   echo "Cloning the Organizr Repo" | tee -a $log
   git clone https://github.com/causefx/Organizr $organizr_dir --depth 1 >> $log 2>&1
   chown -R www-data:www-data $organizr_dir
+  chmod 0700 -R $organizr_dir
 fi
 
 if [[ ! -d $organizr_dir ]]; then
@@ -51,7 +52,8 @@ touch /install/.organizr.lock
 ####### Databse bootstrapping
 
 mkdir ${organizr_dir}_db -p
-chown -R www-data:www-data ${organizr_dir}_db  
+chown -R www-data:www-data ${organizr_dir}_db 
+chmod 0700 -R $organizr_dir 
 
 user=$(cut -d: -f1 < /root/.master.info)
 pass=$(cut -d: -f2 < /root/.master.info)
@@ -107,8 +109,6 @@ EOF
   -k \
   | python3 -m json.tool \
   >> $log 2>&1
-
-
 fi
 
 touch /install/.organizr.lock
