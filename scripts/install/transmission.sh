@@ -32,8 +32,10 @@ EOF
 
 _start_transmission () {
     #This always needs to be done only after the configs have been made, otherwise transmission will overwrite them.
+    echo_progress_start "Starting transmission instance for ${bold}$user"
     systemctl enable transmission@${user} 2>> $log
     service transmission@${user} start
+    echo_progress_done "Instance started"
 }
 
 _setenv_transmission(){
@@ -65,6 +67,7 @@ _setenv_transmission(){
 }
 
 _mkdir_transmission (){
+    echo_progress_start "Creating directories for ${bold}$user"
     _setenv_transmission 
     mkdir -p /home/${user}/${download_dir}
     chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
@@ -78,9 +81,12 @@ _mkdir_transmission (){
         mkdir -p /home/${user}/${incomplete_dir}
         chown ${user}:${user} -R /home/${user}/${incomplete_dir%%/*}
     fi
+    echo_progress_done "Directories created"
+
 }
 
 _mkconf_transmission () {
+    echo_progress_start "Creating config for ${bold}$user"
     _setenv_transmission 
 cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
 {
@@ -157,17 +163,20 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "utp-enabled": true
 }
 EOF
+    echo_progress_done "Config created"
 if [[ ! -f /install/.nginx.lock ]]; then
     echo_info "Transmission RPC port for ${bold}${user} = ${rpc_port}"
 fi
 }
 
 _nginx_transmission () {
+    echo_progress_start "Creating nginx config"
     if [[ -f /install/.nginx.lock ]]; then
         bash /usr/local/bin/swizzin/nginx/transmission.sh
         systemctl reload nginx
         echo_log_only "RET = r$RET"
     fi
+    echo_progress_done "Nginx configured"
 }
 
 ##########################################################################
@@ -210,20 +219,11 @@ fi
 _install_transmission
 _mkservice_transmission
 for user in ${users[@]}; do
-    echo_progress_start "Creating directories for ${bold}$user"
     _mkdir_transmission
-    echo_progress_done "Directories created"
-    echo_progress_start "Creating config for ${bold}$user"
     _mkconf_transmission
-    echo_progress_done "Config created"
-    echo_progress_start "Starting transmission instance for ${bold}$user"
     _start_transmission
-    echo_progress_done "Instance started"
-
 done
-echo_progress_start "Creating nginx config"
 _nginx_transmission
-echo_progress_done "Nginx configured"
 
 echo_success "Transmission installed"
 
