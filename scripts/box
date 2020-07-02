@@ -260,9 +260,6 @@ function _adduser {
     if [[ -f /install/.${app}.lock ]]; then
       if [[ $app = "flood" ]]; then
         /usr/local/bin/swizzin/install/${app}.sh
-      # elif [[ $app = "organizr" ]]; then
-      #   #TODO fix when organizr API can do this
-      #   echo "Please add the user to organizr manually"
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
