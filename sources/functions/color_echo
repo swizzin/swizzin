@@ -21,7 +21,7 @@ export green=$(    tput setaf 2|| tput AF 2    )
 export yellow=$(   tput setaf 3|| tput AF 3    )
 export blue=$(     tput setaf 4|| tput AF 4    )
 export magenta=$(  tput setaf 5|| tput AF 5    )
-cyan=$(     tput setaf 6|| tput AF 6    )
+export cyan=$(     tput setaf 6|| tput AF 6    )
 
 #reset
 export nc="$(tput sgr0)"
@@ -92,7 +92,7 @@ export -f echo_query
 
 #Prints only into the logpath
 echo_log_only () {
-    colorprint "${magenta}LOG" "$1"
+    colorprint "${cyan}LOG" "$1"
 }
 export -f echo_log_only
 
