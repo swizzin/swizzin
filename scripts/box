@@ -311,9 +311,9 @@ function _deluser {
     exit 1
   fi
 
-  echo_warn "This will delete the user '${user}' and all associated configs and subdirectories. THIS ACTION CANNOT BE UNDONE."
-  echo
-  read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
+  echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
+  echo_query "Press enter to continue"
+  read -rep ''
   
   for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
     if [[ $app = "rutorrent" ]]; then
@@ -347,11 +347,11 @@ function _deluser {
     apt-get install -y -q lsof > /dev/null 2>&1
   fi
 
-  kill -9 $(lsof -t /home/${user})
-  deluser --force --remove-home ${user}
-  groupdel ${user}
+  lsof -t /home/${user} | xargs -I % kill -9 %
+  deluser --force --remove-home ${user} >> $log 2>&1
+  groupdel ${user} >> $log 2>&1
   rm -f /etc/htpasswd.d/htpasswd.${user}
-  htpasswd -D /etc/htpasswd ${user}
+  htpasswd -D /etc/htpasswd ${user} >> $log 2>&1
   rm -f /etc/tmpfiles.d/${user}.conf
   rm -f /etc/nginx/conf.d/${user}*
   rm -f /etc/sudoers.d/${user}
@@ -360,6 +360,7 @@ function _deluser {
   rm -rf /home/${user}
   rm /root/${user}.info
   systemctl reload nginx
+  echo_success "User $user removed"
 }
 
 function _chpasswd {
