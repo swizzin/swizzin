@@ -445,9 +445,10 @@ function _nukeovh() {
   fi
 }
 
+args=("$@")
 normal=$(tput sgr0)
-yellow=$(tput setaf 3)
-bold=$(tput bold)
+git_hash=$(git rev-parse --short HEAD)
+echo_log_only ">>>> \`box ${args[*]}\`, \tGIT HEAD @ $git_hash\n"
 
 case "$1" in
   "")
