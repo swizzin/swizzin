@@ -49,7 +49,7 @@ export -f ring_the_bell
 # $log  (optionally declared outside) the file to log to
 echo_warn () {
     ring_the_bell
-    colorprint "${yellow}${under}WARN${runder}" "$1"
+    colorprint "${yellow}${bold}WARN" "$1"
 }
 export -f echo_warn
 
