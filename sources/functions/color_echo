@@ -3,10 +3,15 @@
 
 #Whether or not Warning and Error should trigger the bell
 bell=true
+
+#Whether or not to apply line wrapping to terminal for indentation
+fold=true
 #Whether output should be as wide as the terminal. Setting to false will still wrap when terminal is less than default width
-use_full_width=true
-#applies if use_full+width is set to false. Terminals with screens smaller than this will still shrink
-max_width=140
+full_width=true
+# Applies when full-width is false. If terminal has less cols then this, the max terminal width is used.
+width_cap=140
+#Whether the log should keep ansi escape characters or not to ensure human readability
+strip_ansi_from_log=false
 #Whether the log should keep ansi escape characters or not to ensure human readability
 strip_ansi_from_log=false
 
@@ -103,7 +108,7 @@ function colorprint () {
         printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
-        if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
+        if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]]; then
             printf '%b\n' "${heading}${body}${nc}" | strip_ansi  >> "$log"
         else # otherwise append it
             #Wrapped for the user
@@ -121,13 +126,19 @@ export -f colorprint
 
 #Wraps indents the text according to variables / terminal output
 function do_the_wrap () {
-    # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
-    width=$max_width
-    tpwidth=$(tput cols)
-    if [[ $tpwidth -lt $width  || $use_full_width == "true" ]]; then
-        width=$(( tpwidth - 8 ))
+    if [[ $fold = true ]]; then
+        # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
+        width=$(tput cols)
+        if [[ $full_width == "false" ]]; then 
+            if [[ $width -gt $width_cap ]]; then
+                width=$width_cap                
+            fi
+        fi
+        width=$(( width - 8 ))
+        fold -s -w${width} |sed -e '2,$s/^/\t/'
+    else
+        cat
     fi
-    fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
 export -f do_the_wrap
 
@@ -136,7 +147,7 @@ function strip_ansi () {
     if [[ $strip_ansi_from_log == "true" ]]; then 
         sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
     else
-        less
+        cat
     fi
 }
 export -f strip_ansi
