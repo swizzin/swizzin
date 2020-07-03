@@ -133,7 +133,6 @@ function _upgrade() {
   for i in "${packages[@]}"; do
     app=${i}
     if [[ "${repo[*]}" =~ $i ]]; then
-      echo_progress_start "Upgrading $i"
       bash /usr/local/bin/swizzin/upgrade/$i.sh
     else
       echo_warn "Upgrade script for $i does not exist"
@@ -201,12 +200,12 @@ function _list() {
 function _adduser {
   user=$2
   if [[ $user =~ [A-Z] ]]; then
-    echo "Usernames must not contain capital letters. Please try again."
+    echo_warn "Usernames must not contain capital letters. Please try again."
     exit 1
   fi
 
   if [[ -f /root/${user}.info ]]; then
-    echo "User already seems to exist"
+    echo_warn "User already seems to exist"
     exit 1
   fi
 
@@ -214,20 +213,18 @@ function _adduser {
   existing=$?
 
   if [[ $existing == 0 ]]; then
-    echo "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-    echo
+    echo_info "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
     read -rep 'Press enter to continue adding user.'
-    echo
   fi
 
-  echo -e "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
+  echo_query "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
 
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-    echo "Password for ${user} has been set to ${pass}"
+    echo_info "Password for ${user} has been set to ${pass}"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
-    echo "Cracklib detected. Checking password strength."
+    echo_progress_start "Cracklib detected. Checking password strength."
     sleep 1
     str="$(cracklib-check <<<"$pass")"
     check=$(grep OK <<<"$str")
@@ -236,17 +233,17 @@ function _adduser {
       printf "\n"
       _adduser "$@"
     else
-      echo "OK"
+      echo_progress_done "Password OK"
     fi
   fi
   echo "$user:$pass" > /root/${user}.info
   if [[ $existing == 1 ]]; then
-    useradd "${user}" -m -G www-data -s /bin/bash
+    useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
   fi
-  chpasswd<<<"${user}:${pass}"
-  htpasswd -b /etc/htpasswd $user $pass
+  chpasswd<<<"${user}:${pass}" >> $log 2>&1
+  htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
   mkdir -p /etc/htpasswd.d/
-  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
   chmod 750 /home/${user}
 
   if [[ -f /install/.quota.lock ]]; then 
@@ -255,7 +252,7 @@ function _adduser {
 
   if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
-  systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
+  systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create >> $log 2>&1
 
   for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
     if [[ $app = "rutorrent" ]]; then
@@ -298,6 +295,8 @@ fi
 
 #echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
 #chown $user: /home/$user/.profile
+echo_success "User $user created"
+
 }
 
 function _deluser {
@@ -305,14 +304,14 @@ function _deluser {
   if [[ ! -f /root/${user}.info ]]; then
     master=$(cut -d: -f1 < /root/.master.info)
     if [[ $user == $master ]]; then
-      echo "Master user deletion is not supported"
+      echo_warn "Master user deletion is not supported"
       exit 1
     fi
-    echo "Error: user ${user} not found. Exiting."
+    echo_error "Error: user ${user} not found. Exiting."
     exit 1
   fi
 
-  echo "WARNING: This will delete the user '${user}' and all associated configs and subdirectories. THIS ACTION CANNOT BE UNDONE."
+  echo_warn "This will delete the user '${user}' and all associated configs and subdirectories. THIS ACTION CANNOT BE UNDONE."
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
@@ -365,13 +364,13 @@ function _deluser {
 
 function _chpasswd {
   user=$2
-  echo -e "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
+  echo_query "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-    echo "New password has been set to ${pass}"
+    echo_info "New password has been set to ${pass}"
   fi
   if [[ -n $(which cracklib-check) ]]; then 
-    echo "Cracklib detected. Checking password strength."
+    echo_progress_start "Cracklib detected. Checking password strength."
     sleep 1
     str="$(cracklib-check <<<"$pass")"
     check=$(grep OK <<<"$str")
@@ -380,7 +379,7 @@ function _chpasswd {
       printf "\n"
       _chpasswd "$@"
     else
-      echo "OK"
+      echo_progress_done "Password OK"
     fi
   fi
   master=$(cut -d: -f1 < /root/.master.info)
@@ -419,14 +418,12 @@ function _nukeovh() {
   grsec=$(uname -a | grep -i grs)
   if [[ -n $grsec ]]; then
     echo
-    echo -e "Your server is currently running with kernel version: $(uname -r)"
-    echo -e "While not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-    echo
-    echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
+    echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+    echo_query "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
       case $input in
-        [yY] | [yY][Ee][Ss] | "" ) kernel=yes; echo "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
-        [nN] | [nN][Oo] ) echo "Why did you even run this function?" exit 1 ;;
-      *) kernel=yes; echo "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
+        [yY] | [yY][Ee][Ss] | "" ) kernel=yes; echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
+        [nN] | [nN][Oo] ) echo_warn "Why did you even run this function?" exit 1 ;;
+      *) kernel=yes; echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
@@ -443,8 +440,7 @@ function _nukeovh() {
         update-grub >>"${OUTTO}" 2>&1
       fi
     else
-    echo
-    echo -e "grsec not detected. Nothing to do."
+    echo_warn "grsec not detected. Nothing to do."
   fi
 }
 
@@ -464,7 +460,7 @@ case "$1" in
   ;;
   "install"|"it")
     if [[ -z $2 ]]; then
-      echo "Error: You must choose some packages"
+      echo_error "You must choose some packages"
       exit 1
     fi
     _cli "$@"
@@ -472,7 +468,7 @@ case "$1" in
   ;;
   "remove"|"rm")
     if [[ -z $2 ]]; then
-      echo "Error: You must choose some packages"
+      echo_error "You must choose some packages"
       exit 1
     fi
     _clr "$@"
@@ -480,11 +476,11 @@ case "$1" in
   ;;
   "adduser")
     if [[ -z $2 ]]; then
-      echo "Error: You must specify a user"
+      echo_error "You must specify a user"
       exit 1
     fi
     if [[ -n $3 ]]; then
-      echo -e "Error: too many arguments\nCorrect usage: box adduser <username>"
+      echo_error "Too many arguments\nCorrect usage: box adduser <username>"
       exit 1
     fi
   _adduser "$@"
@@ -492,11 +488,11 @@ case "$1" in
   ;;
   "deluser")
     if [[ -z $2 ]]; then
-      echo -e "Error: you must specify a username.\nCorrect usage: box deluser <username>"
+      echo_error "You must specify a username.\nCorrect usage: box deluser <username>"
       exit 1
     fi
     if [[ -n $3 ]]; then
-      echo -e "Error: too many arguments\nCorrect usage: box deluser <username>"
+      echo_error "Too many arguments\nCorrect usage: box deluser <username>"
       exit 1
     fi
     _deluser "$@"
@@ -504,7 +500,7 @@ case "$1" in
   ;;
   "chpasswd")
     if [[ -n $3 ]]; then
-      echo -e "Error: too many arguments\nCorrect usage: box chpasswd <username>"
+      echo_error "Too many arguments\nCorrect usage: box chpasswd <username>"
       exit 1
     fi
     _chpasswd "$@"
@@ -522,7 +518,7 @@ case "$1" in
     exit 0
   ;;
   "upgrade")
-    if [[ ! $2 ]]; then echo "You must choose at least one package to update."; exit 1; fi
+    if [[ ! $2 ]]; then echo_error "You must choose at least one package to update."; exit 1; fi
     _update
     _upgrade "$@"
     exit 0
@@ -532,7 +528,7 @@ case "$1" in
     exit 0
   ;;
   *)
-    echo "Error: $1 invalid command"
+    echo_warn "Invalid command: $1"
     exit 1
   ;;
 esac
