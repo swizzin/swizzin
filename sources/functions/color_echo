@@ -3,23 +3,20 @@
 
 #Whether or not Warning and Error should trigger the bell
 bell=true
-#Whether output should be as wide as the terminal.
-#Setting to false will still wrap when terminal is less than default width
-max_width=false
-default_width=140
+#Whether output should be as wide as the terminal. Setting to false will still wrap when terminal is less than default width
+use_full_width=true
+#applies if use_full+width is set to false. Terminals with screens smaller than this will still shrink
+max_width=140
 #Whether the log should keep ansi escape characters or not to ensure human readability
 strip_ansi_from_log=false
 
 #colours
-    red=$(      tput setaf 1|| tput AF 1    )
-    green=$(    tput setaf 2|| tput AF 2    )
-    yellow=$(   tput setaf 3|| tput AF 3    )
-    blue=$(     tput setaf 4|| tput AF 4    )
-    magenta=$(  tput setaf 5|| tput AF 5    )
-    cyan=$(     tput setaf 6|| tput AF 6    )
-
-#backgrounds
-magentabg="\e[45m"
+red=$(      tput setaf 1|| tput AF 1    )
+green=$(    tput setaf 2|| tput AF 2    )
+yellow=$(   tput setaf 3|| tput AF 3    )
+blue=$(     tput setaf 4|| tput AF 4    )
+magenta=$(  tput setaf 5|| tput AF 5    )
+cyan=$(     tput setaf 6|| tput AF 6    )
 
 #reset
 nc="$(tput sgr0)"
@@ -47,73 +44,77 @@ export -f ring_the_bell
 # $log  (optionally declared outside) the file to log to
 echo_warn () {
     ring_the_bell
-    colorprint "${yellow}" "${under}WARN${runder}\t$1"
+    colorprint "${yellow}${under}WARN${runder}" "$1"
 }
 export -f echo_warn
 
 echo_error () {
     ring_the_bell
-    colorprint "${red}${bold}" "ERROR\t${stout}$1"
+    colorprint "${red}${bold}ERROR${stout}" "$1"
 }
 export -f echo_error
 
 
 echo_info () {
-    colorprint "$bold" "INFO\t$1   "
+    colorprint "${bold}INFO" "$1"
 }
 export -f echo_info
 
 
 echo_progress_start () {
-    colorprint "$dim" "...\t$1"
+    colorprint "${dim}..." "$1"
 }
 export -f echo_progress_start
 
 
 echo_progress_done () {
-    colorprint "${green}${dim}" "\t\u2714   ${italic}$1"
+    colorprint "" "${green}${dim}\u2714   ${italic}$1"
 }
 export -f echo_progress_done
 
 
 echo_success () {
-    colorprint "${green}" "${bold}SUCCESS\t$1"
+    colorprint "${green}${bold}SUCCESS" "$1"
 }
 export -f echo_success
 
 
 echo_query () {
-    colorprint "${blue}${bold}" "INPUT\t${italic}$1"
+    colorprint "${blue}${bold}INPUT" "${italic}$1"
 }
 export -f echo_query
 
 
 #Prints only into the logpath
 echo_log_only () {
-    colorprint "${magenta}" "LOG\t$1"
+    colorprint "${magenta}LOG" "$1"
 }
 export -f echo_log_only
 
 
-# $1 = colour
-# $2 = message
+# $1 = "Heading" (Include colours and other non-printing chars here)
+# $2 = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
 # $log = location of the file to log into
 function colorprint () {
+    heading="$1\t"
+    body="$2"
     # If the optional logfile was specified...
     if [[ -n $log ]]; then
-        printf '%b' "${dim}$(LANG=en_US date +"%a %b %d %T")${nc}\t" | strip_ansi >> "$log"
+        printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "$log"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[ 1 ]} == "echo_log_only" ]] ;then
-            printf '%b\n' "${1}${2}${nc}" | strip_ansi  >> "$log"
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi  >> "$log"
         else # otherwise append it
             #Wrapped for the user
-            printf '%b\n' "${1}${2}${nc}" | do_the_wrap
+            printf '%b' "${heading}"
+            printf '%b\n' "${body}${nc}" | do_the_wrap
             #Unwrapped for the log
-            printf '%b\n' "${1}${2}${nc}" | strip_ansi >> "$log"
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
         fi
     else # If log was not specified...
-        printf '%b\n'  "${1}${2}${nc}" | do_the_wrap 
+        printf '%b' "${heading}"
+        printf '%b\n' "${body}${nc}" | do_the_wrap
     fi
 }
 export -f colorprint
@@ -121,10 +122,10 @@ export -f colorprint
 #Wraps indents the text according to variables / terminal output
 function do_the_wrap () {
     # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
-    width=$default_width
+    width=$max_width
     tpwidth=$(tput cols)
-    if [[ $tpwidth -lt $width  || $max_width == "true" ]]; then
-        width=$(( tpwidth - 12 ))
+    if [[ $tpwidth -lt $width  || $use_full_width == "true" ]]; then
+        width=$(( tpwidth - 8 ))
     fi
     fold -s -w${width} | sed -e '2,$s/^/\t/'
 }
