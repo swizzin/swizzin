@@ -448,7 +448,7 @@ function _nukeovh() {
 args=("$@")
 normal=$(tput sgr0)
 git_hash=$(git rev-parse --short HEAD)
-echo_log_only ">>>> \`box ${args[*]}\`, \tGIT HEAD @ $git_hash\n"
+echo_log_only ">>>> \`box ${args[*]}\`, \tGIT HEAD @ $git_hash"
 
 case "$1" in
   "")
