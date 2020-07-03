@@ -1,9 +1,6 @@
 #!/bin/bash
 # Author Flying_sausages for Swizzin 2020
 
-# shellcheck source=sources/functions/colour_echo
-. /etc/swizzin/sources/functions/colour_echo
-
 function _get_next_port_from_json () {
     key="$1"
     defaultport="$2"
