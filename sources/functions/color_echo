@@ -10,10 +10,10 @@ fold=true
 full_width=true
 # Applies when full-width is false. If terminal has less cols then this, the max terminal width is used.
 width_cap=140
-#Whether the log should keep ansi escape characters or not to ensure human readability
+
+#Whether the log should keep ansi escape characters (colors, etc) or not to ensure human readability
 strip_ansi_from_log=false
-#Whether the log should keep ansi escape characters or not to ensure human readability
-strip_ansi_from_log=false
+
 
 #colours
 export red=$(      tput setaf 1|| tput AF 1    )
