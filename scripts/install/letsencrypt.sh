@@ -117,7 +117,7 @@ else
     /root/.acme.sh/acme.sh --force --issue --nginx -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
   else
     systemctl stop nginx
-    /root/.acme.sh/acme.sh --force --issue --standalone -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
+    /root/.acme.sh/acme.sh --force --issue --standalone -d ${hostname} --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
     sleep 1
     systemctl start nginx
   fi
