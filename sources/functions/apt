@@ -23,7 +23,7 @@ _apt_update () {
         return 0
     else
         echo "Error: \`apt-get update\` failed. Please consult the log."
-        return 1
+        exit 1
     fi
 }
 
@@ -39,9 +39,7 @@ _apt_install_default (){
         exit 1
     fi
 
-    if ! _apt_update; then
-        exit 1
-    fi
+    _apt_update
 
     # Check if install can run or not
     if ! apt-get check >> $log 2>&1; then
