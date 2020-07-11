@@ -9,46 +9,74 @@ function get_repo_version () {
 # $1 the package to check for
 # Returns code 0 in case a package is installed, 1 if missing
 _check_installed (){
-    if dpkg -s "$1" > $log 2>&1; then
+    if dpkg -s "$1" >> $log 2>&1; then
         return 0
     else 
         return 1
     fi
 }
 
+# Check if apt is locked
+_check_dpkg (){
+    dpkg -i /dev/zero >> $log 2>&1
+    if [ "$?" -eq 2 ]; then
+        echo "Error: dpkg database is locked. Please try again later"
+        exit 1
+    fi
+}
+
+# Check if install can run or not
+_apt_check (){
+    if ! apt-get check >> $log 2>&1; then
+        echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation"
+        exit 1
+    fi
+}
+
+
+
+
 #Performing apt update and checking if it succeeded
-_apt_update () {
+apt_update () {
     if apt-get update >> $log 2>&1
     then
         return 0
+        # TODO check for Warnings and Errors in the output, as those will still return 0
     else
         echo "Error: \`apt-get update\` failed. Please consult the log."
         exit 1
     fi
 }
 
-#Takes a space separated list of packages to install in a non-interactive manner
-_apt_install_default (){
-    
-    dependencies=("$@")
+# Performs an upgrade and checks if it succeeded
+apt_upgrade() {
+    _check_dpkg
+    _apt_check
+    apt_update
 
-    # Check if apt is locked
-    dpkg -i /dev/zero >> $log 2>&1
-    if [ "$?" -eq 2 ]; then
-        echo "Error: dpkg database is locked. Please try again later"
+    # Check if the simulation would be fine 
+    if apt-get --simulate upgrade >> $log 2>&1; then
+        # echo "we're good"
+        :
+    else
+        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install"
         exit 1
-    fi
+    fi 
+}
+
+#Takes a space separated list of packages to install in a non-interactive manner
+apt_install (){
+    
+    packages=("$@")
+
+    _check_dpkg
+
+    _apt_check
 
     _apt_update
 
-    # Check if install can run or not
-    if ! apt-get check >> $log 2>&1; then
-        echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation"
-        exit 1
-    fi
-
     # Check if the simulation would be fine 
-    if apt-get --simulate install "${dependencies[@]}" >> $log 2>&1; then
+    if apt-get --simulate install "${packages[@]}" >> $log 2>&1; then
         # echo "we're good"
         :
     else
@@ -57,9 +85,13 @@ _apt_install_default (){
     fi
 
 
-    DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${dependencies[@]}" >> $log 2>&1
+    DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${packages[@]}" >> $log 2>&1
     
-    # TODO check for errors and kill the entire script if necessary
+    if [[ $? -gt 0 ]]; then
+        echo "Error: \`apt-get install\` failed. Please consult log. Aborting installation."
+        exit 1
+    fi
+
     # TODO check if any configs have changed and alert the users
 }
 
