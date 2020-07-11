@@ -44,8 +44,7 @@ _apt_install_default (){
     fi
 
     # Check if install can run or not
-    apt-get check >> $log 2>&1
-    if [ "$?" -ne 0 ]; then
+    if ! apt-get check >> $log 2>&1; then
         echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation"
         exit 1
     fi
