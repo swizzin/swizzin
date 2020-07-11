@@ -16,13 +16,53 @@ _check_installed (){
     fi
 }
 
+#Performing apt update and checking if it succeeded
+_apt_update () {
+    if apt-get update >> $log 2>&1
+    then
+        return 0
+    else
+        echo "Error: \`apt-get update\` failed. Please consult the log."
+        return 1
+    fi
+}
+
 #Takes a space separated list of packages to install in a non-interactive manner
 _apt_install_default (){
-    list="$1"
-    for dep in $list; do
-        echo "installing $dep"
-        DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$dep" >> $log 2>&1
-        #TODO check if any configs have changed and alert the users
-    done
+    
+    dependencies=("$@")
+
+    # Check if apt is locked
+    dpkg -i /dev/zero >> $log 2>&1
+    if [ "$?" -eq 2 ]; then
+        echo "Error: dpkg database is locked. Please try again later"
+        exit 1
+    fi
+
+    if ! _apt_update; then
+        exit 1
+    fi
+
+    # Check if install can run or not
+    apt-get check >> $log 2>&1
+    if [ "$?" -ne 0 ]; then
+        echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation"
+        exit 1
+    fi
+
+    # Check if the simulation would be fine 
+    if apt-get --simulate install "${dependencies[@]}" >> $log 2>&1; then
+        # echo "we're good"
+        :
+    else
+        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install"
+        exit 1
+    fi
+
+
+    DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${dependencies[@]}" >> $log 2>&1
+    
+    # TODO check for errors and kill the entire script if necessary
+    # TODO check if any configs have changed and alert the users
 }
 
