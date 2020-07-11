@@ -11,11 +11,13 @@ dependencies="jq sl"
 missing=()
 for dep in $dependencies; do
     if ! _check_installed "$dep"; then 
-        missing+=($dep)
+        missing+=("$dep")
     fi
 done
 
-if [[ $missing != "" ]]; then 
-    echo "Installing the following dependencies: ${missing[*]}"
+if [[ ${missing[1]} != "" ]]; then 
+    echo "Installing the following dependencies: ${missing[*]}" | tee -a $log
     apt_install "${missing[@]}"
+else
+    echo "No dependencies required to install" >> $log
 fi
