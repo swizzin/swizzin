@@ -1,5 +1,10 @@
 #!/bin/bash
+# Functions for more streamlined script interfacing with apt
+# Flying_sausages for Swizzin 2020
+# GPLv3 Applies
 
+
+#Returns the version of the candidate package to install
 function get_repo_version () {
     package=$1
     echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
@@ -33,9 +38,6 @@ _apt_check (){
     fi
 }
 
-
-
-
 #Performing apt update and checking if it succeeded
 apt_update () {
     if apt-get update >> $log 2>&1
@@ -66,13 +68,9 @@ apt_upgrade() {
 
 #Takes a space separated list of packages to install in a non-interactive manner
 apt_install (){
-    
     packages=("$@")
-
     _check_dpkg
-
     _apt_check
-
     _apt_update
 
     # Check if the simulation would be fine 
@@ -84,7 +82,7 @@ apt_install (){
         exit 1
     fi
 
-
+    # Run the install
     DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${packages[@]}" >> $log 2>&1
     
     if [[ $? -gt 0 ]]; then
