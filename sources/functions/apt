@@ -22,6 +22,7 @@ _apt_install_default (){
     for dep in $list; do
         echo "installing $dep"
         DEBIAN_FRONTEND=non-interactive apt-get install -yq "$dep" >> $log 2>&1
+        #TODO check if any configs have changed and alert the users
     done
 }
 
