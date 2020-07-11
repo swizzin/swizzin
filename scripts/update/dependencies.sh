@@ -1,20 +1,21 @@
 #! /bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
-log="/root/logs/swizzin.log"
+if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
+
 #space-separated list of required GLOBAL SWIZZIN dependencies (NOT application specific ones)
 dependencies="jq sl"
 
 # shellcheck source=sources/functions/apt
 . /etc/swizzin/sources/functions/apt
 
-missing=""
+missing=()
 for dep in $dependencies; do
     if ! _check_installed "$dep"; then 
-        missing+="$dep "
+        missing+=($dep)
     fi
 done
 
 if [[ $missing != "" ]]; then 
-    echo "Installing the following dependencies: $missing"
-    _apt_install_default "$missing"
+    echo "Installing the following dependencies: ${missing[*]}"
+    apt_install "${missing[@]}"
 fi
