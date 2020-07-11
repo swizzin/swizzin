@@ -23,9 +23,9 @@ _check_installed (){
 }
 
 # Check if apt is locked
-_check_dpkg (){
-    dpkg -i /dev/zero >> $log 2>&1
-    if [ "$?" -eq 2 ]; then
+_check_dpkg_lock (){
+    # dpkg -i /dev/zero >> $log 2>&1
+    if lsof /var/lib/dpkg/lock >> $log 2>&1; then
         echo "Error: dpkg database is locked. Please try again later" | tee -a $log
         exit 1
     fi
@@ -54,7 +54,7 @@ export -f apt_update
 
 # Performs an upgrade and checks if it succeeded
 apt_upgrade() {
-    _check_dpkg
+    _check_dpkg_lock
     _apt_check
     apt_update
 
@@ -72,7 +72,7 @@ export -f apt_upgrade
 #Takes a space separated list of packages to install in a non-interactive manner
 apt_install (){
     packages=("$@")
-    _check_dpkg
+    _check_dpkg_lock
     _apt_check
     _apt_update
 
