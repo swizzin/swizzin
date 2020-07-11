@@ -5,7 +5,7 @@
 
 
 #Returns the version of the candidate package to install
-function get_repo_version () {
+function get_candidate_version () {
     package=$1
     echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
 }
