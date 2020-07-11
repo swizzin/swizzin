@@ -3,6 +3,7 @@
 # Flying_sausages for Swizzin 2020
 # GPLv3 Applies
 
+if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
 
 #Returns the version of the candidate package to install
 function get_candidate_version () {
@@ -25,7 +26,7 @@ _check_installed (){
 _check_dpkg (){
     dpkg -i /dev/zero >> $log 2>&1
     if [ "$?" -eq 2 ]; then
-        echo "Error: dpkg database is locked. Please try again later"
+        echo "Error: dpkg database is locked. Please try again later" | tee -a $log
         exit 1
     fi
 }
@@ -33,7 +34,7 @@ _check_dpkg (){
 # Check if install can run or not
 _apt_check (){
     if ! apt-get check >> $log 2>&1; then
-        echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation"
+        echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation" | tee -a $log
         exit 1
     fi
 }
@@ -45,7 +46,7 @@ apt_update () {
         return 0
         # TODO check for Warnings and Errors in the output, as those will still return 0
     else
-        echo "Error: \`apt-get update\` failed. Please consult the log."
+        echo "Error: \`apt-get update\` failed. Please consult the log." | tee -a $log
         exit 1
     fi
 }
@@ -62,7 +63,7 @@ apt_upgrade() {
         # echo "we're good"
         :
     else
-        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install"
+        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
         exit 1
     fi 
 }
@@ -80,7 +81,7 @@ apt_install (){
         # echo "we're good"
         :
     else
-        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install"
+        echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
         exit 1
     fi
 
@@ -88,7 +89,7 @@ apt_install (){
     DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${packages[@]}" >> $log 2>&1
     
     if [[ $? -gt 0 ]]; then
-        echo "Error: \`apt-get install\` failed. Please consult log. Aborting installation."
+        echo "Error: \`apt-get install\` failed. Please consult log. Aborting installation." | tee -a $log
         exit 1
     fi
 
