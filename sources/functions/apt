@@ -34,6 +34,7 @@ _check_dpkg_lock (){
 # Check if install can run or not
 _apt_check (){
     if ! apt-get check >> $log 2>&1; then
+        tail -10 $log | grep 'E:\|W:'
         echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation" | tee -a $log
         exit 1
     fi
@@ -47,6 +48,7 @@ apt_update () {
         return 0
         # TODO check for Warnings and Errors in the output, as those will still return 0
     else
+        tail -10 $log | grep 'E:\|W:'
         echo "Error: \`apt-get update\` failed. Please consult the log." | tee -a $log
         exit 1
     fi
@@ -64,6 +66,7 @@ apt_upgrade() {
         # echo "we're good"
         :
     else
+        tail -10 $log | grep 'E:'
         echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
         exit 1
     fi
@@ -71,6 +74,7 @@ apt_upgrade() {
     echo "Performing apt upgrade" | tee -a $log
     apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" >> $log 2>&1
     if [[ $? -gt 0 ]]; then
+        tail -10 $log | grep 'E:'
         echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
         exit 1
     fi
@@ -84,23 +88,24 @@ apt_install (){
     _apt_check
     apt_update
 
-    echo "Performing installation of apt packages" | tee -a $log
     # TODO figure out how to properly do this
-    echo "(${packages[*]})"
     # Check if the simulation would be fine 
     if apt-get --simulate install "${packages[@]}" >> $log 2>&1; then
         # echo "we're good"
         :
     else
+        tail -10 $log | grep 'E:'
         echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
         exit 1
     fi
 
+    echo "Performing installation of apt packages (${packages[*]})" | tee -a $log
     # Run the install
     DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${packages[@]}" >> $log 2>&1
     
     if [[ $? -gt 0 ]]; then
-        echo "Error: \`apt-get install\` failed. Please consult log. Aborting installation." | tee -a $log
+        tail -10 $log | grep 'E:'
+        echo "Error: \`apt-get install\` failed. Please consult errors above and/or in the log. Aborting installation." | tee -a $log
         exit 1
     fi
 
