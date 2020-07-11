@@ -41,6 +41,7 @@ _apt_check (){
 
 #Performing apt update and checking if it succeeded
 apt_update () {
+    echo "Performing apt update" | tee -a $log
     if apt-get update >> $log 2>&1
     then
         return 0
@@ -65,7 +66,14 @@ apt_upgrade() {
     else
         echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
         exit 1
-    fi 
+    fi
+
+    echo "Performing apt upgrade" | tee -a $log
+    apt-get upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" >> $log 2>&1
+    if [[ $? -gt 0 ]]; then
+        echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
+        exit 1
+    fi
 }
 export -f apt_upgrade
 
@@ -74,8 +82,11 @@ apt_install (){
     packages=("$@")
     _check_dpkg_lock
     _apt_check
-    _apt_update
+    apt_update
 
+    echo "Performing installation of apt packages" | tee -a $log
+    # TODO figure out how to properly do this
+    echo "(${packages[*]})"
     # Check if the simulation would be fine 
     if apt-get --simulate install "${packages[@]}" >> $log 2>&1; then
         # echo "we're good"
