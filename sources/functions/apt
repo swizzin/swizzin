@@ -4,3 +4,24 @@ function get_repo_version () {
     package=$1
     echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
 }
+
+# Checks if a package is installed using package manager
+# $1 the package to check for
+# Returns code 0 in case a package is installed, 1 if missing
+_check_installed (){
+    if dpkg -s "$1" > $log 2>&1; then
+        return 0
+    else 
+        return 1
+    fi
+}
+
+#Takes a space separated list of packages to install in a non-interactive manner
+_apt_install_default (){
+    list="$1"
+    for dep in $list; do
+        echo "installing $dep"
+        DEBIAN_FRONTEND=non-interactive apt-get install -yq "$dep" >> $log 2>&1
+    done
+}
+
