@@ -48,6 +48,11 @@ _unset_apt_args (){
     export _apt_packages=()
 }
 
+#Prints the last apt log
+_get_last_apt_log (){
+    tac $log | sed '/Reading package lists.../q' | tac
+}
+
 #Returns the version of the candidate package to install
 get_candidate_version () {
     package=$1
@@ -82,7 +87,7 @@ _check_dpkg_lock (){
 _apt_check (){
     if [[ $_apt_skip_checks != "true" ]]; then 
         if ! apt-get check >> $log 2>&1; then
-            tail -10 $log | grep 'E:\|W:'
+            _get_last_apt_log | grep 'E:\|W:'
             echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation" | tee -a $log
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 exit 1
@@ -98,7 +103,7 @@ if [[ $_apt_skip_checks != "true" ]]; then
             # echo "we're good"
             :
         else
-            tail -10 $log | grep 'E:'
+            _get_last_apt_log | grep 'E:'
             echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 exit 1
@@ -120,7 +125,7 @@ apt_update () {
             return 0
             # TODO check for Warnings and Errors in the output, as those will still return 0
         else
-            tail -10 $log | grep 'E:\|W:'
+            _get_last_apt_log | grep 'E:\|W:'
             echo "Error: \`apt-get update\` failed. Please consult the log." | tee -a $log
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 exit 1
@@ -148,7 +153,7 @@ apt_upgrade() {
     fi
 
     if [[ $? -gt 0 ]]; then
-        tail -10 $log | grep 'E:'
+        _get_last_apt_log | grep 'E:'
         echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
         if [[ $_apt_ignore_errors != "true" ]]; then 
             exit 1
@@ -177,7 +182,7 @@ apt_install (){
     fi
 
     if [[ $? -gt 0 ]]; then
-        tail -10 $log | grep 'E:'
+        _get_last_apt_log | grep 'E:'
         echo "Error: \`apt-get install\` failed. Please consult errors above and/or in the log. Aborting installation." | tee -a $log
         if [[ $_apt_ignore_errors != "true" ]]; then 
             exit 1
