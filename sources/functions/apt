@@ -21,7 +21,7 @@ _apt_install_default (){
     list="$1"
     for dep in $list; do
         echo "installing $dep"
-        DEBIAN_FRONTEND=non-interactive apt-get install -yq "$dep" >> $log 2>&1
+        DEBIAN_FRONTEND=non-interactive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$dep" >> $log 2>&1
         #TODO check if any configs have changed and alert the users
     done
 }
