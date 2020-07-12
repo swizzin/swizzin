@@ -12,7 +12,7 @@ Here are a couple things to take into account when contributing to swizzin.
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
-Whenever you are contributing code that might be generalised and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
+Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
 # Retrieves all users that are managed by swizzin
 # Returns usernames separated by newline
@@ -59,7 +59,7 @@ else
   mcrypt=
 fi
 
-# Apt install line which has $mcrypt in the package lsit
+# Apt install line which has $mcrypt in the package list
 
 ```
 In this example, the default (`else`) behaviour triggers for current releases, and only the old ones have the modified behaviour
