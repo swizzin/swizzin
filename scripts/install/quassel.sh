@@ -37,7 +37,7 @@ if [[ $distribution == Ubuntu ]]; then
 else
   if [[ $codename == "buster" ]]; then
     echo "Grabbing latest release"
-    apt-get -y -q quassel-core > /dev/null 2>&1
+    apt-get -y -q install quassel-core > /dev/null 2>&1
   elif [[ $codename == "stretch" ]]; then
     check_debian_backports
     echo "Grabbing latest backport"

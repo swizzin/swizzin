@@ -200,7 +200,7 @@ function remove_rtorrent () {
     toclean+=($repo)
   fi
   for c in ${toclean[@]}; do
-    apt-get remove -y -q $c >> $log 2>&1
+    apt-get remove -y -q --allow-change-held-packages $c >> $log 2>&1
   done
 }
 
