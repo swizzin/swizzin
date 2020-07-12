@@ -15,16 +15,19 @@ function _rar () {
     rm -rf /tmp/rar >/dev/null 2>&1
 }
 
+# Returns a password for a user in case one exists.
+# If password is not found, returns with error code 1 
 function _get_user_password () {
     user_to_get="$1"
     password=''
 
-    for file in /root/*.info /root/.master.info; do 
+    for file in /root/.master.info /root/*.info ; do 
         ##TODO fix when there is no addition users other than .master. It works but it's just ugly
         if [[ -f $file ]]; then 
             user_in_file=$(cat $file | cut -d: -f1)
             if [ "$user_in_file" = "$user_to_get" ]; then 
                 password="$(cat $file | cut -d: -f2)"
+                break
             fi
         fi
     done
@@ -32,7 +35,28 @@ function _get_user_password () {
     if [[ -z $password ]]; then 
         return 1
     fi
-    echo $password
+    echo "$password"
+}
+
+# OLD way to get users from htpasswd
+# Rather wouldn't use this as 3rd party applications migh be playing with this as well
+# function _get_user_list () {
+#     users=($(cut -d: -f1 < /etc/htpasswd))
+# }
+
+#Returns all users managed by swizzin as a newline separated list
+function _get_user_list () {
+    for file in /root/.master.info /root/*.info; do 
+        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+        if [[ -f $file ]]; then 
+            cut -d: -f1 < "$file"
+        fi
+    done
+}
+
+#Returns the username of the master
+function _get_master_username (){
+    cut -d: -f1 < /root/.master.info
 }
 
 # Removes a file or a directory in case it exists
