@@ -56,7 +56,7 @@ _get_last_apt_log (){
 #Returns the version of the candidate package to install
 get_candidate_version () {
     package=$1
-    echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
+    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
 }
 
 # Checks if a package is installed using package manager
@@ -151,6 +151,7 @@ apt_upgrade() {
         DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
     fi
 
+    #shellcheck disable=SC2181
     if [[ $? -gt 0 ]]; then
         _get_last_apt_log | grep 'E:'
         echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
@@ -180,6 +181,7 @@ apt_install (){
         DEBIAN_FRONTEND=noninteractive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
     fi
 
+    #shellcheck disable=SC2181
     if [[ $? -gt 0 ]]; then
         _get_last_apt_log | grep 'E:'
         echo "Error: \`apt-get install\` failed. Please consult errors above and/or in the log. Aborting installation." | tee -a $log
