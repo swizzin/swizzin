@@ -129,7 +129,9 @@ apt_update () {
             fi
         fi
     fi
-    _unset_apt_args
+    if [[ -n $1 ]]; then 
+        _unset_apt_args
+    fi
 }
 export -f apt_update
 
