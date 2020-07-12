@@ -18,6 +18,34 @@ Whenever you are contributing code that might be generalised and useful for othe
 # Returns usernames separated by newline
 ```
 
+## APT handling
+We have developed our own internal set of functions for handling `apt` packages in a predictable and uniform way. In the event any of these functions encounter an error, they will (with default behaviour) ensure the rest of the script will not continue. Please use the following functions and see the available options. **Refrain from calling the raw apt equivalents of the functions below.** 
+
+### Functions
+
+* Exported and box-wide available functions. By default, the functions performs sanity checks and a couple other verifications. You can disable these with the options below
+  * `apt_install [options] $1, $2, $3 ... [options]`
+  * `apt_upgrade [options]`
+  * `apt_update [options]`
+* Non-exported functions which need a `source` or a `. .../apt`. Please consult the `sources/functions/apt` file to see what they do and how they work.
+  * `get_candidate_version`
+  * `_get_apt_last_log`
+  * `_check_installed`
+  * ... and a couple others
+
+### Options
+The following options can be used with any of the exported functions above to override their default behaviour.
+
+* `--interactive`
+  * Run the installation stdout in the forefront and allow any end-user interaction if necessary
+* `--skip-check`
+  * Skips integrity checks during the command such as `dpkg` lock checking, `apt --simulate`, and a couple others.
+* `--skip-update`
+  * Skips a call to `apt-get update` in the `upgrade` and `install` commands.
+  * Using `apt_update --skip-update` will just do nothing.
+* `--ignore-errors`
+  * Allows script to continue in case an error was encountered, instead of killing the job script by default
+
 ### Shellcheck
 Please use `shellcheck` and resolve any warnings for the code you have contributed.
 ### Codename-based logic
