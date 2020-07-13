@@ -98,7 +98,6 @@ function _mkconf_wg () {
 	cd /home/$u/.wireguard/client
 	wg genkey | tee $u.key | wg pubkey > $u.pub
 
-
 	serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
 	serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
 	peerpriv=$(cat /home/$u/.wireguard/client/$u.key)
@@ -162,6 +161,11 @@ EOWGC
 		echo "  |  Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
 	else
 		echo "  |  Configuration failed"
+	fi
+
+	if [[ -f /install/.panel.lock ]]; then 
+		#TODO ensure right permissions are available for panel 
+		:
 	fi
 }
 

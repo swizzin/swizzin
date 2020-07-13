@@ -10,6 +10,10 @@ for u in $(_get_user_list); do
         echo "Generating $qrpath"
         qrencode -o "$qrpath" -s 10 -t png < /home/"$u"/.wireguard/"$u".conf
     fi
+    if [[ -f /install/.panel.lock ]]; then 
+		#TODO ensure right permissions are available for panel 
+		:
+	fi
 done
 
 fi
