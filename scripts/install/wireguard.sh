@@ -98,8 +98,6 @@ function _mkconf_wg () {
 	cd /home/$u/.wireguard/client
 	wg genkey | tee $u.key | wg pubkey > $u.pub
 
-	chown $u: /home/$u/.wireguard
-	chmod -R 700 /home/$u/.wireguard
 
 	serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
 	serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
@@ -155,6 +153,9 @@ AllowedIPs = 0.0.0.0/0
 EOWGC
 
 	qrencode -o /home/"$u"/.wireguard/wgqr.png -s 10 -t png < /home/"$u"/.wireguard/"$u".conf
+
+	chown $u:$u /home/$u/.wireguard
+	chmod -R 700 /home/$u/.wireguard
 
 	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
 	if [[ $? == 0 ]]; then 
