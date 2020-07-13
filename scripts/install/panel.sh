@@ -83,3 +83,14 @@ EOSUD
 systemctl enable --now panel > ${log} 2>&1
 
 touch /install/.panel.lock
+
+# Ensure permissions for wgqr.png are correct if the file exists
+if [[ -f /install/.wireguard.lock ]]; then
+  #shellcheck source=sources/functions/utils
+  . /etc/swizzin/sources/functions/utils
+  for user in $(_get_user_list); do
+    #TODO setfacl
+    # $user
+    :
+  done
+fi
