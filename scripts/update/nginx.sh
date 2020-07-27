@@ -67,6 +67,7 @@ for version in $phpv; do
 done
 
 if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  mkdir -p /etc/nginx/modules-enabled/
   ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
 fi
 
