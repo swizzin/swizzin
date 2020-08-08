@@ -20,6 +20,8 @@ else
   OUTTO="/root/logs/swizzin.log"
 fi
 
+. /etc/swizzin/sources/functions/letsencrypt
+
 echo "Installing ZNC. Please wait ... " >> ${OUTTO} 2>&1
 echo "" >> ${OUTTO} 2>&1
 echo "" >> ${OUTTO} 2>&1
@@ -54,20 +56,16 @@ Restart=always
 WantedBy=multi-user.target
 ZNC
 systemctl enable znc
-  echo "#### ZNC configuration will now run. Please answer the following prompts ####"
-  sleep 5
-  sudo -H -u znc znc --makeconf
-  killall -u znc znc > /dev/null 2>&1
-  sleep 1
+echo "#### ZNC configuration will now run. Please answer the following prompts ####"
+sleep 5
+sudo -H -u znc znc --makeconf
+killall -u znc znc > /dev/null 2>&1
+sleep 1
 
-  # Check for LE cert, and copy it if available.
-  chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
-  if [[ -n $chkhost ]]; then
-    defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
-    cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-    crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
-  fi
-  systemctl start znc
-  echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /install/.znc.lock
-  echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /install/.znc.lock
+# Check for LE cert, and copy it if available.
+le_znc_hook
+
+systemctl start znc
+echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /install/.znc.lock
+echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /install/.znc.lock
 echo "#### ZNC now installed! ####"

@@ -30,8 +30,10 @@ mkdir -p "$install_ffmpeg"
 mkdir -p "$install_tmp"
 #
 # Download and extract the files to the defined location.
-wget -qO "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" > /dev/null 2>&1
-tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=1 -C "$install_dir" > /dev/null 2>&1
+baseurl=$(curl -s https://repo.jellyfin.org/releases/server/linux/stable/ | grep -Po "href=[\'\"]\K.*?(?=['\"])" | grep combined | grep -v sha256)
+wget -qO "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" > /dev/null 2>&1
+#wget -qO "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" > /dev/null 2>&1
+tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" > /dev/null 2>&1
 #
 # Download the FFmpeg prebuilt binary to the installation temporary directory
 wget -qO "$install_tmp/ffmpeg.tar.xz" "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"

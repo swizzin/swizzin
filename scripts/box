@@ -251,7 +251,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -268,11 +268,10 @@ function _adduser {
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
-        elif [[ $app =~ ("rutorrent"|"lounge"|"mango") ]]; then
+        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango") ]]; then
           : #Multi-user app without user service files
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
-
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
@@ -310,7 +309,8 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango; do
+
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -327,11 +327,17 @@ function _deluser {
       elif [[ $app = "mango" ]]; then
         if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
         su mango -c "$mangodir/mango admin user delete ${user}"
+      elif [[ $app = "wireguard" ]]; then
+        rm -f /home/${user}/.wireguard/client
+        systemctl disable --now wg-quick@wg$(id -u "$user")
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
         eval systemctl disable ${app}@${user}
         eval systemctl stop ${app}@${user}
+      elif [[ $app == "organizr" ]]; then
+        #TODO automate removal steps
+        echo "Remember to manually remove the organizr account!"
       elif [[ $app == "autodl" ]]; then
         systemctl disable --now irssi@${user}
       else
@@ -355,7 +361,7 @@ function _deluser {
   rm -f /etc/sudoers.d/${user}
   rm -rf /run/screen/S-${user}
   rm -rf /var/run/${user}
-  rm -rf /home/${user}
+  rm -rf /home/"${user:?}"
   rm /root/${user}.info
   systemctl reload nginx
 }
@@ -412,6 +418,10 @@ function _chpasswd {
   if [[ -f /install/.mango.lock ]]; then
       if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
       su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
+  fi
+  if [[ -f /install/.organizr.lock ]]; then 
+    #TODO fix when API allows to
+    echo "Remember to manually change the organizr account's password!"
   fi
 
 }
