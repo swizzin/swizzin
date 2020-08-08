@@ -25,13 +25,10 @@ _sonarrv2_flow(){
         echo "An additional copy of the backup will be made into /root/sonarrv2.bak/" | tee -a $log
         #shellcheck source=sources/functions/ask
         . /etc/swizzin/sources/functions/ask
-
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi
 
-        # TODO make backup
-        # TODO 
         echo "Backing up Sonarr v2" | tee -a $log
 
         address="http://localhost:8989/sonarr/api"
