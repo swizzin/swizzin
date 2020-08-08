@@ -7,4 +7,7 @@ location /mango/ {
 }
 EOF
 
+sed -i 's=base_url: /=base_url: /mango=' /opt/mango/.config/mango/config.yml
+systemctl restart mango
+
 systemctl reload nginx
