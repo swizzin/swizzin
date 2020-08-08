@@ -32,8 +32,14 @@ _sonarrv2_flow(){
         echo "Backing up Sonarr v2" | tee -a $log
 
         address="http://localhost:8989/sonarr/api"
-        master=$(cut -d: -f1 < /root/.master.info)
-        apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${master}"/.config/NzbDrone/config.xml)
+
+        [[ -z $sonarrv2owner ]] && export sonarrv2owner=$(cut -d: -f1 < /root/.master.info)
+        if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
+            echo "No Sonarr config folder found for $sonarrv2owner. Exiting" | tee -a $log
+            exit 1
+        fi
+
+        apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarrv2owner}"/.config/NzbDrone/config.xml)
 
         #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
         id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" | jq '.id' )
@@ -55,9 +61,9 @@ _sonarrv2_flow(){
             echo "Sonarr backup completed" >> $log
         fi
 
-        cp -R /home/"${master}"/.config/NzbDrone /root/sonarrv2.bak
+        cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/sonarrv2.bak
         
-        systemctl stop sonarr@"${master}" 
+        systemctl stop sonarr@"${sonarrv2owner}" 
 
         # We don't have the debconf configuration yet so we can't migrate the data.
         # Instead we symlink so postinst knows where it's at.
@@ -66,7 +72,7 @@ _sonarrv2_flow(){
         else
             mkdir -p "/usr/lib/sonarr"
         fi
-        ln -s /home/"${master}"/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
+        ln -s /home/"${sonarrv2owner}"/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
         # chown -R "$master":"$master" /usr/lib/sonarr/nzbdrone-appdata
         
         echo "Removing Sonarr v2" | tee -a $log
@@ -99,9 +105,9 @@ _setup_apt_sonarrv3 () {
 _install_sonarrv3 () {
     echo "Installing Sonarr v3 from apt" | tee -a $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-    master=$(cut -d: -f1 < /root/.master.info)
-    echo "sonarr sonarr/owning_user  string ${master}" | debconf-set-selections
-    echo "sonarr sonarr/owning_group string ${master}" | debconf-set-selections
+    [[ -z $sonarrv3owner ]] && export sonarrv3owner=$(cut -d: -f1 < /root/.master.info)
+    echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
+    echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     DEBIAN_FRONTEND=non-interactive apt-get install -y sonarr >> $log 2>&1
     if [[ $? -gt 0 ]];              then failure=true; fi
     if [[ ! -d /var/lib/sonarr ]];  then failure=true; fi
