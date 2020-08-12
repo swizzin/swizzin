@@ -1,6 +1,197 @@
 #!/bin/bash
+# Functions for more streamlined script interfacing with apt
+# Flying_sausages for Swizzin 2020
+# GPLv3 Applies
 
-function get_repo_version () {
-    package=$1
-    echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
+if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
+
+# Checks arguments and exports variables to add functionality to rest of packages
+_process_apt_args() {
+    # idiomatic parameter and option handling in sh
+    _unset_apt_args
+    _apt_packages=()
+    while test $# -gt 0
+    do
+        case "$1" in
+            --interactive) export _apt_interactive=true
+                echo "Info: APT set to interactive" | tee -a $log
+                ;;
+            --ignore-errors) export _apt_ignore_errors=true
+                echo "Info: APT will ignore errors" | tee -a $log
+                ;;
+            --skip-checks) export _apt_skip_checks=true
+                echo "Info: APT will skip sanity checks" | tee -a $log
+                ;;
+            --skip-update) export _apt_skip_update=true
+                echo "Info: APT will skip update" | tee -a $log
+                ;;
+            -*) echo "Error: Invalid option: $1"
+                exit 1
+                ;;
+            *) _apt_packages+=("$1")
+                ;;
+        esac
+        shift
+    done
+
+    if [[ -z ${_apt_packages[1]} ]]; then
+        export _apt_packages
+    fi
 }
+
+# Overwrites all the variables we use in this script
+_unset_apt_args (){
+    export _apt_ignore_errors=""
+    export _apt_interactive=""
+    export _apt_ignore_errors=""
+    export _apt_skip_checks=""
+    export _apt_packages=()
+}
+
+#Prints the last apt log
+_get_last_apt_log (){
+    tac $log | sed '/Reading package lists.../q' | tac
+}
+
+#Returns the version of the candidate package to install
+get_candidate_version () {
+    package=$1
+    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
+}
+
+# Checks if a package is installed using package manager
+# $1 the package to check for
+# Returns code 0 in case a package is installed, 1 if missing
+_check_installed (){
+    if dpkg -s "$1" >> $log 2>&1; then
+        return 0
+    else 
+        return 1
+    fi
+}
+
+# Check if apt is locked
+_check_dpkg_lock (){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        # dpkg -i /dev/zero >> $log 2>&1
+        if lsof /var/lib/dpkg/lock >> $log 2>&1; then
+            echo "Error: dpkg database is locked. Please try again later" | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+
+# Check if install can run or not
+_apt_check (){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        if ! apt-get check >> $log 2>&1; then
+            _get_last_apt_log | grep 'E:\|W:'
+            echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation" | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+
+# Performs a simulation of an apt-get call
+_apt_simulate(){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        if  ! apt-get --simulate "$@" >> $log 2>&1; then
+            _get_last_apt_log | grep 'E:'
+            echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+
+# Performing apt update and checking if it succeeded
+# shellcheck disable=SC2120
+apt_update () {
+    if [[ -n $1 ]]; then 
+        _process_apt_args "$@"
+    fi
+    if [[ $_apt_skip_update != "true" ]]; then 
+        echo "Performing apt update" | tee -a $log
+        if apt-get update >> $log 2>&1
+        then
+            return 0
+            # TODO check for Warnings and Errors in the output, as those will still return 0
+        else
+            _get_last_apt_log | grep 'E:\|W:'
+            echo "Error: \`apt-get update\` failed. Please consult the log." | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+    if [[ -n $1 ]]; then 
+        _unset_apt_args
+    fi
+}
+export -f apt_update
+
+# Performs an upgrade and checks if it succeeded
+apt_upgrade() {
+    _process_apt_args "$@"
+        _check_dpkg_lock
+        _apt_check
+        apt_update
+        _apt_simulate upgrade
+
+    echo "Performing apt upgrade" | tee -a $log
+
+    if [[ $_apt_interactive == "true" ]]; then
+        DEBIAN_FRONTEND=readline apt-get upgrade -y | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
+    fi
+
+    #shellcheck disable=SC2181
+    if [[ $? -gt 0 ]]; then
+        _get_last_apt_log | grep 'E:'
+        echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
+        if [[ $_apt_ignore_errors != "true" ]]; then 
+            exit 1
+        fi
+    fi
+    _unset_apt_args
+}
+export -f apt_upgrade
+
+#Takes a space separated list of packages to install in a non-interactive manner
+apt_install (){
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check
+
+    apt_update
+    
+    _apt_simulate install "${_apt_packages[@]}"
+
+    # Run the install
+    echo "Performing installation of apt packages (${_apt_packages[*]})" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        DEBIAN_FRONTEND=readline apt-get install -y "${_apt_packages[@]}" | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
+    fi
+
+    #shellcheck disable=SC2181
+    if [[ $? -gt 0 ]]; then
+        _get_last_apt_log | grep 'E:'
+        echo "Error: \`apt-get install\` failed. Please consult errors above and/or in the log. Aborting installation." | tee -a $log
+        if [[ $_apt_ignore_errors != "true" ]]; then 
+            exit 1
+        fi
+    fi
+
+    # TODO check if any configs have changed and alert the users
+    _unset_apt_args
+}
+export -f apt_install
+
