@@ -251,7 +251,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -268,8 +268,8 @@ function _adduser {
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
-        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr") ]]; then
-          :
+        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango") ]]; then
+          : #Multi-user app without user service files
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
           systemctl enable ${app}@${user}
@@ -309,7 +309,8 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr; do
+
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -323,6 +324,9 @@ function _deluser {
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
         su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
+      elif [[ $app = "mango" ]]; then
+        if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+        su mango -c "$mangodir/mango admin user delete ${user}"
       elif [[ $app = "wireguard" ]]; then
         rm -f /home/${user}/.wireguard/client
         systemctl disable --now wg-quick@wg$(id -u "$user")
@@ -410,6 +414,10 @@ function _chpasswd {
   fi
   if [[ -f /install/.lounge.lock ]]; then 
     su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
+  fi
+  if [[ -f /install/.mango.lock ]]; then
+      if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
   fi
   if [[ -f /install/.organizr.lock ]]; then 
     #TODO fix when API allows to
