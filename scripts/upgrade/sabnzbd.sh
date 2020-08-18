@@ -1,7 +1,7 @@
 #!/bin/bash
 user=$(cut -d: -f1 < /root/.master.info)
 
-if [[ ! -f /.install/.sabnzbd.lock ]]; then
+if [[ ! -f /install/.sabnzbd.lock ]]; then
   echo "SABnzbd not detected. Exiting!"
   exit 1
 fi
