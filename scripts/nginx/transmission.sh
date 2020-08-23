@@ -33,8 +33,14 @@ for u in ${users[@]}; do
         systemctl stop transmission@${u}
     fi
 
+    timeout=0
     while systemctl is-active transmission@"$u" > /dev/null ;do
-        echo "is active"
+        # echo "is active"
+        timeout+=0.3
+        if [[ $timeout -ge 20 ]]; then 
+            echo "The service transmission@$u took too long to shut down. Aborting."
+            exit 1
+        fi
         sleep 0.3
     done
 
