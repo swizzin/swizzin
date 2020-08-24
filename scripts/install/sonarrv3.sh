@@ -120,6 +120,24 @@ _install_sonarrv3 () {
     fi
 }
 
+_add2usergroups_sonarrv3 () {
+    echo "Adding Sonarr to master user's group" | tee -a $log
+    # shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    master=$(_get_master_username)
+    usermod -a -G "$master" sonarr
+    if [[ -n $sonarrv2owner ]]; then
+        usermod -a -G "$sonarrv2owner" sonarr
+    fi
+    if ask "Do you want to let Sonarr access other users' home directories?" N; then
+        echo "Space separated list of users to give sonarr access to: (e.g. \"User1 User2\")"
+        read -r grouplist
+        for u in $grouplist; do
+            usermod -a -G "$u" sonarr | tee -a $log
+        done
+    fi
+}
+
 _nginx_sonarr () {
     #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
     if [[ -f /install/.nginx.lock ]]; then
@@ -133,6 +151,7 @@ _nginx_sonarr () {
 _sonarrv2_flow
 _setup_apt_sonarrv3
 _install_sonarrv3
+_add2usergroups_sonarrv3
 _nginx_sonarr
 
 touch /install/.sonarrv3.lock
