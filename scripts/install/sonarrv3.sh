@@ -35,7 +35,7 @@ _sonarrv2_flow(){
 
         address="http://localhost:8989/sonarr/api"
 
-        [[ -z $sonarrv2owner ]] && export sonarrv2owner=$(cut -d: -f1 < /root/.master.info)
+        [[ -z $sonarrv2owner ]] && sonarrv2owner=$(cut -d: -f1 < /root/.master.info) && export sonarrv2owner
         if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
             echo "No Sonarr config folder found for $sonarrv2owner. Exiting" | tee -a $log
             exit 1
@@ -111,6 +111,7 @@ _install_sonarrv3 () {
     # echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
     # echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     DEBIAN_FRONTEND=non-interactive apt-get install -y sonarr >> $log 2>&1
+    #shellcheck disable=SC2181
     if [[ $? -gt 0 ]];              then failure=true; fi
     if [[ ! -d /var/lib/sonarr ]];  then failure=true; fi
 
