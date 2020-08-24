@@ -120,9 +120,10 @@ _install_sonarrv3 () {
 }
 
 _nginx_sonarr () {
-    sleep 20
-    echo "Installing nginx configuration" | tee -a $log
+    #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
     if [[ -f /install/.nginx.lock ]]; then
+        sleep 20
+        echo "Installing nginx configuration" | tee -a $log
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
     fi
