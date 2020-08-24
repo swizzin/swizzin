@@ -134,14 +134,19 @@ _add2usergroups_sonarrv3 () {
     . /etc/swizzin/sources/functions/utils
     master=$(_get_master_username)
     usermod -a -G "$master" sonarr
+    chmod g+rwx /home/"$master"
+
     if [[ -n $sonarrv2owner ]]; then
         usermod -a -G "$sonarrv2owner" sonarr
+        chmod g+rwx /home/"$sonarrv2owner"
     fi
+
     if ask "Do you want to let Sonarr access other users' home directories?" N; then
-        echo "Space separated list of users to give sonarr access to: (e.g. \"User1 User2\")"
+        echo "Space separated list of users to give sonarr access to: (e.g. \"user1 user2\")"
         read -r grouplist
         for u in $grouplist; do
             usermod -a -G "$u" sonarr | tee -a $log
+            chmod g+rwx /home/"$u"
         done
     fi
 }
