@@ -48,7 +48,7 @@ function _check_for_sonarr3 () {
 function _installSonarrintro() {
   echo "Sonarr v3 is available as a separate application (sonarrv3)"
   . /etc/swizzin/sources/functions/ask
-  if ! ask "Would you like to continue installing Sonarr v2?" Y; then
+  if ! ask "Would you like to continue installing Sonarr v2?"; then
     exit 0
   fi
 
