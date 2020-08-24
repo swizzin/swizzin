@@ -32,8 +32,11 @@ _sonarrv2_flow(){
         fi
 
         echo "Backing up Sonarr v2" | tee -a $log
-
-        address="http://localhost:8989/sonarr/api"
+        if [[ -f /install/.nginx ]]; then 
+            address="http://localhost:8989/sonarr/api"
+        else
+            address="http://localhost:8989/api"
+        fi
 
         [[ -z $sonarrv2owner ]] && sonarrv2owner=$(cut -d: -f1 < /root/.master.info) && export sonarrv2owner
         if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
@@ -42,12 +45,16 @@ _sonarrv2_flow(){
         fi
 
         apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarrv2owner}"/.config/NzbDrone/config.xml)
+        echo "apikey = $apikey" >> $log
 
         #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
-        id=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" | jq '.id' )
-        
+        response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}")
+        echo "$response" >> $log
+        id=$(echo "$response" | jq '.id' )
+        echo "id=$id" >> $log
+
         if [[ -z $id ]]; then 
-            echo "Sonarr is not reachable." | tee -a $log
+            echo "Failure triggering backup (see logs)." | tee -a $log
             echo "We cannot trigger Sonarr to dump a current backup, but the current files and previous weekly backups can still be copied" | tee -a $log
             if ! ask "Continue without triggering internal Sonarr backup?" N; then 
                 exit 1
