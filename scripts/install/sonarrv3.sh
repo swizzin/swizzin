@@ -8,6 +8,9 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+#shellcheck source=sources/functions/ask
+. /etc/swizzin/sources/functions/ask
+
 #Handles existing v2 instances
 _sonarrv2_flow(){
 
@@ -24,8 +27,6 @@ _sonarrv2_flow(){
         echo "Continuing will migrate your current v2 installation." | tee -a $log
         echo "You can read more about the migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2"
         echo "An additional copy of the backup will be made into /root/sonarrv2.bak/" | tee -a $log
-        #shellcheck source=sources/functions/ask
-        . /etc/swizzin/sources/functions/ask
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi
