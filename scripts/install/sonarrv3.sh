@@ -159,6 +159,7 @@ touch /install/.sonarrv3.lock
 if [[ -f /install/.ombi.lock ]]; then
     echo "Please adjust your Ombi setup accordingly"
 fi
+
 if [[ -f /install/.bazarr.lock ]]; then
     echo "Please adjust your Bazarr setup accordingly"
 fi
