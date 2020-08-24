@@ -17,7 +17,7 @@ version=$(lsb_release -cs)
 
 mono_repo_setup
 
-apt-get install -y libmono-cil-dev >/dev/null 2>&1
+apt-get install -y libmono-cil-dev libchromaprint-tools >/dev/null 2>&1
 
 
 cd /home/${user}/

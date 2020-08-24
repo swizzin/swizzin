@@ -26,4 +26,9 @@ if [[ -f /install/.bazarr.lock ]]; then
     systemctl daemon-reload
     systemctl try-restart bazarr
   fi
+
+  if ! grep -q numpy <(/opt/.venv/bazarr/bin/pip freeze); then 
+    sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r /opt/bazarr/requirements.txt" > /dev/null 2>&1
+    systemctl try-restart bazarr
+  fi
 fi
