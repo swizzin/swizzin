@@ -107,9 +107,9 @@ _setup_apt_sonarrv3 () {
 _install_sonarrv3 () {
     echo "Installing Sonarr v3 from apt" | tee -a $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-    [[ -z $sonarrv3owner ]] && export sonarrv3owner=$(cut -d: -f1 < /root/.master.info)
-    echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
-    echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
+    # [[ -z $sonarrv3owner ]] && export sonarrv3owner=$(cut -d: -f1 < /root/.master.info)
+    # echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
+    # echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     DEBIAN_FRONTEND=non-interactive apt-get install -y sonarr >> $log 2>&1
     if [[ $? -gt 0 ]];              then failure=true; fi
     if [[ ! -d /var/lib/sonarr ]];  then failure=true; fi
