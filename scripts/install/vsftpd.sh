@@ -15,6 +15,7 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+# shellcheck source=sources/functions/letsencrypt
 . /etc/swizzin/sources/functions/letsencrypt
 
 apt-get -y update >> $log 2>&1
