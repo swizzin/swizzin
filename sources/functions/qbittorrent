@@ -101,7 +101,7 @@ function qbittorrent_user_config() {
     mkdir -p /home/${user}/.config/qBittorrent/
     mkdir -p /home/${user}/torrents/qbittorrent
     chown ${user}: /home/${user}/torrents
-    chown ${user}: /home/${user}/torrents/qbittorrent
+    chown ${user}: /home/${user}/torrents/qBittorrent
     chown $user: /home/${user}/.config
     cat > /home/${user}/.config/qBittorrent/qBittorrent.conf<<QBTCONF
 [Preferences]
