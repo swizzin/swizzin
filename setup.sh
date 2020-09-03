@@ -207,6 +207,13 @@ function _choices() {
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
     whiptail_deluge
+  fi
+  if grep -q qbittorrent "$results"; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    whiptail_qbittorrent
+  fi
+  if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
+    . /etc/swizzin/sources/functions/libtorrent
     whiptail_libtorrent_rasterbar
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then

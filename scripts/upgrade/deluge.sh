@@ -13,6 +13,8 @@ else
 fi
 
 . /etc/swizzin/sources/functions/deluge
+. /etc/swizzin/sources/functions/libtorrent
+
 whiptail_deluge
 whiptail_libtorrent_rasterbar
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')

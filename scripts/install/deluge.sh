@@ -268,6 +268,7 @@ codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 . /etc/swizzin/sources/functions/deluge
+. /etc/swizzin/sources/functions/libtorrent
 
 if [[ -n $1 ]]; then
   users=($1)
