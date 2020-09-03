@@ -155,7 +155,10 @@ function build_libtorrent_rasterbar () {
     cd /tmp
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
-
+    if ! check_ram 2G; then
+        swap=true
+        tmp_swap_on
+    fi
     git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
     ./autotool.sh >>"${log}" 2>&1
@@ -184,6 +187,9 @@ function build_libtorrent_rasterbar () {
     cd /tmp
     rm -r libtorrent
     rm -r /tmp/dist
+    if [[ $swap == "true" ]]; then
+        tmp_swap_off
+    fi
   fi
   if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
 }
