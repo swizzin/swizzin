@@ -29,13 +29,17 @@ fi
 whiptail_qbittorrent
 whiptail_libtorrent_rasterbar
 
+if [[ ! -f /tmp/.install.lock ]] && [[ -f /install/.libtorrent.lock ]]; then
+    build_libtorrent_rasterbar
+fi
+
 build_qbittorrent
 qbittorrent_service
 for user in ${users[@]}; do
     qbittorrent_user_config ${user}
     systemctl enable --now qbittorrent@${user}
 done
-if [[ -f /install/.nginx.sh ]]; then
+if [[ -f /install/.nginx.lock ]]; then
     bash /etc/swizzin/scripts/nginx/qbittorrent.sh
     systemctl reload nginx
 fi
