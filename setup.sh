@@ -166,7 +166,7 @@ function _choices() {
   extras=()
   guis=()
   #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
