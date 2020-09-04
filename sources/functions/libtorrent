@@ -34,8 +34,7 @@ function whiptail_libtorrent_rasterbar () {
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
                     Repo "(${repov})" \
-                    1.1 "libtorrent branch RC_1_1" \
-                    1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
+                    1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
         ;;
       esac
     elif [[ $deluge == master ]] || [[ -n $qbittorrent ]]; then
@@ -153,10 +152,10 @@ function build_libtorrent_rasterbar () {
     done
       case $release in
           "xenial")
-          apt-get install -y -q libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev
+          apt-get install -y -q libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
           *)
-          apt-get install -y -q libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev
+          apt-get install -y -q libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
       esac
   else
@@ -199,7 +198,7 @@ function build_libtorrent_rasterbar () {
     done
     LTRC=$libtorrent
     if [[ -z $LIST ]]; then
-      LIST="build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
+      LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
     fi
     for depend in $LIST; do
       apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
@@ -247,7 +246,7 @@ function build_libtorrent_rasterbar () {
     esac
     #If you wish to patch libtorrent with custom values (i.e. settings pack), simply ensure the patch exists at /root/libtorrent.patch) before starting the install and the patch will be applied to the branch selected.
     if [[ -f /root/libtorrent.patch ]]; then
-        patch -p1 < /root/libtorrent.patch
+        patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
     fi
     make -j$(nproc) >>"${log}" 2>&1
     make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1

@@ -280,11 +280,7 @@ whiptail_deluge
 
 if ! skip_libtorrent_rasterbar; then
     whiptail_libtorrent_rasterbar
-    build_libtorrent_rasterbar
-fi
-
-if [[ ! -f /install/.libtorrent.lock ]]; then
-  echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
+    echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
 fi
 
 echo "Building Deluge"; build_deluge
