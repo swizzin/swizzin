@@ -6,7 +6,7 @@ function whiptail_libtorrent_rasterbar () {
   fi
   if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
     #4.2 branch may drop 1.1.* compatbility soon, thus we will need to check for installed versions at some point
-    qbittorrent=$(qbittorrent-nox --version)
+    qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
   fi
   if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
     dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
@@ -88,7 +88,7 @@ function skip_libtorrent_rasterbar () {
     else
         libtorrent_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
         if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d.\d.?\d')
+            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
         fi
         if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
             dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
@@ -133,9 +133,9 @@ function skip_libtorrent_rasterbar () {
 
 function whiptail_skip_libtorrent_rasterbar() {
     if (whiptail --title "Skip Libtorrent?" --yesno "Setup has determined that you can skip compiling/reinstalling libtorrent. Do you want to?" 12 50); then
-        export SKIP_LT=True
+        true
     else
-        :
+        false
     fi
 }
 
@@ -220,7 +220,11 @@ function build_libtorrent_rasterbar () {
     #  ./bootstrap.sh --prefix=/usr
     #  ./b2 install
     #fi
-
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
+    fi
     cd /tmp
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
@@ -241,6 +245,10 @@ function build_libtorrent_rasterbar () {
         sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
       ;;
     esac
+    #If you wish to patch libtorrent with custom values (i.e. settings pack), simply ensure the patch exists at /root/libtorrent.patch) before starting the install and the patch will be applied to the branch selected.
+    if [[ -f /root/libtorrent.patch ]]; then
+        patch -p1 < /root/libtorrent.patch
+    fi
     make -j$(nproc) >>"${log}" 2>&1
     make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
     mkdir -p /root/dist
@@ -258,6 +266,9 @@ function build_libtorrent_rasterbar () {
     rm -r /tmp/dist
     if [[ $swap == "true" ]]; then
         tmp_swap_off
+    fi
+    if [[ -n $noexec ]]; then
+	    mount -o remount,noexec /tmp
     fi
   fi
   if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi

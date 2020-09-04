@@ -55,6 +55,11 @@ function build_deluge () {
     update-rc.d deluged remove
     rm /etc/init.d/deluged
   else
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
+    fi
     case $deluge in
       master)
         LIST='python3 python3-setuptools intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
@@ -112,6 +117,9 @@ function build_deluge () {
             done
           ;;
         esac
+      fi
+      if [[ -n $noexec ]]; then
+	      mount -o remount,noexec /tmp
       fi
     fi
     cd /tmp

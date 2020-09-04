@@ -95,8 +95,20 @@ EOQBS
 function qbittorrent_user_config() {
     user=$1
     local_packages=/usr/local/bin/swizzin
+    if [[ -n $qbittorrent ]]; then
+        qbtv=$qbittorrent
+    else
+        qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    fi
     password=$(_get_user_password ${user})
-    QBTWP=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
+    if dpkg --compare-versions ${qbtv} lt 4.2.0; then
+        hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
+        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+    else
+        hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
+        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+    fi
+
     port=$(port 10000 11000)
     mkdir -p /home/${user}/.config/qBittorrent/
     mkdir -p /home/${user}/torrents/qbittorrent
@@ -111,9 +123,9 @@ WebUI\AlternativeUIEnabled=false
 WebUI\BanDuration=3600
 WebUI\CSRFProtection=true
 WebUI\ClickjackingProtection=true
-WebUI\LocalHostAuth=false
+WebUI\LocalHostAuth=true
 WebUI\MaxAuthenticationFailCount=5
-WebUI\Password_PBKDF2="@ByteArray($QBTWP)"
+${QBTWP}
 WebUI\Port=${port}
 WebUI\RootFolder=
 WebUI\SecureCookie=true
@@ -122,4 +134,24 @@ WebUI\SessionTimeout=3600
 WebUI\UseUPnP=true
 WebUI\Username=${user}
 QBTCONF
+}
+
+function qbittorrent_chpasswd() {
+    user=$1
+    password=$2
+    local_packages=/usr/local/bin/swizzin
+    if [[ -n $qbittorrent ]]; then
+        qbtv=$qbittorrent
+    else
+        qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    fi
+    if dpkg --compare-versions ${qbtv} lt 4.2.0; then
+        hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
+        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+    else
+        hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
+        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+    fi
+    sed -i "s|WebUI\\\Password.*|$QBTWP|g" /home/${user}/.config/qBittorrent/qBittorrent.conf
+    systemctl try-restart qbittorrent@${user}
 }

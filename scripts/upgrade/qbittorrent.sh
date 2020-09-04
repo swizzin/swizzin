@@ -14,18 +14,6 @@ fi
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-users=($(_get_user_list))
-
-if [[ -n $1 ]]; then
-    user=$1
-    qbittorrent_user_config ${user}
-    if [[ -f /install/.nginx.sh ]]; then
-        bash /etc/swizzin/scripts/nginx/qbittorrent.sh
-        systemctl reload nginx
-    fi
-    exit 0
-fi
-
 whiptail_qbittorrent
 if ! skip_libtorrent_rasterbar; then
     whiptail_libtorrent_rasterbar
@@ -33,14 +21,6 @@ if ! skip_libtorrent_rasterbar; then
 fi
 
 build_qbittorrent
-qbittorrent_service
 for user in ${users[@]}; do
-    qbittorrent_user_config ${user}
-    systemctl enable --now qbittorrent@${user}
+    systemctl try-restart qbittorrent@${user}
 done
-if [[ -f /install/.nginx.lock ]]; then
-    bash /etc/swizzin/scripts/nginx/qbittorrent.sh
-    systemctl reload nginx
-fi
-
-touch /install/.qbittorrent.lock
