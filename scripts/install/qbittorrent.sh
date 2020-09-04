@@ -27,9 +27,10 @@ if [[ -n $1 ]]; then
 fi
 
 whiptail_qbittorrent
+whiptail_skip_libtorrent_rasterbar
 whiptail_libtorrent_rasterbar
 
-if [[ ! -f /tmp/.install.lock ]] && [[ -f /install/.libtorrent.lock ]]; then
+if [[ -z $SKIP_LT ]]; then
     build_libtorrent_rasterbar
 fi
 
