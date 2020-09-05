@@ -13,6 +13,7 @@ fi
 . /etc/swizzin/sources/functions/libtorrent
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
+users=($(_get_user_list))
 
 whiptail_qbittorrent
 if ! skip_libtorrent_rasterbar; then
