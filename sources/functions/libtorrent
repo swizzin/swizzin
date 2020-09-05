@@ -226,6 +226,7 @@ function build_libtorrent_rasterbar () {
     cd libtorrent
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
         configure_args="-std=c++14"
+        sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
     fi
     ./autotool.sh >>"${log}" 2>&1
     ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
