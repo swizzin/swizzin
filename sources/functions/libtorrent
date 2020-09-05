@@ -225,10 +225,10 @@ function build_libtorrent_rasterbar () {
     git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
-        configure_args="CXXFLAGS=\"-std=c++14\""
+        configure_args="-std=c++14"
     fi
     ./autotool.sh >>"${log}" 2>&1
-    ./configure --with-lib-geoip --with-libiconv ${configure_args} >>"${log}" 2>&1
+    ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
     case $LTRC in
       RC_1_1)
