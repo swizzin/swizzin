@@ -158,10 +158,10 @@ function build_libtorrent_rasterbar () {
           pythonapt=python3-dev
           case $release in
             "stretch"|"xenial")
-              configure_args="--with-boost-python=boost_python-py35"
+              python_configure_args="--with-boost-python=boost_python-py35"
             ;;
             *)
-              configure_args="--with-boost-python=boost_python3"
+              python_configure_args="--with-boost-python=boost_python3"
             ;;
           esac
           remove=python-libtorrent
@@ -173,7 +173,7 @@ function build_libtorrent_rasterbar () {
           remove=python3-libtorrent
           case $release in
             "focal")
-              #configure_args="--with-boost-python=boost_python27"
+              #python_configure_args="--with-boost-python=boost_python27"
               LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
             ;;
           esac
@@ -224,8 +224,11 @@ function build_libtorrent_rasterbar () {
     fi
     git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
+    if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
+        configure_args="CXXFLAGS=\"-std=c++14\""
+    fi
     ./autotool.sh >>"${log}" 2>&1
-    ./configure --with-lib-geoip --with-libiconv >>"${log}" 2>&1
+    ./configure --with-lib-geoip --with-libiconv ${configure_args} >>"${log}" 2>&1
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
     case $LTRC in
       RC_1_1)
@@ -246,7 +249,7 @@ function build_libtorrent_rasterbar () {
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
     if [[ -n $deluge ]]; then
       echo "Building python binding ..."
-      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${configure_args} >>"${log}" 2>&1
+      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} >>"${log}" 2>&1
       fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
       dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
     fi
