@@ -77,7 +77,7 @@ function port() {
 function check_ram() {
     if [[ -z $1 ]]; then echo "Must specify a value to compare"; return 1; fi
     if ! dpkg -s bc > /dev/null 2>&1; then
-        apt-get -y -q bc > /dev/null 2>&1
+        apt-get -y -q install bc > /dev/null 2>&1
     fi
     ramtotal=$(cat /proc/meminfo | grep MemTotal | awk '{print $2}')
     swaptotal=$(cat /proc/meminfo | grep SwapTotal | awk '{print $2}')
