@@ -64,6 +64,7 @@ function build_qbittorrent() {
         mkdir -p /root/dist
         fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin" > /dev/null 2>&1
         dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb
+        rm -rf /tmp/qbittorrent
         if [[ -n $noexec ]]; then
         	mount -o remount,noexec /tmp
         fi
