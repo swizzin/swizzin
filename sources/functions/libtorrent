@@ -249,7 +249,7 @@ function build_libtorrent_rasterbar () {
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
     if [[ -n $deluge ]]; then
       echo "Building python binding ..."
-      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} >>"${log}" 2>&1
+      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >>"${log}" 2>&1
       fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
       dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
     fi
