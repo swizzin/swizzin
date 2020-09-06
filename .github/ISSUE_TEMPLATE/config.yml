@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://docs.swizzin.ltd
+    about: "READ FIRST: you might find an answer to your question."
+  - name: "Troubleshooting Guide"
+    url: https://docs.swizzin.ltd
+    about: "Please make sure to follow these steps before submitting a bug."
+  - name: "Feature Requests"
+    url: https://feathub.com/liaralabs/swizzin
+    about: In case you'd like something new, search here or create a new suggestion.
+  - name: "GitHub Discussions"
+    url: https://github.com/liaralabs/swizzin/discussions
+    about: Please ask and answer non-bug-related questions here.
+  - name: "Swizzin Discord"
+    url: https://discord.gg/sKjs9UM
+    about: Chat with us!
