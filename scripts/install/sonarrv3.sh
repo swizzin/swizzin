@@ -33,9 +33,9 @@ _sonarrv2_flow(){
 
         echo "Backing up Sonarr v2" | tee -a $log
         if [[ -f /install/.nginx ]]; then 
-            address="http://localhost:8989/sonarr/api"
+            address="http://127.0.0.1:8989/sonarr/api"
         else
-            address="http://localhost:8989/api"
+            address="http://127.0.0.1:8989/api"
         fi
 
         [[ -z $sonarrv2owner ]] && sonarrv2owner=$(cut -d: -f1 < /root/.master.info) && export sonarrv2owner
