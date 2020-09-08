@@ -251,7 +251,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -264,7 +264,7 @@ function _adduser {
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
-          /usr/local/bin/swizzin/nginx/deluge.sh ${user}
+          #/usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
@@ -422,6 +422,10 @@ function _chpasswd {
   if [[ -f /install/.organizr.lock ]]; then 
     #TODO fix when API allows to
     echo "Remember to manually change the organizr account's password!"
+  fi
+  if [[ -f /install/.qbittorrent.lock ]]; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    qbittorrent_chpasswd ${user} ${pass}
   fi
 
 }

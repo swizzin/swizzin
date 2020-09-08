@@ -64,7 +64,7 @@ function _preparation() {
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc>> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
@@ -166,7 +166,7 @@ function _choices() {
   extras=()
   guis=()
   #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
@@ -207,7 +207,15 @@ function _choices() {
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
     whiptail_deluge
+  fi
+  if grep -q qbittorrent "$results"; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    whiptail_qbittorrent
+  fi
+  if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
+    . /etc/swizzin/sources/functions/libtorrent
     whiptail_libtorrent_rasterbar
+    export SKIP_LT=True
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
