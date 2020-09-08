@@ -119,8 +119,16 @@ function qbittorrent_user_config() {
     chown $user: /home/${user}/.config
     chown $user: /home/${user}/.config/qBittorrent
     cat > /home/${user}/.config/qBittorrent/qBittorrent.conf<<QBTCONF
+[BitTorrent]
+Session\DisableAutoTMMByDefault=false 
+
 [Preferences]
+Bittorrent\MaxConnecs=-1
+Bittorrent\MaxConnecsPerTorrent=-1
+Bittorrent\MaxUploads=-1
+Bittorrent\MaxUploadsPerTorrent=-1
 Downloads\SavePath=/home/${user}/torrents/qbittorrent/
+Queueing\QueueingEnabled=false
 WebUI\Address=*
 WebUI\AlternativeUIEnabled=false
 WebUI\BanDuration=3600
