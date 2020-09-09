@@ -23,7 +23,7 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" > /dev/null 2>&1
   fi
   rm sabnzbd.tar.gz
-  sed -i 's/python2/python/g' /etc/systemd/sabnzbd.service
+  sed -i 's/python2/python/g' /etc/systemd/system/sabnzbd.service
   systemctl daemon-reload
   systemctl try-restart sabnzbd
   echo "SABnzbd has been upgraded to version ${latestversion}!"
