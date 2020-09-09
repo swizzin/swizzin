@@ -77,7 +77,8 @@ _check_dpkg_lock (){
     if [[ $_apt_skip_checks != "true" ]]; then 
         # dpkg -i /dev/zero >> $log 2>&1
         if lsof /var/lib/dpkg/lock >> $log 2>&1; then
-            echo "Error: dpkg database is locked. Please try again later" | tee -a $log
+            offender=$(lsof /var/lib/dpkg/lock | grep dpkg | awk '{ print $1 }')
+            echo "Error: dpkg database is locked by $offender. Please try again later" | tee -a $log
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 exit 1
             fi
