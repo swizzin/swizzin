@@ -147,8 +147,8 @@ function _adduser() {
     chown -R $user:$user /home/${user}
   else
     echo -e "Creating new user \e[1;95m$user\e[0m ... "
-    useradd "${user}" -m -G www-data -s /bin/bash
-    chpasswd<<<"${user}:${pass}"
+    useradd "${user}" -m -G www-data -s /bin/bash || { echo "There was an error creating the user ${user}. Please check your logs."; exit 1; }
+    chpasswd<<<"${user}:${pass}" || { echo "There was an error setting the password for ${user}. Please check your logs."; exit 1; }
     htpasswd -b -c /etc/htpasswd $user $pass
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
