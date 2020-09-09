@@ -51,6 +51,7 @@ _unset_apt_args (){
 
 #Prints the last apt log
 _get_last_apt_log (){
+    # TODO replace with actual APT log instead
     tac $log | sed '/Reading package lists.../q' | tac
 }
 
@@ -139,10 +140,10 @@ export -f apt_update
 # Performs an upgrade and checks if it succeeded
 apt_upgrade() {
     _process_apt_args "$@"
-        _check_dpkg_lock
-        _apt_check
-        apt_update
-        _apt_simulate upgrade
+    _check_dpkg_lock
+    _apt_check
+    apt_update
+    _apt_simulate upgrade
 
     echo "Performing apt upgrade" | tee -a $log
 
@@ -177,6 +178,7 @@ apt_install (){
     # Run the install
     echo "Performing installation of apt packages (${_apt_packages[*]})" | tee -a $log
     if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get install -y "${_apt_packages[@]}" | tee -a $log 
     else
         DEBIAN_FRONTEND=noninteractive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
@@ -190,6 +192,8 @@ apt_install (){
             exit 1
         fi
     fi
+
+    echo "Apt install complete"
 
     # TODO check if any configs have changed and alert the users
     _unset_apt_args
