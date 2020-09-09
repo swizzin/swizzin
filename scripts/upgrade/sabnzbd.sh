@@ -6,7 +6,7 @@ if [[ ! -f /install/.sabnzbd.lock ]]; then
   exit 1
 fi
 
-localversion=$(/opt/sabnzbd/venv/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
+localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
 latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
 latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
 
