@@ -25,6 +25,9 @@ _process_apt_args() {
             --skip-update) export _apt_skip_update=true
                 echo "Info: APT will skip update" | tee -a $log
                 ;;
+            --purge) export _apt_remove_purge=true
+                echo "Info: APT will purge packages" | tee -a $log
+                ;;
             -*) echo "Error: Invalid option: $1"
                 exit 1
                 ;;
@@ -53,6 +56,15 @@ _unset_apt_args (){
 _get_last_apt_log (){
     # TODO replace with actual APT log instead
     tac $log | sed '/Reading package lists.../q' | tac
+}
+
+_apt_logcheck (){
+    if [[ $(_get_last_apt_log | grep 'E:') ]]; then
+        echo "Error: apt failed. Please consult errors above and/or in the log." | tee -a $log
+        if [[ $_apt_ignore_errors != "true" ]]; then 
+            exit 1
+        fi
+    fi
 }
 
 #Returns the version of the candidate package to install
@@ -120,18 +132,10 @@ apt_update () {
     fi
     if [[ $_apt_skip_update != "true" ]]; then 
         echo "Performing apt update" | tee -a $log
-        if apt-get update >> $log 2>&1
-        then
-            return 0
-            # TODO check for Warnings and Errors in the output, as those will still return 0
-        else
-            _get_last_apt_log | grep 'E:\|W:'
-            echo "Error: \`apt-get update\` failed. Please consult the log." | tee -a $log
-            if [[ $_apt_ignore_errors != "true" ]]; then 
-                exit 1
-            fi
-        fi
+        apt-get update >> $log 2>&1
+        _apt_logcheck
     fi
+    # Unset only if parameters were passed directly to apt_update (shouldn't happen within this apt function)
     if [[ -n $1 ]]; then 
         _unset_apt_args
     fi
@@ -147,21 +151,15 @@ apt_upgrade() {
     _apt_simulate upgrade
 
     echo "Performing apt upgrade" | tee -a $log
-
+    upgradable=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
+    echo "$upgradable packages to upgrade."
     if [[ $_apt_interactive == "true" ]]; then
         DEBIAN_FRONTEND=readline apt-get upgrade -y | tee -a $log 
     else
         DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
     fi
 
-    #shellcheck disable=SC2181
-    if [[ $? -gt 0 ]]; then
-        _get_last_apt_log | grep 'E:'
-        echo "Error: \`apt-get upgrade\` failed. Please consult log. Aborting installation." | tee -a $log
-        if [[ $_apt_ignore_errors != "true" ]]; then 
-            exit 1
-        fi
-    fi
+    _apt_logcheck
     _unset_apt_args
 }
 export -f apt_upgrade
@@ -177,7 +175,7 @@ apt_install (){
     _apt_simulate install "${_apt_packages[@]}"
 
     # Run the install
-    echo "Performing installation of apt packages (${_apt_packages[*]})" | tee -a $log
+    echo "Performing installation of ${#_apt_packages[@]} apt packages (${_apt_packages[*]})" | tee -a $log
     if [[ $_apt_interactive == "true" ]]; then
         # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get install -y "${_apt_packages[@]}" | tee -a $log 
@@ -185,14 +183,7 @@ apt_install (){
         DEBIAN_FRONTEND=noninteractive apt-get install -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
     fi
 
-    #shellcheck disable=SC2181
-    if [[ $? -gt 0 ]]; then
-        _get_last_apt_log | grep 'E:'
-        echo "Error: \`apt-get install\` failed. Please consult errors above and/or in the log. Aborting installation." | tee -a $log
-        if [[ $_apt_ignore_errors != "true" ]]; then 
-            exit 1
-        fi
-    fi
+    _apt_logcheck
 
     echo "Apt install complete"
 
@@ -200,4 +191,55 @@ apt_install (){
     _unset_apt_args
 }
 export -f apt_install
+
+apt_remove (){
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check
+
+    # apt_update
+    
+    _apt_simulate remove "${_apt_packages[@]}"
+
+     # Run the install
+    echo "Performing removal of ${#_apt_packages[@]} apt packages (${_apt_packages[*]})" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
+        DEBIAN_FRONTEND=readline apt-get remove -y "${_apt_packages[@]}" | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get remove -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
+    fi
+
+    _apt_logcheck
+
+    echo "Apt remove complete"
+
+    # TODO check if any configs have changed and alert the users
+    _unset_apt_args
+}
+
+apt_autoremove (){
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check
+    _apt_simulate autoremove
+    # TODO perform a check if it is necessary
+
+    echo "Performing auto-removal of unnecessary apt dependencies" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
+        DEBIAN_FRONTEND=readline apt-get autoremove -y | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get autoremove -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
+    fi
+
+    _apt_logcheck
+
+    echo "Apt remove complete"
+
+    # TODO check if any configs have changed and alert the users
+    _unset_apt_args
+
+
+}
 
