@@ -41,11 +41,12 @@ _process_apt_args() {
 
 # Overwrites all the variables we use in this script
 _unset_apt_args (){
-    export _apt_ignore_errors=""
-    export _apt_interactive=""
-    export _apt_ignore_errors=""
-    export _apt_skip_checks=""
-    export _apt_packages=()
+    unset _apt_ignore_errors
+    unset _apt_interactive
+    unset _apt_ignore_errors
+    unset _apt_skip_checks
+    unset _apt_remove_purge
+    unset _apt_packages
 }
 
 #Prints the last apt log
