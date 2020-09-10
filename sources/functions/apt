@@ -135,10 +135,6 @@ apt_update () {
         apt-get update >> $log 2>&1
         _apt_logcheck
     fi
-    # Unset only if parameters were passed directly to apt_update (shouldn't happen within this apt function)
-    if [[ -n $1 ]]; then 
-        _unset_apt_args
-    fi
 }
 export -f apt_update
 
@@ -160,7 +156,6 @@ apt_upgrade() {
     fi
 
     _apt_logcheck
-    _unset_apt_args
 }
 export -f apt_upgrade
 
@@ -188,7 +183,6 @@ apt_install (){
     echo "Apt install complete"
 
     # TODO check if any configs have changed and alert the users
-    _unset_apt_args
 }
 export -f apt_install
 
@@ -215,7 +209,6 @@ apt_remove (){
     echo "Apt remove complete"
 
     # TODO check if any configs have changed and alert the users
-    _unset_apt_args
 }
 
 apt_autoremove (){
@@ -238,8 +231,5 @@ apt_autoremove (){
     echo "Apt remove complete"
 
     # TODO check if any configs have changed and alert the users
-    _unset_apt_args
-
-
 }
 
