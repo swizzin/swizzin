@@ -155,13 +155,12 @@ _apt_update () {
 
         last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
         now=$(date +%s)
-        echo -n "Performing apt update" | tee -a $log
         if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_ignore_apt_age" = "true" ]; then
+            echo "Performing apt update" | tee -a $log
             apt-get update >> $log 2>&1
             _apt_logcheck
-            echo ""
         else
-            echo " ... sufficiently up to date" | tee -a $log
+            echo " Apt sufficiently up to date, skipping" >> $log
         fi
     fi
 }
@@ -196,7 +195,6 @@ apt_upgrade() {
 
     _apt_logcheck
     # TODO check if any configs have changed and alert the users
-
 }
 export -f apt_upgrade
 
