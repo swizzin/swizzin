@@ -6,6 +6,7 @@
 export _max_apt_age=3600
 
 if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
+export _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
 
 # Checks arguments and exports variables to add functionality to rest of packages
 _process_apt_args() {
@@ -63,11 +64,18 @@ export -f _unset_apt_args
 #Prints the last apt log
 _get_last_apt_log (){
     # TODO replace with actual APT log instead
-    tac $log | sed '/Reading package lists.../q' | tac
+    tac $log | sed "/$_apt_logcheck_marker_text/q" | tac
 }
 export -f _get_last_apt_log
 
-#Kills the top script in case an apt error was found
+#Inserts marker into the log so we know how much up we need to go to get to the beginning of the run
+_apt_logcheck_mark(){
+    echo "$_apt_logcheck_marker_text" >> $log
+}
+export -f _apt_logcheck_mark
+
+# Kills the top script in case an apt error was found. READ THIS!!!
+# ATTENTION REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function
 _apt_logcheck (){
     if [[ $(_get_last_apt_log | grep 'E:') ]]; then
         echo "Error: apt failed. Please consult errors above and/or in the log." | tee -a $log
@@ -145,22 +153,20 @@ _apt_update () {
 
         last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
         now=$(date +%s)
+        echo "Performing apt update" | tee -a $log
         if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_ignore_apt_age" = "true" ]; then
-            echo "Performing apt update" | tee -a $log
             apt-get update >> $log 2>&1
             _apt_logcheck       
         else
             echo "... sufficiently up to date"
         fi
-
-
-        
     fi
 }
 export -f _apt_update
 
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
 apt_update () {
+    _apt_logcheck_mark
     _process_apt_args "$@"
     _ignore_apt_age="true"
     _apt_update
@@ -169,6 +175,7 @@ export -f apt_update
 
 # Performs an upgrade and checks if it succeeded
 apt_upgrade() {
+    _apt_logcheck_mark
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check
@@ -192,6 +199,7 @@ export -f apt_upgrade
 
 # Takes a space separated list of packages to install with all sorts of checking
 apt_install (){
+    _apt_logcheck_mark
     _process_apt_args "$@"
     #Do checks
     _check_dpkg_lock
@@ -211,7 +219,9 @@ apt_install (){
         # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log 
     else
-        DEBIAN_FRONTEND=noninteractive apt-get install $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
+        for pekkidge in "${_apt_packages[@]}"; do
+            DEBIAN_FRONTEND=noninteractive apt-get install $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
+        done 
     fi
 
     _apt_logcheck
@@ -222,6 +232,7 @@ export -f apt_install
 
 # Takes a space separated list of packages to remove with all sorts of checking
 apt_remove (){
+    _apt_logcheck_mark
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check    
@@ -249,6 +260,7 @@ export -f apt_remove
 
 # Performs an autoremove
 apt_autoremove (){
+    _apt_logcheck_mark
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check
