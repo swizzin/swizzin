@@ -17,10 +17,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
             LIST='git python2.7-dev'
         fi
         
-        apt-get -y update >>"${log}" 2>&1
-        for depend in $LIST; do
-        apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-        done
+        apt_install $LIST
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             python_getpip

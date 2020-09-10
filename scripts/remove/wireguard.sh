@@ -12,8 +12,7 @@ done
 
 rm -rf /etc/wireguard/
 
-apt-get -y -q remove wireguard wireguard-tools wireguard-dkms qrencode >> /dev/null 2>&1
-apt-get -y -q autoremove >> /dev/null 2>&1
+apt_remove wireguard wireguard-tools wireguard-dkms qrencode
 
 echo "Removing unused repositories"
 
@@ -24,6 +23,6 @@ elif [[ $codename =~ ("bionic"|"xenial") ]]; then
     add-apt-repository -r -y ppa:wireguard/wireguard >> /dev/null 2>&1
 fi
 
-apt-get update -y -q >> /dev/null 2>&1
+apt_update
 
 rm /install/.wireguard.lock

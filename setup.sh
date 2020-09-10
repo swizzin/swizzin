@@ -71,6 +71,8 @@ function _preparation() {
   git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
+  #shellcheck source=sources/functions/apt
+  . /etc/swizzin/sources/functions/apt
 }
 
 function _nukeovh() {

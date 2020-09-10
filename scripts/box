@@ -17,7 +17,6 @@
 # Sourcing functions
 #shellcheck source=sources/functions/apt
 . /etc/swizzin/sources/functions/apt
-export log="/root/logs/swizzin/.log"
 
 function _intro() {
   whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
@@ -111,6 +110,8 @@ function _clr() {
       echo -e "Package $i not installed"
     fi
   done
+  #shellcheck disable=SC2119
+  apt_autoremove
 }
 
 function _update() {
@@ -349,7 +350,7 @@ function _deluser {
   done
   
   if [[ -z $(which lsof) ]]; then
-    apt-get install -y -q lsof > /dev/null 2>&1
+    apt_install lsof
   fi
 
   kill -9 $(lsof -t /home/${user})
@@ -438,13 +439,13 @@ function _nukeovh() {
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
-          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+          apt_install linux-image-generic
         elif [[ $DISTRO == Debian ]]; then
           arch=$(uname -m)
           if [[ $arch =~ ("i686"|"i386") ]]; then
-            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+            apt_install linux-image-686
           elif [[ $arch == x86_64 ]]; then
-            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+            apt_install linux-image-amd64
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
