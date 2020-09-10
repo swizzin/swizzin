@@ -30,6 +30,7 @@ function _installBTSync1() {
   #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >/dev/null 2>&1
   sudo sh -c 'echo "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list'
   wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | sudo apt-key add - >/dev/null 2>&1
+  apt_update
 }
 
 function _installBTSync3() {
