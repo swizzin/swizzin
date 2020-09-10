@@ -62,6 +62,7 @@ _get_last_apt_log (){
     tac $log | sed '/Reading package lists.../q' | tac
 }
 
+#Kills the top script in case an apt error was found
 _apt_logcheck (){
     if [[ $(_get_last_apt_log | grep 'E:') ]]; then
         echo "Error: apt failed. Please consult errors above and/or in the log." | tee -a $log
@@ -77,7 +78,7 @@ get_candidate_version () {
     apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
 }
 
-# Checks if a package is installed using package manager
+# Checks if a package is installed using package manager or dpkg
 # $1 the package to check for
 # Returns code 0 in case a package is installed, 1 if missing
 _check_installed (){
@@ -88,10 +89,9 @@ _check_installed (){
     fi
 }
 
-# Check if apt is locked
+# Check if apt is locked, says by what, and kills top script if the lock is present
 _check_dpkg_lock (){
     if [[ $_apt_skip_checks != "true" ]]; then 
-        # dpkg -i /dev/zero >> $log 2>&1
         if lsof /var/lib/dpkg/lock >> $log 2>&1; then
             offender=$(lsof /var/lib/dpkg/lock | grep dpkg | awk '{ print $1 }')
             echo "Error: dpkg database is locked by $offender. Please try again later" | tee -a $log
@@ -102,7 +102,7 @@ _check_dpkg_lock (){
     fi
 }
 
-# Check if install can run or not
+# Check if install can run or not and kill top script if not
 _apt_check (){
     if [[ $_apt_skip_checks != "true" ]]; then 
         if ! apt-get check >> $log 2>&1; then
@@ -115,7 +115,7 @@ _apt_check (){
     fi
 }
 
-# Performs a simulation of an apt-get call
+# Performs a simulation of an apt-get call and kills top script if it fails
 _apt_simulate(){
     if [[ $_apt_skip_checks != "true" ]]; then 
         if  ! apt-get --simulate "$@" >> $log 2>&1; then
@@ -128,7 +128,7 @@ _apt_simulate(){
     fi
 }
 
-#INTERNAL ONLY apt update mechanism
+# INTERNAL ONLY apt update mechanism
 _apt_update () {
     if [[ $_apt_skip_update != "true" ]]; then 
         echo "Performing apt update" | tee -a $log
@@ -138,7 +138,6 @@ _apt_update () {
 }
 
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
-# shellcheck disable=SC2120
 apt_update () {
     _process_apt_args "$@"
     _apt_update
@@ -163,17 +162,21 @@ apt_upgrade() {
     fi
 
     _apt_logcheck
+    # TODO check if any configs have changed and alert the users
+
 }
 export -f apt_upgrade
 
-#Takes a space separated list of packages to install in a non-interactive manner
+# Takes a space separated list of packages to install with all sorts of checking
 apt_install (){
     _process_apt_args "$@"
+    #Do checks
     _check_dpkg_lock
     _apt_check
     _apt_update
     _apt_simulate install "${_apt_packages[@]}"
 
+    #Prepare flags for install
     flags=""
     if [[ $_apt_install_recommends == "true" ]]; then
         flags="--install-recommends"
@@ -191,11 +194,10 @@ apt_install (){
     _apt_logcheck
 
     echo "Apt install complete"
-
-    # TODO check if any configs have changed and alert the users
 }
 export -f apt_install
 
+# Takes a space separated list of packages to remove with all sorts of checking
 apt_remove (){
     _process_apt_args "$@"
     _check_dpkg_lock
@@ -219,16 +221,15 @@ apt_remove (){
     _apt_logcheck
 
     echo "Apt remove complete"
-
-    # TODO check if any configs have changed and alert the users
 }
 
+# Performs an autoremove
 apt_autoremove (){
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check
     _apt_simulate autoremove
-    # TODO perform a check if it is necessary
+    # maybe TODO perform a check if it is necessary to run this at all or not?
 
     echo "Performing auto-removal of unnecessary apt dependencies" | tee -a $log
     if [[ $_apt_interactive == "true" ]]; then
@@ -241,7 +242,5 @@ apt_autoremove (){
     _apt_logcheck
 
     echo "Apt remove complete"
-
-    # TODO check if any configs have changed and alert the users
 }
 
