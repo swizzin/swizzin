@@ -29,6 +29,5 @@ if [[ $distribution == Ubuntu ]]; then
   rm /install/.quassel.lock
 else
   dpkg -r quassel-core* >/dev/null 2>&1
-  apt_autoremove
   rm /install/.quassel.lock
 fi

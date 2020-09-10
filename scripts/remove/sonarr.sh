@@ -24,7 +24,6 @@ function _removeSonarr() {
   systemctl stop sonarr@${username}
   systemctl disable sonarr@${username}
   apt_remove nzbdrone
-  apt_autoremove
   rm -f /etc/apt/sources.list.d/sonarr.list
   rm -f /etc/nginx/apps/sonarr.conf
   if [[ -f /etc/init.d/sonarr ]]; then

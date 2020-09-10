@@ -11,7 +11,6 @@ if [ -z "$(ls -A /opt/.venv)" ]; then
 fi
 rm -rf /etc/nginx/apps/pyload.conf
 apt_remove tesseract-ocr gocr rhino
-apt_autoremove
 systemctl reload nginx > /dev/null 2>&1
 rm /install/.pyload.lock
 

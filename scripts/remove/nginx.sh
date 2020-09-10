@@ -7,7 +7,6 @@ apt_remove $APT
 
 LIST='nginx-* php7.0-* php-*'
 apt_remove --purge $LIST
-apt_autoremove
 
 rm -rf /etc/nginx
 rm -rf /etc/php

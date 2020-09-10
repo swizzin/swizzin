@@ -13,7 +13,6 @@ done
 rm -rf /etc/wireguard/
 
 apt_remove wireguard wireguard-tools wireguard-dkms qrencode
-apt_autoremove
 
 echo "Removing unused repositories"
 

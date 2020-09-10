@@ -19,6 +19,5 @@
 #
 #################################################################################
 apt_remove --purge x2goserver* xfce4*
-apt_autoremove
 rm /install/.x2go.lock
 rm /etc/apt/sources.list.d/x2go*
