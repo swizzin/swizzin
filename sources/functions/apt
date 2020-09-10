@@ -128,17 +128,20 @@ _apt_simulate(){
     fi
 }
 
-# Performing apt update and checking if it succeeded
-# shellcheck disable=SC2120
-apt_update () {
-    if [[ -n $1 ]]; then 
-        _process_apt_args "$@"
-    fi
+#INTERNAL ONLY apt update mechanism
+_apt_update () {
     if [[ $_apt_skip_update != "true" ]]; then 
         echo "Performing apt update" | tee -a $log
         apt-get update >> $log 2>&1
         _apt_logcheck
     fi
+}
+
+# EXTERNAL ONLY Performing apt update and checking if it succeeded
+# shellcheck disable=SC2120
+apt_update () {
+    _process_apt_args "$@"
+    _apt_update
 }
 export -f apt_update
 
@@ -147,7 +150,7 @@ apt_upgrade() {
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check
-    apt_update
+    _apt_update
     _apt_simulate upgrade
 
     echo "Performing apt upgrade" | tee -a $log
@@ -168,9 +171,7 @@ apt_install (){
     _process_apt_args "$@"
     _check_dpkg_lock
     _apt_check
-
-    apt_update
-    
+    _apt_update
     _apt_simulate install "${_apt_packages[@]}"
 
     flags=""
@@ -198,10 +199,7 @@ export -f apt_install
 apt_remove (){
     _process_apt_args "$@"
     _check_dpkg_lock
-    _apt_check
-
-    # apt_update
-    
+    _apt_check    
     _apt_simulate remove "${_apt_packages[@]}"
 
     flags=""
