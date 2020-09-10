@@ -10,8 +10,6 @@
 #   under the GPL along with build & install instructions.
 #
 
-#shellcheck source=sources/functions/apt
-. /etc/swizzin/sources/functions/apt
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
