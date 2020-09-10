@@ -22,12 +22,12 @@ fi
 
 distribution=$(lsb_release -is)
 release=$(lsb_release -cs)
-echo -n "Installing Xfce4 (this may take a bit) ... "
+echo "Installing Xfce4 (this may take a bit) ... "
 apt_install xfce4
 #disable lightdm because it causes suspend issues on Ubuntu
 systemctl disable --now lightdm >> ${log} 2>&1
 
-echo -n "Installing x2go repositories ... "
+echo "Installing x2go repositories ... "
 
 if [[ $distribution == Ubuntu ]]; then
 	apt_install software-properties-common
@@ -54,9 +54,8 @@ apt_update
 apt_install x2go-keyring
 fi
 
-echo -n "Installing X2go (this may take a bit) ... "
+echo "Installing X2go (this may take a bit) ... "
 apt_update
-apt_install x2goserver x2goserver-xsession
-apt_install pulseaudio
+apt_install x2goserver x2goserver-xsession pulseaudio
 
 touch /install/.x2go.lock
