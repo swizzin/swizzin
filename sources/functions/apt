@@ -3,7 +3,7 @@
 # Flying_sausages for Swizzin 2020
 # GPLv3 Applies
 
-if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
+if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
 
 # Checks arguments and exports variables to add functionality to rest of packages
 _process_apt_args() {
@@ -44,6 +44,7 @@ _process_apt_args() {
         export _apt_packages
     fi
 }
+export -f _process_apt_args
 
 # Overwrites all the variables we use in this script
 _unset_apt_args (){
@@ -55,12 +56,14 @@ _unset_apt_args (){
     unset _apt_install_recommends
     unset _apt_packages
 }
+export -f _unset_apt_args
 
 #Prints the last apt log
 _get_last_apt_log (){
     # TODO replace with actual APT log instead
     tac $log | sed '/Reading package lists.../q' | tac
 }
+export -f _get_last_apt_log
 
 #Kills the top script in case an apt error was found
 _apt_logcheck (){
@@ -71,12 +74,14 @@ _apt_logcheck (){
         fi
     fi
 }
+export -f _apt_logcheck
 
 #Returns the version of the candidate package to install
 get_candidate_version () {
     package=$1
     apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
 }
+export -f get_candidate_version
 
 # Checks if a package is installed using package manager or dpkg
 # $1 the package to check for
@@ -88,6 +93,7 @@ _check_installed (){
         return 1
     fi
 }
+export -f _check_installed
 
 # Check if apt is locked, says by what, and kills top script if the lock is present
 _check_dpkg_lock (){
@@ -101,6 +107,7 @@ _check_dpkg_lock (){
         fi
     fi
 }
+export -f _check_dpkg_lock
 
 # Check if install can run or not and kill top script if not
 _apt_check (){
@@ -114,6 +121,7 @@ _apt_check (){
         fi
     fi
 }
+export -f _apt_check
 
 # Performs a simulation of an apt-get call and kills top script if it fails
 _apt_simulate(){
@@ -127,6 +135,7 @@ _apt_simulate(){
         fi
     fi
 }
+export -f _apt_simulate
 
 # INTERNAL ONLY apt update mechanism
 _apt_update () {
@@ -136,6 +145,7 @@ _apt_update () {
         _apt_logcheck
     fi
 }
+export -f _apt_update
 
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
 apt_update () {
@@ -222,6 +232,7 @@ apt_remove (){
 
     echo "Apt remove complete"
 }
+export -f apt_remove
 
 # Performs an autoremove
 apt_autoremove (){
@@ -243,4 +254,5 @@ apt_autoremove (){
 
     echo "Apt remove complete"
 }
+export -f apt_autoremove
 
