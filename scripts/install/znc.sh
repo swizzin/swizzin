@@ -35,6 +35,7 @@ if [[ $DISTRO == Debian ]]; then
 elif [[ $DISTRO == Ubuntu ]]; then
   add-apt-repository --yes ppa:teward/znc >> ${OUTTO} 2>&1
 fi
+  apt_update
   apt_install znc
   #sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
   cat > /etc/systemd/system/znc.service <<ZNC
