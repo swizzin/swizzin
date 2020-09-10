@@ -11,3 +11,15 @@ function check_debian_backports () {
         apt_update
     fi
 }
+
+# Creates a backport pin for all packages in arguments
+set_packages_to_backports () {
+    codename=$(lsb_release -cs)
+    for package in "$@"; do
+        cat > /etc/apt/preferences.d/"$package" <<BPO
+Package: *$package*
+Pin: release a=${codename}-backports
+Pin-Priority: 500
+BPO
+    done
+}

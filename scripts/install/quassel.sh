@@ -24,7 +24,6 @@ distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 user=$(cut -d: -f1 < /root/.master.info)
-. /etc/swizzin/sources/functions/backports
 
 echo "Installing Quassel PPA (Ubuntu) or grabbing latest backport (Debian) ... "
 
@@ -35,12 +34,15 @@ if [[ $distribution == Ubuntu ]]; then
   apt_update
   apt_install quassel-core
 else
+  #shellcheck source=sources/functions/backports
+  . /etc/swizzin/sources/functions/backports
   if [[ $codename == "buster" ]]; then
     echo "Grabbing latest release"
     apt_install quassel-core
   elif [[ $codename == "stretch" ]]; then
     check_debian_backports
     echo "Grabbing latest backport"
+    set_packages_to_backports quassel-core
     apt_install quassel-core
   else
     echo "Grabbing latest backport"

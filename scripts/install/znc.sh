@@ -31,11 +31,7 @@ passwd znc -l >> ${OUTTO} 2>&1
 if [[ $DISTRO == Debian ]]; then
   . /etc/swizzin/sources/functions/backports
   check_debian_backports
-  cat > /etc/apt/preferences.d/znc <<ZNCP
-Package: *znc*
-Pin: release a=${CODENAME}-backports
-Pin-Priority: 500
-ZNCP
+  set_packages_to_backports znc
 elif [[ $DISTRO == Ubuntu ]]; then
   add-apt-repository --yes ppa:teward/znc >> ${OUTTO} 2>&1
 fi

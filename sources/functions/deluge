@@ -266,6 +266,7 @@ function build_deluge () {
           "stretch")
             . /etc/swizzin/sources/functions/backports
             check_debian_backports
+            set_packages_to_backports python3-twisted
             LIST='python3-twisted'
             apt_install $LIST
           ;;
