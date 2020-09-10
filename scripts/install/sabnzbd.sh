@@ -28,9 +28,7 @@ fi
 LIST='par2 p7zip-full python3-venv python3-pip libglib2.0-dev libdbus-1-dev'
 
 apt-get -y update >>"${log}" 2>&1
-for depend in $LIST; do
-  apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-done
+apt_install $LIST
 
 python3_venv ${user} sabnzbd
 
