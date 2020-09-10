@@ -110,6 +110,8 @@ function _clr() {
       echo -e "Package $i not installed"
     fi
   done
+  #shellcheck disable=SC2119
+  apt_autoremove
 }
 
 function _update() {
