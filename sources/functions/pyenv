@@ -65,3 +65,13 @@ function python2_home_venv {
   python2 -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
   chown -R ${user}: /home/${user}/.venv/${app}
 }
+
+function python3_venv {
+  user=$1
+  app=$2
+  echo "Setting up the ${app} venv ..."
+  mkdir -p /opt/.venv
+  chown ${user}: /opt/.venv
+  python3 -m venv /opt/.venv/${app} >>"${log}" 2>&1
+  chown -R ${user}: /opt/.venv/${app}
+}
