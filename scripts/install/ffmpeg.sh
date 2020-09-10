@@ -21,7 +21,7 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-apt-get -y install ffmpeg >> $log 2>&1
+apt_install ffmpeg
 
 
 touch /install/.ffmpeg.lock
