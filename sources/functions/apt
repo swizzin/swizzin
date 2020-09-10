@@ -3,10 +3,9 @@
 # Flying_sausages for Swizzin 2020
 # GPLv3 Applies
 
+# Define, in seconds, what is the max toleration for apt to be out of date in case an install/upgrade is triggered
 export _max_apt_age=3600
-
 if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
-# export _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
 
 # Checks arguments and exports variables to add functionality to rest of packages
 _process_apt_args() {
