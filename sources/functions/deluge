@@ -2,7 +2,6 @@
 
 function whiptail_deluge () {
   if [[ -z $deluge ]]; then
-    . /etc/swizzin/sources/functions/apt
     repov=$(get_candidate_version deluge)
     case $(lsb_release -cs) in
     *)
@@ -40,7 +39,6 @@ function whiptail_deluge () {
 function whiptail_libtorrent_rasterbar () {
   if [[ -z $libtorrent ]]; then
     if [[ ! $deluge == master ]]; then
-        . /etc/swizzin/sources/functions/apt
     repov=$(get_candidate_version libtorrent-rasterbar7)
     repov+=$(get_candidate_version libtorrent-rasterbar8)
     repov+=$(get_candidate_version libtorrent-rasterbar9)

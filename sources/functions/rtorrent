@@ -6,7 +6,6 @@ export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
-    . /etc/swizzin/sources/functions/apt
     repov=$(get_candidate_version rtorrent)
     if [[ ! ${codename} == "xenial" ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
