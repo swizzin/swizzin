@@ -52,7 +52,7 @@ We have developed our own internal set of functions for handling `apt` packages 
 * Non-exported functions which need a `source` or a `. .../apt`. Please consult the `sources/functions/apt` file to see what they do and how they work.
   * `get_candidate_version`
   * `_get_apt_last_log`
-  * `_check_installed`
+  * `check_installed`
   * ... and a couple others
 
 ### Options

@@ -5,11 +5,22 @@
 
 # Define, in seconds, what is the max toleration for apt to be out of date in case an install/upgrade is triggered
 export _max_apt_age=3600
+
+#Log is required for checking for failures
 if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
+
+##############################################################################
+# INTERNAL FUNCTIONS
+#
+# These functions are intended to be used _only_ by other functions inside
+# this script file.
+##############################################################################
+
 
 # Checks arguments and exports variables to add functionality to rest of packages
 _process_apt_args() {
     # idiomatic parameter and option handling in sh
+    # TODO add a flag to just pass whatever parameters straoght to the apt call
     _unset_apt_args
     _apt_packages=()
     while test $# -gt 0
@@ -62,21 +73,20 @@ export -f _unset_apt_args
 
 #Prints the last apt log
 _get_last_apt_log (){
-    # TODO replace with actual APT log instead
+    # TODO replace with actual APT log instead to make this thing not reliant on logging to a file
     tac $log | sed "/$_apt_logcheck_marker_text/q" | tac
 }
 export -f _get_last_apt_log
 
-#Inserts marker into the log so we know how much up we need to go to get to the beginning of the run
+#Inserts marker into the $log so we know how much up we need to go to get to the beginning of the run
 _apt_logcheck_mark(){
-    # _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
     _apt_logcheck_marker_text=$(uuidgen)
     echo "$_apt_logcheck_marker_text" >> $log
 }
 export -f _apt_logcheck_mark
 
 # Kills the top script in case an apt error was found. READ THIS!!!
-# ATTENTION REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function
+# ATTENTION !!! REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function and that $log is set
 _apt_logcheck (){
     if [[ $(_get_last_apt_log | grep 'E:') ]]; then
         echo "Error: apt failed. Please consult errors above and/or in the log." | tee -a $log
@@ -93,18 +103,6 @@ get_candidate_version () {
     apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
 }
 export -f get_candidate_version
-
-# Checks if a package is installed using package manager or dpkg
-# $1 the package to check for
-# Returns code 0 in case a package is installed, 1 if missing
-_check_installed (){
-    if dpkg -s "$1" >> $log 2>&1; then
-        return 0
-    else 
-        return 1
-    fi
-}
-export -f _check_installed
 
 # Check if apt is locked, says by what, and kills top script if the lock is present
 _check_dpkg_lock (){
@@ -164,6 +162,25 @@ _apt_update () {
     fi
 }
 export -f _apt_update
+
+##############################################################################
+# EXTERNAL FUNCTIONS
+#
+# These functions are intended to be used _only_ by other functions inside
+# this script file.
+##############################################################################
+
+# Checks if a package is installed using package manager or dpkg
+# $1 the package to check for
+# Returns code 0 in case a package is installed, 1 if missing
+check_installed (){
+    if dpkg -s "$1" >> $log 2>&1; then
+        return 0
+    else 
+        return 1
+    fi
+}
+export -f check_installed
 
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
 apt_update () {
