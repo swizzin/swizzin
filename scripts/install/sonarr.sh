@@ -46,6 +46,7 @@ function _installSonarr2() {
     #gpg --export 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /etc/apt/trusted.gpg.d/nzbdrone.gpg
   fi
   echo "deb https://apt.sonarr.tv/ master main" | tee /etc/apt/sources.list.d/sonarr.list >> ${log} 2>&1
+  apt_update
 }
 
 function _installSonarr3() {
