@@ -6,7 +6,7 @@
 export _max_apt_age=3600
 
 if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
-export _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
+# export _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
 
 # Checks arguments and exports variables to add functionality to rest of packages
 _process_apt_args() {
@@ -70,6 +70,8 @@ export -f _get_last_apt_log
 
 #Inserts marker into the log so we know how much up we need to go to get to the beginning of the run
 _apt_logcheck_mark(){
+    # _apt_logcheck_marker_text="DONOTDELETEMEBECAUSEIMARKTHEBEGINNINGOFTHERUNWEWANTTOCHECKkthx"
+    _apt_logcheck_marker_text=$(uuidgen)
     echo "$_apt_logcheck_marker_text" >> $log
 }
 export -f _apt_logcheck_mark
@@ -253,9 +255,7 @@ apt_remove (){
             DEBIAN_FRONTEND=noninteractive apt-get remove $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
         done
     fi
-
     _apt_logcheck
-
     echo "Apt remove complete"
 }
 export -f apt_remove
