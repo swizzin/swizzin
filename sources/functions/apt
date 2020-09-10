@@ -249,7 +249,9 @@ apt_remove (){
         # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get remove -y $flags "${_apt_packages[@]}" | tee -a $log 
     else
-        DEBIAN_FRONTEND=noninteractive apt-get remove $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "${_apt_packages[@]}" >> $log 2>&1
+        for pekkidge in "${_apt_packages[@]}"; do
+            DEBIAN_FRONTEND=noninteractive apt-get remove $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
+        done
     fi
 
     _apt_logcheck
