@@ -97,13 +97,6 @@ _apt_logcheck (){
 }
 export -f _apt_logcheck
 
-#Returns the version of the candidate package to install
-get_candidate_version () {
-    package=$1
-    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
-}
-export -f get_candidate_version
-
 # Check if apt is locked, says by what, and kills top script if the lock is present
 _check_dpkg_lock (){
     if [[ $_apt_skip_checks != "true" ]]; then 
@@ -181,6 +174,13 @@ check_installed (){
     fi
 }
 export -f check_installed
+
+#Returns the version of the candidate package to install
+get_candidate_version () {
+    package=$1
+    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
+}
+export -f get_candidate_version
 
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
 apt_update () {
