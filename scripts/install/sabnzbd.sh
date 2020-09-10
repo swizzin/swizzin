@@ -27,7 +27,6 @@ fi
 
 LIST='par2 p7zip-full python3-venv python3-pip libglib2.0-dev libdbus-1-dev'
 
-apt-get -y update >>"${log}" 2>&1
 apt_install $LIST
 
 python3_venv ${user} sabnzbd

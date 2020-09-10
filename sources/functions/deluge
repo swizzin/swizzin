@@ -107,10 +107,10 @@ function build_libtorrent_rasterbar () {
     done
       case $release in
           "xenial")
-          apt-get install -y -q libtorrent-rasterbar8 python-libtorrent python3-libtorrent
+          apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent
           ;;
           *)
-          apt-get install -y -q libtorrent-rasterbar9 python-libtorrent python3-libtorrent
+          apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent
           ;;
       esac
   else
@@ -155,10 +155,8 @@ function build_libtorrent_rasterbar () {
     if [[ -z $LIST ]]; then
       LIST="build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
     fi
-    for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
-      apt-get -y -q autoremove >>"${log}" 2>&1
+    apt_install $LIST
+    apt_autoremove
     install_fpm
     #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
     #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
@@ -213,8 +211,7 @@ function build_libtorrent_rasterbar () {
 
 function build_deluge () {
   if [[ $deluge == repo ]]; then
-    apt-get -q -y update >>"${log}" 2>&1
-    apt-get -q -y install deluged deluge-web deluge-console >>"${log}" 2>&1
+    apt_install deluged deluge-web deluge-console
     chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
     cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
     systemctl stop deluged
@@ -240,9 +237,8 @@ function build_deluge () {
         args=
       ;;
     esac
-    for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
+        apt_install $LIST --skip-updates
+
     if [[ -n $PIP ]]; then
       . /etc/swizzin/sources/functions/pyenv
       python_getpip
@@ -261,9 +257,7 @@ function build_deluge () {
             LIST='libffi-dev python3-pip'
             packages=(setuptools pycparser asn1crypto cffi constantly incremental attrs automat idna hyperlink pyhamcrest cryptography pyopenssl service_identity zope.interface twisted)
             mkdir -p /root/dist/python3
-            for depend in $LIST; do
-              apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-            done
+            apt_install $LIST
             for d in ${packages[@]}; do
               fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
               dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
@@ -273,9 +267,7 @@ function build_deluge () {
             . /etc/swizzin/sources/functions/backports
             check_debian_backports
             LIST='python3-twisted'
-            for depend in $LIST; do
-              apt-get -qq -y install -t stretch-backports $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-            done
+            apt_install $LIST
           ;;
         esac
       fi

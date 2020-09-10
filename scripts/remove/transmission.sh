@@ -15,7 +15,7 @@ for u in ${users}; do
     rm -f /home/${u}/.config/transmission-daemon/settings.json
 done
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
-apt-get purge -y transmission-common transmission-cli transmission-daemon >> $log 2>&1
+apt_remove --purge transmission-common transmission-cli transmission-daemon
 rm /etc/systemd/system/transmission@.service
 rm /etc/nginx/apps/transmission.conf > /dev/null 2>&1
 rm /etc/nginx/conf.d/*.transmission.conf > /dev/null 2>&1

@@ -18,8 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
-apt-get purge -q -y x2goserver* >/dev/null 2>&1
-apt-get purge -q -y xfce4* >/dev/null 2>&1
-apt-get -q -y autoremove >/dev/null 2>&1
+apt_remove --purge x2goserver* xfce4*
+apt_autoremove
 rm /install/.x2go.lock
 rm /etc/apt/sources.list.d/x2go*

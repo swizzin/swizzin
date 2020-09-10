@@ -49,9 +49,7 @@ if [[ -z $address ]]; then
 fi
 
 echo "Setup will now install xmrig. Please wait ..."
-
-apt-get -y -q update >> $log 2>&1
-apt-get -y -q install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev >> $log 2>&1
+apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev
 
 cd /tmp
 

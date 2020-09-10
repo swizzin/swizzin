@@ -56,10 +56,8 @@ function _install_transmission () {
         add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
         fi
     fi
-    echo "Fetching updates"
-    apt-get update >> $log 2>&1
     echo "Getting Transmission from apt"
-    apt-get install transmission-cli transmission-common transmission-daemon -yq >> $log 2>&1
+    apt_install transmission-cli transmission-common transmission-daemon
     echo "Disabling default non-multiuser service"
     systemctl disable --now transmission-daemon
 }

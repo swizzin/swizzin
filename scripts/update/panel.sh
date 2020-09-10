@@ -4,7 +4,7 @@ if [[ -f /install/.panel.lock ]]; then
   if [[ ! -d /opt/swizzin ]]; then
 master=$(cut -d: -f1 < /root/.master.info)
 
-apt-get -y -q install python3-venv git acl > /dev/null 2>&1
+apt_install python3-venv
 mkdir -p /opt/swizzin/
 python3 -m venv /opt/swizzin/venv
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin > /dev/null 2>&1

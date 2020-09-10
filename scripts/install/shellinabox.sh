@@ -7,8 +7,7 @@
 # Licensed under GNU General Public License v3.0 GPL-3
 #################################################################################
 
-apt-get -y -q update > /dev/null 2>&1
-apt-get -y install shellinabox > /dev/null 2>&1
+apt_install shellinabox
 
 systemctl stop shellinabox > /dev/null 2>&1
 rm -rf /etc/init.d/shellinabox

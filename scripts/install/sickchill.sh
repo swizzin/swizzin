@@ -47,7 +47,6 @@ else
     LIST='git python2.7-dev'
 fi
 
-apt-get -y -q update >> $log 2>&1
 apt_install $LIST
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then

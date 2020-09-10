@@ -17,8 +17,7 @@ fi
 
 . /etc/swizzin/sources/functions/letsencrypt
 
-apt-get -y update >> $log 2>&1
-apt-get -y install vsftpd ssl-cert>> $log 2>&1
+apt_install vsftpd ssl-cert
 
 cat > /etc/vsftpd.conf <<VSC
 listen=NO
