@@ -237,7 +237,7 @@ function build_deluge () {
         args=
       ;;
     esac
-        apt_install $LIST --skip-updates
+        apt_install $LIST
 
     if [[ -n $PIP ]]; then
       . /etc/swizzin/sources/functions/pyenv

@@ -17,7 +17,7 @@ fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 codename=$(lsb_release -cs)
 
-apt-install sox geoip-database python2.7-dev python-setuptools
+apt_install sox geoip-database python2.7-dev python-setuptools
 
 if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
   apt_install python-pip --skip-update

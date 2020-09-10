@@ -39,7 +39,7 @@ echo "Updating system ... "
   # TODO is this necessary?
   apt_install apt-transport-https --skip-update
   apt_update
-  apt_install plexmediaserver --skip-update
+  apt_install plexmediaserver
   echo
 
   if [[ ! -d /var/lib/plexmediaserver ]]; then

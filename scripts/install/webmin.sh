@@ -18,7 +18,7 @@ _install_webmin () {
     echo "Fetching updates"
     apt_update
     echo "Installing Webmin from apt"
-    apt_install webmin --skip-updates
+    apt_install webmin
 }
 
 _install_webmin

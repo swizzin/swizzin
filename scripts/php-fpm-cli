@@ -81,6 +81,6 @@ init() {
 }
 
 if [[ -z $(which cgi-fcgi) ]]; then
-  apt_install --install-recommends libfcgi-bin libfcgi0ldbl
+  apt_install --recommends libfcgi-bin libfcgi0ldbl
 fi
 init "$@" && main

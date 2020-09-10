@@ -51,12 +51,12 @@ apt_update
 apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
 
 apt_update
-apt_install x2go-keyring --skip-updates
+apt_install x2go-keyring
 fi
 
 echo -n "Installing X2go (this may take a bit) ... "
 apt_update
-apt_install x2goserver x2goserver-xsession --skip-updates
-apt_install pulseaudio --skip-updates
+apt_install x2goserver x2goserver-xsession
+apt_install pulseaudio
 
 touch /install/.x2go.lock

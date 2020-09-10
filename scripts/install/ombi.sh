@@ -32,7 +32,7 @@ function _install() {
   #rm Ombi.zip
   #cd /opt
   #chown -R ${user}: ombi
-  apt_install ombi --skip-update
+  apt_install ombi
 }
 
 

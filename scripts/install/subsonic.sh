@@ -37,6 +37,7 @@ case $codename in
   apt_install software-properties-common --skip-update
   wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${OUTTO}" 2>&1
   add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${OUTTO}" 2>&1
+  apt_update
   apt_install adoptopenjdk-8-hotspot
   ;;
   *)
