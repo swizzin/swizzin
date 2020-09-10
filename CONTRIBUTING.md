@@ -22,9 +22,10 @@ Whenever you are contributing code that might be generalized and useful for othe
 We have developed our own internal set of functions for handling `apt` packages in a predictable and uniform way. In the event any of these functions encounter an error, they will (with default behaviour) ensure the rest of the script will not continue. Please use the following functions and see the available options. **Refrain from calling the raw apt equivalents of the functions below.** 
 
 ### Functions
-
-* Exported and box-wide available functions. By default, the functions performs sanity checks and a couple other verifications. You can disable these with the options below
+* Exported and box-wide available functions. By default, the functions perform `apt-get update`s for you, sanity checks and a couple other verifications. You can disable these with the options described below.
   * `apt_install [options] $1, $2, $3 ... [options]`
+  * `apt_remove [options] $1, $2, $3 ... [options]`
+  * `apt_autoremove`
   * `apt_upgrade [options]`
   * `apt_update [options]`
 * Non-exported functions which need a `source` or a `. .../apt`. Please consult the `sources/functions/apt` file to see what they do and how they work.
@@ -38,13 +39,20 @@ The following options can be used with any of the exported functions above to ov
 
 * `--interactive`
   * Run the installation stdout in the forefront and allow any end-user interaction if necessary
+  * WARNING: This is not yet fully tested
 * `--skip-check`
   * Skips integrity checks during the command such as `dpkg` lock checking, `apt --simulate`, and a couple others.
 * `--skip-update`
   * Skips a call to `apt-get update` in the `upgrade` and `install` commands.
   * Using `apt_update --skip-update` will just do nothing.
+  * **FYI the default behaviour in most of the functions is to not update anything in case the last update was within an hour** with the exception of `apt-update`, which will always perform an update. It is therefore fine to issue an `apt_update` and an `apt_install`, as the update will only run once.
 * `--ignore-errors`
   * Allows script to continue in case an error was encountered, instead of killing the job script by default
+* `--purge`
+  * _Only for `apt_remove`_: performs the removal with the `--purge` flag sent to the `apt-get remove` command.
+* `--recommends`
+  * _Only for `apt_install`_: performs the installation with the `--install-recommends` flag sent to the `apt-get install` command.
+
 
 ### Shellcheck
 Please use `shellcheck` and resolve any warnings for the code you have contributed.
