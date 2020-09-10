@@ -3,6 +3,8 @@
 # Flying_sausages for Swizzin 2020
 # GPLv3 Applies
 
+export _max_apt_age=3600
+
 if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
 
 # Checks arguments and exports variables to add functionality to rest of packages
@@ -139,10 +141,20 @@ export -f _apt_simulate
 
 # INTERNAL ONLY apt update mechanism
 _apt_update () {
-    if [[ $_apt_skip_update != "true" ]]; then 
-        echo "Performing apt update" | tee -a $log
-        apt-get update >> $log 2>&1
-        _apt_logcheck
+    if [[ $_apt_skip_update != "true" ]]; then
+
+        last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
+        now=$(date +%s)
+        if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_ignore_apt_age" = "true" ]; then
+            echo "Performing apt update" | tee -a $log
+            apt-get update >> $log 2>&1
+            _apt_logcheck       
+        else
+            echo "... sufficiently up to date"
+        fi
+
+
+        
     fi
 }
 export -f _apt_update
@@ -150,6 +162,7 @@ export -f _apt_update
 # EXTERNAL ONLY Performing apt update and checking if it succeeded
 apt_update () {
     _process_apt_args "$@"
+    _ignore_apt_age="true"
     _apt_update
 }
 export -f apt_update
