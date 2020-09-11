@@ -294,7 +294,7 @@ apt_autoremove (){
 
     _apt_logcheck
 
-    echo "Apt remove complete"
+    echo "Apt autoremove complete"
 }
 export -f apt_autoremove
 
