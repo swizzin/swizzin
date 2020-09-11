@@ -130,7 +130,7 @@ _apt_simulate(){
     if [[ $_apt_skip_checks != "true" ]]; then 
         if  ! apt-get --simulate "$@" >> $log 2>&1; then
             _get_last_apt_log | grep 'E:'
-            echo "Error: The simulation check resulted in an error. Please consult the log. Aborting install" | tee -a $log
+            echo "Error: The simulation check resulted in an error. Please consult the log." | tee -a $log
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 exit 1
             fi
