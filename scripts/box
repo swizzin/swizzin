@@ -104,6 +104,7 @@ function _clr() {
   for i in "${packages[@]}"; do
     app=${i}
     if [[ -f /install/.$app.lock ]]; then
+      schedule_remove="true"
       echo -e "Removing $i "
       bash /usr/local/bin/swizzin/remove/$i.sh
     else
@@ -111,7 +112,9 @@ function _clr() {
     fi
   done
   #shellcheck disable=SC2119
-  apt_autoremove
+  if [[ $schedule_remove = "true" ]];then
+    apt_autoremove
+  fi
 }
 
 function _update() {
