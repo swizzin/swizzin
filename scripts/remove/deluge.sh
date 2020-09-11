@@ -23,7 +23,6 @@ rm /etc/systemd/system/deluged@.service
 rm /etc/systemd/system/deluge-web@.service
 apt_remove --purge deluge*
 
-
 if [[ -f /install/.nginx.lock ]]; then
   rm -f /etc/nginx/apps/deluge.conf > /dev/null 2>&1
   rm -f /etc/nginx/apps/dindex.conf > /dev/null 2>&1

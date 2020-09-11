@@ -111,7 +111,6 @@ function _clr() {
       echo -e "Package $i not installed"
     fi
   done
-  #shellcheck disable=SC2119
   if [[ $schedule_remove = "true" ]];then
     apt_autoremove
   fi
