@@ -17,9 +17,7 @@ for u in ${users}; do
 done
 echo_log_only "Removing PPA"
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
-echo_progress_start "Removing apt packages"
 apt_remove --purge transmission-common transmission-cli transmission-daemon
-echo_progress_done "Packages removed"
 echo_log_only "Removing service file and nginx configs"
 rm /etc/systemd/system/transmission@.service
 rm /etc/nginx/apps/transmission.conf > /dev/null 2>&1
