@@ -26,4 +26,3 @@ systemctl reload nginx > /dev/null 2>&1
 systemctl daemon-reload
 
 rm /install/.transmission.lock
-echo_success "Transmission Removed"
