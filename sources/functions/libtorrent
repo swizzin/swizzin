@@ -2,13 +2,12 @@
 
 function whiptail_libtorrent_rasterbar () {
   if [[ -z $libtorrent ]]; then
-    # . /etc/swizzin/sources/functions/apt
     repov=$(get_candidate_version libtorrent-rasterbar7)
     repov+=$(get_candidate_version libtorrent-rasterbar8)
     repov+=$(get_candidate_version libtorrent-rasterbar9)
-    if [[ $deluge == 1.3-stable ]] && [[ -n $qbittorrent ]]; then
+    if [[ ($deluge == "1.3-stable" && -n $qbittorrent) || ($deluge == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
         case $(lsb_release -cs) in
-            "xenial")
+            "xenial"|"focal")
                 function="1.1"
                 echo "Defaulting to libtorrent branch RC_1_1 for shared compatbility"
                 ;;
@@ -90,7 +89,11 @@ function skip_libtorrent_rasterbar () {
                 fi
             ;;
             1.1.*)
-                if [[ -n $deluge ]] && (dpkg -s python-libtorrent > /dev/null 2>& 1 || dpkg -s python3-libtorrent > /dev/null 2>&1) && whiptail_skip_libtorrent_rasterbar; then
+                if [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
             ;;
@@ -128,9 +131,13 @@ function build_libtorrent_rasterbar () {
           "xenial")
           apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
-          *)
+          "stretch"|"buster"|"bionic")
           apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
+          *)
+          apt_install libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          ;;
+
       esac
   else
     if [[ -n $deluge ]]; then
