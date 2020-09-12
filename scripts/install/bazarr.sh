@@ -35,11 +35,11 @@ fi
 cd /opt
 
 echo "Cloning into '/opt/bazarr'"
-git clone https://github.com/morpheus65535/bazarr.git > $log 2>&1
+git clone https://github.com/morpheus65535/bazarr.git >> $log 2>&1
 chown -R ${user}: bazarr
 cd bazarr
 echo "Checking python depends"
-sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" > $log 2>&1
+sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" >> $log 2>&1
 mkdir -p /opt/bazarr/data/config/
 
 
