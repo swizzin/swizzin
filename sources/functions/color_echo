@@ -71,9 +71,14 @@ echo_progress_start () {
 }
 export -f echo_progress_start
 
-
+#Prints the reply to echo_progess_start or "Done" if no params
 echo_progress_done () {
-    colorprint "" "${green}${dim}\u2714   ${italic}$1"
+    if [[ -z $1 ]]; then 
+        message="Done"
+    else 
+        message="$1"
+    fi
+    colorprint "" "${green}${dim}\u2714   ${italic}$message"
 }
 export -f echo_progress_done
 
