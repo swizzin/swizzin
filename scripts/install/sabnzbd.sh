@@ -25,26 +25,14 @@ else
 fi
 
 
-if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
-else
-  LIST='par2 p7zip-full python2.7-dev libxml2-dev libxslt1-dev libglib2.0-dev libdbus-1-dev'
-fi
+LIST='par2 p7zip-full python3-venv python3-pip libglib2.0-dev libdbus-1-dev'
 
 apt-get -y update >>"${log}" 2>&1
 for depend in $LIST; do
   apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
 done
 
-if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  python_getpip
-fi
-
-python2_venv ${user} sabnzbd
-
-PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc sabyenc cheetah pyOpenSSL'
-/opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
-chown -R ${user}: /opt/.venv/sabnzbd
+python3_venv ${user} sabnzbd
 
 install_rar
 
@@ -53,6 +41,8 @@ mkdir -p /opt/sabnzbd
 wget -q -O sabnzbd.tar.gz $latest
 tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
 rm -rf sabnzbd.tar.gz
+/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >>"${log}" 2>&1
+chown -R ${user}: /opt/.venv/sabnzbd
 mkdir -p /home/${user}/.config/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
 chown -R ${user}: /opt/sabnzbd
@@ -69,7 +59,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 

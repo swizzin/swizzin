@@ -31,9 +31,8 @@ function _get_next_port_from_json () {
 
 function _getversion () {
     if [[ -z $arg_transmissionsource ]]; then
-        #distribution=$(lsb_release -is)
-        codename=$(lsb_release -cs)
-        if [[ $codename =~ ("xenial"|"bionic") ]]; then 
+        distribution=$(lsb_release -is)
+        if [[ $distribution =~ "Ubuntu" ]]; then 
             version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
                   PPA "(Directly from Transmission)" \
                   Repo "(Packaged and tested by Ubuntu)" \

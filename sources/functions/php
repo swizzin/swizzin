@@ -1,16 +1,30 @@
 #!/bin/bash
 
+if [[ -f /tmp/.install.lock ]]; then
+  export log="/root/logs/install.log"
+else
+  log="/root/logs/swizzin.log"
+fi
+
 #Gets the version nginx is using and restarts it
 function restart_php_fpm () {
     version=$(php_service_version)
     serv="php${version}-fpm.service"
-    #serv=(ls /etc/systemd/system | grep php7 | tail -1)
-    systemctl restart $serv
+    echo "Restarting $serv" | tee -a $log
+    systemctl restart $serv >> $log 2>&1
 }
 
-# function disable_other_phps () {
-#     #TODO
-# }
+function reload_php_fpm () {
+    version=$(php_service_version)
+    serv="php${version}-fpm.service"
+    echo "Reloading $serv" | tee -a $log
+    systemctl reload $serv >> $log 2>&1
+}
+
+function reload_php_opcache (){
+    echo "Reloading OPcache"
+    /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset() ?>';
+}
 
 #Returns for example '7.4'
 function php_v_from_nginxconf () { 

@@ -15,6 +15,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
     exit 1
 fi    
 
+. /etc/swizzin/sources/functions/letsencrypt
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 echo -e "Enter domain name to secure with LE"
@@ -116,7 +117,7 @@ else
     /root/.acme.sh/acme.sh --force --issue --nginx -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
   else
     systemctl stop nginx
-    /root/.acme.sh/acme.sh --force --issue --standalone -d ${hostname} || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
+    /root/.acme.sh/acme.sh --force --issue --standalone -d ${hostname} --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" || { echo "ERROR: Certificate could not be issued. Please check your info and try again"; exit 1; }
     sleep 1
     systemctl start nginx
   fi
@@ -130,25 +131,13 @@ fi
 
 # Add LE certs to ZNC, if installed.
 if [[ -f /install/.znc.lock ]]; then
-    # Check for LE cert, and copy it if available.
-    chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
-    if [[ -n $chkhost ]]; then
-        defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
-        cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-        crontab -l > newcron.txt | sed -i  "s#cron#cron --post-hook \"cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem\"#g" newcron.txt | crontab newcron.txt | rm newcron.txt
-    fi
+  le_znc_hook
 fi
 
 # Add LE certs to VSFTPD, if installed.
 if [[ -f /install/.vsftpd.lock ]]; then
-    # Check for LE cert, and copy it if available.
-    chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
-    if [[ -n $chkhost ]]; then
-        defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
-        sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/${defaulthost}/fullchain.pem#g" /etc/vsftpd.conf
-        sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/${defaulthost}/key.pem#g" /etc/vsftpd.conf
-        systemctl restart vsftpd
-    fi
+  le_vsftpd_hook
+  systemctl restart vsftpd
 fi
 
 systemctl reload nginx
