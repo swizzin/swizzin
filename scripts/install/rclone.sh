@@ -28,6 +28,7 @@ echo "Downloading and installing rclone and dependencies ..." >>"${OUTTO}" 2>&1;
 
 # Install fuse
 apt-get install fuse
+sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
 # One-liner to check arch/os type, as well as download latest rclone for relevant system.
 curl https://rclone.org/install.sh | sudo bash
