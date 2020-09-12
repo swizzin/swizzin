@@ -32,6 +32,7 @@ function _installautodl() {
 
 function _autoconf {
     for u in "${users[@]}"; do
+    echo_progress_start "configuring autodl for $u"
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
       mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${OUTTO}" 2>&1
@@ -49,6 +50,7 @@ gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
       chown -R $u: /home/${u}/.irssi/
+      echo_progress_done
   done
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/autodl.sh
@@ -56,6 +58,7 @@ ADC
 }
 
 function _autoservice {
+  echo_progress_start "Creating systemd service"
 cat >"/etc/systemd/system/irssi@.service"<<ADC
 [Unit]
 Description=AutoDL IRSSI
@@ -76,6 +79,7 @@ ADC
 for u in "${users[@]}"; do
   systemctl enable --now irssi@${u} >>"${OUTTO}" 2>&1
 done
+echo_progress_done
 }
 
 if [[ -f /tmp/.install.lock ]]; then
@@ -95,3 +99,4 @@ _installautodl
 _autoconf
 _autoservice
 touch /install/.autodl.lock
+echo_success "autodl installed"
