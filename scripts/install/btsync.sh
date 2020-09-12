@@ -19,17 +19,12 @@
 #
 MASTER=$(cut -d: -f1 < /root/.master.info)
 BTSYNCIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 
 function _installBTSync1() {
   #sudo sh -c 'echo "deb http://linux-packages.getsync.com/btsync/deb btsync non-free" > /etc/apt/sources.list.d/btsync.list'
-  #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >/dev/null 2>&1
+  #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >> $log 2>&1
   sudo sh -c 'echo "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list'
-  wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | sudo apt-key add - >/dev/null 2>&1
+  wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | sudo apt-key add - | tee -a $log 2>&1
   apt_update
 }
 
@@ -66,26 +61,30 @@ RSCONF
 }
 function _installBTSync6() {
   touch /install/.btsync.lock
-  systemctl enable resilio-sync >/dev/null 2>&1
-  systemctl start resilio-sync >/dev/null 2>&1
-  systemctl restart resilio-sync >/dev/null 2>&1
-}
-function _installBTSync7() {
-  echo "BTSync Install Complete!" >>"${OUTTO}" 2>&1;
-  sleep 5
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-}
-function _installBTSync8() {
-  exit
+  systemctl enable resilio-sync >> $log 2>&1
+  systemctl start resilio-sync >> $log 2>&1
+  systemctl restart resilio-sync >> $log 2>&1
 }
 
-echo "Installing btsync keys and sources ... " >>"${OUTTO}" 2>&1;_installBTSync1
-# echo "Updating system ... " >>"${OUTTO}" 2>&1;_installBTSync2
-echo "Installing btsync ... " >>"${OUTTO}" 2>&1;_installBTSync3
-echo "Setting up btsync permissions ... " >>"${OUTTO}" 2>&1;_installBTSync4
-echo "Setting up btsync configurations ... " >>"${OUTTO}" 2>&1;_installBTSync5
-echo "Starting btsync ... " >>"${OUTTO}" 2>&1;_installBTSync6
-_installBTSync7
-_installBTSync8
+
+echo_progress_start "Installing btsync keys and sources"
+_installBTSync1
+echo_progress_done "Keys and sources added"
+
+echo_progress_start "Installing btsync"
+_installBTSync3
+echo_progress_done "Installed"
+
+echo_progress_start "Setting up btsync permissions"
+_installBTSync4
+echo_progress_done
+
+echo_progress_start "Setting up btsync configurations"
+_installBTSync5
+echo_progress_done "Configured"
+
+echo_progress_start "Starting btsync"
+_installBTSync6
+echo_progress_done "Started"
+
+echo_success "BTSync installed"
