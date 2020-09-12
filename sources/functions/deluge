@@ -49,8 +49,10 @@ function build_deluge () {
   if [[ $deluge == repo ]]; then
     apt-get -q -y update >>"${log}" 2>&1
     apt-get -q -y install deluged deluge-web deluge-console >>"${log}" 2>&1
-    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-    cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+    if [[ $dver =~ ^1\. ]]; then 
+      cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    fi
     systemctl stop deluged
     update-rc.d deluged remove
     rm /etc/init.d/deluged
