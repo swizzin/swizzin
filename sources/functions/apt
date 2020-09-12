@@ -64,7 +64,6 @@ export -f _process_apt_args
 _unset_apt_args (){
     unset _apt_ignore_errors
     unset _apt_interactive
-    unset _apt_ignore_errors
     unset _apt_skip_checks
     unset _apt_remove_purge
     unset _apt_install_recommends
@@ -93,10 +92,10 @@ export -f _apt_logcheck_mark
 _apt_logcheck (){
     if [[ $(_get_last_apt_log | grep 'E:') ]]; then
         if [[ $_apt_ignore_errors != "true" ]]; then 
-            echo_error "apt failed. Please consult errors above and/or in the log."
+            echo_error "Apt failed."
             exit 1
         else
-            echo_warn "apt failed. Please consult errors above and/or in the log."
+            echo_warn "Apt failed. Please consult errors above and/or in the log."
         fi
     else
         echo_log_only "No failures in apt log found"
@@ -172,7 +171,7 @@ _apt_update () {
             echo_progress_start "Performing apt update"
             apt-get update >> $log 2>&1
             _apt_logcheck
-            echo_progress_done
+            echo_progress_done "Apt up to date"
         else
             echo_log_only " Apt sufficiently up to date, skipping"
         fi
