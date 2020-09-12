@@ -47,10 +47,8 @@ function remove_ltcheckinstall () {
 function build_deluge () {
   if [[ $deluge == repo ]]; then
     apt_install deluged deluge-web deluge-console
-    if [[ -d /usr/lib/python2.7/dist-packages/deluge ]]; then 
-      chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-      cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
-    fi
+    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
+    cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
     systemctl stop deluged
     update-rc.d deluged remove
     rm /etc/init.d/deluged
