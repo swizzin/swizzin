@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function whiptail_deluge () {
+  echo_progress_start "Choosing Deluge versions"
   if [[ -z $deluge ]]; then
     repov=$(get_candidate_version deluge)
     case $(lsb_release -cs) in
@@ -33,18 +34,21 @@ function whiptail_deluge () {
       fi
     fi
   fi
-
+  echo_progress_done
+  echo_log_only "deluge = $deluge"
 }
 
 function remove_ltcheckinstall () {
   oldv=$(apt-cache show libtorrent | grep checkinstall)
   if [[ -n $oldv ]]; then
-    echo "Removing checkinstall libtorrent"
+    echo_progress_start "Removing checkinstall libtorrent"
     dpkg -r libtorrent
+    echo_progress_done
   fi
 }
 
 function build_deluge () {
+  echo_progress_start "Building Deluge";
   if [[ $deluge == repo ]]; then
     apt_install deluged deluge-web deluge-console
     dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
@@ -95,7 +99,7 @@ function build_deluge () {
       if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
         case $release in
           "xenial")
-            echo "Packaging up-to-date python3-twisted"
+            echo_progress_start "Packaging up-to-date python3-twisted"
             LIST='libffi-dev python3-pip'
             packages=(setuptools pycparser asn1crypto cffi constantly incremental attrs automat idna hyperlink pyhamcrest cryptography pyopenssl service_identity zope.interface twisted)
             mkdir -p /root/dist/python3
@@ -104,6 +108,7 @@ function build_deluge () {
               fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
               dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
             done
+            echo_progress_done "Packaging finished"
           ;;
           "stretch")
             . /etc/swizzin/sources/functions/backports
@@ -119,7 +124,7 @@ function build_deluge () {
       fi
     fi
     cd /tmp
-    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo "WARN: Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from github failed"; exit 1; } ; }
+    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo_error "Cloning Deluge from github failed"; exit 1; } ; }
     cd deluge
     VERSION=$(git describe | cut -d- -f2)
     sed -i 's/-dev//g' setup.cfg
@@ -135,6 +140,7 @@ function build_deluge () {
     rm -rf deluge
     apt-mark hold deluge-common
   fi
+  echo_progress_done "Deluge installed"
 }
 
 function dweb_check () {
@@ -215,11 +221,12 @@ function ltconfig () {
 }
 
 function cleanup_deluge () {
+  echo_progress_start "Performing cleanup"
   toclean=(deluge-common deluge-web deluged deluge-console)
   for p in ${toclean[@]}; do
     if dpkg -l | grep $p > /dev/null 2>&1; then
-      echo "Cleaning package: $p. Removing."
       dpkg -r $p > /dev/null 2>&1
     fi
   done
+  echo_progress_done
 }
