@@ -10,7 +10,7 @@ function npm_install() {
   fi
 
   if [[ ! $(command -v npm) ]]; then
-    apt-get -y -q install nodejs build-essential >> $log 2>&1
+    apt_install nodejs build-essential
   fi
 }
 
@@ -19,8 +19,8 @@ function npm_update() {
     if ! grep -q 12 /etc/apt/sources.list.d/nodesource.list; then
       echo "Upgrading nodejs to version 12 LTS"
       bash <(curl -sL https://deb.nodesource.com/setup_12.x) >> $log 2>&1
-      apt -y -q  update  >> $log 2>&1
-      apt -y -q upgrade  >> $log 2>&1
+      apt_update
+      apt_upgrade
     fi
   fi
 }

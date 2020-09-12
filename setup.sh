@@ -73,6 +73,8 @@ function _preparation() {
   . /etc/swizzin/sources/functions/color_echo
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
+  #shellcheck source=sources/functions/apt
+  . /etc/swizzin/sources/functions/apt
 }
 
 function _nukeovh() {

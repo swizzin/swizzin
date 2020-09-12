@@ -19,14 +19,14 @@ codename=$(lsb_release -cs)
 
 user=$(cut -d: -f1 < /root/.master.info )
 if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
+  #shellcheck source=sources/functions/pyenv
   . /etc/swizzin/sources/functions/pyenv
   pyenv_install
   pyenv_install_version 3.7.7
   pyenv_create_venv 3.7.7 /opt/.venv/bazarr
   chown -R ${user}: /opt/.venv/bazarr
 else
-  apt-get -y update >>"${log}" 2>&1
-  apt-get -y -q install python3-pip python3-dev python3-venv > $log 2>&1
+  apt_install python3-pip python3-dev python3-venv
   mkdir -p /opt/.venv/bazarr
   python3 -m venv /opt/.venv/bazarr
   chown -R ${user}: /opt/.venv/bazarr

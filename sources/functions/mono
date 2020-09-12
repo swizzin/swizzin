@@ -17,6 +17,7 @@ function mono_repo_setup () {
       echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
     fi
   fi
+  apt_update
 }
 
 function mono_repo_update () {
@@ -28,26 +29,16 @@ function mono_repo_update () {
     else
       echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
       echo "Upgrading to mono 5.18 snapshot"
-      
-      fuckmono=()
-
-      #for i in ${PACKAGES[@]}; do
-      #  fuckmono+=(${i}/${codename})
-      #done
-
-      apt-get -y -q update
-      apt-get -y -q upgrade
-      #apt-get install -q -y --allow-downgrades ${fuckmono[@]} || apt-get install -q -y --force-yes ${fuckmono[@]}
-      apt-get -y -q autoremove
+      apt_upgrade
+      apt_autoremove
     fi
   #elif [[ $codename == "buster" ]]; then
   #  :
   else
     if ! command -v mono > /dev/null 2>&1 ; then
       mono_repo_setup
-      apt-get -y -q update
-      apt-get -y -q install mono-complete
-      apt-get -y -q upgrade
+      apt_install mono-complete
+      apt_upgrade
     fi
   fi
 }

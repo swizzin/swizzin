@@ -6,8 +6,7 @@ export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent () {
   if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
-    . /etc/swizzin/sources/functions/apt
-    repov=$(get_repo_version rtorrent)
+    repov=$(get_candidate_version rtorrent)
     if [[ ! ${codename} == "xenial" ]]; then
       function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
                   Repo "(${repov})"\
@@ -59,24 +58,20 @@ function depends_rtorrent () {
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
     libfontconfig1-dev mediainfo'
-    for depends in $APT; do
-      apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
-    done
+    apt_install $APT
 
     . /etc/swizzin/sources/functions/fpm
     install_fpm
   else
     APT='screen zip unzip bc mediainfo curl'
-    for depends in $APT; do
-      apt-get -q -y install "$depends"  >> $log 2>&1 || { echo "ERROR: APT-GET could not install required package: ${depends}. That's probably not good..."; }
-    done
+    apt_install $APT
   fi
 
 	# (un)rar
   if [[ $distribution == "Debian" ]]; then
 	_rar
   else
-    apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
+    apt_install rar unrar
   fi
 
 	# mktorrent from source
@@ -181,7 +176,7 @@ function build_rtorrent () {
 }
 
 function rtorrent_apt () {
-  apt-get install -y -q rtorrent >> $log 2>&1
+  apt_install rtorrent
 }
 
 function _rar() {
@@ -200,6 +195,7 @@ function remove_rtorrent () {
     toclean+=($repo)
   fi
   for c in ${toclean[@]}; do
+    # TODO add option to pass extra flags
     apt-get remove -y -q --allow-change-held-packages $c >> $log 2>&1
   done
 }

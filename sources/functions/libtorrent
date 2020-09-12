@@ -2,10 +2,9 @@
 
 function whiptail_libtorrent_rasterbar () {
   if [[ -z $libtorrent ]]; then
-    . /etc/swizzin/sources/functions/apt
-    repov=$(get_repo_version libtorrent-rasterbar7)
-    repov+=$(get_repo_version libtorrent-rasterbar8)
-    repov+=$(get_repo_version libtorrent-rasterbar9)
+    repov=$(get_candidate_version libtorrent-rasterbar7)
+    repov+=$(get_candidate_version libtorrent-rasterbar8)
+    repov+=$(get_candidate_version libtorrent-rasterbar9)
     if [[ ($deluge == "1.3-stable" && -n $qbittorrent) || ($deluge == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
         case $(lsb_release -cs) in
             "xenial"|"focal")
@@ -130,13 +129,13 @@ function build_libtorrent_rasterbar () {
     done
       case $release in
           "xenial")
-          apt-get install -y -q libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
           "stretch"|"buster"|"bionic")
-          apt-get install -y -q libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
           *)
-          apt-get install -y -q libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          apt_install libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
           ;;
 
       esac
@@ -182,10 +181,8 @@ function build_libtorrent_rasterbar () {
     if [[ -z $LIST ]]; then
       LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
     fi
-    for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
-      apt-get -y -q autoremove >>"${log}" 2>&1
+    apt_install $LIST
+    apt_autoremove
     install_fpm
     #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
     #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then

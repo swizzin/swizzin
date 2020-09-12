@@ -59,14 +59,8 @@ function _install_transmission () {
         echo_progress_done "PPA Added"
         fi
     fi
-    echo_progress_start "Fetching updates"
-    apt-get update >> $log 2>&1
-    echo_progress_done "Up to date"
-    echo_progress_start "Getting Transmission from apt"
-    apt-get install transmission-cli transmission-common transmission-daemon -y >> $log 2>&1
-    echo_progress_done "Apt install finished"
+    apt_install transmission-cli transmission-common transmission-daemon
     echo_progress_start "Disabling default non-multiuser service"
-    systemctl disable --now transmission-daemon >> $log 2>&1
-    echo_progress_done "Default service disabled"
-
+    systemctl disable --now transmission-daemon
+    echo_progress_done
 }

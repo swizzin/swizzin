@@ -35,7 +35,7 @@ function _installSonarr1() {
 }
 
 function _installSonarr2() {
-  apt-get install apt-transport-https screen -y >> ${log} 2>&1
+  apt_install apt-transport-https screen
   if [[ $distribution == "Ubuntu" ]]; then
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
   elif [[ $distribution == "Debian" ]]; then
@@ -46,17 +46,17 @@ function _installSonarr2() {
     #gpg --export 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /etc/apt/trusted.gpg.d/nzbdrone.gpg
   fi
   echo "deb https://apt.sonarr.tv/ master main" | tee /etc/apt/sources.list.d/sonarr.list >> ${log} 2>&1
+  apt_update
 }
 
 function _installSonarr3() {
-  apt-get -y update >> ${log} 2>&1
   if [[ $distribution == Debian ]]; then
-    apt-get install -y mono-devel >> ${log} 2>&1
+    apt_install mono-devel
   fi
 }
 
 function _installSonarr4() {
-  apt-get install -y nzbdrone >> ${log} 2>&1
+  apt_install nzbdrone
   touch /install/.sonarr.lock
 }
 
