@@ -20,6 +20,7 @@ export log="/root/logs/swizzin.log"
 # Sourcing functions
 #shellcheck source=sources/functions/apt
 . /etc/swizzin/sources/functions/apt
+echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {
   whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
@@ -110,6 +111,7 @@ function _clr() {
       schedule_remove="true"
       echo_info "Removing $i "
       bash /usr/local/bin/swizzin/remove/$i.sh
+      echo_success "$i removed"
     else
       echo_warn "Package $i not installed"
     fi
@@ -473,10 +475,10 @@ function _nukeovh() {
   fi
 }
 
-args=("$@")
+# args=("$@")
 normal=$(tput sgr0)
 git_hash=$(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD)
-echo_log_only ">>>> \`box ${args[*]}\`, \tGIT HEAD @ $git_hash"
+echo_log_only ">>>> \`box $@\`, \tGIT HEAD @ $git_hash"
 
 case "$1" in
   "")
