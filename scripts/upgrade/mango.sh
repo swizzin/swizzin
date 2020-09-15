@@ -22,7 +22,7 @@ mangodir="/opt/mango"
 
 rm -rf /tmp/mangobak
 mkdir /tmp/mangobak
-cp -t /tmp/mangobak $mangodir/mango $mangodir/config.yml
+cp -t /tmp/mangobak $mangodir/mango $mangodir/.config/
 
 echo "Downloading binary" | tee -a $log
 dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
