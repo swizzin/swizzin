@@ -1,9 +1,9 @@
-issueOpened: >
-  Thank you for raising a issue. We will try and get back to you as soon as possible. Please remember that this repository is maintained on volunteer time.
+issuesOpened: >
+  Thank you for filing a bug report. We will try and get back to you as soon as possible. Please remember that this repository is maintained on volunteer time.
 
   Please make sure you have given us as much context as possible, otherwise, we may not be able to help you.
 
 pullRequestOpened: >
-  Thank your for raising your pull request.
+  Thank your for raising your pull request!
 
-  Please make sure you have followed our contributing guidelines. We will review it as soon as possible
+  Please make sure you have followed our [contributing guidelines](https://github.com/liaralabs/swizzin/blob/master/CONTRIBUTING.md). We will review it as soon as possible.

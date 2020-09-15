@@ -64,7 +64,7 @@ function _preparation() {
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc>> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
@@ -104,12 +104,12 @@ function _nukeovh() {
 }
 
 function _intro() {
-  whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 15 50
+  whiptail --title "Swizzin seedbox installer" --msgbox "Yo, what's up? Let's install this swiz." 7 43
 }
 
 function _adduser() {
   while [[ -z $user ]]; do
-    user=$(whiptail --inputbox "Enter Username" 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ $user =~ [A-Z] ]]; then
       read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
       printf "\n"
@@ -117,7 +117,7 @@ function _adduser() {
     fi
   done
   while [[ -z "${pass}" ]]; do
-    pass=$(whiptail --inputbox "Enter User password. Leave empty to generate." 9 30 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+    pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ -z "${pass}" ]]; then
       pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     fi
@@ -147,8 +147,8 @@ function _adduser() {
     chown -R $user:$user /home/${user}
   else
     echo -e "Creating new user \e[1;95m$user\e[0m ... "
-    useradd "${user}" -m -G www-data -s /bin/bash
-    chpasswd<<<"${user}:${pass}"
+    useradd "${user}" -m -G www-data -s /bin/bash || { echo "There was an error creating the user ${user}. Please check your logs."; exit 1; }
+    chpasswd<<<"${user}:${pass}" || { echo "There was an error setting the password for ${user}. Please check your logs."; exit 1; }
     htpasswd -b -c /etc/htpasswd $user $pass
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
@@ -166,7 +166,7 @@ function _choices() {
   extras=()
   guis=()
   #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
@@ -207,7 +207,15 @@ function _choices() {
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
     whiptail_deluge
+  fi
+  if grep -q qbittorrent "$results"; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    whiptail_qbittorrent
+  fi
+  if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
+    . /etc/swizzin/sources/functions/libtorrent
     whiptail_libtorrent_rasterbar
+    export SKIP_LT=True
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then

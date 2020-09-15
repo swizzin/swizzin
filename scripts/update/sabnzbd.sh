@@ -25,7 +25,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
 
         python2_venv ${user} sabnzbd
 
-        PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc cheetah pyOpenSSL'
+        PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc sabyenc cheetah pyOpenSSL'
         /opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
         chown -R ${user}: /opt/.venv/sabnzbd
 
@@ -43,7 +43,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 
