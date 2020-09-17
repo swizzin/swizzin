@@ -5,7 +5,7 @@ rm /etc/systemd/system/ombi.service
 rm -f /etc/nginx/apps/ombi.conf
 systemctl reload nginx
 
-apt_remove -q ombi
+apt_remove ombi
 
 if [[ -d /opt/ombi ]]; then
   rm -rf /opt/ombi
