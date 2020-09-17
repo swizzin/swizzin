@@ -16,11 +16,11 @@ mangousr="mango"
 
 # Downloading the latest binary
 function _install_mango () {
-    echo "Downloading binary" | tee -a $log
+    echo_progress_start "Downloading binary"
     dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
-        echo "Failed to query github" | tee -a $log
+        echo_error "Failed to query github"
         exit 1
     fi
 
@@ -29,9 +29,10 @@ function _install_mango () {
     wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
-        echo "Failed to download binary" | tee -a $log
+        echo "Failed to download binary"
         exit 1
     fi
+    echo_progress_done "Binary downloaded"
 
     chmod +x $mangodir/mango
     chmod o+rx -R $mangodir $mangodir/library
@@ -43,6 +44,7 @@ function _install_mango () {
 
 ## Creating config
 function _mkconf_mango () {
+    echo_progress_start "Configuring mango"
     mkdir -p $mangodir/.config/mango
 cat > "$mangodir/.config/mango/config.yml" <<CONF
 #Please do not edit as swizzin will be replacing this file as updates roll out. 
@@ -65,10 +67,12 @@ mangadex:
 CONF
     chown $mangousr:$mangousr -R $mangodir
     chmod o-rwx $mangodir/.config
+    echo_progress_done
 }
 
 # Creating systemd unit
 function _mkservice_mango(){
+    echo_progress_start "Installing systemd service"
     cat > /etc/systemd/system/mango.service <<SYSD
 # Service file example for Mango
 [Unit]
@@ -86,12 +90,13 @@ WantedBy=multi-user.target
 SYSD
     systemctl daemon-reload >> $log 2>&1
     systemctl enable --now mango >> $log 2>&1
+    echo_progress_done "Mango started"
 }
 
 # Creating all users' accounts
 _addusers_mango () {
-    echo "Adding user(s)"
     for u in "${users[@]}"; do
+        echo_progress_start "Adding $u to mango"
         pass=$(_get_user_password "$u")
         if [[ $u = "$master" ]]; then 
             su $mangousr -c "$mangodir/mango admin user add -u $master -p $pass --admin"
@@ -102,11 +107,12 @@ _addusers_mango () {
                 su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
             else
                 pass=$(openssl rand -base64 32)
-                echo "WARNING: $u's password too short for mango, please change the password using 'box chpasswd $u'" | tee -a $log
+                echo "WARNING: $u's password too short for mango, please change the password using 'box chpasswd $u'"
                 echo "Mango account temporarily set up with the password '$pass'"
                 su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
             fi
         fi
+        echo_progress_done "$u added to mango"
     done
 }
 
@@ -130,7 +136,6 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /etc/swizzin/scripts/nginx/mango.sh
 fi
 
-echo "Please use your existing credentials when logging in."
-echo "You can access your files in $mangodir/library" | tee -a /root/mango.info
+echo_info "Please use your existing credentials when logging in.\n\tYou can access your files in $mangodir/library"
 
 touch /install/.mango.lock
