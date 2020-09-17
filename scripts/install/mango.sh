@@ -3,16 +3,8 @@
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 mangodir="/opt/mango"
 mangousr="mango"
-
 
 # Downloading the latest binary
 function _install_mango () {

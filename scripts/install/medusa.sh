@@ -2,11 +2,6 @@
 # Medusa installer for swizzin
 # Author: liara
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 user=$(cut -d: -f1 < /root/.master.info)
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
