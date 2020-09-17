@@ -13,14 +13,14 @@ else
 fi
 
 . /etc/swizzin/sources/functions/deluge
+. /etc/swizzin/sources/functions/libtorrent
+
 whiptail_deluge
-whiptail_libtorrent_rasterbar
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
   echo "Major version upgrade detected. User-data will be backed-up."
 fi
 users=($(cut -d: -f1 < /etc/htpasswd))
-noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 
 for u in "${users[@]}"; do
   if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
@@ -29,18 +29,14 @@ for u in "${users[@]}"; do
   fi
 done
 
-if [[ -n $noexec ]]; then
-  mount -o remount,exec /tmp
-  noexec=1
-fi
-
 echo "Checking for outdated deluge install method."; remove_ltcheckinstall
-echo "Rebuilding libtorrent ... "; build_libtorrent_rasterbar
+
+if ! skip_libtorrent_rasterbar; then
+    whiptail_libtorrent_rasterbar
+    echo "Rebuilding libtorrent ... "; build_libtorrent_rasterbar
+fi
 cleanup_deluge
 echo "Upgrading Deluge. Please wait ... "; build_deluge
-if [[ -n $noexec ]]; then
-	mount -o remount,noexec /tmp
-fi
 
 if [[ -f /install/.nginx.lock ]]; then
   echo "Reconfiguring deluge nginx configs"

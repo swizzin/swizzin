@@ -15,6 +15,7 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+# shellcheck source=sources/functions/letsencrypt
 . /etc/swizzin/sources/functions/letsencrypt
 
 apt_install vsftpd ssl-cert
