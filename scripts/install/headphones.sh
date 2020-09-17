@@ -12,15 +12,10 @@
 #
 #
 
-if [[ -f /tmp/.install.lock ]]; then
-    log="/root/logs/install.log"
-else
-    log="/root/logs/swizzin.log"
-fi
-
 user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -38,14 +33,17 @@ fi
 python2_venv ${user} headphones
 
 PIP='wheel cheetah asn1'
+echo_progress_start "Installing python dependencies"
 /opt/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
 chown -R ${user}: /opt/.venv/headphones
+echo_progress_done "Python dependencies installed"
 
+echo_progress_start "Cloning Headphones source code"
 git clone https://github.com/rembo10/headphones.git /opt/headphones >>"${log}" 2>&1
-
 chown -R $user: /opt/headphones
+echo_progress_done "Source cloned"
 
-
+echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/headphones.service <<HEADSD
 [Unit]
 Description=Headphones
@@ -66,11 +64,14 @@ HEADSD
 
 systemctl enable --now headphones >> ${log} 2>&1
 sleep 10
+echo_progress_done "Systemd service installed"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Installing nginx config"
   bash /usr/local/bin/swizzin/nginx/headphones.sh
   systemctl reload nginx
-  echo "Install complete! Please note headphones access url is: https://$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')/headphones/home"
+  echo_info "Please note headphones access url is: https://$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')/headphones/home"
 fi
+echo_success "Headphones installed"
 
 touch /install/.headphones.lock
