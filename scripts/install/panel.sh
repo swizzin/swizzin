@@ -81,6 +81,6 @@ Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
 swizzin     ALL = (ALL) NOPASSWD: CMNDS
 EOSUD
 
-systemctl enable --now panel > ${log} 2>&1
+systemctl enable --now panel >> ${log} 2>&1
 
 touch /install/.panel.lock
