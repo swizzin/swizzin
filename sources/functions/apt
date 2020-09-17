@@ -26,22 +26,22 @@ _process_apt_args() {
     while test $# -gt 0
     do
         case "$1" in
-            --interactive) export _apt_interactive=true
+            --interactive) _apt_interactive=true
                 echo "Info: APT set to interactive" >> $log
                 ;;
-            --ignore-errors) export _apt_ignore_errors=true
+            --ignore-errors) _apt_ignore_errors=true
                 echo "Info: APT will ignore errors" >> $log
                 ;;
-            --skip-checks) export _apt_skip_checks=true
+            --skip-checks) _apt_skip_checks=true
                 echo "Info: APT will skip sanity checks" >> $log
                 ;;
-            --skip-update) export _apt_skip_update=true
+            --skip-update) _apt_skip_update=true
                 echo "Info: APT will skip update" >> $log
                 ;;
-            --purge) export _apt_remove_purge=true
+            --purge) _apt_remove_purge=true
                 echo "Info: APT will purge packages" >> $log
                 ;;
-            --recommends) export _apt_install_recommends=true
+            --recommends) _apt_install_recommends=true
                 echo "Info: APT will install recommends" >> $log
                 ;;
             -*) echo "Error: Invalid option: $1"
@@ -52,10 +52,6 @@ _process_apt_args() {
         esac
         shift
     done
-
-    if [[ -z ${_apt_packages[1]} ]]; then
-        export _apt_packages
-    fi
 }
 export -f _process_apt_args
 
