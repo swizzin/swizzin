@@ -450,7 +450,7 @@ function _nukeovh() {
   if [[ -n $grsec ]]; then
     echo
     echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-    echo_query "Would you like swizzin to install the distribution kernel? (Default: Y) "; read input
+    echo_query "Would you like swizzin to install the distribution kernel?" "Y/n"; read input
       case $input in
         [yY] | [yY][Ee][Ss] | "" ) kernel=yes; echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."  ;;
         [nN] | [nN][Oo] ) echo_warn "Why did you even run this function?" exit 1 ;;

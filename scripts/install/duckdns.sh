@@ -8,7 +8,7 @@
 ##########################################################
 if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
     echo_info "This script requires an account at duckdns.org. You can always refer to the swizzin documentation for guidance.\n\thttps://docs.swizzin.ltd/applications/duckdns"
-    echo_query "Would you like to continue? (y/N)"
+    echo_query "Would you like to continue?" "y/N"
     read -r yn
     case $yn in
         [Yy]* ) : ;;
@@ -17,7 +17,7 @@ if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
 fi
 
 if [[ -z $duck_subdomain ]]; then
-    echo_query "Enter your full Duck DNS domain (e.g mydomain.duckdns.org): "
+    echo_query "Enter your full Duck DNS domain" "e.g mydomain.duckdns.org"
     read -r fulldomain
     subdomain="${fulldomain%%.*}"
     domain="${fulldomain#*.}"
@@ -31,7 +31,7 @@ else
 fi
 
 if [[ -z $duck_token ]]; then 
-    echo_query "Enter your Duck DNS Token value: "
+    echo_query "Enter your Duck DNS Token value"
     read -r token
     token=$(echo "$token" | tr -d '\040\011\012\015')
 else
