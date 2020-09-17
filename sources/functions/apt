@@ -255,8 +255,7 @@ apt_install (){
     fi
 
     # Run the install
-    echo_progress_start "Performing installation of ${#_apt_packages[@]} apt packages"
-    echo_progress_start "(${_apt_packages[*]})"
+    echo_progress_start "Performing installation of ${#_apt_packages[@]} apt packages\n\t(${_apt_packages[*]})"
     if [[ $_apt_interactive == "true" ]]; then
         # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log 
@@ -281,8 +280,7 @@ apt_remove (){
     _apt_simulate remove "${_apt_packages[@]}"
 
     # Run the install
-    echo_progress_start "Removing ${#_apt_packages[@]} packages"
-    echo_progress_start "(${_apt_packages[*]})"
+    echo_progress_start "Removing ${#_apt_packages[@]} packages\n\t(${_apt_packages[*]})"
 
     flags=""
     if [[ $_apt_remove_purge == "true" ]]; then
