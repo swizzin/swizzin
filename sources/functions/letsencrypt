@@ -2,6 +2,7 @@
 
 function le_vsftpd_hook() {
     # Check for LE cert, and copy it if available.
+    echo_progress_start "Installing certificate into vsftpd"
     chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
     if [[ -n "$chkhost" ]]; then
         defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
@@ -24,9 +25,11 @@ function le_vsftpd_hook() {
             fi
         fi
     fi
+    echo_progress_done
 }
 
 function le_znc_hook() {
+    echo_progress_start "Installing certificate into ZNC"
     chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
     if [[ -n $chkhost ]]; then
         defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
@@ -50,4 +53,5 @@ function le_znc_hook() {
             fi
         fi
     fi
+    echo_progress_done
 }
