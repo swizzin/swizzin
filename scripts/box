@@ -223,10 +223,10 @@ function _adduser {
 
   if [[ $existing == 0 ]]; then
     echo_info "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-    read -rep 'Press enter to continue adding user.'
+    read -rep 'Press enter to continue adding user, or CTRL+C to cancel'
   fi
 
-  echo_query "Enter password for ${user}. (leave empty to generate a password)"; read 'pass'
+  echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"; read -s 'pass'; echo
 
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
@@ -320,7 +320,7 @@ function _deluser {
   fi
 
   echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
-  echo_query "Press enter to continue"
+  echo_query "Press enter to continue, or CTRL+C to cancel"
   read -rep ''
   
 
@@ -383,7 +383,7 @@ function _deluser {
 
 function _chpasswd {
   user=$2
-  echo_query "Enter new password for ${user}. Leave empty to generate a password"; read 'pass'
+  echo_query "Enter new password for ${user}. Leave empty to generate a password" "hidden"; read -s 'pass'; echo
   if [[ -z "${pass}" ]]; then
     pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
     echo_info "New password has been set to ${pass}"
@@ -394,7 +394,7 @@ function _chpasswd {
     str="$(cracklib-check <<<"$pass")"
     check=$(grep OK <<<"$str")
     if [[ -z $check ]]; then
-      read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
+      read -n 1 -s -r -p "Password did not pass cracklib check. Enter a new password"
       printf "\n"
       _chpasswd "$@"
     else
@@ -406,42 +406,43 @@ function _chpasswd {
     echo "$user:$pass" > /root/.master.info
   fi
   echo "$user:$pass" > /root/${user}.info
-  chpasswd<<<"${user}:${pass}"
-  htpasswd -b /etc/htpasswd $user $pass
+  chpasswd<<<"${user}:${pass}" >> $log 2>&1
+  htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
   mkdir -p /etc/htpasswd.d/
-  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
+  htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
   if [[ -e /install/.deluge.lock ]]; then
-    systemctl stop deluged@${user}
-    systemctl stop deluge-web@${user}
+    systemctl stop deluged@${user} >> $log 2>&1
+    systemctl stop deluge-web@${user} >> $log 2>&1
     DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
     DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
     sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
     sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
     sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
     sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
-    systemctl start deluged@${user}
-    systemctl start deluge-web@${user}
+    systemctl start deluged@${user} >> $log 2>&1
+    systemctl start deluge-web@${user} >> $log 2>&1
   fi
   if [[ -e /install/.transmission.lock ]]; then 
-    systemctl stop transmission@${user}
+    systemctl stop transmission@${user} >> $log 2>&1
     sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
-    systemctl start transmission@${user}
+    systemctl start transmission@${user} >> $log 2>&1
   fi
   if [[ -f /install/.lounge.lock ]]; then 
-    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
+    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
   fi
   if [[ -f /install/.mango.lock ]]; then
       if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
+      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
   fi
   if [[ -f /install/.organizr.lock ]]; then 
     #TODO fix when API allows to
-    echo "Remember to manually change the organizr account's password!"
+    echo_warn "Remember to manually change the organizr account's password!"
   fi
   if [[ -f /install/.qbittorrent.lock ]]; then
     . /etc/swizzin/sources/functions/qbittorrent
     qbittorrent_chpasswd ${user} ${pass}
   fi
+  echo_success "Password for $user changed"
 
 }
 
