@@ -92,6 +92,12 @@ export -f echo_success
 
 echo_query () {
     colorprint "${blue}${bold}INPUT" "${italic}$1"
+    if [[ -n $2 ]]; then
+        options="($2) "
+    else
+        options=""
+    fi
+    echo -en "${blue}${bold}${options}>${nc} "
 }
 export -f echo_query
 
@@ -173,7 +179,7 @@ function echo_test_basic () {
     echo_error "wOoopsie fwings awe fucky wucky"
     echo_info "Something of note to user"
     echo_progress_start "Something started";    echo_progress_done "Done message"
-    echo_query "Can you tell me this please"
+    echo_query "Can you tell me this please" "yes/no"
 }
 
 function echo_test_wrap () {

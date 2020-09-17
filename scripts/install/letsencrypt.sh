@@ -21,7 +21,7 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 echo_query "Enter domain name to secure with LE"
 read -e hostname
 
-echo_query "Do you want to apply this certificate to your swizzin default conf? (y/n)"
+echo_query "Do you want to apply this certificate to your swizzin default conf?" "y/n"
 read yn
 case $yn in
   [Yy] )
@@ -37,7 +37,7 @@ if [[ $main == yes ]]; then
   sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-echo_query "Is your DNS managed by CloudFlare? (y/n) " 
+echo_query "Is your DNS managed by CloudFlare?" "y/n" 
 read yn
 case $yn in
   [Yy] )
@@ -56,7 +56,7 @@ if [[ ${cf} == yes ]]; then
     exit 1
   fi
 
-  echo_query "Does the record for this subdomain already exist? (y/n) "
+  echo_query "Does the record for this subdomain already exist?" "y/n"
   read yn
   case $yn in
       [Yy] )
@@ -88,7 +88,7 @@ if [[ ${cf} == yes ]]; then
   fi
 
   if [[ ${record} == no ]]; then
-    echo_query "Zone Name (example.com)"
+    echo_query "Zone Name" "e.g example.com"
     read -e zone
     zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
     addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
