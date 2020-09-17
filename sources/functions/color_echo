@@ -56,7 +56,7 @@ export -f echo_warn
 echo_error () {
     ring_the_bell
     colorprint "${red}${bold}ERROR" "$1"
-    colorprint "${red}${italic}" "Please consult the above and/or check the log (less +G $log)"
+    colorprint "${red}${italic}" "Please consult the above and/or check the log (less -R +G $log)"
 }
 export -f echo_error
 
