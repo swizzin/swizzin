@@ -375,7 +375,7 @@ for u in "${users[@]}"; do
 	"sessions": {}
 }
 EOU
-	echo_progress_done "Added $u"
+	echo_progress_done "Added $u to lounge"
 done
 chown -R lounge: /home/lounge
 }
@@ -392,4 +392,5 @@ npm_install
 _install
 _adduser
 
+echo_success "Lounge installed"
 touch /install/.lounge.lock
