@@ -3,12 +3,6 @@
 # Flying_sausages 2020 swizzin gplv3
 # shellcheck disable=SC2154
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 ##########################################################
 # Gathering variables and gettin go-ahead
 ##########################################################
