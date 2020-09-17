@@ -8,8 +8,10 @@ useradd lounge -m -s /bin/bash
 passwd lounge -l >> ${log} 2>&1
 
 npm -g config set user root
+echo_progress_start "Installing lounge from npm"
 npm install -g thelounge >> $log 2>&1
 sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
+echo_progress_done
 
 mkdir -p /home/lounge/.thelounge/
 
@@ -322,10 +324,13 @@ EOF
 chown -R lounge: /home/lounge
 
 if [[ -f /install/.nginx.lock ]]; then
+	echo_progress_start "Configuring nginx"
   bash /usr/local/bin/swizzin/nginx/lounge.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 
+echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/lounge.service <<EOSD
 [Unit]
 Description=The Lounge IRC client
@@ -348,11 +353,13 @@ EOSD
 systemctl enable --now lounge >> $log 2>&1
 
 sleep 3
+echo_progress_done "Lounge started"
 }
 
 function _adduser {
 master=$(cut -d: -f1 < /root/.master.info)
 for u in "${users[@]}"; do
+	echo_progress_start "Adding $u to lounge"
   if [[ $u = "$master" ]]; then
     password=$(cut -d: -f2 < /root/.master.info)
   else
@@ -368,15 +375,10 @@ for u in "${users[@]}"; do
 	"sessions": {}
 }
 EOU
+	echo_progress_done "Added $u"
 done
 chown -R lounge: /home/lounge
 }
-
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 
