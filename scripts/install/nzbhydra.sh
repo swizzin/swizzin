@@ -27,6 +27,8 @@ fi
 
 apt_install $LIST
 
+
+
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
