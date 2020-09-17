@@ -16,38 +16,39 @@
 inst=$(which mysql)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+  echo_error "Web server not detected. Please install nginx and restart panel install."
   exit 1
 else
-echo "Please choose a password for the nextcloud mysql user."
-read -s -p "Password: " 'nextpass'
+echo_query "Please choose a password for the nextcloud mysql user." "hidden"
+read -s 'nextpass'
+echo
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
-  echo -n -e "Existing mysql server detected!\n"
-  echo -n -e "Please enter mysql root password so that installation may continue:\n"
-  read -s -p "Password: " 'password'
-  echo -e "Please wait while nextcloud is installed ... "
-
+  echo_warn "Existing mysql server detected!\n"
+  echo_query "Please enter mysql root password so that installation may continue." "hidden"
+  read -s 'password'
+  echo
 else
-  echo -n -e "No mysql server found! Setup will install. \n"
-  echo -n -e "Please enter a mysql root password \n"
   while [ -z "$password" ]; do
-    read -s -p "Password: " 'pass1'
+    echo_query "Please enter a mysql root password" "hidden"
+    read -s 'pass1'
+    echo ""
+    echo_query "Re-enter password to verify" "hidden"
+    read -s 'pass2'
     echo
-    read -s -p "Re-enter password to verify: " 'pass2'
     if [ $pass1 = $pass2 ]; then
        password=$pass1
     else
-       echo
-       echo "Passwords do not match"
+      echo_warn "Passwords do not match"
     fi
   done
-  echo -e "Please wait while nextcloud is installed ... "
+  echo_progress_start "Installing database"
   apt_install mariadb-server
   if [[ $(systemctl is-active mysql) != "active" ]]; then
     systemctl start mysql
   fi
   mysqladmin -u root password ${password}
+  echo_progress_done "Database installed"
 fi
 #Depends
 apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring
@@ -55,6 +56,7 @@ apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php
 cd /tmp
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
+echo_progress_start "Downloading and extracting Nextcloud"
 codename=$(lsb_release -cs)
 if [[ $codename =~ ("stretch"|"xenial") ]]; then
   version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
@@ -65,8 +67,10 @@ wget -q https://download.nextcloud.com/server/releases/${version}.zip > /dev/nul
 unzip ${version}.zip > /dev/null 2>&1
 mv nextcloud /srv
 rm -rf /tmp/${version}.zip
+echo_progress_done "Nextcloud extracted"
 
 #Set permissions as per nextcloud
+echo_progress_start "Configuring permissions"
 ocpath='/srv/nextcloud'
 htuser='www-data'
 htgroup='www-data'
@@ -95,7 +99,9 @@ then
  chmod 0644 ${ocpath}/data/.htaccess
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
+echo_progress_done "Permissions set"
 
+echo_progress_start "Configuring nginx and php"
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
@@ -205,17 +211,24 @@ location ^~ /nextcloud {
     }
 }
 EOF
+echo_progress_done
 
+echo_progress_start "Configuring database"
 mysql --user="root" --password="$password" --execute="CREATE DATABASE nextcloud;"
 mysql --user="root" --password="$password" --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextpass';"
 mysql --user="root" --password="$password" --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
 mysql --user="root" --password="$password" --execute="FLUSH PRIVILEGES;"
+echo_progress_done "Database configured"
 
+echo_progress_start "Restarting nginx"
 systemctl reload nginx
-touch /install/.nextcloud.lock
+echo_progress_start "nginx restarted"
 
-echo -e "Visit https://${ip}/nextcloud to finish installation."
-echo -e "Database user: nextcloud"
-echo -e "Database password: ${nextpass}"
-echo -e "Database name: nextcloud"
+touch /install/.nextcloud.lock
+echo_success "Nextcloud installed"
+
+echo_info "Visit https://${ip}/nextcloud to finish installation."
+echo_info "Database user: nextcloud"
+echo_info "Database password: ${nextpass}"
+echo_info "Database name: nextcloud"
 fi
