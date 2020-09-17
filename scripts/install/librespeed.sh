@@ -3,14 +3,8 @@
 # Author: hwcltjn
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+  echo_error "Web server not detected. Please install nginx and restart panel install."
   exit 1
-fi
-
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
 fi
 
 lspdpath='/srv/librespeed'
@@ -19,6 +13,7 @@ htgroup='www-data'
 
 function _installLibreSpeed1() {
 	mkdir $lspdpath
+	echo_progress_start "Cloning librespeed source code"
 	git clone https://github.com/librespeed/speedtest.git $lspdpath >/dev/null 2>&1
 	cp $lspdpath/example-singleServer-gauges.html $lspdpath/index.html
 	swizname=$(sed -ne '/server_name/{s/.*server_name //; s/[; ].*//; p; q}' /etc/nginx/sites-enabled/default)
@@ -27,24 +22,29 @@ function _installLibreSpeed1() {
 	else
 		sed -i "s/LibreSpeed Example/LibreSpeed/g" $lspdpath/index.html
 	fi
+	echo_progress_done "Source cloned"
 }
 
 function _installLibreSpeed2() {
+	echo_progress_start "Setting permissions"
 	touch /install/.librespeed.lock
 	find ${lspdpath}/ -type f -print0 | xargs -0 chmod 0640
 	find ${lspdpath}/ -type d -print0 | xargs -0 chmod 0750
 	chown -R ${htuser}:${htgroup} ${lspdpath}/
+	echo_progress_done "Permissions set"
 }
 
 function _installLibreSpeed3() {
   if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/librespeed.sh
     systemctl reload nginx
+	echo_progress_done "nginx configured"
   fi
 }
 
 function _installLibreSpeed4() {
-    echo "LibreSpeed Install Complete!" >>"${OUTTO}" 2>&1;
+    echo_success "LibreSpeed Install Complete!"
     sleep 5
     systemctl reload nginx
 }
@@ -53,9 +53,8 @@ function _installLibreSpeed5() {
 	exit
 }
 
-echo "Installing LibreSpeed ... " >>"${OUTTO}" 2>&1;_installLibreSpeed1
-echo "Configuring LibreSpeed permissions ... " >>"${OUTTO}" 2>&1;_installLibreSpeed2
-echo "Configuring LibreSpeed nginx configuration ... " >>"${OUTTO}" 2>&1;_installLibreSpeed3
-echo "Reloading nginx ... " >>"${OUTTO}" 2>&1;_installLibreSpeed4
-
+_installLibreSpeed1
+_installLibreSpeed2
+_installLibreSpeed3
+_installLibreSpeed4
 _installLibreSpeed5
