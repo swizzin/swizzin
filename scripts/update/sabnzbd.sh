@@ -8,7 +8,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         log=/root/logs/swizzin.log
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
-        systemctl disable --now sabnzbd@${user} >> ${log} 2>&1
+        systemctl disable -q --now sabnzbd@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else

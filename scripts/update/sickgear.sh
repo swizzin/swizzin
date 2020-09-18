@@ -8,7 +8,7 @@ if [[ -f /install/.sickgear.lock ]]; then
         codename=$(lsb_release -cs)
 
         if [[ $isactive == "active" ]]; then
-            systemctl disable --now sickgear@${user}
+            systemctl disable -q --now sickgear@${user}
         fi
         if [[ ! -d /opt/.venv ]]; then
             mkdir -p /opt/.venv

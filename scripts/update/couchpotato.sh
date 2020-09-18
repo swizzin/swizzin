@@ -7,7 +7,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
         . /etc/swizzin/sources/functions/pyenv
-        systemctl disable --now couchpotato@${user} >> ${log} 2>&1
+        systemctl disable -q --now couchpotato@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2.7-dev python-virtualenv virtualenv'
         else

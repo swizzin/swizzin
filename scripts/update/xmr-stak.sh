@@ -4,7 +4,7 @@
 if [[ -f /install/.xmr-stak.lock ]]; then
   if [[ ! -f /install/.xmrig.lock ]]; then
     user=$(cat /root/.master.info | cut -d: -f1)
-    systemctl disable --now xmr >> $log 2>&1
+    systemctl disable -q --now xmr >> $log 2>&1
     echo "Deprecated package 'xmr-stak' detected."
     echo "Package 'xmr-stak' will be replaced with 'xmrig'"
     read -p "Press enter to continue"

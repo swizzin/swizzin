@@ -6,7 +6,7 @@ if [[ -f /install/.sickrage.lock ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active sickrage@$user)
     if [[ $active == 'active' ]]; then
-        systemctl disable --now sickrage@$user
+        systemctl disable -q --now sickrage@$user
     fi
     cd /home/$user
     git clone https://github.com/SickChill/SickChill.git .sickchill
@@ -67,7 +67,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         fi
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
-        systemctl disable --now ${unit} >> ${log} 2>&1
+        systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
         if [[ $codename =~ ("xenial"|"stretch") ]]; then
             pyenv_install

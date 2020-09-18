@@ -7,7 +7,7 @@ if [[ -f /install/.medusa.lock ]]; then
         isactive=$(systemctl is-active medusa@${user})
 
         if [[ $isactive == "active" ]]; then
-            systemctl disable --now medusa@${user}
+            systemctl disable -q --now medusa@${user}
         fi
         if [[ ! -d /opt/.venv ]]; then
             mkdir -p /opt/.venv

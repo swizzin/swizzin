@@ -8,7 +8,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         log=/root/logs/swizzin.log
         . /etc/swizzin/sources/functions/pyenv
         if [[ $active == "active" ]]; then
-            systemctl disable --now nzbhydra@${user} >> ${log} 2>&1
+            systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
         fi
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
