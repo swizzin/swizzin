@@ -13,27 +13,22 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-user=$(cut -d: -f1 < /root/.master.info)
 
+user=$(cut -d: -f1 < /root/.master.info)
 
 apt_install python3
 
 cd /opt
-echo "Cloning latest Tautulli repo"
+echo_progress_start "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli
+echo_progress_done
 
 echo "Adding user and setting up Tautulli"
 adduser --system --no-create-home tautulli >>"${log}" 2>&1
-
-echo "Adjusting permissions"
 chown tautulli:nogroup -R /opt/tautulli
+echo_progress_done
 
-echo "Enabling Tautulli Systemd configuration"
+echo_progress_start "Enabling Tautulli Systemd configuration"
 cat > /etc/systemd/system/tautulli.service <<PPY
 [Unit]
 Description=Tautulli - Stats for Plex Media Server usage
@@ -53,14 +48,18 @@ PPY
 
 systemctl enable --now tautulli > /dev/null 2>&1
 
+echo_progress_done "Tautulli started"
+
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "configuring nginx"
   while [ ! -f /opt/tautulli/config.ini ]
   do
     sleep 2
   done
   bash /usr/local/bin/swizzin/nginx/tautulli.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 touch /install/.tautulli.lock
 
-echo "Tautulli Install Complete!"
+echo_success "Tautulli installed"
