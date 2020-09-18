@@ -48,7 +48,7 @@ function python_getpip() {
     echo_progress_start "Installing pip"
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
     python2 get-pip.py >> $log 2>&1
-    pip install virtualenv 2>&1 | tee -a $log
+    pip install virtualenv >> $log 2>&1
     echo_progress_done "pip installed"
   fi
 }

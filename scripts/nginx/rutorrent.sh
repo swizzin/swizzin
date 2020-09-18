@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+  echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
   exit 1
 fi
 
@@ -20,17 +20,21 @@ codename=$(lsb_release -cs)
 apt_install sox geoip-database python2.7-dev python-setuptools
 
 if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-  apt_install python-pip --skip-update
+  apt_install python-pip
 else
+  #shellcheck source=sources/functions/pyenv
   . /etc/swizzin/sources/functions/pyenv
   python_getpip
 fi
 
-pip install cloudscraper >> /dev/null 2>&1
+echo_progress_start "Installing cloudscraper"
+pip install cloudscraper >> "$log" 2>&1
+echo_progress_done
 
 cd /srv
 if [[ ! -d /srv/rutorrent ]]; then
-  git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >>/dev/null 2>&1
+echo_progress_start "Cloning rutorrent"
+  git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> "$log" 2>&1
   chown -R www-data:www-data rutorrent
   rm -rf /srv/rutorrent/plugins/throttle
   rm -rf /srv/rutorrent/plugins/extratio
@@ -41,16 +45,19 @@ sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugi
 sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
 sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
+echo_progress_done
+
 if [[ ! -f /install/.rutorrent.lock ]]; then
+echo_progress_start "Installing some plugins"
 if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
   cd /srv/rutorrent/plugins/theme/themes
-  git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
-  perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
+  git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >> "$log" 2>&1
+  perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php >> "$log" 2>&1
 fi
 
 if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
   cd /srv/rutorrent/plugins/
-  svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >>/dev/null 2>&1
+  svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "$log" 2>&1
   chown -R www-data: /srv/rutorrent/plugins/filemanager
   chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
@@ -87,14 +94,14 @@ fi
 
 if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
   cd /srv/rutorrent/plugins
-  svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >>/dev/null 2>&1
+  svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
   sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
 fi
 
 if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
   cd /srv/rutorrent/plugins
-  wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-  tar xf logoff-1.3.tar.gz
+  wget https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz >> "$log" 2>&1
+  tar xf logoff-1.3.tar.gz >> "$log" 2>&1
   rm -rf logoff-1.3.tar.gz
   chown -R www-data: logoff
 fi
@@ -189,6 +196,7 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 
 ?>
 RUC
+echo_progress_done
 
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
@@ -227,6 +235,7 @@ fi
 
 for u in "${users[@]}"; do
   if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
+    echo_progress_start "Configuring rutorrent for $u"
     mkdir -p /srv/rutorrent/conf/users/${u}/
 
     cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
@@ -251,11 +260,15 @@ auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }
 RUC
   fi
+  echo_progress_done "Rutorrent set up for $u"
 done
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 restart_php_fpm
 
 chown -R www-data.www-data /srv/rutorrent
-systemctl reload nginx
+echo_progress_start "Reloading nginx"
+systemctl reload nginx >> $log 2>&1
+echo_progress_done
 touch /install/.rutorrent.lock
