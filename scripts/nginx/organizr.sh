@@ -25,7 +25,6 @@ fi
 phpv=$(php_v_from_nginxconf)
 sock="php${phpv}-fpm"
 
-echo "Installing Nginx Config"
 if [[ ! -f /etc/nginx/apps/organizr.conf ]]; then
 cat > /etc/nginx/apps/organizr.conf <<RUM
 location /organizr {
