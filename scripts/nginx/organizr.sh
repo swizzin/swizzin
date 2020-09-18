@@ -14,7 +14,7 @@ else
 fi
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+  echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
   exit 1
 fi
 #shellcheck source=sources/functions/php
