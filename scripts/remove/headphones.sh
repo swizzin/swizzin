@@ -6,7 +6,7 @@ else
 fi
 user=$(cut -d: -f1 < /root/.master.info)
 
-systemctl disable --now headphones
+systemctl disable --now -q headphones
 
 rm /etc/systemd/system/headphones.service
 rm -f /etc/nginx/apps/headphones.conf

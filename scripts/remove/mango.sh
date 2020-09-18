@@ -8,7 +8,7 @@ else
 fi
 
 rm -rf /opt/mango
-systemctl disable --now mango >> $log 2>&1
+systemctl disable --now -q mango
 rm /etc/systemd/system/mango.service
 systemctl daemon-reload >> $log 2>&1
 

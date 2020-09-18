@@ -11,7 +11,7 @@ echo_log_only "Removing Transmission"
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
     echo_log_only "Removing for user $u"
-    systemctl disable --now transmission@$u > /dev/null 2>&1
+    systemctl disable --now -q transmission@$u
     #TODO decide if other stuff should be deleted too
     rm -f /home/${u}/.config/transmission-daemon/settings.json
 done

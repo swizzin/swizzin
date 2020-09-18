@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user=$(cut -d: -f1 < /root/.master.info)
-systemctl disable --now nzbhydra
+systemctl disable --now -q nzbhydra
 rm -rf /opt/nzbhydra
 rm -rf /home/${user}/.config/nzbhydra
 rm -rf /opt/.venv/nzbhydra
