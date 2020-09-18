@@ -61,6 +61,6 @@ function _install_transmission () {
     fi
     apt_install transmission-cli transmission-common transmission-daemon
     echo_progress_start "Disabling default non-multiuser service"
-    systemctl disable --now transmission-daemon >> "$log"
+    systemctl disable --now transmission-daemon >> "$log" 2>&1
     echo_progress_done
 }
