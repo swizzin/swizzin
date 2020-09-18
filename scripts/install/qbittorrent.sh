@@ -20,8 +20,10 @@ if [[ -n $1 ]]; then
     user=$1
     qbittorrent_user_config ${user}
     if [[ -f /install/.nginx.sh ]]; then
+        echo_progress_start "Configuring nginx"
         bash /etc/swizzin/scripts/nginx/qbittorrent.sh
         systemctl reload nginx
+        echo_progress_done
     fi
     exit 0
 fi
@@ -29,18 +31,27 @@ fi
 whiptail_qbittorrent
 if ! skip_libtorrent_rasterbar; then
     whiptail_libtorrent_rasterbar
-    echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
+    echo_progress_start "Building libtorrent-rasterbar"
+    build_libtorrent_rasterbar
+    echo_progress_done "Build completed"
 fi
 
-echo "Building qBittorrent"; build_qbittorrent
+echo_progress_start "Building qBittorrent"
+build_qbittorrent
+echo_progress_done
+
 qbittorrent_service
 for user in ${users[@]}; do
+    echo_progress_start "Enabling qbittorrent for $user"
     qbittorrent_user_config ${user}
-    systemctl enable --now qbittorrent@${user}
+    systemctl enable --now qbittorrent@${user} >> $log 2>&1
+    echo_progress_done "Started qbt for $user"
 done
 if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring nginx"
     bash /etc/swizzin/scripts/nginx/qbittorrent.sh
-    systemctl reload nginx
+    systemctl reload nginx >> $log 2>&1
+    echo_progress_done 
 fi
 
 touch /install/.qbittorrent.lock

@@ -4,7 +4,7 @@ function whiptail_qbittorrent () {
   if [[ -z $qbittorrent ]]; then
     . /etc/swizzin/sources/functions/apt
     codename=$(lsb_release -cs)
-    repov=$(get_repo_version qbittorrent-nox)
+    repov=$(get_candidate_version qbittorrent-nox)
     latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
     if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
     latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
