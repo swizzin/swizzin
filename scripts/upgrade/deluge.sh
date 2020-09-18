@@ -2,14 +2,8 @@
 # Deluge upgrade/downgrade/reinstall script
 # Author: liara
 if [[ ! -f /install/.deluge.lock ]]; then
-  echo "Deluge doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  echo_error "Deluge doesn't appear to be installed. What do you hope to accomplish by running this script?"
   exit 1
-fi
-
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  export log="/dev/null"
 fi
 
 . /etc/swizzin/sources/functions/deluge

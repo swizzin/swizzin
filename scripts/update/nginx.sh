@@ -2,11 +2,6 @@
 
 function update_nginx() {
 codename=$(lsb_release -cs)
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/dev/null"
-fi
 
 if [[ $codename =~ ("xenial"|"stretch") ]]; then
   mcrypt=php-mcrypt

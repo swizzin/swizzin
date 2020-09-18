@@ -123,7 +123,7 @@ function build_libtorrent_rasterbar () {
     cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
     for a in ${cleanup[@]}; do
       if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-        echo "Found $a. Removing."
+        echo_info "Found $a. Removing."
         dpkg -r $a > /dev/null 2>&1
       fi
     done
@@ -220,7 +220,7 @@ function build_libtorrent_rasterbar () {
         swap=true
         tmp_swap_on
     fi
-    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo_error "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
         configure_args="-std=c++14"
