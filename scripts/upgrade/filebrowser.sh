@@ -5,11 +5,7 @@ if [[ ! -f /install/.filebrowser.lock ]]; then
     exit 1
 fi
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  export log="/root/logs/swizzin.log"
-fi
+
 
 . /etc/swizzin/sources/functions/utils
 username=$(_get_master_username)

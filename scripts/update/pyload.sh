@@ -18,7 +18,6 @@ if [[ -f /install/.pyload.lock ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
-        log="/root/logs/swizzin.log"
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now pyload@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then

@@ -2,12 +2,6 @@
 # Mango upgrader
 # flying_sausages for swizzin 2020
 
-if [[ -f /tmp/.install.lock ]]; then
-    log="/root/logs/install.log"
-else
-    log="/root/logs/swizzin.log"
-fi
-
 if [[ ! -f /install/.mango.lock ]]; then
     echo "Mango not installed "
     exit 1

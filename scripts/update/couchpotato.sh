@@ -6,7 +6,6 @@ if [[ -f /install/.couchpotato.lock ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
-        log="/root/logs/swizzin.log"
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable --now couchpotato@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then

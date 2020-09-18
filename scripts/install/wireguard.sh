@@ -9,11 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ -f /tmp/.install.lock ]]; then
-	log="/root/logs/install.log"
-else
-	log="/root/logs/swizzin.log"
-fi
+
 
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)

@@ -1,7 +1,5 @@
 #! /bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
-if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
-
 #space-separated list of required GLOBAL SWIZZIN dependencies (NOT application specific ones)
 dependencies="jq sl fortune uuidgen"
 
