@@ -278,13 +278,13 @@ function _adduser {
         if [[ $app = "deluge" ]]; then
           #/usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
-          eval systemctl enable ${app}@${user}
+          eval systemctl enable -q ${app}@${user}
           eval systemctl start ${app}@${user}
         elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango") ]]; then
           : #Multi-user app without user service files
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
-          systemctl enable ${app}@${user}
+          systemctl enable -q ${app}@${user}
           systemctl start ${app}@${user}
         fi
       fi

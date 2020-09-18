@@ -49,7 +49,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ZNC
-systemctl enable znc
+systemctl enable -q znc
 echo_progress_done
 
 echo_warn "ZNC configuration will now run. Please answer the following prompts"
