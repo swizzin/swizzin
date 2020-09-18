@@ -20,7 +20,7 @@ apt_install python3
 
 cd /opt
 echo_progress_start "Cloning latest Tautulli repo"
-git clone https://github.com/Tautulli/Tautulli.git tautulli
+git clone https://github.com/Tautulli/Tautulli.git tautulli >>"${log}" 2>&1
 echo_progress_done
 
 echo "Adding user and setting up Tautulli"
@@ -46,12 +46,12 @@ Group=nogroup
 WantedBy=multi-user.target
 PPY
 
-systemctl enable --now tautulli > /dev/null 2>&1
+systemctl enable --now tautulli > $log 2>&1
 
 echo_progress_done "Tautulli started"
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "configuring nginx"
+  echo_progress_start "Configuring nginx"
   while [ ! -f /opt/tautulli/config.ini ]
   do
     sleep 2
