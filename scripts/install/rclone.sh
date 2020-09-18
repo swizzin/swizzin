@@ -18,16 +18,15 @@
 #   under the GPL along with build & install instructions.
 
 if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
+  log="/root/logs/install.log"
 else
-  OUTTO="/root/logs/swizzin.log"
+  log="/root/logs/swizzin.log"
 fi
-MASTER=$(cut -d: -f1 < /root/.master.info)
 
-echo "Downloading and installing rclone and dependencies ..." >>"${OUTTO}" 2>&1;
+echo "Downloading and installing rclone and dependencies ..."
 
 # Install fuse
-apt-get install fuse
+apt_install install fuse
 sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
 # One-liner to check arch/os type, as well as download latest rclone for relevant system.
@@ -35,7 +34,7 @@ curl https://rclone.org/install.sh | sudo bash
 
 # Make sure rclone downloads and installs without error before proceeding
 if [ $? -eq 0 ]; then
-    echo "Adding rclone mount service..." >>"${OUTTO}" 2>&1;
+    echo "Adding rclone mount service..."
 
 cat >/etc/systemd/system/rclone@.service<<EOF
 [Unit]
@@ -71,12 +70,9 @@ WantedBy=multi-user.target
 EOF
 
     touch /install/.rclone.lock
-    echo "rclone installation complete!" >>"${OUTTO}" 2>&1;
-    echo "Setup Rclone remote named: gdrive" >>"${OUTTO}" 2>&1;
-    echo "And run sudo systemctl start rclone@username.service" >>"${OUTTO}" 2>&1;
+    echo "rclone installation complete!"
+    echo "Setup Rclone remote named: gdrive"
+    echo "And run sudo systemctl start rclone@username.service"
 else
-    echo "Issue occured during rclone installation." >>"${OUTTO}" 2>&1;
+    echo "Issue occured during rclone installation."
 fi
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
