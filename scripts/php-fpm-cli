@@ -81,9 +81,6 @@ init() {
 }
 
 if [[ -z $(which cgi-fcgi) ]]; then
-  DEPENDS='libfcgi-bin libfcgi0ldbl'
-  for i in $DEPENDS; do
-    apt-get install -y -q --install-recommends $i > /dev/null 2>&1
-  done
+  apt_install --recommends libfcgi-bin libfcgi0ldbl
 fi
 init "$@" && main

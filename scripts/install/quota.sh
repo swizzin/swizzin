@@ -52,7 +52,8 @@ bold=$(tput bold); normal=$(tput sgr0); alert=${white}${on_red}; title=${standou
   echo
 
 function _installquota(){
-  apt-get install -y -q quota >/dev/null 2>&1
+  #TODO why are we installing the quota package twice?
+  apt_install quota
   if [[ ${primaryroot} == "root" ]]; then   
     loc=$(echo -e "/\t")
     loc2="/ "
@@ -84,14 +85,14 @@ function _installquota(){
   echo "Installing dependencies"
   if [[ $DISTRO == Ubuntu ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" linux-image-extra-virtual quota >>"${OUTTO}" 2>&1
+    apt_install linux-image-extra-virtual quota
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1
     systemctl start quota >>"${OUTTO}" 2>&1
   elif [[ $DISTRO == Debian ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-    DEBIAN_FRONTEND=noninteractive apt-get install -qy -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" quota >>"${OUTTO}" 2>&1
+    apt_install quota
     mount -o remount ${loc} >>"${OUTTO}" 2>&1
     quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
     quotaon -uv / >>"${OUTTO}" 2>&1

@@ -8,7 +8,7 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-apt-get remove webmin -yq >> $log 2>&1
+apt_remove webmin
 rm -rf /etc/webmin
 rm /etc/apt/sources.list.d/webmin.list
 

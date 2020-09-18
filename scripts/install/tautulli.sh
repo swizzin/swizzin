@@ -21,7 +21,8 @@ fi
 user=$(cut -d: -f1 < /root/.master.info)
 
 
-apt-get -y -q install python3 >>"${log}" 2>&1
+apt_install python3
+
 cd /opt
 echo "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli

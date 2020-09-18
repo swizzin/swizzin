@@ -22,17 +22,17 @@ fi
 
 distribution=$(lsb_release -is)
 release=$(lsb_release -cs)
-echo -n "Installing Xfce4 (this may take a bit) ... "
-apt-get install -y xfce4 >> ${log} 2>&1
+echo "Installing Xfce4 (this may take a bit) ... "
+apt_install xfce4
 #disable lightdm because it causes suspend issues on Ubuntu
 systemctl disable --now lightdm >> ${log} 2>&1
 
-echo -n "Installing x2go repositories ... "
+echo "Installing x2go repositories ... "
 
 if [[ $distribution == Ubuntu ]]; then
-	apt-get install -q -y software-properties-common >> ${log} 2>&1
+	apt_install software-properties-common
 	apt-add-repository ppa:x2go/stable -y >> ${log} 2>&1
-	apt-get -y update >> ${log} 2>&1
+	apt_update
 else
 
 cat >/etc/apt/sources.list.d/x2go.list<<EOF
@@ -47,16 +47,15 @@ deb-src http://packages.x2go.org/debian ${release} main
 #deb-src http://packages.x2go.org/debian ${release} heuler
 EOF
 
-apt-get -y update>> ${log} 2>&1
+apt_update
 apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
 
-apt-get -y update >> ${log} 2>&1
-apt-get -y install x2go-keyring >> ${log} 2>&1 && apt-get update >> ${log} 2>&1
+apt_update
+apt_install x2go-keyring
 fi
 
-
-echo -n "Installing X2go (this may take a bit) ... "
-apt-get -y install x2goserver x2goserver-xsession >> ${log} 2>&1
-apt-get -y install pulseaudio >> ${log} 2>&1
+echo "Installing X2go (this may take a bit) ... "
+apt_update
+apt_install x2goserver x2goserver-xsession pulseaudio
 
 touch /install/.x2go.lock

@@ -27,10 +27,8 @@ organizr_dir="/srv/organizr"
 ####### Source download
 function organizr_install () {
   export DEBIAN_FRONTEND=noninteractive
-  echo "Fetching Updates" | tee -a $log
-  apt-get update -y -q >> $log 2>&1
   echo "Installing dependencies" | tee -a $log
-  apt-get install -y -q php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl >> $log 2>&1
+  apt_install php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl
 
   if [[ ! -d $organizr_dir ]]; then
     echo "Cloning the Organizr Repo" | tee -a $log
