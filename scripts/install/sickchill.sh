@@ -7,13 +7,6 @@ codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 . /etc/swizzin/sources/functions/utils
 
-
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 if [[ $(systemctl is-active medusa) == "active" ]]; then
   active=medusa
 fi
@@ -23,16 +16,15 @@ if [[ $(systemctl is-active sickgear) == "active" ]]; then
 fi
 
 if [[ -n $active ]]; then
-  echo "SickChill and Medusa and Sickgear cannot be active at the same time."
-  echo "Do you want to disable $active and continue with the installation?"
-  echo "Don't worry, your install will remain at /opt/$active"
+  echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\n\tDo you want to disable $active and continue with the installation?\n\tDon't worry, your install will remain at /opt/$active"
   while true; do
-  read -p "Do you want to disable $active? " yn
-      case "$yn" in
-          [Yy]|[Yy][Ee][Ss]) disable=yes; break;;
-          [Nn]|[Nn][Oo]) disable=; break;;
-          *) echo "Please answer yes or no.";;
-      esac
+    echo_query "Do you want to disable $active? " "y/n"
+    read yn
+    case "$yn" in
+        [Yy]|[Yy][Ee][Ss]) disable=yes; break;;
+        [Nn]|[Nn][Oo]) disable=; break;;
+        *) echo_warn "Please answer yes or no.";;
+    esac
   done
   if [[ $disable == "yes" ]]; then
     systemctl disable --now ${active}
