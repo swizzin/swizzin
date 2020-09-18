@@ -479,7 +479,7 @@ function _nukeovh() {
 # args=("$@")
 normal=$(tput sgr0)
 git_hash=$(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD)
-echo_log_only ">>>> \`box $@\`, \tGIT HEAD @ $git_hash"
+echo_log_only ">>>> \`box $*\`, \tGIT HEAD @ $git_hash"
 
 case "$1" in
   "")

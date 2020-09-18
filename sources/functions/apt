@@ -52,11 +52,8 @@ _process_apt_args() {
         esac
         shift
     done
-
-    if [[ -z ${_apt_packages[1]} ]]; then
-        export _apt_packages
-    fi
     echo_log_only "New variables exported"
+
 }
 export -f _process_apt_args
 
@@ -90,7 +87,7 @@ export -f _apt_logcheck_mark
 # Kills the top script in case an apt error was found. READ THIS!!!
 # ATTENTION !!! REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function and that $log is set
 _apt_logcheck (){
-    if [[ $(_get_last_apt_log | grep 'E:') ]]; then
+    if  _get_last_apt_log | grep -q 'E:'; then
         if [[ $_apt_ignore_errors != "true" ]]; then 
             echo_error "Apt failed."
             exit 1
@@ -167,6 +164,7 @@ _apt_update () {
 
         last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
         now=$(date +%s)
+        echo_log_only "Apt log age = $((now - last_update)), update is forced= $_update_is_forced"
         if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_ignore_apt_age" = "true" ]; then
             echo_progress_start "Performing apt update"
             apt-get update >> $log 2>&1
@@ -209,8 +207,9 @@ export -f get_candidate_version
 apt_update () {
     _apt_logcheck_mark
     _process_apt_args "$@"
-    _ignore_apt_age="true"
+    _update_is_forced="true"
     _apt_update
+    _update_is_forced=""
 }
 export -f apt_update
 

@@ -144,7 +144,7 @@ function build_libtorrent_rasterbar () {
         dcanditate=$deluge
         if [[ $dcanditate == "repo" ]]; then
             . /etc/swizzin/sources/functions/apt
-            daptver=$(get_repo_version deluged)
+            daptver=$(get_candidate_version deluged)
             if [[ $daptver =~ ^1.* ]]; then
                 dcanditate=1.3-stable
             else

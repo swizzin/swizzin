@@ -3,7 +3,7 @@
 if [[ -z $log ]]; then log="/root/logs/swizzin.log"; fi
 
 #space-separated list of required GLOBAL SWIZZIN dependencies (NOT application specific ones)
-dependencies="jq sl fortune"
+dependencies="jq sl fortune uuidgen"
 
 missing=()
 for dep in $dependencies; do

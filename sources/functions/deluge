@@ -53,8 +53,8 @@ function build_deluge () {
     apt_install deluged deluge-web deluge-console
     dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
     if [[ $dver =~ ^1\. ]]; then 
-      cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
-      chmod 644 /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+        cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+        chmod 644 /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
     fi
     systemctl stop deluged
     update-rc.d deluged remove

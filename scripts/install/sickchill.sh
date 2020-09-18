@@ -47,20 +47,9 @@ if [[ $codename =~ ("xenial"|"stretch") ]]; then
     pyenv_create_venv 3.7.7 /opt/.venv/sickchill
 else
     LIST='git python3-dev python3-venv python3-pip'
-    apt-get -y -q update >> $log 2>&1
-    for depend in $LIST; do
-        apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
+    apt_install $LIST
     python3 -m venv /opt/.venv/sickchill
 fi
-
-apt_install $LIST
-
-if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  python_getpip
-fi
-
-python2_venv ${user} sickchill
 
 chown -R ${user}: /opt/.venv/sickchill
 echo "Cloning SickChill ..."
