@@ -33,15 +33,16 @@ fi
 
 python2_venv ${user} nzbhydra
 
-echo "Cloning NZBHydra ... "
+echo_progress_start "Cloning NZBHydra"
 git clone -q https://github.com/theotherp/nzbhydra.git /opt/nzbhydra
 chown ${user}: -R /opt/nzbhydra
 
 mkdir -p /home/${user}/.config/nzbhydra
-
 chown ${user}: /home/${user}/.config
 chown ${user}: /home/${user}/.config/nzbhydra
+echo_progress_done
 
+echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/nzbhydra.service <<NZBH
 [Unit]
 Description=NZBHydra
@@ -63,12 +64,16 @@ WantedBy=multi-user.target
 NZBH
 
 systemctl enable --now nzbhydra >> ${log} 2>&1
+echo_progress_done "Nzbhydra started"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Configuring nginx"
   sleep 30
   bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
   systemctl reload nginx
+  echo_progress_done "Nginx configured"
 fi
 
+echo_success "Nzbhydra installed"
 touch /install/.nzbhydra.lock
 

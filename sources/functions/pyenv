@@ -48,7 +48,7 @@ function python_getpip() {
     echo_progress_start "Installing pip"
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
     python2 get-pip.py >> $log 2>&1
-    pip install virtualenv >>"${log}" 2>&1
+    pip install virtualenv 2>&1 | tee -a $log
     echo_progress_done "pip installed"
   fi
 }
@@ -58,9 +58,9 @@ function python2_venv {
   app=$2
   echo_progress_start "Setting up the ${app} venv ..."
   mkdir -p /opt/.venv
-  chown ${user}: /opt/.venv
-  python2 -m virtualenv /opt/.venv/${app} >>"${log}" 2>&1
-  chown -R ${user}: /opt/.venv/${app}
+  chown ${user}: /opt/.venv  2>&1 | tee -a $log
+  python2 -m virtualenv /opt/.venv/${app} 2>&1 | tee -a $log
+  chown -R ${user}: /opt/.venv/${app} 2>&1 | tee -a $log
   echo_progress_done "venv for $app created"
 }
 
@@ -69,9 +69,9 @@ function python2_home_venv {
   app=$2
   echo_progress_start "Setting up the ${app} venv in ${user}'s home..."
   mkdir -p /home/${user}/.venv
-  chown ${user}: /home/${user}/.venv
-  python2 -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
-  chown -R ${user}: /home/${user}/.venv/${app}
+  chown ${user}: /home/${user}/.venv 2>&1 | tee -a $log
+  python2 -m virtualenv /home/${user}/.venv/${app} 2>&1 | tee -a $log
+  chown -R ${user}: /home/${user}/.venv/${app} 2>&1 | tee -a $log
   echo_progress_done "venv for $app created"
 }
 
@@ -81,7 +81,7 @@ function python3_venv {
   echo_progress_start "Setting up the ${app} venv ..."
   mkdir -p /opt/.venv
   chown ${user}: /opt/.venv
-  python3 -m venv /opt/.venv/${app} >>"${log}" 2>&1
+  python3 -m venv /opt/.venv/${app} 2>&1 | tee -a $log
   chown -R ${user}: /opt/.venv/${app}
   echo_progress_done "venv for $app created"
 
