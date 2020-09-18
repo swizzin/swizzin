@@ -29,7 +29,7 @@ function _install_wg () {
 		iface=${IFACE[0]}
 	fi
 
-	echo "Setup has detected that $iface is your main interface, is this correct?"
+	echo_query "Setup has detected that $iface is your main interface, is this correct?";echo
 	select yn in "yes" "no"; do
 		case $yn in
 			yes ) break;;
@@ -38,19 +38,18 @@ function _install_wg () {
 	done
 
 	if [[ $distribution == "Debian" ]]; then
-		echo "Adding Wireguard repoository"
+		echo_progress_start "Adding Wireguard repoository"
 		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 		printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
+		echo_progress_done
 	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-		echo "Adding Wireguard PPA"
+		echo_progress_start "Adding Wireguard PPA"
 		add-apt-repository -y ppa:wireguard/wireguard >> $log 2>&1
+		echo_progress_done
 	fi
 
-	echo "Fetching APT updates"
 	apt_update
-	echo "Installing Wireguard from APT"
 	apt_install wireguard qrencode
-
 
 	if [[ ! -d /etc/wireguard ]]; then
 		mkdir /etc/wireguard
@@ -58,37 +57,35 @@ function _install_wg () {
 
 	chown -R root:root /etc/wireguard/
 	chmod -R 700 /etc/wireguard
-	# echo ""
-	modprobe wireguard >> $log 2>&1
 
-	if [[ $? != "0" ]]; then
-		echo "Could not modprobe Wireguard, script will now terminate."
-		echo "Please consult the swizzin log."
+	echo_progress_start "Adding wireguard mod to kernel and enabling"
+	if ! modprobe wireguard >> $log 2>&1; then
+		echo_error "Could not modprobe Wireguard, script will now terminate."
 		exit 1
 	fi
-	
 	systemctl daemon-reload >> $log 2>&1
-
+	echo_progress_done
+	
 	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-	sysctl -p > /dev/null 2>&1
+	sysctl -p >> $log 2>&1
 
 	touch /install/.wireguard.lock
 }
 
 function _selectiface () {
-	echo "Please choose the correct interface from the following list:"
+	echo_query "Please choose the correct interface from the following list"; echo
 	select seliface in "${IFACE[@]}"; do
 		case $seliface in
 		*) iface=$seliface; break;;
 		esac
 	done
-	echo "Your interface has been set as $iface"
-	echo "Groovy. Please wait a few moments while wireguard is installed ..."
+	echo_info "Your interface has been set as $iface"
+	# echo "Groovy. Please wait a few moments while wireguard is installed ..."
 }
 
 
 function _mkconf_wg () {
-	echo -n "Configuring Wireguard for $u"
+	echo_progress_start "Configuring Wireguard for $u"
 
 	mkdir -p /home/$u/.wireguard/{server,client}
 
@@ -156,12 +153,11 @@ EOWGC
 
 	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
 	if [[ $? == 0 ]]; then 
-		echo "  |  Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+		echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
 	else
-		echo "  |  Configuration failed"
+		echo_error "Configuration for $u failed"
 	fi
 }
-
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
@@ -179,8 +175,5 @@ users=($(_get_user_list))
 for u in ${users[@]}; do
 	_mkconf_wg
 done
-echo
-echo "Configuration QR code can be generated with the following command:"
 masteruser=$(_get_master_username)
-echo "  qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
-echo
+echo_info "Configuration QR code can be generated with the following command:\n\t${bold}qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
