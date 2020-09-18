@@ -9,11 +9,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+
 
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)

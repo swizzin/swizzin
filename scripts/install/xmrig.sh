@@ -5,11 +5,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 latest=$(curl -s https://github.com/xmrig/xmrig/releases/latest | grep -oP 'v\K\d+.\d+.\d+')
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+
 
 while true; do
 echo_query "Please choose a dev donation amount. Minimum fee is 1%."
