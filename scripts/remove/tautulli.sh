@@ -1,6 +1,6 @@
 #!/bin/bash
-systemctl stop tautulli
-systemctl disable tautulli
+systemctl stop -q tautulli
+systemctl disable -q tautulli
 rm -rf /opt/tautulli
 rm /install/.tautulli.lock
 rm -f /etc/nginx/apps/tautulli.conf

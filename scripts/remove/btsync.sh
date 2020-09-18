@@ -25,7 +25,7 @@ else
 fi
 
 function _removeBTSync() {
-  systemctl stop resilio-sync
+  systemctl stop -q resilio-sync
   apt_remove --purge resilio-sync*
   deluser rslsync >>"${OUTTO}" 2>&1
   delgroup rslsync >>"${OUTTO}" 2>&1

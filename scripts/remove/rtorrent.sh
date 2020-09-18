@@ -5,8 +5,8 @@ read -n 1 -s -r -p "This will remove rTorrent and all associated interfaces (ruT
 printf "\n"
 
 for u in ${users}; do
-  systemctl disable rtorrent@${u}
-  systemctl stop rtorrent@${u}
+  systemctl disable -q rtorrent@${u}
+  systemctl stop -q rtorrent@${u}
   rm -f /home/${u}/.rtorrent.rc
 done
 
