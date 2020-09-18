@@ -25,7 +25,7 @@ function pyenv_install_version() {
   version=$1
   versions=$(/opt/pyenv/bin/pyenv versions)
   if [[ ! $versions =~ $version ]]; then
-    echo_progress_start "Compiling Python $version. This may take some time ... "
+    echo_progress_start "Compiling Python $version. This may take some time"
     /opt/pyenv/bin/pyenv install $version >> "$log" 2>&1
     echo_progress_done "Compiling done"
   else
@@ -56,7 +56,7 @@ function python_getpip() {
 function python2_venv {
   user=$1
   app=$2
-  echo_progress_start "Setting up the ${app} venv ..."
+  echo_progress_start "Setting up the ${app} venv"
   mkdir -p /opt/.venv
   chown ${user}: /opt/.venv  2>&1 | tee -a $log
   python2 -m virtualenv /opt/.venv/${app} 2>&1 | tee -a $log
@@ -67,7 +67,7 @@ function python2_venv {
 function python2_home_venv {
   user=$1
   app=$2
-  echo_progress_start "Setting up the ${app} venv in ${user}'s home..."
+  echo_progress_start "Setting up the ${app} venv in ${user}'s home"
   mkdir -p /home/${user}/.venv
   chown ${user}: /home/${user}/.venv 2>&1 | tee -a $log
   python2 -m virtualenv /home/${user}/.venv/${app} 2>&1 | tee -a $log
@@ -78,7 +78,7 @@ function python2_home_venv {
 function python3_venv {
   user=$1
   app=$2
-  echo_progress_start "Setting up the ${app} venv ..."
+  echo_progress_start "Setting up the ${app} venv"
   mkdir -p /opt/.venv
   chown ${user}: /opt/.venv
   python3 -m venv /opt/.venv/${app} 2>&1 | tee -a $log
