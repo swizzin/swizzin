@@ -45,7 +45,7 @@ RestartForceExitStatus=3 4
 [Install]
 WantedBy=multi-user.target
 SYNC
-systemctl enable syncthing@${MASTER} >> $log 2>&1
+systemctl enable -q syncthing@${MASTER} 2>&1  | tee -a $log
 systemctl start syncthing@${MASTER} >> $log 2>&1
 echo_progress_done
 

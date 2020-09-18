@@ -67,7 +67,7 @@ echo_progress_done "Lidarr configured"
   fi
 
 echo_progress_start "Enabling Lidarr"
-systemctl enable --now lidarr >> $log 2>&1
+systemctl enable -q --now lidarr 2>&1  | tee -a $log
 echo_progress_done "Lidarr started"
 
 echo_success "Lidarr installed"

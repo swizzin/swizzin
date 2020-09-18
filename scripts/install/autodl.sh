@@ -74,7 +74,7 @@ WantedBy=multi-user.target
 ADC
 
 for u in "${users[@]}"; do
-  systemctl enable --now irssi@${u} >>"${OUTTO}" 2>&1
+  systemctl enable -q --now irssi@${u} 2>&1  | tee -a $log
 done
 echo_progress_done
 }

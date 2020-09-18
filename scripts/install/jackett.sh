@@ -103,7 +103,7 @@ if [[ -f /install/.nginx.lock ]]; then
   echo_progress_done "Nginx configured"
 fi
 
-systemctl enable --now jackett@${username} >/dev/null 2>&1
+systemctl enable -q --now jackett@${username} 2>&1  | tee -a $log
 
 sleep 10
 

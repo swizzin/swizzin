@@ -63,7 +63,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 NZBH
 
-systemctl enable --now nzbhydra >> ${log} 2>&1
+systemctl enable -q --now nzbhydra 2>&1  | tee -a $log
 echo_progress_done "Nzbhydra started"
 
 if [[ -f /install/.nginx.lock ]]; then

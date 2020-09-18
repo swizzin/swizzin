@@ -93,7 +93,7 @@ fi
 #
 # Start the filebrowser service.
 systemctl daemon-reload >/dev/null 2>&1
-systemctl enable --now "filebrowser.service" >/dev/null 2>&1
+systemctl enable -q --now "filebrowser.service" 2>&1  | tee -a $log
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.

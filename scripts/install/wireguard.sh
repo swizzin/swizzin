@@ -151,7 +151,7 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
+	systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1  | tee -a $log
 	if [[ $? == 0 ]]; then 
 		echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
 	else

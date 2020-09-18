@@ -332,7 +332,7 @@ chown "${username}.${username}" -R "/home/${username}/.ssl"
 #
 # Enable and start the jellyfin service.
 systemctl daemon-reload >> $log
-systemctl enable --now "jellyfin.service" >> $log 2>&1
+systemctl enable -q --now "jellyfin.service" 2>&1  | tee -a $log
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.jellyfin.lock"

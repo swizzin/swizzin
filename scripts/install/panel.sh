@@ -89,7 +89,7 @@ Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
 swizzin     ALL = (ALL) NOPASSWD: CMNDS
 EOSUD
 
-systemctl enable --now panel >> ${log} 2>&1
+systemctl enable -q --now panel 2>&1  | tee -a $log
 echo_progress_done "Panel started"
 
 echo_success "Panel installed"

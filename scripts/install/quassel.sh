@@ -51,7 +51,7 @@ else
 fi
 echo_progress_start "Starting quassel"
 mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
-systemctl enable --now quasselcore >> "$log" 2>&1
+systemctl enable -q --now quasselcore 2>&1  | tee -a $log
 echo_progress_done
 
 echo_success "Quassel installed"

@@ -63,7 +63,7 @@ for u in "${users[@]}"; do
       bash /usr/local/bin/swizzin/nginx/flood.sh $u
       systemctl start flood@$u
     fi
-    systemctl enable flood@$u > /dev/null 2>&1
+    systemctl enable -q flood@$u 2>&1  | tee -a $log
     echo_progress_done "Flood for $u configured"
   fi
 done

@@ -62,7 +62,7 @@ PIDFile=/run/${user}/headphones.pid
 WantedBy=multi-user.target
 HEADSD
 
-systemctl enable --now headphones >> ${log} 2>&1
+systemctl enable -q --now headphones 2>&1  | tee -a $log
 sleep 10
 echo_progress_done "Systemd service installed"
 

@@ -55,7 +55,7 @@ NZBH
         systemctl daemon-reload
         rm /etc/systemd/system/nzbhydra@.service
         if [[ $active == "active" ]]; then
-            systemctl enable --now nzbhydra >> ${log} 2>&1
+            systemctl enable -q --now nzbhydra 2>&1  | tee -a $log
         fi
     fi
 fi

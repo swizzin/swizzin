@@ -71,7 +71,7 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 SONARR
-  systemctl enable --now sonarr@${username} >> ${log} 2>&1
+  systemctl enable -q --now sonarr@${username} 2>&1  | tee -a $log
   sleep 10
   echo_progress_done "Sonarr started"
 

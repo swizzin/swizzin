@@ -57,7 +57,7 @@ PYSD
         systemctl daemon-reload
         rm /etc/systemd/system/pyload@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable --now pyload >> ${log} 2>&1
+            systemctl enable -q --now pyload 2>&1  | tee -a $log
         fi
     fi
 fi

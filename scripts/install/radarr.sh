@@ -64,7 +64,7 @@ EOF
 #  chmod 775 /home/${username}/.config
   chown -R ${username}:${username} /opt/Radarr/
   systemctl daemon-reload
-  systemctl enable radarr.service > /dev/null 2>&1
+  systemctl enable -q radarr.service 2>&1  | tee -a $log
   systemctl start radarr.service
   echo_progress_done "Radarr started"
 

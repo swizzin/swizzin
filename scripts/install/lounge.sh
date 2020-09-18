@@ -350,7 +350,7 @@ StartLimitBurst=3
 WantedBy=multi-user.target
 EOSD
 
-systemctl enable --now lounge >> $log 2>&1
+systemctl enable -q --now lounge 2>&1  | tee -a $log
 
 sleep 3
 echo_progress_done "Lounge started"

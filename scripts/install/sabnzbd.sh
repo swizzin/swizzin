@@ -65,7 +65,7 @@ WantedBy=multi-user.target
 
 SABSD
 
-systemctl enable --now sabnzbd >> ${log} 2>&1
+systemctl enable -q --now sabnzbd 2>&1  | tee -a $log
 sleep 2
 echo_progress_done "SABnzbd started"
 

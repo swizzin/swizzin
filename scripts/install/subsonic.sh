@@ -119,7 +119,7 @@ SUBSD
 
 mkdir /srv/subsonic
 chown ${MASTER}: /srv/subsonic
-systemctl enable --now subsonic.service >> ${log} 2>&1
+systemctl enable -q --now subsonic.service 2>&1  | tee -a $log
 echo_progress_done "Started subsonic"
 
 if [[ -f /install/.nginx.lock ]]; then

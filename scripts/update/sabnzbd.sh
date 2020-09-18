@@ -52,7 +52,7 @@ SABSD
         rm /etc/systemd/system/sabnzbd@.service
 
         if [[ $active == "active" ]]; then
-            systemctl enable --now sabnzbd >> ${log} 2>&1
+            systemctl enable -q --now sabnzbd 2>&1  | tee -a $log
         fi
     fi
 fi

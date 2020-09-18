@@ -244,8 +244,8 @@ WantedBy=multi-user.target
 DW
   fi
 for u in "${users[@]}"; do
-  systemctl enable deluged@${u} >>"${log}" 2>&1
-  systemctl enable deluge-web@${u} >>"${log}" 2>&1
+  systemctl enable -q deluged@${u} 2>&1  | tee -a $log
+  systemctl enable -q deluge-web@${u} 2>&1  | tee -a $log
   systemctl start deluged@${u}
   systemctl start deluge-web@${u}
 done

@@ -105,7 +105,7 @@ SCSD
         systemctl daemon-reload
         rm_if_exists /etc/systemd/system/sickchill@.service
         if [[ $active == "active" ]]; then
-            systemctl enable --now sickchill >> ${log} 2>&1
+            systemctl enable -q --now sickchill 2>&1  | tee -a $log
         fi
     fi
 fi

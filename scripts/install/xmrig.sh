@@ -111,7 +111,7 @@ XMR
 echo_progress_done
 
 echo_progress_start
-systemctl enable --now xmrig >> $log 2>&1
+systemctl enable -q --now xmrig 2>&1  | tee -a $log
 echo_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"

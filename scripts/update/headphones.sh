@@ -48,7 +48,7 @@ HEADSD
         sed -i "s|/home/${user}/.headphones|/opt/headphones|g" /opt/headphones/config.ini
 
         if [[ $active == "active" ]]; then
-            systemctl enable --now headphones >> ${log} 2>&1
+            systemctl enable -q --now headphones 2>&1  | tee -a $log
         fi
     fi
 

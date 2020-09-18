@@ -178,7 +178,7 @@ echo_progress_start "Configuring nginx"
   echo_progress_done
 fi
 echo_progress_start "Enabling and starting pyLoad services"
-systemctl enable --now pyload.service >> ${log} 2>&1
+systemctl enable -q --now pyload.service 2>&1  | tee -a $log
 echo_progress_done
 
 echo_success "PyLoad installed"

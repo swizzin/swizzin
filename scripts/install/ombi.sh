@@ -68,7 +68,7 @@ OMB
     echo_progress_done "Nginx configured"
   fi
   echo_progress_start "Enabling and starting ombi"
-  systemctl enable ombi >/dev/null 2>&1
+  systemctl enable -q ombi 2>&1  | tee -a $log
   systemctl restart ombi
   echo_progress_done "Ombi started"
 }

@@ -55,7 +55,7 @@ GuessMainPID=no
 WantedBy=multi-user.target
 CPSD
 
-systemctl enable --now couchpotato >> ${log} 2>&1
+systemctl enable -q --now couchpotato 2>&1  | tee -a $log
 echo_progress_done "Service enabled and running"
 
 if [[ -f /install/.nginx.lock ]]; then

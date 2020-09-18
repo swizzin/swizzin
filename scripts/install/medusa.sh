@@ -73,7 +73,7 @@ ExecStop=-/bin/kill -HUP
 WantedBy=multi-user.target
 MSD
 
-systemctl enable --now medusa >>$log 2>&1
+systemctl enable -q --now medusa 2>&1  | tee -a $log
 echo_progress_done "Medusa started"
 
 if [[ -f /install/.nginx.lock ]]; then

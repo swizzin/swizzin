@@ -77,7 +77,7 @@ ExecStart=/opt/.venv/sickchill/bin/python3 /opt/sickchill/SickChill.py -q --daem
 WantedBy=multi-user.target
 SCSD
 
-systemctl enable --now sickchill >> ${log} 2>&1
+systemctl enable -q --now sickchill 2>&1  | tee -a $log
 echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then

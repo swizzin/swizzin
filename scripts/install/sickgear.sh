@@ -80,7 +80,7 @@ ExecStart=/opt/.venv/sickgear/bin/python /opt/sickgear/sickgear.py -q --nolaunch
 WantedBy=multi-user.target
 SRS
   systemctl daemon-reload
-  systemctl enable --now sickgear >> $log 2>&1
+  systemctl enable -q --now sickgear 2>&1  | tee -a $log
   sleep 5
   # Restart because first start doesn't always generate the config.ini
   systemctl restart sickgear

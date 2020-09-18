@@ -49,7 +49,7 @@ MSD
         systemctl daemon-reload
         rm /etc/systemd/system/sickchill@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable --now sickgear >> ${log} 2>&1
+            systemctl enable -q --now sickgear 2>&1  | tee -a $log
         fi
     fi
 fi
