@@ -12,12 +12,13 @@ done
 
 . /etc/swizzin/sources/functions/rtorrent
 isdeb=$(dpkg -l | grep rtorrent)
-echo "Removing old rTorrent binaries and libraries ... ";
+echo_progress_start "Removing old rTorrent binaries and libraries ... ";
 if [[ -z $isdeb ]]; then
 	remove_rtorrent_legacy
 else
   remove_rtorrent
 fi
+echo_progress_done
 
 for a in rutorrent flood; do
   if [[ -f /install/.$a.lock ]]; then

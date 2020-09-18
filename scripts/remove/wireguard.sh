@@ -14,7 +14,7 @@ rm -rf /etc/wireguard/
 
 apt_remove wireguard wireguard-tools wireguard-dkms qrencode
 
-echo "Removing unused repositories"
+echo_progress_start "Removing unused repositories"
 
 if [[ $distribution == "Debian" ]]; then
     rm -f /etc/apt/sources.list.d/unstable.list
@@ -22,6 +22,7 @@ if [[ $distribution == "Debian" ]]; then
 elif [[ $codename =~ ("bionic"|"xenial") ]]; then
     add-apt-repository -r -y ppa:wireguard/wireguard >> /dev/null 2>&1
 fi
+echo_progress_done
 
 apt_update
 
