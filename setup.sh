@@ -64,13 +64,15 @@ function _preparation() {
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc>> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
   git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
+  #shellcheck source=sources/functions/apt
+  . /etc/swizzin/sources/functions/apt
 }
 
 function _nukeovh() {

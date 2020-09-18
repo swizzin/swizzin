@@ -14,8 +14,7 @@ if [[ -f /install/.medusa.lock ]]; then
             chown ${user}: /opt/.venv
         fi
         
-        apt-get -y -q update >> $log 2>&1
-        apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
+        apt_install git-core openssl libssl-dev python3 python3-venv
         python3 -m venv /opt/.venv/medusa
         chown -R ${user}: /opt/.venv/medusa
         mv /home/${user}/.medusa /opt/medusa

@@ -3,7 +3,7 @@
 
 log=/root/logs/swizzin.log
 
-apt-get remove vsftpd -y >> $log 2>&1
+apt_remove vsftpd -y >> $log 2>&1
 rm /etc/vsftpd.conf
 
 rm /install/.vsftpd.lock
