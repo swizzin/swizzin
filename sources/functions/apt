@@ -53,7 +53,6 @@ _process_apt_args() {
         shift
     done
     echo_log_only "New variables exported"
-
 }
 export -f _process_apt_args
 
@@ -61,6 +60,7 @@ export -f _process_apt_args
 _unset_apt_args (){
     unset _apt_ignore_errors
     unset _apt_interactive
+    unset _apt_ignore_errors
     unset _apt_skip_checks
     unset _apt_remove_purge
     unset _apt_install_recommends
