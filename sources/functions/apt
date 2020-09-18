@@ -165,13 +165,13 @@ _apt_update () {
         last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
         now=$(date +%s)
         echo_log_only "Apt log age = $((now - last_update)), update is forced= $_update_is_forced"
-        if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_ignore_apt_age" = "true" ]; then
+        if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_update_is_forced" = "true" ]; then
             echo_progress_start "Performing apt update"
             apt-get update >> $log 2>&1
             _apt_logcheck
             echo_progress_done "Apt up to date"
         else
-            echo_log_only " Apt sufficiently up to date, skipping"
+            echo_log_only "Apt sufficiently up to date, skipping"
         fi
     fi
 }
