@@ -88,6 +88,8 @@ export -f _apt_logcheck_mark
 # ATTENTION !!! REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function and that $log is set
 _apt_logcheck (){
     if  _get_last_apt_log | grep -q 'E:'; then
+        echo_info "Dumping apt log errors"
+        _get_last_apt_log | grep 'E:'
         if [[ $_apt_ignore_errors != "true" ]]; then 
             echo_error "Apt failed."
             exit 1
@@ -125,6 +127,7 @@ export -f _check_dpkg_lock
 _apt_check (){
     if [[ $_apt_skip_checks != "true" ]]; then 
         if ! apt-get check >> $log 2>&1; then
+            echo_warn "Dumping apt log errors and warnings"
             _get_last_apt_log | grep 'E:\|W:'
             if [[ $_apt_ignore_errors != "true" ]]; then 
                 echo_error "\`apt-get check\` failed, you may have broken packages. Aborting installation"
