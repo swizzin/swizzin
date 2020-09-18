@@ -1,38 +1,12 @@
 #!/bin/bash
-#
-# [Quick Box :: Install rclone]
-#
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   DedSec | d2dyno
-# URL                :   https://quickbox.io
-#
-# QuickBox Copyright (C) 2017 QuickBox.io
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
+echo "Downloading and installing rclone" 
+wget https://rclone.org/install.sh -O /tmp/rcloneinstall.sh >> $ log 2>&1
+if ! bash /tmp/rcloneinstall.sh >> $log 2>&1; then
+  echo_error "Setup failed"
 fi
-MASTER=$(cut -d: -f1 < /root/.master.info)
+echo_progress_done "rclone installed"
 
-echo "Downloading and installing rclone ..." >>"${OUTTO}" 2>&1;
-
-# One-liner to check arch/os type, as well as download latest rclone for relevant system.
-curl https://rclone.org/install.sh | sudo bash
-
-# Make sure rclone downloads and installs without error before proceeding
-if [ $? -eq 0 ]; then
-    echo "Adding rclone mount service..." >>"${OUTTO}" 2>&1;
-
+echo_progress_start "Adding rclone multi-user mount service" 
 cat >/etc/systemd/system/rclone@.service<<EOF
 [Unit]
 Description=rclonemount
@@ -54,11 +28,7 @@ WantedBy=multi-user.target
 
 EOF
 
-    touch /install/.rclone.lock
-    echo "rclone installation complete!" >>"${OUTTO}" 2>&1;
-else
-    echo "Issue occured during rclone installation." >>"${OUTTO}" 2>&1;
-fi
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+echo_progress_done "Service file installed"
+touch /install/.rclone.lock
+echo_success "Rclone installed!" 
+
