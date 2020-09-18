@@ -27,7 +27,9 @@ if [[ -n $active ]]; then
     esac
   done
   if [[ $disable == "yes" ]]; then
-    systemctl disable --now ${active}
+    echo_progress_start "Disabling $active"
+    systemctl disable --now ${active} >> ${log} 2>&1
+    echo_progress_done
   else
     exit 1
   fi
@@ -40,19 +42,24 @@ if [[ $codename =~ ("xenial"|"stretch") ]]; then
 else
     LIST='git python3-dev python3-venv python3-pip'
     apt_install $LIST
-    python3 -m venv /opt/.venv/sickchill
+    echo_progress_start "Installing venve for sickchill"
+    python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
+    echo_progress_done
 fi
 
 chown -R ${user}: /opt/.venv/sickchill
-echo "Cloning SickChill ..."
+echo_progress_start "Cloning SickChill"
 git clone https://github.com/SickChill/SickChill.git  /opt/sickchill >> ${log} 2>&1
 chown -R $user: /opt/sickchill
-echo "Installing requirements.txt with pip ..."
-sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
+echo_progress_done
 
+echo_progress_start "Installing requirements.txt with pip"
+sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
+echo_progress_done
 
 install_rar
 
+echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/sickchill.service <<SCSD
 [Unit]
 Description=SickChill
@@ -71,10 +78,14 @@ WantedBy=multi-user.target
 SCSD
 
 systemctl enable --now sickchill >> ${log} 2>&1
+echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Configuring nginx"
   bash /usr/local/bin/swizzin/nginx/sickchill.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 
+echo_success
 touch /install/.sickchill.lock
