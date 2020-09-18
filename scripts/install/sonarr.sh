@@ -92,9 +92,8 @@ distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
 _installSonarr1
-echo_progress_start "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2; echo_progress_done
-echo_progress_start "Updating your system with new sources ... " >>"${log}" 2>&1;_installSonarr3; echo_progress_done
-echo_progress_start "Installing Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr4; echo_progress_done
-echo_progress_start "Setting permissions to ${username} ... " >>"${log}" 2>&1;_installSonarr5; echo_progress_done
-echo_progress_start "Setting up Sonarr as a service and enabling ... " >>"${log}" 2>&1;_installSonarr6; echo_progress_done
-
+echo_progress_start "Adding source repositories for Sonarr-Nzbdrone ... ";_installSonarr2; echo_progress_done "Repositories added"
+echo_progress_start "Updating your system with new sources ... ";_installSonarr3; echo_progress_done
+_installSonarr4
+echo_progress_start "Setting permissions to ${username} ... ";_installSonarr5; echo_progress_done
+_installSonarr6
