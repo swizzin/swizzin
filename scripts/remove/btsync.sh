@@ -18,17 +18,13 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cut -d: -f1 < /root/.master.info)
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
+ 
 
 function _removeBTSync() {
   systemctl stop -q resilio-sync
   apt_remove --purge resilio-sync*
-  deluser rslsync >>"${OUTTO}" 2>&1
-  delgroup rslsync >>"${OUTTO}" 2>&1
+  deluser rslsync >>"${log}" 2>&1
+  delgroup rslsync >>"${log}" 2>&1
   if [[ -d /home/rslsync ]]; then
     rm -rf /home/rslsync
   fi

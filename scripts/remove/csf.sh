@@ -17,11 +17,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-OUTTO="/root/quick-box.log"
+log="/root/quick-box.log"
 
 function _removeCSF() {
   cd /etc/csf
-  sh uninstall.sh >>"${OUTTO}" 2>&1;
+  sh uninstall.sh >>"${log}" 2>&1;
   rm /install/.csf.lock
 }
 

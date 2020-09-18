@@ -1,11 +1,7 @@
 #! /bin/bash
 # Mango deyeeter by flying_sausages 2020 for swizzin
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+ 
 
 rm -rf /opt/mango
 systemctl disable --now -q mango

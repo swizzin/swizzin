@@ -1,12 +1,4 @@
 #!/bin/bash
-
-export DEBIAN_FRONTEND=noninteractive
-
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 echo_log_only "Removing Transmission"
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
