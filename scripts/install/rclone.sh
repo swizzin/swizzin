@@ -24,7 +24,11 @@ else
 fi
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
-echo "Downloading and installing rclone ..." >>"${OUTTO}" 2>&1;
+echo "Downloading and installing rclone and dependencies ..." >>"${OUTTO}" 2>&1;
+
+# Install fuse
+apt-get install fuse
+sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
 # One-liner to check arch/os type, as well as download latest rclone for relevant system.
 curl https://rclone.org/install.sh | sudo bash
@@ -42,7 +46,19 @@ After=network.target
 Type=simple
 User=%i
 Group=%i
-ExecStart=/usr/sbin/rclone mount /home/%i/cloud --allow-non-empty --allow-other --dir-cache-time 10m --max-read-ahead 9G --checkers 32 --contimeout 15s --quiet
+ExecStartPre=-/bin/mkdir -p /home/%i/cloud/
+ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
+  --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36' \
+  --config /home/%i/.config/rclone/rclone.conf \
+  --use-mmap \
+  --dir-cache-time 1h \
+  --timeout 30s \
+  --umask 002 \
+  --poll-interval=1h \
+  --vfs-cache-mode writes \
+  --vfs-read-chunk-size 1M \
+  --vfs-read-chunk-size-limit 64M \
+  --tpslimit 10
 ExecStop=/bin/fusermount -u /home/%i/cloud
 Restart=on-failure
 RestartSec=30
@@ -56,6 +72,8 @@ EOF
 
     touch /install/.rclone.lock
     echo "rclone installation complete!" >>"${OUTTO}" 2>&1;
+    echo "Setup Rclone remote named: gdrive" >>"${OUTTO}" 2>&1;
+    echo "And run sudo systemctl start rclone@username.service" >>"${OUTTO}" 2>&1;
 else
     echo "Issue occured during rclone installation." >>"${OUTTO}" 2>&1;
 fi
