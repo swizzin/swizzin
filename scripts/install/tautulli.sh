@@ -23,7 +23,7 @@ echo_progress_start "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli >>"${log}" 2>&1
 echo_progress_done
 
-echo "Adding user and setting up Tautulli"
+echo_progress_start "Adding user and setting up Tautulli"
 adduser --system --no-create-home tautulli >>"${log}" 2>&1
 chown tautulli:nogroup -R /opt/tautulli
 echo_progress_done
