@@ -182,12 +182,6 @@ _nginx_transmission () {
 
 export DEBIAN_FRONTEND=noninteractive
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
 users=($(cut -d: -f1 < /etc/htpasswd))
