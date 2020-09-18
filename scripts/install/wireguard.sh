@@ -59,7 +59,7 @@ function _install_wg () {
 		echo_error "Could not modprobe Wireguard, script will now terminate."
 		exit 1
 	fi
-	systemctl daemon-reload >> $log 2>&1
+	systemctl daemon-reload -q
 	echo_progress_done
 	
 	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf

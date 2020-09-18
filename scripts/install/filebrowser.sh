@@ -92,7 +92,7 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 #
 # Start the filebrowser service.
-systemctl daemon-reload >/dev/null 2>&1
+systemctl daemon-reload -q
 systemctl enable -q --now "filebrowser.service" 2>&1  | tee -a $log
 echo_progress_done "Systemd service installed"
 #

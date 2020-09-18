@@ -31,7 +31,7 @@ Restart=on-abort
 WantedBy=multi-user.target
 SIAB
 
-systemctl daemon-reload >> $log 2>&1
+systemctl daemon-reload -q
 systemctl enable -q shellinabox 2>&1  | tee -a $log
 systemctl start shellinabox >> $log 2>&1
 echo_progress_done "Configured and restarted"

@@ -80,7 +80,7 @@ TimeoutSec=20
 [Install]
 WantedBy=multi-user.target
 SYSD
-    systemctl daemon-reload >> $log 2>&1
+    systemctl daemon-reload -q
     systemctl enable -q --now mango 2>&1  | tee -a $log
     echo_progress_done "Mango started"
 }
