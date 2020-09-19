@@ -2,7 +2,7 @@
 
 function install_rar() {
     if [[ -z $(which rar) ]]; then
-        apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
+        apt_install rar unrar
     fi
 }
 
@@ -67,3 +67,37 @@ function rm_if_exists () {
     fi
 }
 
+function port() {
+    LOW_BOUND=$1
+    UPPER_BOUND=$2
+    comm -23 <(seq ${LOW_BOUND} ${UPPER_BOUND} | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1
+}
+
+
+function check_ram() {
+    if [[ -z $1 ]]; then echo "Must specify a value to compare"; return 1; fi
+    if ! dpkg -s bc > /dev/null 2>&1; then
+        apt_install bc
+    fi
+    ramtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    swaptotal=$(grep SwapTotal /proc/meminfo | awk '{print $2}')
+    total=$(echo "$swaptotal + $ramtotal" | bc -l | numfmt --from-unit=1024)
+    needs=$(echo $1 | numfmt --from=iec)
+    if [[ $needs -gt $total ]]; then
+        false
+    else
+        true
+    fi
+}
+
+function tmp_swap_on() {
+    echo "Setup is enabling the use of a temporary 2GB swap file"
+    dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || { echo "ERROR: Cannot continue with install because swap file could not be created. Does device have 2GB of free space?"; exit 1; }
+    mkswap /.swapfile > /dev/null 2>&1
+    swapon /.swapfile > /dev/null 2>&1
+}
+
+function tmp_swap_off() {
+    swapoff /.swapfile > /dev/null 2>&1
+    rm -f /.swapfile > /dev/null 2>&1
+}

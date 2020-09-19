@@ -20,11 +20,9 @@
 username=$(cut -d: -f1 < /root/.master.info)
 
 function _removeSonarr() {
-  systemctl stop sonarr@"${username}"
-  systemctl disable sonarr@"${username}"
-  
-  sudo apt-get remove -y nzbdrone >/dev/null 2>&1
-  sudo apt-get -y autoremove >/dev/null 2>&1
+  systemctl stop sonarr@${username}
+  systemctl disable sonarr@${username}
+  apt_remove nzbdrone
   rm -f /etc/apt/sources.list.d/sonarr.list
 
   if [[ -f /etc/init.d/sonarr ]]; then

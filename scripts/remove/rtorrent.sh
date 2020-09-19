@@ -19,7 +19,6 @@ else
   remove_rtorrent
 fi
 
-#apt-get -y remove mktorrent mediainfo
 for a in rutorrent flood; do
   if [[ -f /install/.$a.lock ]]; then
     /usr/local/bin/swizzin/remove/$a.sh

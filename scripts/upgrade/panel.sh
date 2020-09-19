@@ -4,7 +4,7 @@
 if [[ -f /install/.panel.lock ]]; then
   if ! dpkg -s acl > /dev/null 2>&1; then
     echo "Modifying ACLs for swizzin group to prevent panel issues"
-    apt-get -y -q install acl
+    apt_install acl
     setfacl -m g:swizzin:rx /home/*
   fi 
   cd /opt/swizzin/swizzin

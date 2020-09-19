@@ -31,16 +31,13 @@ passwd znc -l >> ${OUTTO} 2>&1
 if [[ $DISTRO == Debian ]]; then
   . /etc/swizzin/sources/functions/backports
   check_debian_backports
-  cat > /etc/apt/preferences.d/znc <<ZNCP
-Package: *znc*
-Pin: release a=${CODENAME}-backports
-Pin-Priority: 500
-ZNCP
-elif [[ $DISTRO == Ubuntu ]]; then
+  set_packages_to_backports znc
+  apt_update
+elif [[ $CODENAME =~ ("xenial"|"bionic") ]]; then
   add-apt-repository --yes ppa:teward/znc >> ${OUTTO} 2>&1
+  apt_update
 fi
-  apt-get update -q -y >> ${OUTTO} 2>&1
-  apt-get install znc -q -y >> ${OUTTO} 2>&1
+  apt_install znc
   #sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
   cat > /etc/systemd/system/znc.service <<ZNC
 [Unit]
@@ -63,7 +60,9 @@ killall -u znc znc > /dev/null 2>&1
 sleep 1
 
 # Check for LE cert, and copy it if available.
-le_znc_hook
+if [[ -f /install/nginx.lock ]]; then 
+  le_znc_hook
+fi
 
 systemctl start znc
 echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /install/.znc.lock

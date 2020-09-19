@@ -1,0 +1,157 @@
+#!/bin/bash
+
+function whiptail_qbittorrent () {
+  if [[ -z $qbittorrent ]]; then
+    . /etc/swizzin/sources/functions/apt
+    codename=$(lsb_release -cs)
+    repov=$(get_candidate_version qbittorrent-nox)
+    latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
+    if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
+    latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
+    case ${codename} in
+    "xenial"|"stretch")
+        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                "Repo" "(${repov})" \
+                "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
+    ;;
+    *)
+        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                "Repo" "(${repov})" \
+                "4.1" "(${latestv41})" \
+                "Latest" "(${latestv})" 3>&1 1>&2 2>&3)
+    ;;
+    esac
+    if [[ $function == "Repo" ]]; then
+        export qbittorrent=repo
+    elif [[ $function == "4.1" ]]; then
+        export qbittorrent=${latestv41}
+    elif [[ $function == "Latest" ]]; then
+        export qbittorrent=${latestv}
+    fi
+  fi
+}
+
+function build_qbittorrent() {
+    if [[ $qbittorrent == repo ]]; then
+        apt_install qbittorrent-nox
+    else
+        if ! check_ram 2G; then
+            swap=true
+            tmp_swap_on
+        fi
+        noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+        if [[ -n $noexec ]]; then
+            mount -o remount,exec /tmp
+            noexec=1
+        fi
+        VERSION=${qbittorrent}
+        LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        apt_install $LIST
+        cd /tmp
+        rm_if_exists "/tmp/qbittorrent"
+        wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
+        mkdir qbittorrent
+        tar -xvf release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
+        rm -rf release-${VERSION}.tar.gz
+        cd qbittorrent
+        ./configure --prefix=/usr --disable-gui >> $log 2>&1
+        make -j$(nproc) >> $log 2>&1
+        install_fpm
+        make INSTALL_ROOT=/tmp/dist/qbittorrent install > /dev/null 2>&1
+        mkdir -p /root/dist
+        fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin" > /dev/null 2>&1
+        dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb
+        cd /tmp
+        rm -rf /tmp/qbittorrent
+        if [[ -n $noexec ]]; then
+        	mount -o remount,noexec /tmp
+        fi
+        if [[ $swap == "true" ]]; then
+            tmp_swap_off
+        fi
+    fi
+}
+
+function qbittorrent_service() {
+    if [[ ! -f /etc/systemd/system/qbittorent@.service ]]; then
+    cat > /etc/systemd/system/qbittorrent@.service <<EOQBS
+[Unit]
+Description=qBittorrent noX for %i
+After=network.target
+
+[Service]
+Type=forking
+User=%i
+Group=%i
+ExecStart=/usr/bin/qbittorrent-nox -d
+
+[Install]
+WantedBy=multi-user.target
+EOQBS
+    fi
+}
+
+function qbittorrent_user_config() {
+    user=$1
+    local_packages=/usr/local/bin/swizzin
+    qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    password=$(_get_user_password ${user})
+    if dpkg --compare-versions ${qbtv} lt 4.2.0; then
+        hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
+        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+    else
+        hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
+        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+    fi
+
+    port=$(port 10000 11000)
+    mkdir -p /home/${user}/.config/qBittorrent/
+    mkdir -p /home/${user}/torrents/qbittorrent
+    chown ${user}: /home/${user}/torrents
+    chown ${user}: /home/${user}/torrents/qbittorrent
+    chown $user: /home/${user}/.config
+    chown $user: /home/${user}/.config/qBittorrent
+    cat > /home/${user}/.config/qBittorrent/qBittorrent.conf<<QBTCONF
+[BitTorrent]
+Session\DisableAutoTMMByDefault=false 
+
+[Preferences]
+Bittorrent\MaxConnecs=-1
+Bittorrent\MaxConnecsPerTorrent=-1
+Bittorrent\MaxUploads=-1
+Bittorrent\MaxUploadsPerTorrent=-1
+Downloads\SavePath=/home/${user}/torrents/qbittorrent/
+Queueing\QueueingEnabled=false
+WebUI\Address=*
+WebUI\AlternativeUIEnabled=false
+WebUI\BanDuration=3600
+WebUI\CSRFProtection=true
+WebUI\ClickjackingProtection=true
+WebUI\LocalHostAuth=true
+WebUI\MaxAuthenticationFailCount=5
+${QBTWP}
+WebUI\Port=${port}
+WebUI\RootFolder=
+WebUI\SecureCookie=true
+WebUI\ServerDomains=*
+WebUI\SessionTimeout=3600
+WebUI\UseUPnP=true
+WebUI\Username=${user}
+QBTCONF
+}
+
+function qbittorrent_chpasswd() {
+    user=$1
+    password=$2
+    local_packages=/usr/local/bin/swizzin
+    qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    if dpkg --compare-versions ${qbtv} lt 4.2.0; then
+        hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
+        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+    else
+        hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
+        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+    fi
+    sed -i "s|WebUI\\\Password.*|$QBTWP|g" /home/${user}/.config/qBittorrent/qBittorrent.conf
+    systemctl try-restart qbittorrent@${user}
+}

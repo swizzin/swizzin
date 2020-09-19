@@ -6,7 +6,7 @@ if [[ ! -f /install/.sabnzbd.lock ]]; then
   exit 1
 fi
 
-localversion=$(/opt/sabnzbd/venv/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
+localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
 latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
 latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
 
@@ -23,7 +23,7 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" > /dev/null 2>&1
   fi
   rm sabnzbd.tar.gz
-  sed -i 's/python2/python/g' /etc/systemd/sabnzbd.service
+  sed -i 's/python2/python/g' /etc/systemd/system/sabnzbd.service
   systemctl daemon-reload
   systemctl try-restart sabnzbd
   echo "SABnzbd has been upgraded to version ${latestversion}!"

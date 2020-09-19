@@ -34,14 +34,14 @@ echo "Downloading Subsonic dependencies and installing ... "
 case $codename in
   "buster")
   echo "Adding adoptopenjdk repository"
-  apt-get -y -q install software-properties-common >>"${OUTTO}" 2>&1
+  apt_install software-properties-common --skip-update
   wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${OUTTO}" 2>&1
   add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${OUTTO}" 2>&1
-  apt-get -y -q update >>"${OUTTO}" 2>&1
-  apt-get -y -q install adoptopenjdk-8-hotspot >>"${OUTTO}" 2>&1 || { echo "ERROR: Could not download Java. Exiting."; exit 1; }
+  apt_update
+  apt_install adoptopenjdk-8-hotspot
   ;;
   *)
-  apt-get -y install openjdk-8-jre || { echo "ERROR: Could not download Java. Exiting."; exit 1; }
+  apt_install openjdk-8-jre
   ;;
 esac
 

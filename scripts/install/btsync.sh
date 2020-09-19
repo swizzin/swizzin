@@ -30,14 +30,12 @@ function _installBTSync1() {
   #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >/dev/null 2>&1
   sudo sh -c 'echo "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list'
   wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | sudo apt-key add - >/dev/null 2>&1
+  apt_update
 }
-function _installBTSync2() {
-  sudo apt-get update >/dev/null 2>&1
-}
+
 function _installBTSync3() {
-  #sudo apt-get -y -q install btsync >/dev/null 2>&1
   cd && mkdir -p /home/"${MASTER}"/.config/resilio-sync/storage/
-  sudo apt-get install resilio-sync >/dev/null 2>&1
+  apt_install resilio-sync
 }
 function _installBTSync4() {
   cd && mkdir /home/"${MASTER}"/sync_folder
@@ -84,7 +82,7 @@ function _installBTSync8() {
 }
 
 echo "Installing btsync keys and sources ... " >>"${OUTTO}" 2>&1;_installBTSync1
-echo "Updating system ... " >>"${OUTTO}" 2>&1;_installBTSync2
+# echo "Updating system ... " >>"${OUTTO}" 2>&1;_installBTSync2
 echo "Installing btsync ... " >>"${OUTTO}" 2>&1;_installBTSync3
 echo "Setting up btsync permissions ... " >>"${OUTTO}" 2>&1;_installBTSync4
 echo "Setting up btsync configurations ... " >>"${OUTTO}" 2>&1;_installBTSync5

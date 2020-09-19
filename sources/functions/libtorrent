@@ -1,0 +1,268 @@
+#!/bin/bash
+
+function whiptail_libtorrent_rasterbar () {
+  if [[ -z $libtorrent ]]; then
+    repov=$(get_candidate_version libtorrent-rasterbar7)
+    repov+=$(get_candidate_version libtorrent-rasterbar8)
+    repov+=$(get_candidate_version libtorrent-rasterbar9)
+    if [[ ($deluge == "1.3-stable" && -n $qbittorrent) || ($deluge == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
+        case $(lsb_release -cs) in
+            "xenial"|"focal")
+                function="1.1"
+                echo "Defaulting to libtorrent branch RC_1_1 for shared compatbility"
+                ;;
+            *)
+                function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "(${repov})" \
+                    1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
+        ;;
+      esac
+    elif [[ $deluge == master ]] || [[ -n $qbittorrent ]]; then
+        case $(lsb_release -cs) in
+            "xenial")
+                function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    1.1 "compiled - branch RC_1_1" \
+                    1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
+                ;;
+            *)
+                function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "(${repov})" \
+                    1.1 "libtorrent branch RC_1_1" \
+                    1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
+        ;;
+      esac
+    else
+        case $(lsb_release -cs) in
+            "stretch"|"xenial"|"bionic")
+                function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "(${repov})" \
+                    1.0 "compiled - branch RC_1_0" \
+                    1.1 "compiled - branch RC_1_1" 3>&1 1>&2 2>&3)
+            ;;
+            *)
+                function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
+                    Repo "(${repov})" \
+                    1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
+            ;;
+      esac
+    fi
+
+    if [[ $function == Repo ]]; then
+      export libtorrent=repo
+    elif [[ $function == 1.0 ]]; then
+      export libtorrent=RC_1_0
+    elif [[ $function == 1.1 ]]; then
+      export libtorrent=RC_1_1
+    elif [[ $function == 1.2 ]]; then
+      export libtorrent=RC_1_2
+    fi
+  fi
+}
+
+function skip_libtorrent_rasterbar () {
+    if [[ ! -f /install/.libtorrent.lock ]]; then
+        false; return
+    elif [[ -n $SKIP_LT ]]; then
+        return
+    else
+        libtorrent_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
+        if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
+            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+        fi
+        if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
+            dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+            case $dver in
+                "1.3.*")
+                    deluge=1.3-stable
+                ;;
+                *)
+                    deluge=master
+                ;;
+            esac
+        fi
+        case $libtorrent_current in
+            1.2.*)
+                if ! dpkg -s libtorrent-rasterbar | grep -q c++14; then
+                    false; return
+                elif [[ ! $deluge == 1.3-stable ]] && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                fi
+            ;;
+            1.1.*)
+                if [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                fi
+            ;;
+            1.0.*)
+                if [[ -z $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                fi
+            ;;
+        esac
+    fi
+    false; return
+}
+
+function whiptail_skip_libtorrent_rasterbar() {
+    if (whiptail --title "Skip Libtorrent?" --yesno "Setup has determined that you can skip compiling/reinstalling libtorrent. Do you want to?" 12 50); then
+        true
+    else
+        false
+    fi
+}
+
+function build_libtorrent_rasterbar () {
+  release=$(lsb_release -cs)
+  . /etc/swizzin/sources/functions/fpm
+
+  if [[ $libtorrent = "repo" ]]; then
+    cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
+    for a in ${cleanup[@]}; do
+      if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
+        echo "Found $a. Removing."
+        dpkg -r $a > /dev/null 2>&1
+      fi
+    done
+      case $release in
+          "xenial")
+          apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          ;;
+          "stretch"|"buster"|"bionic")
+          apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          ;;
+          *)
+          apt_install libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
+          ;;
+
+      esac
+  else
+    if [[ -n $deluge ]]; then
+        dcanditate=$deluge
+        if [[ $dcanditate == "repo" ]]; then
+            . /etc/swizzin/sources/functions/apt
+            daptver=$(get_candidate_version deluged)
+            if [[ $daptver =~ ^1.* ]]; then
+                dcanditate=1.3-stable
+            else
+                dcanditate=master
+            fi
+        fi
+        case $dcanditate in
+            master)
+                python=python3
+                pythonbin=$python
+                pythonapt=python3-dev
+                case $release in
+                    "stretch"|"xenial")
+                    python_configure_args="--with-boost-python=boost_python-py35"
+                    ;;
+                    *)
+                    python_configure_args="--with-boost-python=boost_python3"
+                    ;;
+                esac
+                remove=python-libtorrent
+            ;;
+            1.3-stable)
+                python=python
+                pythonbin=python2
+                pythonapt=python2.7-dev
+                remove=python3-libtorrent
+                case $release in
+                    "focal")
+                    #python_configure_args="--with-boost-python=boost_python27"
+                    LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
+                    ;;
+                esac
+            ;;
+      esac
+    fi
+    cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
+    for a in ${cleanup[@]}; do
+      if dpkg -l | grep $a > /dev/null 2>&1; then
+        echo "Found package conflict: $a. Removing."
+        dpkg -r $a > /dev/null 2>&1
+      fi
+    done
+    LTRC=$libtorrent
+    if [[ -z $LIST ]]; then
+      LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
+    fi
+    apt_install $LIST
+    apt_autoremove
+    install_fpm
+    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
+    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
+    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
+    #  for depend in $LIST; do
+    #    apt-get -qq -y install $depend >>"${log}" 2>&1
+    #  done
+    #else
+    #  cd /tmp
+    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
+    #  tar xf boost_1_62_0.tar.gz
+    #  cd boost_1_62_0
+    #  ./bootstrap.sh --prefix=/usr
+    #  ./b2 install
+    #fi
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
+    fi
+    cd /tmp
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists "/tmp/libtorrent"
+    if ! check_ram 2G; then
+        swap=true
+        tmp_swap_on
+    fi
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
+    cd libtorrent
+    if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
+        configure_args="-std=c++14"
+        tag=" with c++14"
+        sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
+    fi
+    ./autotool.sh >>"${log}" 2>&1
+    ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
+    VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+    case $LTRC in
+      RC_1_1)
+        sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
+      ;;
+      RC_1_2)
+        sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
+      ;;
+    esac
+    #If you wish to patch libtorrent with custom values (i.e. settings pack), simply ensure the patch exists at /root/libtorrent.patch) before starting the install and the patch will be applied to the branch selected.
+    if [[ -f /root/libtorrent.patch ]]; then
+        patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
+    fi
+    make -j$(nproc) >>"${log}" 2>&1
+    make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
+    mkdir -p /root/dist
+    fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" > /dev/null 2>&1
+    dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
+    if [[ -n $deluge ]]; then
+      echo "Building python binding ..."
+      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >>"${log}" 2>&1
+      fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin$tag" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
+      dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
+    fi
+    ldconfig
+    cd /tmp
+    rm -r libtorrent
+    rm -r /tmp/dist
+    if [[ $swap == "true" ]]; then
+        tmp_swap_off
+    fi
+    if [[ -n $noexec ]]; then
+	    mount -o remount,noexec /tmp
+    fi
+  fi
+  if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
+}

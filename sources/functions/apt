@@ -1,6 +1,298 @@
 #!/bin/bash
+# Functions for more streamlined script interfacing with apt
+# Flying_sausages for Swizzin 2020
+# GPLv3 Applies
 
-function get_repo_version () {
-    package=$1
-    echo "$(apt-cache policy ${package} | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1)"
+# Define, in seconds, what is the max toleration for apt to be out of date in case an install/upgrade is triggered
+export _max_apt_age=3600
+
+#Log is required for checking for failures
+if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
+
+##############################################################################
+# INTERNAL FUNCTIONS
+#
+# These functions are intended to be used _only_ by other functions inside
+# this script file.
+##############################################################################
+
+
+# Checks arguments and exports variables to add functionality to rest of packages
+_process_apt_args() {
+    # idiomatic parameter and option handling in sh
+    # TODO add a flag to just pass whatever parameters straoght to the apt call
+    _unset_apt_args
+    _apt_packages=()
+    while test $# -gt 0
+    do
+        case "$1" in
+            --interactive) _apt_interactive=true
+                echo "Info: APT set to interactive" >> $log
+                ;;
+            --ignore-errors) _apt_ignore_errors=true
+                echo "Info: APT will ignore errors" >> $log
+                ;;
+            --skip-checks) _apt_skip_checks=true
+                echo "Info: APT will skip sanity checks" >> $log
+                ;;
+            --skip-update) _apt_skip_update=true
+                echo "Info: APT will skip update" >> $log
+                ;;
+            --purge) _apt_remove_purge=true
+                echo "Info: APT will purge packages" >> $log
+                ;;
+            --recommends) _apt_install_recommends=true
+                echo "Info: APT will install recommends" >> $log
+                ;;
+            -*) echo "Error: Invalid option: $1"
+                exit 1
+                ;;
+            *) _apt_packages+=("$1")
+                ;;
+        esac
+        shift
+    done
 }
+export -f _process_apt_args
+
+# Overwrites all the variables we use in this script
+_unset_apt_args (){
+    unset _apt_ignore_errors
+    unset _apt_interactive
+    unset _apt_ignore_errors
+    unset _apt_skip_checks
+    unset _apt_remove_purge
+    unset _apt_install_recommends
+    unset _apt_packages
+}
+export -f _unset_apt_args
+
+#Prints the last apt log
+_get_last_apt_log (){
+    # TODO replace with actual APT log instead to make this thing not reliant on logging to a file
+    tac $log | sed "/$_apt_logcheck_marker_text/q" | tac
+}
+export -f _get_last_apt_log
+
+#Inserts marker into the $log so we know how much up we need to go to get to the beginning of the run
+_apt_logcheck_mark(){
+    _apt_logcheck_marker_text=$(uuidgen)
+    echo "$_apt_logcheck_marker_text" >> $log
+}
+export -f _apt_logcheck_mark
+
+# Kills the top script in case an apt error was found. READ THIS!!!
+# ATTENTION !!! REQUIRES THAT _apt_loghceck_mark is ran at the beggining of the function and that $log is set
+_apt_logcheck (){
+    if  _get_last_apt_log | grep -q 'E:'; then
+        echo "Error: apt failed. Please consult errors above and/or in the log." | tee -a $log
+        if [[ $_apt_ignore_errors != "true" ]]; then 
+            exit 1
+        fi
+    fi
+}
+export -f _apt_logcheck
+
+# Check if apt is locked, says by what, and kills top script if the lock is present
+_check_dpkg_lock (){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        if lsof /var/lib/dpkg/lock >> $log 2>&1; then
+            offender=$(lsof /var/lib/dpkg/lock | grep dpkg | awk '{ print $1 }')
+            echo "Error: dpkg database is locked by $offender. Please try again later" | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+export -f _check_dpkg_lock
+
+# Check if install can run or not and kill top script if not
+_apt_check (){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        if ! apt-get check >> $log 2>&1; then
+            _get_last_apt_log | grep 'E:\|W:'
+            echo "Error: \`apt-get check\` failed, you may have broken packages. Aborting installation" | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+export -f _apt_check
+
+# Performs a simulation of an apt-get call and kills top script if it fails
+_apt_simulate(){
+    if [[ $_apt_skip_checks != "true" ]]; then 
+        if  ! apt-get --simulate "$@" >> $log 2>&1; then
+            _get_last_apt_log | grep 'E:'
+            echo "Error: The simulation check resulted in an error. Please consult the log." | tee -a $log
+            if [[ $_apt_ignore_errors != "true" ]]; then 
+                exit 1
+            fi
+        fi
+    fi
+}
+export -f _apt_simulate
+
+# INTERNAL ONLY apt update mechanism
+_apt_update () {
+    if [[ $_apt_skip_update != "true" ]]; then
+
+        last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
+        now=$(date +%s)
+            echo "Apt log age = $((now - last_update)), update is forced= $_update_is_forced" >> $log
+        if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_update_is_forced" = "true" ]; then
+            echo "Performing apt update" | tee -a $log
+            apt-get update >> $log 2>&1
+            _apt_logcheck
+        else
+            echo " Apt sufficiently up to date, skipping" >> $log
+        fi
+    fi
+}
+export -f _apt_update
+
+##############################################################################
+# EXTERNAL FUNCTIONS
+#
+# These functions are intended to be used _only_ by other functions inside
+# this script file.
+##############################################################################
+
+# Checks if a package is installed using package manager or dpkg
+# $1 the package to check for
+# Returns code 0 in case a package is installed, 1 if missing
+check_installed (){
+    if dpkg -s "$1" >> $log 2>&1; then
+        return 0
+    else 
+        return 1
+    fi
+}
+export -f check_installed
+
+#Returns the version of the candidate package to install
+get_candidate_version () {
+    package=$1
+    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
+}
+export -f get_candidate_version
+
+# EXTERNAL ONLY Performing apt update and checking if it succeeded
+apt_update () {
+    _apt_logcheck_mark
+    _process_apt_args "$@"
+    _update_is_forced="true"
+    _apt_update
+    _update_is_forced=""
+}
+export -f apt_update
+
+# Performs an upgrade and checks if it succeeded
+apt_upgrade() {
+    _apt_logcheck_mark
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check
+    _apt_update
+    _apt_simulate upgrade
+
+    echo "Performing apt upgrade" | tee -a $log
+    upgradable=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
+    echo "$upgradable packages to upgrade."
+    if [[ $_apt_interactive == "true" ]]; then
+        DEBIAN_FRONTEND=readline apt-get upgrade -y | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
+    fi
+
+    _apt_logcheck
+    # TODO check if any configs have changed and alert the users
+}
+export -f apt_upgrade
+
+# Takes a space separated list of packages to install with all sorts of checking
+apt_install (){
+    _apt_logcheck_mark
+    _process_apt_args "$@"
+    #Do checks
+    _check_dpkg_lock
+    _apt_check
+    _apt_update
+    _apt_simulate install "${_apt_packages[@]}"
+
+    #Prepare flags for install
+    flags=""
+    if [[ $_apt_install_recommends == "true" ]]; then
+        flags="--install-recommends"
+    fi
+
+    # Run the install
+    echo "Performing installation of ${#_apt_packages[@]} apt packages (${_apt_packages[*]})" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
+        DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log 
+    else
+        for pekkidge in "${_apt_packages[@]}"; do
+            DEBIAN_FRONTEND=noninteractive apt-get install $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
+        done 
+    fi
+
+    _apt_logcheck
+
+    echo "Apt install complete"
+}
+export -f apt_install
+
+# Takes a space separated list of packages to remove with all sorts of checking
+apt_remove (){
+    _apt_logcheck_mark
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check    
+    _apt_simulate remove "${_apt_packages[@]}"
+
+    flags=""
+    if [[ $_apt_remove_purge == "true" ]]; then
+        flags="--purge"
+    fi
+
+     # Run the install
+    echo "Performing removal of ${#_apt_packages[@]} apt packages (${_apt_packages[*]})" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
+        DEBIAN_FRONTEND=readline apt-get remove --allow-change-held-packages -y $flags "${_apt_packages[@]}" | tee -a $log 
+    else
+        for pekkidge in "${_apt_packages[@]}"; do
+            DEBIAN_FRONTEND=noninteractive apt-get remove $flags --allow-change-held-packages -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
+        done
+    fi
+    _apt_logcheck
+    echo "Apt remove complete"
+}
+export -f apt_remove
+
+# Performs an autoremove
+apt_autoremove (){
+    _apt_logcheck_mark
+    _process_apt_args "$@"
+    _check_dpkg_lock
+    _apt_check
+    _apt_simulate autoremove
+    # maybe TODO perform a check if it is necessary to run this at all or not?
+
+    echo "Performing auto-removal of unnecessary apt dependencies" | tee -a $log
+    if [[ $_apt_interactive == "true" ]]; then
+        # TODO test the behaviour of this, I haven't had the time yet
+        DEBIAN_FRONTEND=readline apt-get autoremove -y | tee -a $log 
+    else
+        DEBIAN_FRONTEND=noninteractive apt-get autoremove -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
+    fi
+
+    _apt_logcheck
+
+    echo "Apt autoremove complete"
+}
+export -f apt_autoremove
+
