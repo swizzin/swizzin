@@ -4,7 +4,7 @@ function whiptail_qbittorrent () {
   if [[ -z $qbittorrent ]]; then
     . /etc/swizzin/sources/functions/apt
     codename=$(lsb_release -cs)
-    repov=$(get_repo_version qbittorrent-nox)
+    repov=$(get_candidate_version qbittorrent-nox)
     latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
     if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
     latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
@@ -33,8 +33,7 @@ function whiptail_qbittorrent () {
 
 function build_qbittorrent() {
     if [[ $qbittorrent == repo ]]; then
-        apt-get -y -q update >> "${log}" 2>&1
-        apt-get -y -q install qbittorrent-nox >> "${log}" 2>&1
+        apt_install qbittorrent-nox
     else
         if ! check_ram 2G; then
             swap=true
@@ -47,9 +46,7 @@ function build_qbittorrent() {
         fi
         VERSION=${qbittorrent}
         LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
-        for depend in $LIST; do
-            apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-        done
+        apt_install $LIST
         cd /tmp
         rm_if_exists "/tmp/qbittorrent"
         wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
