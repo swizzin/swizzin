@@ -53,11 +53,11 @@ function python_getpip() {
 function python2_venv {
     user=$1
     app=$2
-        if command -v python2.7 > /dev/null 2>&1; then
-            python2bin=python2.7
-        else
-            python2bin=python2
-        fi
+    if command -v python2.7 > /dev/null 2>&1; then
+        python2bin=python2.7
+    else
+        python2bin=python2
+    fi
     echo "Setting up the ${app} venv ..."
     mkdir -p /opt/.venv
     chown ${user}: /opt/.venv
@@ -68,10 +68,15 @@ function python2_venv {
 function python2_home_venv {
     user=$1
     app=$2
+    if command -v python2.7 > /dev/null 2>&1; then
+        python2bin=python2.7
+    else
+        python2bin=python2
+    fi
     echo "Setting up the ${app} venv ..."
     mkdir -p /home/${user}/.venv
     chown ${user}: /home/${user}/.venv
-    python2 -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
+    ${python2bin} -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
     chown -R ${user}: /home/${user}/.venv/${app}
 }
 
