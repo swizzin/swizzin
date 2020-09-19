@@ -16,9 +16,9 @@ _install_webmin () {
     sudo apt-key add jcameron-key.asc >> $log 2>&1
     rm jcameron-key.asc
     echo "Fetching updates"
-    apt-get update >> $log 2>&1
+    apt_update
     echo "Installing Webmin from apt"
-    apt-get install webmin -yq >> $log 2>&1
+    apt_install webmin
 }
 
 _install_webmin

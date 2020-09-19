@@ -9,6 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
+
 distribution=$(lsb_release -is)
 release=$(lsb_release -rs)
 codename=$(lsb_release -cs)
@@ -30,7 +31,7 @@ if [[ -n $(pidof apache2) ]]; then
     echo "Purging apache2 ... "
     systemctl disable apache2 >> /dev/null 2>&1
     systemctl stop apache2
-    apt-get -y -q purge apache2 >> ${log} 2>&1
+    apt_remove --purge apache2
   elif [[ $apache2 == "disable" ]]; then
     echo "Disabling apache2 ... "
     systemctl disable apache2 >> /dev/null 2>&1
@@ -44,17 +45,13 @@ else
   mcrypt=
 fi
 
-apt-get -y -qq update
-
 if [[ $codename == "xenial" ]]; then
   APT="nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 else
   APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 fi
 
-for depends in $APT; do
-apt-get -y install "$depends" >> $log 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depends}. That's probably not good..."; }
-done
+apt_install $APT
 
 cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)
@@ -72,6 +69,7 @@ for version in $phpv; do
 done
 
 if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  mkdir -p /etc/nginx/modules-enabled/
   ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
 fi
 

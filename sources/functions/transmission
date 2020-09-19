@@ -33,9 +33,8 @@ function _get_next_port_from_json () {
 
 function _getversion () {
     if [[ -z $arg_transmissionsource ]]; then
-        #distribution=$(lsb_release -is)
-        codename=$(lsb_release -cs)
-        if [[ $codename =~ ("xenial"|"bionic") ]]; then 
+        distribution=$(lsb_release -is)
+        if [[ $distribution =~ "Ubuntu" ]]; then 
             version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
                   PPA "(Directly from Transmission)" \
                   Repo "(Packaged and tested by Ubuntu)" \
@@ -59,10 +58,8 @@ function _install_transmission () {
         add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
         fi
     fi
-    echo "Fetching updates"
-    apt-get update >> $log 2>&1
     echo "Getting Transmission from apt"
-    apt-get install transmission-cli transmission-common transmission-daemon -yq >> $log 2>&1
+    apt_install transmission-cli transmission-common transmission-daemon
     echo "Disabling default non-multiuser service"
     systemctl disable --now transmission-daemon
 }

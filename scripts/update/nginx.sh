@@ -18,32 +18,22 @@ fi
 # (unless you use xenial)
 if [[ ! $codename == "xenial" ]]; then
   if dpkg -s nginx-extras > /dev/null 2>&1; then
-    apt-get -y -q remove nginx-extras >> ${log} 2>&1
-    apt-get -y -q install nginx libnginx-mod-http-fancyindex >> ${log} 2>&1
-    apt-get -y -q autoremove >> ${log} 2>&1
+    apt_remove nginx-extras
+    apt_install nginx libnginx-mod-http-fancyindex
+    apt_autoremove
     rm $(ls -d /etc/nginx/modules-enabled/*.removed)
     systemctl reload nginx
   fi
 fi
 
 APT="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-for depends in $APT; do
-  inst=$(dpkg -l | grep $depends)
-  if [[ -z $inst ]]; then
-    last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
-    now=$(date +%s)
-    if [ $((now - last_update)) -gt 3600 ]; then
-      apt-get -y -qq update
-    fi
-    apt-get -y install "$depends" >> $log 2>&1
-  fi
-done
+apt_install $APT
 
 cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)
 if [[ $phpv =~ "7.1" ]]; then
   if [[ $phpv =~ "7.0" ]]; then
-    apt-get -y -q purge php7.0-fpm
+    apt_remove purge php7.0-fpm
   fi
 fi
 
@@ -67,6 +57,7 @@ for version in $phpv; do
 done
 
 if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
+  mkdir -p /etc/nginx/modules-enabled/
   ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
 fi
 

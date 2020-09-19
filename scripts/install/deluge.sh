@@ -260,14 +260,15 @@ if [[ -f /tmp/.install.lock ]]; then
 else
   export log="/root/logs/swizzin.log"
 fi
+. /etc/swizzin/sources/functions/deluge
+. /etc/swizzin/sources/functions/libtorrent
+. /etc/swizzin/sources/functions/utils
 local_packages=/usr/local/bin/swizzin
-users=($(cut -d: -f1 < /etc/htpasswd))
+users=($(_get_user_list))
 master=$(cut -d: -f1 < /root/.master.info)
 pass=$(cut -d: -f2 < /root/.master.info)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-. /etc/swizzin/sources/functions/deluge
 
 if [[ -n $1 ]]; then
   users=($1)
@@ -276,24 +277,14 @@ if [[ -n $1 ]]; then
 fi
 
 whiptail_deluge
-if [[ ! -f /install/.libtorrent.lock ]]; then
-  whiptail_libtorrent_rasterbar
-fi
 
-if [[ -n $noexec ]]; then
-	mount -o remount,exec /tmp
-	noexec=1
-fi
-
-if [[ ! -f /install/.libtorrent.lock ]]; then
-  echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
+if ! skip_libtorrent_rasterbar; then
+    whiptail_libtorrent_rasterbar
+    echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
 fi
 
 echo "Building Deluge"; build_deluge
 
-if [[ -n $noexec ]]; then
-	mount -o remount,noexec /tmp
-fi
 
 echo "Configuring Deluge"
 _dconf

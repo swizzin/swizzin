@@ -2,8 +2,7 @@
 
 function whiptail_deluge () {
   if [[ -z $deluge ]]; then
-    . /etc/swizzin/sources/functions/apt
-    repov=$(get_repo_version deluge)
+    repov=$(get_candidate_version deluge)
     case $(lsb_release -cs) in
     *)
       function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -37,54 +36,6 @@ function whiptail_deluge () {
 
 }
 
-function whiptail_libtorrent_rasterbar () {
-  if [[ -z $libtorrent ]]; then
-    if [[ ! $deluge == master ]]; then
-        . /etc/swizzin/sources/functions/apt
-    repov=$(get_repo_version libtorrent-rasterbar7)
-    repov+=$(get_repo_version libtorrent-rasterbar8)
-    repov+=$(get_repo_version libtorrent-rasterbar9)
-      case $(lsb_release -cs) in
-        "stretch"|"xenial"|"bionic")
-        function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                    Repo "(${repov})" \
-                    1.0 "compiled - branch RC_1_0" \
-                    1.1 "compiled - branch RC_1_1" 3>&1 1>&2 2>&3)
-        ;;
-        *)
-        function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                    Repo "(${repov})" \
-                    1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
-        ;;
-      esac
-    else
-      case $(lsb_release -cs) in
-        "xenial")
-          function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                    1.1 "compiled - branch RC_1_1" \
-                    1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-        ;;
-        *)
-          function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                    Repo "" \
-                    1.1 "libtorrent branch RC_1_1" \
-                    1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-        ;;
-      esac
-      fi
-
-    if [[ $function == Repo ]]; then
-      export libtorrent=repo
-    elif [[ $function == 1.0 ]]; then
-      export libtorrent=RC_1_0
-    elif [[ $function == 1.1 ]]; then
-      export libtorrent=RC_1_1
-    elif [[ $function == 1.2 ]]; then
-      export libtorrent=RC_1_2
-    fi
-  fi
-}
-
 function remove_ltcheckinstall () {
   oldv=$(apt-cache show libtorrent | grep checkinstall)
   if [[ -n $oldv ]]; then
@@ -93,134 +44,23 @@ function remove_ltcheckinstall () {
   fi
 }
 
-function build_libtorrent_rasterbar () {
-  release=$(lsb_release -cs)
-  . /etc/swizzin/sources/functions/fpm
-
-  if [[ $libtorrent = "repo" ]]; then
-    cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar)
-    for a in ${cleanup[@]}; do
-      if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-        echo "Found $a. Removing."
-        dpkg -r $a > /dev/null 2>&1
-      fi
-    done
-      case $release in
-          "xenial")
-          apt-get install -y -q libtorrent-rasterbar8 python-libtorrent python3-libtorrent
-          ;;
-          *)
-          apt-get install -y -q libtorrent-rasterbar9 python-libtorrent python3-libtorrent
-          ;;
-      esac
-  else
-    if [[ -n $deluge ]]; then
-      case $deluge in
-        master)
-          python=python3
-          pythonbin=$python
-          pythonapt=python3-dev
-          case $release in
-            "stretch"|"xenial")
-              configure_args="--with-boost-python=boost_python-py35"
-            ;;
-            *)
-              configure_args="--with-boost-python=boost_python3"
-            ;;
-          esac
-          remove=python-libtorrent
-        ;;
-        1.3-stable)
-          python=python
-          pythonbin=python2
-          pythonapt=python2.7-dev
-          remove=python3-libtorrent
-          case $release in
-            "focal")
-              #configure_args="--with-boost-python=boost_python27"
-              LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
-            ;;
-          esac
-        ;;
-      esac
-    fi
-    cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
-    for a in ${cleanup[@]}; do
-      if dpkg -l | grep $a > /dev/null 2>&1; then
-        echo "Found package conflict: $a. Removing."
-        dpkg -r $a > /dev/null 2>&1
-      fi
-    done
-    LTRC=$libtorrent
-    if [[ -z $LIST ]]; then
-      LIST="build-essential autoconf automake libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
-    fi
-    for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
-      apt-get -y -q autoremove >>"${log}" 2>&1
-    install_fpm
-    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
-    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
-    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
-    #  for depend in $LIST; do
-    #    apt-get -qq -y install $depend >>"${log}" 2>&1
-    #  done
-    #else
-    #  cd /tmp
-    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
-    #  tar xf boost_1_62_0.tar.gz
-    #  cd boost_1_62_0
-    #  ./bootstrap.sh --prefix=/usr
-    #  ./b2 install
-    #fi
-
-    cd /tmp
-    . /etc/swizzin/sources/functions/utils
-    rm_if_exists "/tmp/libtorrent"
-
-    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
-    cd libtorrent
-    ./autotool.sh >>"${log}" 2>&1
-    ./configure --with-lib-geoip --with-libiconv >>"${log}" 2>&1
-    VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
-    case $LTRC in
-      RC_1_1)
-        sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
-      ;;
-      RC_1_2)
-        sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
-      ;;
-    esac
-    make -j$(nproc) >>"${log}" 2>&1
-    make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
-    mkdir -p /root/dist
-    fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
-    if [[ -n $deluge ]]; then
-      echo "Building python binding ..."
-      PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${configure_args} >>"${log}" 2>&1
-      fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
-      dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
-    fi
-    ldconfig
-    cd /tmp
-    rm -r libtorrent
-    rm -r /tmp/dist
-  fi
-  if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
-}
-
 function build_deluge () {
   if [[ $deluge == repo ]]; then
-    apt-get -q -y update >>"${log}" 2>&1
-    apt-get -q -y install deluged deluge-web deluge-console >>"${log}" 2>&1
-    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-    cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    apt_install deluged deluge-web deluge-console
+    dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+    if [[ $dver =~ ^1\. ]]; then 
+        cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+        chmod 644 /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    fi
     systemctl stop deluged
     update-rc.d deluged remove
     rm /etc/init.d/deluged
   else
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
+    fi
     case $deluge in
       master)
         LIST='python3 python3-setuptools intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
@@ -240,9 +80,8 @@ function build_deluge () {
         args=
       ;;
     esac
-    for depend in $LIST; do
-      apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-    done
+        apt_install $LIST
+
     if [[ -n $PIP ]]; then
       . /etc/swizzin/sources/functions/pyenv
       python_getpip
@@ -261,9 +100,7 @@ function build_deluge () {
             LIST='libffi-dev python3-pip'
             packages=(setuptools pycparser asn1crypto cffi constantly incremental attrs automat idna hyperlink pyhamcrest cryptography pyopenssl service_identity zope.interface twisted)
             mkdir -p /root/dist/python3
-            for depend in $LIST; do
-              apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-            done
+            apt_install $LIST
             for d in ${packages[@]}; do
               fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
               dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
@@ -272,12 +109,14 @@ function build_deluge () {
           "stretch")
             . /etc/swizzin/sources/functions/backports
             check_debian_backports
+            set_packages_to_backports python3-twisted
             LIST='python3-twisted'
-            for depend in $LIST; do
-              apt-get -qq -y install -t stretch-backports $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-            done
+            apt_install $LIST
           ;;
         esac
+      fi
+      if [[ -n $noexec ]]; then
+	      mount -o remount,noexec /tmp
       fi
     fi
     cd /tmp
@@ -292,6 +131,7 @@ function build_deluge () {
     if [[ $deluge == 1.3-stable ]]; then
       #update-tracker is built into v2 (update_tracker)
       cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
+      chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
     fi
     cd /tmp
     rm -rf deluge

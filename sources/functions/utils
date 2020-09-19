@@ -2,7 +2,7 @@
 
 function install_rar() {
     if [[ -z $(which rar) ]]; then
-        apt-get -y install rar unrar >>$log 2>&1 || { echo "INFO: Could not find rar/unrar in the repositories. It is likely you do not have the multiverse repo enabled. Installing directly."; _rar; }
+        apt_install rar unrar
     fi
 }
 
@@ -15,16 +15,19 @@ function _rar () {
     rm -rf /tmp/rar >/dev/null 2>&1
 }
 
+# Returns a password for a user in case one exists.
+# If password is not found, returns with error code 1 
 function _get_user_password () {
     user_to_get="$1"
     password=''
 
-    for file in /root/*.info /root/.master.info; do 
+    for file in /root/.master.info /root/*.info ; do 
         ##TODO fix when there is no addition users other than .master. It works but it's just ugly
         if [[ -f $file ]]; then 
             user_in_file=$(cat $file | cut -d: -f1)
             if [ "$user_in_file" = "$user_to_get" ]; then 
                 password="$(cat $file | cut -d: -f2)"
+                break
             fi
         fi
     done
@@ -32,7 +35,28 @@ function _get_user_password () {
     if [[ -z $password ]]; then 
         return 1
     fi
-    echo $password
+    echo "$password"
+}
+
+# OLD way to get users from htpasswd
+# Rather wouldn't use this as 3rd party applications migh be playing with this as well
+# function _get_user_list () {
+#     users=($(cut -d: -f1 < /etc/htpasswd))
+# }
+
+#Returns all users managed by swizzin as a newline separated list
+function _get_user_list () {
+    for file in /root/.master.info /root/*.info; do 
+        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+        if [[ -f $file ]]; then 
+            cut -d: -f1 < "$file"
+        fi
+    done
+}
+
+#Returns the username of the master
+function _get_master_username (){
+    cut -d: -f1 < /root/.master.info
 }
 
 # Removes a file or a directory in case it exists
@@ -43,3 +67,37 @@ function rm_if_exists () {
     fi
 }
 
+function port() {
+    LOW_BOUND=$1
+    UPPER_BOUND=$2
+    comm -23 <(seq ${LOW_BOUND} ${UPPER_BOUND} | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1
+}
+
+
+function check_ram() {
+    if [[ -z $1 ]]; then echo "Must specify a value to compare"; return 1; fi
+    if ! dpkg -s bc > /dev/null 2>&1; then
+        apt_install bc
+    fi
+    ramtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+    swaptotal=$(grep SwapTotal /proc/meminfo | awk '{print $2}')
+    total=$(echo "$swaptotal + $ramtotal" | bc -l | numfmt --from-unit=1024)
+    needs=$(echo $1 | numfmt --from=iec)
+    if [[ $needs -gt $total ]]; then
+        false
+    else
+        true
+    fi
+}
+
+function tmp_swap_on() {
+    echo "Setup is enabling the use of a temporary 2GB swap file"
+    dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || { echo "ERROR: Cannot continue with install because swap file could not be created. Does device have 2GB of free space?"; exit 1; }
+    mkswap /.swapfile > /dev/null 2>&1
+    swapon /.swapfile > /dev/null 2>&1
+}
+
+function tmp_swap_off() {
+    swapoff /.swapfile > /dev/null 2>&1
+    rm -f /.swapfile > /dev/null 2>&1
+}

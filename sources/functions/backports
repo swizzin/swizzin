@@ -8,6 +8,18 @@ function check_debian_backports () {
         echo "Enabling Debian ${codename} backports repository"
         echo "deb http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
         echo "deb-src http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
-        apt-get -y -q update > /dev/null 2>&1
+        apt_update
     fi
+}
+
+# Creates a backport pin for all packages in arguments
+set_packages_to_backports () {
+    codename=$(lsb_release -cs)
+    for package in "$@"; do
+        cat > /etc/apt/preferences.d/"$package" <<BPO
+Package: *$package*
+Pin: release a=${codename}-backports
+Pin-Priority: 500
+BPO
+    done
 }

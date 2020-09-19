@@ -14,10 +14,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         else
             LIST='par2 p7zip-full python2.7-dev libxml2-dev libxslt1-dev libglib2.0-dev'
         fi
-        apt-get -y update >>"${log}" 2>&1
-        for depend in $LIST; do
-            apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-        done
+        apt_install $LIST
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             python_getpip
@@ -43,7 +40,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 

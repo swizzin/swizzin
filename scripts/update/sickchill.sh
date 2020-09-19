@@ -54,31 +54,38 @@ SRC
 fi
 
 if [[ -f /install/.sickchill.lock ]]; then
-    if [[ -f /etc/systemd/system/sickchill@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
-        active=$(systemctl is-active sickchill@$user)
+    if [[ -f /etc/systemd/system/sickchill@.service ]] || [[ -f /opt/.venv/sickchill/bin/python2 ]]; then
+        . /etc/swizzin/sources/functions/pyenv
+        . /etc/swizzin/sources/functions/utils
+        user=$(_get_master_username)
+        if [[ -f /etc/systemd/system/sickchill@.service ]]; then
+            active=$(systemctl is-active sickchill@$user)
+            unit=sickchill@${user}
+        else
+            active=$(systemctl is-active sickchill)
+            unit=sickchill
+        fi
         codename=$(lsb_release -cs)
         log=/root/logs/swizzin.log
-        . /etc/swizzin/sources/functions/pyenv
-        systemctl disable --now sickchill@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2.7-dev virtualenv python-virtualenv python-pip'
+        systemctl disable --now ${unit} >> ${log} 2>&1
+        rm_if_exists /opt/.venv/sickchill
+        if [[ $codename =~ ("xenial"|"stretch") ]]; then
+            pyenv_install
+            pyenv_install_version 3.7.7
+            pyenv_create_venv 3.7.7 /opt/.venv/sickchill
         else
-            LIST='git python2.7-dev'
+            LIST='git python3-dev python3-venv python3-pip'
+            apt_install $LIST
+            python3 -m venv /opt/.venv/sickchill
         fi
-        apt-get -y -q update >> $log 2>&1
-
-        for depend in $LIST; do
-        apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-        done
-
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            python_getpip
+        chown -R ${user}: /opt/.venv/sickchill
+        echo "Updating SickChill ..."
+        if [[ -d /home/${user}/.sickchill ]]; then
+            mv /home/${user}/.sickchill /opt/sickchill
         fi
-
-        python2_venv ${user} sickchill
-
-        mv /home/${user}/.sickchill /opt/sickchill
+        sudo -u ${user} bash -c "cd /opt/sickchill; git pull" >> $log 2>&1
+        echo "Installing requirements.txt with pip ..."
+        sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
 
         cat > /etc/systemd/system/sickchill.service <<SCSD
 [Unit]
@@ -90,14 +97,13 @@ Type=forking
 GuessMainPID=no
 User=${user}
 Group=${user}
-ExecStart=/opt/.venv/sickchill/bin/python /opt/sickchill/SickBeard.py -q --daemon --nolaunch --datadir=/opt/sickchill
-
+ExecStart=/opt/.venv/sickchill/bin/python3 /opt/sickchill/SickChill.py -q --daemon --nolaunch --datadir=/opt/sickchill
 
 [Install]
 WantedBy=multi-user.target
 SCSD
         systemctl daemon-reload
-        rm -rf /etc/systemd/system/sickchill@.service
+        rm_if_exists /etc/systemd/system/sickchill@.service
         if [[ $active == "active" ]]; then
             systemctl enable --now sickchill >> ${log} 2>&1
         fi

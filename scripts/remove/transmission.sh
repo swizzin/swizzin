@@ -17,7 +17,7 @@ for u in ${users[@]}; do
 done
 
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
-apt-get purge -y transmission-common transmission-cli transmission-daemon >> $log 2>&1
+apt_remove --purge transmission-common transmission-cli transmission-daemon
 rm /etc/systemd/system/transmission@.service
 rm /etc/nginx/apps/transmission.conf > $log 2>&1
 rm /etc/nginx/conf.d/*.transmission.conf > $log 2>&1

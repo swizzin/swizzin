@@ -10,80 +10,106 @@
 #   under the GPL along with build & install instructions.
 
 if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
+	log="/root/logs/install.log"
 else
-  OUTTO="/root/logs/swizzin.log"
+	log="/root/logs/swizzin.log"
 fi
+
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-u=$(cut -d: -f1 < /root/.master.info)
 IFACE=($(ip link show|grep -i broadcast|grep -m1 UP |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g'))
 MASTER=$(ip link show|grep -i broadcast|grep -e MASTER |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g')
 
-if [[ -n $MASTER ]]; then
-  iface=$MASTER
-else
-  iface=${IFACE[0]}
-fi
+function _install_wg () {
 
-echo "Setup has detected that $iface is your main interface, is this correct?"
-  select yn in "yes" "no"; do
-    case $yn in
-        yes ) break;;
-        no ) _selectiface; break;;
-    esac
-done
+	if [[ -n $MASTER ]]; then
+		iface=$MASTER
+	else
+		iface=${IFACE[0]}
+	fi
 
-function _selectiface () {
-  echo "Please choose the correct interface from the following list:"
-  select seliface in "${IFACE[@]}"; do
-    case $seliface in
-      *) iface=$seliface; break;;
-    esac
-  done
-  echo "Your interface has been set as $iface"
+	echo "Setup has detected that $iface is your main interface, is this correct?"
+	select yn in "yes" "no"; do
+		case $yn in
+			yes ) break;;
+			no ) _selectiface; break;;
+		esac
+	done
+
+	if [[ $distribution == "Debian" ]]; then
+		echo "Adding Wireguard repoository"
+		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+		printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
+	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
+		echo "Adding Wireguard PPA"
+		add-apt-repository -y ppa:wireguard/wireguard >> $log 2>&1
+	fi
+
+	echo "Fetching APT updates"
+	apt_update
+	echo "Installing Wireguard from APT"
+	apt_install wireguard qrencode
+
+
+	if [[ ! -d /etc/wireguard ]]; then
+		mkdir /etc/wireguard
+	fi
+
+	chown -R root:root /etc/wireguard/
+	chmod -R 700 /etc/wireguard
+	# echo ""
+	modprobe wireguard >> $log 2>&1
+
+	if [[ $? != "0" ]]; then
+		echo "Could not modprobe Wireguard, script will now terminate."
+		echo "Please consult the swizzin log."
+		exit 1
+	fi
+	
+	systemctl daemon-reload >> $log 2>&1
+
+	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+	sysctl -p > /dev/null 2>&1
+
+	touch /install/.wireguard.lock
 }
 
-echo "Groovy. Please wait a few moments while wireguard is installed ..."
-
-if [[ $distribution == "Debian" ]]; then
-    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-    printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
-elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-    add-apt-repository -y ppa:wireguard/wireguard >> $OUTTO 2>&1
-fi
-
-apt-get -q update >> $OUTTO 2>&1
-apt-get -y install wireguard qrencode >> $OUTTO 2>&1
-
-
-if [[ ! -d /etc/wireguard ]]; then
-    mkdir /etc/wireguard
-fi
-
-mkdir -p /home/$u/.wireguard/{server,client}
+function _selectiface () {
+	echo "Please choose the correct interface from the following list:"
+	select seliface in "${IFACE[@]}"; do
+		case $seliface in
+		*) iface=$seliface; break;;
+		esac
+	done
+	echo "Your interface has been set as $iface"
+	echo "Groovy. Please wait a few moments while wireguard is installed ..."
+}
 
 
-cd /home/$u/.wireguard/server
-wg genkey | tee wg$(id -u $u).key | wg pubkey > wg$(id -u $u).pub
+function _mkconf_wg () {
+	echo -n "Configuring Wireguard for $u"
 
-cd /home/$u/.wireguard/client
-wg genkey | tee $u.key | wg pubkey > $u.pub
+	mkdir -p /home/$u/.wireguard/{server,client}
 
-chown $u: /home/$u/.wireguard
-chmod -R 700 /home/$u/.wireguard
+	cd /home/$u/.wireguard/server
+	wg genkey | tee wg$(id -u $u).key | wg pubkey > wg$(id -u $u).pub
 
-serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
-serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
-peerpriv=$(cat /home/$u/.wireguard/client/$u.key)
-peerpub=$(cat /home/$u/.wireguard/client/$u.pub)
+	cd /home/$u/.wireguard/client
+	wg genkey | tee $u.key | wg pubkey > $u.pub
 
-net=$(id -u $u | cut -c 1-3)
-sub=$(id -u $u | rev | cut -c 1 | rev)
-subnet=10.$net.$sub.
+	chown $u: /home/$u/.wireguard
+	chmod -R 700 /home/$u/.wireguard
 
-cat > /etc/wireguard/wg$(id -u $u).conf <<EOWGS
+	serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
+	serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
+	peerpriv=$(cat /home/$u/.wireguard/client/$u.key)
+	peerpub=$(cat /home/$u/.wireguard/client/$u.pub)
+
+	net=$(id -u $u | cut -c 1-3)
+	sub=$(id -u $u | rev | cut -c 1 | rev)
+	subnet=10.$net.$sub.
+	cat > /etc/wireguard/wg$(id -u $u).conf <<EOWGS
 [Interface]
 Address = ${subnet}1
 SaveConfig = true
@@ -107,7 +133,7 @@ EOWGS
 #PublicKey = $peerpub
 #AllowedIPs = ${subnet}2/32
 
-cat > /home/$u/.wireguard/$u.conf << EOWGC
+	cat > /home/$u/.wireguard/$u.conf << EOWGC
 [Interface]
 Address = ${subnet}2/24
 PrivateKey = $peerpriv
@@ -128,27 +154,33 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-chown -R root:root /etc/wireguard/
-chmod 700 /etc/wireguard
-sudo chmod -R og-rwx /etc/wireguard/*
-echo ""
-modprobe wireguard
-systemctl daemon-reload
-systemctl enable --now wg-quick@wg$(id -u $u)
-systemctl start wg-quick@wg$(id -u $u)
+	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
+	if [[ $? == 0 ]]; then 
+		echo "  |  Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+	else
+		echo "  |  Configuration failed"
+	fi
+}
 
-echo "Wireguard has been enabled (wg$(id -u $u)). Your client configuration is:"
-echo ""
-cat /home/$u/.wireguard/$u.conf
 
-echo ""
-echo "You can access this configuration at any time at ~/.wireguard/$u.conf"
-echo ""
-echo "To generate a QR code of this configuration automatically for the android client, use the command:"
-echo "qrencode -t ansiutf8 < ~/.wireguard/$u.conf"
+# shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 
-echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+#When a new user is being installed
+if [[ -n $1 ]]; then
+	u=$1
+	_mkconf_wg
+	exit 0
+fi
 
-sysctl -p > /dev/null 2>&1
+_install_wg
 
-touch /install/.wireguard.lock
+users=($(_get_user_list))
+for u in ${users[@]}; do
+	_mkconf_wg
+done
+echo
+echo "Configuration QR code can be generated with the following command:"
+masteruser=$(_get_master_username)
+echo "  qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
+echo

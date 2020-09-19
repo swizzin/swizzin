@@ -15,8 +15,10 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-apt-get -y update >> $log 2>&1
-apt-get -y install vsftpd ssl-cert>> $log 2>&1
+# shellcheck source=sources/functions/letsencrypt
+. /etc/swizzin/sources/functions/letsencrypt
+
+apt_install vsftpd ssl-cert
 
 cat > /etc/vsftpd.conf <<VSC
 listen=NO
@@ -55,12 +57,7 @@ secure_chroot_dir=/var/run/vsftpd/empty
 VSC
 
 # Check for LE cert, and copy it if available.
-chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
-if [[ -n $chkhost ]]; then
-    defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
-    sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/${defaulthost}/fullchain.pem#g" /etc/vsftpd.conf
-    sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/${defaulthost}/key.pem#g" /etc/vsftpd.conf
-fi
+le_vsftpd_hook
 
 systemctl restart vsftpd
 

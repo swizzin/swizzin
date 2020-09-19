@@ -13,12 +13,8 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/mono
-
-
 mono_repo_setup
-
-apt-get install -y libmono-cil-dev >/dev/null 2>&1
-
+apt_install libmono-cil-dev libchromaprint-tools
 
 cd /home/${user}/
 wget -O lidarr.tar.gz -q $( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )

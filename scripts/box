@@ -14,6 +14,10 @@
 #
 #################################################################################
 
+# Sourcing functions
+#shellcheck source=sources/functions/apt
+. /etc/swizzin/sources/functions/apt
+
 function _intro() {
   whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
 }
@@ -100,12 +104,16 @@ function _clr() {
   for i in "${packages[@]}"; do
     app=${i}
     if [[ -f /install/.$app.lock ]]; then
+      schedule_remove="true"
       echo -e "Removing $i "
       bash /usr/local/bin/swizzin/remove/$i.sh
     else
       echo -e "Package $i not installed"
     fi
   done
+  if [[ $schedule_remove = "true" ]];then
+    apt_autoremove
+  fi
 }
 
 function _update() {
@@ -251,7 +259,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -264,15 +272,14 @@ function _adduser {
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
-          /usr/local/bin/swizzin/nginx/deluge.sh ${user}
+          #/usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
-        elif [[ $app =~ ("rutorrent"|"lounge") ]]; then
-          :
+        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango") ]]; then
+          : #Multi-user app without user service files
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
-
           systemctl enable ${app}@${user}
           systemctl start ${app}@${user}
         fi
@@ -310,7 +317,8 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission; do
+
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -324,11 +332,20 @@ function _deluser {
         rm -f /etc/nginx/apps/${user}*
       elif [[ $app = "lounge" ]]; then
         su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
+      elif [[ $app = "mango" ]]; then
+        if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+        su mango -c "$mangodir/mango admin user delete ${user}"
+      elif [[ $app = "wireguard" ]]; then
+        rm -f /home/${user}/.wireguard/client
+        systemctl disable --now wg-quick@wg$(id -u "$user")
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
         rm -rf /etc/nginx/conf.d/${user}.deluge.conf
         eval systemctl disable ${app}@${user}
         eval systemctl stop ${app}@${user}
+      elif [[ $app == "organizr" ]]; then
+        #TODO automate removal steps
+        echo "Remember to manually remove the organizr account!"
       elif [[ $app == "autodl" ]]; then
         systemctl disable --now irssi@${user}
       else
@@ -339,7 +356,7 @@ function _deluser {
   done
   
   if [[ -z $(which lsof) ]]; then
-    apt-get install -y -q lsof > /dev/null 2>&1
+    apt_install lsof
   fi
 
   kill -9 $(lsof -t /home/${user})
@@ -352,7 +369,7 @@ function _deluser {
   rm -f /etc/sudoers.d/${user}
   rm -rf /run/screen/S-${user}
   rm -rf /var/run/${user}
-  rm -rf /home/${user}
+  rm -rf /home/"${user:?}"
   rm /root/${user}.info
   systemctl reload nginx
 }
@@ -406,6 +423,18 @@ function _chpasswd {
   if [[ -f /install/.lounge.lock ]]; then 
     su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
   fi
+  if [[ -f /install/.mango.lock ]]; then
+      if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
+  fi
+  if [[ -f /install/.organizr.lock ]]; then 
+    #TODO fix when API allows to
+    echo "Remember to manually change the organizr account's password!"
+  fi
+  if [[ -f /install/.qbittorrent.lock ]]; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    qbittorrent_chpasswd ${user} ${pass}
+  fi
 
 }
 
@@ -424,13 +453,13 @@ function _nukeovh() {
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
-          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+          apt_install linux-image-generic
         elif [[ $DISTRO == Debian ]]; then
           arch=$(uname -m)
           if [[ $arch =~ ("i686"|"i386") ]]; then
-            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+            apt_install linux-image-686
           elif [[ $arch == x86_64 ]]; then
-            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+            apt_install linux-image-amd64
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel

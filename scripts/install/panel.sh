@@ -24,8 +24,9 @@ fi
 
 master=$(cut -d: -f1 < /root/.master.info)
 
-apt-get -y -q install python3-pip python3-venv git acl > /dev/null 2>&1
+apt_install python3-pip python3-venv git acl
 mkdir -p /opt/swizzin/
+#TODO do the pyenv?
 python3 -m venv /opt/swizzin/venv
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin >> ${log} 2>&1
 /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
@@ -80,6 +81,6 @@ Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
 swizzin     ALL = (ALL) NOPASSWD: CMNDS
 EOSUD
 
-systemctl enable --now panel > ${log} 2>&1
+systemctl enable --now panel >> ${log} 2>&1
 
 touch /install/.panel.lock

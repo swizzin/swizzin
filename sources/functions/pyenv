@@ -1,67 +1,91 @@
 function pyenv_install() {
-  if [[ ! -d /opt/pyenv ]]; then
-    echo "Setting up pyenv version manager"
-    git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
-    git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
-    git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
-    echo 'export PYENV_ROOT="/opt/pyenv"' >> /root/.bashrc
-    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
-    export PYENV_ROOT="/opt/pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    sudo apt-get -y -q update >> $log 2>&1
-    sudo apt-get -y -q install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev >> $log 2>&1
-  else
-    pyenv_update
-  fi
+    if [[ ! -d /opt/pyenv ]]; then
+        echo "Setting up pyenv version manager"
+        git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
+        git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
+        git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
+        echo 'export PYENV_ROOT="/opt/pyenv"' >> /root/.bashrc
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
+        export PYENV_ROOT="/opt/pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        apt_install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+    else
+        pyenv_update
+    fi
 }
 
 function pyenv_update() {
-  /opt/pyenv/bin/pyenv update  >> $log 2>&1
+    /opt/pyenv/bin/pyenv update  >> $log 2>&1
 }
 
 function pyenv_install_version() {
-  version=$1
-  versions=$(/opt/pyenv/bin/pyenv versions)
-  if [[ ! $versions =~ $version ]]; then
-    echo "Compiling Python $version. This may take some time ... "
-    /opt/pyenv/bin/pyenv install $version
-  else
-    echo "Python $version already installed!"
-  fi
+    version=$1
+    versions=$(/opt/pyenv/bin/pyenv versions)
+    if [[ ! $versions =~ $version ]]; then
+        echo "Compiling Python $version. This may take some time ... "
+        /opt/pyenv/bin/pyenv install $version
+    else
+        echo "Python $version already installed!"
+    fi
 }
 
 function pyenv_create_venv() {
-  version=$1
-  destination=$2
-  mkdir -p $destination
-  /opt/pyenv/versions/$version/bin/python3 -m venv $destination
+    version=$1
+    destination=$2
+    mkdir -p $destination
+    /opt/pyenv/versions/$version/bin/python3 -m venv $destination
 }
 
 function python_getpip() {
-  if ! command -v pip > /dev/null 2>&1; then
-    cd /tmp
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
-    python2 get-pip.py >> $log 2>&1
-    pip install virtualenv >>"${log}" 2>&1
-  fi
+    if ! command -v pip > /dev/null 2>&1; then
+        if command -v python2.7 > /dev/null 2>&1; then
+            python2bin=python2.7
+        else
+            python2bin=python2
+        fi
+        cd /tmp
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
+        ${python2bin} get-pip.py >> $log 2>&1
+        pip install virtualenv >>"${log}" 2>&1
+    fi
 }
 
 function python2_venv {
-  user=$1
-  app=$2
-  echo "Setting up the ${app} venv ..."
-  mkdir -p /opt/.venv
-  chown ${user}: /opt/.venv
-  python2 -m virtualenv /opt/.venv/${app} >>"${log}" 2>&1
-  chown -R ${user}: /opt/.venv/${app}
+    user=$1
+    app=$2
+    if command -v python2.7 > /dev/null 2>&1; then
+        python2bin=python2.7
+    else
+        python2bin=python2
+    fi
+    echo "Setting up the ${app} venv ..."
+    mkdir -p /opt/.venv
+    chown ${user}: /opt/.venv
+    ${python2bin} -m virtualenv /opt/.venv/${app} >>"${log}" 2>&1
+    chown -R ${user}: /opt/.venv/${app}
 }
 
 function python2_home_venv {
-  user=$1
-  app=$2
-  echo "Setting up the ${app} venv ..."
-  mkdir -p /home/${user}/.venv
-  chown ${user}: /home/${user}/.venv
-  python2 -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
-  chown -R ${user}: /home/${user}/.venv/${app}
+    user=$1
+    app=$2
+    if command -v python2.7 > /dev/null 2>&1; then
+        python2bin=python2.7
+    else
+        python2bin=python2
+    fi
+    echo "Setting up the ${app} venv ..."
+    mkdir -p /home/${user}/.venv
+    chown ${user}: /home/${user}/.venv
+    ${python2bin} -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
+    chown -R ${user}: /home/${user}/.venv/${app}
+}
+
+function python3_venv {
+    user=$1
+    app=$2
+    echo "Setting up the ${app} venv ..."
+    mkdir -p /opt/.venv
+    chown ${user}: /opt/.venv
+    python3 -m venv /opt/.venv/${app} >>"${log}" 2>&1
+    chown -R ${user}: /opt/.venv/${app}
 }

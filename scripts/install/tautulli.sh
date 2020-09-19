@@ -21,7 +21,8 @@ fi
 user=$(cut -d: -f1 < /root/.master.info)
 
 
-apt-get -y -q install python2.7-dev python-setuptools tzdata >>"${log}" 2>&1
+apt_install python3
+
 cd /opt
 echo "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli
@@ -40,7 +41,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli
+ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli
 GuessMainPID=no
 Type=forking
 User=tautulli
