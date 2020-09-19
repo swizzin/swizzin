@@ -2,7 +2,7 @@
 log="/root/logs/swizzin.log"
 
 apt_remove --purge sonarr
-deluser sonarr
+
 rm -rf /var/lib/sonarr
 rm -rf /usr/lib/sonarr
 
