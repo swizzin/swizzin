@@ -104,9 +104,9 @@ _setup_apt_sonarrv3 () {
     . /etc/swizzin/sources/functions/mono
     mono_repo_setup
 
-    apt-get update >> $log 2>&1
+    apt_update
 
-    if ! apt-cache policy sonarr | grep apt.sonarr.tv > /dev/null; then
+    if ! apt-cache policy sonarr | grep -q apt.sonarr.tv ; then
         echo "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
         exit 1
     fi
@@ -119,7 +119,7 @@ _install_sonarrv3 () {
     # [[ -z $sonarrv3owner ]] && export sonarrv3owner=$(cut -d: -f1 < /root/.master.info)
     # echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
     # echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
-    DEBIAN_FRONTEND=non-interactive apt-get install -y sonarr >> $log 2>&1
+    apt_install sonarr
     #shellcheck disable=SC2181
     if [[ $? -gt 0 ]];              then failure=true; fi
     if [[ ! -d /var/lib/sonarr ]];  then failure=true; fi

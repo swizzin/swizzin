@@ -1,8 +1,7 @@
 #!/bin/bash
 log="/root/logs/swizzin.log"
 
-apt-get remove -yq sonarr --purge >> $log 2>&1
-
+apt_remove --purge sonarr
 deluser sonarr
 rm -rf /var/lib/sonarr
 rm -rf /usr/lib/sonarr
