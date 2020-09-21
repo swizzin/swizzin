@@ -10,6 +10,9 @@ localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version |
 latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
 latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
 
+LIST='par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
+apt_install $LIST
+
 if dpkg --compare-versions ${localversion} lt ${latestversion}; then
   echo "Upgrading SABnzbd ... "
   cd /opt/
