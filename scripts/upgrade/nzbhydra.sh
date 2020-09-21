@@ -78,7 +78,9 @@ if [[ $migrate == True ]]; then
     errors=$(echo $result | jq .error)
     if [[ $errors == null ]]; then
         echo "  configMigrated: $(echo $result | jq .configMigrated)"
-        echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
+        if [[ $database == true ]]; then
+            echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
+        fi
         echo "No errors reported!"
         read -p "Press enter to continue setting up NZBHydra2"
     else
