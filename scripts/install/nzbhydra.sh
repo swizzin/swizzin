@@ -73,11 +73,10 @@ EOH2
 systemctl enable --now nzbhydra >> ${log} 2>&1
 
 if [[ -f /install/.nginx.lock ]]; then
-  sleep 30
+  sleep 15
   bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
   systemctl reload nginx
 fi
 
-systemctl restart nzbhydra
 touch /install/.nzbhydra.lock
 
