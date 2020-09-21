@@ -34,7 +34,6 @@ if [[ $migrate == True ]]; then
     cd /opt
     mkdir nzbhydra2
     cd nzbhydra2
-
     wget -O nzbhydra2.zip https://github.com/theotherp/nzbhydra2/releases/download/v${version}/nzbhydra2-${version}-linux.zip >> ${log} 2>&1
     unzip nzbhydra2.zip >> ${log} 2>&1
     chmod +x nzbhydra2
