@@ -31,13 +31,12 @@ echo "Please visit https://www.plex.tv/claim, login, copy your plex claim token 
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
 echo "Installing plex keys and sources ... "
+  apt_install apt-transport-https
   wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
   echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
   echo
 
 echo "Updating system ... "
-  # TODO is this necessary?
-  apt_install apt-transport-https --skip-update
   apt_update
   apt_install plexmediaserver
   echo
