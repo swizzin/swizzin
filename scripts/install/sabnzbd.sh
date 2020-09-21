@@ -25,7 +25,7 @@ else
 fi
 
 
-LIST='par2 p7zip-full python3-venv python3-pip libglib2.0-dev libdbus-1-dev'
+LIST='par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
 
 apt_install $LIST
 
