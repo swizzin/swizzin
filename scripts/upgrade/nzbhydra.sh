@@ -39,7 +39,7 @@ if [[ $migrate == True ]]; then
     chmod +x nzbhydra2
     rm -f nzbhydra2.zip
     chown -R ${username}: /opt/nzbhydra2
-    sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile"
+    sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile > /dev/null 2>&1"
     if [[ -f /install/.nginx.lock ]]; then
         message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
     else
