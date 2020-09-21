@@ -14,7 +14,10 @@ user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
-latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
+#latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
+latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | grep -Po '(?<="browser_download_url":).*?[^\\].tar.gz"' | sed 's/"//g')
+latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
+
 . /etc/swizzin/sources/functions/pyenv
 . /etc/swizzin/sources/functions/utils
 
@@ -38,6 +41,9 @@ mkdir -p /opt/sabnzbd
 wget -q -O sabnzbd.tar.gz $latest
 tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
 rm -rf sabnzbd.tar.gz
+if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
+    sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
+fi
 /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >>"${log}" 2>&1
 chown -R ${user}: /opt/.venv/sabnzbd
 mkdir -p /home/${user}/.config/sabnzbd
