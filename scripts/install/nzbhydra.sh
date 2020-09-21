@@ -15,8 +15,9 @@ else
   log="/root/logs/swizzin.log"
 fi
 
-user=$(cut -d: -f1 < /root/.master.info)
-codename=$(lsb_release -cs)
+. /etc/swizzin/sources/functions/utils
+
+username=$(_get_master_username)
 
 echo "Checking depends ..."
 LIST='default-jre-headless unzip'
@@ -30,7 +31,7 @@ cd /opt
 mkdir nzbhydra2
 cd nzbhydra2
 wget -O nzbhydra2.zip ${latest} >> ${log} 2>&1
-unzip nzbhydra2.zip
+unzip nzbhydra2.zip >> ${log} 2>&1
 rm -f nzbhydra2.zip
 
 chmod +x nzbhydra2
@@ -77,5 +78,6 @@ if [[ -f /install/.nginx.lock ]]; then
   systemctl reload nginx
 fi
 
+systemctl restart nzbhydra
 touch /install/.nzbhydra.lock
 
