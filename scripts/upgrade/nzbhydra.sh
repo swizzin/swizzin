@@ -34,25 +34,28 @@ if [[ $migrate == True ]]; then
     cd /opt
     mkdir nzbhydra2
     cd nzbhydra2
+
     wget -O nzbhydra2.zip https://github.com/theotherp/nzbhydra2/releases/download/v${version}/nzbhydra2-${version}-linux.zip >> ${log} 2>&1
     unzip nzbhydra2.zip >> ${log} 2>&1
     chmod +x nzbhydra2
     rm -f nzbhydra2.zip
     chown -R ${username}: /opt/nzbhydra2
+    echo "Initializing NZBHydra2 ... "
     sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile > /dev/null 2>&1"
     if [[ -f /install/.nginx.lock ]]; then
         message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
     else
         message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075. Press enter once migration is complete."
     fi
+    sleep 10
     read -p "$message"
     killall nzbhydra2 >> ${log} 2>&1
-    echo "Please wait while nzbhydra2 shuts down"
+    echo "Please wait while NZBHydra2 shuts down"
     sleep 10
 fi
 
 if [[ $majorupgrade == True ]]; then
-    echo "Re-configuring the system for nzbhydra2"
+    echo "Re-configuring the system for NZBHydra2"
     systemctl stop nzbhydra
     rm_if_exists /etc/nginx/apps/nzbhydra.conf
     rm_if_exists /opt/.venv/nzbhydra
