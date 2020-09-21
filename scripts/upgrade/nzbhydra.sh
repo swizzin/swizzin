@@ -21,6 +21,7 @@ if [[ -d /opt/.venv/nzbhydra ]]; then
         esac
     done
     if [[ $migrate == True ]]; then
+        echo
         echo "Do you wish to migrate your old database? If you select no, only settings will be transferred."
         select yn in "Yes" "No"; do
             case $yn in
