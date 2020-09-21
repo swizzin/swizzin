@@ -20,7 +20,7 @@ codename=$(lsb_release -cs)
 apt_install sox geoip-database python2.7-dev python-setuptools
 
 if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-  apt_install python-pip --skip-update
+  apt_install python-pip
 else
   . /etc/swizzin/sources/functions/pyenv
   python_getpip

@@ -29,8 +29,8 @@ echo "Installing Quassel PPA (Ubuntu) or grabbing latest backport (Debian) ... "
 
 if [[ $distribution == Ubuntu ]]; then
   echo "Installing Quassel PPA"
-  apt_install software-properties-common --skip-update
-	apt-add-repository ppa:mamarley/quassel -y >/dev/null 2>&1
+  apt_install software-properties-common
+  apt-add-repository ppa:mamarley/quassel -y >/dev/null 2>&1
   apt_update
   apt_install quassel-core
 else
