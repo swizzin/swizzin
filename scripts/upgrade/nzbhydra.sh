@@ -6,10 +6,13 @@ else
   log="/root/logs/swizzin.log"
 fi
 
+. /etc/swizzin/sources/functions/utils
+active=$(systemctl is-active nzbhydra)
+username=$(_get_master_username)
+
 if [[ -d /opt/.venv/nzbhydra ]]; then
     echo "NZBHydra v1 detected. Do you want to migrate data?"
     echo 
-    echo "WARN: This process is NOT automatic. You will be prompted for instructions"
     echo "If you select no, a migration will not be attempted but your old data will be left."
     select yn in "Yes" "No"; do
         case $yn in
@@ -17,17 +20,38 @@ if [[ -d /opt/.venv/nzbhydra ]]; then
             No ) migrate=False; majorupgrade=True; break;;
         esac
     done
+    if [[ $migrate == True ]]; then
+        echo "Do you wish to migrate your old database? If you select no, only settings will be transferred."
+        select yn in "Yes" "No"; do
+            case $yn in
+                Yes ) database=true; break;;
+                No ) database=false; break;;
+            esac
+        done
+        oldport=$(grep \"port\" /home/${username}/.config/nzbhydra/settings.cfg | grep -oP '\d+')
+        oldbase=$(grep \"urlBase\" /home/${username}/.config/nzbhydra/settings.cfg | cut -d\" -f4)
+        oldbaseconv=$(echo $oldbase | sed 's|/|%2F|g')
+        if [[ ! $active == "active" ]]; then
+            systemctl start nzbhydra
+            sleep 5
+            if ! systemctl is-active nzbhydra; then
+                echo "NZBHydra must be running in order to be migrated!"
+                exit 1
+            fi
+        fi
+    fi
 fi
 
-. /etc/swizzin/sources/functions/utils
-
-username=$(_get_master_username)
-active=$(systemctl is-active nzbhydra)
-ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
+#ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 echo "Checking depends ..."
-LIST='default-jre-headless unzip'
+LIST='default-jre-headless unzip jq'
 apt_install $LIST
+
+if ! dpkg -s jq > /dev/null 2>&1; then
+    echo "jq did not get installed. This is likely an error which will go away if you rerun this function."
+    exit 1
+fi
 
 if [[ $migrate == True ]]; then
     version="2.10.2"
@@ -41,13 +65,31 @@ if [[ $migrate == True ]]; then
     chown -R ${username}: /opt/nzbhydra2
     echo "Initializing NZBHydra2 ... "
     sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile > /dev/null 2>&1"
-    if [[ -f /install/.nginx.lock ]]; then
-        message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
+    #if [[ -f /install/.nginx.lock ]]; then
+    #    message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
+    #else
+    #    message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075. Press enter once migration is complete."
+    #    message=$(curl "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:5075&doMigrateDatabase=true")
+    #fi
+    sleep 15
+    echo "Starting migration ... "
+    result=$(curl -s "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:${oldport}${oldbaseconv}&doMigrateDatabase=${database}")
+    errors=$(echo $result | jq .error)
+    if [[ $errors == null ]]; then
+        echo "  configMigrated: $(echo $result | jq .configMigrated)"
+        echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
+        echo "No errors reported!"
+        read -p "Press enter to continue setting up NZBHydra2"
     else
-        message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075. Press enter once migration is complete."
+        echo "Something appears to have gone wrong during the migration. Upgrader will now exit."
+        echo "Error: $errors"
+        cd /opt
+        rm -rf nzbhydra2
+        rm -rf /home/${username}/.config/nzbhydra2
+        killall nzbhydra2 >> ${log} 2>&1
+        exit 1
     fi
-    sleep 10
-    read -p "$message"
+
     killall nzbhydra2 >> ${log} 2>&1
     echo "Please wait while NZBHydra2 shuts down"
     sleep 10
