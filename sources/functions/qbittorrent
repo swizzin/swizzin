@@ -104,6 +104,7 @@ function qbittorrent_user_config() {
         QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
     fi
 
+    usermod -a -G ${user} www-data 2>> $log
     port=$(port 10000 11000)
     mkdir -p /home/${user}/.config/qBittorrent/
     mkdir -p /home/${user}/torrents/qbittorrent
