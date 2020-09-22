@@ -11,9 +11,7 @@ active=$(systemctl is-active nzbhydra)
 username=$(_get_master_username)
 
 if [[ -d /opt/.venv/nzbhydra ]]; then
-    echo "NZBHydra v1 detected. Do you want to migrate data?"
-    echo 
-    echo "If you select no, a migration will not be attempted but your old data will be left."
+    echo_query "NZBHydra v1 detected. Do you want to migrate data?\nIf you select no, a migration will not be attempted but your old data will be left." ""
     select yn in "Yes" "No"; do
         case $yn in
             Yes ) migrate=True; majorupgrade=True; break;;
@@ -21,8 +19,7 @@ if [[ -d /opt/.venv/nzbhydra ]]; then
         esac
     done
     if [[ $migrate == True ]]; then
-        echo
-        echo "Do you wish to migrate your old database? If you select no, only settings will be transferred."
+        echo_query "Do you wish to migrate your old database? If you select no, only settings will be transferred." ""
         select yn in "Yes" "No"; do
             case $yn in
                 Yes ) database=true; break;;
@@ -36,7 +33,7 @@ if [[ -d /opt/.venv/nzbhydra ]]; then
             systemctl start nzbhydra
             sleep 5
             if ! systemctl is-active nzbhydra; then
-                echo "NZBHydra must be running in order to be migrated!"
+                echo_error "NZBHydra must be running in order to be migrated!"
                 exit 1
             fi
         fi
@@ -45,12 +42,11 @@ fi
 
 #ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
-echo "Checking depends ..."
 LIST='default-jre-headless unzip jq'
 apt_install $LIST
 
 if ! dpkg -s jq > /dev/null 2>&1; then
-    echo "jq did not get installed. This is likely an error which will go away if you rerun this function."
+    echo_error "jq is not get installed. This is likely an error which will go away if you rerun this function."
     exit 1
 fi
 
@@ -64,7 +60,7 @@ if [[ $migrate == True ]]; then
     chmod +x nzbhydra2
     rm -f nzbhydra2.zip
     chown -R ${username}: /opt/nzbhydra2
-    echo "Initializing NZBHydra2 ... "
+    echo_progress_start "Initializing NZBHydra2"
     sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile > /dev/null 2>&1"
     #if [[ -f /install/.nginx.lock ]]; then
     #    message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
@@ -73,7 +69,9 @@ if [[ $migrate == True ]]; then
     #    message=$(curl "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:5075&doMigrateDatabase=true")
     #fi
     sleep 15
-    echo "Starting migration ... "
+    echo_progress_done "NZBhydra2 initialised"
+    
+    echo_progress_start "Starting migration"
     result=$(curl -s "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:${oldport}${oldbaseconv}&doMigrateDatabase=${database}")
     errors=$(echo $result | jq .error)
     if [[ $errors == null ]]; then
@@ -81,8 +79,7 @@ if [[ $migrate == True ]]; then
         if [[ $database == true ]]; then
             echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
         fi
-        echo "No errors reported!"
-        read -p "Press enter to continue setting up NZBHydra2"
+        
     else
         echo "Something appears to have gone wrong during the migration. Upgrader will now exit."
         echo "Error: $errors"
@@ -94,12 +91,14 @@ if [[ $migrate == True ]]; then
     fi
 
     killall nzbhydra2 >> ${log} 2>&1
-    echo "Please wait while NZBHydra2 shuts down"
     sleep 10
+    echo_progress_done "Migration complete"
+    echo_query "Press enter to continue setting up NZBHydra2" "enter"
+    read
 fi
 
 if [[ $majorupgrade == True ]]; then
-    echo "Re-configuring the system for NZBHydra2"
+    echo_progress_start "Re-configuring system for NZBHydra2"
     systemctl stop nzbhydra
     rm_if_exists /etc/nginx/apps/nzbhydra.conf
     rm_if_exists /opt/.venv/nzbhydra
@@ -132,13 +131,14 @@ EOH2
         bash /etc/swizzin/scripts/nginx/nzbhydra.sh
         systemctl reload nginx
     fi
+    echo_progress_done "Systemd files reconfigured"
 fi
 
 localversion=$(/opt/nzbhydra2/nzbhydra2 --version 2>/dev/null | grep -oP 'v\d+\.\d+\.\d+')
 latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | head -1 | cut -d\" -f 4)
 latestversion=$(echo $latest | grep -oP 'v\d+\.\d+\.\d+')
 if [[ -z $localversion ]] || dpkg --compare-versions ${localversion#v} lt ${latestversion#v}; then
-    echo "Upgrading NZBHydra to ${latestversion}"
+    echo_progress_start "Upgrading NZBHydra to ${latestversion}"
     cd /opt
     rm_if_exists /opt/nzbhydra2
     mkdir nzbhydra2
@@ -153,12 +153,12 @@ if [[ -z $localversion ]] || dpkg --compare-versions ${localversion#v} lt ${late
     if [[ $active == "active" ]]; then
         systemctl restart nzbhydra
     fi
+    echo_progress_done "Installed"
 else
-    echo "Installed version (${localversion}) matches latest version (${latestversion})."
+    echo_error "Installed version (${localversion}) matches latest version (${latestversion})."
     exit 1
 fi
 
 if [[ $majorupgrade == True ]]; then
-    echo "NZBHydra v1 config files have been left at /home/${username}/.config/nzbhydra"
-    echo "Please remove them if they are no longer needed."
+    echo_info "NZBHydra v1 config files have been left at /home/${username}/.config/nzbhydra. Please remove them if they are no longer needed."
 fi

@@ -9,8 +9,6 @@
 #   under the GPL along with build & install instructions.
 #
 
-
-
 . /etc/swizzin/sources/functions/utils
 
 username=$(_get_master_username)
