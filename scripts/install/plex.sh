@@ -27,12 +27,12 @@ read 'claim'
 #releases=$(grep -ioe '"label"[^}]*' <<<"${wgetresults}" | grep -i "\"distro\":\"ubuntu\"" | grep -m1 -i "\"build\":\"linux-ubuntu-x86_64\"")
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
-echo_progress_start "Installing plex keys and sources"
-  wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -  >> $log 2>&1
+  echo_progress_start "Installing plex keys and sources ... "
+  apt_install apt-transport-https
+  wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
   echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
-  # TODO is this necessary?
-  apt_update
-  apt_install apt-transport-https --skip-update
+  echo
+
   apt_update
   echo_progress_done "Sources and keys retrieved and installed"
 

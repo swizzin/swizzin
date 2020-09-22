@@ -26,6 +26,7 @@ if [[ $distribution == Ubuntu ]]; then
     apt_install software-properties-common
     apt-add-repository ppa:mamarley/quassel -y >> "$log" 2>&1
     apt_update
+    echo_progress_done
   fi
   apt_install quassel-core
 else

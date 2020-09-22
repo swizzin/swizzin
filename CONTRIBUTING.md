@@ -55,6 +55,8 @@ We have developed our own internal set of functions for handling `apt` packages 
   * `check_installed`
   * ... and a couple others
 
+**FYI the default behaviour in most of the functions is to not issue `apt update` in case the last update was within an hour** with the exception of `apt_update`, which will always perform an update. It is therefore fine to issue an `apt_update` and an `apt_install`, as the update will only run once.
+
 ### Options
 The following options can be used with any of the exported functions above to override their default behaviour.
 
@@ -63,10 +65,6 @@ The following options can be used with any of the exported functions above to ov
   * WARNING: This is not yet fully tested
 * `--skip-check`
   * Skips integrity checks during the command such as `dpkg` lock checking, `apt --simulate`, and a couple others.
-* `--skip-update`
-  * Skips a call to `apt-get update` in the `upgrade` and `install` commands.
-  * Using `apt_update --skip-update` will just do nothing.
-  * **FYI the default behaviour in most of the functions is to not update anything in case the last update was within an hour** with the exception of `apt-update`, which will always perform an update. It is therefore fine to issue an `apt_update` and an `apt_install`, as the update will only run once.
 * `--ignore-errors`
   * Allows script to continue in case an error was encountered, instead of killing the job script by default
 * `--purge`

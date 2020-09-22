@@ -35,11 +35,8 @@ _process_apt_args() {
             --skip-checks) export _apt_skip_checks=true
                 echo_log_only "APT will skip sanity checks"
                 ;;
-            --skip-update) export _apt_skip_update=true
-                echo_log_only "APT will skip update"
-                ;;
-            --purge) export _apt_remove_purge=true
-                echo_log_only "APT will purge packages"
+            --purge) _apt_remove_purge=true
+                echo_log_only "Info: APT will purge packages"
                 ;;
             --recommends) export _apt_install_recommends=true
                 echo_log_only "APT will install recommends"
@@ -163,19 +160,16 @@ export -f _apt_simulate
 
 # INTERNAL ONLY apt update mechanism
 _apt_update () {
-    if [[ $_apt_skip_update != "true" ]]; then
-
-        last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
-        now=$(date +%s)
-        echo_log_only "Apt log age = $((now - last_update)), update is forced= $_update_is_forced"
-        if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_update_is_forced" = "true" ]; then
-            echo_progress_start "Performing apt update"
-            apt-get update >> $log 2>&1
-            _apt_logcheck
-            echo_progress_done "Apt up to date"
-        else
-            echo_log_only "Apt sufficiently up to date, skipping"
-        fi
+    last_update=$(stat -c %Y /var/cache/apt/pkgcache.bin)
+    now=$(date +%s)
+    echo_log_only "Apt log age = $((now - last_update)), update is forced= $_update_is_forced"
+    if [ $((now - last_update)) -gt $_max_apt_age ] || [ "$_update_is_forced" = "true" ]; then
+        echo_progress_start "Performing apt update"
+        apt-get update >> $log 2>&1
+        _apt_logcheck
+        echo_progress_done
+    else
+        echo_log_only " Apt sufficiently up to date, skipping" >> $log
     fi
 }
 export -f _apt_update
