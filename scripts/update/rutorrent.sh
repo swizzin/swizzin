@@ -16,8 +16,10 @@ fi
 
 if [[ -f /install/.flood.lock ]]; then
   users=($(cut -d: -f1 < /etc/htpasswd))
+  reloadnginx=0
   for u in ${users[@]}; do
     if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
+      reloadnginx=1
       cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
 location /${u} {
 include scgi_params;
@@ -28,7 +30,9 @@ auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 RUC
     fi
   done
-  systemctl reload nginx
+  if [[ $reloadnginx == 1 ]]; then
+    systemctl reload nginx
+  fi
 fi
 
 if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -c cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]] ;} ; then
