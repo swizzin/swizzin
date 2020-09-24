@@ -49,7 +49,7 @@ function _install_wg () {
 	echo "Fetching APT updates"
 	apt_update
 	echo "Installing Wireguard from APT"
-	apt_install wireguard qrencode
+	apt_install --recommends wireguard qrencode
 
 
 	if [[ ! -d /etc/wireguard ]]; then
