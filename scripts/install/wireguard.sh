@@ -32,9 +32,13 @@ function _selectiface () {
 
 function _install_wg () {
 	if [[ $distribution == "Debian" ]]; then
-		echo "Adding Wireguard repoository"
-		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-		printf 'Package: *\nPin: release a=unstable\nPin-Priority: 150\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
+        if [[ ! $codename == "stretch" ]]; then
+            check_debian_backports
+        else
+            echo "Adding debian unstable repository and limiting packages"
+            echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+            printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
+        fi
 	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
 		echo "Adding Wireguard PPA"
 		add-apt-repository -y ppa:wireguard/wireguard >> $log 2>&1
@@ -153,6 +157,7 @@ fi
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/backports
 
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
