@@ -19,7 +19,7 @@ users=($(_get_user_list))
 if [[ -n $1 ]]; then
     user=$1
     qbittorrent_user_config ${user}
-    if [[ -f /install/.nginx.sh ]]; then
+    if [[ -f /install/.nginx.lock ]]; then
         bash /etc/swizzin/scripts/nginx/qbittorrent.sh
         systemctl reload nginx
     fi

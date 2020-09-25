@@ -318,7 +318,7 @@ function _deluser {
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
