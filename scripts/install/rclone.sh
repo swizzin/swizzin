@@ -53,6 +53,7 @@ ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
   --dir-cache-time 1h \
   --timeout 30s \
   --umask 002 \
+  --allow-other \
   --poll-interval=1h \
   --vfs-cache-mode writes \
   --vfs-read-chunk-size 1M \
