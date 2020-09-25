@@ -273,6 +273,10 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -n $1 ]]; then
   users=($1)
   _dconf
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /etc/swizzin/scripts/nginx/deluge.sh $users
+    systemctl reload nginx
+  fi
   exit 0
 fi
 
