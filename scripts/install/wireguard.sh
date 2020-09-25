@@ -9,34 +9,28 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ -f /tmp/.install.lock ]]; then
-	log="/root/logs/install.log"
-else
-	log="/root/logs/swizzin.log"
-fi
-
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
-ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-IFACE=($(ip link show|grep -i broadcast|grep -m1 UP |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g'))
-MASTER=$(ip link show|grep -i broadcast|grep -e MASTER |cut -d: -f 2|cut -d@ -f 1|sed -e 's/ //g')
-
-function _install_wg () {
-
-	if [[ -n $MASTER ]]; then
-		iface=$MASTER
-	else
-		iface=${IFACE[0]}
-	fi
-
-	echo "Setup has detected that $iface is your main interface, is this correct?"
+function _defiface_confirm() {
+	echo "Setup has detected that $defiface is your main interface, is this correct?"
 	select yn in "yes" "no"; do
 		case $yn in
-			yes ) break;;
+			yes ) wgiface=$defiface; break;;
 			no ) _selectiface; break;;
 		esac
 	done
+}
 
+function _selectiface () {
+	echo "Please choose the correct interface from the following list:"
+	select seliface in "${IFACES[@]}"; do
+		case $seliface in
+		*) wgiface=$seliface; break;;
+		esac
+	done
+	echo "Your interface has been set as $wgiface"
+	echo "Groovy. Please wait a few moments while wireguard is installed ..."
+}
+
+function _install_wg () {
 	if [[ $distribution == "Debian" ]]; then
 		echo "Adding Wireguard repoository"
 		echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
@@ -71,19 +65,8 @@ function _install_wg () {
 
 	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 	sysctl -p > /dev/null 2>&1
-
+    echo "$wgiface" > /install/.wireguard.lock
 	touch /install/.wireguard.lock
-}
-
-function _selectiface () {
-	echo "Please choose the correct interface from the following list:"
-	select seliface in "${IFACE[@]}"; do
-		case $seliface in
-		*) iface=$seliface; break;;
-		esac
-	done
-	echo "Your interface has been set as $iface"
-	echo "Groovy. Please wait a few moments while wireguard is installed ..."
 }
 
 
@@ -113,8 +96,8 @@ function _mkconf_wg () {
 [Interface]
 Address = ${subnet}1
 SaveConfig = true
-PostUp = iptables -A FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -A FORWARD -i wg$(id -u $u) -o $iface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i $iface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $iface -s ${subnet}0/24 -j SNAT --to-source $ip
-PostDown = iptables -D FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -D FORWARD -i wg$(id -u $u) -o $iface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -D FORWARD -i $iface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $iface -s ${subnet}0/24 -j SNAT --to-source $ip
+PostUp = iptables -A FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -A FORWARD -i wg$(id -u $u) -o $wgiface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i $wgiface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $wgiface -s ${subnet}0/24 -j SNAT --to-source $ip
+PostDown = iptables -D FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -D FORWARD -i wg$(id -u $u) -o $wgiface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -D FORWARD -i $wgiface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $wgiface -s ${subnet}0/24 -j SNAT --to-source $ip
 ListenPort = 5$(id -u $u)
 PrivateKey = $serverpriv
 
@@ -162,9 +145,28 @@ EOWGC
 	fi
 }
 
+if [[ -f /tmp/.install.lock ]]; then
+	log="/root/logs/install.log"
+else
+	log="/root/logs/swizzin.log"
+fi
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+
+distribution=$(lsb_release -is)
+codename=$(lsb_release -cs)
+ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
+if [[ -f /install/.wireguard.lock ]]; then
+    wgiface=$(cat /install/.wireguard.lock)
+fi
+if [[ -z $wgiface ]]; then
+    defiface=$(route | grep '^default' | grep -o '[^ ]*$')
+    IFACES=($(ip link show | grep -i broadcast | grep UP | grep qlen | cut -d: -f 2 |cut -d@ -f 1 | sed -e 's/ //g'))
+    #MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
+    _defiface_confirm
+    if [[ -f /install/.wireguard.lock ]]; then echo $wgiface > /install/.wireguard.lock; fi
+fi
 
 #When a new user is being installed
 if [[ -n $1 ]]; then
