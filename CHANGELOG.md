@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.5.1]
+
+## September 25, 2020
+
+This is a maintenance release for bugs discovered within the past few days
+
+### Fixed
+- Added a check for whether or not the new `apt_install` function is correctly sourced during updates. The updater will prompt you to restart if needed.
+  - This is because apt functions are now sourced in `box` rather than individual scripts. When running the update for the first time, box is using the outdated version which doesn't source `apt`. `apt` is correctly sourced on the next run.
+- Ensure Deluge and qBittorrent have nginx upstreams configured correctly when adding a new user. Deluge was a regression, qBittorrent was an oversight
+- Apt keys are now appropriately imported when installing x2go (apt function regression)
+- Removed `--skip-update` flag from apt function (it was made redundant)
+- Fixed the `skip_libtorrent_rasterbar` function for Deluge 1.3.* users
+- Various update script fixes and improvements (less apt spam, less random app restarts)
+- ruTorrent installer has been restructured to do less work when adding a new user
+- Wireguard fixes and improvements:
+  - Buster will now use backports. Stretch still uses unstable with adjusted pin priority.
+  - Improved default interface recognition
+  - Fixed non-default interface selection showing only one interface
+  - Install wireguard with recommended packages to ensure kernel headers are also installed (required for dkms builds)
+- rclone will now use `--allow-other` by default
+
 ## [2.5.0]
 
 ## September 22, 2020
