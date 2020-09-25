@@ -21,6 +21,7 @@ This is a maintenance release for bugs discovered within the past few days
   - Fixed non-default interface selection showing only one interface
   - Install wireguard with recommended packages to ensure kernel headers are also installed (required for dkms builds)
 - rclone will now use `--allow-other` by default
+- rclone removal is now a bit more complete (will leave rclone config though)
 
 ## [2.5.0]
 
