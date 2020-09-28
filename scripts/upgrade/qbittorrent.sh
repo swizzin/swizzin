@@ -22,6 +22,9 @@ if ! skip_libtorrent_rasterbar; then
 fi
 
 echo "Building qBittorrent"; build_qbittorrent
-for user in ${users[@]}; do
-    systemctl try-restart qbittorrent@${user}
+for user in "${users[@]}"; do
+    #Reset user password to ensure login continues to work if doing a major upgrade (>4.1 to <4.2)
+    #chpasswd function restarts qbittorrent, which we need to anyway. No need for a further restart.
+    password=$(_get_user_password)
+    qbittorrent_chpasswd "${user}" "${password}"
 done
