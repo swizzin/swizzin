@@ -5,6 +5,6 @@
 if ! command -v apt_install > /dev/null 2>&1 ; then
     echo
     echo "Due to internal restructuring please restart \`box update\`. You should only have to do this once."
-    kill -13 `ps --pid $$ -oppid=`
+    kill -13 $(ps --pid $$ -oppid=)
     exit 1
 fi
