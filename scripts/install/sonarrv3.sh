@@ -11,6 +11,9 @@ fi
 #shellcheck source=sources/functions/ask
 . /etc/swizzin/sources/functions/ask
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
 #Handles existing v2 instances
 _sonarrv2_flow(){
     v2present=false
@@ -38,7 +41,7 @@ _sonarrv2_flow(){
                 address="http://127.0.0.1:8989/api"
             fi
 
-            [[ -z $sonarrv2owner ]] && sonarrv2owner=$(cut -d: -f1 < /root/.master.info)
+            [[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
             if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
                 echo "No Sonarr config folder found for $sonarrv2owner. Exiting" | tee -a $log
                 exit 1
@@ -115,7 +118,7 @@ _add_sonarr_repos () {
 _install_sonarrv3 () {
     echo "Installing Sonarr v3 from apt" | tee -a $log
     if [[ -z $sonarrv3owner ]];then
-        sonarrv3owner=$(cut -d: -f1 < /root/.master.info)
+        sonarrv3owner=$(_get_master_username)
     fi;
     echo "Setting sonarr v3 owner to $sonarrv3owner" >> $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
