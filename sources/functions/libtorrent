@@ -173,6 +173,7 @@ function build_libtorrent_rasterbar () {
                 remove=python3-libtorrent
                 case $release in
                     "focal")
+                    pythonbin=python2.7
                     #python_configure_args="--with-boost-python=boost_python27"
                     LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
                     ;;
