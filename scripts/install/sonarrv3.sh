@@ -66,9 +66,15 @@ _sonarrv2_flow(){
                 echo "Sonarr backup Job ID = $id, waiting to finish" >> $log
 
                 status=""
+                counter=0
                 while [[ $status != "\"completed\"" ]]; do
                     status=$(curl -s "${address}/command/$id?apikey=${apikey}" | jq '.status')
                     sleep 0.1
+                    ((counter+=1))
+                    if [[ $counter -gt 200 ]]; then
+                        echo "Sonarr backup took too long, cancelling installation."
+                        exit 1
+                    fi
                 done
                 echo "Sonarr backup completed" >> $log
             fi
