@@ -26,7 +26,7 @@ fi
 echo "Downloading and installing rclone and dependencies ..."
 
 # Install fuse
-apt_install install fuse
+apt_install fuse
 sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
 # One-liner to check arch/os type, as well as download latest rclone for relevant system.
@@ -53,6 +53,7 @@ ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
   --dir-cache-time 1h \
   --timeout 30s \
   --umask 002 \
+  --allow-other \
   --poll-interval=1h \
   --vfs-cache-mode writes \
   --vfs-read-chunk-size 1M \
