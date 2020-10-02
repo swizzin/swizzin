@@ -28,7 +28,7 @@ _sonarrv2_flow(){
         echo "Sonarr v2 is detected."
         echo "Continuing will migrate your current v2 installation." | tee -a $log
         echo "You can read more about the migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2"
-        echo "An additional copy of the backup will be made into /root/sonarrv2.bak/" | tee -a $log
+        echo "An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/" | tee -a $log
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi
@@ -80,7 +80,8 @@ _sonarrv2_flow(){
             fi
         fi
 
-        cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/sonarrv2.bak
+        mkdir -p /root/swizzin/backups/
+        cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
 
         systemctl stop sonarr@"${sonarrv2owner}"
 

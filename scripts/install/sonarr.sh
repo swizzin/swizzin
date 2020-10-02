@@ -33,11 +33,11 @@ function _check_for_sonarr3 () {
     exit 1
   fi
 
-  if [[ -d /root/sonarrv2.bak ]]; then 
+  if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
     echo
     echo "WARNING: Found backups before Sonarr v3 installation"
     echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore"
-    echo "The backup is stored in /root/sonarrv2.bak/"
+    echo "The backup is stored in /root/swizzin/backups/sonarrv2.bak/"
     echo
     #TODO implement restore procedure if user wants that to happen?
     #TODO check if unit is still masked. Unmaks it if that's the case.
