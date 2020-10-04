@@ -22,9 +22,8 @@
 function _check_for_sonarr3 () {
     if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
     echo
-    echo "WARNING: Found backups before Sonarr v3 installation"
-    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore"
-    echo "The backup is stored in /root/swizzin/backups/sonarrv2.bak/"
+    echo "WARNING: Found backups from before Sonarr v3 migration."
+    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
     echo
     #TODO implement restore procedure if user wants that to happen?
     #TODO check if unit is still masked. Unmaks it if that's the case.
