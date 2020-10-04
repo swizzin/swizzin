@@ -20,6 +20,16 @@
 #################################################################################
 
 function _check_for_sonarr3 () {
+    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
+    echo
+    echo "WARNING: Found backups before Sonarr v3 installation"
+    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore"
+    echo "The backup is stored in /root/swizzin/backups/sonarrv2.bak/"
+    echo
+    #TODO implement restore procedure if user wants that to happen?
+    #TODO check if unit is still masked. Unmaks it if that's the case.
+  fi
+  
   if [[ -f /install/.sonarrv3.lock ]]; then 
     v3present=true
   fi
@@ -31,16 +41,6 @@ function _check_for_sonarr3 () {
   if [[ $v3present == "true" ]]; then
     echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
     exit 1
-  fi
-
-  if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
-    echo
-    echo "WARNING: Found backups before Sonarr v3 installation"
-    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore"
-    echo "The backup is stored in /root/swizzin/backups/sonarrv2.bak/"
-    echo
-    #TODO implement restore procedure if user wants that to happen?
-    #TODO check if unit is still masked. Unmaks it if that's the case.
   fi
 
 }
