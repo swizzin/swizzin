@@ -46,11 +46,11 @@ function _check_for_sonarr3 () {
 }
 
 function _installSonarrintro() {
-  echo "Sonarr v3 is available as a separate application (sonarrv3)"
-  . /etc/swizzin/sources/functions/ask
-  if ! ask "Would you like to continue installing Sonarr v2?"; then
-    exit 0
-  fi
+  # echo "Sonarr v3 is available as a separate application (sonarrv3)"
+  # . /etc/swizzin/sources/functions/ask
+  # if ! ask "Would you like to continue installing Sonarr v2?"; then
+  #   exit 0
+  # fi
 
   echo "Sonarr will now be installed." >>"${log}" 2>&1;
   echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
@@ -148,7 +148,7 @@ distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
 
-# _check_for_sonarr3
+_check_for_sonarr3
 _installSonarrintro
 _installSonarr1
 echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2
