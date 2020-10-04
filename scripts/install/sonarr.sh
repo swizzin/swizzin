@@ -148,7 +148,7 @@ distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
 
-_check_for_sonarr3
+# _check_for_sonarr3
 _installSonarrintro
 _installSonarr1
 echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2
