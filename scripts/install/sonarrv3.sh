@@ -35,7 +35,7 @@ _sonarrv2_flow(){
 
         if ask "Would you like to trigger a Sonarr-side backup?" Y; then
             echo "Backing up Sonarr v2" | tee -a $log
-            if [[ -f /install/.nginx ]]; then
+            if [[ -f /install/.nginx.lock ]]; then
                 address="http://127.0.0.1:8989/sonarr/api"
             else
                 address="http://127.0.0.1:8989/api"
@@ -51,7 +51,7 @@ _sonarrv2_flow(){
             echo "apikey = $apikey" >> $log
 
             #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
-            response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}")
+            response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" --insecure)
             echo "$response" >> $log
             id=$(echo "$response" | jq '.id' )
             echo "id=$id" >> $log
@@ -67,16 +67,21 @@ _sonarrv2_flow(){
 
                 status=""
                 counter=0
-                while [[ $status != "\"completed\"" ]]; do
-                    status=$(curl -s "${address}/command/$id?apikey=${apikey}" | jq '.status')
-                    sleep 0.1
+                while [[ $status =~ ^(queued|started|)$ ]]; do
+                    sleep 0.2
+                    status=$(curl -s "${address}/command/$id?apikey=${apikey}" --insecure | jq -r '.status')
                     ((counter+=1))
-                    if [[ $counter -gt 200 ]]; then
+                    if [[ $counter -gt 100 ]]; then
                         echo "Sonarr backup took too long, cancelling installation."
                         exit 1
                     fi
                 done
-                echo "Sonarr backup completed" >> $log
+                if [[ $status = "completed" ]]; then 
+                    echo "Backup complete"
+                else
+                    echo "Sonarr returned unexpected status ($status). Terminating. Please try again."
+                    exit 1
+                fi
             fi
         fi
 
