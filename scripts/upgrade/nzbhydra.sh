@@ -82,6 +82,7 @@ if [[ $migrate == True ]]; then
             echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
         fi
         echo "No errors reported!"
+        #shellcheck disable=SC2162
         read -p "Press enter to continue setting up NZBHydra2"
     else
         echo "Something appears to have gone wrong during the migration. Upgrader will now exit."
