@@ -27,7 +27,7 @@ _sonarrv2_flow(){
     if [[ $v2present == "true" ]]; then
         echo
         echo "Sonarr v2 is detected."
-        echo "Continuing will migrate your current v2 installation." | tee -a $log
+        echo "Continuing will migrate your current v2 installation. This will stop and remove sonarr v2." | tee -a $log
         echo "You can read more about the migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2"
         echo "An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/" | tee -a $log
         echo
