@@ -25,10 +25,12 @@ _sonarrv2_flow(){
     fi
 
     if [[ $v2present == "true" ]]; then
+        echo
         echo "Sonarr v2 is detected."
         echo "Continuing will migrate your current v2 installation." | tee -a $log
         echo "You can read more about the migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2"
         echo "An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/" | tee -a $log
+        echo
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi
@@ -103,6 +105,7 @@ _sonarrv2_flow(){
         echo "Removing Sonarr v2" | tee -a $log
         # shellcheck source=scripts/remove/sonarr.sh
         bash /etc/swizzin/scripts/remove/sonarr.sh
+        
     fi
 }
 
@@ -132,39 +135,57 @@ _install_sonarrv3 () {
     if [[ -z $sonarrv3owner ]];then
         sonarrv3owner=$(_get_master_username)
     fi;
+    sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+    mkdir -p "$sonarrv3confdir"
+    chown -R "$sonarrv3owner":"$sonarrv3owner" "$sonarrv3confdir"
+
     echo "Setting sonarr v3 owner to $sonarrv3owner" >> $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-    echo "sonarr sonarr/owning_user  string ${sonarrv3owner}" | debconf-set-selections
+    echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
+    echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
     apt_install sonarr
+    touch /install/.sonarrv3.lock
+    sleep 1
 
-    if [[ ! -d /var/lib/sonarr ]]; then
+    if [[ ! -d /usr/lib/sonarr ]]; then
         echo "ERROR: The Sonarr v3 pacakge did not install correctly. Please try again. (Is sonarr repo reachable?)"
         exit 1
     fi
+
+    if [[ -f $sonarrv3confdir/update_required ]]; then 
+        echo "Sonarr is installing an upgrade..."
+        # echo "You can track the update by running \`systemctl status sonarr\` in another shell."
+        # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
+        while [[ -f $sonarrv3confdir/update_required ]]; do 
+            sleep 1
+            # echo "still here"
+            # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
+        done
+        echo "Upgrade finished"
+    fi
 }
 
-_add2usergroups_sonarrv3 () {
-        if [[ -z $sonarrv3grouplist ]]; then
-            if ask "Do you want to let Sonarr access other users' home directories?" N; then
-                echo "Space separated list of users to give sonarr access to: (e.g. \"user1 user2\")"
-                read -r sonarrv3grouplist
-            fi
-        fi
-
-        if [[ -n $sonarrv3grouplist ]]; then
-            for u in $sonarrv3grouplist; do
-                echo "Adding ${sonarrv3owner} to $u's group" | tee -a $log
-                usermod -a -G "$u" "$sonarrv3owner" | tee -a $log
-                chmod g+rwx /home/"$u"
-            done
-        fi
-}
+# _add2usergroups_sonarrv3 () {
+#         if [[ -z $sonarrv3grouplist ]]; then
+#             if ask "Do you want to let Sonarr access other users' home directories?" N; then
+#                 echo "Space separated list of users to give sonarr access to: (e.g. \"user1 user2\")"
+#                 read -r sonarrv3grouplist
+#             fi
+#         fi
+#         if [[ -n $sonarrv3grouplist ]]; then
+#             for u in $sonarrv3grouplist; do
+#                 echo "Adding ${sonarrv3owner} to $u's group" | tee -a $log
+#                 usermod -a -G "$u" "$sonarrv3owner" | tee -a $log
+#                 chmod g+rwx /home/"$u"
+#             done
+#         fi
+# }
 
 _nginx_sonarr () {
     if [[ -f /install/.nginx.lock ]]; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-        sleep 20
+        sleep 10
         echo "Installing nginx configuration" | tee -a $log
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
@@ -174,7 +195,7 @@ _nginx_sonarr () {
 _sonarrv2_flow
 _add_sonarr_repos
 _install_sonarrv3
-_add2usergroups_sonarrv3
+# _add2usergroups_sonarrv3
 _nginx_sonarr
 
 touch /install/.sonarrv3.lock

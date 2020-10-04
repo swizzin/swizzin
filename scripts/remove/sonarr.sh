@@ -21,7 +21,9 @@ username=$(cut -d: -f1 < /root/.master.info)
 
 function _removeSonarr() {
   systemctl stop sonarr@${username}
-  systemctl disable sonarr@${username}
+  systemctl -q disable sonarr@${username}
+  rm -rf /etc/systemd/system/sonarr\@.service
+  systemctl daemon-reload
   apt_remove nzbdrone
   rm -f /etc/apt/sources.list.d/sonarr.list
 

@@ -20,8 +20,12 @@ isactive=$(systemctl is-active sonarr)
 if [[ $isactive == "active" ]]; then
   systemctl stop sonarr
 fi
-
-cat > /var/lib/sonarr/config.xml <<SONN
+user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
+echo "Sonarr user detected as $user" >> $log
+apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
+echo "API Key  = $apikey" >> $log
+#TODO cahnge Branch whenever that becomes relevant
+cat > /home/"$user"/.config/sonarr/config.xml <<SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
@@ -31,12 +35,13 @@ cat > /var/lib/sonarr/config.xml <<SONN
   <SslPort>9898</SslPort>
   <EnableSsl>False</EnableSsl>
   <LaunchBrowser>False</LaunchBrowser>
+  <ApiKey>${apikey}</ApiKey>
   <AuthenticationMethod>None</AuthenticationMethod>
   <SslCertHash></SslCertHash>
   <UrlBase>sonarr</UrlBase>
 </Config>
 SONN
-chown -R "$master":"$master" /var/lib/sonarr
+chown -R "$user":"$user" /home/"$user"/.config/sonarr
 
 # chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
