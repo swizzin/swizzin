@@ -88,8 +88,10 @@ _sonarrv2_flow(){
         fi
 
         mkdir -p /root/swizzin/backups/
+        echo "Copying files to a backup location"
         cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
-
+        echo "Backups copied"
+        
         systemctl stop sonarr@"${sonarrv2owner}"
 
         # We don't have the debconf configuration yet so we can't migrate the data.
@@ -99,8 +101,6 @@ _sonarrv2_flow(){
         else
             mkdir -p "/usr/lib/sonarr"
         fi
-        ln -s /home/"${sonarrv2owner}"/.config/NzbDrone /usr/lib/sonarr/nzbdrone-appdata
-        # chown -R "$master":"$master" /usr/lib/sonarr/nzbdrone-appdata
 
         echo "Removing Sonarr v2" | tee -a $log
         # shellcheck source=scripts/remove/sonarr.sh
@@ -138,6 +138,14 @@ _install_sonarrv3 () {
     sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
     mkdir -p "$sonarrv3confdir"
     chown -R "$sonarrv3owner":"$sonarrv3owner" "$sonarrv3confdir"
+
+    # Migrate v2 data in if there is any
+    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
+        echo "Copying v2 data to be migrated during install"
+        cp /root/swizzin/backups/sonarrv2.bak /home/"${sonarrv3owner}"/sonarr -R
+        chown "$sonarrv3owner":"$sonarrv3owner" "${sonarrv3confdir}"
+        echo "Data copied"
+    fi
 
     echo "Setting sonarr v3 owner to $sonarrv3owner" >> $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
