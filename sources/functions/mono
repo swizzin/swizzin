@@ -16,8 +16,8 @@ function mono_repo_setup () {
     if [[ ! $codename =~ ("buster"|"focal") ]]; then
       echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
     fi
+    apt_update
   fi
-  apt_update
 }
 
 function mono_repo_update () {

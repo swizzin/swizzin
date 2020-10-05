@@ -9,10 +9,10 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cut -d: -f1 < /root/.master.info)
-isactive=$(systemctl is-active sonarr@$MASTER)
+isactive=$(systemctl is-active sonarr@"$MASTER")
 
 if [[ $isactive == "active" ]]; then
-  systemctl stop sonarr@$MASTER
+  systemctl stop sonarr@"$MASTER"
 fi
 
 if [[ ! -f /etc/nginx/apps/sonarr.conf ]]; then
@@ -28,8 +28,8 @@ location /sonarr {
 }
 SONARR
 fi
-if [[ ! -d /home/${MASTER}/.config/NzbDrone/ ]]; then mkdir -p /home/${MASTER}/.config/NzbDrone/; fi
-cat > /home/${MASTER}/.config/NzbDrone/config.xml <<SONN
+if [[ ! -d /home/${MASTER}/.config/NzbDrone/ ]]; then mkdir -p /home/"${MASTER}"/.config/NzbDrone/; fi
+cat > /home/"${MASTER}"/.config/NzbDrone/config.xml <<SONN
 <Config>
   <Port>8989</Port>
   <UrlBase>sonarr</UrlBase>
@@ -41,7 +41,7 @@ cat > /home/${MASTER}/.config/NzbDrone/config.xml <<SONN
   <LaunchBrowser>False</LaunchBrowser>
 </Config>
 SONN
-chown -R ${MASTER}: /home/${MASTER}/.config/NzbDrone/
+chown -R "${MASTER}": /home/"${MASTER}"/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-  systemctl start sonarr@$MASTER
+  systemctl start sonarr@"$MASTER"
 fi
