@@ -142,7 +142,7 @@ _install_sonarrv3 () {
     # Migrate v2 data in if there is any
     if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
         echo "Copying v2 data to be migrated during install"
-        cp /root/swizzin/backups/sonarrv2.bak /home/"${sonarrv3owner}"/sonarr -R
+        cp /root/swizzin/backups/sonarrv2.bak "${sonarrv3confdir}" -R
         chown "$sonarrv3owner":"$sonarrv3owner" "${sonarrv3confdir}"
         echo "Data copied"
     fi
