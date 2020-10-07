@@ -31,15 +31,14 @@ echo "Please visit https://www.plex.tv/claim, login, copy your plex claim token 
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
 echo "Installing plex keys and sources ... "
+  apt_install apt-transport-https
   wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
   echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
   echo
 
 echo "Updating system ... "
-  apt-get install apt-transport-https -y >> ${log} 2>&1
-  apt-get -y update >> ${log} 2>&1
-  apt-get install -o Dpkg::Options::="--force-confold" -y -f plexmediaserver >> ${log} 2>&1
-  #DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical apt-get -q -y -o -f "Dpkg::Options::=--force-confdef" -o "Dpkg::Options::=--force-confold" install plexmediaserver >/dev/null 2>&1
+  apt_update
+  apt_install plexmediaserver
   echo
 
   if [[ ! -d /var/lib/plexmediaserver ]]; then

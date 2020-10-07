@@ -101,7 +101,7 @@ if [[ ${cf} == yes ]]; then
   fi
 fi
 
-apt-get -y -q install socat > /dev/null 2>&1
+apt_install socat
 
 if [[ ! -f /root/.acme.sh/acme.sh ]]; then
   curl https://get.acme.sh | sh

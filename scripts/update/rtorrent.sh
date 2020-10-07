@@ -13,7 +13,7 @@ for u in "${users[@]}"; do
       sed -i 's/network.scgi.open_port.*/network.scgi.open_local = \/var\/run\/'${u}'\/.rtorrent.sock\nschedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\\"g+w,o=\\",\/var\/run\/'${u}'\/.rtorrent.sock"/' /home/${u}/.rtorrent.rc
       restart=1
     fi
-    if grep -q /srv/rutorrent/php/initplugins.php /home/${u}/.rtorrent.rc; then
+    if ! grep -q /srv/rutorrent/php/initplugins.php /home/${u}/.rtorrent.rc; then
       sed -i 's:/var/www/rutorrent/php/initplugins.php:/srv/rutorrent/php/initplugins.php:g' /home/${u}/.rtorrent.rc
       restart=1
     fi

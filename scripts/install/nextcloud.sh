@@ -55,7 +55,7 @@ fi
 
 if [[ $installmysql = "true" ]]; then 
   echo "Installing MySQL*" | tee -a $log #MariaDB yeeee 
-  DEBIAN_FRONTEND=non‌​interactive apt-get -y install mariadb-server >> $log 2>&1
+  apt_install mariadb-server
   if [[ $(systemctl is-active MySQL) != "active" ]]; then
     systemctl start mysql
   fi
@@ -81,9 +81,9 @@ fi
 systemctl restart mysqld
 
 #Depends
-echo "Installing dependencies"
-apt-get install -y -q unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-imagick php-intl php-zip php-xml php-mbstring >> $log 2>&1
-#a2enmod rewrite >> $log 2>&1
+apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring
+#a2enmod rewrite > /dev/null 2>&1
+# cd /tmp
 
 #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
 codename=$(lsb_release -cs)

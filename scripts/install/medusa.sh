@@ -40,13 +40,11 @@ fi
 mkdir -p /opt/.venv
 chown ${user}: /opt/.venv
 
-apt-get -y -q update >> $log 2>&1
+apt_install git-core openssl libssl-dev python3 python3-venv
 
-apt-get -y -q install git-core openssl libssl-dev python3 python3-venv >> $log 2>&1
+# maybe TODO pyenv this up and down?
 python3 -m venv /opt/.venv/medusa
-
 chown -R ${user}: /opt/.venv/medusa
-
 
 install_rar
 

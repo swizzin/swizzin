@@ -29,13 +29,22 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
   read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
 
+#shellcheck disable=SC2154
+if [[ $dev = "true" ]]; then
+  # If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
+  # You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
+  echo "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
+fi
+
 _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
   export log=/root/logs/install.log
-  echo "Checking OS version and release ... "
-  apt-get -y -qq update >> ${log} 2>&1
-  apt-get -y -qq install lsb-release >> ${log} 2>&1
+  # echo "Checking OS version and release ... "
+  if ! which lsb_release > /dev/null; then 
+    apt-get -y -qq update >> ${log} 2>&1
+    apt-get -y -qq install lsb-release >> ${log} 2>&1
+  fi
   distribution=$(lsb_release -is)
   release=$(lsb_release -rs)
   codename=$(lsb_release -cs)
@@ -45,32 +54,45 @@ _os() {
     if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
       echo "Your release ($codename) of $distribution is not supported." && exit 1
     fi
-  echo "I have determined you are using $distribution $release."
+  # echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
   echo "Updating system and grabbing core dependencies."
   if [[ $distribution = "Ubuntu" ]]; then
-    echo "Checking enabled repos"
-    if [[ -z $(which add-apt-repository) ]]; then
+    echo "Enabling required repos"
+    if ! which add-apt-repository > /dev/null; then
       apt-get install -y -q software-properties-common >> ${log} 2>&1
     fi
     add-apt-repository universe >> ${log} 2>&1
     add-apt-repository multiverse >> ${log} 2>&1
     add-apt-repository restricted -u >> ${log} 2>&1
   fi
+  
+  echo "Performing a system upgrade"
   apt-get -q -y update >> ${log} 2>&1
   apt-get -q -y upgrade >> ${log} 2>&1
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
-  git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+  if [[ $dev != "true" ]]; then 
+    git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+  else
+    echo "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN"
+    echo "Instead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
+    RelativeScriptPath=$(dirname "$0")
+    echo "That directory is relative to your pwd  = $RelativeScriptPath"
+    ln -sr "$RelativeScriptPath" /etc/swizzin
+    echo "Best of luck and please follow the contribution guidelines cheerio"
+  fi
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
+  #shellcheck source=sources/functions/apt
+  . /etc/swizzin/sources/functions/apt
 }
 
 function _nukeovh() {
@@ -147,8 +169,8 @@ function _adduser() {
     chown -R $user:$user /home/${user}
   else
     echo -e "Creating new user \e[1;95m$user\e[0m ... "
-    useradd "${user}" -m -G www-data -s /bin/bash
-    chpasswd<<<"${user}:${pass}"
+    useradd "${user}" -m -G www-data -s /bin/bash || { echo "There was an error creating the user ${user}. Please check your logs."; exit 1; }
+    chpasswd<<<"${user}:${pass}" || { echo "There was an error setting the password for ${user}. Please check your logs."; exit 1; }
     htpasswd -b -c /etc/htpasswd $user $pass
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
@@ -166,7 +188,7 @@ function _choices() {
   extras=()
   guis=()
   #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent deluge autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${locks[@]}"; do
     app=${i}
     if [[ ! -f /install/.$app.lock ]]; then
@@ -207,7 +229,15 @@ function _choices() {
   if grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/deluge
     whiptail_deluge
+  fi
+  if grep -q qbittorrent "$results"; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    whiptail_qbittorrent
+  fi
+  if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
+    . /etc/swizzin/sources/functions/libtorrent
     whiptail_libtorrent_rasterbar
+    export SKIP_LT=True
   fi
   if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
       if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report broken functionality of the swizzin toolset
 title: ''
 labels: ''
 assignees: ''

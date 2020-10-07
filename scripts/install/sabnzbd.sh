@@ -14,7 +14,10 @@ user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
-latest=$(curl -s https://sabnzbd.org/downloads | grep Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
+#latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
+latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | grep -Po '(?<="browser_download_url":).*?[^\\].tar.gz"' | sed 's/"//g')
+latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
+
 . /etc/swizzin/sources/functions/pyenv
 . /etc/swizzin/sources/functions/utils
 
@@ -25,26 +28,11 @@ else
 fi
 
 
-if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
-else
-  LIST='par2 p7zip-full python2.7-dev libxml2-dev libxslt1-dev libglib2.0-dev libdbus-1-dev'
-fi
+LIST='par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
 
-apt-get -y update >>"${log}" 2>&1
-for depend in $LIST; do
-  apt-get -qq -y install $depend >>"${log}" 2>&1 || { echo "ERROR: APT-GET could not install a required package: ${depend}. That's probably not good..."; }
-done
+apt_install $LIST
 
-if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  python_getpip
-fi
-
-python2_venv ${user} sabnzbd
-
-PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc sabyenc cheetah pyOpenSSL'
-/opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
-chown -R ${user}: /opt/.venv/sabnzbd
+python3_venv ${user} sabnzbd
 
 install_rar
 
@@ -53,6 +41,11 @@ mkdir -p /opt/sabnzbd
 wget -q -O sabnzbd.tar.gz $latest
 tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
 rm -rf sabnzbd.tar.gz
+if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
+    sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
+fi
+/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >>"${log}" 2>&1
+chown -R ${user}: /opt/.venv/sabnzbd
 mkdir -p /home/${user}/.config/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
 chown -R ${user}: /opt/sabnzbd
@@ -69,7 +62,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python2 /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 

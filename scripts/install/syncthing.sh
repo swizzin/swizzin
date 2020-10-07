@@ -27,10 +27,10 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 echo "Adding Syncthing Repository ... " >>"${OUTTO}" 2>&1;
 curl -s https://syncthing.net/release-key.txt | sudo apt-key add - > /dev/null 2>&1
 echo "deb http://apt.syncthing.net/ syncthing release" > /etc/apt/sources.list.d/syncthing.list
+apt_update
 
 echo "Installing Syncthing ... " >>"${OUTTO}" 2>&1;
-sudo apt-get -q update > /dev/null 2>&1
-sudo apt-get -qy install syncthing > /dev/null 2>&1
+apt_install syncthing
 
 echo "Configuring Syncthing & Starting ... " >>"${OUTTO}" 2>&1;
 cat > /etc/systemd/system/syncthing@.service <<SYNC

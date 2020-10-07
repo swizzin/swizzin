@@ -1,5 +1,105 @@
 # Changelog
 
+## [2.5.1]
+
+## September 25, 2020
+
+This is a maintenance release for bugs discovered within the past few days
+
+### Fixed
+- Added a check for whether or not the new `apt_install` function is correctly sourced during updates. The updater will prompt you to restart if needed.
+  - This is because apt functions are now sourced in `box` rather than individual scripts. When running the update for the first time, box is using the outdated version which doesn't source `apt`. `apt` is correctly sourced on the next run.
+- Ensure Deluge and qBittorrent have nginx upstreams configured correctly when adding a new user. Deluge was a regression, qBittorrent was an oversight
+- Apt keys are now appropriately imported when installing x2go (apt function regression)
+- Removed `--skip-update` flag from apt function (it was made redundant)
+- Fixed the `skip_libtorrent_rasterbar` function for Deluge 1.3.* users
+- Various update script fixes and improvements (less apt spam, less random app restarts)
+- ruTorrent installer has been restructured to do less work when adding a new user
+- Wireguard fixes and improvements:
+  - Buster will now use backports. Stretch still uses unstable with adjusted pin priority.
+  - Improved default interface recognition
+  - Fixed non-default interface selection showing only one interface
+  - Install wireguard with recommended packages to ensure kernel headers are also installed (required for dkms builds)
+- rclone will now use `--allow-other` by default
+- rclone removal is now a bit more complete (will leave rclone config though)
+
+## [2.5.0]
+
+## September 22, 2020
+
+Lots has happened in the past few months, thus the relatively arbitrary 4 minor version jump.
+
+As a point of business, both myself and flying-sausage are now accepting donations for the project through github sponsors. Please do consider donating to either of us as your contributions help us stay motivated to keep bringing you new features and work on maintaining the project.
+
+[liaralabs](https://github.com/sponsors/liaralabs)
+[flying-sausages](https://github.com/sponsors/flying-sausages)
+
+### Meta (Repo) Changes
+- [Discussions](https://github.com/liaralabs/swizzin/discussions) have been enabled! Please use this area instead of Issues for general project related chat and help. Otherwise, we can be found in Discord
+- Issue links have been reworked to prevent folks from opening tickets without the bug report template
+- Issues will be automatically closed if they are stale or do not follow the template.
+- README badges. Fancy!
+- Codefactor and Codacy support to help keep our repository well-coded.
+- flying-sausages has been hard at work to bring you things like the [Contributing Guidelines](https://github.com/liaralabs/swizzin/blob/master/CONTRIBUTING.md). If you are interesting in creating a pull request, please make sure you read these so your work is in line with the rest of the repository
+
+### Added
+- Transmission
+- Webmin
+- qBittorrent
+- Organizr
+- Mango
+- DuckDNS
+- Libtorrent will now run some checks to see if you can skip compiling libtorrent when upgrading/installing Deluge or qBittorrent. You can force a skip of the libtorrent compile by using `export SKIP_LT=True` before running a script which calls the libtorrent functions (Deluge/qBittorrent)
+- Libtorrent can be patched during compile (e.g. settings pack). Just make sure the file `/root/libtorrent.patch` is present and it will be applied during libtorrent compiles.
+- NZBHydra2 and an automated migration assistant. (`box upgrade nzbhydra`)
+- Many new functions have been added for utility and apt purposes. This only concerns folks who intend to write contributions to the project. Mostly `apt` and `utils`
+
+
+### Updated
+- SABnzbd now has an upgrade script and will install `sabyenc` with pip
+- Python applications have been moved from home directories to `/opt`. The majority of python packages now rely on virtual environments so that their packaging does not affect your system. Virtual environments are typically found at `/opt/.venv`.
+- `setdisk` (the quota setting tool) has been rewritten
+- `box` won't keep changing permissions on the swizzin repo now, so `box update` will be quieter
+- `letsencrypt` will now run some checks for supported tlds when using the CloudFlare option
+- `letsnecrypt` will not automatically stop/start nginx when certs are issued in standalone mode (i.e. not the default domain)
+- Setup now is a bit more explicit about master user creation, whiptail dialogs are a bit bigger
+- vsftpd and ZNC let's encrypt hooks are now smarter and more resilient
+- Tautulli now uses Python3
+- SickChill now uses Python3
+- Wireguard is now multi-user friendly
+- XMLRPC has been pinned to a stable version for rTorrent stability
+- Filebrowser now has an upgrade mechanism. `box upgrade filebrowser`
+- setup will error and quit if for any reason the initial adduser or password creation fails
+- rclone install script is now actually useful
+- ZNC PPA for Focal
+
+### Removed
+- Changes to `/etc/skel` have been removed. Your skel is safe now.
+- NZBHydra 1 has been deprecated.
+
+### Fixed
+- Link the fancyindex module directly if it doesn't exist in the nginx directory
+- Fix bazarr working directory on updates
+- Ensure Deluge-web files are removed with Deluge
+- Python2 virtualenv functions on Focal
+- Don't attempt to downoad mono 5.18 on Focal (new version in focal repos)
+- php restart uses the detected version rather than whatever was defined in your nginx conf
+- irssi/autodl was not properly being destroyed if a user was deleted
+- Remove screen-related directories when removing a user
+- deluge-web.lock is now properly created during install
+- rTorrent logging during upgrade actions
+- SABnzbd 3.0.* is incompatible with feedparser 6.0.0
+- Quassel core installs on Buster
+- Ensure held packages are changed if we want to make changes to them
+- Deluge install would mess up permissions on the `~/torrents` directory if the installer created that directory.
+- Deluge install now adds users to the `www-data` group which fixes web access if rTorrent wasn't installed.
+- Jellyfin repo location was changed
+- Bazarr pip install was causing issues
+- Lidarr now installs libchromafp
+- vsftpd didn't have a remove script
+- Bazarr logging would clobber the log file
+- An issue with the order of operations in x2go install
+
 ## [2.1.0]
 
 ## April 28, 2020

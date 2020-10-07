@@ -36,8 +36,7 @@ else
 
   echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list
   wget -qO - https://repo.ombi.turd.me/pubkey.txt | sudo apt-key add -
-  apt-get update -q >/dev/null 2>&1
-  apt-get install -y -q ombi > /dev/null 2>&1
+  apt_install ombi
   cat > /etc/systemd/system/ombi.service <<OMB
 [Unit]
 Description=Ombi - PMS Requests System

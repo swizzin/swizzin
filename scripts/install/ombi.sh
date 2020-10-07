@@ -19,8 +19,7 @@ function _depends() {
     echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list
     wget -qO - https://repo.ombi.turd.me/pubkey.txt | sudo apt-key add -
   fi
-
-  apt-get update -q >/dev/null 2>&1
+  apt_update
 }
 
 function _install() {
@@ -33,7 +32,7 @@ function _install() {
   #rm Ombi.zip
   #cd /opt
   #chown -R ${user}: ombi
-  apt-get install -y -q ombi > /dev/null 2>&1
+  apt_install ombi
 }
 
 
@@ -81,9 +80,3 @@ echo -en "\rUpdating dependencies ... \033[0K\r";_depends
 echo -en "\rInstalling Ombi ... \033[0K\r";_install
 echo -en "\rInitializing Ombi service ... \033[0K\r";_services
 echo -e "\rOmbi Installation Complete!\033[0K\r"
-  sleep 5
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-
-echo ""

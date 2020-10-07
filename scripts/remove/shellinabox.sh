@@ -8,7 +8,7 @@
 systemctl stop shellinabox
 systemctl disable shellinabox
 
-apt-get -y purge shellinabox
+apt_remove --purge shellinabox
 
 rm -rf /etc/systemd/system/shellinabox.service
 rm -rf /install/.shellinabox.lock

@@ -10,52 +10,48 @@
 #   under the GPL along with build & install instructions.
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
-  exit 1
+    echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+    exit 1
 fi
 
-users=($(cut -d: -f1 < /etc/htpasswd))
-codename=$(lsb_release -cs)
+function rutorrent_install() {
+    apt_install sox geoip-database python2.7-dev python-setuptools
 
-apt-get update -y -q >>/dev/null 2>&1
-apt-get install -y -q sox geoip-database python2.7-dev python-setuptools >>/dev/null 2>&1
+    if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
+        apt_install python-pip
+    else
+        . /etc/swizzin/sources/functions/pyenv
+        python_getpip
+    fi
 
-if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-  apt-get install -y -q python-pip
-else
-  . /etc/swizzin/sources/functions/pyenv
-  python_getpip
-fi
+    pip install cloudscraper >> /dev/null 2>&1
 
-pip install cloudscraper >> /dev/null 2>&1
+    cd /srv
+    if [[ ! -d /srv/rutorrent ]]; then
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >>/dev/null 2>&1
+        chown -R www-data:www-data rutorrent
+        rm -rf /srv/rutorrent/plugins/throttle
+        rm -rf /srv/rutorrent/plugins/extratio
+        rm -rf /srv/rutorrent/plugins/rpc
+        rm -rf /srv/rutorrent/conf/config.php
+    fi
+    sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
+    sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
+    sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
-cd /srv
-if [[ ! -d /srv/rutorrent ]]; then
-  git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >>/dev/null 2>&1
-  chown -R www-data:www-data rutorrent
-  rm -rf /srv/rutorrent/plugins/throttle
-  rm -rf /srv/rutorrent/plugins/extratio
-  rm -rf /srv/rutorrent/plugins/rpc
-  rm -rf /srv/rutorrent/conf/config.php
-fi
-sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
-sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
-sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
+    if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
+        cd /srv/rutorrent/plugins/theme/themes
+        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
+        perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
+    fi
 
-if [[ ! -f /install/.rutorrent.lock ]]; then
-if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-  cd /srv/rutorrent/plugins/theme/themes
-  git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >/dev/null 2>&1
-  perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
-fi
+    if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
+        cd /srv/rutorrent/plugins/
+        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >>/dev/null 2>&1
+        chown -R www-data: /srv/rutorrent/plugins/filemanager
+        chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
-if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-  cd /srv/rutorrent/plugins/
-  svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >>/dev/null 2>&1
-  chown -R www-data: /srv/rutorrent/plugins/filemanager
-  chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
-
-cat >/srv/rutorrent/plugins/filemanager/conf.php<<FMCONF
+        cat >/srv/rutorrent/plugins/filemanager/conf.php<<FMCONF
 <?php
 
 \$fm['tempdir'] = '/tmp';
@@ -84,24 +80,24 @@ cat >/srv/rutorrent/plugins/filemanager/conf.php<<FMCONF
 
 ?>
 FMCONF
-fi
+    fi
 
-if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
-  cd /srv/rutorrent/plugins
-  svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >>/dev/null 2>&1
-  sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
-fi
+    if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
+        cd /srv/rutorrent/plugins
+        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >>/dev/null 2>&1
+        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
+    fi
 
-if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
-  cd /srv/rutorrent/plugins
-  wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-  tar xf logoff-1.3.tar.gz
-  rm -rf logoff-1.3.tar.gz
-  chown -R www-data: logoff
-fi
+    if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
+        cd /srv/rutorrent/plugins
+        wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
+        tar xf logoff-1.3.tar.gz
+        rm -rf logoff-1.3.tar.gz
+        chown -R www-data: logoff
+    fi
 
-if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php ) ]]; then
-  cat > /srv/rutorrent/plugins/diskspace/action.php <<'DSKSP'
+    if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php ) ]]; then
+        cat > /srv/rutorrent/plugins/diskspace/action.php <<'DSKSP'
 <?php
 #################################################################################
 ##  [Quick Box - action.php modified for quota systems use]
@@ -125,9 +121,9 @@ if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/di
   }
 ?>
 DSKSP
-fi
-fi
-cat >/srv/rutorrent/conf/config.php<<RUC
+    fi
+
+    cat >/srv/rutorrent/conf/config.php<<RUC
 <?php
 // configuration parameters
 
@@ -190,13 +186,11 @@ cat >/srv/rutorrent/conf/config.php<<RUC
 
 ?>
 RUC
+}
 
-. /etc/swizzin/sources/functions/php
-phpversion=$(php_service_version)
-sock="php${phpversion}-fpm"
-
-if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
-cat > /etc/nginx/apps/rutorrent.conf <<RUM
+function rutorrent_nginx_config() {
+    if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
+        cat > /etc/nginx/apps/rutorrent.conf <<RUM
 location /rutorrent {
   alias /srv/rutorrent;
   auth_basic "What's the password?";
@@ -209,10 +203,10 @@ location /rutorrent {
   }
 }
 RUM
-fi
+    fi
 
-if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
-  cat > /etc/nginx/apps/rindex.conf <<RIN
+    if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
+        cat > /etc/nginx/apps/rindex.conf <<RIN
 location /rtorrent.downloads {
   alias /home/\$remote_user/torrents/rtorrent;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -224,13 +218,14 @@ location /rtorrent.downloads {
   } 
 }
 RIN
-fi
+    fi
+}
 
-for u in "${users[@]}"; do
-  if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
-    mkdir -p /srv/rutorrent/conf/users/${u}/
-
-    cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
+function rutorrent_user_config() {
+    for u in "${users[@]}"; do
+        if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
+            mkdir -p /srv/rutorrent/conf/users/${u}/
+            cat >/srv/rutorrent/conf/users/${u}/config.php<<RUU
 <?php
 \$topDirectory = '/home/${u}';
 \$scgi_port = 0;
@@ -239,11 +234,10 @@ for u in "${users[@]}"; do
 \$quotaUser = "${u}";
 ?>
 RUU
-  fi
-  if [[ ! -f /etc/nginx/apps/${u}.rindex.conf ]]; then rm -f /etc/nginx/apps/${u}.rindex.conf; fi
+        fi
 
-  if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-  cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
+        if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
+            cat > /etc/nginx/apps/${u}.scgi.conf <<RUC
 location /${u} {
 include scgi_params;
 scgi_pass unix:/var/run/${u}/.rtorrent.sock;
@@ -251,12 +245,23 @@ auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }
 RUC
-  fi
+        fi
 done
+}
 
 . /etc/swizzin/sources/functions/php
-restart_php_fpm
+. /etc/swizzin/sources/functions/utils
+users=($(_get_user_list))
+codename=$(lsb_release -cs)
+phpversion=$(php_service_version)
+sock="php${phpversion}-fpm"
+if [[ ! -f /install/.rutorrent.lock ]]; then
+    rutorrent_install
+fi
+rutorrent_nginx_config
+rutorrent_user_config
 
+restart_php_fpm
 chown -R www-data.www-data /srv/rutorrent
 systemctl reload nginx
 touch /install/.rutorrent.lock

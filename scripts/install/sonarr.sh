@@ -19,7 +19,38 @@
 #
 #################################################################################
 
+function _check_for_sonarr3 () {
+    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
+    echo
+    echo "WARNING: Found backups from before Sonarr v3 migration."
+    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
+    echo
+    #TODO implement restore procedure if user wants that to happen?
+    #TODO check if unit is still masked. Unmaks it if that's the case.
+  fi
+  
+  if [[ -f /install/.sonarrv3.lock ]]; then 
+    v3present=true
+  fi
+
+  if dpkg -l | grep sonarr > /dev/null 2>&1 ; then 
+    v3present=true
+  fi
+
+  if [[ $v3present == "true" ]]; then
+    echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
+    exit 1
+  fi
+
+}
+
 function _installSonarrintro() {
+  # echo "Sonarr v3 is available as a separate application (sonarrv3)"
+  # . /etc/swizzin/sources/functions/ask
+  # if ! ask "Would you like to continue installing Sonarr v2?"; then
+  #   exit 0
+  # fi
+
   echo "Sonarr will now be installed." >>"${log}" 2>&1;
   echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
   echo "Please wait until install is completed." >>"${log}" 2>&1;
@@ -35,7 +66,7 @@ function _installSonarr1() {
 }
 
 function _installSonarr2() {
-  apt-get install apt-transport-https screen -y >> ${log} 2>&1
+  apt_install apt-transport-https screen
   if [[ $distribution == "Ubuntu" ]]; then
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
   elif [[ $distribution == "Debian" ]]; then
@@ -46,17 +77,17 @@ function _installSonarr2() {
     #gpg --export 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /etc/apt/trusted.gpg.d/nzbdrone.gpg
   fi
   echo "deb https://apt.sonarr.tv/ master main" | tee /etc/apt/sources.list.d/sonarr.list >> ${log} 2>&1
+  apt_update
 }
 
 function _installSonarr3() {
-  apt-get -y update >> ${log} 2>&1
   if [[ $distribution == Debian ]]; then
-    apt-get install -y mono-devel >> ${log} 2>&1
+    apt_install mono-devel
   fi
 }
 
 function _installSonarr4() {
-  apt-get install -y nzbdrone >> ${log} 2>&1
+  apt_install nzbdrone
   touch /install/.sonarr.lock
 }
 
@@ -115,6 +146,8 @@ username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 
+
+_check_for_sonarr3
 _installSonarrintro
 _installSonarr1
 echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2

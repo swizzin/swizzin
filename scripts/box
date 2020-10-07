@@ -14,6 +14,10 @@
 #
 #################################################################################
 
+# Sourcing functions
+#shellcheck source=sources/functions/apt
+. /etc/swizzin/sources/functions/apt
+
 function _intro() {
   whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
 }
@@ -100,12 +104,16 @@ function _clr() {
   for i in "${packages[@]}"; do
     app=${i}
     if [[ -f /install/.$app.lock ]]; then
+      schedule_remove="true"
       echo -e "Removing $i "
       bash /usr/local/bin/swizzin/remove/$i.sh
     else
       echo -e "Package $i not installed"
     fi
   done
+  if [[ $schedule_remove = "true" ]];then
+    apt_autoremove
+  fi
 }
 
 function _update() {
@@ -251,7 +259,7 @@ function _adduser {
   echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud wireguard organizr; do
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud wireguard organizr mango qbittorrent; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -272,12 +280,11 @@ function _adduser {
       else
         /usr/local/bin/swizzin/install/${app}.sh ${user}
         if [[ $app = "deluge" ]]; then
-          /usr/local/bin/swizzin/nginx/deluge.sh ${user}
           app="{deluged,deluge-web}"
           eval systemctl enable ${app}@${user}
           eval systemctl start ${app}@${user}
-        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr") ]]; then
-          :
+        elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard") ]]; then
+          : #Multi-user app without user service files. wireguard interface is started in wg script
         else
           if [[ $app = "autodl" ]]; then app=irssi; fi
           systemctl enable ${app}@${user}
@@ -289,7 +296,7 @@ function _adduser {
 
   USER=${user^^}
   cat > /etc/sudoers.d/${user} <<SUD
-Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
+Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /bin/systemctl start qbittorrent@${user}, /bin/systemctl stop qbittorrent@${user}, /bin/systemctl restart qbittorrent@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
@@ -317,7 +324,8 @@ function _deluser {
   echo
   read -rep 'Removal will start as soon as you confirm this message. Press enter to continue.'
   
-  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud wireguard organizr; do
+
+  for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango nextcloud wireguard organizr qbittorrent; do
     if [[ $app = "rutorrent" ]]; then
       if [[ -d /srv/rutorrent ]]; then
         if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -335,8 +343,11 @@ function _deluser {
         _occ "user:delete ${user}"
       elif [[ $app = "lounge" ]]; then
         su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
+      elif [[ $app = "mango" ]]; then
+        if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+        su mango -c "$mangodir/mango admin user delete ${user}"
       elif [[ $app = "wireguard" ]]; then
-        rm -f /home/${user}/.wireguard/client
+        rm -rf /home/${user}/.wireguard
         systemctl disable --now wg-quick@wg$(id -u "$user")
       elif [[ $app = "deluge" ]]; then
         app="{deluged,deluge-web}"
@@ -356,7 +367,7 @@ function _deluser {
   done
   
   if [[ -z $(which lsof) ]]; then
-    apt-get install -y -q lsof > /dev/null 2>&1
+    apt_install lsof
   fi
 
   kill -9 $(lsof -t /home/${user})
@@ -431,9 +442,17 @@ function _chpasswd {
   if [[ -f /install/.lounge.lock ]]; then 
     su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" > /dev/null
   fi
+  if [[ -f /install/.mango.lock ]]; then
+      if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+      su mango -c "$mangodir/mango admin user update ${user} -p ${pass}"
+  fi
   if [[ -f /install/.organizr.lock ]]; then 
     #TODO fix when API allows to
     echo "Remember to manually change the organizr account's password!"
+  fi
+  if [[ -f /install/.qbittorrent.lock ]]; then
+    . /etc/swizzin/sources/functions/qbittorrent
+    qbittorrent_chpasswd ${user} ${pass}
   fi
 
 }
@@ -453,13 +472,13 @@ function _nukeovh() {
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
-          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+          apt_install linux-image-generic
         elif [[ $DISTRO == Debian ]]; then
           arch=$(uname -m)
           if [[ $arch =~ ("i686"|"i386") ]]; then
-            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+            apt_install linux-image-686
           elif [[ $arch == x86_64 ]]; then
-            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+            apt_install linux-image-amd64
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
