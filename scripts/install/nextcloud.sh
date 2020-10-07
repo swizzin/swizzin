@@ -103,18 +103,11 @@ htuser='www-data'
 htgroup='www-data'
 rootuser='root'
 
-mkdir -p $ocpath/data
-mkdir -p $ocpath/assets
-mkdir -p $ocpath/updater
+mkdir -p $ocpath/{data,assets,updater}
 find ${ocpath}/ -type f -print0 | xargs -0 chmod 0640
 find ${ocpath}/ -type d -print0 | xargs -0 chmod 0750
 chown -R ${rootuser}:${htgroup} ${ocpath}/
-chown -R ${htuser}:${htgroup} ${ocpath}/apps/
-chown -R ${htuser}:${htgroup} ${ocpath}/assets/
-chown -R ${htuser}:${htgroup} ${ocpath}/config/
-chown -R ${htuser}:${htgroup} ${ocpath}/data/
-chown -R ${htuser}:${htgroup} ${ocpath}/themes/
-chown -R ${htuser}:${htgroup} ${ocpath}/updater/
+chown -R ${htuser}:${htgroup} ${ocpath}/{apps,assets,config,data,themes,updater}
 chmod +x ${ocpath}/occ
 if [ -f ${ocpath}/.htaccess ]
 then
@@ -127,6 +120,7 @@ then
  chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 
+echo "Installing cron jobs"
 crontab -l -u $htuser > /tmp/newcron.txt
 echo "*/5  *  *  *  * php -f /var/www/nextcloud/" >> /tmp/newcron.txt
 crontab -u $htuser /tmp/newcron.txt
@@ -137,6 +131,7 @@ rm /tmp/newcron.txt
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
 
+echo "Configuting nginx and PHP"
 cat > /etc/nginx/apps/nextcloud.conf <<EOF
 # The following 2 rules are only needed for the user_webfinger app.
 # Uncomment it if you're planning to use this app.
