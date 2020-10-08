@@ -205,6 +205,9 @@ function _adduser {
   if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
+  elif [[ $user =~ ("swizzin"|"admin") ]]; then
+    echo "$user is a reserved username -- please use something else."
+    exit 1
   fi
 
   if [[ -f /root/${user}.info ]]; then
