@@ -41,6 +41,9 @@ _process_apt_args() {
             --recommends) _apt_install_recommends=true
                 echo "Info: APT will install recommends" >> $log
                 ;;
+            --no-recommends) _apt_install_recommends=false
+                echo "Info: APT will NOT install recommends" >> $log
+                ;;
             -*) echo "Error: Invalid option: $1"
                 exit 1
                 ;;
@@ -220,6 +223,8 @@ apt_install (){
     flags=""
     if [[ $_apt_install_recommends == "true" ]]; then
         flags="--install-recommends"
+    elif [[ $_apt_install_recommends == "false" ]]; then
+        flags="--no-install-recommends"
     fi
 
     # Run the install
