@@ -46,7 +46,7 @@ function build_qbittorrent() {
         fi
         VERSION=${qbittorrent}
         LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
-        apt_install $LIST
+        apt_install --no-recommends $LIST
         cd /tmp
         rm_if_exists "/tmp/qbittorrent"
         wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
