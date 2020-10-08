@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.6.0]
+
+## October 8, 2020
+
+### Added
+- Sonarr v3. Rejoice!
+- A couple new global depends (`box update` to get these)
+- `apt_install` now accepts `--no-recommends` as a parameter
+
+### Fixed
+- qBittorrent was going a little *too* happy when installing depends. qBit will not install recommended pacakges anymore when building.
+  - For folks running qbit already, three packages were identified as starting unnecessary services. The following packages are safe to stop their services and/or remove them as well if you had them installed through the qBit build pipeline. ***PLEASE DOUBLE CHECK THESE YOURSELF AND IF IN DOUBT DISABLE SERVICES BEFORE REMOVING THEM!!!!***
+    - avahi-daemon (Bonjour, aka, LAN Device Discovery)
+    - wpasupplicant (Used for configuring wifi access points)
+    - modemmanager (Used for configuring modems)
+- Fixed qBit password changing with `chpasswd`
+- Fixed force reannounce in the libtorrent 1.2 python binding
+- Transmission was improperly setting RPC port when adding multiple users
+- Fixed transmission watch directory creation
+- Wireguard will now output some debug info in the event of a `modprobe` failure
+- Ported python helper scripts to python3
+- Jackett complete removal
+- Specify `python2.7` as `python` and `python2` are not guaranteed to work under Ubuntu Focal Fossa
+- Usernames identified as causing conflicts have been blocked during setup. (i.e. `swizzin` and `admin`)
+
 ## [2.5.1]
 
 ## September 25, 2020
