@@ -231,6 +231,9 @@ function build_libtorrent_rasterbar () {
     ./autotool.sh >>"${log}" 2>&1
     ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+    #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
+    #If not enabled, Deluge may not properly reannounce on unregistered torrents.
+    #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
     case $LTRC in
       RC_1_1)
         sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
