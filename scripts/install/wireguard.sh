@@ -40,8 +40,8 @@ function _install_wg () {
             printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
         fi
 	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-		echo "Adding Wireguard PPA"
-		add-apt-repository -y ppa:wireguard/wireguard >> $log 2>&1
+        #This *should* be enabled by default but you know what they say about assumptions.
+		check_ubuntu_updates
 	fi
 
 	echo "Fetching APT updates"

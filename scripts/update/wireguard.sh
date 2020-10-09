@@ -21,5 +21,14 @@ if [[ -f /install/.wireguard.lock ]]; then
                 printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
             fi
         fi
+    elif [[ $codename =~ ("xenial"|"bionic") ]]; then
+        if grep -h "wireguard/wireguard" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
+            echo "Downgrading wireguard from PPA status to mainline"
+            apt-add-repository -y ppa:wireguard/wireguard --remove
+            apt_remove wireguard
+            apt_autoremove
+            apt_install wireguard
+        fi
+        
     fi
 fi
