@@ -195,20 +195,6 @@ function build_libtorrent_rasterbar () {
     apt_install $LIST
     apt_autoremove
     install_fpm
-    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
-    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
-    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
-    #  for depend in $LIST; do
-    #    apt-get -qq -y install $depend >>"${log}" 2>&1
-    #  done
-    #else
-    #  cd /tmp
-    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
-    #  tar xf boost_1_62_0.tar.gz
-    #  cd boost_1_62_0
-    #  ./bootstrap.sh --prefix=/usr
-    #  ./b2 install
-    #fi
     noexec=$(grep "/tmp" /etc/fstab | grep noexec)
     if [[ -n $noexec ]]; then
         mount -o remount,exec /tmp
@@ -226,6 +212,7 @@ function build_libtorrent_rasterbar () {
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
         configure_args="-std=c++14"
         tag=" with c++14"
+        #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
         sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
     fi
     ./autotool.sh >>"${log}" 2>&1
