@@ -23,3 +23,16 @@ Pin-Priority: 500
 BPO
     done
 }
+
+function check_ubuntu_updates(){
+    codename=$(lsb_release -cs)
+    if grep -h "${codename}-updates" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
+        #If ${codename} updates in our sources.list or sources.list.d/* and not commented out, do nothing
+        :
+    else
+        echo "Enabling Ubuntu ${codename} recommended updates repository"
+        echo "deb http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+        echo "#deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+        apt_update
+    fi
+}
