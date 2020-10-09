@@ -149,10 +149,10 @@ function qbittorrent_chpasswd() {
     active=$(systemctl is-active qbittorent@${user})
     if dpkg --compare-versions ${qbtv} lt 4.2.0; then
         hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
-        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+        QBTWP="WebUI\\\Password_ha1=@ByteArray($hashed)"
     else
         hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
-        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+        QBTWP="WebUI\\\Password_PBKDF2=\"@ByteArray($hashed)\""
     fi
     systemctl stop qbittorrent@${user}
     sed -i "s|WebUI\\\Password.*|$QBTWP|g" /home/${user}/.config/qBittorrent/qBittorrent.conf
