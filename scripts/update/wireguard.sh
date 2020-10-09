@@ -22,9 +22,16 @@ if [[ -f /install/.wireguard.lock ]]; then
             fi
         fi
     elif [[ $codename =~ ("xenial"|"bionic") ]]; then
-        if grep -h "wireguard/wireguard" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
+        if grep -q "wireguard/wireguard" /etc/apt/sources.list{,.d/*}; then
             echo "Downgrading wireguard from PPA status to mainline"
-            apt-add-repository -y ppa:wireguard/wireguard --remove
+            filenames=($(grep -l "wireguard/wireguard" /etc/apt/sources.list{,.d/*}))
+            for file in "${filenames[@]}"; do
+                if [[ "$file" =~ sources\.list$ ]]; then
+                    sed -i '/wireguard\/wireguard/d' "${file}"
+                elif [[ "$file" =~ sources\.list\.d ]]; then
+                    rm -f "${file}"
+                fi
+            done
             apt_remove wireguard
             apt_autoremove
             apt_install wireguard
