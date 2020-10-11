@@ -1,5 +1,53 @@
 # Changelog
 
+## [2.6.0]
+
+## October 8, 2020
+
+### Added
+- Sonarr v3. Rejoice!
+- A couple new global depends (`box update` to get these)
+- `apt_install` now accepts `--no-recommends` as a parameter
+
+### Fixed
+- qBittorrent was going a little *too* happy when installing depends. qBit will not install recommended pacakges anymore when building.
+  - For folks running qbit already, three packages were identified as starting unnecessary services. The following packages are safe to stop their services and/or remove them as well if you had them installed through the qBit build pipeline. ***PLEASE DOUBLE CHECK THESE YOURSELF AND IF IN DOUBT DISABLE SERVICES BEFORE REMOVING THEM!!!!***
+    - avahi-daemon (Bonjour, aka, LAN Device Discovery)
+    - wpasupplicant (Used for configuring wifi access points)
+    - modemmanager (Used for configuring modems)
+- Fixed qBit password changing with `chpasswd`
+- Fixed force reannounce in the libtorrent 1.2 python binding
+- Transmission was improperly setting RPC port when adding multiple users
+- Fixed transmission watch directory creation
+- Wireguard will now output some debug info in the event of a `modprobe` failure
+- Ported python helper scripts to python3
+- Jackett complete removal
+- Specify `python2.7` as `python` and `python2` are not guaranteed to work under Ubuntu Focal Fossa
+- Usernames identified as causing conflicts have been blocked during setup. (i.e. `swizzin` and `admin`)
+
+## [2.5.1]
+
+## September 25, 2020
+
+This is a maintenance release for bugs discovered within the past few days
+
+### Fixed
+- Added a check for whether or not the new `apt_install` function is correctly sourced during updates. The updater will prompt you to restart if needed.
+  - This is because apt functions are now sourced in `box` rather than individual scripts. When running the update for the first time, box is using the outdated version which doesn't source `apt`. `apt` is correctly sourced on the next run.
+- Ensure Deluge and qBittorrent have nginx upstreams configured correctly when adding a new user. Deluge was a regression, qBittorrent was an oversight
+- Apt keys are now appropriately imported when installing x2go (apt function regression)
+- Removed `--skip-update` flag from apt function (it was made redundant)
+- Fixed the `skip_libtorrent_rasterbar` function for Deluge 1.3.* users
+- Various update script fixes and improvements (less apt spam, less random app restarts)
+- ruTorrent installer has been restructured to do less work when adding a new user
+- Wireguard fixes and improvements:
+  - Buster will now use backports. Stretch still uses unstable with adjusted pin priority.
+  - Improved default interface recognition
+  - Fixed non-default interface selection showing only one interface
+  - Install wireguard with recommended packages to ensure kernel headers are also installed (required for dkms builds)
+- rclone will now use `--allow-other` by default
+- rclone removal is now a bit more complete (will leave rclone config though)
+
 ## [2.5.0]
 
 ## September 22, 2020

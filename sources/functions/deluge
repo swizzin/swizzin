@@ -76,12 +76,16 @@ function build_deluge () {
         if [[ $release == "focal" ]]; then
           LIST='python2.7-dev intltool xdg-utils librsvg2-common'
           PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
+          pythonver=python2.7
+          distver=python2.7
+          args=
         else
           LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
+          pythonver=python2
+          distver=python2.7
+          args=
         fi
-        pythonver=python2
-        distver=python2.7
-        args=
+
       ;;
     esac
         apt_install $LIST

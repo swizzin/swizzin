@@ -9,9 +9,11 @@ function _get_next_port_from_json () {
     wasincreased='false'
 
     for d in /home/*/; do
+        value=""
         confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
-            value=$(grep \""$key"\" "$confpath" | tr -d -c 0-9)
+            paramrr=".[\"$key\"]"
+            value=$(jq -r "$paramrr" < "$confpath")
         fi
         if [[ -n $value ]]; then
             if [[ $value -ge $highestvalue ]]; then

@@ -75,13 +75,17 @@ if [[ $migrate == True ]]; then
     result=$(curl -s "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:${oldport}${oldbaseconv}&doMigrateDatabase=${database}")
     errors=$(echo $result | jq .error)
     if [[ $errors == null ]]; then
-        echo "  configMigrated: $(echo $result | jq .configMigrated)"
+        echo_info "  configMigrated: $(echo $result | jq .configMigrated)"
         if [[ $database == true ]]; then
-            echo "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
+            echo_info "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
         fi
         
+        echo_progress_done "No errors reported!"
+        #shellcheck disable=SC2162
+        echo_query "Press enter to continue setting up NZBHydra2"
+        read
     else
-        echo "Something appears to have gone wrong during the migration. Upgrader will now exit."
+        echo_error "Something appears to have gone wrong during the migration. Upgrader will now exit."
         echo "Error: $errors"
         cd /opt
         rm -rf nzbhydra2

@@ -61,11 +61,28 @@ _setenv_transmission(){
 
     . /etc/swizzin/sources/functions/utils
     [[ -z $rpc_password ]] && export rpc_password=$(_get_user_password ${user})
+
+    [[ -z $watch_dir ]] && export watch_dir='transmission/watch'
+    [[ -z $watch_dir_enabled ]] && export watch_dir_enabled="true"
 }
+
+_unsetenv_transmission(){
+    # unset download_dir
+    # unset incomplete_dir
+    # unset incomplete_dir_enabled
+    # unset rpc_whitelist
+    # unset rpc_whitelist_enabled
+    unset rpc_port
+    unset peer_port
+    unset rpc_password
+    # unset watch_dir
+    # unset watch_dir_enabled
+}
+
+
 
 _mkdir_transmission (){
     echo_progress_start "Creating directories for ${bold}$user"
-    _setenv_transmission 
     mkdir -p /home/${user}/${download_dir}
     chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
     mkdir -p /home/${user}/.config/transmission-daemon
@@ -78,13 +95,17 @@ _mkdir_transmission (){
         mkdir -p /home/${user}/${incomplete_dir}
         chown ${user}:${user} -R /home/${user}/${incomplete_dir%%/*}
     fi
-    echo_progress_done "Directories created"
 
+    if [[ $watch_dir_enabled = "true" ]]; then 
+        mkdir -p /home/${user}/${watch_dir}
+        chown ${user}:${user} -R /home/${user}/${watch_dir%%/*}
+    fi
+
+    echo_progress_done "Directories created"
 }
 
 _mkconf_transmission () {
     echo_progress_start "Creating config for ${bold}$user"
-    _setenv_transmission 
 cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
 {
     "alt-speed-down": 50,
@@ -157,7 +178,9 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
     "upload-limit": 100,
     "upload-limit-enabled": 0,
     "upload-slots-per-torrent": 14,
-    "utp-enabled": true
+    "utp-enabled": true,
+    "watch-dir": "/home/${user}/${watch_dir}",
+    "watch-dir-enabled": ${watch_dir_enabled}
 }
 EOF
     echo_progress_done "Config created"
@@ -190,9 +213,12 @@ users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -n $1 ]]; then
 	user=$1
     echo_info "Configuring transmission for ${bold}$user"
+    _setenv_transmission
 	_mkdir_transmission
     _mkconf_transmission
     _nginx_transmission
+    _unsetenv_transmission
+    _start_transmission
 	exit 0
 fi
 
@@ -210,11 +236,24 @@ fi
 _install_transmission
 _mkservice_transmission
 for user in ${users[@]}; do
+    echo_progress_start "Setting up transmission for $user"
+    _setenv_transmission
     _mkdir_transmission
     _mkconf_transmission
+    # _start_transmission
+    _unsetenv_transmission
+    echo_progress_done "Transmission set up for $user"
+done
+
+if [[ ! -f /install/.nginx.lock ]]; then
+    echo_progress_start "Creating nginx config"
+    _nginx_transmission
+    echo_progress_done
+fi
+
+for user in ${users[@]}; do
     _start_transmission
 done
-_nginx_transmission
 
 echo_success "Transmission installed"
 

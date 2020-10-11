@@ -25,8 +25,13 @@ function _dconf {
   DPORT=$((n%59000+10024))
   DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
   localpass=$(tr -dc 'a-f0-9' < /dev/urandom | fold -w 40 | head -n 1)
-  DWP=$(python2 ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
-  DUDID=$(python2 ${local_packages}/deluge.addHost.py)
+  if $(command -v python2.7 > /dev/null 2>&1); then
+    pythonversion=python2.7
+  elif $(command -v python3 > /dev/null 2>&1); then
+    pythonversion=python3
+  fi
+  DWP=$(${pythonversion} ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
+  DUDID=$(${pythonversion} ${local_packages}/deluge.addHost.py)
   # -- Secondary awk command -- #
   #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
   DWPORT=$(shuf -i 10001-11000 -n 1)
@@ -276,6 +281,10 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -n $1 ]]; then
   users=($1)
   _dconf
+  if [[ -f /install/.nginx.lock ]]; then
+    bash /etc/swizzin/scripts/nginx/deluge.sh $users
+    systemctl reload nginx
+  fi
   exit 0
 fi
 

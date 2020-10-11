@@ -72,7 +72,7 @@ function skip_libtorrent_rasterbar () {
         if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
             dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
             case $dver in
-                "1.3.*")
+                1.3.*)
                     deluge=1.3-stable
                 ;;
                 *)
@@ -173,6 +173,7 @@ function build_libtorrent_rasterbar () {
                 remove=python3-libtorrent
                 case $release in
                     "focal")
+                    pythonbin=python2.7
                     #python_configure_args="--with-boost-python=boost_python27"
                     LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
                     ;;
@@ -194,20 +195,6 @@ function build_libtorrent_rasterbar () {
     apt_install $LIST
     apt_autoremove
     install_fpm
-    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
-    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
-    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
-    #  for depend in $LIST; do
-    #    apt-get -qq -y install $depend >>"${log}" 2>&1
-    #  done
-    #else
-    #  cd /tmp
-    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
-    #  tar xf boost_1_62_0.tar.gz
-    #  cd boost_1_62_0
-    #  ./bootstrap.sh --prefix=/usr
-    #  ./b2 install
-    #fi
     noexec=$(grep "/tmp" /etc/fstab | grep noexec)
     if [[ -n $noexec ]]; then
         mount -o remount,exec /tmp
@@ -225,17 +212,22 @@ function build_libtorrent_rasterbar () {
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
         configure_args="-std=c++14"
         tag=" with c++14"
+        #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
         sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
     fi
     ./autotool.sh >>"${log}" 2>&1
     ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+    #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
+    #If not enabled, Deluge may not properly reannounce on unregistered torrents.
+    #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
     case $LTRC in
       RC_1_1)
         sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
       ;;
       RC_1_2)
-        sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
+        sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
+        #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
       ;;
     esac
     #If you wish to patch libtorrent with custom values (i.e. settings pack), simply ensure the patch exists at /root/libtorrent.patch) before starting the install and the patch will be applied to the branch selected.

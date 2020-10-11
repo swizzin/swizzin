@@ -46,7 +46,7 @@ function build_qbittorrent() {
         fi
         VERSION=${qbittorrent}
         LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
-        apt_install $LIST
+        apt_install --no-recommends $LIST
         cd /tmp
         rm_if_exists "/tmp/qbittorrent"
         wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
@@ -146,13 +146,17 @@ function qbittorrent_chpasswd() {
     password=$2
     local_packages=/usr/local/bin/swizzin
     qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    active=$(systemctl is-active qbittorent@${user})
     if dpkg --compare-versions ${qbtv} lt 4.2.0; then
         hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
-        QBTWP="WebUI\Password_ha1=@ByteArray($hashed)"
+        QBTWP="WebUI\\\Password_ha1=@ByteArray($hashed)"
     else
         hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
-        QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
+        QBTWP="WebUI\\\Password_PBKDF2=\"@ByteArray($hashed)\""
     fi
+    systemctl stop qbittorrent@${user}
     sed -i "s|WebUI\\\Password.*|$QBTWP|g" /home/${user}/.config/qBittorrent/qBittorrent.conf
-    systemctl try-restart qbittorrent@${user}
+    if [[ $active == "active" ]]; then
+        systemctl start qbittorrent@${user}
+    fi
 }
