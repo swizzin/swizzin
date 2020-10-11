@@ -21,10 +21,8 @@
 
 function _check_for_sonarr3 () {
     if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
-    echo
-    echo "WARNING: Found backups from before Sonarr v3 migration."
-    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
-    echo
+    echo_warn "Found backups from before Sonarr v3 migration."
+    echo_info "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
     #TODO implement restore procedure if user wants that to happen?
     #TODO check if unit is still masked. Unmaks it if that's the case.
   fi
@@ -38,27 +36,10 @@ function _check_for_sonarr3 () {
   fi
 
   if [[ $v3present == "true" ]]; then
-    echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
+    echo_error "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
     exit 1
   fi
 
-}
-
-function _installSonarrintro() {
-  # echo "Sonarr v3 is available as a separate application (sonarrv3)"
-  # . /etc/swizzin/sources/functions/ask
-  # if ! ask "Would you like to continue installing Sonarr v2?"; then
-  #   exit 0
-  # fi
-
-  echo "Sonarr will now be installed." >>"${log}" 2>&1;
-  echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
-  echo "Please wait until install is completed." >>"${log}" 2>&1;
-  # output to box
-  echo "Sonarr will now be installed."
-  echo "This process may take up to 2 minutes."
-  echo "Please wait until install is completed."
-  echo
 }
 
 function _installSonarr1() {
@@ -131,11 +112,8 @@ SONARR
 . /etc/swizzin/sources/functions/mono
 username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-
 
 _check_for_sonarr3
-_installSonarrintro
 _installSonarr1
 echo_progress_start "Adding source repositories for Sonarr-Nzbdrone ... ";_installSonarr2; echo_progress_done "Repositories added"
 echo_progress_start "Updating your system with new sources ... ";_installSonarr3; echo_progress_done
