@@ -83,7 +83,7 @@ if [[ ${cf} == yes ]]; then
   valid=$(curl -X GET "https://api.cloudflare.com/client/v4/user" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json")
   if [[ $valid == *"\"success\":false"* ]]; then
     message="API CALL FAILED. DUMPING RESULTS:\n$valid"
-    echo -e "$message"
+    echo_error "$message"
     exit 1
   fi
 
@@ -94,7 +94,7 @@ if [[ ${cf} == yes ]]; then
     addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
     if [[ $addrecord == *"\"success\":false"* ]]; then
       message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
-      echo -e "$message"
+      echo_error "$message"
       exit 1
     else
       message="DNS record added for $hostname at $ip"

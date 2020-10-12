@@ -32,10 +32,8 @@ else
   while [ -z "$password" ]; do
     echo_query "Please enter a mysql root password" "hidden"
     read -s 'pass1'
-    echo ""
     echo_query "Re-enter password to verify" "hidden"
     read -s 'pass2'
-    echo
     if [ $pass1 = $pass2 ]; then
        password=$pass1
     else

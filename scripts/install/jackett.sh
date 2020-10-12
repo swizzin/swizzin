@@ -115,4 +115,4 @@ echo_progress_done
 
 touch /install/.jackett.lock
 
-echo "Jackett Install Complete!" >> "$log" 2>&1;
+echo_success "Jackett installed"

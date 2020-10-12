@@ -21,7 +21,7 @@ function _install_mango () {
     wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
-        echo "Failed to download binary"
+        echo_error "Failed to download binary"
         exit 1
     fi
     echo_progress_done "Binary downloaded"
@@ -99,8 +99,7 @@ _addusers_mango () {
                 su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
             else
                 pass=$(openssl rand -base64 32)
-                echo "WARNING: $u's password too short for mango, please change the password using 'box chpasswd $u'"
-                echo "Mango account temporarily set up with the password '$pass'"
+                echo_warn "$u's password too short for mango, please change the password using 'box chpasswd $u'.\nMango account temporarily set up with the password '$pass'"
                 su $mangousr -c "$mangodir/mango admin user add -u $u -p $pass"
             fi
         fi

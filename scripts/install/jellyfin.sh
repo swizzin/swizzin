@@ -337,7 +337,6 @@ systemctl enable -q --now "jellyfin.service" 2>&1  | tee -a $log
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.jellyfin.lock"
 #
-# A helpful echo to the terminal.
 echo_success "Jellyfish installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
