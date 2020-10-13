@@ -1,9 +1,9 @@
 #!/bin/bash
 users=($(cut -d: -f1 < /etc/htpasswd))
-
+group="$(id -gn ${user})"
 for u in "${users[@]}"; do
   if [[ ! -f /etc/tmpfiles.d/${u}.conf ]]; then
-    echo "D /var/run/${u} 0750 ${u} ${u} -" >> /etc/tmpfiles.d/${u}.conf
+    echo "D /var/run/${u} 0750 ${u} ${group} -" >> /etc/tmpfiles.d/${u}.conf
     systemd-tmpfiles /etc/tmpfiles.d/${u}.conf --create
   fi
   if [[ -f /home/${u}/.rtorrent.rc ]]; then

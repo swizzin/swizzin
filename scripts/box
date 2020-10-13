@@ -202,6 +202,7 @@ function _list() {
 
 function _adduser {
   user=$2
+  group="$(id -gn ${user})"
   if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
@@ -259,7 +260,7 @@ function _adduser {
   fi
 
   if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
-  echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  echo "D /var/run/${user} 0750 ${user} ${group} -" >> /etc/tmpfiles.d/${user}.conf
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 
   for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
@@ -363,7 +364,7 @@ function _deluser {
 
   kill -9 $(lsof -t /home/${user})
   deluser --force --remove-home ${user}
-  groupdel ${user}
+  groupdel ${group}
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}
   rm -f /etc/tmpfiles.d/${user}.conf

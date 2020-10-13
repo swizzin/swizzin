@@ -75,12 +75,12 @@ function _preparation() {
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools coreutils >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
   if [[ $dev != "true" ]]; then 
-    git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+    git clone https://github.com/riptide981/swizzin.git /etc/swizzin >> ${log} 2>&1
   else
     echo "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN"
     echo "Instead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
@@ -161,6 +161,7 @@ function _adduser() {
       fi
     fi
   done
+  group="$(id -gn ${user})"
   echo "$user:$pass" > /root/.master.info
   if [[ -d /home/"$user" ]]; then
     echo "User directory already exists ... "
@@ -170,7 +171,7 @@ function _adduser() {
     htpasswd -b -c /etc/htpasswd $user $pass
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-    chown -R $user:$user /home/${user}
+    chown -R $user:$group /home/${user}
   else
     echo -e "Creating new user \e[1;95m$user\e[0m ... "
     useradd "${user}" -m -G www-data -s /bin/bash || { echo "There was an error creating the user ${user}. Please check your logs."; exit 1; }
@@ -182,7 +183,7 @@ function _adduser() {
   chmod 750 /home/${user}
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
   
-  echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  echo "D /run/${user} 0750 ${user} ${group} -" >> /etc/tmpfiles.d/${user}.conf
   
   systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 }

@@ -56,8 +56,8 @@ chmod -R 700 "$install_ffmpeg"
 # Removes the installation temporary folder as we no longer need it.
 rm -rf "$install_tmp" > /dev/null 2>&1
 #
-chown "${username}.${username}" -R "$install_dir"
-chown "${username}.${username}" -R "$install_ffmpeg"
+chown "${username}.${group}" -R "$install_dir"
+chown "${username}.${group}" -R "$install_ffmpeg"
 #
 systemctl start jellyfin
 #
