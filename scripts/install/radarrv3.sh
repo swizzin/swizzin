@@ -127,7 +127,7 @@ _radarrv02_flow(){
 }
 
 _install_radarrv3 () {
-    apt_install curl mediainfo 
+    apt_install curl mediainfo sqlite3
     echo "Installing Radarr v3 from sources" | tee -a $log
 
     radarrv3confdir="/home/$radarrv3owner/.config/Radarr"
@@ -188,6 +188,12 @@ EOF
         done
         echo "Upgrade finished"
     fi
+
+    #Ensures that local clients running over HTTPS don't need valid certs
+    sleep 5
+    systemctl stop radarr
+    sqlite3 "$radarrv3confdir"/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+    systemctl start radarr
 }
 
 _nginx_radarrv3 () {
