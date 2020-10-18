@@ -98,6 +98,11 @@ _radarrv02_flow(){
             fi
         fi
 
+        if [[ -d /root/swizzin/backups/radarrv02.bak ]]; then
+            echo "A v0.2 backup is already present, please (re)move it as the backup procedure will overwrite it."
+            exit 1
+        fi
+
         mkdir -p /root/swizzin/backups/
         echo "Copying files to a backup location"
         cp -R /home/"${radarrv02owner}"/.config/Radarr /root/swizzin/backups/radarrv02.bak
