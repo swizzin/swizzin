@@ -156,7 +156,7 @@ _install_sonarrv3 () {
     echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
-    apt_install sonarr
+    apt_install sonarr sqlite3
     touch /install/.sonarrv3.lock
     sleep 1
 
@@ -197,8 +197,8 @@ _install_sonarrv3 () {
 _nginx_sonarr () {
     if [[ -f /install/.nginx.lock ]]; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-        sleep 10
         echo "Installing nginx configuration" | tee -a $log
+        sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
     fi
