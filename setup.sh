@@ -30,10 +30,45 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
 fi
 
 #shellcheck disable=SC2154
-if [[ $dev = "true" ]]; then
+if [[ $unattend = "true" ]]; then
 	# If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
-	# You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
-	echo "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
+  # You can run `unattend=true bash /path/to/setup.sh` to enable the "dev mode"
+  echo "!!! Running unattended"
+
+  installlist=()
+  while test $# -gt 0
+    do
+        case "$1" in
+            --user) shift
+                user="$1"
+                echo "User = $user"
+                ;;
+            --pass) shift
+                pass="$1"
+                echo "Pass = $pass"
+                ;;
+            --dev) 
+                dev=true
+                ;;
+            -*) echo "Error: Invalid option: $1"
+                exit 1
+                ;;
+            *) installlist+=("$1")
+                ;;
+        esac
+        shift
+    done
+  #check Line 229 or something
+  priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+  for i in "${installlist[@]}"
+  do
+    #TODO check why this does not work, everything ends up in results2
+    if [[ " ${priority[@]} " =~ " ${value} " ]]; then
+      echo "$i" >> /root/results
+    else
+      echo "$i" >> /root/results2
+    fi
+  done
 fi
 
 _os() {
@@ -348,8 +383,12 @@ function _post() {
 _os
 _preparation
 _nukeovh
-_intro
+if [[ $unattend != "true" ]]; then
+  _intro
+fi
 _adduser
-_choices
+if [[ $unattend != "true" ]]; then 
+  _choices
+fi
 _install
 _post
