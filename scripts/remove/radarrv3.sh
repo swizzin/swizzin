@@ -1,6 +1,5 @@
 #!/bin/bash
-systemctl stop radarr
-systemctl disable radarr
+systemctl disable --now -q radarr
 rm -rf /etc/systemd/system/radarr.service
 systemctl daemon-reload -q
 rm -rf /opt/Radarr
