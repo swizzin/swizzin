@@ -14,6 +14,14 @@ fi
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+[[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
+
+if [[ -z $sonarrv3owner ]];then
+    sonarrv3owner=$(_get_master_username)
+fi;
+
+sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+
 #Handles existing v2 instances
 _sonarrv2_flow(){
     v2present=false
@@ -43,7 +51,6 @@ _sonarrv2_flow(){
                 address="http://127.0.0.1:8989/api"
             fi
 
-            [[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
             if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
                 echo "No Sonarr config folder found for $sonarrv2owner. Exiting" | tee -a $log
                 exit 1
@@ -91,7 +98,20 @@ _sonarrv2_flow(){
         echo "Copying files to a backup location"
         cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
         echo "Backups copied"
-        
+
+        if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then 
+            if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
+                rm -rf 
+                cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+
+            else
+                echo "Leaving v3 dir as is, why did we do any of this..."
+            fi
+        else
+            cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+        fi
+
+
         systemctl stop sonarr@"${sonarrv2owner}"
 
         # We don't have the debconf configuration yet so we can't migrate the data.
@@ -132,20 +152,9 @@ _add_sonarr_repos () {
 
 _install_sonarrv3 () {
     echo "Installing Sonarr v3 from apt" | tee -a $log
-    if [[ -z $sonarrv3owner ]];then
-        sonarrv3owner=$(_get_master_username)
-    fi;
-    sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+
     mkdir -p "$sonarrv3confdir"
     chown -R "$sonarrv3owner":"$sonarrv3owner" "$sonarrv3confdir"
-
-    # Migrate v2 data in if there is any
-    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
-        echo "Copying v2 data to be migrated during install"
-        cp /root/swizzin/backups/sonarrv2.bak "${sonarrv3confdir}" -R
-        chown "$sonarrv3owner":"$sonarrv3owner" "${sonarrv3confdir}"
-        echo "Data copied"
-    fi
 
     echo "Setting sonarr v3 owner to $sonarrv3owner" >> $log
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
