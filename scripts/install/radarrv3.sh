@@ -14,22 +14,38 @@ fi
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-#Handles existing v2 instances
+if [[ -z $radarrv3owner ]];then
+    radarrv3owner=$(_get_master_username)
+fi
+
+[[ -z $radarrv02owner ]] && radarrv02owner=$(_get_master_username)
+
+#Handles existing v0.2 instances
 _radarrv02_flow(){
-    v2present=false
+    v02present=false
     if [[ -f /install/.radarr.lock ]]; then
-        v2present=true
+        v02present=true
     fi
+
+    if [[ -f /etc/systemd/system/radarr.service ]]; then
+        v02present=true
+    fi
+
+    #Should match a v0.2 as those were on Mono
+    if [[ -f /opt/Radarr/Radarr.exe ]]; then
+        v02present=true
+    fi
+
     # TODO check /opt?
     # if dpkg -l | grep nzbdrone > /dev/null 2>&1 ; then
-    #     v2present=true
+    #     v02present=true
     # fi
 
-    if [[ $v2present == "true" ]]; then
+    if [[ $v02present == "true" ]]; then
         echo
-        echo "Radarr v2 is detected."
-        echo "Continuing will migrate your current v2 installation. This will stop and remove radarr v2." | tee -a $log
-        echo "You can read more about the migration at https://docs.swizzin.ltd/applications/radarrv3#migrating-from-v2"
+        echo "Radarr v0.2 is detected."
+        echo "Continuing will migrate your current v0.2 installation. This will stop and remove radarr v0.2." | tee -a $log
+        echo "You can read more about the migration at https://docs.swizzin.ltd/applications/radarrv3#migrating-from-v02"
         echo "An additional copy of the backup will be made into /root/swizzin/backups/radarrv02.bak/" | tee -a $log
         echo
         if ! ask "Do you want to continue?" N; then
@@ -44,13 +60,12 @@ _radarrv02_flow(){
                 address="http://127.0.0.1:7878/api"
             fi
 
-            [[ -z $radarrv2owner ]] && radarrv2owner=$(_get_master_username)
-            if [[ ! -d /home/"${radarrv2owner}"/.config/Radarr ]]; then
-                echo "No Radarr config folder found for $radarrv2owner. Exiting" | tee -a $log
+            if [[ ! -d /home/"${radarrv02owner}"/.config/Radarr ]]; then
+                echo "No Radarr config folder found for $radarrv02owner. Exiting" | tee -a $log
                 exit 1
             fi
 
-            apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${radarrv2owner}"/.config/Radarr/config.xml)
+            apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${radarrv02owner}"/.config/Radarr/config.xml)
             echo "apikey = $apikey" >> $log
 
             #This starts a backup on the current Radarr instance. The logic below waits until the query returns as "completed"
@@ -90,21 +105,24 @@ _radarrv02_flow(){
 
         mkdir -p /root/swizzin/backups/
         echo "Copying files to a backup location"
-        cp -R /home/"${radarrv2owner}"/.config/Radarr /root/swizzin/backups/radarrv02.bak
+        cp -R /home/"${radarrv02owner}"/.config/Radarr /root/swizzin/backups/radarrv02.bak
+
+        if [[ "${radarrv02owner}" != "${radarrv3owner}" ]]; then
+            echo "Copying config to new owner"
+            if [[ -d /home/$radarrv3owner/.config/Radarr ]]; then
+                rm -rf /home/"$radarrv3owner"/.config/Radarr
+            fi
+            mkdir -p /home/"${radarrv3owner}"/.config
+            cp -R /home/"${radarrv02owner}"/.config/Radarr /home/"$radarrv3owner"/.config/Radarr
+        else
+            echo "No need to migrate, users are the same" >> $log
+        fi
         echo "Backups copied"
         
         systemctl stop radarr
 
-        # We don't have the debconf configuration yet so we can't migrate the data.
-        # Instead we symlink so postinst knows where it's at.
-        # if [ -f "/usr/lib/sonarr/nzbdrone-appdata" ]; then
-        #     rm "/usr/lib/sonarr/nzbdrone-appdata"
-        # else
-        #     mkdir -p "/usr/lib/sonarr"
-        # fi
-
         echo "Removing Radarr v0.2" | tee -a $log
-        # shellcheck source=scripts/remove/sonarr.sh
+        # shellcheck source=scripts/remove/radarr.sh
         bash /etc/swizzin/scripts/remove/radarr.sh
         
     fi
@@ -113,30 +131,10 @@ _radarrv02_flow(){
 _install_radarrv3 () {
     apt_install curl mediainfo 
     echo "Installing Radarr v3 from sources" | tee -a $log
-    
-    if [[ -z $radarrv3owner ]];then
-        radarrv3owner=$(_get_master_username)
-    fi
 
     radarrv3confdir="/home/$radarrv3owner/.config/Radarr"
     mkdir -p "$radarrv3confdir"
     chown -R "$radarrv3owner":"$radarrv3owner" "$radarrv3confdir"
-
-    # Migrate v2 data in if there is any
-    if [[ -d /root/swizzin/backups/radarrv02.bak ]]; then
-        echo "Copying backed up v0.2 data to be migrated during install"
-        rm_if_exists "$radarrv3confdir"
-        cp /root/swizzin/backups/radarrv02.bak "${radarrv3confdir}" -R
-        chown -R "$radarrv3owner":"$radarrv3owner" "${radarrv3confdir}"
-        echo "Data copied"
-    fi
-
-    # echo "Setting sonarr v3 owner to $radarrv3owner" >> $log
-    # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-    # echo "sonarr sonarr/owning_user string ${radarrv3owner}" | debconf-set-selections
-    # echo "sonarr sonarr/owning_group string ${radarrv3owner}" | debconf-set-selections
-    # echo "sonarr sonarr/config_directory string ${radarrv3confdir}" | debconf-set-selections
-    # apt_install sonarr
 
     echo "Downloading source files"
     if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarrv3.tar.gz >> $log 2>&1; then
@@ -147,12 +145,6 @@ _install_radarrv3 () {
     tar -xvf /tmp/Radarrv3.tar.gz -C /opt >> $log 2>&1 
 
     touch /install/.radarrv3.lock
-    sleep 1
-
-    # if [[ ! -d /usr/lib/sonarr ]]; then
-    #     echo "ERROR: The Sonarr v3 pacakge did not install correctly. Please try again. (Is sonarr repo reachable?)"
-    #     exit 1
-    # fi
 
 cat > /etc/systemd/system/radarr.service <<EOF
 [Unit]
@@ -186,6 +178,7 @@ EOF
 systemctl daemon-reload
 systemctl enable --now -q radarr
 
+    sleep 1
 
 
 
@@ -208,17 +201,15 @@ _nginx_radarrv3 () {
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
         sleep 10
         echo "Installing nginx configuration" | tee -a $log
-        bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
+        bash /usr/local/bin/swizzin/nginx/radarrv3.sh
         systemctl reload nginx >> $log 2>&1
     fi
 }
 
 _radarrv02_flow
 _install_radarrv3
-# _add2usergroups_sonarrv3
 _nginx_radarrv3
 
-# touch /install/.sonarrv3.lock
 
 if [[ -f /install/.ombi.lock ]]; then
     echo "Please adjust your Ombi setup accordingly"
