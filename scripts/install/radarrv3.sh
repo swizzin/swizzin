@@ -36,11 +36,6 @@ _radarrv02_flow(){
         v02present=true
     fi
 
-    # TODO check /opt?
-    # if dpkg -l | grep nzbdrone > /dev/null 2>&1 ; then
-    #     v02present=true
-    # fi
-
     if [[ $v02present == "true" ]]; then
         echo
         echo "Radarr v0.2 is detected."
@@ -175,12 +170,9 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload
-systemctl enable --now -q radarr
-
+    systemctl daemon-reload
+    systemctl enable --now -q radarr
     sleep 1
-
-
 
     if [[ -f $radarrv3confdir/update_required ]]; then 
         echo "Radarr is installing an upgrade..."
@@ -195,7 +187,6 @@ systemctl enable --now -q radarr
     fi
 }
 
-
 _nginx_radarrv3 () {
     if [[ -f /install/.nginx.lock ]]; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
@@ -209,7 +200,6 @@ _nginx_radarrv3 () {
 _radarrv02_flow
 _install_radarrv3
 _nginx_radarrv3
-
 
 if [[ -f /install/.ombi.lock ]]; then
     echo "Please adjust your Ombi setup accordingly"
