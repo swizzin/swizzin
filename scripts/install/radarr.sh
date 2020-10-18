@@ -20,6 +20,23 @@
 function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
 #################################################################################
 
+function _check_for_radarr3 () {
+    if [[ -d /root/swizzin/backups/radarrv02.bak ]]; then 
+    echo
+    echo "WARNING: Found backups from before Radarr v3 migration."
+    echo "Follow these steps post-install https://github.com/Radarr/Radarr/wiki/Backup-and-Restore in case you're trying to go back."
+    echo
+    #TODO implement restore procedure if user wants that to happen?
+    #TODO check if unit is still masked. Unmaks it if that's the case.
+  fi
+  
+  if [[ -f /install/.radarrv3.lock ]]; then 
+    echo "Radarr v3 detected. If you want to proceed installing Radarr v0.2, please remove Radarr v3 first."
+    exit 1
+  fi
+
+}
+
 function _installRadarrIntro() {
   echo "Radarr will now be installed." >>"${OUTTO}" 2>&1;
   echo "This process may take up to 2 minutes." >>"${OUTTO}" 2>&1;
@@ -116,6 +133,7 @@ version=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/mono
 ip=$(curl -s http://whatismyip.akamai.com)
 
+_check_for_radarr3
 _installRadarrIntro
 echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
 echo "Installing Radar ... " >>"${OUTTO}" 2>&1;_installRadarrCode
