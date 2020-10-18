@@ -60,6 +60,8 @@ if [[ $unattend = "true" ]]; then
     done
   #check Line 229 or something
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+  touch /root/results
+  touch /root/results2
   for i in "${installlist[@]}"
   do
     #TODO check why this does not work, everything ends up in results2
