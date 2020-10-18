@@ -77,7 +77,6 @@ _radarrv02_flow(){
                 fi
             else
                 echo "Radarr backup Job ID = $id, waiting to finish" >> $log
-
                 status=""
                 counter=0
                 while [[ $status =~ ^(queued|started|)$ ]]; do
@@ -124,7 +123,6 @@ _radarrv02_flow(){
         echo "Removing Radarr v0.2" | tee -a $log
         # shellcheck source=scripts/remove/radarr.sh
         bash /etc/swizzin/scripts/remove/radarr.sh
-        
     fi
 }
 

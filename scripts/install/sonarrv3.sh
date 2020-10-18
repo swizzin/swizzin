@@ -73,7 +73,6 @@ _sonarrv2_flow(){
                 fi
             else
                 echo "Sonarr backup Job ID = $id, waiting to finish" >> $log
-
                 status=""
                 counter=0
                 while [[ $status =~ ^(queued|started|)$ ]]; do
@@ -103,14 +102,12 @@ _sonarrv2_flow(){
             if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
                 rm -rf 
                 cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
-
             else
                 echo "Leaving v3 dir as is, why did we do any of this..."
             fi
         else
             cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
         fi
-
 
         systemctl stop sonarr@"${sonarrv2owner}"
 
@@ -125,7 +122,6 @@ _sonarrv2_flow(){
         echo "Removing Sonarr v2" | tee -a $log
         # shellcheck source=scripts/remove/sonarr.sh
         bash /etc/swizzin/scripts/remove/sonarr.sh
-        
     fi
 }
 
@@ -147,7 +143,6 @@ _add_sonarr_repos () {
         echo "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
         exit 1
     fi
-
 }
 
 _install_sonarrv3 () {
