@@ -46,7 +46,7 @@ cat > /home/"$user"/.config/Radarr/config.xml <<SONN
 SONN
 
 if [[ -f  /install/.rutorrent.lock ]]; then
-  sqlite3 /home/"$user"/.config/Radarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+  sqlite3 /home/"$user"/.config/Radarr/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
 fi
 
 chown -R "$user":"$user" /home/"$user"/.config/Radarr

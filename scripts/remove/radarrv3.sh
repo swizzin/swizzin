@@ -10,4 +10,3 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 rm -rf /install/.radarrv3.lock
-echo "Radarr uninstalled!"
