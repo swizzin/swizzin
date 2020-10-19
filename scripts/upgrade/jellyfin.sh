@@ -61,8 +61,8 @@ chown "${username}.${username}" -R "$install_ffmpeg"
 #
 systemctl start jellyfin
 #
-echo -e "\nJellyfin upgrade completed and service restarted\n"
+echo_success "Jellyfin upgrade completed and service restarted"
 #
-echo -e "Please visit https://$ip_address/jellyfin\n"
+echo_info "Please visit https://$ip_address/jellyfin"
 #
 exit

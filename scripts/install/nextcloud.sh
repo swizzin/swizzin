@@ -24,7 +24,7 @@ read -s 'nextpass'
 echo
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
-  echo_warn "Existing mysql server detected!\n"
+  echo_warn "Existing mysql server detected!"
   echo_query "Please enter mysql root password so that installation may continue." "hidden"
   read -s 'password'
   echo
