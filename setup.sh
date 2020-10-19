@@ -72,11 +72,14 @@ while test $# -gt 0
         esac
         shift
     done
-#check Line 229 or something
-if [[ ${#installlist[@]} -gt 0 ]]; then 
-  priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+if [[ $unattend = "true" ]]; then 
   touch /root/results
   touch /root/results2
+fi
+
+if [[ ${#installlist[@]} -gt 0 ]]; then 
+  #check Line 229 or something
+  priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${installlist[@]}"
   do
     #TODO check why this does not work, everything ends up in results2
