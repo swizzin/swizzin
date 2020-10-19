@@ -14,37 +14,31 @@ Swizzin is a light, modular seedbox solution that can be installed on Debian 9/1
 Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
 
 ## Installation
-You've got two options: one offers to hold your hand and helps you choose everything you need to get going, and the other hands you a form for you to pre-fill and will take care of everything for you without asking you a single thing. 
-
-You can see here which one works for you better. Unless you absolutely _need_ the custom options, use the Quick start method.
+You can either use the quick installation method (recommended) or you can wile out with installations options using the advanced setup.
 ### Quick Start:
-Just paste this in your terminal and go! Use your arrow keys, tab (to go to next field), space (to select) and enter (to confirm) to navigate the interactive boxes. This will ask you all the necessary questions to get you set up. You can take a look at how that looks here
+Just paste this in your terminal and go! This will ask you all the necessary questions to get you set up. Use your arrow keys, tab (to go to next field), space (to select) and enter (to confirm) to navigate the interactive boxes.
+
+You can see what that looks like here:
 
 [![asciicast](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv.svg)](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv)
 
-wget
-```shell
+Using `wget`:
+```
 bash <(wget -qO - git.io/swizzin)
 ```
 
-curl
-```shell
-bash <(curl -sL git.io/swizzin)
+Using `curl`:
+```
+bash <(curl -s  git.io/swizzin)
 ```
 
-Please note that if you are running Ubuntu and choose to run the initial setup though `sudo` you should include the `-H` argument to ensure that your home directory is modified to /root when you sudo up. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command.
-
-Example:
-
-```shell
+**Please note**: If you are running Ubuntu and use `sudo` for the installation you should include the `-H` argument to ensure that your home directory is modified to /root. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command. For example:
+```
 sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
-sudo -H su -c 'bash <(wget -O- -q https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)'
-```
 
-### Advanced start:
-
-There's a whole bunch of options for using the setup.sh in custom/unattended ways, all of which you can read about [in this article](https://docs.swizzin.ltd/guides/advanced-setup).
+### Advanced setup:
+There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://docs.swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
 
 Want to use your local swizzin clone instead of cloning upstream? Use the `--dev` flag!
 ```bash
@@ -57,7 +51,7 @@ Want to specify the user and their password? And the packages to have installed?
 bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) rtorrent nginx panel --user tester --pass test1234 
 ```
 
-Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file!. We give you an example of one in [unattended.example.env](unattended.example.env) file.
+Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file! (see the [unattended.example.env](unattended.example.env) file for an example)
 ```bash
 bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) --env /path/to/your/env/file/here.env
 ```
