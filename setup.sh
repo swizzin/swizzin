@@ -29,8 +29,8 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
 	read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
 
-  # installlist=()
-  while test $# -gt 0
+RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
+while test $# -gt 0
     do
         case "$1" in
             --user) shift
@@ -72,8 +72,8 @@ fi
         esac
         shift
     done
-  #check Line 229 or something
-  if [[ ${#installlist[@]} -gt 0 ]]; then 
+#check Line 229 or something
+if [[ ${#installlist[@]} -gt 0 ]]; then 
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   touch /root/results
   touch /root/results2
@@ -88,7 +88,7 @@ fi
       echo "$i" added to install queue 2
     fi
   done
-  fi
+fi
 
 _os() {
 	if [ ! -d /install ]; then mkdir /install; fi
