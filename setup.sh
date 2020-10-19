@@ -240,7 +240,7 @@ function _choices() {
   fi
   if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/libtorrent
-    check_client_compatibility
+    check_client_compatibility setup
     whiptail_libtorrent_rasterbar
     export SKIP_LT=True
   fi
