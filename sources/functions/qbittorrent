@@ -28,6 +28,8 @@ function whiptail_qbittorrent () {
         export qbittorrent=repo
     elif [[ $function == "4.1" ]]; then
         export qbittorrent=${latestv41}
+    elif [[ $function == "4.2" ]]; then
+        export qbittorrent=${latestv42}
     elif [[ $function == "Latest" ]]; then
         export qbittorrent=${latestv}
     fi
