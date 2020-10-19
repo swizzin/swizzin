@@ -149,6 +149,8 @@ function skip_libtorrent_rasterbar () {
                     return
                 elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
+                elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
+                    false; return
                 elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
