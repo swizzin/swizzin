@@ -48,7 +48,7 @@ sudo bash swizzin/setup.sh --dev
 
 Want to specify the user and their password? And the packages to have installed? Use the `--user` and `--pass` flags, and add packages as arguments!
 ```bash
-bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) rtorrent nginx panel --user tester --pass test1234 
+bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) qbittorrent nginx panel --user tester --pass test1234 
 ```
 
 Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file! (see the [unattended.example.env](unattended.example.env) file for an example)
