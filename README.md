@@ -40,10 +40,10 @@ sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ### Advanced setup
 There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://docs.swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
 
-Want to use your local swizzin clone instead of cloning upstream? Use the `--dev` flag!
+Want to use your local swizzin clone instead of cloning upstream? Use the `--local` flag!
 ```bash
 git clone https://github.com/<your-fork>/swizzin.git
-sudo bash swizzin/setup.sh --dev
+sudo bash swizzin/setup.sh --local
 ```
 
 Want to specify the user and their password? And the packages to have installed? Use the `--user` and `--pass` flags, and add packages as arguments!

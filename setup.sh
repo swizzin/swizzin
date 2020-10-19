@@ -43,9 +43,9 @@ while test $# -gt 0
                 echo "Pass = $pass"
                 unattend=true
                 ;;
-            --dev) 
-                dev=true
-                echo "Dev = $dev"
+          --local) 
+              localInstall=true
+              echo "Local = $localInstall"
                 ;;
             --env) shift
                 if [[ -f $1 ]]; then
@@ -136,7 +136,7 @@ function _preparation() {
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
 	echo "Cloning swizzin repo to localhost"
-	if [[ $dev != "true" ]]; then
+  if [[ $localInstall != "true" ]]; then 
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
