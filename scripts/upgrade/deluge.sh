@@ -17,6 +17,7 @@ fi
 
 whiptail_deluge
 check_client_compatibility
+whiptail_deluge_downupgrade
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
   echo "Major version upgrade detected. User-data will be backed-up."
