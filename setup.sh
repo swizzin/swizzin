@@ -29,28 +29,41 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
 	read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
 
-#shellcheck disable=SC2154
-if [[ $unattend = "true" ]]; then
-	# If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
-  # You can run `unattend=true bash /path/to/setup.sh` to enable the "dev mode"
-  echo "!!! Running unattended"
-
-  installlist=()
+  # installlist=()
   while test $# -gt 0
     do
         case "$1" in
             --user) shift
                 user="$1"
                 echo "User = $user"
+                unattend=true
                 ;;
             --pass) shift
                 pass="$1"
                 echo "Pass = $pass"
+                unattend=true
                 ;;
             --dev) 
                 dev=true
                 echo "Dev = $dev"
                 ;;
+            --env) shift
+                if [[ -f $1 ]]; then
+                  echo "Parsing env variables from $1"
+                  echo -n "---> "
+                  export $(grep -v '^#' $1 | xargs -t -d '\n')
+                  if [[ -n $packagelist ]]; then
+                    readarray -td: installlist < <(printf '%s' "$packagelist")
+                  fi
+                  unattend=true
+                else
+                  echo "File does not exist"
+                  exit 1
+                fi
+                ;;
+            --unattend) 
+                unattend=true
+            ;;
             -*) echo "Error: Invalid option: $1"
                 exit 1
                 ;;
@@ -60,6 +73,7 @@ if [[ $unattend = "true" ]]; then
         shift
     done
   #check Line 229 or something
+  if [[ ${#installlist[@]} -gt 0 ]]; then 
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   touch /root/results
   touch /root/results2
@@ -74,7 +88,7 @@ if [[ $unattend = "true" ]]; then
       echo "$i" added to install queue 2
     fi
   done
-fi
+  fi
 
 _os() {
 	if [ ! -d /install ]; then mkdir /install; fi
