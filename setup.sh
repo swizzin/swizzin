@@ -43,6 +43,11 @@ while test $# -gt 0
                 echo "Pass = $pass"
                 unattend=true
                 ;;
+          --domain) shift
+              export LE_hostname="$1"
+              export LE_defaultconf=yes
+              echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf"
+              ;;
           --local) 
               localInstall=true
               echo "Local = $localInstall"
