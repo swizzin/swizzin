@@ -1,36 +1,35 @@
 #!/usr/bin/env bash
 #
+. /etc/swizzin/sources/functions/utils
 # Set the required variables
-username="$(cat /root/.master.info | cut -d: -f1)"
+log="/root/logs/swizzin.log"
+username="$(_get_master_username)"
 #
 # A functions for reused commands.
 function reused_commands () {
-    sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
-    sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i "/home/${username}/.config/Jellyfin/config/system.xml"
+    sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i "/etc/jellyfin/system.xml"
+    sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i "/etc/jellyfin/system.xml"
+    chown jellyfin:jellyfin "/etc/jellyfin/system.xml"
 }
 #
 # Do this for jellyfin if is not already installed
 if [[ ! -f /install/.jellyfin.lock ]]; then
-    app_port_http="$1"
-    app_port_https="$2"
-    #
     reused_commands
 fi
 #
 # Do this for jellyfin if is already installed
 if [[ -f /install/.jellyfin.lock ]]; then
-    systemctl stop jellyfin
-    app_port_https="$(sed -rn 's#(.*)<HttpsPortNumber>(.*)</HttpsPortNumber>#\2#p' "/home/${username}/.config/Jellyfin/config/system.xml")"
-    #
+    systemctl -q stop "jellyfin.service"
+	#
     reused_commands
     #
-    systemctl start jellyfin
+    systemctl -q start "jellyfin.service"
 fi
 #
 # Create our nginx application conf for jellyfin
-cat > /etc/nginx/apps/jellyfin.conf <<-NGINGCONF
+cat > /etc/nginx/apps/jellyfin.conf <<-NGINXCONF
 location /jellyfin {
-    proxy_pass https://127.0.0.1:${app_port_https};
+    proxy_pass https://127.0.0.1:8920;
     #
     proxy_pass_request_headers on;
     #
@@ -53,4 +52,4 @@ location /jellyfin {
     proxy_buffering                         off;
     auth_basic                              off;
 }
-NGINGCONF
+NGINXCONF

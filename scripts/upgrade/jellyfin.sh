@@ -1,68 +1,88 @@
 #!/usr/bin/env bash
 #
-# authors: liara userdocs
+. /etc/swizzin/sources/functions/apt
+. /etc/swizzin/sources/functions/utils
 #
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-# Get our exertnal IP 4 address and set it as a variable.
-ip_address="$(curl -s4 icanhazip.com)"
-#
-# Define the location where we want the application installed
-install_dir="/opt/jellyfin"
-#
-# Define the location where we want ffmpeg installed.
-install_ffmpeg="/opt/ffmpeg"
-#
-# Set an installation temporay directory.
-install_tmp="/tmp/jellyfin"
+# Get our main user credentials using a util function.
+username="$(_get_master_username)"
 #
 if [[ ! -f /install/.jellyfin.lock ]]; then
   echo "Jellyfin doesn't appear to be installed. What do you hope to accomplish by running this script?"
   exit 1
 fi
 #
-# Stop the jellyfin service
-systemctl stop jellyfin
+# disable the service to make usre the mosrt up to date and correct service file is installed via apt.
+systemctl -q stop "jellyfin.service"
 #
-# Create the required directories for this application.
-mkdir -p "$install_dir"
-mkdir -p "$install_ffmpeg"
-mkdir -p "$install_tmp"
+## legacy start
 #
-# Download and extract the files to the defined location.
-baseurl=$(curl -s https://repo.jellyfin.org/releases/server/linux/stable/ | grep -Po "href=[\'\"]\K.*?(?=['\"])" | grep combined | grep -v sha256)
-wget -qO "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" > /dev/null 2>&1
-#wget -qO "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" > /dev/null 2>&1
-tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" > /dev/null 2>&1
+# remove the old service and remove legacy files.
+if [[ -f /etc/systemd/system/jellyfin.service ]]; then
+	systemctl -q disable --now "jellyfin.service"
+	rm -f "/etc/systemd/system/jellyfin.service"
+	kill -9 $(ps xU ${username} | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') >/dev/null 2>&1
+	[[ -d "/opt/jellyfin" ]] && rm -rf "/opt/jellyfin" | :
+	[[ -d "/opt/ffmpeg" ]] && rm -rf "/opt/ffmpeg" | :
+fi
 #
-# Download the FFmpeg prebuilt binary to the installation temporary directory
-wget -qO "$install_tmp/ffmpeg.tar.xz" "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+# data migration to default locations.
+if [[ -d /home/${username}/.config/Jellyfin/config ]]; then
+	mkdir -p /etc/jellyfin
+	mkdir -p /var/lib/jellyfin/{data,root,metadata}
+	#
+	[[ -d "/home/${username}/.config/Jellyfin/config" ]] && cp -fRT "/home/${username}/.config/Jellyfin/config" "/etc/jellyfin" | :
+	[[ -f "/etc/jellyfin/encoding.xml" ]] && rm -f "/etc/jellyfin/encoding.xml" || :
+	[[ -d "/home/${username}/.config/Jellyfin/data" ]] && cp -fRT "/home/${username}/.config/Jellyfin/data" "/var/lib/jellyfin/data" | :
+	[[ -d "/home/${username}/.config/Jellyfin/metadata" ]] && cp -fRT "/home/${username}/.config/Jellyfin/metadata" "/var/lib/jellyfin/metadata" | :
+	[[ -d "/home/${username}/.config/Jellyfin/root" ]] && cp -fRT "/home/${username}/.config/Jellyfin/root" "/var/lib/jellyfin/root" | :
+	#
+    sed -r 's#<PublicPort>(.*)</PublicPort>#<PublicPort>8096</PublicPort>#g' -i "/etc/jellyfin/system.xml"
+    sed -r 's#<PublicHttpsPort>(.*)</PublicHttpsPort>#<PublicHttpsPort>8920</PublicHttpsPort>#g' -i "/etc/jellyfin/system.xml"
+    sed -r 's#<HttpServerPortNumber>(.*)</HttpServerPortNumber>#<HttpServerPortNumber>8096</HttpServerPortNumber>#g' -i "/etc/jellyfin/system.xml"
+    sed -r 's#<HttpsPortNumber>(.*)</HttpsPortNumber>#<HttpsPortNumber>8920</HttpsPortNumber>#g' -i "/etc/jellyfin/system.xml"
+	sed -r 's#<RequireHttps>false</RequireHttps>#<RequireHttps>true</RequireHttps>#g' -i "/etc/jellyfin/system.xml"
+	#
+	if [[ -f /etc/nginx/apps/jellyfin.conf ]]; then
+		sed -r 's#proxy_pass https://127.0.0.1:(.*);#proxy_pass https://127.0.0.1:8920;#g' -i "/etc/nginx/apps/jellyfin.conf"
+		systemctl -q restart "nginx.service"
+	fi
+	#
+    [[ -d "/home/${username}/.config/Jellyfin" ]] && rm -rf "/home/${username}/.config/Jellyfin" | :
+    [[ -d "/home/${username}/.cache/jellyfin" ]] && rm -rf "/home/${username}/.cache/jellyfin" | :
+    [[ -d "/home/${username}/.aspnet" ]] && rm -rf "/home/${username}/.aspnet" | :
+fi
 #
-# Get the top level dir of the archive so we don't need to guess the dir name in future commands
-ffmpeg_dir_name="$(tar tf "$install_tmp/ffmpeg.tar.xz" | head -1 | cut -f1 -d"/")"
+## legacy end
 #
-# Extract the archive to the to the installation temporary directory
-tar xf "$install_tmp/ffmpeg.tar.xz" -C "$install_tmp"
+# Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
+wget -q -O - https://repo.jellyfin.org/debian/jellyfin_team.gpg.key | sudo apt-key add -
+echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$(. /etc/os-release; echo $ID) $(lsb_release -cs) main" > /etc/apt/sources.list.d/jellyfin.list
 #
-# Removes files we don't need before copying to the ffmpeg installation directory.
-rm -rf "$install_tmp/$ffmpeg_dir_name"/{manpages,model,GPLv3.txt,readme.txt}
+# install jellyfin and jellyfin-ffmepg using apt functions. 
+apt_update #forces apt refresh
+apt_install jellyfin jellyfin-ffmpeg
 #
-# Copy the required binaries to the ffmpeg installation folder.
-cp "$install_tmp/$ffmpeg_dir_name"/* "$install_ffmpeg"
+# Configure the new jellyfin service.
+systemctl -q stop "jellyfin.service"
 #
-# Set the correct permissions
-chmod -R 700 "$install_ffmpeg"
+# Add the jellyfin user to the master user's group to use our ssl certs.
+usermod -a -G ${username} jellyfin
 #
-# Removes the installation temporary folder as we no longer need it.
-rm -rf "$install_tmp" > /dev/null 2>&1
+# Set the correct and required permissions of any directories we created or modified.
+[[ -d "/home/${username}/.ssl" ]] && chown "${username}.${username}" -R "/home/${username}/.ssl" || :
+[[ -d "/home/${username}/.ssl" ]] && chmod -R g+r "/home/${username}/.ssl" || :
 #
-chown "${username}.${username}" -R "$install_dir"
-chown "${username}.${username}" -R "$install_ffmpeg"
+# Set the default permissions after we have migrated our data
+[[ -d "/etc/jellyfin" ]] && chown -R jellyfin:jellyfin "/etc/jellyfin" || :
+[[ -f "/etc/jellyfin/logging.json" ]] && chown jellyfin:root "/etc/jellyfin/logging.json" || :
+[[ -d "/etc/jellyfin" ]] && chown jellyfin:adm "/etc/jellyfin" || :
+[[ -d "/var/lib/jellyfin" ]] && chown -R jellyfin:jellyfin "/var/lib/jellyfin" || :
+[[ -d "/var/lib/jellyfin" ]] && chown jellyfin:adm "/var/lib/jellyfin" || :
 #
-systemctl start jellyfin
+# Reload systemd and start the service.
+systemctl -q daemon-reload
+systemctl -q start "jellyfin.service"
 #
 echo -e "\nJellyfin upgrade completed and service restarted\n"
-#
-echo -e "Please visit https://$ip_address/jellyfin\n"
 #
 exit
