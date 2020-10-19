@@ -58,7 +58,7 @@ while test $# -gt 0
                   echo -n "---> "
                   export $(grep -v '^#' $1 | xargs -t -d '\n')
                   if [[ -n $packagelist ]]; then
-                    readarray -td: installlist < <(printf '%s' "$packagelist")
+                  readarray -td: installList < <(printf '%s' "$packagelist")
                   fi
                   unattend=true
                 else
@@ -72,7 +72,7 @@ while test $# -gt 0
             -*) echo "Error: Invalid option: $1"
                 exit 1
                 ;;
-            *) installlist+=("$1")
+          *) installList+=("$1")
                 ;;
         esac
         shift
@@ -82,12 +82,13 @@ if [[ $unattend = "true" ]]; then
   touch /root/results2
 fi
 
-if [[ ${#installlist[@]} -gt 0 ]]; then 
+if [[ ${#installList[@]} -gt 0 ]]; then
+  echo "Application install picker will be skipped"
   #check Line 229 or something
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
-  for i in "${installlist[@]}"
+  for i in "${installList[@]}"
   do
-    #TODO check why this does not work, everything ends up in results2
+    #shellcheck disable=SC2199,SC2076
     if [[ " ${priority[@]} " =~ " ${i} " ]]; then
       echo "$i" >> /root/results
       echo "$i" added to install queue 1
@@ -419,7 +420,7 @@ if [[ $unattend != "true" ]]; then
   _intro
 fi
 _adduser
-if [[ $unattend != "true" ]]; then 
+if [[ $unattend != "true" ]] || [[ -n $installList ]]; then 
   _choices
 fi
 _install
