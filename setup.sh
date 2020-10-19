@@ -271,7 +271,7 @@ function _choices() {
 	extras=()
 	guis=()
 	#locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-	locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota transmission)
 	for i in "${locks[@]}"; do
 		app=${i}
 		if [[ ! -f /install/.$app.lock ]]; then
@@ -321,6 +321,11 @@ function _choices() {
 		. /etc/swizzin/sources/functions/qbittorrent
 		whiptail_qbittorrent
 	fi
+  if grep -q transmission "$results"; then
+    #shellcheck source=sources/functions/transmission
+    . /etc/swizzin/sources/functions/transmission
+    whiptail_transmission_source
+  fi
 	if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
 		. /etc/swizzin/sources/functions/libtorrent
 		check_client_compatibility setup

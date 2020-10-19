@@ -30,7 +30,8 @@ function _get_next_port_from_json() {
 	echo "$highestvalue"
 }
 
-function _getversion() {
+
+function whiptail_transmission_source () {
 	if [[ -z $arg_transmissionsource ]]; then
 		distribution=$(lsb_release -is)
 		if [[ $distribution =~ "Ubuntu" ]]; then
@@ -47,8 +48,8 @@ function _getversion() {
 
 }
 
-function _install_transmission() {
-	_getversion
+function _install_transmission () {
+    whiptail_transmission_source
 	distribution=$(lsb_release -is)
 	if [[ $version = "PPA" ]]; then
 		if [[ ! $distribution =~ 'Ubuntu' ]]; then
