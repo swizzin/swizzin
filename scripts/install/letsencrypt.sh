@@ -18,36 +18,51 @@ fi
 . /etc/swizzin/sources/functions/letsencrypt
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
-echo_query "Enter domain name to secure with LE"
-read -e hostname
+if [[ -z $LE_hostname ]]; then 
+	echo -e "Enter domain name to secure with LE"
+	read -e hostname
+else 
+	hostname=$LE_hostname
+fi
 
-echo_query "Do you want to apply this certificate to your swizzin default conf?" "y/n"
-read yn
-case $yn in
-	[Yy])
+if [[ -z $LE_defaultconf ]]; then 
+    read -p "Do you want to apply this certificate to your swizzin default conf? (y/n) " yn
+    case $yn in
+        [Yy] )
 		main=yes
 		;;
 	[Nn])
 		main=no
 		;;
-	*) echo_warn "Please answer (y)es or (n)o." ;;
-esac
+        * ) echo "Please answer (y)es or (n)o.";;
+    esac
+else
+    main=$LE_defaultconf
+fi
 
 if [[ $main == yes ]]; then
 	sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-echo_query "Is your DNS managed by CloudFlare?" "y/n"
-read yn
-case $yn in
-	[Yy])
+if [ -n $LE_cf_api ] || [ -n $LE_cf_email ] || [ -n $LE_cf_zone ] ; then 
+    LE_bool_cf=yes
+fi
+
+if [[ -z $LE_bool_cf ]]; then 
+    read -p "Is your DNS managed by CloudFlare? (y/n) " yn
+    case $yn in
+        [Yy] )
 		cf=yes
 		;;
 	[Nn])
 		cf=no
 		;;
-	*) echo_warn "Please answer (y)es or (n)o." ;;
-esac
+        * ) echo "Please answer (y)es or (n)o.";;
+    esac
+else
+    [[ $LE_bool_cf = "yes" ]] && cf=yes
+    [[ $LE_bool_cf = "no" ]] && cf=no
+fi
 
 if [[ ${cf} == yes ]]; then
 
@@ -56,8 +71,12 @@ if [[ ${cf} == yes ]]; then
 		exit 1
 	fi
 
-	echo_query "Does the record for this subdomain already exist?" "y/n"
-	read yn
+    if [[ -n $LE_cf_zone ]]; then
+        LE_cf_bool_zone=yes
+    fi
+
+    if [[ -z $LE_cf_bool_zone ]]; then
+        read -p "Does the record for this subdomain already exist? (y/n) " yn
 	case $yn in
 		[Yy])
 			record=yes
@@ -69,12 +88,24 @@ if [[ ${cf} == yes ]]; then
 			echo_warn "Please answer (y)es or (n)o."
 			;;
 	esac
+    else
+        [[ $LE_bool_cf = "yes" ]] && cf=yes
+        [[ $LE_bool_cf = "no" ]] && cf=no
+    fi
 
-	echo_query "Enter CF API key"
+    if [[ -z $LE_cf_api ]]; then 
+        echo -e "Enter CF API key"
 	read -e api
+    else 
+        api=$LE_cf_api
+    fi
 
-	echo_query "CF Email"
+    if [[ -z $LE_cf_email ]]; then 
+        echo -e "CF Email"
 	read -e email
+    else 
+        api=$LE_cf_email
+    fi
 
 	export CF_Key="${api}"
 	export CF_Email="${email}"
@@ -87,9 +118,15 @@ if [[ ${cf} == yes ]]; then
 	fi
 
 	if [[ ${record} == no ]]; then
-		echo_query "Zone Name" "e.g example.com"
-		read -e zone
-		zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
+
+        if [[ -z $LE_cf_zone ]]; then 
+            echo -e "Zone Name (example.com)"
+            read -e zone
+        else
+            zone=$LE_cf_zone
+        fi
+
+        zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
 		addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
 		if [[ $addrecord == *"\"success\":false"* ]]; then
 			message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
