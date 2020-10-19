@@ -15,7 +15,7 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 
 ## Installation
 You can either use the quick installation method (recommended) or you can wile out with installations options using the advanced setup.
-### Quick Start:
+### Quick Start
 Just paste this in your terminal and go! This will ask you all the necessary questions to get you set up. Use your arrow keys, tab (to go to next field), space (to select) and enter (to confirm) to navigate the interactive boxes.
 
 You can see what that looks like here:
@@ -37,7 +37,7 @@ bash <(curl -s  git.io/swizzin)
 sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
-### Advanced setup:
+### Advanced setup
 There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://docs.swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
 
 Want to use your local swizzin clone instead of cloning upstream? Use the `--dev` flag!
@@ -69,7 +69,7 @@ If you have any questions, please read the [documentation](https://swizzin.ltd/g
 
 Do not use GitHub issues for technical support or feature requests. GitHub issues are only to be used to report bugs and other issues with the project
 
-## This is my box. There are many like it, but this one is mine.
+## This is my box. There are many like it, but this one is mine
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
 
 Box functions:
