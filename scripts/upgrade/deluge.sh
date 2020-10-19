@@ -16,6 +16,7 @@ fi
 . /etc/swizzin/sources/functions/libtorrent
 
 whiptail_deluge
+check_client_compatibility
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
   echo "Major version upgrade detected. User-data will be backed-up."
