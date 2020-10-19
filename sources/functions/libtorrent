@@ -17,6 +17,9 @@ function whiptail_libtorrent_rasterbar () {
                     1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
         ;;
       esac
+    elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
+        function="1.2"
+        echo "Defaulting to libtorrent branch RC_1_2 for compatibility"
     elif [[ $deluge == master ]] || [[ -n $qbittorrent ]]; then
         case $(lsb_release -cs) in
             "xenial")
@@ -29,7 +32,7 @@ function whiptail_libtorrent_rasterbar () {
                     Repo "(${repov})" \
                     1.1 "libtorrent branch RC_1_1" \
                     1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-        ;;
+                ;;
       esac
     else
         case $(lsb_release -cs) in
