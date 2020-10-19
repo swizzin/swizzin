@@ -49,6 +49,7 @@ if [[ $unattend = "true" ]]; then
                 ;;
             --dev) 
                 dev=true
+                echo "Dev = $dev"
                 ;;
             -*) echo "Error: Invalid option: $1"
                 exit 1
@@ -65,10 +66,12 @@ if [[ $unattend = "true" ]]; then
   for i in "${installlist[@]}"
   do
     #TODO check why this does not work, everything ends up in results2
-    if [[ " ${priority[@]} " =~ " ${value} " ]]; then
+    if [[ " ${priority[@]} " =~ " ${i} " ]]; then
       echo "$i" >> /root/results
+      echo "$i" added to install queue 1
     else
       echo "$i" >> /root/results2
+      echo "$i" added to install queue 2
     fi
   done
 fi
