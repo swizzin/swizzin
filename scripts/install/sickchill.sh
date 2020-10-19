@@ -16,7 +16,7 @@ if [[ $(systemctl is-active sickgear) == "active" ]]; then
 fi
 
 if [[ -n $active ]]; then
-  echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\n\tDo you want to disable $active and continue with the installation?\n\tDon't worry, your install will remain at /opt/$active"
+  echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
   while true; do
     echo_query "Do you want to disable $active? " "y/n"
     read yn

@@ -185,4 +185,4 @@ for u in ${users[@]}; do
 	_mkconf_wg
 done
 masteruser=$(_get_master_username)
-echo_info "Configuration QR code can be generated with the following command:\n\t${bold}qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
+echo_info "Configuration QR code can be generated with the following command:\n${bold}qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"

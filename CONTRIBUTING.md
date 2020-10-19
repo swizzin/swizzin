@@ -76,7 +76,7 @@ The following options can be used with any of the exported functions above to ov
 Please use the functions exported from `sources/functions/color_echo` that are available whenever something is ran from the context of either `box` or `setup.sh`.
 
 ### Formatting
-* Instead of making a sequence of the same exact echo calls to make new line separation, please use the `\n` instead. THe output will be nicely indented. as a result.
+* Instead of making a sequence of the same exact echo calls to make new line separation, please use the `\n`, or make your quoted text span multiple lines (with no pre-pending white spaces) instead. THe output will be nicely indented. as a result.
 * In general, there should be no un-styled prints thrown at the end-user.
 
 ### Logging

@@ -127,6 +127,6 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /etc/swizzin/scripts/nginx/mango.sh
 fi
 
-echo_info "Please use your existing credentials when logging in.\n\tYou can access your files in $mangodir/library"
+echo_info "Please use your existing credentials when logging in.\nYou can access your files in $mangodir/library"
 
 touch /install/.mango.lock
