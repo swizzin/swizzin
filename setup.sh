@@ -44,25 +44,24 @@ while test $# -gt 0
           --domain) shift
               export LE_hostname="$1"
               export LE_defaultconf=yes
+              export LE_bool_cf=no
               echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf"
               ;;
           --local) 
-              localInstall=true
-              echo "Local = $localInstall"
+              local=true
+              echo "Local = $local"
+              ;;
+          --rmgrsec) 
+              rmgrsec=yes
+              echo "OVH Kernel nuke = $rmgrsec"
                 ;;
             --env) shift
-                if [[ -f $1 ]]; then
-                  echo "Parsing env variables from $1"
-                  echo -n "---> "
-                  export $(grep -v '^#' $1 | xargs -t -d '\n')
-                  if [[ -n $packagelist ]]; then
-                  readarray -td: installlist < <(printf '%s' "$packagelist")
-                  fi
+              if [[ ! -f $1 ]]; then echo "File does not exist" ; exit 1; fi
+              echo -en "Parsing env variables from $1\n--->"
+              #shellcheck disable=SC2046
+              export $(grep -v '^#' "$1" | xargs -t -d '\n')
+              if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
                   unattend=true
-                else
-                  echo "File does not exist"
-                  exit 1
-                fi
                 ;;
             --unattend) 
                 unattend=true
@@ -70,25 +69,29 @@ while test $# -gt 0
             -*) echo "Error: Invalid option: $1"
                 exit 1
                 ;;
-          *) installlist+=("$1")
+          *) installArray+=("$1")
                 ;;
         esac
         shift
     done
+
 if [[ $unattend = "true" ]]; then 
+  # hushes errors that happen when no package is being 
   touch /root/results
   touch /root/results2
 fi
 
-if [[ ${#installlist[@]} -gt 0 ]]; then 
+if [[ ${#installArray[@]} -gt 0 ]]; then
+  echo "Application install picker will be skipped"
   #check Line 229 or something
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
-  for i in "${installlist[@]}"
+  for i in "${installArray[@]}"
   do
-    #TODO check why this does not work, everything ends up in results2
+    #shellcheck disable=SC2199,SC2076
     if [[ " ${priority[@]} " =~ " ${i} " ]]; then
       echo "$i" >> /root/results
       echo "$i" added to install queue 1
+      touch /tmp/."$i".lock
     else
       echo "$i" >> /root/results2
       echo "$i" added to install queue 2
@@ -139,7 +142,7 @@ function _preparation() {
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
 	echo "Cloning swizzin repo to localhost"
-  if [[ $localInstall != "true" ]]; then 
+  if [[ $local != "true" ]]; then 
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
@@ -160,9 +163,11 @@ function _preparation() {
 	. /etc/swizzin/sources/functions/ask
 }
 
+#FYI code duplication from `box rmgrsec`
 function _nukeovh() {
 	grsec=$(uname -a | grep -i grs)
 	if [[ -n $grsec ]]; then
+    if [[ -z $rmgrsec ]]; then
 		echo
 		echo -e "Your server is currently running with kernel version: $(uname -r)"
 		echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
@@ -180,6 +185,10 @@ function _nukeovh() {
 				echo "Your distribution's default kernel will be installed. A reboot will be required."
 				;;
 		esac
+    else
+      # --rmgresc only takes =yes
+      kernel=yes
+    fi
 		if [[ $kernel == yes ]]; then
 			if [[ $DISTRO == Ubuntu ]]; then
 				apt-get install -q -y linux-image-generic >> "${log}" 2>&1
@@ -412,13 +421,12 @@ function _post() {
 
 _os
 _preparation
-_nukeovh
-if [[ $unattend != "true" ]]; then
-  _intro
-fi
+## If install is attended, do the nice intro
+if [[ $unattend != "true" ]]; then _intro; fi
+## If the user asked for rmgrsec or the install is not being attended, get into the kernel business
+if [[ -n $rmgrsec ]] || [[ $unattend != "true" ]]; then _nukeovh ; fi
 _adduser
-if [[ $unattend != "true" ]]; then 
-  _choices
-fi
+#If setup is attended and there are no choices, go get some apps
+if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices ;fi
 _install
 _post
