@@ -28,21 +28,11 @@ if [[ -z $isdeb ]]; then
 else
 	remove_rtorrent
 fi
-echo_progress_done
-
-echo_progress_start "Checking rTorrent Dependencies ... "
-depends_rtorrent
-echo_progress_done
-if [[ ! $rtorrentver == repo ]]; then
-	echo_progress_start "Building xmlrpc-c from source ... "
-	build_xmlrpc-c
-	echo_progress_done
-	echo_progress_start "Building libtorrent from source ... "
-	build_libtorrent_rakshasa
-	echo_progress_done
-	echo_progress_start "Building rtorrent from source ... "
-	build_rtorrent
-	echo_progress_done
+echo "Checking rTorrent Dependencies ... ";depends_rtorrent
+if [[ ! $RTORRENT_v == repo ]]; then
+  echo "Building xmlrpc-c from source ... ";build_xmlrpc-c
+  echo "Building libtorrent from source ... ";build_libtorrent_rakshasa
+  echo "Building rtorrent from source ... ";build_rtorrent
 else
 	echo_progress_start "Installing rtorrent with apt-get ... "
 	rtorrent_apt
