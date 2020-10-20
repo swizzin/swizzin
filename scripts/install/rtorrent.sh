@@ -74,7 +74,7 @@ EOF
 	systemctl enable -q --now rtorrent@${user} 2>> $log
 }
 
-export DEBIAN_FRONTEND=noninteractive
+# export DEBIAN_FRONTEND=noninteractive
 
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)

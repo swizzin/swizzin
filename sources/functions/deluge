@@ -1,8 +1,7 @@
 #!/bin/bash
 
-function whiptail_deluge() {
-	echo_progress_start "Choosing Deluge versions"
-	if [[ -z $deluge ]]; then
+function whiptail_deluge () {
+  if [[ -z $DELUGE_v ]]; then
 		repov=$(get_candidate_version deluge)
 		case $(lsb_release -cs) in
 			*)
@@ -13,11 +12,11 @@ function whiptail_deluge() {
 				;;
 		esac
 		if [[ $function == "Repo" ]]; then
-			export deluge=repo
+      export DELUGE_v=repo
 		elif [[ $function == "Deluge 1.3" ]]; then
-			export deluge=1.3-stable
+      export DELUGE_v=1.3-stable
 		elif [[ $function == "Deluge 2.0" ]]; then
-			export deluge=master
+      export DELUGE_v=master
 		fi
 	fi
 }
@@ -49,9 +48,10 @@ function remove_ltcheckinstall() {
 	fi
 }
 
-function build_deluge() {
-	echo_progress_start "Building Deluge"
-	if [[ $deluge == repo ]]; then
+function build_deluge () {
+		echo_progress_start "Building Deluge"
+
+  if [[ $DELUGE_v == repo ]]; then
 		apt_install deluged deluge-web deluge-console
 		dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 		if [[ $dver =~ ^1\. ]]; then
@@ -67,7 +67,7 @@ function build_deluge() {
 			mount -o remount,exec /tmp
 			noexec=1
 		fi
-		case $deluge in
+    case $DELUGE_v in
 			master)
 				LIST='python3 python3-setuptools intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
 				pythonver=python3
@@ -131,13 +131,7 @@ function build_deluge() {
 			fi
 		fi
 		cd /tmp
-		git clone -b ${deluge} git://deluge-torrent.org/deluge.git >> "${log}" 2>&1 || {
-			echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
-			git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
-				echo_error "Cloning Deluge from github failed"
-				exit 1
-			}
-		}
+    git clone -b ${DELUGE_v} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo "WARN: Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${DELUGE_v} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from github failed"; exit 1; } ; }
 		cd deluge
 		VERSION=$(git describe | cut -d- -f2)
 		sed -i 's/-dev//g' setup.cfg
@@ -145,7 +139,7 @@ function build_deluge() {
 		fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
 		dpkg -i /root/dist/deluge-common_${VERSION}.deb
 		chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-		if [[ $deluge == 1.3-stable ]]; then
+    if [[ $DELUGE_v == 1.3-stable ]]; then
 			#update-tracker is built into v2 (update_tracker)
 			cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
 			chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
@@ -157,8 +151,8 @@ function build_deluge() {
 	echo_progress_done "Deluge installed"
 }
 
-function dweb_check() {
-	if [[ $deluge == master ]]; then
+function dweb_check () {
+  if [[ $DELUGE_v == master ]]; then
 		sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
 	else
 		sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service

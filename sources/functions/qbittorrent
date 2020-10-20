@@ -1,7 +1,7 @@
 #!/bin/bash
 
-function whiptail_qbittorrent() {
-	if [[ -z $qbittorrent ]]; then
+function whiptail_qbittorrent () {
+  if [[ -z $QBITTORRENT_v ]]; then
 		. /etc/swizzin/sources/functions/apt
 		codename=$(lsb_release -cs)
 		repov=$(get_candidate_version qbittorrent-nox)
@@ -25,19 +25,17 @@ function whiptail_qbittorrent() {
 				;;
 		esac
 		if [[ $function == "Repo" ]]; then
-			export qbittorrent=repo
+        export QBITTORRENT_v=repo
 		elif [[ $function == "4.1" ]]; then
-			export qbittorrent=${latestv41}
-		elif [[ $function == "4.2" ]]; then
-			export qbittorrent=${latestv42}
+        export QBITTORRENT_v=${latestv41}
 		elif [[ $function == "Latest" ]]; then
-			export qbittorrent=${latestv}
+        export QBITTORRENT_v=${latestv}
 		fi
 	fi
 }
 
 function build_qbittorrent() {
-	if [[ $qbittorrent == repo ]]; then
+    if [[ $QBITTORRENT_v == repo ]]; then
 		apt_install qbittorrent-nox
 	else
 		if ! check_ram 2G; then
@@ -49,10 +47,7 @@ function build_qbittorrent() {
 			mount -o remount,exec /tmp
 			noexec=1
 		fi
-		VERSION=${qbittorrent}
-		if [[ $(lsb_release -cs) == focal && $deluge == 1.3-stable ]]; then
-			LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
-		else
+        VERSION=${QBITTORRENT_v}
 			LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
 		fi
 		apt_install --no-recommends $LIST
