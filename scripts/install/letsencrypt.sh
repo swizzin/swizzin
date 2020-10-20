@@ -72,10 +72,10 @@ if [[ ${cf} == yes ]]; then
 	fi
 
     if [[ -n $LE_cf_zone ]]; then
-        LE_cf_bool_zone=yes
+        LE_cf_zoneexists=no
     fi
 
-    if [[ -z $LE_cf_bool_zone ]]; then
+    if [[ -z $LE_cf_zoneexists ]]; then
         read -p "Does the record for this subdomain already exist? (y/n) " yn
 	case $yn in
 		[Yy])
@@ -89,8 +89,8 @@ if [[ ${cf} == yes ]]; then
 			;;
 	esac
     else
-        [[ $LE_bool_cf = "yes" ]] && cf=yes
-        [[ $LE_bool_cf = "no" ]] && cf=no
+        [[ $LE_cf_zoneexists = "yes" ]] && zone=yes
+        [[ $LE_cf_zoneexists = "no" ]] && zone=no
     fi
 
     if [[ -z $LE_cf_api ]]; then 
