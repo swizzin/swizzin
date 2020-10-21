@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-if [[ -f /install/.jellyin.lock ]]; then
+if [[ -f /install/.jellyfin.lock ]]; then
     # source the functions we need for this script.
     . /etc/swizzin/sources/functions/utils
     # Get our main user credentials using a util function.
