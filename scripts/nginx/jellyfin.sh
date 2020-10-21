@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 #
-. /etc/swizzin/sources/functions/utils
-#
-# Set the required variables
-username="$(_get_master_username)"
-#
 # A functions for reused commands.
 function reused_commands () {
     sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i /etc/jellyfin/system.xml
