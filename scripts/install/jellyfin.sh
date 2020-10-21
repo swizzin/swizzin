@@ -32,11 +32,11 @@ chown "${username}.${username}" -R "/home/${username}/.ssl"
 chmod -R g+r "/home/${username}/.ssl"
 #
 # Create the required directories for this application.
-mkdir -p "/etc/jellyfin"
-chmod 755 "/etc/jellyfin"
+mkdir -p /etc/jellyfin
+chmod 755 /etc/jellyfin
 #
 # Create the dnla.xml so that we can Disable DNLA
-cat > "/etc/jellyfin/dlna.xml" <<-CONFIG
+cat > /etc/jellyfin/dlna.xml <<-CONFIG
 <?xml version="1.0"?>
 <DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <EnablePlayTo>false</EnablePlayTo>
@@ -50,7 +50,7 @@ cat > "/etc/jellyfin/dlna.xml" <<-CONFIG
 CONFIG
 #
 # Create the system.xml. This is the applications main configuration file.
-cat > "/etc/jellyfin/system.xml" <<-CONFIG
+cat > /etc/jellyfin/system.xml <<-CONFIG
 <?xml version="1.0"?>
 <ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
@@ -78,25 +78,27 @@ apt_install jellyfin jellyfin-ffmpeg
 # Add the jellyfin user to the master user's group.
 usermod -a -G "${username}" jellyfin
 #
-chown jellyfin:jellyfin "/etc/jellyfin/dlna.xml"
-chown jellyfin:jellyfin "/etc/jellyfin/system.xml"
-chown jellyfin:root "/etc/jellyfin/logging.json"
-chown jellyfin:adm "/etc/jellyfin"
+chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
+chown jellyfin:jellyfin /etc/jellyfin/system.xml
+chown jellyfin:root /etc/jellyfin/logging.json
+chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-    bash "/usr/local/bin/swizzin/nginx/jellyfin.sh"
-    systemctl -q restart "nginx.service"
+    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+    systemctl -q restart nginx.service
 fi
 #
+# Restart the jellyfin service to make sure our changes take effect
 systemctl -q restart "jellyfin.service"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
-touch "/install/.jellyfin.lock"
+touch /install/.jellyfin.lock
 #
 # A helpful echo to the terminal.
 echo -e "\nThe Jellyfin installation has completed\n"
 #
+# A helpful echo
 if [[ ! -f /install/.nginx.lock ]]; then
     echo -e "Jellyfin via https is available on this port: 8920\n"
 else
