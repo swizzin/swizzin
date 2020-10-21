@@ -58,15 +58,15 @@ if [[ -f /install/.jellyin.lock ]]; then
         usermod -a -G "${username}" jellyfin
         #
         # Set the correct and required permissions of any directories we created or modified.
-        [[ -d "/home/${username}/.ssl" ]] && chown "${username}.${username}" -R "/home/${username}/.ssl"
-        [[ -d "/home/${username}/.ssl" ]] && chmod -R g+r "/home/${username}/.ssl"
+        chown "${username}.${username}" -R "/home/${username}/.ssl"
+        chmod -R g+r "/home/${username}/.ssl"
         #
         # Set the default permissions after we have migrated our data
-        [[ -d "/etc/jellyfin" ]] && chown -R jellyfin:jellyfin "/etc/jellyfin"
-        [[ -f "/etc/jellyfin/logging.json" ]] && chown jellyfin:root "/etc/jellyfin/logging.json"
-        [[ -d "/etc/jellyfin" ]] && chown jellyfin:adm "/etc/jellyfin"
-        [[ -d "/var/lib/jellyfin" ]] && chown -R jellyfin:jellyfin "/var/lib/jellyfin"
-        [[ -d "/var/lib/jellyfin" ]] && chown jellyfin:adm "/var/lib/jellyfin"
+        chown -R jellyfin:jellyfin "/etc/jellyfin"
+        chown jellyfin:root "/etc/jellyfin/logging.json"
+        chown jellyfin:adm "/etc/jellyfin"
+        chown -R jellyfin:jellyfin "/var/lib/jellyfin"
+        chown jellyfin:adm "/var/lib/jellyfin"
         #
         # Reload systemd and start the service.
         systemctl -q daemon-reload
