@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 #
+. /etc/swizzin/sources/functions/utils
+#
 systemctl -q stop jellyfin.service
 #
 apt_remove --purge jellyfin jellyfin-ffmpeg
