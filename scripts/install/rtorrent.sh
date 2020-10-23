@@ -85,6 +85,7 @@ fi
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
+group=$(id -gn ${user})
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM%64025+1024))
 portend=$((${port} + 1500))

@@ -202,7 +202,7 @@ function _list() {
 
 function _adduser {
   user=$2
-  group="$(id -gn ${user})"
+  group=$(id -gn ${user})
   if [[ $user =~ [A-Z] ]]; then
     echo "Usernames must not contain capital letters. Please try again."
     exit 1
@@ -364,7 +364,8 @@ function _deluser {
 
   kill -9 $(lsof -t /home/${user})
   deluser --force --remove-home ${user}
-  groupdel ${group}
+  deletegroup=$(lid -g $group)
+  [ -z $deletegroup ] && groupdel $deletegroup
   rm -f /etc/htpasswd.d/htpasswd.${user}
   htpasswd -D /etc/htpasswd ${user}
   rm -f /etc/tmpfiles.d/${user}.conf

@@ -1,6 +1,11 @@
 # Changelog
 
-## [2.6.0]
+## [2.6.0-riptide]
+
+## October 24, 2020
+
+### Added
+- Initial support for "any 'group'" (see https://feathub.com/liaralabs/swizzin/+55)
 
 ## October 8, 2020
 

@@ -11,7 +11,7 @@
 # Get our main user credentials.
 username="$(cat /root/.master.info | cut -d: -f1)"
 password="$(cat /root/.master.info | cut -d: -f2)"
-group="$(id -gn ${user})"
+group=$(id -gn ${user})
 #
 # This will generate random ports for the script to use with applications between the range 10001 to 32001.
 app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done
@@ -292,7 +292,7 @@ After=network.target
 
 [Service]
 User=${username}
-Group=${username}
+Group=${group}
 UMask=002
 
 Type=simple
