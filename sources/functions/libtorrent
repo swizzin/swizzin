@@ -5,7 +5,25 @@ function whiptail_libtorrent_rasterbar () {
     repov=$(get_candidate_version libtorrent-rasterbar7)
     repov+=$(get_candidate_version libtorrent-rasterbar8)
     repov+=$(get_candidate_version libtorrent-rasterbar9)
-    if [[ ($deluge == "1.3-stable" && -n $qbittorrent) || ($deluge == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
+    if [[ -n $qbittorrent ]] && [[ $qbittorrent == "repo" ]]; then
+        qbitversion=$(get_candidate_version qbittorrent-nox)
+    elif [[ -n $qbittorrent ]]; then
+        qbitversion=$qbittorrent
+    fi
+    if [[ -n $deluge ]] && [[ $deluge == "repo" ]]; then
+        delugeversion=$(get_candidate_version deluge)
+        case $delugeversion in
+            1.3.*)
+                delugeversion=1.3-stable
+            ;;
+            *)
+                delugeversion=master
+            ;;
+        esac
+    elif [[ -n $deluge ]]; then
+        delugeversion=$deluge
+    fi
+    if [[ ($delugeversion == "1.3-stable" && -n $qbittorrent) || ($delugeversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
         case $(lsb_release -cs) in
             "xenial"|"focal")
                 function="1.1"
@@ -17,10 +35,10 @@ function whiptail_libtorrent_rasterbar () {
                     1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
         ;;
       esac
-    elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
+    elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbitversion ge 4.3.0; then
         function="1.2"
         echo "Defaulting to libtorrent branch RC_1_2 for compatibility"
-    elif [[ $deluge == master ]] || [[ -n $qbittorrent ]]; then
+    elif [[ $delugeversion == master ]] || [[ -n $qbittorrent ]]; then
         case $(lsb_release -cs) in
             "xenial")
                 function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -84,6 +102,11 @@ function check_client_compatibility() {
     fi
     if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
         qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+        qbitversion=$qbittorrent
+    elif [[ $qbittorrent == "repo" ]]; then
+        qbitversion=$(get_candidate_version qbittorrent-nox)
+    elif [[ -n $qbittorrent ]]; then
+        qbitversion=$qbittorrent
     fi
     if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
         dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
@@ -98,7 +121,7 @@ function check_client_compatibility() {
     fi
     if [[ -n $deluge && -n $qbittorrent ]]; then
         if [[ $deluge == "1.3-stable" ]]  || ( [[ $deluge == "repo" && $(lsb_release -cs) =~ ("stretch"|"buster"|"xenial"|"bionic") ]]); then
-            if dpkg --compare-versions ${qbittorrent} ge 4.3.0; then
+            if dpkg --compare-versions ${qbitversion} ge 4.3.0; then
                 if [[ ${setup} == true ]]; then
                     whiptail_libtorrent_install_resolve_conflict
                 else
