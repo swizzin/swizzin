@@ -172,7 +172,7 @@ export -f check_installed
 #Returns the version of the candidate package to install
 get_candidate_version () {
     package=$1
-    apt-cache policy "${package}" | grep Candidate | awk '{print $2}' | cut -d- -f 1 | cut -d+ -f 1
+    apt-cache madison "${package}" | grep -m1 "${package}" | awk '{print $3}' | cut -d- -f 1 | cut -d+ -f 1
 }
 export -f get_candidate_version
 
