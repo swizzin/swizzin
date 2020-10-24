@@ -29,7 +29,7 @@ if [[ $DISTRO == Debian ]]; then
   set_packages_to_backports znc
   apt_update
 elif [[ $CODENAME =~ ("xenial"|"bionic") ]]; then
-  add-apt-repository --yes ppa:teward/znc >> ${OUTTO} 2>&1
+  add-apt-repository --yes ppa:teward/znc >> ${log} 2>&1
   apt_update
 fi
   apt_install znc

@@ -471,7 +471,7 @@ function _nukeovh() {
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-        update-grub >>"${OUTTO}" 2>&1
+        update-grub >>"${log}" 2>&1
       fi
     else
     echo_warn "grsec not detected. Nothing to do."

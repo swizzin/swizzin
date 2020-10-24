@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 . /etc/swizzin/sources/functions/utils
 active=$(systemctl is-active nzbhydra)
 username=$(_get_master_username)

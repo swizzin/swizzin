@@ -32,13 +32,13 @@ function _autoconf {
     echo_progress_start "configuring autodl for $u"
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
-      mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${OUTTO}" 2>&1
+      mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${log}" 2>&1
       cd "/home/${u}/.irssi/scripts/"
       curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget --quiet -O autodl-irssi.zip
-      unzip -o autodl-irssi.zip >>"${OUTTO}" 2>&1
+      unzip -o autodl-irssi.zip >>"${log}" 2>&1
       rm autodl-irssi.zip
       cp autodl-irssi.pl autorun/
-      mkdir -p "/home/${u}/.autodl" >>"${OUTTO}" 2>&1
+      mkdir -p "/home/${u}/.autodl" >>"${log}" 2>&1
       touch "/home/${u}/.autodl/autodl.cfg"
 cat >"/home/${u}/.autodl/autodl.cfg"<<ADC
 [options]
@@ -79,11 +79,6 @@ done
 echo_progress_done
 }
 
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ -n $1 ]]; then
