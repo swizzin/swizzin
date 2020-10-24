@@ -1,3 +1,4 @@
+#!/bin/bash
 function pyenv_install() {
     if [[ ! -d /opt/pyenv ]]; then
         echo_progress_start "Setting up pyenv version manager"
@@ -89,7 +90,7 @@ function python2_home_venv {
 function python3_venv {
     user=$1
     app=$2
-    echo+echo_progress_start "Setting up the ${app} venv"
+    echo_progress_start "Setting up the ${app} venv"
     mkdir -p /opt/.venv
     chown ${user}: /opt/.venv
     python3 -m venv /opt/.venv/${app} >>"${log}" 2>&1

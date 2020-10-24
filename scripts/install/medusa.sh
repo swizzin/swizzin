@@ -26,7 +26,7 @@ if [[ -n $active ]]; then
     esac
   done
   if [[ $disable == "yes" ]]; then
-    echo_progress_start "Disabling $active"
+    echo_progress_start "Disabling service"
     systemctl disable --now ${active} >> ${log} 2>&1
     echo_progress_done
   else

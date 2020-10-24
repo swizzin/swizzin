@@ -194,7 +194,6 @@ _nginx_transmission () {
     if [[ -f /install/.nginx.lock ]]; then
         bash /usr/local/bin/swizzin/nginx/transmission.sh
         systemctl reload nginx
-        echo_log_only "RET = r$RET"
     fi
     echo_progress_done "Nginx configured"
 }

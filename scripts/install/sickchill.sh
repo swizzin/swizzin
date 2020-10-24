@@ -27,7 +27,7 @@ if [[ -n $active ]]; then
     esac
   done
   if [[ $disable == "yes" ]]; then
-    echo_progress_start "Disabling $active"
+    echo_progress_start "Disabling service"
     systemctl disable --now ${active} >> ${log} 2>&1
     echo_progress_done
   else
@@ -42,7 +42,7 @@ if [[ $codename =~ ("xenial"|"stretch") ]]; then
 else
     LIST='git python3-dev python3-venv python3-pip'
     apt_install $LIST
-    echo_progress_start "Installing venve for sickchill"
+    echo_progress_start "Installing venv for sickchill"
     python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
     echo_progress_done
 fi

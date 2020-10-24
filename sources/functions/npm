@@ -23,7 +23,7 @@ function npm_update() {
       bash <(curl -sL https://deb.nodesource.com/setup_12.x) >> $log 2>&1
       apt_update
       apt_upgrade
-      echo_progress_done "Npm upgrade"
+      echo_progress_done "Npm upgraded"
     fi
   fi
 }
