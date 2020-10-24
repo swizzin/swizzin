@@ -1,9 +1,11 @@
 #!/bin/bash
 users=($(cut -d: -f1 < /etc/htpasswd))
-export log=/dev/null
-read -n 1 -s -r -p "This will remove rTorrent and all associated interfaces (ruTorrent/Flood). Press any key to continue."
-printf "\n"
 
+if [[ -f /install/.rutorrent.lock || -f /install/.flood.lock ]]; then
+  if ! ask "This will remove ruTorrent&/Flood. Continue?" Y; then
+    exit 0
+  fi
+fi
 for u in ${users}; do
   systemctl disable -q rtorrent@${u}
   systemctl stop -q rtorrent@${u}

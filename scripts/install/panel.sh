@@ -13,8 +13,11 @@
 
 if [[ ! -f /install/.nginx.lock ]]; then
   echo_warn "This package requires nginx to be installed!"
-  read -p "Press enter to proceed with installing nginx before the panel, or cancel with CTRL+C"
-  bash /usr/local/bin/swizzin/install/nginx.sh
+  if ask "Install nginx?" Y; then
+    bash /usr/local/bin/swizzin/install/nginx.sh
+  else
+    exit 0
+  fi
 fi
 
 master=$(cut -d: -f1 < /root/.master.info)
