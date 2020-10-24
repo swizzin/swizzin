@@ -66,7 +66,6 @@ if [[ -f /install/.sickchill.lock ]]; then
             unit=sickchill
         fi
         codename=$(lsb_release -cs)
-        log=/root/logs/swizzin.log
         systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
         if [[ $codename =~ ("xenial"|"stretch") ]]; then

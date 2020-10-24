@@ -5,7 +5,6 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         password=$(cut -d: -f2 < /root/.master.info)
         codename=$(lsb_release -cs)
-        log=/root/logs/swizzin.log
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
         systemctl disable -q --now sabnzbd@${user} >> ${log} 2>&1

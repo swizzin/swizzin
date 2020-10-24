@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 MASTER=$(cut -d: -f1 < /root/.master.info)
-log="/root/quick-box.log"
+
 
 function _removeRapidleech() {
   sudo rm -r  /home/"${MASTER}"/rapidleech

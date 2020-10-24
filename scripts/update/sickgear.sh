@@ -2,7 +2,6 @@
 
 if [[ -f /install/.sickgear.lock ]]; then
     if [[ -f /etc/systemd/system/sickgear@.service ]]; then
-        log=/root/logs/swizzin.log
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active sickgear@${user})
         codename=$(lsb_release -cs)

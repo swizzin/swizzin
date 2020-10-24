@@ -4,7 +4,6 @@ if [[ -f /install/.headphones.lock ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
     if [[ -d /home/${user}/.headphones ]]; then
         active=$(systemctl is-active headphones)
-        log=/root/logs/swizzin.log
         codename=$(lsb_release -cs)
         . /etc/swizzin/sources/functions/pyenv
         systemctl stop headphones

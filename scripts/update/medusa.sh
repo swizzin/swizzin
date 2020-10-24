@@ -2,7 +2,6 @@
 
 if [[ -f /install/.medusa.lock ]]; then
     if [[ -f /etc/systemd/system/medusa@.service ]]; then
-        log=/root/logs/swizzin.log
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active medusa@${user})
 

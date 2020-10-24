@@ -2,12 +2,6 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
 #shellcheck source=sources/functions/ask
 . /etc/swizzin/sources/functions/ask
 

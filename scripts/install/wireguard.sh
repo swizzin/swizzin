@@ -147,12 +147,6 @@ EOWGC
 	fi
 }
 
-if [[ -f /tmp/.install.lock ]]; then
-	log="/root/logs/install.log"
-else
-	log="/root/logs/swizzin.log"
-fi
-
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/backports

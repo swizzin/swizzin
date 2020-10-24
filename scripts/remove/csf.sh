@@ -17,7 +17,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-log="/root/quick-box.log"
 
 function _removeCSF() {
   cd /etc/csf
