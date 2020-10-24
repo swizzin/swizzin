@@ -57,11 +57,11 @@ mkdir -p "/home/${username}/.config/Jellyfin/config"
 # Download and extract the files to the defined location.
 echo_progress_start "Downloading Jellyfin files"
 baseurl=$(curl -s https://repo.jellyfin.org/releases/server/linux/stable/ | grep -Po "href=[\'\"]\K.*?(?=['\"])" | grep combined | grep -v sha256)
-wget -O "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" > "$log" 2>&1
+wget -O "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" >> "$log" 2>&1
 echo_progress_done "files downloaded"
-#wget -O "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" > "$log" 2>&1
+#wget -O "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "$log" 2>&1
 echo_progress_start "Extracting..."
-tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" > "$log" 2>&1
+tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" >> "$log" 2>&1
 echo_progress_done
 #
 # Download the FFmpeg prebuilt binary to the installation temporary directory
@@ -84,7 +84,7 @@ cp "$install_tmp/$ffmpeg_dir_name"/* "$install_ffmpeg"
 chmod -R 700 "$install_ffmpeg"
 #
 # Removes the installation temporary folder as we no longer need it.
-rm -rf "$install_tmp" > "$log" 2>&1
+rm -rf "$install_tmp" >> "$log" 2>&1
 
 echo_progress_done "installed"
 #

@@ -73,7 +73,7 @@ echo_progress_done
 
 ## Running script
 echo_progress_start "Registering domain with Duck DNS"
-bash $duckScript > $log 2>&1
+bash $duckScript >> "$log" 2>&1
 response=$( cat $duckLog )
 if [ "$response" != "OK" ]
 then
