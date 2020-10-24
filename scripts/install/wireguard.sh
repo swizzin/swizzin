@@ -54,7 +54,7 @@ function _install_wg () {
 	chown -R root:root /etc/wireguard/
 	chmod -R 700 /etc/wireguard
 
-	if [[ $? != "0" ]]; then
+	if ! modprobe wireguard >> $log 2>&1 ; then
 		echo_error "Could not modprobe Wireguard, script will now terminate."
         echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel."
         echo_info "Currently running kernel:\t\t$(uname -r)"
