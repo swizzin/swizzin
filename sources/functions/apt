@@ -26,19 +26,19 @@ _process_apt_args() {
     while test $# -gt 0
     do
         case "$1" in
-            --interactive) export _apt_interactive=true
+            --interactive) _apt_interactive=true
                 echo_log_only "APT set to interactive"
                 ;;
-            --ignore-errors) export _apt_ignore_errors=true
+            --ignore-errors) _apt_ignore_errors=true
                 echo_log_only "APT will ignore errors"
                 ;;
-            --skip-checks) export _apt_skip_checks=true
+            --skip-checks) _apt_skip_checks=true
                 echo_log_only "APT will skip sanity checks"
                 ;;
             --purge) _apt_remove_purge=true
                 echo_log_only "Info: APT will purge packages"
                 ;;
-            --recommends) export _apt_install_recommends=true
+            --recommends) _apt_install_recommends=true
                 echo_log_only "APT will install recommends"
                 ;;
             --no-recommends) _apt_install_recommends=false
