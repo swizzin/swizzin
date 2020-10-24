@@ -23,7 +23,6 @@ function claimPlex {
   if [[ -n $1 ]]; then
     claimtoken=$1
     echo_progress_start "Claiming plex server"
-    sleep 5
     serial="$(getPref "MachineIdentifier")"
     clientId="$(getPref "ProcessedMachineIdentifier")"
     token="$(getPref "PlexOnlineToken")"
