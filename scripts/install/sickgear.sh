@@ -17,18 +17,12 @@ fi
 
 if [[ -n $active ]]; then
   echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
-  while true; do
-    echo_query "Do you want to disable $active? " "y/n"
-    read yn
-    case "$yn" in
-        [Yy]|[Yy][Ee][Ss]) disable=yes; break;;
-        [Nn]|[Nn][Oo]) disable=; break;;
-        *) echo_warn "Please answer yes or no.";;
-    esac
-  done
+if ask "Do you want to disable $active?" Y; then
+ disable=yes
+fi
   if [[ $disable == "yes" ]]; then
     echo_progress_start "Disabling service"
-    systemctl disable --now ${active} >> ${log} 2>&1
+    systemctl disable -q --now ${active} >> ${log} 2>&1
     echo_progress_done
   else
     exit 1
