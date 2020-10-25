@@ -249,7 +249,7 @@ This is a **massive** release! Over 100 files have been touched and updated with
 
 ### Added
 
-- Documentation :boom: Please visit https://docs.swizzin.ltd. The wiki has been deprecated. Pull requests on the docs are welcome at https://github.com/liaralabs/docs.swizzin.ltd. Merge requests will automatically rebuild.
+- Documentation :boom: Please visit https://swizzin.ltd/docs. The wiki has been deprecated. Pull requests on the docs are welcome at https://github.com/liaralabs/docs.swizzin.ltd. Merge requests will automatically rebuild.
 - Support for Debian 10 (may still be bugs)
 - Support for PHP7.3
 - Bug report templates. Please use these for creating descriptive bug reports the first time, every time.
