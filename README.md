@@ -4,7 +4,7 @@
 
 # 2.6.0 Stable
 
-[website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
+[website](https://swizzin.ltd) | [docs](https://swizzin.ltd/docs) | [discord](https://discord.gg/bDFqAUF)
 
 Please use Discord for all community functions, [feathub](https://feathub.com/liaralabs/swizzin) for feature requests and leave issues for actual issues.
 
@@ -43,7 +43,7 @@ Long-term support branches only:
 
 ### Support and Help
 
-If you have any questions, please read the [documentation](https://docs.swizzin.ltd) first. If you still have questions or would like to bounce some ideas off other humans, feel free to join us in [discord](https://discord.gg/bDFqAUF).
+If you have any questions, please read the [documentation](https://swizzin.ltd/docs) first. If you still have questions or would like to bounce some ideas off other humans, feel free to join us in [discord](https://discord.gg/bDFqAUF).
 
 Do not use GitHub issues for technical support or feature requests. GitHub issues are only to be used to report bugs and other issues with the project
 

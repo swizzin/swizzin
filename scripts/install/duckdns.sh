@@ -15,7 +15,7 @@ fi
 if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
     echo "This script requires an account at duckdns.org."
     echo "You can always refer to the swizzin documentation for guidance."
-    echo "https://docs.swizzin.ltd/applications/duckdns"
+    echo "https://swizzin.ltd/docs/applications/duckdns"
     echo
 
     read -r -p "Would you like to continue? (y/N)" yn
@@ -93,7 +93,7 @@ else
     echo "Duck DNS setup succesfully completed!"
     if [[ -f /install/.nginx.lock ]]; then
         echo "> Please install LetsEncrypt using the domain \"$subdomain.duckdns.org\""
-        echo "> Consult https://docs.swizzin.org/guides/troubleshooting for help with port forwarding."
+        echo "> Consult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
     fi
     touch /install/.duckdns.lock
 fi
