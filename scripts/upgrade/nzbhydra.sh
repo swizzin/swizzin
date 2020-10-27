@@ -40,7 +40,7 @@ LIST='default-jre-headless unzip jq'
 apt_install $LIST
 
 if ! dpkg -s jq > /dev/null 2>&1; then
-    echo_error "jq is not get installed. This is likely an error which will go away if you rerun this function."
+    echo_error "jq did not get installed. This is likely an error which will go away if you rerun this function."
     exit 1
 fi
 
