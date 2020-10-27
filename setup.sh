@@ -122,7 +122,7 @@ function _nukeovh() {
   #     echo_warn "Installer will continue as is. If you change your mind in the future run `box rmgrsec` after install"
   #   fi
   # fi
-  bash /etc/swizzin/scripts/nukeovh.sh
+  bash /etc/swizzin/scripts/admin/nukeovh.sh
 }
 
 function _intro() {

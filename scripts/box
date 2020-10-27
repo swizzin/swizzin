@@ -455,7 +455,7 @@ function _chpasswd() {
 }
 
 function _nukeovh() {
-  bash /etc/swizzin/scripts/nukeovh.sh
+  bash /etc/swizzin/scripts/admin/nukeovh.sh
 }
 
 # args=("$@")
