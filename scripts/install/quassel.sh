@@ -46,7 +46,7 @@ else
     dpkg -i quassel-core* >> "$log" 2>&1
     echo_progress_done "Quassel installed"
     rm quassel-core*
-    #TODO make an option to pass flags to apt script?
+    #Note: this is here due to the dependencies not being installed for the dpkg-installed package
     apt-get install -f -y -q >> "$log" 2>&1
   fi
 fi
