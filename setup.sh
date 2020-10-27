@@ -109,41 +109,11 @@ function _intro() {
 }
 
 function _adduser() {
-	while [[ -z $user ]]; do
-		user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3)
-		exitstatus=$?
-		if [ "$exitstatus" = 1 ]; then exit 0; fi
-		if [[ $user =~ [A-Z] ]]; then
-			read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
-			printf "\n"
-			user=
-		elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
-			read -n 1 -s -r -p "$user is a reserved username -- please use something else. Press enter to try again."
-			printf "\n"
-			user=
-		fi
-	done
-	while [[ -z "${pass}" ]]; do
-		pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3)
-		exitstatus=$?
-		if [ "$exitstatus" = 1 ]; then exit 0; fi
-		if [[ -z "${pass}" ]]; then
-			pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-		fi
-		if [[ -n $(which cracklib-check) ]]; then
-			echo "Cracklib detected. Checking password strength."
-			sleep 1
-			str="$(cracklib-check <<< "$pass")"
-			check=$(grep OK <<< "$str")
-			if [[ -z $check ]]; then
-				read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-				printf "\n"
-				pass=
-			else
-				echo "OK."
-			fi
-		fi
-	done
+  #shellcheck source=sources/functions/utils
+  . /etc/swizzin/sources/functions/utils
+  username_check whiptail
+  password_check whiptail
+
 	echo "$user:$pass" > /root/.master.info
 
   bash /etc/swizzin/scripts/box "$user" "$pass"
@@ -213,6 +183,8 @@ function _choices() {
 		whiptail_libtorrent_rasterbar
 		export SKIP_LT=True
 	fi
+  # TODO this should check for anything that requires nginx instead of just rutorrent...
+  # A specific comment should be added to these installers, and if they are amongst results, should be grepped if they contain the comment or not
 	if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
 		if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
 			sed -i '1s/^/nginx\n/' /root/results
@@ -236,7 +208,7 @@ function _choices() {
 	whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2
 	exitstatus=$?
 	if [ "$exitstatus" = 1 ]; then exit 0; fi
-	results2=/root/results2
+	# results2=/root/results2
 }
 
 function _install() {
