@@ -31,7 +31,7 @@ for dep in $LIST; do
 done
 
 if [[ ${missing[1]} != "" ]]; then 
-    echo "Installing the following dependencies: ${missing[*]}" | tee -a $log
+    # echo_inf "Installing the following dependencies: ${missing[*]}" | tee -a $log
     apt_install "${missing[@]}"
 fi
 
