@@ -101,7 +101,7 @@ function _preparation() {
 }
 
 function _nukeovh() {
-  bash /etc/swizzin/scripts/admin/nukeovh.sh
+  bash /etc/swizzin/scripts/nukeovh.sh
 }
 
 function _intro() {

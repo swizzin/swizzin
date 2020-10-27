@@ -248,7 +248,7 @@ function _adduser {
 	chmod 750 /home/${user}
 
 	if [[ -f /install/.quota.lock ]]; then
-    bash /etc/swizzin/scripts/admin/setdisk "$user"
+    bash /etc/swizzin/scripts/setdisk "$user"
 	fi
 
 	if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
@@ -442,7 +442,7 @@ function _chpasswd() {
 }
 
 function _nukeovh() {
-  bash /etc/swizzin/scripts/admin/nukeovh.sh
+  bash /etc/swizzin/scripts/nukeovh.sh
 }
 
 # args=("$@")
@@ -513,7 +513,7 @@ case "$1" in
 		exit 0
 		;;
 	"rtx")
-    /usr/local/bin/swizzin/admin/rtx
+    /usr/local/bin/swizzin/rtx
 		;;
 	"update")
 		_update
