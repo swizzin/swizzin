@@ -101,27 +101,6 @@ function _preparation() {
 }
 
 function _nukeovh() {
-  # grsec=$(uname -a | grep -i grs)
-  # if [[ -n $grsec ]]; then
-  #   echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-  #   if ask "Would you like swizzin to install the distribution kernel?" Y; then
-  #     # echo_info "Your distribution's default kernel will be installed. A reboot will be required."
-  #     if [[ $DISTRO == Ubuntu ]]; then
-  #       apt-get install -q -y linux-image-generic >>"${log}" 2>&1
-  #     elif [[ $DISTRO == Debian ]]; then
-  #       arch=$(uname -m)
-  #       if [[ $arch =~ ("i686"|"i386") ]]; then
-  #         apt-get install -q -y linux-image-686 >>"${log}" 2>&1
-  #       elif [[ $arch == x86_64 ]]; then
-  #         apt-get install -q -y linux-image-amd64 >>"${log}" 2>&1
-  #       fi
-  #     fi
-  #     mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-  #     update-grub >>"${log}" 2>&1
-  #   else
-  #     echo_warn "Installer will continue as is. If you change your mind in the future run `box rmgrsec` after install"
-  #   fi
-  # fi
   bash /etc/swizzin/scripts/admin/nukeovh.sh
 }
 
@@ -166,35 +145,11 @@ function _adduser() {
 		fi
 	done
 	echo "$user:$pass" > /root/.master.info
-	if [[ -d /home/"$user" ]]; then
-		echo "User directory already exists ... "
 
-		echo "Changing password to new password"
-		chpasswd <<< "${user}:${pass}"
-		htpasswd -b -c /etc/htpasswd $user $pass
-		mkdir -p /etc/htpasswd.d/
-		htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-		chown -R $user:$user /home/${user}
-	else
-		echo -e "Creating new user \e[1;95m$user\e[0m ... "
-		useradd "${user}" -m -G www-data -s /bin/bash || {
-			echo "There was an error creating the user ${user}. Please check your logs."
-			exit 1
-		}
-		chpasswd <<< "${user}:${pass}" || {
-			echo "There was an error setting the password for ${user}. Please check your logs."
-			exit 1
-		}
-		htpasswd -b -c /etc/htpasswd $user $pass
-		mkdir -p /etc/htpasswd.d/
-		htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-	fi
-	chmod 750 /home/${user}
-	if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then echo "No sudoers modification made ... "; else echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin; fi
+  bash /etc/swizzin/scripts/box "$user" "$pass"
 
-	echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
+  if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
 
-	systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
 }
 
 function _choices() {
@@ -285,27 +240,17 @@ function _choices() {
 }
 
 function _install() {
-	touch /tmp/.install.lock
 	begin=$(date +"%s")
-	readarray result < /root/results
-	for i in "${result[@]}"; do
-		result=$(echo $i)
-		echo -e "Installing ${result}"
-		bash /usr/local/bin/swizzin/install/${result}.sh
-		rm /tmp/.$result.lock
-	done
+  bash /etc/swizzin/scripts/box install $( < /root/results )
 	rm /root/results
-	readarray result < /root/results2
-	for i in "${result[@]}"; do
-		result=$(echo $i)
-		echo -e "Installing ${result}"
-		bash /usr/local/bin/swizzin/install/${result}.sh
-	done
+
+  bash /etc/swizzin/scripts/box install $( < /root/results2 )
 	rm /root/results2
-	rm /tmp/.install.lock
+
 	termin=$(date +"%s")
-	difftimelps=$((termin - begin))
-	echo "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+  difftimelps=$((termin-begin))
+  echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+
 }
 
 function _post() {
