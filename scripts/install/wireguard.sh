@@ -57,9 +57,13 @@ function _install_wg () {
 	if ! modprobe wireguard >> $log 2>&1 ; then
 		echo_error "Could not modprobe Wireguard, script will now terminate."
         echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel.
-Currently running kernel:\t\t$(uname -r)
-Installed kernel headers:\t\t$(dpkg -l | awk '{print $2}' | grep headers | grep amd64 | grep -v linux-headers-amd64 | sed 's/^/  '/g)
-You may be able to resolve this error with \`apt install linux-headers-$(uname -r)\` or a system reboot. If you are using a custom kernel, your package names may differ. Please consult the swizzin log for further info if required."
+Currently running kernel:
+$(uname -r)
+Installed kernel headers: 
+$(dpkg -l | awk '{print $2}' | grep headers | grep amd64 | grep -v linux-headers-amd64 | sed 's/^/  '/g)
+
+You may be able to resolve this error with \`apt install linux-headers-$(uname -r)\` or a system reboot. If you are using a custom kernel, your package names may differ.
+Please consult the swizzin log for further info if required."
 		exit 1
 	fi
 	systemctl daemon-reload -q
