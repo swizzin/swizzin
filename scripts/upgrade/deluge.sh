@@ -14,36 +14,37 @@ check_client_compatibility
 whiptail_deluge_downupgrade
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
-  echo "Major version upgrade detected. User-data will be backed-up."
+  echo_info "Major version upgrade detected. User-data will be backed-up."
 fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
   if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
-    echo "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
+    echo_info "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
     cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
   fi
 done
 
-echo "Checking for outdated deluge install method."; remove_ltcheckinstall
+echo_progress_start "Checking for outdated deluge install method."; remove_ltcheckinstall
 
 if ! skip_libtorrent_rasterbar; then
     whiptail_libtorrent_rasterbar
-    echo "Rebuilding libtorrent ... "; build_libtorrent_rasterbar
+    echo_progress_start "Rebuilding libtorrent"; build_libtorrent_rasterbar; echo_progress_done
 fi
 cleanup_deluge
-echo "Upgrading Deluge. Please wait ... "; build_deluge
+echo_progress_start "Upgrading Deluge. Please wait"; build_deluge ; echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo "Reconfiguring deluge nginx configs"
+  echo_progress_start "Reconfiguring deluge nginx configs"
   bash /usr/local/bin/swizzin/nginx/deluge.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 
-echo "Fixing Web Service and Hostlist ... "; dweb_check
+echo_progress_start "Fixing Web Service and Hostlist"; dweb_check; echo_progress_done
 
 for u in "${users[@]}"; do
-  echo "Running ltconfig check ..."; ltconfig
+  echo_progress_start "Running ltconfig check ..."; ltconfig ; echo_progress_done
   systemctl try-restart deluged@${u}
   systemctl try-restart deluge-web@${u}
 done

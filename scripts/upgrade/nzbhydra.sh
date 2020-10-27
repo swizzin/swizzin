@@ -79,8 +79,8 @@ if [[ $migrate == True ]]; then
         echo_query "Press enter to continue setting up NZBHydra2"
         read
     else
-        echo_error "Something appears to have gone wrong during the migration. Upgrader will now exit."
-        echo "Error: $errors"
+        echo_error "Something appears to have gone wrong during the migration. Upgrader will now exit.
+Error: $errors"
         cd /opt
         rm -rf nzbhydra2
         rm -rf /home/${username}/.config/nzbhydra2

@@ -19,7 +19,7 @@ chmod 700 "/home/${username}/bin/filebrowser"
 if [[ -f /home/${username}/bin/filebrowser ]]; then
     rm /home/${username}/bin/filebrowser.bak
 else
-    echo "Something went wrong during the upgrade, reverting changes"
+    echo_error "Something went wrong during the upgrade, reverting changes"
     mv /home/${username}/bin/filebrowser.bak /home/${username}/bin/filebrowser
 fi
 systemctl try-restart filebrowser
