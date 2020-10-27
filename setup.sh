@@ -101,40 +101,28 @@ function _preparation() {
 }
 
 function _nukeovh() {
-	grsec=$(uname -a | grep -i grs)
-	if [[ -n $grsec ]]; then
-		echo
-		echo -e "Your server is currently running with kernel version: $(uname -r)"
-		echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-		echo
-		echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "
-		read input
-		case $input in
-			[yY] | [yY][Ee][Ss] | "")
-				kernel=yes
-				echo "Your distribution's default kernel will be installed. A reboot will be required."
-				;;
-			[nN] | [nN][Oo]) echo "Installer will continue as is. If you change your mind in the future run $(box rmgrsec) after install." ;;
-			*)
-				kernel=yes
-				echo "Your distribution's default kernel will be installed. A reboot will be required."
-				;;
-		esac
-		if [[ $kernel == yes ]]; then
-			if [[ $DISTRO == Ubuntu ]]; then
-				apt-get install -q -y linux-image-generic >> "${log}" 2>&1
-			elif [[ $DISTRO == Debian ]]; then
-				arch=$(uname -m)
-				if [[ $arch =~ ("i686"|"i386") ]]; then
-					apt-get install -q -y linux-image-686 >> "${log}" 2>&1
-				elif [[ $arch == x86_64 ]]; then
-					apt-get install -q -y linux-image-amd64 >> "${log}" 2>&1
-				fi
-			fi
-			mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-			update-grub >> "${log}" 2>&1
-		fi
-	fi
+  # grsec=$(uname -a | grep -i grs)
+  # if [[ -n $grsec ]]; then
+  #   echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+  #   if ask "Would you like swizzin to install the distribution kernel?" Y; then
+  #     # echo_info "Your distribution's default kernel will be installed. A reboot will be required."
+  #     if [[ $DISTRO == Ubuntu ]]; then
+  #       apt-get install -q -y linux-image-generic >>"${log}" 2>&1
+  #     elif [[ $DISTRO == Debian ]]; then
+  #       arch=$(uname -m)
+  #       if [[ $arch =~ ("i686"|"i386") ]]; then
+  #         apt-get install -q -y linux-image-686 >>"${log}" 2>&1
+  #       elif [[ $arch == x86_64 ]]; then
+  #         apt-get install -q -y linux-image-amd64 >>"${log}" 2>&1
+  #       fi
+  #     fi
+  #     mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
+  #     update-grub >>"${log}" 2>&1
+  #   else
+  #     echo_warn "Installer will continue as is. If you change your mind in the future run `box rmgrsec` after install"
+  #   fi
+  # fi
+  bash /etc/swizzin/scripts/nukeovh.sh
 }
 
 function _intro() {
@@ -347,6 +335,7 @@ function _post() {
 
 _os
 _preparation
+#echos and apt are available under this line
 _nukeovh
 _intro
 _adduser

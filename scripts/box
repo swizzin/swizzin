@@ -455,40 +455,7 @@ function _chpasswd() {
 }
 
 function _nukeovh() {
-	grsec=$(uname -a | grep -i grs)
-	if [[ -n $grsec ]]; then
-		echo
-		echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-		echo_query "Would you like swizzin to install the distribution kernel?" "Y/n"
-		read input
-		case $input in
-			[yY] | [yY][Ee][Ss] | "")
-				kernel=yes
-				echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."
-				;;
-			[nN] | [nN][Oo]) echo_warn "Why did you even run this function?" exit 1 ;;
-			*)
-				kernel=yes
-				echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."
-				;;
-		esac
-		if [[ $kernel == yes ]]; then
-			if [[ $DISTRO == Ubuntu ]]; then
-				apt_install linux-image-generic
-			elif [[ $DISTRO == Debian ]]; then
-				arch=$(uname -m)
-				if [[ $arch =~ ("i686"|"i386") ]]; then
-					apt_install linux-image-686
-				elif [[ $arch == x86_64 ]]; then
-					apt_install linux-image-amd64
-				fi
-			fi
-			mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-			update-grub >> "${log}" 2>&1
-		fi
-	else
-		echo_warn "grsec not detected. Nothing to do."
-	fi
+  bash /etc/swizzin/scripts/nukeovh.sh
 }
 
 # args=("$@")
