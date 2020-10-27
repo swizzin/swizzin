@@ -12,8 +12,8 @@ for dep in $dependencies; do
 done
 
 if [[ ${missing[1]} != "" ]]; then 
-    echo "Installing the following dependencies: ${missing[*]}" | tee -a $log
+    echo_info "Installing the following dependencies: ${missing[*]}"
     apt_install "${missing[@]}"
 else
-    echo "No dependencies required to install" >> $log
+    echo_log_only "No dependencies required to install"
 fi
