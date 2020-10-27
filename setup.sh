@@ -262,20 +262,16 @@ function _post() {
 	if [[ $distribution = "Ubuntu" ]]; then
 		echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 	fi
-	echo "Installation complete!"
-	echo ""
-	echo "You may now login with the following info: ${user}:${pass}"
-	echo ""
+  echo_success "Installation complete!\n
+You may now login with the following info: ${user}:${pass}"
 	if [[ -f /install/.nginx.lock ]]; then
-		echo "Seedbox can be accessed at https://${user}:${pass}@${ip}"
-		echo ""
+    echo_info "Seedbox can be accessed at https://${user}:${pass}@${ip}"
 	fi
 	if [[ -f /install/.deluge.lock ]]; then
-		echo "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)"
-		echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
-		echo ""
+    echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
+Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
 	fi
-	echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now\e[0m"
+  echo_warn "Please note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now"
 }
 
 _os
