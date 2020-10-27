@@ -29,13 +29,22 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
   read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
 
+#shellcheck disable=SC2154
+if [[ $dev = "true" ]]; then
+  # If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
+  # You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
+  echo "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
+fi
+
 _os() {
   if [ ! -d /install ]; then mkdir /install ; fi
   if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
   export log=/root/logs/install.log
-  echo "Checking OS version and release ... "
-  apt-get -y -qq update >> ${log} 2>&1
-  apt-get -y -qq install lsb-release >> ${log} 2>&1
+  # echo "Checking OS version and release ... "
+  if ! which lsb_release > /dev/null; then 
+    apt-get -y -qq update >> ${log} 2>&1
+    apt-get -y -qq install lsb-release >> ${log} 2>&1
+  fi
   distribution=$(lsb_release -is)
   release=$(lsb_release -rs)
   codename=$(lsb_release -cs)
@@ -45,30 +54,44 @@ _os() {
     if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
       echo "Your release ($codename) of $distribution is not supported." && exit 1
     fi
-  echo "I have determined you are using $distribution $release."
+  # echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
   echo "Updating system and grabbing core dependencies."
   if [[ $distribution = "Ubuntu" ]]; then
-    echo "Checking enabled repos"
-    if [[ -z $(which add-apt-repository) ]]; then
+    echo "Enabling required repos"
+    if ! which add-apt-repository > /dev/null; then
       apt-get install -y -q software-properties-common >> ${log} 2>&1
     fi
     add-apt-repository universe >> ${log} 2>&1
     add-apt-repository multiverse >> ${log} 2>&1
     add-apt-repository restricted -u >> ${log} 2>&1
   fi
+  
+  echo "Performing a system upgrade"
   apt-get -q -y update >> ${log} 2>&1
   apt-get -q -y upgrade >> ${log} 2>&1
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
-  git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+  if [[ $dev != "true" ]]; then 
+    git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+     #shellcheck source=sources/functions/color_echo
+    . /etc/swizzin/sources/functions/color_echo
+  else
+    #shellcheck source=sources/functions/color_echo
+    . /etc/swizzin/sources/functions/color_echo
+    echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
+    RelativeScriptPath=$(dirname "$0")
+    echo_info "That directory is relative to your pwd  = $RelativeScriptPath"
+    ln -sr "$RelativeScriptPath" /etc/swizzin
+    echo_warn "Best of luck and please follow the contribution guidelines cheerio"
+  fi
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
   #shellcheck source=sources/functions/apt
@@ -90,17 +113,17 @@ function _nukeovh() {
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
-          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+          apt-get install -q -y linux-image-generic >>"${log}" 2>&1
         elif [[ $DISTRO == Debian ]]; then
           arch=$(uname -m)
           if [[ $arch =~ ("i686"|"i386") ]]; then
-            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+            apt-get install -q -y linux-image-686 >>"${log}" 2>&1
           elif [[ $arch == x86_64 ]]; then
-            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+            apt-get install -q -y linux-image-amd64 >>"${log}" 2>&1
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-        update-grub >>"${OUTTO}" 2>&1
+        update-grub >>"${log}" 2>&1
       fi
   fi
 }
@@ -114,6 +137,10 @@ function _adduser() {
     user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ $user =~ [A-Z] ]]; then
       read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
+      printf "\n"
+      user=
+    elif [[ $user =~ ("swizzin"|"admin") ]]; then
+      read -n 1 -s -r -p "$user is a reserved username -- please use something else. Press enter to try again."
       printf "\n"
       user=
     fi
@@ -216,6 +243,7 @@ function _choices() {
   fi
   if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/libtorrent
+    check_client_compatibility setup
     whiptail_libtorrent_rasterbar
     export SKIP_LT=True
   fi

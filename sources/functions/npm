@@ -10,17 +10,20 @@ function npm_install() {
   fi
 
   if [[ ! $(command -v npm) ]]; then
+    echo_progress_start "Installing npm"
     apt_install nodejs build-essential
+    echo_progress_done "Npm installed"
   fi
 }
 
 function npm_update() {
   if [[ -f /etc/apt/sources.list.d/nodesource.list ]]; then
     if ! grep -q 12 /etc/apt/sources.list.d/nodesource.list; then
-      echo "Upgrading nodejs to version 12 LTS"
+      echo_progress_start "Upgrading nodejs to version 12 LTS"
       bash <(curl -sL https://deb.nodesource.com/setup_12.x) >> $log 2>&1
       apt_update
       apt_upgrade
+      echo_progress_done "Npm upgraded"
     fi
   fi
 }

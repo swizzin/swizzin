@@ -2,11 +2,6 @@
 
 function update_nginx() {
 codename=$(lsb_release -cs)
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/dev/null"
-fi
 
 if [[ $codename =~ ("xenial"|"stretch") ]]; then
   mcrypt=php-mcrypt
@@ -26,8 +21,19 @@ if [[ ! $codename == "xenial" ]]; then
   fi
 fi
 
-APT="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-apt_install $APT
+LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
+
+missing=()
+for dep in $LIST; do
+    if ! check_installed "$dep"; then 
+        missing+=("$dep")
+    fi
+done
+
+if [[ ${missing[1]} != "" ]]; then 
+    echo "Installing the following dependencies: ${missing[*]}" | tee -a $log
+    apt_install "${missing[@]}"
+fi
 
 cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)

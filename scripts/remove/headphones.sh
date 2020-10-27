@@ -1,12 +1,8 @@
 #!/bin/bash
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+ 
 user=$(cut -d: -f1 < /root/.master.info)
 
-systemctl disable --now headphones
+systemctl disable --now -q headphones
 
 rm /etc/systemd/system/headphones.service
 rm -f /etc/nginx/apps/headphones.conf

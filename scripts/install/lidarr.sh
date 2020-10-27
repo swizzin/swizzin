@@ -17,23 +17,23 @@ fi
 
 user=$(cut -d: -f1 < /root/.master.info )
 distribution=$(lsb_release -is)
-
-echo "Satisfying mono dependencies" | tee -a $log
+version=$(lsb_release -cs)
 #shellcheck source=sources/functions/mono
 . /etc/swizzin/sources/functions/mono
 mono_repo_setup
 apt_install libmono-cil-dev libchromaprint-tools
 
-echo "Fetching Lidarr source files" | tee -a $log
+echo_progress_done "Fetching Lidarr source files"
 wget -O /tmp/lidarr.tar.gz "$( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )" >> $log 2>&1
+echo_progress_done
 
-
-echo "Extracting..." | tee -a $log
+echo_progress_start "Extracting..."
 tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
 rm -rf /tmp/lidarr.tar.gz
 chown -R "${user}": /opt/Lidarr
+echo_progress_done
 
-echo "Creating configuration and service files" | tee -a $log
+echo_progress_start "Creating configuration and service files"
 if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
 cat > "/home/${user}/.config/Lidarr/config.xml" <<LID
 <Config>
@@ -64,17 +64,20 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 LID
+echo_progress_done "Services configured"
 
   if [[ -f /install/.nginx.lock ]]; then
-    echo "Installing nginx configuration" | tee -a $log
+    echo_progress_start "Configuring nginx"
     sleep 10
     bash /usr/local/bin/swizzin/nginx/lidarr.sh
     systemctl reload nginx
+    echo_progress_done "Nginx configured"
   fi
 
-echo "Enabling auto-start and executing Lidarr" | tee -a $log
-systemctl enable --now lidarr >> $log 2>&1
+echo_progress_start "Enabling auto-start and executing Lidarr"
+systemctl enable -q --now lidarr
+echo_progress_done
 
-echo "All done! Enjoy Lidarr :)" | tee -a $log
+echo_success "Lidarr installed"
 
 touch /install/.lidarr.lock

@@ -17,26 +17,18 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 MASTER=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 
-
-echo "Creating subsonic-tmp install directory ... "
 mkdir /root/subsonic-tmp
 
-echo "Downloading Subsonic dependencies and installing ... "
 case $codename in
   "buster")
-  echo "Adding adoptopenjdk repository"
-  apt_install software-properties-common --skip-update
-  wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${OUTTO}" 2>&1
-  add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${OUTTO}" 2>&1
+  echo_progress_start "Adding adoptopenjdk repository"
+  apt_install software-properties-common
+  wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${log}" 2>&1
+  add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${log}" 2>&1
+  echo_progress_done "adoptopenjdk repos enabled"
   apt_update
   apt_install adoptopenjdk-8-hotspot
   ;;
@@ -45,19 +37,18 @@ case $codename in
   ;;
 esac
 
+echo_progress_start "Downloading and installing subsonic"
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
 wget -qO /root/subsonic-tmp/subsonic.deb $latest || { echo "Could not download Subsonic. Exiting."; exit 1; }
 cd /root/subsonic-tmp
-dpkg -i subsonic.deb >>"${OUTTO}" 2>&1
+dpkg -i subsonic.deb >>"${log}" 2>&1
+rm -rf /root/subsonic-tmp
+echo_progress_done "Subsonic installed"
 
 touch /install/.subsonic.lock
 
-echo "Removing subsonic-tmp install directory ... "
-cd
-rm -rf /root/subsonic-tmp
-
-echo "Modifying Subsonic startup script ... "
+echo_progress_start "Modifying Subsonic startup script"
 cat > /usr/share/subsonic/subsonic.sh <<SUBS
 #!/bin/sh
 MASTER=$(cut -d: -f1 < /root/.master.info )
@@ -105,8 +96,9 @@ fi
   -verbose:gc \
   -jar subsonic-booter-jar-with-dependencies.jar > \${LOG} 2>&1
 SUBS
+echo_progress_done
 
-echo "Enabling Subsonic Systemd configuration"
+echo_progress_start "Enabling Subsonic Systemd configuration"
 systemctl stop subsonic >/dev/null 2>&1
 cat > /etc/systemd/system/subsonic.service <<SUBSD
 [Unit]
@@ -127,11 +119,14 @@ SUBSD
 
 mkdir /srv/subsonic
 chown ${MASTER}: /srv/subsonic
-systemctl enable --now subsonic.service >> ${OUTTO} 2>&1
+systemctl enable -q --now subsonic.service 2>&1  | tee -a $log
+echo_progress_done "Started subsonic"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Configuring nginx"
   bash /usr/local/bin/swizzin/nginx/subsonic.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 
-echo "Subsonic Install Complete!"
+echo_success "Subsonic installed"

@@ -5,9 +5,9 @@ username="$(cat /root/.master.info | cut -d: -f1)"
 #
 # Define the removal function for jellyfin.
 function remove_jellyfin() {
-    systemctl stop "jellyfin.service"
+    systemctl stop -q "jellyfin.service"
     #
-    systemctl disable "jellyfin.service"
+    systemctl disable -q "jellyfin.service"
     #
     rm -f "/etc/systemd/system/jellyfin.service"
     #

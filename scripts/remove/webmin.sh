@@ -2,11 +2,7 @@
 # Webmin yeeter 
 # flying_sausages 2020 for swizzin
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+ 
 
 apt_remove webmin
 rm -rf /etc/webmin

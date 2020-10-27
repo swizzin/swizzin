@@ -2,13 +2,12 @@
 
 if [[ -f /install/.sickgear.lock ]]; then
     if [[ -f /etc/systemd/system/sickgear@.service ]]; then
-        log=/root/logs/swizzin.log
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active sickgear@${user})
         codename=$(lsb_release -cs)
 
         if [[ $isactive == "active" ]]; then
-            systemctl disable --now sickgear@${user}
+            systemctl disable -q --now sickgear@${user}
         fi
         if [[ ! -d /opt/.venv ]]; then
             mkdir -p /opt/.venv
@@ -49,7 +48,7 @@ MSD
         systemctl daemon-reload
         rm /etc/systemd/system/sickchill@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable --now sickgear >> ${log} 2>&1
+            systemctl enable -q --now sickgear 2>&1  | tee -a $log
         fi
     fi
 fi

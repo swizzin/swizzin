@@ -2,7 +2,7 @@
 #
 # Uninstaller for sickchill
 #
-systemctl disable --now sickchill
+systemctl disable --now -q sickchill
 rm -rf /opt/sickchill
 rm -rf /opt/.venv/sickchill
 if [ -z "$(ls -A /opt/.venv)" ]; then

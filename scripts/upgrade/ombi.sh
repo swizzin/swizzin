@@ -25,12 +25,12 @@ else
 fi
 
 if [[ -f /etc/apt/sources.list.d/ombi.list ]]; then
-  echo "Nothing to do! Please update ombi with apt-get"
+  echo_error "Nothing to do! Please update ombi with apt-get"
   exit 1
 else
-  echo "Upgrading Ombi to v3! Please note, v2 database and settings will be deleted. Hit control-c to quit now if you do not agree."
-  read -p "Press enter to continue"
-  echo "Upgrading Ombi. Please wait ... "
+  if ! ask "v2 database and settings will be deleted. Continue?" Y; then
+    exit 1
+  fi
   systemctl stop ombi
   rm -rf /opt/ombi
 

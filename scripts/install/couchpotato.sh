@@ -10,11 +10,6 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
@@ -32,18 +27,18 @@ if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
   python_getpip
 fi
 
-
 python2_venv ${user} couchpotato
 /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
-
-git clone https://github.com/CouchPotato/CouchPotatoServer.git /opt/couchpotato >> ${log} 2>&1 || { echo "git clone for couchpotato failed"; exit 1; }
+echo_progress_start "Cloning Couchpotato"
+git clone https://github.com/CouchPotato/CouchPotatoServer.git /opt/couchpotato >> ${log} 2>&1 || { echo_error "git clone for couchpotato failed"; exit 1; }
 chown ${user}: -R /opt/couchpotato
 chown ${user}: -R /opt/.venv/couchpotato
 mkdir -p /opt/.config/couchpotato
 chown ${user}: /opt/.config
 chown ${user}: /opt/.config/couchpotato
+echo_progress_done "Cloned"
 
-
+echo_progress_start "Adding systemd service and starting"
 cat > /etc/systemd/system/couchpotato.service <<CPSD
 [Unit]
 Description=CouchPotato
@@ -60,11 +55,14 @@ GuessMainPID=no
 WantedBy=multi-user.target
 CPSD
 
-systemctl enable --now couchpotato >> ${log} 2>&1
+systemctl enable -q --now couchpotato 2>&1  | tee -a $log
+echo_progress_done "Service enabled and running"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Installing nginx config"
   bash /usr/local/bin/swizzin/nginx/couchpotato.sh
   systemctl reload nginx
+  echo_progress_done
 fi
 
 touch /install/.couchpotato.lock

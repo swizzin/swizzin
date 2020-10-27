@@ -1,6 +1,7 @@
+#!/bin/bash
 function pyenv_install() {
     if [[ ! -d /opt/pyenv ]]; then
-        echo "Setting up pyenv version manager"
+        echo_progress_start "Setting up pyenv version manager"
         git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
         git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
         git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
@@ -8,6 +9,7 @@ function pyenv_install() {
         echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
         export PYENV_ROOT="/opt/pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
+        echo_progress_done
         apt_install make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
     else
         pyenv_update
@@ -22,10 +24,11 @@ function pyenv_install_version() {
     version=$1
     versions=$(/opt/pyenv/bin/pyenv versions)
     if [[ ! $versions =~ $version ]]; then
-        echo "Compiling Python $version. This may take some time ... "
+        echo_progress_start "Compiling Python $version. This may take some time ... "
         /opt/pyenv/bin/pyenv install $version
+        echo_progress_done "Python $version compiled"
     else
-        echo "Python $version already installed!"
+        echo_log_only "Python $version already installed!"
     fi
 }
 
@@ -38,6 +41,7 @@ function pyenv_create_venv() {
 
 function python_getpip() {
     if ! command -v pip > /dev/null 2>&1; then
+        echo_progress_start "Installing pip"
         if command -v python2.7 > /dev/null 2>&1; then
             python2bin=python2.7
         else
@@ -47,6 +51,7 @@ function python_getpip() {
         curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
         ${python2bin} get-pip.py >> $log 2>&1
         pip install virtualenv >>"${log}" 2>&1
+        echo_progress_done "Pip installed"
     fi
 }
 
@@ -58,11 +63,12 @@ function python2_venv {
     else
         python2bin=python2
     fi
-    echo "Setting up the ${app} venv ..."
+    echo_progress_start "Setting up the ${app} venv"
     mkdir -p /opt/.venv
     chown ${user}: /opt/.venv
     ${python2bin} -m virtualenv /opt/.venv/${app} >>"${log}" 2>&1
     chown -R ${user}: /opt/.venv/${app}
+    echo_progress_done "Venv set up"
 }
 
 function python2_home_venv {
@@ -73,19 +79,21 @@ function python2_home_venv {
     else
         python2bin=python2
     fi
-    echo "Setting up the ${app} venv ..."
+    echo_progress_start "Setting up the ${app} venv"
     mkdir -p /home/${user}/.venv
     chown ${user}: /home/${user}/.venv
     ${python2bin} -m virtualenv /home/${user}/.venv/${app} >>"${log}" 2>&1
     chown -R ${user}: /home/${user}/.venv/${app}
+    echo_progress_done "Venv set up"
 }
 
 function python3_venv {
     user=$1
     app=$2
-    echo "Setting up the ${app} venv ..."
+    echo_progress_start "Setting up the ${app} venv"
     mkdir -p /opt/.venv
     chown ${user}: /opt/.venv
     python3 -m venv /opt/.venv/${app} >>"${log}" 2>&1
     chown -R ${user}: /opt/.venv/${app}
+    echo_progress_done "Venv set up"
 }

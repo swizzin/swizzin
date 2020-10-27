@@ -9,9 +9,11 @@ function _get_next_port_from_json () {
     wasincreased='false'
 
     for d in /home/*/; do
+        value=""
         confpath="${d}${relpath}"
         if [[ -f $confpath ]];then 
-            value=$(grep \""$key"\" "$confpath" | tr -d -c 0-9)
+            paramrr=".[\"$key\"]"
+            value=$(jq -r "$paramrr" < "$confpath")
         fi
         if [[ -n $value ]]; then
             if [[ $value -ge $highestvalue ]]; then
@@ -40,6 +42,7 @@ function _getversion () {
         else
             version="Repo"
         fi
+        echo_log_only "version = $version"
         export version
     fi
 
@@ -50,14 +53,16 @@ function _install_transmission () {
     distribution=$(lsb_release -is)
     if [[ $version = "PPA" ]]; then 
         if [[ ! $distribution =~ 'Ubuntu' ]]; then 
-            echo "PPA not available on this system, using normal repo."
+            echo_warn "PPA not available on this system, using normal repo."
             return 1
         else
+        echo_progress_start "Adding Transmission PPA"
         add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
+        echo_progress_done "PPA Added"
         fi
     fi
-    echo "Getting Transmission from apt"
     apt_install transmission-cli transmission-common transmission-daemon
-    echo "Disabling default non-multiuser service"
-    systemctl disable --now transmission-daemon
+    echo_progress_start "Disabling default non-multiuser service"
+    systemctl disable -q --now transmission-daemon >> "$log" 2>&1
+    echo_progress_done
 }

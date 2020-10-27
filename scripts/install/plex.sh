@@ -16,31 +16,27 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 master=$(cut -d: -f1 < /root/.master.info)
 
-echo "Please visit https://www.plex.tv/claim, login, copy your plex claim token to your clipboard and paste it here. This will automatically claim your server! Otherwise, you can leave this blank and to tunnel to the port instead."; read 'claim'
+echo_info "Please visit https://www.plex.tv/claim, login, copy your plex claim token to your clipboard and paste it here. This will automatically claim your server! Otherwise, you can leave this blank and to tunnel to the port instead."
+echo_query "Insert your Plex claim token" "e.g. 'claim-...' or blank"
+read 'claim'
 
 #versions=https://plex.tv/api/downloads/1.json
 #wgetresults="$(wget "${versions}" -O -)"
 #releases=$(grep -ioe '"label"[^}]*' <<<"${wgetresults}" | grep -i "\"distro\":\"ubuntu\"" | grep -m1 -i "\"build\":\"linux-ubuntu-x86_64\"")
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
-echo "Installing plex keys and sources ... "
+  echo_progress_start "Installing plex keys and sources ... "
+  apt_install apt-transport-https
   wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
   echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
   echo
 
-echo "Updating system ... "
-  # TODO is this necessary?
-  apt_install apt-transport-https --skip-update
   apt_update
+  echo_progress_done "Sources and keys retrieved and installed"
+
   apt_install plexmediaserver
-  echo
 
   if [[ ! -d /var/lib/plexmediaserver ]]; then
     mkdir -p /var/lib/plexmediaserver
@@ -53,14 +49,14 @@ echo "Updating system ... "
 
 if [[ -n $claim ]]; then
   sleep 5
+  #shellcheck source=sources/functions/plex
   . /etc/swizzin/sources/functions/plex
   claimPlex ${claim}
 fi
 
-    systemctl restart plexmediaserver >/dev/null 2>&1
+    systemctl restart plexmediaserver >> $log 2>&1
 
     touch /install/.plex.lock
-    echo
 
-echo "Plex Install Complete!"
+echo_success "Plex installed"
 

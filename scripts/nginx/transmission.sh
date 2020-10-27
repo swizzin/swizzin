@@ -29,11 +29,26 @@ fi
 
 for u in ${users[@]}; do
     active=$(systemctl is-active transmission@$u)
+    echo_log_only "Service for $u was $active"
     if [[ $active == "active" ]]; then
         systemctl stop transmission@${u}
     fi
-    sed -i 's/"rpc-bind-address": "0.0.0.0",/"rpc-bind-address": "127.0.0.1",/g' /home/${u}/.config/transmission-daemon/settings.json
-    RPCPORT=$(grep rpc-port /home/${u}/.config/transmission-daemon/settings.json | grep -o '[[:digit:]]*')
+
+    timeout=0
+    while systemctl is-active transmission@"$u" > /dev/null ;do
+        # echo "is active"
+        timeout+=0.3
+        if [[ $timeout -ge 20 ]]; then 
+            echo "The service transmission@$u took too long to shut down. Aborting."
+            exit 1
+        fi
+        sleep 0.3
+    done
+
+    confpath="/home/${u}/.config/transmission-daemon/settings.json"
+    jq '.["rpc-bind-address"] = "127.0.0.1"' "$confpath" >> /root/logs/swizzin.log
+    RPCPORT=$(jq -r '.["rpc-port"]' < "$confpath")
+    echo "RPC-port = $RPCPORT"
     if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
         cat > /etc/nginx/conf.d/${u}.transmission.conf <<TDCONF
 upstream ${u}.transmission {
@@ -43,6 +58,7 @@ TDCONF
     fi
     if [[ $active == "active" ]]; then
         systemctl start transmission@${u}
+        echo_log_only "Activating service"
     fi
 done
 

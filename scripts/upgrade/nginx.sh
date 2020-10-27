@@ -7,7 +7,7 @@ hostname=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "nginx doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  echo_error "nginx doesn't appear to be installed. What do you hope to accomplish by running this script?"
   exit 1
 fi
 
@@ -49,8 +49,9 @@ fi
 for i in "${locks[@]}"; do
   app=${i}
   if [[ -f /install/.$app.lock ]]; then
-    echo "Reinstalling nginx config for $app"
+    echo_progress_start "Reinstalling nginx config for $app"
     /usr/local/bin/swizzin/nginx/$app.sh
+    echo_progress_done
   fi
 done
 

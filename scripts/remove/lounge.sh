@@ -1,7 +1,7 @@
 #!/bin/bash
 
-systemctl disable lounge >> /dev/null 2>&1
-systemctl stop lounge
+systemctl disable -q lounge >> /dev/null 2>&1
+systemctl stop -q lounge
 
 npm uninstall -g thelounge --save >> /dev/null 2>&1
 

@@ -17,25 +17,22 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
-echo "Downloading and installing rclone and dependencies ..."
 
 # Install fuse
-apt_install install fuse
+apt_install fuse
 sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
+echo_progress_start "Downloading and installing rclone"
 # One-liner to check arch/os type, as well as download latest rclone for relevant system.
-curl https://rclone.org/install.sh | sudo bash
+wget -q https://rclone.org/install.sh -O /tmp/rcloneinstall.sh >> $log 2>&1
 
 # Make sure rclone downloads and installs without error before proceeding
-if [ $? -eq 0 ]; then
-    echo "Adding rclone mount service..."
+if ! bash /tmp/rcloneinstall.sh ; then
+  echo_error "Rclone installer failed"
+  exit 1
+fi
 
+echo_progress_start "Adding rclone multi-user mount service" 
 cat >/etc/systemd/system/rclone@.service<<EOF
 [Unit]
 Description=rclonemount
@@ -53,6 +50,7 @@ ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
   --dir-cache-time 1h \
   --timeout 30s \
   --umask 002 \
+  --allow-other \
   --poll-interval=1h \
   --vfs-cache-mode writes \
   --vfs-read-chunk-size 1M \
@@ -68,11 +66,9 @@ StartLimitBurst=3
 WantedBy=multi-user.target
 
 EOF
+echo_progress_done
 
-    touch /install/.rclone.lock
-    echo "rclone installation complete!"
-    echo "Setup Rclone remote named: gdrive"
-    echo "And run sudo systemctl start rclone@username.service"
-else
-    echo "Issue occured during rclone installation."
-fi
+touch /install/.rclone.lock
+echo_success "Rclone installed"
+echo_info "Setup Rclone remote named \"gdrive\" And run sudo systemctl start rclone@username.service"
+

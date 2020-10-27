@@ -8,7 +8,7 @@ if [[ -d /srv/rutorrent ]] && [[ ! -f /install/.rutorrent.lock ]]; then
 fi
 
 if [[ ! -f /install/.rutorrent.lock ]]; then
-  echo "ruTorrent doesn't appear to be installed. Script exiting."
+  echo_error "ruTorrent doesn't appear to be installed. Script exiting."
   exit 1
 fi
 
