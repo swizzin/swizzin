@@ -264,7 +264,7 @@ function _adduser() {
 	chmod 750 /home/${user}
 
 	if [[ -f /install/.quota.lock ]]; then
-		setdisk "$user"
+    bash /etc/swizzin/scripts/admin/setdisk "$user"
 	fi
 
 	if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
@@ -526,7 +526,7 @@ case "$1" in
 		exit 0
 		;;
 	"rtx")
-		/usr/local/bin/swizzin/rtx
+    /usr/local/bin/swizzin/admin/rtx
 		;;
 	"update")
 		_update
