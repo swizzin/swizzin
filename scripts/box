@@ -219,49 +219,24 @@ function _adduser {
   
   [[ -n $3 ]] && pass=$3
 
-	if [[ $user =~ [A-Z] ]]; then
-		echo_warn "Usernames must not contain capital letters. Please try again."
-		exit 1
-	elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
-		echo "$user is a reserved username -- please use something else."
-		exit 1
-	fi
+  . /etc/swizzin/sources/functions/utils
+  username_check
 
 	if [[ -f /root/${user}.info ]]; then
-		echo_warn "User already seems to exist"
+    echo_warn "User already exists withinm swizzin"
 		exit 1
 	fi
 
-
-  # existing=$?
-
   if id -u "${user}" > /dev/null 2>&1 ; then
-		echo_info "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-		read -rep 'Press enter to continue adding user, or CTRL+C to cancel'
+    echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
+    if ! ask "Continue adding user?" Y; then
+      exit 1
+    fi
     existing=true
 	fi
 
-	echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
-	read -s 'pass'
-	echo
+  password_check
 
-	if [[ -z "${pass}" ]]; then
-		pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-		echo_info "Password for ${user} has been set to ${pass}"
-	fi
-	if [[ -n $(which cracklib-check) ]]; then
-		echo_progress_start "Cracklib detected. Checking password strength."
-		sleep 1
-		str="$(cracklib-check <<< "$pass")"
-		check=$(grep OK <<< "$str")
-		if [[ -z $check ]]; then
-			read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-			printf "\n"
-			_adduser "$@"
-		else
-			echo_progress_done "Password OK"
-		fi
-	fi
 	echo "$user:$pass" > /root/${user}.info
   if [[ $existing != "true" ]]; then
 		useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
@@ -308,19 +283,22 @@ function _adduser {
 	done
 
 	USER=${user^^}
-	cat > /etc/sudoers.d/${user} << SUD
+
+  #shellcheck source=sources/functions/utils
+  . /etc/swizzin/sources/functions/utils
+  if [[ $user != $(_get_master_username) ]]; then 
+    cat > /etc/sudoers.d/${user} <<SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /bin/systemctl start qbittorrent@${user}, /bin/systemctl stop qbittorrent@${user}, /bin/systemctl restart qbittorrent@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
-	if [[ -f /install/.nginx.lock ]]; then
-		systemctl reload nginx
-	fi
+  fi
 
-	#echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
-	#chown $user: /home/$user/.profile
-	echo_success "User $user created"
+  if [[ -f /install/.nginx.lock ]]; then
+    systemctl reload nginx
+  fi
 
+  echo_success "User $user created"
 }
 
 function _deluser() {
@@ -503,7 +481,7 @@ case "$1" in
 			echo_error "You must specify a user"
 			exit 1
 		fi
-		if [[ -n $3 ]]; then
+    if [[ -n $4 ]]; then
 			echo_error "Too many arguments\nCorrect usage: box adduser <username>"
 			exit 1
 		fi
