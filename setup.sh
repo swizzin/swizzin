@@ -15,6 +15,7 @@
 #################################################################################
 
 time=$(date +"%s")
+export log=/root/logs/install.log
 
 if [[ $EUID -ne 0 ]]; then
 	echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
@@ -35,38 +36,38 @@ while test $# -gt 0
         case "$1" in
             --user) shift
                 user="$1"
-                echo "User = $user"
+              echo "User = $user" | tee -a $log
                 ;;
             --pass) shift
                 pass="$1"
-                echo "Pass = $pass"
+              echo "Pass = $pass" | tee -a $log
                 ;;
           --domain) shift
               export LE_hostname="$1"
               export LE_defaultconf=yes
               export LE_bool_cf=no
-              echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf"
+              echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf" | tee -a $log
               ;;
           --local) 
               local=true
-              echo "Local = $local"
+              echo "Local = $local" | tee -a $log
               ;;
           --rmgrsec) 
               rmgrsec=yes
-              echo "OVH Kernel nuke = $rmgrsec"
+              echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
                 ;;
             --env) shift
               if [[ ! -f $1 ]]; then echo "File does not exist" ; exit 1; fi
-              echo -en "Parsing env variables from $1\n--->"
+              echo -en "Parsing env variables from $1\n--->" | tee -a $log
               #shellcheck disable=SC2046
-              export $(grep -v '^#' "$1" | xargs -t -d '\n')
+              export $(grep -v '^#' "$1" | xargs -t -d '\n')  | tee -a $log
               if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
                   unattend=true
                 ;;
             --unattend) 
                 unattend=true
             ;;
-            -*) echo "Error: Invalid option: $1"
+          -*) echo "Error: Invalid option: $1"  | tee -a $log
                 exit 1
                 ;;
           *) installArray+=("$1")
@@ -82,7 +83,7 @@ if [[ $unattend = "true" ]]; then
 fi
 
 if [[ ${#installArray[@]} -gt 0 ]]; then
-  echo "Application install picker will be skipped"
+  echo "Application install picker will be skipped"  | tee -a $log
   #check Line 229 or something
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
   for i in "${installArray[@]}"
@@ -90,19 +91,18 @@ if [[ ${#installArray[@]} -gt 0 ]]; then
     #shellcheck disable=SC2199,SC2076
     if [[ " ${priority[@]} " =~ " ${i} " ]]; then
       echo "$i" >> /root/results
-      echo "$i" added to install queue 1
+      echo "$i" added to install queue 1 | tee -a $log
       touch /tmp/."$i".lock
     else
       echo "$i" >> /root/results2
-      echo "$i" added to install queue 2
+      echo "$i" added to install queue 2 | tee -a $log
     fi
   done
 fi
 
 _os() {
-	if [ ! -d /install ]; then mkdir /install; fi
-	if [ ! -d /root/logs ]; then mkdir /root/logs; fi
-	export log=/root/logs/install.log
+  if [ ! -d /install ]; then mkdir /install ; fi
+  if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
 	# echo "Checking OS version and release ... "
 	if ! which lsb_release > /dev/null; then
 		apt-get -y -qq update >> ${log} 2>&1
