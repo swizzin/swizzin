@@ -201,7 +201,7 @@ DHL
   mkdir -p /home/${u}/torrents/deluge
   chown ${u}: /home/${u}/torrents
   chown ${u}: /home/${u}/torrents/deluge
-  usermod -a -G ${user} www-data 2>> $log
+  usermod -a -G ${u} www-data 2>> "$log"
   echo_progress_done "Configured for $u"
 done
 }

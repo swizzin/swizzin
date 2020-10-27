@@ -19,7 +19,7 @@ _sonarrv2_flow(){
     fi
 
     if [[ $v2present == "true" ]]; then
-        echo_warn "Sonarr v2 is detected. Continuing will migrate your current v2 installation. This will stop and remove sonarr v2 You can read more about the migration at https://docs.swizzin.ltd/applications/sonarrv3#migrating-from-v2. An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/"
+        echo_warn "Sonarr v2 is detected. Continuing will migrate your current v2 installation. This will stop and remove sonarr v2 You can read more about the migration at https://swizzin.ltd/applications/sonarrv3#migrating-from-v2. An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/"
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi

@@ -7,7 +7,7 @@
 # Gathering variables and gettin go-ahead
 ##########################################################
 if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
-    echo_info "This script requires an account at duckdns.org. You can always refer to the swizzin documentation for guidance.\n https://docs.swizzin.ltd/applications/duckdns"
+    echo_info "This script requires an account at duckdns.org. You can always refer to the swizzin documentation for guidance.\n https://swizzin.ltd/applications/duckdns"
     echo_query "Would you like to continue?" "y/N"
     read -r yn
     case $yn in
@@ -83,7 +83,7 @@ else
     echo_progress_done
     echo_success "Duck DNS setup succesfully completed!"
     if [[ ! -f /install/.nginx.lock ]]; then
-        echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://docs.swizzin.org/guides/troubleshooting for help with port forwarding."
+        echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
     fi
     touch /install/.duckdns.lock
 fi
