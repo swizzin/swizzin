@@ -1,7 +1,7 @@
 #!/bin/bash
 user=$(cut -d: -f1 < /root/.master.info)
 
-systemctl disable --now sabnzbd
+systemctl disable --now -q sabnzbd
 rm -rf /opt/sabnzbd
 rm -rf /home/$user/.config/sabnzbd
 rm -rf /opt/.venv/sabnzbd

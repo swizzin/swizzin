@@ -17,7 +17,7 @@ install_ffmpeg="/opt/ffmpeg"
 install_tmp="/tmp/jellyfin"
 #
 if [[ ! -f /install/.jellyfin.lock ]]; then
-  echo "Jellyfin doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  echo_error "Jellyfin doesn't appear to be installed. What do you hope to accomplish by running this script?"
   exit 1
 fi
 #
@@ -61,8 +61,8 @@ chown "${username}.${username}" -R "$install_ffmpeg"
 #
 systemctl start jellyfin
 #
-echo -e "\nJellyfin upgrade completed and service restarted\n"
+echo_success "Jellyfin upgraded"
 #
-echo -e "Please visit https://$ip_address/jellyfin\n"
+echo_info "Please visit https://$ip_address/jellyfin"
 #
 exit

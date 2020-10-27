@@ -1,5 +1,4 @@
 #!/bin/bash
-log="/root/logs/swizzin.log"
 
 apt_remove --purge sonarr
 

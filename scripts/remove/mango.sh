@@ -1,16 +1,12 @@
 #! /bin/bash
 # Mango deyeeter by flying_sausages 2020 for swizzin
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+ 
 
 rm -rf /opt/mango
-systemctl disable --now mango >> $log 2>&1
+systemctl disable --now -q mango
 rm /etc/systemd/system/mango.service
-systemctl daemon-reload >> $log 2>&1
+systemctl daemon-reload -q
 
 if [[ -f /install/.nginx.lock ]]; then
   rm /etc/nginx/apps/mango.conf

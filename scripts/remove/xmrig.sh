@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user=$(cut -d: -f1 < /root/.master.info)
-systemctl disable --now xmrig > /dev/null 2>&1
+systemctl disable --now -q xmrig
 su - ${user} -c "screen -X -S xmrig quit" > /dev/null 2>&1
 rm -rf /home/${user}/.xmrig
 rm -rf /etc/systemd/system/xmrig.service

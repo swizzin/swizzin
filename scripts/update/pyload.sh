@@ -18,9 +18,8 @@ if [[ -f /install/.pyload.lock ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
-        log="/root/logs/swizzin.log"
         . /etc/swizzin/sources/functions/pyenv
-        systemctl disable --now pyload@${user} >> ${log} 2>&1
+        systemctl disable -q --now pyload@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
@@ -57,7 +56,7 @@ PYSD
         systemctl daemon-reload
         rm /etc/systemd/system/pyload@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable --now pyload >> ${log} 2>&1
+            systemctl enable -q --now pyload 2>&1  | tee -a $log
         fi
     fi
 fi

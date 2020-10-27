@@ -1,6 +1,6 @@
 #!/bin/bash
-systemctl disable ombi
-systemctl stop ombi
+systemctl disable -q ombi
+systemctl stop -q ombi
 rm /etc/systemd/system/ombi.service
 rm -f /etc/nginx/apps/ombi.conf
 systemctl reload nginx

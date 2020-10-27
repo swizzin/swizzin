@@ -21,10 +21,8 @@
 
 function _check_for_sonarr3 () {
     if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then 
-    echo
-    echo "WARNING: Found backups from before Sonarr v3 migration."
-    echo "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
-    echo
+    echo_warn "Found backups from before Sonarr v3 migration."
+    echo_info "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
     #TODO implement restore procedure if user wants that to happen?
     #TODO check if unit is still masked. Unmaks it if that's the case.
   fi
@@ -38,27 +36,10 @@ function _check_for_sonarr3 () {
   fi
 
   if [[ $v3present == "true" ]]; then
-    echo "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
+    echo_error "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
     exit 1
   fi
 
-}
-
-function _installSonarrintro() {
-  # echo "Sonarr v3 is available as a separate application (sonarrv3)"
-  # . /etc/swizzin/sources/functions/ask
-  # if ! ask "Would you like to continue installing Sonarr v2?"; then
-  #   exit 0
-  # fi
-
-  echo "Sonarr will now be installed." >>"${log}" 2>&1;
-  echo "This process may take up to 2 minutes." >>"${log}" 2>&1;
-  echo "Please wait until install is completed." >>"${log}" 2>&1;
-  # output to box
-  echo "Sonarr will now be installed."
-  echo "This process may take up to 2 minutes."
-  echo "Please wait until install is completed."
-  echo
 }
 
 function _installSonarr1() {
@@ -96,6 +77,7 @@ function _installSonarr5() {
 }
 
 function _installSonarr6() {
+  echo_progress_start "Installing systemd service"
   cat > /etc/systemd/system/sonarr@.service <<SONARR
 [Unit]
 Description=nzbdrone
@@ -112,48 +94,29 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 SONARR
-  systemctl enable --now sonarr@${username} >> ${log} 2>&1
+  systemctl enable -q --now sonarr@${username} 2>&1  | tee -a $log
   sleep 10
-
+  echo_progress_done "Sonarr started"
 
 
   if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring nginx"
     sleep 10
     bash /usr/local/bin/swizzin/nginx/sonarr.sh
     systemctl reload nginx
+    echo_progress_done
   fi
 }
 
-
-function _installSonarr9() {
-  echo "Sonarr Install Complete!" >>"${log}" 2>&1;
-  echo >>"${log}" 2>&1;
-  echo >>"${log}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${log}" 2>&1;
-}
-
-function _installSonarr10() {
-  exit
-}
-
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+#shellcheck source=sources/functions/mono
 . /etc/swizzin/sources/functions/mono
 username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-
 
 _check_for_sonarr3
-_installSonarrintro
 _installSonarr1
-echo "Adding source repositories for Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr2
-echo "Updating your system with new sources ... " >>"${log}" 2>&1;_installSonarr3
-echo "Installing Sonarr-Nzbdrone ... " >>"${log}" 2>&1;_installSonarr4
-echo "Setting permissions to ${username} ... " >>"${log}" 2>&1;_installSonarr5
-echo "Setting up Sonarr as a service and enabling ... " >>"${log}" 2>&1;_installSonarr6
-_installSonarr9
-_installSonarr10
+echo_progress_start "Adding source repositories for Sonarr-Nzbdrone ... ";_installSonarr2; echo_progress_done "Repositories added"
+echo_progress_start "Updating your system with new sources ... ";_installSonarr3; echo_progress_done
+_installSonarr4
+echo_progress_start "Setting permissions to ${username} ... ";_installSonarr5; echo_progress_done
+_installSonarr6

@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+    echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
     exit 1
 fi
 
@@ -249,6 +249,7 @@ RUC
 done
 }
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
@@ -263,5 +264,7 @@ rutorrent_user_config
 
 restart_php_fpm
 chown -R www-data.www-data /srv/rutorrent
-systemctl reload nginx
+echo_progress_start "Reloading nginx"
+systemctl reload nginx >> $log 2>&1
+echo_progress_done
 touch /install/.rutorrent.lock

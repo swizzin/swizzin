@@ -15,11 +15,7 @@
 export distribution=$(lsb_release -is)
 export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+
 
 apt_install ffmpeg
 

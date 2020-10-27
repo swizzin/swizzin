@@ -2,7 +2,7 @@
 # Medusa Uninstaller for Swizzin
 # Author: liara
 
-systemctl disable --now medusa
+systemctl disable --now -q medusa
 
 sudo rm /etc/nginx/apps/medusa.conf > /dev/null 2>&1
 sudo rm /etc/systemd/medusa.service > /dev/null 2>&1

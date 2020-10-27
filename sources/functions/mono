@@ -28,7 +28,7 @@ function mono_repo_update () {
       :
     else
       echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
-      echo "Upgrading to mono 5.18 snapshot"
+      echo_log_only "Upgrading to mono 5.18 snapshot"
       apt_upgrade
       apt_autoremove
     fi
