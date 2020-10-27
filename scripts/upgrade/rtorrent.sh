@@ -3,17 +3,13 @@
 # Author: liara
 
 if [[ ! -f /install/.rtorrent.lock ]]; then
-  echo "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
+  echo_error "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
   exit 1
 fi
 
 export DEBIAN_FRONTEND=noninteractive
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  export log="/root/logs/swizzin.log"
-fi
+#shellcheck source=sources/functions/rtorrent
 . /etc/swizzin/sources/functions/rtorrent
 whiptail_rtorrent
 
@@ -26,19 +22,21 @@ if [[ -n $noexec ]]; then
 	noexec=1
 fi
 isdeb=$(dpkg -l | grep rtorrent)
-echo "Removing old rTorrent binaries and libraries ... ";
+echo_progress_start "Removing old rTorrent binaries and libraries ... "
 if [[ -z $isdeb ]]; then
 	remove_rtorrent_legacy
 else
   remove_rtorrent
 fi
-echo "Checking rTorrent Dependencies ... ";depends_rtorrent
+echo_progress_done
+
+echo_progress_start "Checking rTorrent Dependencies ... ";depends_rtorrent ; echo_progress_done
 if [[ ! $rtorrentver == repo ]]; then
-  echo "Building xmlrpc-c from source ... ";build_xmlrpc-c
-  echo "Building libtorrent from source ... ";build_libtorrent_rakshasa
-  echo "Building rtorrent from source ... ";build_rtorrent
+  echo_progress_start "Building xmlrpc-c from source ... ";build_xmlrpc-c; echo_progress_done
+  echo_progress_start "Building libtorrent from source ... ";build_libtorrent_rakshasa; echo_progress_done
+  echo_progress_start "Building rtorrent from source ... ";build_rtorrent; echo_progress_done
 else
-  echo "Installing rtorrent with apt-get ... ";rtorrent_apt
+  echo_progress_start "Installing rtorrent with apt-get ... ";rtorrent_apt; echo_progress_done
 fi
 
 if [[ -n $noexec ]]; then

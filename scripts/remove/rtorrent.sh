@@ -1,23 +1,26 @@
 #!/bin/bash
 users=($(cut -d: -f1 < /etc/htpasswd))
-export log=/dev/null
-read -n 1 -s -r -p "This will remove rTorrent and all associated interfaces (ruTorrent/Flood). Press any key to continue."
-printf "\n"
 
+if [[ -f /install/.rutorrent.lock || -f /install/.flood.lock ]]; then
+  if ! ask "This will remove ruTorrent&/Flood. Continue?" Y; then
+    exit 0
+  fi
+fi
 for u in ${users}; do
-  systemctl disable rtorrent@${u}
-  systemctl stop rtorrent@${u}
+  systemctl disable -q rtorrent@${u}
+  systemctl stop -q rtorrent@${u}
   rm -f /home/${u}/.rtorrent.rc
 done
 
 . /etc/swizzin/sources/functions/rtorrent
 isdeb=$(dpkg -l | grep rtorrent)
-echo "Removing old rTorrent binaries and libraries ... ";
+echo_progress_start "Removing old rTorrent binaries and libraries ... ";
 if [[ -z $isdeb ]]; then
 	remove_rtorrent_legacy
 else
   remove_rtorrent
 fi
+echo_progress_done
 
 for a in rutorrent flood; do
   if [[ -f /install/.$a.lock ]]; then

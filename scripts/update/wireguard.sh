@@ -3,7 +3,6 @@
 if [[ -f /install/.wireguard.lock ]]; then
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
-    if [[ -z $log ]]; then log=/root/logs/swizzin.log; fi
     #Fix potential wireguard repo issues under Debian
     if [[ $distribution == "Debian" ]]; then
         if grep -q "Pin-Priority: 150" /etc/apt/preferences.d/limit-unstable 2> /dev/null; then

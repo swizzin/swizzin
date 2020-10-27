@@ -36,7 +36,7 @@ cp -a /opt/plexpy/plexpy.db /tmp/tautulli.db.tautulli_bak &>/dev/null
 cp -a /opt/plexpy/tautulli.db /tmp/tautulli.db.tautulli_bak &>/dev/null
 
 systemctl stop plexpy
-systemctl disable plexpy
+systemctl disable -q plexpy
 rm -rf /opt/plexpy
 rm /install/.plexpy.lock
 rm -f /etc/nginx/apps/plexpy.conf
@@ -56,6 +56,6 @@ sed -i  's#/opt/plexpy#/opt/tautulli#g' /opt/tautulli/config.ini
 sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
 chown -R tautulli:nogroup /opt/tautulli
 if [[ $active == "active" ]]; then
-  systemctl enable --now tautulli
+  systemctl enable -q --now tautulli
 fi
 fi

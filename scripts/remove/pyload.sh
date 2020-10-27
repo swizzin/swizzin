@@ -1,6 +1,6 @@
 #!/bin/bash
 
-systemctl disable --now pyload >/dev/null 2>&1
+systemctl disable --now -q pyload
 
 rm /etc/systemd/system/pyload.service
 

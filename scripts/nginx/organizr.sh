@@ -7,14 +7,10 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+  echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
   exit 1
 fi
 #shellcheck source=sources/functions/php
@@ -25,7 +21,6 @@ fi
 phpv=$(php_v_from_nginxconf)
 sock="php${phpv}-fpm"
 
-echo "Installing Nginx Config"
 if [[ ! -f /etc/nginx/apps/organizr.conf ]]; then
 cat > /etc/nginx/apps/organizr.conf <<RUM
 location /organizr {

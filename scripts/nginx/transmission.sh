@@ -29,6 +29,7 @@ fi
 
 for u in ${users[@]}; do
     active=$(systemctl is-active transmission@$u)
+    echo_log_only "Service for $u was $active"
     if [[ $active == "active" ]]; then
         systemctl stop transmission@${u}
     fi
@@ -57,6 +58,7 @@ TDCONF
     fi
     if [[ $active == "active" ]]; then
         systemctl start transmission@${u}
+        echo_log_only "Activating service"
     fi
 done
 

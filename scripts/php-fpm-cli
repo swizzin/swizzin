@@ -67,14 +67,14 @@ init() {
         ;;
 
       *)
-        echo "unknown option: $1";
+        echo_error "unknown option: $1";
         usage;
         exit 1
         ;;
     esac
   done
   if [ -z "$PHPCODE" ]; then
-    echo "missing option: -r <code>";
+    echo_error "missing option: -r <code>";
     usage;
     exit 1
   fi

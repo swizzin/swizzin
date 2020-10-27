@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 
 function _defiface_confirm() {
-	echo "Setup has detected that $defiface is your main interface, is this correct?"
+	echo_query "Setup has detected that $defiface is your main interface, is this correct?" ""
 	select yn in "yes" "no"; do
 		case $yn in
 			yes ) wgiface=$defiface; break;;
@@ -20,14 +20,14 @@ function _defiface_confirm() {
 }
 
 function _selectiface () {
-	echo "Please choose the correct interface from the following list:"
+	echo_query "Please choose the correct interface from the following list:" ""
 	select seliface in "${IFACES[@]}"; do
 		case $seliface in
 		*) wgiface=$seliface; break;;
 		esac
 	done
-	echo "Your interface has been set as $wgiface"
-	echo "Groovy. Please wait a few moments while wireguard is installed ..."
+	# echo "Your interface has been set as $wgiface"
+	# echo "Groovy. Please wait a few moments while wireguard is installed ..."
 }
 
 function _install_wg () {
@@ -35,7 +35,7 @@ function _install_wg () {
         if [[ ! $codename == "stretch" ]]; then
             check_debian_backports
         else
-            echo "Adding debian unstable repository and limiting packages"
+            echo_info "Adding debian unstable repository and limiting packages"
             echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
             printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
         fi
@@ -44,11 +44,8 @@ function _install_wg () {
 		check_ubuntu_updates
 	fi
 
-	echo "Fetching APT updates"
 	apt_update
-	echo "Installing Wireguard from APT"
 	apt_install --recommends wireguard qrencode
-
 
 	if [[ ! -d /etc/wireguard ]]; then
 		mkdir /etc/wireguard
@@ -56,24 +53,22 @@ function _install_wg () {
 
 	chown -R root:root /etc/wireguard/
 	chmod -R 700 /etc/wireguard
-	# echo ""
-	modprobe wireguard >> $log 2>&1
 
-	if [[ $? != "0" ]]; then
-		echo "Could not modprobe Wireguard, script will now terminate."
-        echo "Please ensure a kernel headers package is installed that matches the currently running kernel."
-        echo "Currently running kernel:"
-        echo "$(uname -r)"
-        echo "Installed kernel headers:"
-        echo "$(dpkg -l | awk '{print $2}' | grep headers | grep amd64 | grep -v linux-headers-amd64 | sed 's/^/  '/g)"
-        echo "You may be able to resolve this error with \`apt install linux-headers-$(uname -r)\` or a system reboot."
-        echo "If you are using a custom kernel, your package names may differ."
-		echo "Please consult the swizzin log for further info if required."
+	if ! modprobe wireguard >> $log 2>&1 ; then
+		echo_error "Could not modprobe Wireguard, script will now terminate."
+        echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel.
+Currently running kernel:
+$(uname -r)
+Installed kernel headers: 
+$(dpkg -l | awk '{print $2}' | grep headers | grep amd64 | grep -v linux-headers-amd64 | sed 's/^/  '/g)
+
+You may be able to resolve this error with \`apt install linux-headers-$(uname -r)\` or a system reboot. If you are using a custom kernel, your package names may differ.
+Please consult the swizzin log for further info if required."
 		exit 1
 	fi
+	systemctl daemon-reload -q
+	echo_progress_done
 	
-	systemctl daemon-reload >> $log 2>&1
-
 	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 	sysctl -p > /dev/null 2>&1
     echo "$wgiface" > /install/.wireguard.lock
@@ -82,7 +77,7 @@ function _install_wg () {
 
 
 function _mkconf_wg () {
-	echo -n "Configuring Wireguard for $u"
+	echo_progress_start "Configuring Wireguard for $u"
 
 	mkdir -p /home/$u/.wireguard/{server,client}
 
@@ -148,19 +143,13 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-	systemctl enable --now wg-quick@wg$(id -u $u) >> $log 2>&1
+	systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1  | tee -a $log
 	if [[ $? == 0 ]]; then 
-		echo "  |  Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+		echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
 	else
-		echo "  |  Configuration failed"
+		echo_error "Configuration for $u failed"
 	fi
 }
-
-if [[ -f /tmp/.install.lock ]]; then
-	log="/root/logs/install.log"
-else
-	log="/root/logs/swizzin.log"
-fi
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
@@ -193,8 +182,5 @@ users=($(_get_user_list))
 for u in ${users[@]}; do
 	_mkconf_wg
 done
-echo
-echo "Configuration QR code can be generated with the following command:"
 masteruser=$(_get_master_username)
-echo "  qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
-echo
+echo_info "Configuration QR code can be generated with the following command:\n${bold}qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"
