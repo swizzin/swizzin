@@ -3,7 +3,6 @@
 if [[ -f /install/.wireguard.lock ]]; then
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
-    if [[ -z $log ]]; then log=/root/logs/swizzin.log; fi
     #Fix potential wireguard repo issues under Debian
     if [[ $distribution == "Debian" ]]; then
         if grep -q "Pin-Priority: 150" /etc/apt/preferences.d/limit-unstable 2> /dev/null; then
@@ -21,5 +20,21 @@ if [[ -f /install/.wireguard.lock ]]; then
                 printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
             fi
         fi
+    elif [[ $codename =~ ("xenial"|"bionic") ]]; then
+        if grep -q "wireguard/wireguard" /etc/apt/sources.list{,.d/*}; then
+            echo "Downgrading wireguard from PPA status to mainline"
+            filenames=($(grep -l "wireguard/wireguard" /etc/apt/sources.list{,.d/*}))
+            for file in "${filenames[@]}"; do
+                if [[ "$file" =~ sources\.list$ ]]; then
+                    sed -i '/wireguard\/wireguard/d' "${file}"
+                elif [[ "$file" =~ sources\.list\.d ]]; then
+                    rm -f "${file}"
+                fi
+            done
+            apt_remove wireguard
+            apt_autoremove
+            apt_install wireguard
+        fi
+        
     fi
 fi

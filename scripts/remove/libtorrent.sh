@@ -2,7 +2,7 @@
 #libtorrent remove script
 
 if [[ -f /install/.deluge.lock ]] || [[ -f /install/.qbittorrent.lock ]]; then
-    echo "It looks like Deluge or qBittorrent is still installed. Not proceeding."
+    echo_error "It looks like Deluge or qBittorrent is still installed. Not proceeding."
     exit 1
 fi
 

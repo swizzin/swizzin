@@ -5,11 +5,29 @@ function whiptail_libtorrent_rasterbar () {
     repov=$(get_candidate_version libtorrent-rasterbar7)
     repov+=$(get_candidate_version libtorrent-rasterbar8)
     repov+=$(get_candidate_version libtorrent-rasterbar9)
-    if [[ ($deluge == "1.3-stable" && -n $qbittorrent) || ($deluge == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
+    if [[ -n $qbittorrent ]] && [[ $qbittorrent == "repo" ]]; then
+        qbitversion=$(get_candidate_version qbittorrent-nox)
+    elif [[ -n $qbittorrent ]]; then
+        qbitversion=$qbittorrent
+    fi
+    if [[ -n $deluge ]] && [[ $deluge == "repo" ]]; then
+        delugeversion=$(get_candidate_version deluge)
+        case $delugeversion in
+            1.3.*)
+                delugeversion=1.3-stable
+            ;;
+            *)
+                delugeversion=master
+            ;;
+        esac
+    elif [[ -n $deluge ]]; then
+        delugeversion=$deluge
+    fi
+    if [[ ($delugeversion == "1.3-stable" && -n $qbittorrent) || ($delugeversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
         case $(lsb_release -cs) in
             "xenial"|"focal")
                 function="1.1"
-                echo "Defaulting to libtorrent branch RC_1_1 for shared compatbility"
+                echo_info "Defaulting to libtorrent branch RC_1_1 for shared compatbility"
                 ;;
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -17,7 +35,10 @@ function whiptail_libtorrent_rasterbar () {
                     1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
         ;;
       esac
-    elif [[ $deluge == master ]] || [[ -n $qbittorrent ]]; then
+    elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbitversion ge 4.3.0; then
+        function="1.2"
+        echo_info "Defaulting to libtorrent branch RC_1_2 for compatibility"
+    elif [[ $delugeversion == master ]] || [[ -n $qbittorrent ]]; then
         case $(lsb_release -cs) in
             "xenial")
                 function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -29,7 +50,7 @@ function whiptail_libtorrent_rasterbar () {
                     Repo "(${repov})" \
                     1.1 "libtorrent branch RC_1_1" \
                     1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-        ;;
+                ;;
       esac
     else
         case $(lsb_release -cs) in
@@ -56,7 +77,66 @@ function whiptail_libtorrent_rasterbar () {
     elif [[ $function == 1.2 ]]; then
       export libtorrent=RC_1_2
     fi
+    echo_log_only "Libtorrent = $libtorrent"
   fi
+}
+
+function whiptail_libtorrent_install_resolve_conflict() {
+    message="Deluge 1.3 is not compatible with versions of qBittorrent greater than 4.3.0. You will be presented with options to resolve this conflict."
+    whiptail --msgbox "${message}" --title "ERROR: libtorrent conflict" --scrolltext 12 78
+    function=$(whiptail --title "ERROR: libtorrent conflict" --menu "Choose a resolution:" --ok-button "Continue" --nocancel 12 50 4 \
+        "Upgrade Deluge" "" \
+        "Downgrade qBittorrent" "" \
+        "Remove Deluge" "" \
+        "Remove qBittorrent" "" 3>&1 1>&2 2>&3)
+    case $function in
+        "Upgrade Deluge" ) export deluge=master;;
+        "Downgrade qBittorrent" ) export qbittorrent=4.2.5;;
+        "Remove Deluge" ) unset deluge; sed -i '/deluge/d' /root/results{,2};;
+        "Remove qBittorrent" ) unset qbittorrent; sed -i '/qbittorrent/d' /root/results{,2};;
+    esac
+}
+
+function check_client_compatibility() {
+    if [[ $1 == "setup" ]]; then
+        setup=true
+    fi
+    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
+        qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+        qbitversion=$qbittorrent
+    elif [[ $qbittorrent == "repo" ]]; then
+        qbitversion=$(get_candidate_version qbittorrent-nox)
+    elif [[ -n $qbittorrent ]]; then
+        qbitversion=$qbittorrent
+    fi
+    if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
+        dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+        case $dver in
+            1.3.*)
+                deluge=1.3-stable
+            ;;
+            *)
+                deluge=master
+            ;;
+        esac
+    fi
+    if [[ -n $deluge && -n $qbittorrent ]]; then
+        if [[ $deluge == "1.3-stable" ]]  || ( [[ $deluge == "repo" && $(lsb_release -cs) =~ ("stretch"|"buster"|"xenial"|"bionic") ]]); then
+            if dpkg --compare-versions ${qbitversion} ge 4.3.0; then
+                if [[ ${setup} == true ]]; then
+                    whiptail_libtorrent_install_resolve_conflict
+                else
+                    echo_error "Deluge 1.3 is not compatible with versions of qBittorrent greater than 4.3.0.
+You can resolve this error with one of the following actions:
+- Upgrade Deluge to at least v2
+- Downgrade qBittorrent to at most v4.2.5
+- Remove qBittorrent
+- Remove Deluge"
+                    exit 1
+                fi
+            fi
+        fi
+    fi
 }
 
 function skip_libtorrent_rasterbar () {
@@ -93,6 +173,8 @@ function skip_libtorrent_rasterbar () {
                     return
                 elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
+                elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
+                    false; return
                 elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
@@ -123,7 +205,7 @@ function build_libtorrent_rasterbar () {
     cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
     for a in ${cleanup[@]}; do
       if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-        echo "Found $a. Removing."
+        echo_info "Found $a. Removing."
         dpkg -r $a > /dev/null 2>&1
       fi
     done
@@ -184,7 +266,7 @@ function build_libtorrent_rasterbar () {
     cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
     for a in ${cleanup[@]}; do
       if dpkg -l | grep $a > /dev/null 2>&1; then
-        echo "Found package conflict: $a. Removing."
+        echo_info "Found package conflict: $a. Removing."
         dpkg -r $a > /dev/null 2>&1
       fi
     done
@@ -195,20 +277,6 @@ function build_libtorrent_rasterbar () {
     apt_install $LIST
     apt_autoremove
     install_fpm
-    #OpenSSL 1.1.0 might fk a lot of things up -- Requires at least libboost-1.62 to build
-    #if [[ ! ${codename} =~ ("xenial")|("yakkety") ]]; then
-    #  LIST='libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev'
-    #  for depend in $LIST; do
-    #    apt-get -qq -y install $depend >>"${log}" 2>&1
-    #  done
-    #else
-    #  cd /tmp
-    #  wget https://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.gz
-    #  tar xf boost_1_62_0.tar.gz
-    #  cd boost_1_62_0
-    #  ./bootstrap.sh --prefix=/usr
-    #  ./b2 install
-    #fi
     noexec=$(grep "/tmp" /etc/fstab | grep noexec)
     if [[ -n $noexec ]]; then
         mount -o remount,exec /tmp
@@ -221,16 +289,20 @@ function build_libtorrent_rasterbar () {
         swap=true
         tmp_swap_on
     fi
-    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo "ERROR: git could not clone the libtorrent repository"; exit 1; }
+    git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >>"${log}" 2>&1 || { echo_error "ERROR: git could not clone the libtorrent repository"; exit 1; }
     cd libtorrent
     if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
         configure_args="-std=c++14"
         tag=" with c++14"
+        #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
         sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
     fi
     ./autotool.sh >>"${log}" 2>&1
     ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >>"${log}" 2>&1
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+    #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
+    #If not enabled, Deluge may not properly reannounce on unregistered torrents.
+    #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
     case $LTRC in
       RC_1_1)
         sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
@@ -250,10 +322,11 @@ function build_libtorrent_rasterbar () {
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" > /dev/null 2>&1
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
     if [[ -n $deluge ]]; then
-      echo "Building python binding ..."
+      echo_progress_start "Building python binding"
       PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >>"${log}" 2>&1
       fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin$tag" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
       dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
+      echo_progress_done "Pbox ython binding built"
     fi
     ldconfig
     cd /tmp

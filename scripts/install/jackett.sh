@@ -17,11 +17,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 username=$(cut -d: -f1 < /root/.master.info)
@@ -29,15 +24,15 @@ jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest |
 #jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
 password=$(cut -d: -f2 < /root/.master.info)
 
-echo >>"${OUTTO}" 2>&1;
-echo "Installing Jackett ... " >>"${OUTTO}" 2>&1;
-
+echo_progress_start "Downloading and extracting jackett"
 cd /home/$username
-wget -q $jackett
+wget $jackett >> "$log" 2>&1
 tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
 chown ${username}.${username} -R Jackett
+echo_progress_done
 
+echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/jackett@.service <<JAK
 [Unit]
 Description=jackett for %i
@@ -71,7 +66,9 @@ echo "Jackett update complete"
 JL
 chmod +x /home/${username}/Jackett/jackett_launcher.sh
 fi
+echo_progress_done "Service file installed"
 
+echo_progress_start "Configuring jackett"
 mkdir -p /home/${username}/.config/Jackett
 cat > /home/${username}/.config/Jackett/ServerConfig.json <<JSC
 {
@@ -97,25 +94,25 @@ JSC
 
 chown ${username}.${username} -R /home/${username}/.config/Jackett
 
+echo_progress_done "Jackett configured"
 
 if [[ -f /install/.nginx.lock ]]; then
+  echo_progress_start "Installing nginx config"
   bash /usr/local/bin/swizzin/nginx/jackett.sh
-  systemctl reload nginx
+  systemctl reload nginx >> $log 2>&1
+  echo_progress_done "Nginx configured"
 fi
 
-systemctl enable --now jackett@${username} >/dev/null 2>&1
+systemctl enable -q --now jackett@${username} 2>&1  | tee -a $log
 
 sleep 10
 
+echo_progress_start "Setting admin password"
 cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cookie | awk '{printf $3}' | sed 's/;//g')
-curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"'
-
+curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"' >> $log 2>&1
+echo_progress_done
 
 
 touch /install/.jackett.lock
 
-echo >>"${OUTTO}" 2>&1;
-echo >>"${OUTTO}" 2>&1;
-echo "Jackett Install Complete!" >>"${OUTTO}" 2>&1;
-
-echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
+echo_success "Jackett installed"

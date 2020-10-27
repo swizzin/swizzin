@@ -3,9 +3,9 @@
 username="$(cut -d: -f1 < /root/.master.info)"
 #
 function remove_filebrowser() {
-    systemctl stop "filebrowser.service"
+    systemctl stop -q "filebrowser.service"
     #
-    systemctl disable "filebrowser.service"
+    systemctl disable -q "filebrowser.service"
     #
     rm -f "/etc/systemd/system/filebrowser.service"
     #

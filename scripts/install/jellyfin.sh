@@ -15,6 +15,7 @@ password="$(cat /root/.master.info | cut -d: -f2)"
 # This will generate random ports for the script to use with applications between the range 10001 to 32001.
 app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done
 app_port_https="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_https}"'')" -ge "1" ]]; do app_port_https="$(shuf -i 10001-32001 -n 1)"; done
+echo_log_only "app_port_http = $app_port_http, app_port_https = $app_port_https"
 #
 # Get our exertnal IP 4 address and set it as a variable.
 ip_address="$(curl -s4 icanhazip.com)"
@@ -43,7 +44,9 @@ install_tmp="/tmp/jellyfin"
 create_self_ssl "${username}"
 #
 # Generate our mono specific ssl cert from the default certs created using the ssl function
+echo_progress_start "Generating key for mono"
 openssl pkcs12 -export -nodes -out "/home/${username}/.ssl/${username}-self-signed.pfx" -inkey "/home/${username}/.ssl/${username}-self-signed.key" -in "/home/${username}/.ssl/${username}-self-signed.crt" -passout pass:
+echo_progress_done
 #
 # Create the required directories for this application.
 mkdir -p "$install_dir"
@@ -52,13 +55,18 @@ mkdir -p "$install_tmp"
 mkdir -p "/home/${username}/.config/Jellyfin/config"
 #
 # Download and extract the files to the defined location.
+echo_progress_start "Downloading Jellyfin files"
 baseurl=$(curl -s https://repo.jellyfin.org/releases/server/linux/stable/ | grep -Po "href=[\'\"]\K.*?(?=['\"])" | grep combined | grep -v sha256)
-wget -qO "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" > /dev/null 2>&1
-#wget -qO "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" > /dev/null 2>&1
-tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" > /dev/null 2>&1
+wget -O "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" >> "$log" 2>&1
+echo_progress_done "files downloaded"
+#wget -O "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "$log" 2>&1
+echo_progress_start "Extracting..."
+tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" >> "$log" 2>&1
+echo_progress_done
 #
 # Download the FFmpeg prebuilt binary to the installation temporary directory
-wget -qO "$install_tmp/ffmpeg.tar.xz" "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+echo_progress_start "Installing jellyfin's own ffmpeg"
+wget -O "$install_tmp/ffmpeg.tar.xz" "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" >> "$log" 2>&1
 #
 # Get the top level dir of the archive so we don't need to guess the dir name in future commands
 ffmpeg_dir_name="$(tar tf "$install_tmp/ffmpeg.tar.xz" | head -1 | cut -f1 -d"/")"
@@ -76,9 +84,12 @@ cp "$install_tmp/$ffmpeg_dir_name"/* "$install_ffmpeg"
 chmod -R 700 "$install_ffmpeg"
 #
 # Removes the installation temporary folder as we no longer need it.
-rm -rf "$install_tmp" > /dev/null 2>&1
+rm -rf "$install_tmp" >> "$log" 2>&1
+
+echo_progress_done "installed"
 #
 ## Create the configuration files
+echo_progress_start "Configuring jellyfin"
 #
 # Create the encoding.xml so that we can define the custom ffmpeg provided.
 cat > "/home/${username}/.config/Jellyfin/config/encoding.xml" <<-CONFIG
@@ -311,6 +322,7 @@ if [[ -f /install/.nginx.lock ]]; then
     bash "/usr/local/bin/swizzin/nginx/jellyfin.sh" "${app_port_http}" "${app_port_https}"
     systemctl reload nginx
 fi
+echo_progress_done "Jellyfin configured"
 #
 # Set the correct and required permissions of any directories we created or modified.
 chown "${username}.${username}" -R "$install_dir"
@@ -319,20 +331,19 @@ chown "${username}.${username}" -R "/home/${username}/.config"
 chown "${username}.${username}" -R "/home/${username}/.ssl"
 #
 # Enable and start the jellyfin service.
-systemctl daemon-reload
-systemctl enable --now "jellyfin.service" >> /dev/null 2>&1
+systemctl daemon-reload -q
+systemctl enable -q --now "jellyfin.service" 2>&1  | tee -a $log
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.jellyfin.lock"
 #
-# A helpful echo to the terminal.
-echo -e "\nThe Jellyfin installation has completed\n"
+echo_success "Jellyfin installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo -e "Jellyfin is available at: https://$(curl -s4 icanhazip.com):${app_port_https}\n"
+    echo_info "Jellyfin is available at: https://$(curl -s4 icanhazip.com):${app_port_https}"
 else
-    echo -e "Jellyfin is now available in the panel\n"
-    echo -e "Please visit https://$ip_address/jellyfin\n"
+    echo_info "Jellyfin is now available in the panel"
+    echo_info "Please visit https://$ip_address/jellyfin"
 fi
 #
 exit

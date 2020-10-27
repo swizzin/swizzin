@@ -9,17 +9,10 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
-
-# shellcheck source=sources/functions/letsencrypt
-. /etc/swizzin/sources/functions/letsencrypt
 
 apt_install vsftpd ssl-cert
 
+echo_progress_start "Configuring vsftpd"
 cat > /etc/vsftpd.conf <<VSC
 listen=NO
 listen_ipv6=YES
@@ -57,8 +50,13 @@ secure_chroot_dir=/var/run/vsftpd/empty
 VSC
 
 # Check for LE cert, and copy it if available.
+# shellcheck source=sources/functions/letsencrypt
+. /etc/swizzin/sources/functions/letsencrypt
 le_vsftpd_hook
 
-systemctl restart vsftpd
 
+systemctl restart vsftpd
+echo_progress_done "Configured vsftpd"
+
+echo_success "Vsftpd installed"
 touch /install/.vsftpd.lock

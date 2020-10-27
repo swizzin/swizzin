@@ -1,6 +1,6 @@
 #!/bin/bash
 user=$(cut -d: -f1 < /root/.master.info)
-systemctl disable --now bazarr
+systemctl disable --now -q bazarr
 
 rm -rf /opt/bazarr
 rm -rf /opt/.venv/bazarr

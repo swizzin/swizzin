@@ -1,6 +1,6 @@
 #!/bin/bash
 user=$(cut -d: -f1 < /root/.master.info)
-systemctl disable --now lidarr
+systemctl disable --now -q lidarr
 
 rm -rf /home/$user/Lidarr
 rm -rf /home/$user/.config/Lidarr/

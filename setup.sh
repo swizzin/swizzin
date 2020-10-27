@@ -75,19 +75,22 @@ function _preparation() {
 
   echo "Installing dependencies"
   # this apt-get should be checked and handled if fails, otherwise the install borks. 
-  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools >> ${log} 2>&1
+  apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
   nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
   if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
   echo "Cloning swizzin repo to localhost"
   if [[ $dev != "true" ]]; then 
     git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+     #shellcheck source=sources/functions/color_echo
+    . /etc/swizzin/sources/functions/color_echo
   else
-    echo "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN"
-    echo "Instead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
+    #shellcheck source=sources/functions/color_echo
+    . /etc/swizzin/sources/functions/color_echo
+    echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
     RelativeScriptPath=$(dirname "$0")
-    echo "That directory is relative to your pwd  = $RelativeScriptPath"
+    echo_info "That directory is relative to your pwd  = $RelativeScriptPath"
     ln -sr "$RelativeScriptPath" /etc/swizzin
-    echo "Best of luck and please follow the contribution guidelines cheerio"
+    echo_warn "Best of luck and please follow the contribution guidelines cheerio"
   fi
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
@@ -110,17 +113,17 @@ function _nukeovh() {
       esac
       if [[ $kernel == yes ]]; then
         if [[ $DISTRO == Ubuntu ]]; then
-          apt-get install -q -y linux-image-generic >>"${OUTTO}" 2>&1
+          apt-get install -q -y linux-image-generic >>"${log}" 2>&1
         elif [[ $DISTRO == Debian ]]; then
           arch=$(uname -m)
           if [[ $arch =~ ("i686"|"i386") ]]; then
-            apt-get install -q -y linux-image-686 >>"${OUTTO}" 2>&1
+            apt-get install -q -y linux-image-686 >>"${log}" 2>&1
           elif [[ $arch == x86_64 ]]; then
-            apt-get install -q -y linux-image-amd64 >>"${OUTTO}" 2>&1
+            apt-get install -q -y linux-image-amd64 >>"${log}" 2>&1
           fi
         fi
         mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-        update-grub >>"${OUTTO}" 2>&1
+        update-grub >>"${log}" 2>&1
       fi
   fi
 }
@@ -134,6 +137,10 @@ function _adduser() {
     user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
     if [[ $user =~ [A-Z] ]]; then
       read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
+      printf "\n"
+      user=
+    elif [[ $user =~ ("swizzin"|"admin") ]]; then
+      read -n 1 -s -r -p "$user is a reserved username -- please use something else. Press enter to try again."
       printf "\n"
       user=
     fi
@@ -236,6 +243,7 @@ function _choices() {
   fi
   if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
     . /etc/swizzin/sources/functions/libtorrent
+    check_client_compatibility setup
     whiptail_libtorrent_rasterbar
     export SKIP_LT=True
   fi

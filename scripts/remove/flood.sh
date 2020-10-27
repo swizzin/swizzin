@@ -4,8 +4,8 @@
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in "${users[@]}"; do
-  systemctl disable flood@$u
-  systemctl stop flood@$u
+  systemctl disable -q flood@$u
+  systemctl stop -q flood@$u
   rm -rf /home/$u/.flood
   rm -rf /etc/nginx/conf.d/$u.flood.conf
 done

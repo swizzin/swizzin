@@ -3,11 +3,7 @@
 # Author: liara
 
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  export log="/root/logs/swizzin.log"
-fi
+
 # Source the required functions
 . /etc/swizzin/sources/functions/qbittorrent
 . /etc/swizzin/sources/functions/libtorrent
@@ -17,12 +13,13 @@ users=($(_get_user_list))
 qbtvold=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 
 whiptail_qbittorrent
+check_client_compatibility
 if ! skip_libtorrent_rasterbar; then
     whiptail_libtorrent_rasterbar
-    echo "Building libtorrent-rasterbar"; build_libtorrent_rasterbar
+    echo_progress_start "Building libtorrent-rasterbar"; build_libtorrent_rasterbar; echo_progress_done
 fi
 
-echo "Building qBittorrent"; build_qbittorrent
+echo_progress_start "Building qBittorrent"; build_qbittorrent; echo_progress_done
 qbtvnew=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 
 for user in "${users[@]}"; do

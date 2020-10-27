@@ -80,7 +80,7 @@ EOSUD
 rm -rf /srv/panel
 rm -f /etc/cron.d/set_interface
 
-systemctl enable --now panel
+systemctl enable -q --now panel
 
   else
     echo "Updating panel to latest version"
