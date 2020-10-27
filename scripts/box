@@ -232,12 +232,13 @@ function _adduser {
 		exit 1
 	fi
 
-	id -u ${user} > /dev/null 2>&1
-	existing=$?
 
-	if [[ $existing == 0 ]]; then
+  # existing=$?
+
+  if id -u "${user}" > /dev/null 2>&1 ; then
 		echo_info "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
 		read -rep 'Press enter to continue adding user, or CTRL+C to cancel'
+    existing=true
 	fi
 
 	echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
@@ -262,7 +263,7 @@ function _adduser {
 		fi
 	fi
 	echo "$user:$pass" > /root/${user}.info
-	if [[ $existing == 1 ]]; then
+  if [[ $existing != "true" ]]; then
 		useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
 	fi
 	chpasswd <<< "${user}:${pass}" >> $log 2>&1
