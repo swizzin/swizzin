@@ -17,15 +17,15 @@ function pyenv_install() {
 }
 
 function pyenv_update() {
-    /opt/pyenv/bin/pyenv update  >> $log 2>&1
+    /opt/pyenv/bin/pyenv update  >> "$log" 2>&1
 }
 
 function pyenv_install_version() {
     version=$1
-    versions=$(/opt/pyenv/bin/pyenv versions)
+    versions=$(/opt/pyenv/bin/pyenv versions >> "$log" 2>&1)
     if [[ ! $versions =~ $version ]]; then
         echo_progress_start "Compiling Python $version. This may take some time ... "
-        /opt/pyenv/bin/pyenv install $version
+        /opt/pyenv/bin/pyenv install "$version" >> "$log" 2>&1
         echo_progress_done "Python $version compiled"
     else
         echo_log_only "Python $version already installed!"
@@ -35,8 +35,10 @@ function pyenv_install_version() {
 function pyenv_create_venv() {
     version=$1
     destination=$2
+    echo_progress_start "Creating venv ($version) in $destination"
     mkdir -p $destination
-    /opt/pyenv/versions/$version/bin/python3 -m venv $destination
+    /opt/pyenv/versions/"$version"/bin/python3 -m venv "$destination" >> "$log" 2>&1
+    echo_progress_done "venv created"
 }
 
 function python_getpip() {
