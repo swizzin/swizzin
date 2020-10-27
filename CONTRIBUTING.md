@@ -72,6 +72,58 @@ The following options can be used with any of the exported functions above to ov
 * `--recommends`
   * _Only for `apt_install`_: performs the installation with the `--install-recommends` flag sent to the `apt-get install` command.
 
+## Printing into the terminal
+Please use the functions exported from `sources/functions/color_echo` that are available whenever something is ran from the context of either `box` or `setup.sh`.
+
+### Formatting
+* Instead of making a sequence of the same exact echo calls to make new line separation, please use the `\n`, or make your quoted text span multiple lines (with no pre-pending white spaces) instead. THe output will be nicely indented. as a result.
+* In general, there should be no un-styled prints thrown at the end-user.
+
+### Logging
+* The `echo_...` calls mentioned below will automatically make a copy of the messages.
+* Please make sure that your `$log` variable is only used to refer to the path of the log (imported from either `setup.sh` or `box`)
+* Any application return/verbose(-ish) print should go into the log file
+  * Please make sure your `apt` calls are not `-q/--quiet` when forwarding to the log file, for example
+
+### Available functions and uses
+The file mentioned above has a function embedded to show a couple examples of how will the resulting echo look like, please consult these in your own terminal by running the following code below. Smaller test units are available for `echo_test_wrap`, `echo_test_log` and `echo_test_basic`
+```bash
+. /etc/swizzin/sources/functions/color_echo
+echo_tests
+```
+There is a wide choice of "styles" to choose from, please use them appropriately. Here is a small guide on their use
+* Ensure you are correctly outputting to the log
+* Make sure the `echo_...` calls are on the "inside of the function", not outside and around it.
+  * TODO Clarify what his means
+* `echo_success` is meant to be the final echo printed in the event an installation was successful.
+* `echo_error` is meant to be the final echo printed in the event something irrecoverable happens, or an abortion is encountered.
+* `echo_warn` is meant to alert the user to some of the following examples:
+  * Something irrecoverable is about to happen
+  * A user-recoverable error has been encountered
+  * Basic problems with
+* `echo_info` is meant to highlight to user some important information such as the following examples:
+  * ports that have been chosen
+  * Important generated values that should be recorded
+  * necessary follow up steps
+  * pointers to documentation, etc
+* `echo_query` is meant to highlight the fact user interaction is required
+* `echo_progress_start` and `echo_progress_start` are meant to be used to "wrap" a chunk of code that can take a while to complete. If it takes more than 0.1s, you should probably wrap it in this. Examples could be:
+  * Doing `apt` calls like `install`, `update`, `upgrade`, etc.
+  * Generating ciphers/keys
+  * Git pulls/clones
+  * Downloads of larger files
+  * Recursive `chown`s/`chmod`s on large directories
+* `echo_log_only` is meant to store input directly into the logfile, and bypass the end user terminal entirely. Please log anything of note that could help troubleshoot anything when a user has problems, such as the following:
+  * Any generated unique values that need to match some specification (e.g. ports)
+  * Any variables that are getting assigned from either the user or from the return of a command/function
+
+
+
+## Logging
+As mentioned above, please ensure any relevant information/print that is generated during the script is corretly forwarded to the destination of the `$log` file.
+
+If necessary, please append the `$log` forward with `2>&1` to redirect all `stderr` to `stdout`, and therefore into the log as well. If you expect these possibilities to happen, please make sure to catch this within your script and error out too, you know.
+
 ## Python applications
 As a principle, please avoid installing Python2 applications. 
 

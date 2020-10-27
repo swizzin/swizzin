@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 <!-- Issues that do not follow the format will be automatically closed. Please make sure no headins are omitted or changed. -->
-<!-- Please first consukt the project's wiki and the troubleshooting steps. you can find thise here https://docs.swizzin.ltd/guides/troubleshooting -->
+<!-- Please first consukt the project's wiki and the troubleshooting steps. you can find thise here https://swizzin.ltd/docs/guides/troubleshooting -->
 
 ## Bug description
 (A clear and concise description of what the bug is.)

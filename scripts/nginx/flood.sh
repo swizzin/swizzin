@@ -2,11 +2,7 @@
 # nginx configuration for flood
 # Author: liara
 
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
+
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -n $1 ]]; then

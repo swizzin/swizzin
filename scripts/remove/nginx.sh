@@ -1,6 +1,6 @@
 #!/bin/bash
 
-systemctl stop nginx
+systemctl stop -q nginx
 
 APT='nginx-extras nginx libnginx-mod-http-fancyindex ssl-cert php php-cli php-fpm php-dev php-xml php-curl php-xmlrpc php-json php-mcrypt php-opcache php-geoip php-xml php php-cli php-fpm php-dev php-xml php-curl php-xmlrpc php-json php-mcrypt php-opcache'
 apt_remove $APT

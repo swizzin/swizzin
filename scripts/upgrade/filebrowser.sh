@@ -5,11 +5,7 @@ if [[ ! -f /install/.filebrowser.lock ]]; then
     exit 1
 fi
 
-if [[ -f /tmp/.install.lock ]]; then
-  export log="/root/logs/install.log"
-else
-  export log="/root/logs/swizzin.log"
-fi
+
 
 . /etc/swizzin/sources/functions/utils
 username=$(_get_master_username)
@@ -23,7 +19,7 @@ chmod 700 "/home/${username}/bin/filebrowser"
 if [[ -f /home/${username}/bin/filebrowser ]]; then
     rm /home/${username}/bin/filebrowser.bak
 else
-    echo "Something went wrong during the upgrade, reverting changes"
+    echo_error "Something went wrong during the upgrade, reverting changes"
     mv /home/${username}/bin/filebrowser.bak /home/${username}/bin/filebrowser
 fi
 systemctl try-restart filebrowser

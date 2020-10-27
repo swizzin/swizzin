@@ -29,15 +29,16 @@ function _installautodl() {
 
 function _autoconf {
     for u in "${users[@]}"; do
+    echo_progress_start "configuring autodl for $u"
       IRSSI_PASS=$(_string)
       IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
-      mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${OUTTO}" 2>&1
+      mkdir -p "/home/${u}/.irssi/scripts/autorun/" >>"${log}" 2>&1
       cd "/home/${u}/.irssi/scripts/"
       curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget --quiet -O autodl-irssi.zip
-      unzip -o autodl-irssi.zip >>"${OUTTO}" 2>&1
+      unzip -o autodl-irssi.zip >>"${log}" 2>&1
       rm autodl-irssi.zip
       cp autodl-irssi.pl autorun/
-      mkdir -p "/home/${u}/.autodl" >>"${OUTTO}" 2>&1
+      mkdir -p "/home/${u}/.autodl" >>"${log}" 2>&1
       touch "/home/${u}/.autodl/autodl.cfg"
 cat >"/home/${u}/.autodl/autodl.cfg"<<ADC
 [options]
@@ -46,6 +47,7 @@ gui-server-password = ${IRSSI_PASS}
 ADC
       chown -R $u: /home/${u}/.autodl/
       chown -R $u: /home/${u}/.irssi/
+      echo_progress_done
   done
   if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/autodl.sh
@@ -53,6 +55,7 @@ ADC
 }
 
 function _autoservice {
+  echo_progress_start "Creating systemd service"
 cat >"/etc/systemd/system/irssi@.service"<<ADC
 [Unit]
 Description=AutoDL IRSSI
@@ -71,15 +74,11 @@ WantedBy=multi-user.target
 ADC
 
 for u in "${users[@]}"; do
-  systemctl enable --now irssi@${u} >>"${OUTTO}" 2>&1
+  systemctl enable -q --now irssi@${u} 2>&1  | tee -a $log
 done
+echo_progress_done
 }
 
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ -n $1 ]]; then
@@ -92,3 +91,4 @@ _installautodl
 _autoconf
 _autoservice
 touch /install/.autodl.lock
+echo_success "autodl installed"

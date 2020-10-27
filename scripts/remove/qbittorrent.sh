@@ -3,7 +3,7 @@
 
 users=($(_get_user_list))
 for user in ${users[@]}; do
-    systemctl disable --now qbittorrent@${user}
+    systemctl disable --now -q qbittorrent@${user}
     rm -rf /home/${user}/.config/qbittorrent
 done
 rm /etc/nginx/apps/qbittorrent.conf

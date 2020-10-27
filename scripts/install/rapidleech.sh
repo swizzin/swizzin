@@ -19,46 +19,32 @@
 #
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo "ERROR: Web server not detected. Please install nginx and restart panel install."
+  echo_error "Web server not detected. Please install nginx and restart panel install."
   exit 1
 fi
 MASTER=$(cut -d: -f1 < /root/.master.info)
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
+
 function _installRapidleech1() {
-  sudo git clone https://github.com/Th3-822/rapidleech.git  /home/"${MASTER}"/rapidleech >/dev/null 2>&1
-}
-function _installRapidleech2() {
-  touch /install/.rapidleech.lock
+  echo_progress_start "Cloning rapidleech"
+  git clone https://github.com/Th3-822/rapidleech.git  /home/"${MASTER}"/rapidleech >> $log 2>&1
   chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
-}
-function _installRapidleech3() {
-  if [[ -f /install/.nginx.lock ]]; then
-    bash /usr/local/bin/swizzin/nginx/rapidleech.sh
-    systemctl reload nginx
-  fi
-}
-function _installRapidleech4() {
-  systemctl reload nginx
-}
-function _installRapidleech5() {
-    echo "Rapidleech Install Complete!" >>"${OUTTO}" 2>&1;
-    sleep 5
-    echo >>"${OUTTO}" 2>&1;
-    echo >>"${OUTTO}" 2>&1;
-    echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-    systemctl reload nginx
-}
-function _installRapidleech6() {
-    exit
+  echo_progress_done
 }
 
-echo "Installing rapidleech ... " >>"${OUTTO}" 2>&1;_installRapidleech1
-echo "Setting up rapidleech permissions ... " >>"${OUTTO}" 2>&1;_installRapidleech2
-echo "Setting up rapidleech apache configuration ... " >>"${OUTTO}" 2>&1;_installRapidleech3
-echo "Reloading apache ... " >>"${OUTTO}" 2>&1;_installRapidleech4
+function _installRapidleech3() {
+  if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/rapidleech.sh
+    systemctl reload nginx
+    echo_progress_done
+  fi
+}
+
+function _installRapidleech5() {
+    touch /install/.rapidleech.lock
+    echo_success "Rapidleech installed"
+}
+
+_installRapidleech1
+_installRapidleech3
 _installRapidleech5
-_installRapidleech6

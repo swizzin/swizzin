@@ -7,6 +7,8 @@ function whiptail_qbittorrent () {
     repov=$(get_candidate_version qbittorrent-nox)
     latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
     if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
+    latestv42=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.2\.\d')
+    if [[ -z $latestv41 ]]; then latestv42=4.2.5; fi
     latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
     case ${codename} in
     "xenial"|"stretch")
@@ -15,9 +17,10 @@ function whiptail_qbittorrent () {
                 "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
     ;;
     *)
-        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 4 \
                 "Repo" "(${repov})" \
                 "4.1" "(${latestv41})" \
+                "4.2" "(${latestv42})" \
                 "Latest" "(${latestv})" 3>&1 1>&2 2>&3)
     ;;
     esac
@@ -25,6 +28,8 @@ function whiptail_qbittorrent () {
         export qbittorrent=repo
     elif [[ $function == "4.1" ]]; then
         export qbittorrent=${latestv41}
+    elif [[ $function == "4.2" ]]; then
+        export qbittorrent=${latestv42}
     elif [[ $function == "Latest" ]]; then
         export qbittorrent=${latestv}
     fi

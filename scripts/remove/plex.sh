@@ -22,7 +22,7 @@ function _removePlex() {
   dpkg -r plexmediaserver >/dev/null 2>&1
   apt_remove --purge plexmediaserver
   rm -f /etc/systemd/system/plexmediaserver.service
-  systemctl daemon-reload >/dev/null 2>&1
+  systemctl daemon-reload -q
   rm -rf /var/lib/plexmediaserver
   rm -rf /usr/lib/plexmediaserver
   rm /etc/init/plexmediaserver.conf >/dev/null 2>&1

@@ -6,9 +6,8 @@ if [[ -f /install/.couchpotato.lock ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
-        log="/root/logs/swizzin.log"
         . /etc/swizzin/sources/functions/pyenv
-        systemctl disable --now couchpotato@${user} >> ${log} 2>&1
+        systemctl disable -q --now couchpotato@${user} >> ${log} 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2.7-dev python-virtualenv virtualenv'
         else
@@ -47,7 +46,7 @@ CPSD
         systemctl daemon-reload
 
         if [[ $isactive == "active" ]]; then
-            systemctl enable --now couchpotato >> ${log} 2>&1
+            systemctl enable -q --now couchpotato 2>&1  | tee -a $log
         fi
     fi
 fi

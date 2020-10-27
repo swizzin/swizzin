@@ -22,12 +22,12 @@ function claimPlex {
   # and https://github.com/plexinc/pms-docker
   if [[ -n $1 ]]; then
     claimtoken=$1
-    echo "Claiming plex server ... "
+    echo_progress_start "Claiming plex server"
     serial="$(getPref "MachineIdentifier")"
     clientId="$(getPref "ProcessedMachineIdentifier")"
     token="$(getPref "PlexOnlineToken")"
     if [ ! -z "${claimtoken}" ] && [ -z "${token}" ]; then
-      echo "Attempting to obtain server token from claim token"
+      echo_log_only "Attempting to obtain server token from claim token"
       loginInfo="$(curl -s -X POST \
             -H 'X-Plex-Client-Identifier: '${clientId} \
             -H 'X-Plex-Product: Plex Media Server'\
@@ -43,7 +43,7 @@ function claimPlex {
       if [ "$token" ]; then
         setPref "PlexOnlineToken" "${token}"
         setPref "PublishServerOnPlexOnlineKey" "1"
-        echo "Plex Media Server successfully claimed"
+        echo_progress_done "Plex Media Server successfully claimed"
       fi
     fi
   fi

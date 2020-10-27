@@ -22,54 +22,39 @@ function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15
 
 function _check_for_radarr3 () {
     if [[ -d /root/swizzin/backups/radarrv02.bak ]]; then 
-    echo
-    echo "WARNING: Found backups from before Radarr v3 migration."
-    echo "Follow these steps post-install https://github.com/Radarr/Radarr/wiki/Backup-and-Restore in case you're trying to go back."
-    echo
+    echo_warn "WARNING: Found backups from before Radarr v3 migration.\nFollow these steps post-install https://github.com/Radarr/Radarr/wiki/Backup-and-Restore in case you're trying to go back."
     #TODO implement restore procedure if user wants that to happen?
     #TODO check if unit is still masked. Unmaks it if that's the case.
   fi
   
   if [[ -f /install/.radarrv3.lock ]]; then 
-    echo "Radarr v3 detected. If you want to proceed installing Radarr v0.2, please remove Radarr v3 first."
+    echo_error "Radarr v3 detected. If you want to proceed installing Radarr v0.2, please remove Radarr v3 first."
     exit 1
   fi
 
 }
 
-function _installRadarrIntro() {
-  echo "Radarr will now be installed." >>"${OUTTO}" 2>&1;
-  echo "This process may take up to 2 minutes." >>"${OUTTO}" 2>&1;
-  echo "Please wait until install is completed." >>"${OUTTO}" 2>&1;
-  # output to box
-  echo "Radarr will now be installed."
-  echo "This process may take up to 2 minutes."
-  echo "Please wait until install is completed."
-  echo
-  sleep 5
-}
-
 function _installRadarrDependencies() {
-  # output to box
-  echo "Installing dependencies ... "
+  echo_progress_start "Installing dependencies"
   mono_repo_setup
+  echo_progress_done
 }
 
 function _installRadarrCode() {
-  # output to box
   apt_install libmono-cil-dev curl mediainfo
-  echo "Installing Radar ... "
+  echo_progress_start "Installing Radarr"
   if [[ ! -d /opt ]]; then mkdir /opt; fi
   cd /opt
   wget $( curl -s https://api.github.com/repos/Radarr/Radarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 ) > /dev/null 2>&1
   tar -xvzf Radarr.*.linux.tar.gz >/dev/null 2>&1
   rm -rf /opt/Radarr.*.linux.tar.gz
+  echo_progress_done "Radarr installed"
   touch /install/.radarr.lock
 }
 
 function _installRadarrConfigure() {
   # output to box
-  echo "Configuring Radar ... "
+  echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/radarr.service <<EOF
 [Unit]
 Description=Radarr Daemon
@@ -88,45 +73,24 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-
   mkdir -p /home/${username}/.config
   chown -R ${username}:${username} /home/${username}/.config
 #  chmod 775 /home/${username}/.config
   chown -R ${username}:${username} /opt/Radarr/
   systemctl daemon-reload
-  systemctl enable radarr.service > /dev/null 2>&1
+  systemctl enable -q radarr.service 2>&1  | tee -a $log
   systemctl start radarr.service
+  echo_progress_done "Radarr started"
 
   if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring nginx"
     sleep 10
     bash /usr/local/bin/swizzin/nginx/radarr.sh
     systemctl reload nginx
+    echo_progress_done
   fi
 }
 
-function _installRadarrFinish() {
-  # output to dashboard
-  echo "Radarr Install Complete!" >>"${OUTTO}" 2>&1;
-  echo "You can access it at  : http://$ip/radarr" >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo >>"${OUTTO}" 2>&1;
-  echo "Close this dialog box to refresh your browser" >>"${OUTTO}" 2>&1;
-  # output to box
-  echo "Radarr Install Complete!"
-  echo "You can access it at  : http://$ip/radarr"
-  echo
-  echo "Close this dialog box to refresh your browser"
-}
-
-function _installRadarrExit() {
-	exit 0
-}
-
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 username=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
@@ -134,9 +98,7 @@ version=$(lsb_release -cs)
 ip=$(curl -s http://whatismyip.akamai.com)
 
 _check_for_radarr3
-_installRadarrIntro
-echo "Installing dependencies ... " >>"${OUTTO}" 2>&1;_installRadarrDependencies
-echo "Installing Radar ... " >>"${OUTTO}" 2>&1;_installRadarrCode
-echo "Configuring Radar ... " >>"${OUTTO}" 2>&1;_installRadarrConfigure
-_installRadarrFinish
-_installRadarrExit
+_installRadarrDependencies
+_installRadarrCode
+_installRadarrConfigure
+echo_success "Radarr installed"

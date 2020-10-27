@@ -86,17 +86,17 @@ function _installquota(){
   if [[ $DISTRO == Ubuntu ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
     apt_install linux-image-extra-virtual quota
-    mount -o remount ${loc} >>"${OUTTO}" 2>&1
-    quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-    quotaon -uv / >>"${OUTTO}" 2>&1
-    systemctl start quota >>"${OUTTO}" 2>&1
+    mount -o remount ${loc} >>"${log}" 2>&1
+    quotacheck -auMF vfsv1 >>"${log}" 2>&1
+    quotaon -uv / >>"${log}" 2>&1
+    systemctl start quota >>"${log}" 2>&1
   elif [[ $DISTRO == Debian ]]; then
     sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
     apt_install quota
-    mount -o remount ${loc} >>"${OUTTO}" 2>&1
-    quotacheck -auMF vfsv1 >>"${OUTTO}" 2>&1
-    quotaon -uv / >>"${OUTTO}" 2>&1
-    systemctl start quota >>"${OUTTO}" 2>&1
+    mount -o remount ${loc} >>"${log}" 2>&1
+    quotacheck -auMF vfsv1 >>"${log}" 2>&1
+    quotaon -uv / >>"${log}" 2>&1
+    systemctl start quota >>"${log}" 2>&1
   fi
 
   if [[ -d /srv/rutorrent ]]; then
@@ -133,14 +133,7 @@ fi
 fi
 }
 
-
-if [[ -f /tmp/.install.lock ]]; then
-  OUTTO="/root/logs/install.log"
-else
-  OUTTO="/root/logs/swizzin.log"
-fi
 DISTRO=$(lsb_release -is)
-
 
 _installquota
 
