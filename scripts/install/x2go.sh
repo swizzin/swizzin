@@ -22,7 +22,7 @@ apt_install xfce4
 #disable lightdm because it causes suspend issues on Ubuntu
 systemctl disable --now lightdm >> ${log} 2>&1
 
-echo "Installing x2go repositories ... "
+echo_progress_start "Installing x2go repositories ... "
 
 if [[ $distribution == Ubuntu ]]; then
 	apt_install software-properties-common
@@ -51,7 +51,6 @@ EOF
 	apt_install x2go-keyring
 fi
 
-apt_update
 apt_install x2goserver x2goserver-xsession pulseaudio
 
 touch /install/.x2go.lock
