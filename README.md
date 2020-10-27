@@ -18,12 +18,12 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 
 wget
 ```shell
-bash <(wget -O- -q  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)
+bash <(wget -qO - git.io/swizzin-setup)
 ```
 
 curl
 ```shell
-bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh)
+bash <(curl -sL git.io/swizzin-setup)
 ```
 
 Please note that if you are running Ubuntu and choose to run the initial setup though `sudo` you should include the `-H` argument to ensure that your home directory is modified to /root when you sudo up. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command.
@@ -81,6 +81,7 @@ You can request and vote on features at [feathub](https://feathub.com/liaralabs/
 [![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
 ### Contributing
+
 We welcome any bugfixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organised and keep your submissions supported properly.
 
 We're more than happy to talk about any changes to our codebase on the Discord server which you can find an invite link to on the top of this page. 
