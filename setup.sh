@@ -89,7 +89,7 @@ function _preparation() {
     #shellcheck source=sources/functions/color_echo
     . /etc/swizzin/sources/functions/color_echo
     echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is symlinked to /etc/swizzin"
-    echo_info "That directory is relative to your pwd  = $(pwd)$RelativeScriptPath"
+    echo_info "That directory is relative to your pwd  = $(pwd)/$RelativeScriptPath"
     echo_warn "Best of luck and please follow the contribution guidelines cheerio"
   fi
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin

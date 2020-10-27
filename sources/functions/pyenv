@@ -24,7 +24,7 @@ function pyenv_install_version() {
     version=$1
     versions=$(/opt/pyenv/bin/pyenv versions >> "$log" 2>&1)
     if [[ ! $versions =~ $version ]]; then
-        echo_progress_start "Compiling Python $version. This may take some time ... "
+        echo_progress_start "Compiling Python $version. This may take some time"
         /opt/pyenv/bin/pyenv install "$version" >> "$log" 2>&1
         echo_progress_done "Python $version compiled"
     else
