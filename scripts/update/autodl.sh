@@ -14,4 +14,6 @@ for u in "${users[@]}"; do
   fi
 done
 
-/usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
+if [[ -f /install/.nginx.lock ]]; then
+    /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
+fi
