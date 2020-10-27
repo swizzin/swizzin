@@ -83,7 +83,8 @@ rm -f /etc/cron.d/set_interface
 systemctl enable -q --now panel
 
   else
-    echo "Updating panel to latest version"
+    echo_progress_start "Updating panel to latest version"
     bash /usr/local/bin/swizzin/upgrade/panel.sh
+    echo_progress_done
   fi
 fi

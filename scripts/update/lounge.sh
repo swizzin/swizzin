@@ -30,13 +30,9 @@ if [[ -f /install/.lounge.lock ]]; then
     fi
 
     if [[ $(thelounge -v) =~ "v2" ]]; then
-        echo "There is an update for The Lounge. Do you wish to upgrade?"
-        select yn in "Yes" "No"; do
-            case $yn in
-                Yes ) _uplounge; break;;
-                No ) break;;
-            esac
-        done
+        if ask "Lounge has an update available. Upgrade?" Y; then
+            _uplounge
+        fi
     fi
 
 fi
