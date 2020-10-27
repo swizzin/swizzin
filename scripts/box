@@ -209,8 +209,16 @@ function _list() {
 	done
 }
 
-function _adduser() {
+function _adduser {
+  if [[ -n $2 ]]; then
 	user=$2
+  else
+    echo "No username argument found, exiting"
+    exit 1;
+  fi
+  
+  [[ -n $3 ]] && pass=$3
+
 	if [[ $user =~ [A-Z] ]]; then
 		echo_warn "Usernames must not contain capital letters. Please try again."
 		exit 1
