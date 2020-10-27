@@ -100,7 +100,7 @@ echo_progress_done "Systemd service installed"
 touch "/install/.filebrowser.lock"
 #
 # A helpful echo to the terminal.
-echo_success "The Filebrowser installation has completed"
+echo_success "FileBrowser installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
     echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"

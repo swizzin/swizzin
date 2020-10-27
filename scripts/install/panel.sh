@@ -16,7 +16,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
   if ask "Install nginx?" Y; then
     bash /usr/local/bin/swizzin/install/nginx.sh
   else
-    exit 0
+    exit 1
   fi
 fi
 

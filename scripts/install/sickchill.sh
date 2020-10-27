@@ -81,5 +81,5 @@ if [[ -f /install/.nginx.lock ]]; then
   echo_progress_done
 fi
 
-echo_success
+echo_success "SickChill installed"
 touch /install/.sickchill.lock

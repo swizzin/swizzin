@@ -44,7 +44,7 @@ function _installLibreSpeed3() {
 }
 
 function _installLibreSpeed4() {
-    echo_success "LibreSpeed Install Complete!"
+    echo_success "LibreSpeed installed"
     sleep 5
     systemctl reload nginx
 }

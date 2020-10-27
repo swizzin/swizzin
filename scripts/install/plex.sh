@@ -48,6 +48,7 @@ read 'claim'
   usermod -a -G ${master} plex
 
 if [[ -n $claim ]]; then
+  sleep 5
   #shellcheck source=sources/functions/plex
   . /etc/swizzin/sources/functions/plex
   claimPlex ${claim}
