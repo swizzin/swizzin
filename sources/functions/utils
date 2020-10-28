@@ -111,7 +111,8 @@ function tmp_swap_off() {
 
 # Will loop if $pass isn't set
 function password_check(){
-    while [[ -z "${pass}" ]]; do
+    #If no password set, then get one 
+    if [[ -z "${pass}" ]]; then
         if [[ $1 = "whiptail" ]]; then
             while [[ -z $password_ok ]]; do
                 pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
@@ -121,7 +122,6 @@ function password_check(){
         else
                     pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
                     if [[ $pass != $pass2 ]];then
-                    #passwords don't match
                         echo_warn "Passwords did not match. Press enter to try again"
                         read
                     else
@@ -130,8 +130,6 @@ function password_check(){
                 fi
             done
         else
-            # echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
-            # read -rs 'pass'
             while [[ -z $password_ok ]]; do
             echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
                 read -rs 'pass'; echo
@@ -142,7 +140,6 @@ function password_check(){
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'; echo
                     if [[ $pass != $pass2 ]];then
-                    #passwords don't match
                         echo_warn "Passwords did not match. Press enter to try again"
                         read
                     else
@@ -151,20 +148,16 @@ function password_check(){
                 fi
             done
         fi
-
         if [[ -z "${pass}" ]]; then
             echo_progress_start "Generating password"
             pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-            # if [[ $1 = "whiptail" ]]; then
                 whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
-            # else
-            #     echo_query "Press enter to view the password."
-            #     read
-            #     echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\nThe password for $user is   $pass\n\nPlease make a note of this, as it will not be shown again! \nPress Q to close this window" | less
-            # fi
             echo_progress_done "Password generated and hidden"
         fi
+    fi
 
+    #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
+    ##Cracklib test
         if [[ -n $(which cracklib-check) ]]; then 
             echo_progress_start "Cracklib detected. Checking password strength."
             # sleep 1
@@ -174,29 +167,45 @@ function password_check(){
             if [[ -z $check ]]; then
                 echo_warn "Password did not pass cracklib check. Press enter to try again"
                 pass=
+            unset pass
                 read
+            password_check "$1"
             fi
-            echo_progress_done "Password checked"
+        echo_progress_done "Password passed"
         fi
-    done
 }
 
 # Will loop while $user isn't set
 function username_check(){
-    while [[ -z $user ]]; do
+    if [[ -z $user ]]; then
         if [[ $1 = "whiptail" ]]; then 
             user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
         else
-            echo_log_only "username not whiptailed? where did this call come from?"
+            # echo_log_only "username not whiptailed? where did this call come from?"
+            echo_query "Enter a username for the new user"
+            read -r
         fi
+    fi
+
+
         if [[ $user =~ [A-Z] ]]; then
             echo_warn "Usernames must not contain capital letters. Press enter to try again."
             user=
             read
-        elif [[ $user =~ ("swizzin"|"admin") ]]; then
+        username_check "$1"
+    fi
+
+    if [[ $user =~ ("swizzin"|"admin") ]]; then
             echo_warn "$user is a reserved username -- please use something else. Press enter to try again."
             user=
             read
+        username_check "$1"
+    fi
+
+    if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
+        echo_warn "Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\nPress enter to try again."
+        user=
+        read
+        username_check "$1"
         fi
-    done
 }
