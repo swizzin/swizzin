@@ -113,15 +113,51 @@ function tmp_swap_off() {
 function password_check(){
     while [[ -z "${pass}" ]]; do
         if [[ $1 = "whiptail" ]]; then
-            pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+            while [[ -z $password_ok ]]; do
+                pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+                if [[ $pass = "" ]]; then
+                    #Password should be random
+                    password_ok=true
         else
+                    pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+                    if [[ $pass != $pass2 ]];then
+                    #passwords don't match
+                        echo_warn "Passwords did not match. Press enter to try again"
+                        read
+                    else
+                        password_ok=true
+                    fi
+                fi
+            done
+        else
+            # echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
+            # read -rs 'pass'
+            while [[ -z $password_ok ]]; do
             echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
-            read -s 'pass'
+                read -rs 'pass'; echo
+                if [[ $pass = "" ]]; then
+                    #Password should be random
+                    password_ok=true
+                else
+                    echo_query "Please confirm password" "hidden"
+                    read -rs 'pass2'; echo
+                    if [[ $pass != $pass2 ]];then
+                    #passwords don't match
+                        echo_warn "Passwords did not match. Press enter to try again"
+                        read
+                    else
+                        password_ok=true
+                    fi
+                fi
+            done
         fi
 
         if [[ -z "${pass}" ]]; then
             echo_info "Generating password"
             pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+            echo_query "Press enter to view the password."
+            read
+            echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\nThe password for $user is   $pass\n\nPlease make a note of this, as it will not be shown again! \nPress Q to close this window" | less
         fi
 
         if [[ -n $(which cracklib-check) ]]; then 
