@@ -377,6 +377,7 @@ function _deluser() {
 
 function _chpasswd() {
 	user=$2
+  [[ -n $3 ]] && pass="$3"
   . /etc/swizzin/sources/functions/utils
   password_check
 
@@ -467,7 +468,7 @@ case "$1" in
 			exit 1
 		fi
     if [[ -n $4 ]]; then
-			echo_error "Too many arguments\nCorrect usage: box adduser <username>"
+      echo_error "Too many arguments\nCorrect usage: box adduser <username> [<password>]"
 			exit 1
 		fi
 		_adduser "$@"
@@ -490,8 +491,8 @@ case "$1" in
       echo_error "You must specify a username.\nCorrect usage: box chpasswd <username>"
       exit 1
     fi
-		if [[ -n $3 ]]; then
-			echo_error "Too many arguments\nCorrect usage: box chpasswd <username>"
+    if [[ -n $4 ]]; then
+      echo_error "Too many arguments\nCorrect usage: box chpasswd <username> [<password>]"
 			exit 1
 		fi
 		_chpasswd "$@"
