@@ -122,7 +122,8 @@ function _adduser() {
 
   #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo_warn "No sudoers modification made" ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
-
+  pass=
+  unset pass
 }
 
 function _choices() {

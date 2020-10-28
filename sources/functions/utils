@@ -112,7 +112,7 @@ function tmp_swap_off() {
 # Will loop if $pass isn't set
 function password_check(){
     #If no password set, then get one 
-    if [[ -z "${pass}" ]]; then
+    if [[ $pass = "" ]]; then
         if [[ $1 = "whiptail" ]]; then
             while [[ -z $password_ok ]]; do
                 pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
@@ -147,6 +147,7 @@ function password_check(){
                     fi
                 fi
             done
+            unset password_ok
         fi
         if [[ -z "${pass}" ]]; then
             echo_progress_start "Generating password"
@@ -170,9 +171,11 @@ function password_check(){
             unset pass
                 read
             password_check "$1"
-            fi
+        else
         echo_progress_done "Password passed"
         fi
+
+    fi
 }
 
 # Will loop while $user isn't set
@@ -183,7 +186,7 @@ function username_check(){
         else
             # echo_log_only "username not whiptailed? where did this call come from?"
             echo_query "Enter a username for the new user"
-            read -r
+            read -r user
         fi
     fi
 
