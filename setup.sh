@@ -13,27 +13,32 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
+echo "Pulling down some magic..."
+source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo)
+source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt)
+source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask)
+
 
 time=$(date +"%s")
 
 if [[ $EUID -ne 0 ]]; then
-	echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
+  echo_error "Swizzin setup requires user to be root. su or sudo -s and run again ..."
 	exit 1
 fi
 
 if [[ ! $(uname -m) == "x86_64" ]]; then
-	echo -e "\033[0;31mUnsupported architecture ($(uname -m)) detected! \033[0m"
-	echo
-	echo "Setup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
-	echo
-	read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
+  echo_error -e "Unsupported architecture ($(uname -m)) detected!\nSetup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
+  if ! ask "Agree with the above and continue?" N; then
+    echo "bye bye :("
+    exit 1
+  fi
 fi
 
 #shellcheck disable=SC2154
 if [[ $dev = "true" ]]; then
 	# If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
 	# You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
-	echo "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
+  echo_info "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
 fi
 
 _os() {
@@ -54,11 +59,9 @@ _os() {
 	if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
 		echo "Your release ($codename) of $distribution is not supported." && exit 1
 	fi
-	# echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
-	echo "Updating system and grabbing core dependencies."
 	if [[ $distribution = "Ubuntu" ]]; then
 		echo "Enabling required repos"
 		if ! which add-apt-repository > /dev/null; then
@@ -69,21 +72,19 @@ function _preparation() {
 		add-apt-repository restricted -u >> ${log} 2>&1
 	fi
 
-	echo "Performing a system upgrade"
-	apt-get -q -y update >> ${log} 2>&1
-	apt-get -q -y upgrade >> ${log} 2>&1
-
-	echo "Installing dependencies"
+  apt_update
+  apt_upgrade
 	# this apt-get should be checked and handled if fails, otherwise the install borks.
-	apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
+  # apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
+  bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/dependencies.sh)
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-	echo "Cloning swizzin repo to localhost"
 	if [[ $dev != "true" ]]; then
+    echo_progress_start "Cloning swizzin repo to localhost"
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
-    echo
+    echo_progress_done
 	else
 		RelativeScriptPath=$(dirname "$0")
 		ln -sr "$RelativeScriptPath" /etc/swizzin
