@@ -1,21 +1,14 @@
 #! /bin/bash
+
 # A little tool to help make more stylish bash output with colours and indentation
 
-#Whether or not Warning and Error should trigger the bell
-bell=true
+export bell="true" # Whether or not Warning and Error should trigger the bell
+export fold="true" # Whether or not to apply line wrapping to terminal for indentation
+export full_width="true" # Whether output should be as wide as the terminal. Setting to false will still wrap when terminal is less than default width
+export width_cap="140" # Applies when full-width is false. If terminal has less cols then this, the max terminal width is used.
+export strip_ansi_from_log="false" # Whether the log should keep ansi escape characters (colors, etc) or not to ensure human readability
 
-#Whether or not to apply line wrapping to terminal for indentation
-fold=true
-#Whether output should be as wide as the terminal. Setting to false will still wrap when terminal is less than default width
-full_width=true
-# Applies when full-width is false. If terminal has less cols then this, the max terminal width is used.
-width_cap=140
-
-#Whether the log should keep ansi escape characters (colors, etc) or not to ensure human readability
-strip_ansi_from_log=false
-
-
-#colours
+# colours
 export red=$(      tput setaf 1|| tput AF 1    )
 export green=$(    tput setaf 2|| tput AF 2    )
 export yellow=$(   tput setaf 3|| tput AF 3    )
@@ -23,19 +16,19 @@ export blue=$(     tput setaf 4|| tput AF 4    )
 export magenta=$(  tput setaf 5|| tput AF 5    )
 export cyan=$(     tput setaf 6|| tput AF 6    )
 
-#reset
+# reset
 export nc="$(tput sgr0)"
 
-#mmodifiers
+# modifiers
 export bold=$(     tput bold   || tput md      ) # Start boldrbold="\e[21m"
 export dim=$(      tput dim                    ) # Start dim
-rdim="\e[22m"
+export rdim="\e[22m"
 export under=$(    tput smul   || tput us      ) # Start under
 export runder=$(   tput rmul   || tput ue      ) # End   under
 export italic=$(   tput sitm   || tput ZH      ) # Start italic
-eitalic=$(  tput ritm   || tput ZR      ) # End   italic
+export eitalic=$(  tput ritm   || tput ZR      ) # End   italic
 export stout=$(    tput smso   || tput so      ) # Start stand-out
-estout=$(   tput rmso   || tput se      ) # End stand-out
+export estout=$(   tput rmso   || tput se      ) # End stand-out
 # resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 ring_the_bell(){
@@ -60,19 +53,17 @@ echo_error () {
 }
 export -f echo_error
 
-
 echo_info () {
     colorprint "${bold}INFO" "$1"
 }
 export -f echo_info
-
 
 echo_progress_start () {
     colorprint "${dim}..." "$1"
 }
 export -f echo_progress_start
 
-#Prints the reply to echo_progess_start or "Done" if no params
+# Prints the reply to echo_progess_start or "Done" if no params
 echo_progress_done () {
     if [[ -z $1 ]]; then 
         message="Done"
@@ -83,12 +74,10 @@ echo_progress_done () {
 }
 export -f echo_progress_done
 
-
 echo_success () {
     colorprint "${green}${bold}SUCCESS" "$1"
 }
 export -f echo_success
-
 
 echo_query () {
     colorprint "${blue}${bold}INPUT" "${italic}$1"
@@ -101,13 +90,11 @@ echo_query () {
 }
 export -f echo_query
 
-
-#Prints only into the logpath
+# Prints only into the logpath
 echo_log_only () {
     colorprint "${cyan}LOG" "$1"
 }
 export -f echo_log_only
-
 
 # $1 = "Heading" (Include colours and other non-printing chars here)
 # $2 = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
@@ -136,7 +123,7 @@ function colorprint () {
 }
 export -f colorprint
 
-#Wraps indents the text according to variables / terminal output
+# Wraps indents the text according to variables / terminal output
 function do_the_wrap () {
     if [[ $fold = true ]]; then
         # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
@@ -153,7 +140,6 @@ function do_the_wrap () {
     fi
 }
 export -f do_the_wrap
-
 
 function strip_ansi () {
     if [[ $strip_ansi_from_log == "true" ]]; then 
