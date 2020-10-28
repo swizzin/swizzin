@@ -28,10 +28,8 @@ fi
 
 if [[ ! $(uname -m) == "x86_64" ]]; then
   echo_error -e "Unsupported architecture ($(uname -m)) detected!\nSetup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
-  if ! ask "Agree with the above and continue?" N; then
-    echo "bye bye :("
-    exit 1
-  fi
+  ask "Agree with the above and continue?" N || exit 1
+  
 fi
 
 #shellcheck disable=SC2154

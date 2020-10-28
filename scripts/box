@@ -229,9 +229,7 @@ function _adduser {
 
   if id -u "${user}" > /dev/null 2>&1 ; then
     echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-    if ! ask "Continue adding user?" Y; then
-      exit 1
-    fi
+    ask "Continue adding user?" Y || exit 1
     existing=true
 	fi
 
@@ -318,8 +316,7 @@ function _deluser() {
 	fi
 
 	echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
-	echo_query "Press enter to continue, or CTRL+C to cancel"
-	read -rep ''
+  ask "Are you sure you want to continue?" N || exit 1
 
 	for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
 		if [[ $app = "rutorrent" ]]; then
