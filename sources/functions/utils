@@ -120,7 +120,6 @@ function password_check(){
             echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
                 read -rs 'pass'; echo
             fi
-            echo "Pass = $pass"
                 if [[ $pass = "" ]]; then
                     #Password should be random
                     password_ok=true
@@ -131,7 +130,6 @@ function password_check(){
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'; echo
                 fi
-                echo "Pass2 = $pass2"
 
                 if [[ $pass != "$pass2" ]];then
                         if [[ $1 = "whiptail" ]]; then 
@@ -159,10 +157,13 @@ function password_check(){
     #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
     ##Cracklib test
         if [[ -n $(which cracklib-check) ]]; then 
-        echo_progress_start "Checking password strength."
-        if ! grep -q OK <<< cracklib-check <<< "$pass"; then
+        echo_progress_start "Checking password strength"
+        result=$(cracklib-check <<< "$pass")
+        if ! grep -q OK <<< "$result"; then
+            result=""
+            unset result
             if [[ $1 = "whiptail" ]]; then
-                whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
+                whiptail --title "Error" --msgbox "Password did not pass cracklib check." --ok-button="Try again" 10 50
             else
                 echo_warn "Password did not pass cracklib check. Press enter to try again"
                 read -n 1 -r
