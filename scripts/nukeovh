@@ -20,4 +20,6 @@ if [[ -n $grsec ]]; then
     else
         echo_warn "No changes to kernel will be performed"
     fi
+else
+    echo_info "No need to swap kernel"
 fi
