@@ -83,11 +83,13 @@ function _preparation() {
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
+    echo
 	else
 		RelativeScriptPath=$(dirname "$0")
 		ln -sr "$RelativeScriptPath" /etc/swizzin
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
+    echo
 		echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is symlinked to /etc/swizzin"
 		echo_info "That directory is relative to your pwd  = $(pwd)/$RelativeScriptPath"
 		echo_warn "Best of luck and please follow the contribution guidelines cheerio"
@@ -116,7 +118,7 @@ function _adduser() {
 
 	echo "$user:$pass" > /root/.master.info
 
-  bash /etc/swizzin/scripts/box adduser "$user" "$pass"
+  bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
 
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
 
@@ -213,15 +215,13 @@ function _choices() {
 
 function _install() {
 	begin=$(date +"%s")
-  bash /etc/swizzin/scripts/box install $( < /root/results )
-	rm /root/results
+  [[ -s /root/results ]] && bash /etc/swizzin/scripts/box install $( < /root/results ) && rm /root/results && showTimer=true
 
-  bash /etc/swizzin/scripts/box install $( < /root/results2 )
-	rm /root/results2
+  [[ -s /root/results2 ]] && bash /etc/swizzin/scripts/box install $( < /root/results2 ) && rm /root/results2 && showTimer=true
 
 	termin=$(date +"%s")
   difftimelps=$((termin-begin))
-  echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+  [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 
 }
 
@@ -234,16 +234,15 @@ function _post() {
 	if [[ $distribution = "Ubuntu" ]]; then
 		echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 	fi
-  echo_success "Installation complete!\n
-You may now login with the following info: ${user}:${pass}"
+  echo_success "Installation complete!"
 	if [[ -f /install/.nginx.lock ]]; then
-    echo_info "Seedbox can be accessed at https://${user}:${pass}@${ip}"
+    echo_info "Seedbox can be accessed at https://${user}@${ip}"
 	fi
 	if [[ -f /install/.deluge.lock ]]; then
     echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
 Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
 	fi
-  echo_warn "Please note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now"
+  echo_warn "Certain functions may not be fully functional until your server is rebooted or you log out and back in.\nYou may issue the command 'source /root/.bashrc' to begin using box and related functions now"
 }
 
 _os
