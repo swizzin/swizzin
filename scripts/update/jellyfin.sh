@@ -5,6 +5,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
     . /etc/swizzin/sources/functions/utils
     # Get our main user credentials using a util function.
     username="$(_get_master_username)"
+    dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
     #
     # remove the old service and remove legacy files.
     if [[ -f /etc/systemd/system/jellyfin.service ]]; then
@@ -43,11 +44,13 @@ if [[ -f /install/.jellyfin.lock ]]; then
     fi
     #
     if ! check_installed jellyfin; then
-        # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-        wget -q -O - https://repo.jellyfin.org/debian/jellyfin_team.gpg.key | sudo apt-key add -
-        echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$(. /etc/os-release; echo $ID) $(lsb_release -cs) main" > /etc/apt/sources.list.d/jellyfin.list
+        echo_info "Updating Jellyfin"
         #
-        # install jellyfin and jellyfin-ffmepg using apt functions. 
+        # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
+        wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+        echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
+        #
+        # install jellyfin and jellyfin-ffmepg using apt functions.
         apt_update #forces apt refresh
         apt_install jellyfin jellyfin-ffmpeg
         #
@@ -72,6 +75,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
         systemctl -q daemon-reload
         systemctl -q start jellyfin.service
         #
-        echo -e "\nJellyfin upgrade completed and service restarted\n"
+        echo_success "The Jellyfin upgrade has completed"
     fi
 fi
