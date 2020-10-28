@@ -31,7 +31,7 @@ export stout=$(    tput smso   || tput so      ) # Start stand-out
 export estout=$(   tput rmso   || tput se      ) # End stand-out
 # resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
-ring_the_bell(){
+ring_the_bell () {
     [[ $bell == "true" ]] && tput bel
 }
 export -f ring_the_bell
@@ -57,6 +57,11 @@ echo_info () {
     colorprint "${bold}INFO" "$1"
 }
 export -f echo_info
+
+echo_docs () {
+    colorprint "${cyan}${bold}DOCS" "$1"
+}
+export -f echo_docs
 
 echo_progress_start () {
     colorprint "${dim}..." "$1"
