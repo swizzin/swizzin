@@ -210,26 +210,20 @@ function _list() {
 }
 
 function _adduser {
-  if [[ -n $2 ]]; then
 	user=$2
-  else
-    echo "No username argument found, exiting"
-    exit 1;
-  fi
-  
   [[ -n $3 ]] && pass=$3
 
   . /etc/swizzin/sources/functions/utils
   username_check
 
 	if [[ -f /root/${user}.info ]]; then
-    echo_warn "User already exists withinm swizzin"
+    echo_error "User already exists withinm swizzin"
 		exit 1
 	fi
 
   if id -u "${user}" > /dev/null 2>&1 ; then
     echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-    ask "Continue adding user?" Y || exit 1
+    ask "Continue setting up user?" Y || exit 1
     existing=true
 	fi
 
