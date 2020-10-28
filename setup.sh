@@ -101,7 +101,7 @@ function _preparation() {
 }
 
 function _nukeovh() {
-  bash /etc/swizzin/scripts/nukeovh.sh
+  bash /etc/swizzin/scripts/nukeovh
 }
 
 function _intro() {
@@ -116,7 +116,7 @@ function _adduser() {
 
 	echo "$user:$pass" > /root/.master.info
 
-  bash /etc/swizzin/scripts/box "$user" "$pass"
+  bash /etc/swizzin/scripts/box adduser "$user" "$pass"
 
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo "No sudoers modification made ... " ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
 

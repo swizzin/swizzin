@@ -241,8 +241,12 @@ function _adduser {
   if [[ $existing != "true" ]]; then
 		useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
 	fi
-	chpasswd <<< "${user}:${pass}" >> $log 2>&1
+  chpasswd<<<"${user}:${pass}" >> $log 2>&1
+  if [[ -f /etc/htpasswd ]]; then 
+    htpasswd -b -c /etc/htpasswd $user $pass >> $log 2>&1
+  else
 	htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+  fi
 	mkdir -p /etc/htpasswd.d/
 	htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
 	chmod 750 /home/${user}
@@ -442,7 +446,7 @@ function _chpasswd() {
 }
 
 function _nukeovh() {
-  bash /etc/swizzin/scripts/nukeovh.sh
+  bash /etc/swizzin/scripts/nukeovh
 }
 
 # args=("$@")
