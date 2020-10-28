@@ -96,14 +96,6 @@ systemctl -q restart "jellyfin.service"
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch /install/.jellyfin.lock
 #
-# A helpful echo to the terminal.
 echo_success "The Jellyfin installation has completed"
-#
-# A helpful echo
-if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Jellyfin is available on https via port 8920"
-else
-    echo_info "Jellyfin is now available in the panel via /jellyfin"
-fi
 #
 exit
