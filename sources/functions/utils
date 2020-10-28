@@ -113,7 +113,7 @@ function tmp_swap_off() {
 function password_check(){
     #If no password set, then get one 
     if [[ -z $pass ]]; then
-            while [[ -z $password_ok ]]; do
+        while [[ -z $confirmedPass ]]; do
             if [[ $1 = "whiptail" ]]; then
                 pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
         else
@@ -121,8 +121,8 @@ function password_check(){
                 read -rs 'pass'; echo
             fi
                 if [[ $pass = "" ]]; then
-                    #Password should be random
-                    password_ok=true
+                #If password should be generated, skip the check
+                confirmedPass=true
                 else
                 if [[ $1 = "whiptail" ]]; then
                     pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
@@ -130,7 +130,6 @@ function password_check(){
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'; echo
                 fi
-
                 if [[ $pass != "$pass2" ]];then
                         if [[ $1 = "whiptail" ]]; then 
                             whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
@@ -139,11 +138,11 @@ function password_check(){
                             read -n 1 -r
                         fi
                     else
-                        password_ok=true
+                    confirmedPass=true
                     fi
                 fi
             done
-            unset password_ok
+        unset confirmedPass
         fi
 
         if [[ -z "${pass}" ]]; then
@@ -153,7 +152,6 @@ function password_check(){
             echo_progress_done "Password generated and hidden"
         fi
     
-
     #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
     ##Cracklib test
         if [[ -n $(which cracklib-check) ]]; then 
@@ -184,34 +182,30 @@ function username_check(){
         if [[ $1 = "whiptail" ]]; then 
             user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
         else
-            # echo_log_only "username not whiptailed? where did this call come from?"
-            echo_query "Enter a username for the new user"
+            echo_query "Enter a name for the new user"
             read -r user
         fi
     fi
 
-    #Perform tests. If failure is detected, recurse by unsetting $user, and running `username_check $1`
-
+    #Perform tests. If failure is set message and set flag
     ## Quick caps check
     error_message=""
         if [[ $user =~ [A-Z] ]]; then
         error_message+="Usernames must not contain capital letters.\n"
-        usernamebad=true
+        badUsername=true
     fi
-
     ## Check reserved usernames
     if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root") ]]; then
         error_message+="$user is a reserved username -- please use something else.\n"
-        usernamebad=true
+        badUsername=true
     fi
-
     ## Do the complicated regex
     if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
         error_message+="Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\n"
-        usernamebad=true
+        badUsername=true
     fi
-
-    if [[ $usernamebad = "true" ]]; then 
+    ## Recurse if error found
+    if [[ $badUsername = "true" ]]; then 
         if [[ $1 = "whiptail" ]]; then
             whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
         else
@@ -219,8 +213,7 @@ function username_check(){
             read -n 1 -r
         fi
         user=
-        usernamebad=false
+        badUsername=false
         username_check "$1"
         fi
-
 }
