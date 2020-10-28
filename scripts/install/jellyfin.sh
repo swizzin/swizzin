@@ -12,8 +12,9 @@
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/ssl
 #
-# Get our main user credentials using a util function.
+# Get our some useful information from functions in the sourced utils script
 username="$(_get_master_username)"
+dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
 #
 ########
 ######## Variables End
@@ -68,8 +69,8 @@ cat > /etc/jellyfin/system.xml <<-CONFIG
 CONFIG
 #
 # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-wget -q -O - https://repo.jellyfin.org/debian/jellyfin_team.gpg.key | sudo apt-key add -
-echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$(. /etc/os-release; echo $ID) $(lsb_release -cs) main" > /etc/apt/sources.list.d/jellyfin.list
+wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
 #
 # install jellyfin and jellyfin-ffmepg using apt functions. 
 apt_update #forces apt refresh
@@ -96,14 +97,13 @@ systemctl -q restart "jellyfin.service"
 touch /install/.jellyfin.lock
 #
 # A helpful echo to the terminal.
-echo -e "\nThe Jellyfin installation has completed\n"
+echo_success "The Jellyfin installation has completed"
 #
 # A helpful echo
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo -e "Jellyfin via https is available on this port: 8920\n"
+    echo_info "Jellyfin is available on https via port 8920"
 else
-    echo -e "Jellyfin is now available in the panel\n"
-    echo -e "Please visit /jellyfin\n"
+    echo_info "Jellyfin is now available in the panel via /jellyfin"
 fi
 #
 exit
