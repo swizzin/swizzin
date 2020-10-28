@@ -109,7 +109,7 @@ function tmp_swap_off() {
 	rm -f /.swapfile > /dev/null 2>&1
 }
 
-# Will loop if $pass isn't set
+# Will recurse if $pass isn't set or isn't valid
 function password_check(){
     #If no password set, then get one 
     if [[ $pass = "" ]]; then
@@ -178,7 +178,7 @@ function password_check(){
     fi
 }
 
-# Will loop while $user isn't set
+# Will recurse while $user isn't set or isn't valid
 function username_check(){
     if [[ -z $user ]]; then
         if [[ $1 = "whiptail" ]]; then 
@@ -190,7 +190,9 @@ function username_check(){
         fi
     fi
 
+    #Perform tests. If failure is detected, recurse by unsetting $user, and running `username_check $1`
 
+    ## Quick caps check
         if [[ $user =~ [A-Z] ]]; then
             echo_warn "Usernames must not contain capital letters. Press enter to try again."
             user=
@@ -198,13 +200,15 @@ function username_check(){
         username_check "$1"
     fi
 
-    if [[ $user =~ ("swizzin"|"admin") ]]; then
+    ## Check reserved usernames
+    if [[ $user =~ ("swizzin"|"admin"|"www-data") ]]; then
             echo_warn "$user is a reserved username -- please use something else. Press enter to try again."
             user=
             read
         username_check "$1"
     fi
 
+    ## Do the complicated regex
     if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
         echo_warn "Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\nPress enter to try again."
         user=
