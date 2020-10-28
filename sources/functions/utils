@@ -153,11 +153,16 @@ function password_check(){
         fi
 
         if [[ -z "${pass}" ]]; then
-            echo_info "Generating password"
+            echo_progress_start "Generating password"
             pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-            echo_query "Press enter to view the password."
-            read
-            echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\nThe password for $user is   $pass\n\nPlease make a note of this, as it will not be shown again! \nPress Q to close this window" | less
+            # if [[ $1 = "whiptail" ]]; then
+                whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+            # else
+            #     echo_query "Press enter to view the password."
+            #     read
+            #     echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n\nThe password for $user is   $pass\n\nPlease make a note of this, as it will not be shown again! \nPress Q to close this window" | less
+            # fi
+            echo_progress_done "Password generated and hidden"
         fi
 
         if [[ -n $(which cracklib-check) ]]; then 
