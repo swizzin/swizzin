@@ -112,33 +112,28 @@ function tmp_swap_off() {
 # Will recurse if $pass isn't set or isn't valid
 function password_check(){
     #If no password set, then get one 
-    if [[ $pass = "" ]]; then
-        if [[ $1 = "whiptail" ]]; then
+    if [[ -z $pass ]]; then
             while [[ -z $password_ok ]]; do
+            if [[ $1 = "whiptail" ]]; then
                 pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-                if [[ $pass = "" ]]; then
-                    #Password should be random
-                    password_ok=true
         else
-                    pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-                    if [[ $pass != $pass2 ]];then
-                        whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
-                    else
-                        password_ok=true
-                    fi
-                fi
-            done
-        else
-            while [[ -z $password_ok ]]; do
             echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
                 read -rs 'pass'; echo
+            fi
+            echo "Pass = $pass"
                 if [[ $pass = "" ]]; then
                     #Password should be random
                     password_ok=true
                 else
+                if [[ $1 = "whiptail" ]]; then
+                    pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
+                else
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'; echo
-                    if [[ $pass != $pass2 ]];then
+                fi
+                echo "Pass2 = $pass2"
+
+                if [[ $pass != "$pass2" ]];then
                         if [[ $1 = "whiptail" ]]; then 
                             whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
                         else
@@ -159,7 +154,7 @@ function password_check(){
                 whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
             echo_progress_done "Password generated and hidden"
         fi
-    fi
+    
 
     #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
     ##Cracklib test
@@ -223,6 +218,7 @@ function username_check(){
             read -n 1 -r
         fi
         user=
+        usernamebad=false
         username_check "$1"
         fi
 
