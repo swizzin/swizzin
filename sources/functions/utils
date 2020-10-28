@@ -122,8 +122,7 @@ function password_check(){
         else
                     pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
                     if [[ $pass != $pass2 ]];then
-                        echo_warn "Passwords did not match. Press enter to try again"
-                        read
+                        whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
                     else
                         password_ok=true
                     fi
@@ -140,8 +139,12 @@ function password_check(){
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'; echo
                     if [[ $pass != $pass2 ]];then
+                        if [[ $1 = "whiptail" ]]; then 
+                            whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
+                        else
                         echo_warn "Passwords did not match. Press enter to try again"
                         read
+                        fi
                     else
                         password_ok=true
                     fi
@@ -166,10 +169,14 @@ function password_check(){
             str="$(cracklib-check <<<"$pass")"
             check=$(grep OK <<<"$str")
             if [[ -z $check ]]; then
+            if [[ $1 = "whiptail" ]]; then
+                whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
+            else
                 echo_warn "Password did not pass cracklib check. Press enter to try again"
+                read
+            fi
                 pass=
             unset pass
-                read
             password_check "$1"
         else
         echo_progress_done "Password passed"
@@ -193,26 +200,33 @@ function username_check(){
     #Perform tests. If failure is detected, recurse by unsetting $user, and running `username_check $1`
 
     ## Quick caps check
+    error_message=""
         if [[ $user =~ [A-Z] ]]; then
-            echo_warn "Usernames must not contain capital letters. Press enter to try again."
-            user=
-            read
-        username_check "$1"
+        error_message+="Usernames must not contain capital letters.\n"
+        usernamebad=true
     fi
 
     ## Check reserved usernames
     if [[ $user =~ ("swizzin"|"admin"|"www-data") ]]; then
-            echo_warn "$user is a reserved username -- please use something else. Press enter to try again."
-            user=
-            read
-        username_check "$1"
+        error_message+="$user is a reserved username -- please use something else.\n"
+        usernamebad=true
     fi
 
     ## Do the complicated regex
     if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
-        echo_warn "Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\nPress enter to try again."
-        user=
+        error_message+="Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\n"
+        usernamebad=true
+    fi
+
+    if [[ $usernamebad = "true" ]]; then 
+        if [[ $1 = "whiptail" ]]; then
+            whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
+        else
+            echo_warn "$error_message. Press enter to try again"
         read
+        fi
+        user=
         username_check "$1"
         fi
+
 }
