@@ -45,7 +45,6 @@ _os() {
 	if [ ! -d /install ]; then mkdir /install; fi
 	if [ ! -d /root/logs ]; then mkdir /root/logs; fi
 	export log=/root/logs/install.log
-	# echo "Checking OS version and release ... "
 	if ! which lsb_release > /dev/null; then
 		apt-get -y -qq update >> ${log} 2>&1
 		apt-get -y -qq install lsb-release >> ${log} 2>&1
@@ -54,29 +53,31 @@ _os() {
 	release=$(lsb_release -rs)
 	codename=$(lsb_release -cs)
 	if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
-		echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
+      echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
 	fi
 	if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
-		echo "Your release ($codename) of $distribution is not supported." && exit 1
+      echo_error "Your release ($codename) of $distribution is not supported." && exit 1
 	fi
 }
 
 function _preparation() {
 	if [[ $distribution = "Ubuntu" ]]; then
-		echo "Enabling required repos"
+    echo_progress_start "Enabling required repos"
 		if ! which add-apt-repository > /dev/null; then
 			apt-get install -y -q software-properties-common >> ${log} 2>&1
 		fi
 		add-apt-repository universe >> ${log} 2>&1
 		add-apt-repository multiverse >> ${log} 2>&1
 		add-apt-repository restricted -u >> ${log} 2>&1
+    echo_progress_done
 	fi
 
   apt_update
   apt_upgrade
 	# this apt-get should be checked and handled if fails, otherwise the install borks.
   # apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
-  bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/dependencies.sh)
+  # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/dependencies.sh)
+  bash <(curl -s https://raw.githubusercontent.com/flying-sausages/swizzin/setup-trimdown/scripts/update/0-dependencies.sh)
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
 	if [[ $dev != "true" ]]; then
