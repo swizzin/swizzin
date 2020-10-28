@@ -62,7 +62,7 @@ cat > /etc/jellyfin/system.xml <<-CONFIG
   <EnableRemoteAccess>true</EnableRemoteAccess>
   <BaseUrl />
   <LocalNetworkAddresses>
-    <string>0.0.0.0</string>
+	<string>0.0.0.0</string>
   </LocalNetworkAddresses>
   <RequireHttps>true</RequireHttps>
 </ServerConfiguration>
@@ -72,7 +72,7 @@ CONFIG
 wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
 echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
 #
-# install jellyfin and jellyfin-ffmepg using apt functions. 
+# install jellyfin and jellyfin-ffmepg using apt functions.
 apt_update #forces apt refresh
 apt_install jellyfin jellyfin-ffmpeg
 #
@@ -86,8 +86,8 @@ chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
-    systemctl -q restart nginx.service
+	bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+	systemctl -q restart nginx.service
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect
