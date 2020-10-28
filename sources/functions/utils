@@ -204,7 +204,7 @@ function username_check(){
     fi
 
     ## Check reserved usernames
-    if [[ $user =~ ("swizzin"|"admin"|"www-data") ]]; then
+    if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root") ]]; then
         error_message+="$user is a reserved username -- please use something else.\n"
         usernamebad=true
     fi
