@@ -18,9 +18,6 @@ source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sour
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt)
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask)
 
-
-time=$(date +"%s")
-
 if [[ $EUID -ne 0 ]]; then
   echo_error "Swizzin setup requires user to be root. su or sudo -s and run again ..."
 	exit 1
@@ -29,14 +26,6 @@ fi
 if [[ ! $(uname -m) == "x86_64" ]]; then
   echo_error -e "Unsupported architecture ($(uname -m)) detected!\nSetup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
   ask "Agree with the above and continue?" N || exit 1
-  
-fi
-
-#shellcheck disable=SC2154
-if [[ $dev = "true" ]]; then
-	# If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
-	# You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
-  echo_info "DEVVEOVEOVEOVOOEOOEVEEEEEOOOOOEEEEEOOOOO hi"
 fi
 
 _os() {
@@ -44,11 +33,9 @@ _os() {
 	if [ ! -d /root/logs ]; then mkdir /root/logs; fi
 	export log=/root/logs/install.log
 	if ! which lsb_release > /dev/null; then
-		apt-get -y -qq update >> ${log} 2>&1
-		apt-get -y -qq install lsb-release >> ${log} 2>&1
+    apt_install lsb-release
 	fi
 	distribution=$(lsb_release -is)
-	release=$(lsb_release -rs)
 	codename=$(lsb_release -cs)
 	if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
       echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
@@ -62,19 +49,15 @@ function _preparation() {
 	if [[ $distribution = "Ubuntu" ]]; then
     echo_progress_start "Enabling required repos"
 		if ! which add-apt-repository > /dev/null; then
-			apt-get install -y -q software-properties-common >> ${log} 2>&1
+      apt_install software-properties-common
 		fi
 		add-apt-repository universe >> ${log} 2>&1
 		add-apt-repository multiverse >> ${log} 2>&1
 		add-apt-repository restricted -u >> ${log} 2>&1
     echo_progress_done
 	fi
-
-  apt_update
   apt_upgrade
-	# this apt-get should be checked and handled if fails, otherwise the install borks.
-  # apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
-  # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/dependencies.sh)
+  # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
   bash <(curl -s https://raw.githubusercontent.com/flying-sausages/swizzin/setup-trimdown/scripts/update/0-dependencies.sh)
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
@@ -115,11 +98,8 @@ function _adduser() {
   . /etc/swizzin/sources/functions/utils
   username_check whiptail
   password_check whiptail
-
 	echo "$user:$pass" > /root/.master.info
-
   bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
-
   #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
   if grep ${user} /etc/sudoers.d/swizzin >/dev/null 2>&1 ; then echo_warn "No sudoers modification made" ; else	echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin ; fi
   pass=
@@ -218,9 +198,7 @@ function _choices() {
 function _install() {
 	begin=$(date +"%s")
   [[ -s /root/results ]] && bash /etc/swizzin/scripts/box install $( < /root/results ) && rm /root/results && showTimer=true
-
   [[ -s /root/results2 ]] && bash /etc/swizzin/scripts/box install $( < /root/results2 ) && rm /root/results2 && showTimer=true
-
 	termin=$(date +"%s")
   difftimelps=$((termin-begin))
   [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
@@ -236,20 +214,18 @@ function _post() {
 	if [[ $distribution = "Ubuntu" ]]; then
 		echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 	fi
-  echo_success "Installation complete!"
+  echo_success "Swizzin installation complete!"
 	if [[ -f /install/.nginx.lock ]]; then
     echo_info "Seedbox can be accessed at https://${user}@${ip}"
 	fi
 	if [[ -f /install/.deluge.lock ]]; then
-    echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
-Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
+    echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)\nYour deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
 	fi
   echo_warn "Certain functions may not be fully functional until your server is rebooted or you log out and back in.\nYou may issue the command 'source /root/.bashrc' to begin using box and related functions now"
 }
 
 _os
 _preparation
-#echos and apt are available under this line
 _nukeovh
 _intro
 _adduser
