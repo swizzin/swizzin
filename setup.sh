@@ -202,7 +202,6 @@ function _install() {
 	termin=$(date +"%s")
   difftimelps=$((termin-begin))
   [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
-
 }
 
 function _post() {
