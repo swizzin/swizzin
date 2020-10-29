@@ -110,14 +110,6 @@ server {
   server_tokens off;
   root /srv/;
 
-  index index.html index.php index.htm;
-
-  location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/run/php/$sock.sock;
-    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-  }
-
   include /etc/nginx/apps/*;
 
   location ~ /\.ht {
