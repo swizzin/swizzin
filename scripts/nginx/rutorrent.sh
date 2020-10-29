@@ -196,9 +196,11 @@ location /rutorrent {
   auth_basic_user_file /etc/htpasswd;
 
   location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
+    fastcgi_split_path_info ^(.+\.php)(/.+)\$;
     fastcgi_pass unix:/run/php/$sock.sock;
     fastcgi_param SCRIPT_FILENAME \$request_filename;
+    include fastcgi_params;
+    fastcgi_index index.php;
   }
 }
 RUM
