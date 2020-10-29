@@ -17,12 +17,19 @@ fi
 reloadnginx=0
 
 if [[ -f /etc/nginx/apps/rutorrent.conf ]]; then
+    #Fix fastcgi path_info being blank with certain circumstances under ruTorrent
+    #Essentially, disabling the distro snippet and ignoring try_files
     if grep -q '/srv\$fastcgi_script_name' /etc/nginx/apps/rutorrent.conf; then
         sed -i 's|/srv$fastcgi_script_name|$request_filename|g' /etc/nginx/apps/rutorrent.conf
         reloadnginx=1
     fi
     if grep -q 'alias' /etc/nginx/apps/rutorrent.conf; then
         sed -i '/alias/d' /etc/nginx/apps/rutorrent.conf
+        reloadnginx=1
+    fi
+    if ! grep -q fastcgi_split_path_info /etc/nginx/apps/rutorrent.conf; then
+        sed -i 's|include snippets/fastcgi-php.conf;|fastcgi_split_path_info ^(.+\\.php)(/.+)$;|g' /etc/nginx/apps/rutorrent.conf
+        sed -i '/SCRIPT_FILENAME/a \ \ \ \ include fastcgi_params;\n    fastcgi_index index.php;' /etc/nginx/apps/rutorrent.conf
         reloadnginx=1
     fi
 fi
