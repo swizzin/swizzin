@@ -192,13 +192,14 @@ function rutorrent_nginx_config() {
     if [[ ! -f /etc/nginx/apps/rutorrent.conf ]]; then
         cat > /etc/nginx/apps/rutorrent.conf <<RUM
 location /rutorrent {
+  alias /srv/rutorrent;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd;
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
     fastcgi_pass unix:/run/php/$sock.sock;
-    fastcgi_param SCRIPT_FILENAME \$request_filename;
+    fastcgi_param SCRIPT_FILENAME /srv\$fastcgi_script_name;
   }
 }
 RUM

@@ -14,21 +14,9 @@ if [[ -d /srv/rutorrent/plugins/theme/themes/DarkBetter ]]; then
   fi
 fi
 
-reloadnginx=0
-
-if [[ -f /etc/nginx/apps/rutorrent.conf ]]; then
-    if grep -q '/srv\$fastcgi_script_name' /etc/nginx/apps/rutorrent.conf; then
-        sed -i 's|/srv$fastcgi_script_name|$request_filename|g' /etc/nginx/apps/rutorrent.conf
-        reloadnginx=1
-    fi
-    if grep -q 'alias' /etc/nginx/apps/rutorrent.conf; then
-        sed -i '/alias/d' /etc/nginx/apps/rutorrent.conf
-        reloadnginx=1
-    fi
-fi
-
 if [[ -f /install/.flood.lock ]]; then
   users=($(cut -d: -f1 < /etc/htpasswd))
+  reloadnginx=0
   for u in ${users[@]}; do
     if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
       reloadnginx=1
@@ -42,10 +30,9 @@ auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 RUC
     fi
   done
-fi
-
-if [[ $reloadnginx == 1 ]]; then
+  if [[ $reloadnginx == 1 ]]; then
     systemctl reload nginx
+  fi
 fi
 
 if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -c cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]] ;} ; then
