@@ -120,16 +120,6 @@ location /deluge.downloads {
 DIN
 fi
 
-# Remove php directive at the root level since we no longer use php
-# on root and we define php manually for nested locations
-if grep -q '\.php\$' /etc/nginx/sites-enabled/default; then
-    sed -i -e '/location ~ \\.php$ {/,/}/d' /etc/nginx/sites-enabled/default
-fi
-
-if grep -q 'index.html' /etc/nginx/sites-enabled/default; then
-    sed -i '/index.html/d' /etc/nginx/sites-enabled/default
-fi
-
 . /etc/swizzin/sources/functions/php
 restart_php_fpm
 systemctl reload nginx
