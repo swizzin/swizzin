@@ -107,7 +107,7 @@ There is a wide choice of "styles" to choose from, please use them appropriately
   * necessary follow up steps
   * pointers to documentation, etc
 * `echo_query` is meant to highlight the fact user interaction is required
-* `echo_progress_start` and `echo_progress_start` are meant to be used to "wrap" a chunk of code that can take a while to complete. If it takes more than 0.1s, you should probably wrap it in this. Examples could be:
+* `echo_progress_start` and `echo_progress_done` are meant to be used to "wrap" a chunk of code that can take a while to complete. If it takes more than 0.1s, you should probably wrap it in this. Examples could be:
   * Doing `apt` calls like `install`, `update`, `upgrade`, etc.
   * Generating ciphers/keys
   * Git pulls/clones
