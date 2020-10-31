@@ -101,4 +101,7 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
   fi
+  if grep -q -E "swizzin.*/bin/sh" /etc/passwd; then
+    usermod swizzin -s /usr/sbin/nologin
+  fi
 fi

@@ -36,7 +36,7 @@ echo_progress_start "Installing python dependencies"
 echo_progress_done
 
 echo_progress_start "Setting permissions"
-useradd -r swizzin > /dev/null 2>&1
+useradd -r swizzin -s /usr/sbin/nologin > /dev/null 2>&1
 chown -R swizzin: /opt/swizzin
 setfacl -m g:swizzin:rx /home/*
 mkdir -p /etc/nginx/apps
