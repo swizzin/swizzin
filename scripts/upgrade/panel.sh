@@ -21,6 +21,11 @@ if [[ -f /install/.panel.lock ]]; then
     rm -r core/custom.tmp
   fi
   echo_progress_done "Commits pulled"
+  echo_progress_start "Checking pip for new depends"
+  if ! /opt/swizzin/venv/bin/python /opt/swizzin/swizzin/tests/test_requirements.py >> ${log} 2>&1; then
+    /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
+  fi
+  echo_progress_done "Depends up-to-date"
   echo_progress_start "Restarting Panel"
   systemctl restart panel
   echo_progress_done "Done!"
