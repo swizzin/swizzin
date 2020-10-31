@@ -72,9 +72,10 @@ Defaults:swizzin !logfile
 Defaults:swizzin !syslog
 Defaults:swizzin !pam_session
 
-Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
+Cmnd_Alias   CMNDS = /usr/bin/quota
+Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/systemctl restart *, /bin/systemctl disable *, /bin/systemctl enable *
 
-swizzin     ALL = (ALL) NOPASSWD: CMNDS
+swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
 rm -rf /srv/panel
@@ -86,5 +87,18 @@ systemctl enable -q --now panel
     echo_progress_start "Updating panel to latest version"
     bash /usr/local/bin/swizzin/upgrade/panel.sh
     echo_progress_done
+  fi
+  if ! grep -q SYSDCMNDS /etc/sudoers.d/panel; then
+    cat > /etc/sudoers.d/panel <<EOSUD
+#Defaults  env_keep -="HOME"
+Defaults:swizzin !logfile
+Defaults:swizzin !syslog
+Defaults:swizzin !pam_session
+
+Cmnd_Alias   CMNDS = /usr/bin/quota
+Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/systemctl restart *, /bin/systemctl disable *, /bin/systemctl enable *
+
+swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
+EOSUD
   fi
 fi

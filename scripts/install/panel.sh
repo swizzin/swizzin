@@ -87,9 +87,10 @@ Defaults:swizzin !logfile
 Defaults:swizzin !syslog
 Defaults:swizzin !pam_session
 
-Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
+Cmnd_Alias   CMNDS = /usr/bin/quota
+Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/systemctl restart *, /bin/systemctl disable *, /bin/systemctl enable *
 
-swizzin     ALL = (ALL) NOPASSWD: CMNDS
+swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
 systemctl enable -q --now panel 2>&1  | tee -a $log
