@@ -11,14 +11,14 @@ if [[ -f /install/.panel.lock ]]; then
   cd /opt/swizzin/swizzin
   #git reset HEAD --hard
   echo_progress_start "Pulling new commits"
-  git pull 2> /dev/null || { PANELRESET=1; }
+  git pull >> ${log} 2>&1 || { PANELRESET=1; }
   if [[ $PANELRESET == 1 ]]; then
     echo_warn "Working around unclean git repo"
-    git fetch origin master
+    git fetch origin master >> ${log} 2>&1
     cp -a core/custom core/custom.tmp
-    git reset --hard origin/master
-    mv core/custom.tmp/* core/custom/
-    rm -r core/custom.tmp
+    git reset --hard origin/master >> ${log} 2>&1
+    mv core/custom.tmp/* core/custom/ >> ${log} 2>&1
+    rm -rf core/custom.tmp
   fi
   echo_progress_done "Commits pulled"
   echo_progress_start "Checking pip for new depends"
