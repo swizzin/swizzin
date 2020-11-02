@@ -244,7 +244,7 @@ for user in ${users[@]}; do
     echo_progress_done "Transmission set up for $user"
 done
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Creating nginx config"
     _nginx_transmission
     echo_progress_done
