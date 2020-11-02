@@ -48,7 +48,6 @@ for u in ${users[@]}; do
     confpath="/home/${u}/.config/transmission-daemon/settings.json"
     jq '.["rpc-bind-address"] = "127.0.0.1"' "$confpath" >> /root/logs/swizzin.log
     RPCPORT=$(jq -r '.["rpc-port"]' < "$confpath")
-    echo "RPC-port = $RPCPORT"
     if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
         cat > /etc/nginx/conf.d/${u}.transmission.conf <<TDCONF
 upstream ${u}.transmission {
