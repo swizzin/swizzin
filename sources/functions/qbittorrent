@@ -50,7 +50,7 @@ function build_qbittorrent() {
             noexec=1
         fi
         VERSION=${qbittorrent}
-        if [[ $(lsb_release -cs) == focal && $deluge == 1-3.stable ]]; then
+        if [[ $(lsb_release -cs) == focal && $deluge == 1.3-stable ]]; then
             LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
         else
             LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
