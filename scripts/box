@@ -20,6 +20,8 @@ export log="/root/logs/swizzin.log"
 # Sourcing functions
 #shellcheck source=sources/functions/apt
 . /etc/swizzin/sources/functions/apt
+#shellcheck source=sources/functions/ask
+. /etc/swizzin/sources/functions/ask
 echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {
