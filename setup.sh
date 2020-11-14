@@ -96,6 +96,8 @@ function _preparation() {
   chmod -R 700 /etc/swizzin/scripts
   #shellcheck source=sources/functions/apt
   . /etc/swizzin/sources/functions/apt
+  #shellcheck source=sources/functions/ask
+  . /etc/swizzin/sources/functions/ask
 }
 
 function _nukeovh() {

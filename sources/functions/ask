@@ -41,3 +41,4 @@ ask() {
 
     done
 }
+export -f ask

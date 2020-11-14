@@ -20,6 +20,8 @@ export log="/root/logs/swizzin.log"
 # Sourcing functions
 #shellcheck source=sources/functions/apt
 . /etc/swizzin/sources/functions/apt
+#shellcheck source=sources/functions/ask
+. /etc/swizzin/sources/functions/ask
 echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {
@@ -94,7 +96,7 @@ function _cli() {
     else
       if [[ "${repo[*]}" =~ $i ]]; then
         echo_info "Installing $i"
-        echo_docs "https://swizzin.ltd/applications/$i"
+        echo_docs "applications/$i"
         bash /usr/local/bin/swizzin/install/$i.sh
       else
         echo_warn "Package $i not found"
