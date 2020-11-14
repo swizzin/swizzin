@@ -3,6 +3,11 @@
 if [[ -f /install/.jellyfin.lock ]]; then
     # source the functions we need for this script.
     . /etc/swizzin/sources/functions/utils
+    # awaiting pull to remove
+    function dist_info() {
+        DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+        DIST_ID="$(source /etc/os-release && echo "$ID")"
+    }
     # Get our main user credentials using a util function.
     username="$(_get_master_username)"
     dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
