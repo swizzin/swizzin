@@ -102,8 +102,3 @@ function tmp_swap_off() {
     swapoff /.swapfile > /dev/null 2>&1
     rm -f /.swapfile > /dev/null 2>&1
 }
-
-function dist_info () {
-    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-    DIST_ID="$(source /etc/os-release && echo "$ID")"
-}

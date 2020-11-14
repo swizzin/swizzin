@@ -75,6 +75,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
         systemctl -q daemon-reload
         systemctl -q start jellyfin.service
         #
-        echo_success "The Jellyfin upgrade has completed"
+        echo_success "Jellyfin updated"
     fi
 fi
