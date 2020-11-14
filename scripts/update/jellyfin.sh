@@ -47,8 +47,8 @@ if [[ -f /install/.jellyfin.lock ]]; then
         echo_info "Updating Jellyfin"
         #
         # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-        wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
-        echo "deb [arch=$( dpkg --print-architecture )] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
+        wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >>"${log}" 2>&1
+        echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" >/etc/apt/sources.list.d/jellyfin.list
         #
         # install jellyfin and jellyfin-ffmepg using apt functions.
         apt_update #forces apt refresh
