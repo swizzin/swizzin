@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 #
 if [[ -f /install/.jellyfin.lock ]]; then
+
+    # awaiting pull to remove
+    function dist_info() {
+    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+    DIST_ID="$(source /etc/os-release && echo "$ID")"
+    }
     # source the functions we need for this script.
+    #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     # Get our main user credentials using a util function.
     username="$(_get_master_username)"
@@ -9,15 +16,18 @@ if [[ -f /install/.jellyfin.lock ]]; then
     #
     # remove the old service and remove legacy files.
     if [[ -f /etc/systemd/system/jellyfin.service ]]; then
+        echo_progress_start "Removing old Jellyfin service"
         systemctl -q disable --now jellyfin.service
         rm_if_exists /etc/systemd/system/jellyfin.service
         kill -9 $(ps xU ${username} | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') >/dev/null 2>&1
         rm_if_exists /opt/jellyfin
         rm_if_exists /opt/ffmpeg
+        echo_progress_done "Old JF service removed"
     fi
     #
     # data migration to default locations.
     if [[ -d "/home/${username}/.config/Jellyfin/config" ]]; then
+        echo_progress_start "Adjusting Jellyfin configs to new locations"
         mkdir -p /etc/jellyfin
         mkdir -p /var/lib/jellyfin/{data,root,metadata}
         #
@@ -41,10 +51,11 @@ if [[ -f /install/.jellyfin.lock ]]; then
         rm_if_exists "/home/${username}/.config/Jellyfin"
         rm_if_exists "/home/${username}/.cache/jellyfin"
         rm_if_exists "/home/${username}/.aspnet"
+        echo_progress_done "Configs adjusted"
     fi
     #
     if ! check_installed jellyfin; then
-        echo_info "Updating Jellyfin"
+        echo_info "Moving Jellyfin to apt-managed installation"
         #
         # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
         wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >>"${log}" 2>&1
