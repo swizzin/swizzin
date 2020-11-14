@@ -21,8 +21,7 @@ function _get_user_password () {
     user_to_get="$1"
     password=''
 
-    for file in /root/.master.info /root/*.info ; do 
-        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+    for file in $(find /root/ -maxdepth 1 -name '*.info' ! -name .master.info | sort) ; do 
         if [[ -f $file ]]; then 
             user_in_file=$(cat $file | cut -d: -f1)
             if [ "$user_in_file" = "$user_to_get" ]; then 
@@ -46,8 +45,7 @@ function _get_user_password () {
 
 #Returns all users managed by swizzin as a newline separated list
 function _get_user_list () {
-    for file in /root/.master.info /root/*.info; do 
-        ##TODO fix when there is no addition users other than .master. It works but it's just ugly
+    for file in $(find /root/ -maxdepth 1 -name '*.info' ! -name .master.info | sort) ; do 
         if [[ -f $file ]]; then 
             cut -d: -f1 < "$file"
         fi
