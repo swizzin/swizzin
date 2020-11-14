@@ -59,7 +59,7 @@ echo_info () {
 export -f echo_info
 
 echo_docs () {
-    colorprint "${cyan}${bold}DOCS" "$1"
+    colorprint "${cyan}${bold}DOCS" "${italic}Further reference: ${under}https://swizzin.ltd/$1"
 }
 export -f echo_docs
 
@@ -165,12 +165,15 @@ function echo_tests () {
 
 function echo_test_basic () {
     echo "Here are some basic echos"
+    echo
     echo_success "Installation complete"
     echo_warn "Some hiccups"
     echo_error "wOoopsie fwings awe fucky wucky"
     echo_info "Something of note to user"
+    echo_docs applications/transmission
     echo_progress_start "Something started";    echo_progress_done "Done message"
-    echo_query "Can you tell me this please" "yes/no"
+    echo_query "Can you tell me this please" "YES/no"
+    echo
 }
 
 function echo_test_wrap () {
