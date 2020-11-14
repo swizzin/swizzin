@@ -4,3 +4,8 @@
 if [[ -f /mango ]]; then 
     rm /mango
 fi
+
+#If this file existed, delete it
+if [[ -f /root/mango.info ]]; then 
+    rm /root/mango.info
+fi
