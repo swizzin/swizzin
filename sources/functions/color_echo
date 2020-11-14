@@ -59,7 +59,7 @@ echo_info () {
 export -f echo_info
 
 echo_docs () {
-    colorprint "${cyan}${bold}DOCS" "${italic}Further reference: ${under}https://swizzin.ltd/$1"
+    colorprint "${cyan}${bold}DOCS" "${nc}${cyan}${italic}Further reference: ${under}https://swizzin.ltd/$1"
 }
 export -f echo_docs
 
