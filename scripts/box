@@ -96,7 +96,7 @@ function _cli() {
     else
       if [[ "${repo[*]}" =~ $i ]]; then
         echo_info "Installing $i"
-        echo_docs "https://swizzin.ltd/applications/$i"
+        echo_docs "applications/$i"
         bash /usr/local/bin/swizzin/install/$i.sh
       else
         echo_warn "Package $i not found"
