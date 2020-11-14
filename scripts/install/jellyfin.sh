@@ -14,8 +14,8 @@
 #
 # awaiting pull to remove
 function dist_info() {
-  DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-  DIST_ID="$(source /etc/os-release && echo "$ID")"
+    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+    DIST_ID="$(source /etc/os-release && echo "$ID")"
 }
 #
 # Get our some useful information from functions in the sourced utils script
@@ -92,8 +92,8 @@ chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-  bash /usr/local/bin/swizzin/nginx/jellyfin.sh
-  systemctl -q restart nginx.service
+    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+    systemctl -q restart nginx.service
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect
