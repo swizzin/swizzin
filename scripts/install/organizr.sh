@@ -25,8 +25,8 @@ function organizr_install() {
 
 	if [[ ! -d $organizr_dir ]]; then
 		echo_progress_start "Cloning the Organizr Repo"
-		git clone https://github.com/causefx/Organizr $organizr_dir >> $log 2>&1
-		git --git-dir=$organizr_dir/.git --work-tree=$organizr_dir checkout 585d79fa7c2bce1d1241853fd382e70ab8bd8384
+		git clone https://github.com/causefx/Organizr $organizr_dir --depth 1 >> $log 2>&1
+		# git --git-dir=$organizr_dir/.git --work-tree=$organizr_dir checkout 585d79fa7c2bce1d1241853fd382e70ab8bd8384
 		chown -R www-data:www-data $organizr_dir
 		chmod 0700 -R $organizr_dir
 		echo_progress_done "Organizr cloned"
@@ -156,8 +156,8 @@ fi
 organizr_install
 organizr_nginx
 touch /install/.organizr.lock
-organizr_setup
-organizr_adduser
-organizr_f2b
+# organizr_setup
+# organizr_adduser
+# organizr_f2b
 echo_success "Organizr installed"
 echo_info "Log in using your master credentials and configure your instance"
