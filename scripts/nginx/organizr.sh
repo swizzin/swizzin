@@ -22,7 +22,7 @@ sock="php${phpv}-fpm"
 
 cat > /etc/nginx/apps/organizr.conf << ORGNGINX
 location /organizr {
-  root /srv/;
+  alias /srv/organizr;
   index index.php;
   try_files \$uri \$uri/ =404;
 
