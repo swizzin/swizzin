@@ -6,6 +6,6 @@
         "swizzin",
         "xenial"
     ]
-    "shellformat.flag": "-i 20",
+    "shellformat.flag": "-i 4",
     "shellformat.path": ""
 }
