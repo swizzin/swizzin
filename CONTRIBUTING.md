@@ -1,6 +1,14 @@
 # Contributing guidelines
 Here are a couple things to take into account when contributing to swizzin.
 
+## Editor plugins and tooling
+Please make sure that you have the following plugins and tools installed and working correctly.
+- `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
+  - If you are not using VS Code with the plugin above, please make sure to catch **anything** that `shellcheck` does not like.
+  - Wherever you deem appropriate, add `#shellcheck disable=...` _inline_ to suppress the warnings.
+- `shell-format` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format) (auto-installs binary) and [Binary](https://github.com/mvdan/sh)
+  - If you are not using VS Code with the plugin above, please make sure to apply formatting with the flags mentioned in [`settings.json`](.vscode/settings.json)
+
 ## Directories and files
 - Please use `/opt` to install any new software. **Avoid using home directories to install application binaries/source**
 - When creating configuration for users, please add it to an appropriate folder under `~/.config/` when possible
@@ -75,7 +83,7 @@ The following options can be used with any of the exported functions above to ov
 ## Printing into the terminal
 Please use the functions exported from `sources/functions/color_echo` that are available whenever something is ran from the context of either `box` or `setup.sh`.
 
-### Formatting
+### Formatting prints
 * Instead of making a sequence of the same exact echo calls to make new line separation, please use the `\n`, or make your quoted text span multiple lines (with no pre-pending white spaces) instead. THe output will be nicely indented. as a result.
 * In general, there should be no un-styled prints thrown at the end-user.
 
