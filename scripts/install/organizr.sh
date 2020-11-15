@@ -20,7 +20,6 @@ organizr_dir="/srv/organizr"
 
 ####### Source download
 function organizr_install() {
-	export DEBIAN_FRONTEND=noninteractive
 	apt_install php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl
 
 	if [[ ! -d $organizr_dir ]]; then
