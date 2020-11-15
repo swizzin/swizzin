@@ -8,23 +8,23 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
-  exit 1
+	echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+	exit 1
 fi
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 
 ###################################
 
-phpv=$(php_v_from_nginxconf)
+phpv=$(php_service_version)
 sock="php${phpv}-fpm"
 
-cat > /etc/nginx/apps/organizr.conf <<RUM
+cat > /etc/nginx/apps/organizr.conf << ORGNGINX
 location /organizr {
-  root /srv/organizr;
+  root /srv/;
   index index.php;
+  try_files \$uri \$uri/ =404;
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
@@ -38,17 +38,17 @@ location /organizr {
     try_files \$uri /organizr/api/v2/index.php\$is_args\$args;
   }
 }
-RUM
+ORGNGINX
 
 # blacklist_path="/etc/php/$phpv/opcache-blacklist.txt"
 
-# if [[ ! -f $blacklist_path ]]; then 
+# if [[ ! -f $blacklist_path ]]; then
 #   touch "$blacklist_path"
 # fi
 # echo "/srv/organizr/*" >> "$blacklist_path"
 # echo "opcache.blacklist_filename=$blacklist_path" >> /etc/php/$phpv/fpm/php.ini
 
-# reload_php_fpm
+reload_php_fpm
 
 chown -R www-data:www-data /srv/organizr
 systemctl reload nginx
