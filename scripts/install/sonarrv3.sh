@@ -2,9 +2,6 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
-
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
