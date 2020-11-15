@@ -21,10 +21,10 @@ fi
 phpv=$(php_v_from_nginxconf)
 sock="php${phpv}-fpm"
 
-if [[ ! -f /etc/nginx/apps/organizr.conf ]]; then
 cat > /etc/nginx/apps/organizr.conf <<RUM
 location /organizr {
-  alias /srv/organizr;
+  root /srv/organizr;
+  index index.php;
 
   location ~ \.php$ {
     include snippets/fastcgi-php.conf;
@@ -33,9 +33,12 @@ location /organizr {
     fastcgi_buffers 32 32k;
     fastcgi_buffer_size 32k;
   }
+
+  location /organizr/api/v2 {
+    try_files \$uri /organizr/api/v2/index.php\$is_args\$args;
+  }
 }
 RUM
-fi
 
 # blacklist_path="/etc/php/$phpv/opcache-blacklist.txt"
 
