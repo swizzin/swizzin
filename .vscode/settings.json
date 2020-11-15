@@ -7,5 +7,15 @@
         "xenial"
     ],
     "shellformat.flag": "-ci -sr -i 0",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "shellcheck.customArgs": [
+        "-x"
+    ],
+    "shellcheck.enableQuickFix": true,
+    "shellcheck.useWorkspaceRootAsCwd": true,
+    "shellcheck.run": "onType",
+    "editor.formatOnType": true,
+    "diffEditor.codeLens": true,
+    "telemetry.enableTelemetry": false,
 }
