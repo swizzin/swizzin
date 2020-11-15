@@ -5,7 +5,7 @@
         "shellcheck",
         "swizzin",
         "xenial"
-    ]
-    "shellformat.flag": "-i 4",
-    "shellformat.path": ""
+    ],
+    "shellformat.flag": "-ci -sr -i 0",
+    "editor.formatOnSave": true
 }
