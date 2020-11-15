@@ -3,26 +3,14 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 master=$(_get_master_username)
-codename=$(lsb_release -cs)
 distribution=$(lsb_release -is)
 
 airsonicdir="/opt/airsonic" #Where to install airosnic
 airsonicusr="airsonic"      #Who to run airsonic as
 
-case $codename in
-	"buster")
-		echo_progress_start "Adding adoptopenjdk repository"
-		apt_install software-properties-common
-		wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
-		add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
-		echo_progress_done "adoptopenjdk repos enabled"
-		apt_update
-		apt_install adoptopenjdk-8-hotspot
-		;;
-	*)
-		apt_install openjdk-8-jre
-		;;
-esac
+#shellcheck source=sources/functions/java
+. /etc/swizzin/sources/functions/java
+install_java8
 
 echo_progress_start "Downloading Airsonic binary"
 mkdir $airsonicdir -p
