@@ -19,30 +19,30 @@
 #
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo_error "Web server not detected. Please install nginx and restart panel install."
-  exit 1
+	echo_error "Web server not detected. Please install nginx and restart panel install."
+	exit 1
 fi
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 
 function _installRapidleech1() {
-  echo_progress_start "Cloning rapidleech"
-  git clone https://github.com/Th3-822/rapidleech.git  /home/"${MASTER}"/rapidleech >> $log 2>&1
-  chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
-  echo_progress_done
+	echo_progress_start "Cloning rapidleech"
+	git clone https://github.com/Th3-822/rapidleech.git /home/"${MASTER}"/rapidleech >> $log 2>&1
+	chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
+	echo_progress_done
 }
 
 function _installRapidleech3() {
-  if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring nginx"
-    bash /usr/local/bin/swizzin/nginx/rapidleech.sh
-    systemctl reload nginx
-    echo_progress_done
-  fi
+	if [[ -f /install/.nginx.lock ]]; then
+		echo_progress_start "Configuring nginx"
+		bash /usr/local/bin/swizzin/nginx/rapidleech.sh
+		systemctl reload nginx
+		echo_progress_done
+	fi
 }
 
 function _installRapidleech5() {
-    touch /install/.rapidleech.lock
-    echo_success "Rapidleech installed"
+	touch /install/.rapidleech.lock
+	echo_success "Rapidleech installed"
 }
 
 _installRapidleech1

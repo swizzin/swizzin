@@ -8,15 +8,15 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 
 active=$(systemctl is-active headphones)
 if [[ $active == "active" ]]; then
-  systemctl stop headphones
+	systemctl stop headphones
 fi
 
 if [[ ! -f /etc/nginx/apps/headphones.conf ]]; then
-  cat > /etc/nginx/apps/headphones.conf <<RAD
+	cat > /etc/nginx/apps/headphones.conf << RAD
 location /headphones {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:8004/headphones;
@@ -25,7 +25,7 @@ location /headphones {
 }
 RAD
 fi
-cat > /opt/headphones/config.ini <<HPCONF
+cat > /opt/headphones/config.ini << HPCONF
 [General]
 nzb_downloader = 0
 download_torrent_dir = ""
@@ -355,5 +355,5 @@ mpc_enabled = 0
 HPCONF
 
 if [[ $active == "active" ]]; then
-  systemctl start headphones
+	systemctl start headphones
 fi

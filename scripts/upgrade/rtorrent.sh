@@ -13,7 +13,7 @@ export DEBIAN_FRONTEND=noninteractive
 . /etc/swizzin/sources/functions/rtorrent
 whiptail_rtorrent
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 rutorrent="/srv/rutorrent/"
 mapfile -t users < <(_get_user_list)
 

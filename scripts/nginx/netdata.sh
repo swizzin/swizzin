@@ -8,11 +8,11 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 isactive=$(systemctl is-active netdata)
 
 if [[ ! -f /etc/nginx/apps/netdata.conf ]]; then
-  cat > /etc/nginx/apps/netdata.conf <<NET
+	cat > /etc/nginx/apps/netdata.conf << NET
 location /netdata {
   return 301 /netdata/;
 }
@@ -40,5 +40,5 @@ NET
 fi
 sed -i "s/# bind to = \*/bind to = 127.0.0.1/g" /etc/netdata/netdata.conf
 if [[ $isactive == "active" ]]; then
-  systemctl restart netdata
+	systemctl restart netdata
 fi

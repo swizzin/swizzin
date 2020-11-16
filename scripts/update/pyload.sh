@@ -14,33 +14,33 @@
 #
 
 if [[ -f /install/.pyload.lock ]]; then
-    if [[ -f /etc/systemd/system/pyload@.service ]]; then
-        codename=$(lsb_release -cs)
-        user=$(cut -d: -f1 < /root/.master.info)
-        isactive=$(systemctl is-active pyload@${user})
-        . /etc/swizzin/sources/functions/pyenv
-        systemctl disable -q --now pyload@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
-        else
-            LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
-        fi
-        apt_install $LIST
+	if [[ -f /etc/systemd/system/pyload@.service ]]; then
+		codename=$(lsb_release -cs)
+		user=$(_get_master_username)
+		isactive=$(systemctl is-active pyload@${user})
+		. /etc/swizzin/sources/functions/pyenv
+		systemctl disable -q --now pyload@${user} >> ${log} 2>&1
+		if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+			LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
+		else
+			LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
+		fi
+		apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then            
-            python_getpip
-        fi
+		if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+			python_getpip
+		fi
 
-        python2_venv ${user} pyload
+		python2_venv ${user} pyload
 
-        PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-        /opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
-        chown -R ${user}: /opt/.venv/pyload
+		PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+		/opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
+		chown -R ${user}: /opt/.venv/pyload
 
-        mv /home/${user}/.pyload /opt/pyload
-        echo "/opt/pyload" > /opt/pyload/module/config/configdir
+		mv /home/${user}/.pyload /opt/pyload
+		echo "/opt/pyload" > /opt/pyload/module/config/configdir
 
-cat >/etc/systemd/system/pyload.service<<PYSD
+		cat > /etc/systemd/system/pyload.service << PYSD
 [Unit]
 Description=pyLoad
 After=network.target
@@ -53,11 +53,10 @@ WorkingDirectory=/opt/pyload
 [Install]
 WantedBy=multi-user.target
 PYSD
-        systemctl daemon-reload
-        rm /etc/systemd/system/pyload@.service
-        if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now pyload 2>&1  | tee -a $log
-        fi
-    fi
+		systemctl daemon-reload
+		rm /etc/systemd/system/pyload@.service
+		if [[ $isactive == "active" ]]; then
+			systemctl enable -q --now pyload 2>&1 | tee -a $log
+		fi
+	fi
 fi
-

@@ -9,10 +9,10 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15 ; }
+function _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15; }
 
 function _rconf() {
-cat >/home/${user}/.rtorrent.rc<<EOF
+	cat > /home/${user}/.rtorrent.rc << EOF
 # -- START HERE --
 directory.default.set = /home/${user}/torrents/rtorrent
 encoding.add = UTF-8
@@ -41,9 +41,8 @@ execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
 # -- END HERE --
 EOF
-chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+	chown ${user}.${user} -R /home/${user}/.rtorrent.rc
 }
-
 
 function _makedirs() {
 	mkdir -p /home/${user}/torrents/rtorrent 2>> $log
@@ -55,7 +54,7 @@ function _makedirs() {
 }
 
 _systemd() {
-cat >/etc/systemd/system/rtorrent@.service<<EOF
+	cat > /etc/systemd/system/rtorrent@.service << EOF
 [Unit]
 Description=rTorrent
 After=network.target
@@ -72,17 +71,16 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now rtorrent@${user} 2>> $log
+	systemctl enable -q --now rtorrent@${user} 2>> $log
 }
 
 export DEBIAN_FRONTEND=noninteractive
 
-
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 rutorrent="/srv/rutorrent/"
-port=$((RANDOM%64025+1024))
+port=$((RANDOM % 64025 + 1024))
 portend=$((${port} + 1500))
 
 if [[ -n $1 ]]; then
@@ -98,19 +96,31 @@ if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
 	noexec=1
 fi
-		depends_rtorrent;
-		if [[ ! $rtorrentver == repo ]]; then
-			echo_progress_start "Building xmlrpc-c from source";build_xmlrpc-c;echo_progress_done
-			echo_progress_start "Building libtorrent from source";build_libtorrent_rakshasa;echo_progress_done
-			echo_progress_start "Building rtorrent from source";build_rtorrent;echo_progress_done
-		else
-			echo_info "Installing rtorrent with apt-get";rtorrent_apt
-		fi
-		echo_progress_start "Making ${user} directory structure";_makedirs;echo_progress_done
-		echo_progress_start "setting up rtorrent.rc";_rconf;_systemd;echo_progress_done
+depends_rtorrent
+if [[ ! $rtorrentver == repo ]]; then
+	echo_progress_start "Building xmlrpc-c from source"
+	build_xmlrpc-c
+	echo_progress_done
+	echo_progress_start "Building libtorrent from source"
+	build_libtorrent_rakshasa
+	echo_progress_done
+	echo_progress_start "Building rtorrent from source"
+	build_rtorrent
+	echo_progress_done
+else
+	echo_info "Installing rtorrent with apt-get"
+	rtorrent_apt
+fi
+echo_progress_start "Making ${user} directory structure"
+_makedirs
+echo_progress_done
+echo_progress_start "setting up rtorrent.rc"
+_rconf
+_systemd
+echo_progress_done
 
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
 fi
-		echo_success "rTorrent installed"
-		touch /install/.rtorrent.lock
+echo_success "rTorrent installed"
+touch /install/.rtorrent.lock

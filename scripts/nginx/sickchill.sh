@@ -8,14 +8,14 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 isactive=$(systemctl is-active sickchill)
 if [[ $isactive == "active" ]]; then
-  systemctl stop sickchill
+	systemctl stop sickchill
 fi
 
 if [[ ! -f /etc/nginx/apps/sickchill.conf ]]; then
-  cat > /etc/nginx/apps/sickchill.conf <<SRC
+	cat > /etc/nginx/apps/sickchill.conf << SRC
 location /sickchill {
     include /etc/nginx/snippets/proxy.conf;
     proxy_pass        http://127.0.0.1:8081/sickchill;
@@ -27,5 +27,5 @@ fi
 sed -i "s/web_root.*/web_root = \/sickchill/g" /opt/sickchill/config.ini
 sed -i "s/web_host.*/web_host = 127.0.0.1/g" /opt/sickchill/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start sickchill
+	systemctl start sickchill
 fi

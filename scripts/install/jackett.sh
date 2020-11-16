@@ -19,7 +19,7 @@
 
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
-username=$(cut -d: -f1 < /root/.master.info)
+username=$(_get_master_username)
 jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep AMDx64 | grep browser_download_url | cut -d \" -f4)
 #jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
 password=$(cut -d: -f2 < /root/.master.info)
@@ -33,7 +33,7 @@ chown ${username}.${username} -R Jackett
 echo_progress_done
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/jackett@.service <<JAK
+cat > /etc/systemd/system/jackett@.service << JAK
 [Unit]
 Description=jackett for %i
 After=network.target
@@ -52,7 +52,7 @@ WantedBy=multi-user.target
 JAK
 
 if [[ ! -f /home/${username}/Jackett/jackett_launcher.sh ]]; then
-cat > /home/${username}/Jackett/jackett_launcher.sh <<'JL'
+	cat > /home/${username}/Jackett/jackett_launcher.sh << 'JL'
 #!/bin/bash
 user=$(whoami)
 
@@ -64,13 +64,13 @@ done
 
 echo "Jackett update complete"
 JL
-chmod +x /home/${username}/Jackett/jackett_launcher.sh
+	chmod +x /home/${username}/Jackett/jackett_launcher.sh
 fi
 echo_progress_done "Service file installed"
 
 echo_progress_start "Configuring jackett"
 mkdir -p /home/${username}/.config/Jackett
-cat > /home/${username}/.config/Jackett/ServerConfig.json <<JSC
+cat > /home/${username}/.config/Jackett/ServerConfig.json << JSC
 {
   "Port": 9117,
   "AllowExternal": true,
@@ -97,13 +97,13 @@ chown ${username}.${username} -R /home/${username}/.config/Jackett
 echo_progress_done "Jackett configured"
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Installing nginx config"
-  bash /usr/local/bin/swizzin/nginx/jackett.sh
-  systemctl reload nginx >> $log 2>&1
-  echo_progress_done "Nginx configured"
+	echo_progress_start "Installing nginx config"
+	bash /usr/local/bin/swizzin/nginx/jackett.sh
+	systemctl reload nginx >> $log 2>&1
+	echo_progress_done "Nginx configured"
 fi
 
-systemctl enable -q --now jackett@${username} 2>&1  | tee -a $log
+systemctl enable -q --now jackett@${username} 2>&1 | tee -a $log
 
 sleep 10
 
@@ -111,7 +111,6 @@ echo_progress_start "Setting admin password"
 cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cookie | awk '{printf $3}' | sed 's/;//g')
 curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"' >> $log 2>&1
 echo_progress_done
-
 
 touch /install/.jackett.lock
 

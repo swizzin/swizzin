@@ -16,7 +16,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 
 echo_info "Please visit https://www.plex.tv/claim, login, copy your plex claim token to your clipboard and paste it here. This will automatically claim your server! Otherwise, you can leave this blank and to tunnel to the port instead."
 echo_query "Insert your Plex claim token" "e.g. 'claim-...' or blank"
@@ -27,36 +27,35 @@ read 'claim'
 #releases=$(grep -ioe '"label"[^}]*' <<<"${wgetresults}" | grep -i "\"distro\":\"ubuntu\"" | grep -m1 -i "\"build\":\"linux-ubuntu-x86_64\"")
 #latest=$(echo ${releases} | grep -m1 -ioe 'https://[^\"]*')
 
-  echo_progress_start "Installing plex keys and sources ... "
-  apt_install apt-transport-https
-  wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
-  echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list     
-  echo
+echo_progress_start "Installing plex keys and sources ... "
+apt_install apt-transport-https
+wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | sudo apt-key add -
+echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list
+echo
 
-  apt_update
-  echo_progress_done "Sources and keys retrieved and installed"
+apt_update
+echo_progress_done "Sources and keys retrieved and installed"
 
-  apt_install plexmediaserver
+apt_install plexmediaserver
 
-  if [[ ! -d /var/lib/plexmediaserver ]]; then
-    mkdir -p /var/lib/plexmediaserver
-  fi
-  perm=$(stat -c '%U' /var/lib/plexmediaserver/)
-  if [[ ! $perm == plex ]]; then
-    chown -R plex:plex /var/lib/plexmediaserver
-  fi
-  usermod -a -G ${master} plex
+if [[ ! -d /var/lib/plexmediaserver ]]; then
+	mkdir -p /var/lib/plexmediaserver
+fi
+perm=$(stat -c '%U' /var/lib/plexmediaserver/)
+if [[ ! $perm == plex ]]; then
+	chown -R plex:plex /var/lib/plexmediaserver
+fi
+usermod -a -G ${master} plex
 
 if [[ -n $claim ]]; then
-  sleep 5
-  #shellcheck source=sources/functions/plex
-  . /etc/swizzin/sources/functions/plex
-  claimPlex ${claim}
+	sleep 5
+	#shellcheck source=sources/functions/plex
+	. /etc/swizzin/sources/functions/plex
+	claimPlex ${claim}
 fi
 
-    systemctl restart plexmediaserver >> $log 2>&1
+systemctl restart plexmediaserver >> $log 2>&1
 
-    touch /install/.plex.lock
+touch /install/.plex.lock
 
 echo_success "Plex installed"
-

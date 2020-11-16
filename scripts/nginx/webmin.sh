@@ -2,9 +2,9 @@
 # Webmin nginx installer
 # flying_sausages for swizzin 2020
 
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 if [[ ! -f /etc/nginx/apps/webmin.conf ]]; then
-cat > /etc/nginx/apps/webmin.conf <<WEBC
+	cat > /etc/nginx/apps/webmin.conf << WEBC
 location /webmin/ {
     include /etc/nginx/snippets/proxy.conf;
 

@@ -8,15 +8,15 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 active=$(systemctl is-active sabnzbd)
 
 if [[ $active == "active" ]]; then
-  systemctl stop sabnzbd
+	systemctl stop sabnzbd
 fi
 
 if [[ ! -f /etc/nginx/apps/sabnzbd.conf ]]; then
-  cat > /etc/nginx/apps/sabnzbd.conf <<SAB
+	cat > /etc/nginx/apps/sabnzbd.conf << SAB
 location /sabnzbd {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:65080/sabnzbd;
@@ -30,5 +30,5 @@ sed -i "s|^host = .*|host = 127.0.0.1|g" /home/${user}/.config/sabnzbd/sabnzbd.i
 sed -i "s|^url_base = .*|url_base = /sabnzbd|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
 
 if [[ $active == "active" ]]; then
-  systemctl start sabnzbd
+	systemctl start sabnzbd
 fi

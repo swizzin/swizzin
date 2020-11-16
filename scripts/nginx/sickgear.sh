@@ -8,14 +8,14 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 isactive=$(systemctl is-active sickgear)
 if [[ $isactive == "active" ]]; then
-  systemctl stop sickgear
+	systemctl stop sickgear
 fi
 
 if [[ ! -f /etc/nginx/apps/sickgear.conf ]]; then
-  cat > /etc/nginx/apps/sickgear.conf <<SGC
+	cat > /etc/nginx/apps/sickgear.conf << SGC
 location /sickgear {
     include /etc/nginx/snippets/proxy.conf;
     proxy_pass        http://127.0.0.1:8081/sickgear;
@@ -27,5 +27,5 @@ fi
 sed -i "s/web_root.*/web_root = \/sickgear/g" /opt/sickgear/config.ini
 sed -i "s/web_host.*/web_host = 127.0.0.1/g" /opt/sickgear/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start sickgear
+	systemctl start sickgear
 fi

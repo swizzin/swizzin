@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 
 echo_progress_start "Adding Syncthing Repository"
 curl -s https://syncthing.net/release-key.txt | apt-key add - >> $log 2>&1
@@ -28,7 +28,7 @@ apt_update
 apt_install syncthing
 
 echo_progress_start "Configuring Syncthing & Starting"
-cat > /etc/systemd/system/syncthing@.service <<SYNC
+cat > /etc/systemd/system/syncthing@.service << SYNC
 [Unit]
 Description=Syncthing - Open Source Continuous File Synchronization for %i
 Documentation=man:syncthing(1)
@@ -45,15 +45,15 @@ RestartForceExitStatus=3 4
 [Install]
 WantedBy=multi-user.target
 SYNC
-systemctl enable -q syncthing@${MASTER} 2>&1  | tee -a $log
+systemctl enable -q syncthing@${MASTER} 2>&1 | tee -a $log
 systemctl start syncthing@${MASTER} >> $log 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Configuring nginx"
-  bash /usr/local/bin/swizzin/nginx/syncthing.sh
-  systemctl reload nginx
-  echo_progress_done
+	echo_progress_start "Configuring nginx"
+	bash /usr/local/bin/swizzin/nginx/syncthing.sh
+	systemctl reload nginx
+	echo_progress_done
 fi
 
 touch /install/.syncthing.lock

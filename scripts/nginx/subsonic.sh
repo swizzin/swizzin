@@ -8,10 +8,10 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 
 if [[ ! -f /etc/nginx/apps/subsonic.conf ]]; then
-cat > /etc/nginx/apps/subsonic.conf <<SUB
+	cat > /etc/nginx/apps/subsonic.conf << SUB
 location /subsonic {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass              http://127.0.0.1:4040;

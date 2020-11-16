@@ -17,14 +17,13 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-MASTER=$(cut -d: -f1 < /root/.master.info)
-
+MASTER=$(_get_master_username)
 
 function _removeRapidleech() {
-  sudo rm -r  /home/"${MASTER}"/rapidleech
-  sudo rm /etc/nginx/apps/rapidleech.conf
-  sudo rm /install/.rapidleech.lock
-  systemctl reload nginx
+	sudo rm -r /home/"${MASTER}"/rapidleech
+	sudo rm /etc/nginx/apps/rapidleech.conf
+	sudo rm /install/.rapidleech.lock
+	systemctl reload nginx
 }
 
 _removeRapidleech

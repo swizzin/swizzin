@@ -199,7 +199,7 @@ _nginx_transmission() {
 export DEBIAN_FRONTEND=noninteractive
 
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 mapfile -t users < <(_get_user_list)
 
 # Extra-user-only functions

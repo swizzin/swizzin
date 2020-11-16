@@ -8,13 +8,13 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 isactive=$(systemctl is-active tautulli)
 if [[ $isactive == "active" ]]; then
-  systemctl stop tautulli
+	systemctl stop tautulli
 fi
 if [[ ! -f /etc/nginx/apps/tautulli.conf ]]; then
-  cat > /etc/nginx/apps/tautulli.conf <<RAD
+	cat > /etc/nginx/apps/tautulli.conf << RAD
 location /plexpy {
   return 301 /tautulli/;
 }
@@ -29,5 +29,5 @@ fi
 sed -i "s/http_root.*/http_root = \"tautulli\"/g" /opt/tautulli/config.ini
 sed -i "s/http_host.*/http_host = 127.0.0.1/g" /opt/tautulli/config.ini
 if [[ $isactive == "active" ]]; then
-  systemctl start tautulli
+	systemctl start tautulli
 fi

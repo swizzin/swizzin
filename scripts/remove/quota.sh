@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
-username=$(cut -d: -f1 < /root/.master.info)
+username=$(_get_master_username)
 
 sed -i 's/,usrjquota=aquota.user,jqfmt=vfsv1//g' /etc/fstab
 apt_remove quota

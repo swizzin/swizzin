@@ -9,14 +9,14 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 isactive=$(systemctl is-active lidarr)
 
 if [[ $isactive == "active" ]]; then
-  systemctl stop lidarr
+	systemctl stop lidarr
 fi
 
-cat > /etc/nginx/apps/lidarr.conf <<LIDN
+cat > /etc/nginx/apps/lidarr.conf << LIDN
 location /lidarr {
   proxy_pass        http://127.0.0.1:8686/lidarr;
   proxy_set_header Host \$proxy_host;
@@ -30,7 +30,7 @@ LIDN
 
 if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p /home/${user}/.config/Lidarr/; fi
 
-cat > /home/${user}/.config/Lidarr/config.xml <<LID
+cat > /home/${user}/.config/Lidarr/config.xml << LID
 <Config>
   <Port>8686</Port>
   <UrlBase>lidarr</UrlBase>
@@ -44,5 +44,5 @@ LID
 chown -R ${user}: /home/${user}/.config
 
 if [[ $isactive == "active" ]]; then
-  systemctl start lidarr
+	systemctl start lidarr
 fi

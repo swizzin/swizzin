@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 systemctl disable --now -q xmrig
 su - ${user} -c "screen -X -S xmrig quit" > /dev/null 2>&1
 rm -rf /home/${user}/.xmrig
