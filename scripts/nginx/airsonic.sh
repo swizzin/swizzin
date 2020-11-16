@@ -17,5 +17,7 @@ location /airsonic {
 }
 NGINXCONF
 
-sed -i 's|-Dserver.port=8085|-Dserver.port=8085 -Dserver.address=127.0.0.1 -Dserver.context-path=/airsonic|g' /etc/systemd/system/airsonic.service
+#shellcheck disable=SC2016,SC1003
+sed -i '/-Dserver.port=${PORT}/c\          -Dserver.port=${PORT} -Dserver.address=127.0.0.1 -Dserver.context-path=/airsonic \\' /etc/systemd/system/airsonic.service
+systemctl daemon-reload
 systemctl try-restart airsonic
