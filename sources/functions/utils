@@ -36,6 +36,7 @@ function _get_user_password() {
 	fi
 	echo "$password"
 }
+export -f _get_user_password
 
 # OLD way to get users from htpasswd
 # Rather wouldn't use this as 3rd party applications migh be playing with this as well
@@ -54,11 +55,13 @@ function _get_user_list() {
 	output+=$(cut -d: -f1 < /root/.master.info)
 	echo -e "$output" | sort | uniq
 }
+export -f _get_user_list
 
 #Returns the username of the master
 function _get_master_username() {
 	cut -d: -f1 < /root/.master.info
 }
+export -f _get_master_username
 
 # Removes a file or a directory in case it exists
 function rm_if_exists() {
@@ -67,6 +70,7 @@ function rm_if_exists() {
 		rm -rf "$path"
 	fi
 }
+export -f _get_master_username
 
 function port() {
 	LOW_BOUND=$1
