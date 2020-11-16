@@ -41,6 +41,8 @@ if [[ -f /install/.jellyfin.lock ]]; then
         sed -r 's#<HttpServerPortNumber>(.*)</HttpServerPortNumber>#<HttpServerPortNumber>8096</HttpServerPortNumber>#g' -i /etc/jellyfin/system.xml
         sed -r 's#<HttpsPortNumber>(.*)</HttpsPortNumber>#<HttpsPortNumber>8920</HttpsPortNumber>#g' -i /etc/jellyfin/system.xml
         sed -r 's#<RequireHttps>false</RequireHttps>#<RequireHttps>true</RequireHttps>#g' -i /etc/jellyfin/system.xml
+        sed -r 's#<CachePath>(.*)</CachePath>#<CachePath>/var/cache/jellyfin</CachePath>#g' -i /etc/jellyfin/system.xml
+        sed -r 's#<MetadataPath>(.*)</MetadataPath>#<MetadataPath>/var/lib/jellyfin/metadata</MetadataPath>#g' -i /etc/jellyfin/system.xml
         echo_warn "The Jellyfin ports have been moved to 8920 (SSL). Please update any applications that rely on the old random port"
         #
         if [[ -f /etc/nginx/apps/jellyfin.conf ]]; then
