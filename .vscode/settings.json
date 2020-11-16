@@ -7,6 +7,7 @@
         "xenial"
     ],
     "shellformat.flag": "-ci -sr -i 0",
+    "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
     "shellcheck.customArgs": [
@@ -17,5 +18,5 @@
     "shellcheck.run": "onType",
     "editor.formatOnType": true,
     "diffEditor.codeLens": true,
-    "telemetry.enableTelemetry": false,
+    "telemetry.enableTelemetry": false
 }
