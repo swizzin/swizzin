@@ -2,7 +2,7 @@
 # Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
 
 cd /tmp
-version=$(curl -s https://curl.haxx.se/metalink.cgi?curl=zip | grep \<version\> | cut -d\< -f2 | cut -d\> -f2)
+version=$(curl -sNL https://curl.haxx.se/metalink.cgi?curl=zip | grep \<version\> | cut -d\< -f2 | cut -d\> -f2)
 wget -O curl.zip https://curl.haxx.se/download/curl-${version}.zip >> ${log} 2>&1
 
 unzip curl.zip >> $log 2>&1
