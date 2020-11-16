@@ -43,6 +43,7 @@ if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
 fi
 if ! /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1; then
 	echo_error "Python requirements failed to install inside the venv"
+	exit 1
 fi
 echo_progress_done
 
