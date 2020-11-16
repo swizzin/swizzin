@@ -6,7 +6,6 @@
         "swizzin",
         "xenial"
     ],
-    
     "shellformat.flag": "-ci -sr -i 0",
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
