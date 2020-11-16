@@ -51,7 +51,7 @@ function organizr_setup() {
 	chmod 0700 -R $organizr_dir
 
 	user=$(_get_master_username)
-	pass=$(cut -d: -f2 < /root/.master.info)
+	pass=$(_get_user_password "$user")
 
 	#TODO check that passwords with weird characters will send right
 	if [[ $user == "$pass" ]]; then

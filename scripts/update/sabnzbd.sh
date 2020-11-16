@@ -3,7 +3,7 @@
 if [[ -f /install/.sabnzbd.lock ]]; then
 	if [[ -f /etc/systemd/system/sabnzbd@.service ]]; then
 		user=$(_get_master_username)
-		password=$(cut -d: -f2 < /root/.master.info)
+		password=$(_get_user_password "$user")
 		codename=$(lsb_release -cs)
 		. /etc/swizzin/sources/functions/pyenv
 		active=$(systemctl is-active sabnzbd@${user})

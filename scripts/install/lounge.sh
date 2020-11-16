@@ -357,14 +357,10 @@ EOSD
 }
 
 function _adduser() {
-	master=$(_get_master_username)
+	# master=$(_get_master_username)
 	for u in "${users[@]}"; do
 		echo_progress_start "Adding $u to lounge"
-		if [[ $u = "$master" ]]; then
-			password=$(cut -d: -f2 < /root/.master.info)
-		else
-			password=$(cut -d: -f2 < /root/$u.info)
-		fi
+		password=$(_get_user_password "$u")
 		crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
 		cat > /home/lounge/.thelounge/users/$u.json << EOU
 {

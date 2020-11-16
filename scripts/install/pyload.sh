@@ -14,7 +14,7 @@
 #
 codename=$(lsb_release -cs)
 user=$(_get_master_username)
-password=$(cut -d: -f2 < /root/.master.info)
+password=$(_get_user_password "$user")
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')

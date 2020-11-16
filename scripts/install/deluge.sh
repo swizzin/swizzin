@@ -16,11 +16,7 @@
 function _dconf() {
 	for u in "${users[@]}"; do
 		echo_progress_start "Configuring Deluge for $u"
-		if [[ ${u} == ${master} ]]; then
-			pass=$(cut -d: -f2 < /root/.master.info)
-		else
-			pass=$(cut -d: -f2 < /root/${u}.info)
-		fi
+		pass=$(_get_user_password "$u")
 		n=$RANDOM
 		DPORT=$((n % 59000 + 10024))
 		DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
@@ -274,7 +270,7 @@ DW
 local_packages=/usr/local/bin/swizzin
 users=($(_get_user_list))
 master=$(_get_master_username)
-pass=$(cut -d: -f2 < /root/.master.info)
+pass=$(_get_user_password "$master")
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 

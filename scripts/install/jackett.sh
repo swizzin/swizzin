@@ -22,7 +22,7 @@ version=$(lsb_release -cs)
 username=$(_get_master_username)
 jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep AMDx64 | grep browser_download_url | cut -d \" -f4)
 #jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
-password=$(cut -d: -f2 < /root/.master.info)
+password=$(_get_user_password "$username")
 
 echo_progress_start "Downloading and extracting jackett"
 cd /home/$username

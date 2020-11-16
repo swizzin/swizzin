@@ -11,7 +11,7 @@
 #   under the GPL along with build & install instructions.
 
 user=$(_get_master_username)
-password=$(cut -d: -f2 < /root/.master.info)
+password=$(_get_user_password "$user")
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")

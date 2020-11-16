@@ -10,7 +10,7 @@
 #
 # Get our main user credentials to use when bootstrapping filebrowser.
 username="$(_get_master_username)"
-password="$(cut -d: -f2 < /root/.master.info)"
+password="$(_get_user_password "$username")"
 #
 # This will generate a random port for the script between the range 10001 to 32001 to use with applications.
 app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done

@@ -13,7 +13,7 @@
 #
 
 user=$(_get_master_username)
-password=$(cut -d: -f2 < /root/.master.info)
+password=$(_get_user_password "$user")
 codename=$(lsb_release -cs)
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
