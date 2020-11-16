@@ -36,7 +36,7 @@ echo_progress_start "Installing python dependencies"
 echo_progress_done
 
 echo_progress_start "Setting permissions"
-useradd -r swizzin > /dev/null 2>&1
+useradd -r swizzin -s /usr/sbin/nologin > /dev/null 2>&1
 chown -R swizzin: /opt/swizzin
 setfacl -m g:swizzin:rx /home/*
 mkdir -p /etc/nginx/apps
@@ -87,9 +87,10 @@ Defaults:swizzin !logfile
 Defaults:swizzin !syslog
 Defaults:swizzin !pam_session
 
-Cmnd_Alias   CMNDS = /usr/bin/quota, /bin/systemctl
+Cmnd_Alias   CMNDS = /usr/bin/quota
+Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/systemctl restart *, /bin/systemctl disable *, /bin/systemctl enable *
 
-swizzin     ALL = (ALL) NOPASSWD: CMNDS
+swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
 systemctl enable -q --now panel 2>&1  | tee -a $log

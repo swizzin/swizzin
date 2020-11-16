@@ -84,18 +84,20 @@ function _preparation() {
      #shellcheck source=sources/functions/color_echo
     . /etc/swizzin/sources/functions/color_echo
   else
+    RelativeScriptPath=$(dirname "$0")
+    ln -sr "$RelativeScriptPath" /etc/swizzin
     #shellcheck source=sources/functions/color_echo
     . /etc/swizzin/sources/functions/color_echo
-    echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is getting symlinked to /etc/swizzin"
-    RelativeScriptPath=$(dirname "$0")
-    echo_info "That directory is relative to your pwd  = $RelativeScriptPath"
-    ln -sr "$RelativeScriptPath" /etc/swizzin
+    echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is symlinked to /etc/swizzin"
+    echo_info "That directory is relative to your pwd  = $(pwd)/$RelativeScriptPath"
     echo_warn "Best of luck and please follow the contribution guidelines cheerio"
   fi
   ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
   chmod -R 700 /etc/swizzin/scripts
   #shellcheck source=sources/functions/apt
   . /etc/swizzin/sources/functions/apt
+  #shellcheck source=sources/functions/ask
+  . /etc/swizzin/sources/functions/ask
 }
 
 function _nukeovh() {

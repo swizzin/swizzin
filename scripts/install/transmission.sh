@@ -190,12 +190,8 @@ fi
 }
 
 _nginx_transmission () {
-    echo_progress_start "Creating nginx config"
-    if [[ -f /install/.nginx.lock ]]; then
-        bash /usr/local/bin/swizzin/nginx/transmission.sh
-        systemctl reload nginx
-    fi
-    echo_progress_done "Nginx configured"
+    bash /usr/local/bin/swizzin/nginx/transmission.sh
+    systemctl reload nginx
 }
 
 ##########################################################################
@@ -244,10 +240,10 @@ for user in ${users[@]}; do
     echo_progress_done "Transmission set up for $user"
 done
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Creating nginx config"
     _nginx_transmission
-    echo_progress_done
+    echo_progress_done "Nginx configured"
 fi
 
 for user in ${users[@]}; do
