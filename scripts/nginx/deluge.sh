@@ -11,11 +11,11 @@
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ -n $1 ]]; then
-  users=($1)
+	users=($1)
 fi
 
 if [[ ! -f /etc/nginx/apps/dindex.conf ]]; then
-  cat > /etc/nginx/apps/dindex.conf <<DIN
+	cat > /etc/nginx/apps/dindex.conf << DIN
 location /deluge.downloads {
   alias /home/\$remote_user/torrents/deluge;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -29,32 +29,32 @@ location /deluge.downloads {
 DIN
 fi
 
-for u in "${users[@]}"; do
-  if [[ -f /etc/nginx/apps/${u}.dindex.conf ]]; then rm -f /etc/nginx/apps/${u}.dindex.conf; fi
+for u in $(_get_user_list); do
+	if [[ -f /etc/nginx/apps/${u}.dindex.conf ]]; then rm -f /etc/nginx/apps/${u}.dindex.conf; fi
 
-  isactive=$(systemctl is-active deluge-web@$u)
-  if [[ $isactive == "active" ]]; then
-    systemctl stop deluge-web@$u
-  fi
+	isactive=$(systemctl is-active deluge-web@$u)
+	if [[ $isactive == "active" ]]; then
+		systemctl stop deluge-web@$u
+	fi
 
-  sed -i 's/"interface": "0.0.0.0"/"interface": "127.0.0.1"/g' /home/$u/.config/deluge/web.conf
-  sed -i 's/"https": true/"https": false/g' /home/$u/.config/deluge/web.conf
+	sed -i 's/"interface": "0.0.0.0"/"interface": "127.0.0.1"/g' /home/$u/.config/deluge/web.conf
+	sed -i 's/"https": true/"https": false/g' /home/$u/.config/deluge/web.conf
 
-  if [[ $isactive == "active" ]]; then
-    systemctl start deluge-web@$u
-  fi
-  
-  if [[ ! -f /etc/nginx/conf.d/${u}.deluge.conf ]]; then
-    DWPORT=$(grep port /home/$u/.config/deluge/web.conf | cut -d: -f2| sed 's/ //g' | sed 's/,//g')
-    cat > /etc/nginx/conf.d/${u}.deluge.conf <<DUPS
+	if [[ $isactive == "active" ]]; then
+		systemctl start deluge-web@$u
+	fi
+
+	if [[ ! -f /etc/nginx/conf.d/${u}.deluge.conf ]]; then
+		DWPORT=$(grep port /home/$u/.config/deluge/web.conf | cut -d: -f2 | sed 's/ //g' | sed 's/,//g')
+		cat > /etc/nginx/conf.d/${u}.deluge.conf << DUPS
 upstream $u.deluge {
   server 127.0.0.1:$DWPORT;
 }
 DUPS
-  fi
+	fi
 
-  if [[ ! -f /etc/nginx/apps/deluge.conf ]]; then
-    cat > /etc/nginx/apps/deluge.conf <<'DRP'
+	if [[ ! -f /etc/nginx/apps/deluge.conf ]]; then
+		cat > /etc/nginx/apps/deluge.conf << 'DRP'
 location /deluge {
   return 301 /deluge/;
 }
@@ -68,6 +68,6 @@ location /deluge/ {
   proxy_pass http://$remote_user.deluge;
 }
 DRP
-  fi
+	fi
 done
 systemctl reload nginx
