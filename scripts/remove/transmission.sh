@@ -1,11 +1,11 @@
 #!/bin/bash
 echo_log_only "Removing Transmission"
-users=($(cut -d: -f1 < /etc/htpasswd))
+mapfile -t users < <(_get_user_list)
 for u in ${users[@]}; do
-    echo_log_only "Shutting down transmission@$u"
-    systemctl stop transmission@"$u" >> "$log" 2>&1
-    systemctl disable transmission@"$u" >> "$log" 2>&1
-    rm -f /home/${u}/.config/transmission-daemon/settings.json
+	echo_log_only "Shutting down transmission@$u"
+	systemctl stop transmission@"$u" >> "$log" 2>&1
+	systemctl disable transmission@"$u" >> "$log" 2>&1
+	rm -f /home/${u}/.config/transmission-daemon/settings.json
 done
 
 add-apt-repository --remove ppa:transmissionbt/ppa -y >> $log 2>&1
