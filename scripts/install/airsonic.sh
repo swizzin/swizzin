@@ -24,7 +24,7 @@ airsonic_dl() {
 	fi
 	useradd $airsonicusr --system -d "$airsonicdir" >> "$log" 2>&1
 	usermod -a -G "$master" $airsonicusr
-	sudo chown -R $airsonicusr:$airsonicusr $airsonicdir
+	chown -R $airsonicusr:$airsonicusr $airsonicdir
 	echo_progress_done "Binary DL'd"
 }
 
