@@ -12,12 +12,12 @@
 #! /bin/bash
 
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo_warn "This package requires nginx to be installed!"
-  if ask "Install nginx?" Y; then
-    bash /usr/local/bin/swizzin/install/nginx.sh
-  else
-    exit 1
-  fi
+	echo_warn "This package requires nginx to be installed!"
+	if ask "Install nginx?" Y; then
+		bash /usr/local/bin/swizzin/install/nginx.sh
+	else
+		exit 1
+	fi
 fi
 
 master=$(cut -d: -f1 < /root/.master.info)
@@ -32,7 +32,10 @@ git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzi
 echo_progress_done "Panel cloned"
 
 echo_progress_start "Installing python dependencies"
-/opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
+if ! /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1; then
+	echo_error "Python requirements failed to install inside the venv"
+	exit 1
+fi
 echo_progress_done
 
 echo_progress_start "Setting permissions"
@@ -44,26 +47,25 @@ echo_progress_done
 
 echo_progress_start "Configuring panel"
 if [[ -f /install/.deluge.lock ]]; then
-  touch /install/.delugeweb.lock
+	touch /install/.delugeweb.lock
 fi
 
 if [[ $master == $(id -nu 1000) ]]; then
-  :
+	:
 else
-  echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin/swizzin.cfg
+	echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin/swizzin.cfg
 fi
 echo_progress_done
 
-
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Configuring nginx"
-  bash /usr/local/bin/swizzin/nginx/panel.sh
-  systemctl reload nginx
-  echo_progress_done
+	echo_progress_start "Configuring nginx"
+	bash /usr/local/bin/swizzin/nginx/panel.sh
+	systemctl reload nginx
+	echo_progress_done
 fi
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/panel.service <<EOS
+cat > /etc/systemd/system/panel.service << EOS
 [Unit]
 Description=swizzin panel service
 After=nginx.service
@@ -81,7 +83,7 @@ TimeoutStopSec=300
 WantedBy=multi-user.target
 EOS
 
-cat > /etc/sudoers.d/panel <<EOSUD
+cat > /etc/sudoers.d/panel << EOSUD
 #Defaults  env_keep -="HOME"
 Defaults:swizzin !logfile
 Defaults:swizzin !syslog
@@ -93,7 +95,7 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
-systemctl enable -q --now panel 2>&1  | tee -a $log
+systemctl enable -q --now panel 2>&1 | tee -a $log
 echo_progress_done "Panel started"
 
 echo_success "Panel installed"
