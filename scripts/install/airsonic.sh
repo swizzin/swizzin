@@ -67,7 +67,7 @@ airsonic_nginx
 airsonic_start
 
 echo_success "Airsonic installed"
-echo_warn "Wait for Airsonic to start up and continue the set up in the browser to change the username and password."
+echo_warn "Wait for Airsonic to start up (max 5 mins) and continue the set up in the browser.\nYou can use \`journalctl -fu airsonic\` to follow the progress."
 
 if [[ -f /install/.subsonic.lock ]]; then
 	echo_info "If you would like to migrate from Subsonic, please see see the following article"
