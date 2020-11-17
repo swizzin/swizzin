@@ -42,7 +42,8 @@ deb-src http://packages.x2go.org/debian ${release} main
 #deb-src http://packages.x2go.org/debian ${release} heuler
 EOF
     echo_progress_done "Repo added"
-    apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >>${log} 2>&1
+    #apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >>${log} 2>&1
+	apt-key adv --recv-keys --keyserver keys.gnupg.net E1F958385BFE2B6E >>${log} 2>&1
     apt_update
     apt_install x2go-keyring
 fi
