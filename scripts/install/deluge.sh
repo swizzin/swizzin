@@ -13,7 +13,7 @@
 #
 #################################################################################
 
-function _dconf {
+function _dconf() {
 	for u in "${users[@]}"; do
 		echo_progress_start "Configuring Deluge for $u"
 		if [[ ${u} == ${master} ]]; then
@@ -206,7 +206,7 @@ DHL
 	done
 }
 
-function _dservice {
+function _dservice() {
 	echo_progress_start "Adding systemd service files"
 	if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
 		dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)

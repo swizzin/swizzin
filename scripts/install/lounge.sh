@@ -2,7 +2,7 @@
 # Package installer for The Lounge IRC Web Client
 # Author: Liara
 
-function _install {
+function _install() {
 
 	useradd lounge -m -s /bin/bash
 	passwd lounge -l >> ${log} 2>&1
@@ -356,7 +356,7 @@ EOSD
 	echo_progress_done "Lounge started"
 }
 
-function _adduser {
+function _adduser() {
 	master=$(cut -d: -f1 < /root/.master.info)
 	for u in "${users[@]}"; do
 		echo_progress_start "Adding $u to lounge"

@@ -26,7 +26,7 @@ function _installautodl() {
 	apt_install $APT
 }
 
-function _autoconf {
+function _autoconf() {
 	for u in "${users[@]}"; do
 		echo_progress_start "configuring autodl for $u"
 		IRSSI_PASS=$(_string)
@@ -53,7 +53,7 @@ ADC
 	fi
 }
 
-function _autoservice {
+function _autoservice() {
 	echo_progress_start "Creating systemd service"
 	cat > "/etc/systemd/system/irssi@.service" << ADC
 [Unit]

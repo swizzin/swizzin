@@ -11,14 +11,14 @@
 #
 #################################################################################
 
-function _download {
+function _download() {
 	echo_progress_start "Downloading install script"
 	cd /tmp
 	wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> $log 2>&1
 	echo_progress_done
 }
 
-function _service {
+function _service() {
 	echo_progress_start "Installing systemd service"
 	cat > /etc/systemd/system/nzbget@.service << NZBGD
 [Unit]
@@ -41,7 +41,7 @@ NZBGD
 	echo_progress_done
 }
 
-function _install {
+function _install() {
 	cd /tmp
 	for u in "${users[@]}"; do
 		echo_progress_start "Installing nzbget for $u"
@@ -85,7 +85,7 @@ function _install {
 	echo_progress_done
 }
 
-function _cleanup {
+function _cleanup() {
 	cd /tmp
 	rm -rf nzbget-latest-bin-linux.run
 }
