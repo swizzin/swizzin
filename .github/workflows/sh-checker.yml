@@ -15,4 +15,4 @@ jobs:
         with:
           sh_checker_comment: true
           sh_checker_shellcheck_disable: true
-          sh_checker_exclude: "scrtipts/install/subsonic.sh"
+          sh_checker_exclude: "scripts/install/subsonic.sh"
