@@ -4,7 +4,7 @@
 # Copyright (c) swizzin 2018
 
 if [[ -f /install/.deluge.lock ]]; then
-    if [[ ! -f /install/.libtorrent.lock ]]; then
-        touch /install/.libtorrent.lock
-    fi
+	if [[ ! -f /install/.libtorrent.lock ]]; then
+		touch /install/.libtorrent.lock
+	fi
 fi

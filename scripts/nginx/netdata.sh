@@ -12,7 +12,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active netdata)
 
 if [[ ! -f /etc/nginx/apps/netdata.conf ]]; then
-  cat > /etc/nginx/apps/netdata.conf <<NET
+	cat > /etc/nginx/apps/netdata.conf << NET
 location /netdata {
   return 301 /netdata/;
 }
@@ -40,5 +40,5 @@ NET
 fi
 sed -i "s/# bind to = \*/bind to = 127.0.0.1/g" /etc/netdata/netdata.conf
 if [[ $isactive == "active" ]]; then
-  systemctl restart netdata
+	systemctl restart netdata
 fi

@@ -4,7 +4,7 @@
 
 MASTER=$(cut -d: -f1 < /root/.master.info)
 if [[ ! -f /etc/nginx/apps/webmin.conf ]]; then
-cat > /etc/nginx/apps/webmin.conf <<WEBC
+	cat > /etc/nginx/apps/webmin.conf << WEBC
 location /webmin/ {
     include /etc/nginx/snippets/proxy.conf;
 
