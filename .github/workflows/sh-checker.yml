@@ -1,7 +1,6 @@
 name: sh-checker
 on:
   - pull_request
-  - commit
 jobs:
   sh-checker:
     runs-on: ubuntu-latest
