@@ -1,11 +1,11 @@
 #!/bin/bash
 
-function getPref {
+function getPref() {
 	local key="$1"
 	grep -oP ''$key'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
 }
 
-function setPref {
+function setPref() {
 	local key="$1"
 	local value="$2"
 
@@ -17,7 +17,7 @@ function setPref {
 	fi
 }
 
-function claimPlex {
+function claimPlex() {
 	#Inspiration for swizzin addition: https://github.com/uglymagoo/plex-claim-server
 	# and https://github.com/plexinc/pms-docker
 	if [[ -n $1 ]]; then

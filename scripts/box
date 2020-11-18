@@ -209,7 +209,7 @@ function _list() {
 	done
 }
 
-function _adduser {
+function _adduser() {
 	user=$2
 	if [[ $user =~ [A-Z] ]]; then
 		echo_warn "Usernames must not contain capital letters. Please try again."
@@ -314,7 +314,7 @@ SUD
 
 }
 
-function _deluser {
+function _deluser() {
 	user=$2
 	if [[ ! -f /root/${user}.info ]]; then
 		master=$(cut -d: -f1 < /root/.master.info)
@@ -387,7 +387,7 @@ function _deluser {
 	echo_success "User $user removed"
 }
 
-function _chpasswd {
+function _chpasswd() {
 	user=$2
 	echo_query "Enter new password for ${user}. Leave empty to generate a password" "hidden"
 	read -s 'pass'

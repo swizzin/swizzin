@@ -57,7 +57,7 @@ function python_getpip() {
 	fi
 }
 
-function python2_venv {
+function python2_venv() {
 	user=$1
 	app=$2
 	if command -v python2.7 > /dev/null 2>&1; then
@@ -73,7 +73,7 @@ function python2_venv {
 	echo_progress_done "Venv set up"
 }
 
-function python2_home_venv {
+function python2_home_venv() {
 	user=$1
 	app=$2
 	if command -v python2.7 > /dev/null 2>&1; then
@@ -89,7 +89,7 @@ function python2_home_venv {
 	echo_progress_done "Venv set up"
 }
 
-function python3_venv {
+function python3_venv() {
 	user=$1
 	app=$2
 	echo_progress_start "Setting up the ${app} venv"
