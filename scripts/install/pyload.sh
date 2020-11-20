@@ -13,8 +13,8 @@
 #   under the GPL along with build & install instructions.
 #
 codename=$(lsb_release -cs)
-user=$(cut -d: -f1 < /root/.master.info)
-password=$(cut -d: -f2 < /root/.master.info)
+user=$(cut -d: -f1 </root/.master.info)
+password=$(cut -d: -f2 </root/.master.info)
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
@@ -23,21 +23,21 @@ HASH=${SALT}${SALTWORDHASH}
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  LIST='tesseract-ocr gocr rhino python2.7-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
+    LIST='tesseract-ocr gocr rhino python2.7-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
 else
-  LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
+    LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
 fi
 
 apt_install $LIST
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  python_getpip
+    python_getpip
 fi
 
 python2_venv ${user} pyload
 
 echo_progress_start "Installing python dependencies"
-PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
 /opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
 chown -R ${user}: /opt/.venv/pyload
 echo_progress_done
@@ -47,9 +47,9 @@ git clone --branch "stable" https://github.com/pyload/pyload.git /opt/pyload >>"
 echo_progress_done
 
 echo_progress_start "Configuring pyLoad"
-echo "/opt/pyload" > /opt/pyload/module/config/configdir
+echo "/opt/pyload" >/opt/pyload/module/config/configdir
 
-cat > /opt/pyload/pyload.conf <<PYCONF
+cat >/opt/pyload/pyload.conf <<PYCONF
 version: 1 
 
 download - "Download":
@@ -129,26 +129,28 @@ PYCONF
 
 echo_progress_done
 
-
 echo_progress_start "Initalizing database"
-read < <( /opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py > /dev/null 2>&1 & echo $! )
+read < <(
+    /opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py >/dev/null 2>&1 &
+    echo $!
+)
 PID=$REPLY
 sleep 10
 #kill -9 $PID
-while kill -0 $PID > /dev/null 2>&1; do
-  sleep 1
-  kill $PID > /dev/null 2>&1
+while kill -0 $PID >/dev/null 2>&1; do
+    sleep 1
+    kill $PID >/dev/null 2>&1
 done
 
 if [ -f "/opt/pyload/files.db" ]; then
-  sqlite3 /opt/pyload/files.db "\
+    sqlite3 /opt/pyload/files.db "\
     INSERT INTO users('name', 'password') \
       VALUES('${user}','${HASH}');\
       "
-        echo_progress_done
+    echo_progress_done
 else
-  echo_error "Something went wrong with user setup -- you will be unable to login"
-  #TODO maybe exit then?
+    echo_error "Something went wrong with user setup -- you will be unable to login"
+    #TODO maybe exit then?
 fi
 
 chown -R ${user}: /opt/pyload
@@ -156,7 +158,7 @@ mkdir -p /home/${user}/Downloads
 chown ${user}: /home/${user}/Downloads
 
 echo_progress_start "Insatlling systemd service"
-cat >/etc/systemd/system/pyload.service<<PYSD
+cat >/etc/systemd/system/pyload.service <<PYSD
 [Unit]
 Description=pyLoad
 After=network.target
@@ -172,16 +174,14 @@ PYSD
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-echo_progress_start "Configuring nginx"
-  bash /usr/local/bin/swizzin/nginx/pyload.sh
-  systemctl reload nginx
-  echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/pyload.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 echo_progress_start "Enabling and starting pyLoad services"
-systemctl enable -q --now pyload.service 2>&1  | tee -a $log
+systemctl enable -q --now pyload.service 2>&1 | tee -a $log
 echo_progress_done
 
 echo_success "PyLoad installed"
 touch /install/.pyload.lock
-
-
