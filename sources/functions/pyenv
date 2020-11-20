@@ -2,11 +2,11 @@
 function pyenv_install() {
     if [[ ! -d /opt/pyenv ]]; then
         echo_progress_start "Setting up pyenv version manager"
-        git clone https://github.com/pyenv/pyenv.git /opt/pyenv >> $log 2>&1
-        git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >> $log 2>&1
-        git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >> $log 2>&1
-        echo 'export PYENV_ROOT="/opt/pyenv"' >> /root/.bashrc
-        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> /root/.bashrc
+        git clone https://github.com/pyenv/pyenv.git /opt/pyenv >>$log 2>&1
+        git clone https://github.com/pyenv/pyenv-virtualenv.git /opt/pyenv/plugins/pyenv-virtualenv >>$log 2>&1
+        git clone https://github.com/pyenv/pyenv-update.git /opt/pyenv/plugins/pyenv-update >>$log 2>&1
+        echo 'export PYENV_ROOT="/opt/pyenv"' >>/root/.bashrc
+        echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >>/root/.bashrc
         export PYENV_ROOT="/opt/pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
         echo_progress_done
@@ -17,15 +17,15 @@ function pyenv_install() {
 }
 
 function pyenv_update() {
-    /opt/pyenv/bin/pyenv update  >> "$log" 2>&1
+    /opt/pyenv/bin/pyenv update >>"$log" 2>&1
 }
 
 function pyenv_install_version() {
     version=$1
-    versions=$(/opt/pyenv/bin/pyenv versions >> "$log" 2>&1)
+    versions=$(/opt/pyenv/bin/pyenv versions 2>"$log")
     if [[ ! $versions =~ $version ]]; then
         echo_progress_start "Compiling Python $version. This may take some time"
-        /opt/pyenv/bin/pyenv install "$version" >> "$log" 2>&1
+        /opt/pyenv/bin/pyenv install "$version" >>"$log" 2>&1
         echo_progress_done "Python $version compiled"
     else
         echo_log_only "Python $version already installed!"
@@ -37,30 +37,30 @@ function pyenv_create_venv() {
     destination=$2
     echo_progress_start "Creating venv ($version) in $destination"
     mkdir -p $destination
-    /opt/pyenv/versions/"$version"/bin/python3 -m venv "$destination" >> "$log" 2>&1
+    /opt/pyenv/versions/"$version"/bin/python3 -m venv "$destination" >>"$log" 2>&1
     echo_progress_done "venv created"
 }
 
 function python_getpip() {
-    if ! command -v pip > /dev/null 2>&1; then
+    if ! command -v pip >/dev/null 2>&1; then
         echo_progress_start "Installing pip"
-        if command -v python2.7 > /dev/null 2>&1; then
+        if command -v python2.7 >/dev/null 2>&1; then
             python2bin=python2.7
         else
             python2bin=python2
         fi
         cd /tmp
-        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >> $log 2>&1
-        ${python2bin} get-pip.py >> $log 2>&1
+        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py >>$log 2>&1
+        ${python2bin} get-pip.py >>$log 2>&1
         pip install virtualenv >>"${log}" 2>&1
         echo_progress_done "Pip installed"
     fi
 }
 
-function python2_venv {
+function python2_venv() {
     user=$1
     app=$2
-    if command -v python2.7 > /dev/null 2>&1; then
+    if command -v python2.7 >/dev/null 2>&1; then
         python2bin=python2.7
     else
         python2bin=python2
@@ -73,10 +73,10 @@ function python2_venv {
     echo_progress_done "Venv set up"
 }
 
-function python2_home_venv {
+function python2_home_venv() {
     user=$1
     app=$2
-    if command -v python2.7 > /dev/null 2>&1; then
+    if command -v python2.7 >/dev/null 2>&1; then
         python2bin=python2.7
     else
         python2bin=python2
@@ -89,7 +89,7 @@ function python2_home_venv {
     echo_progress_done "Venv set up"
 }
 
-function python3_venv {
+function python3_venv() {
     user=$1
     app=$2
     echo_progress_start "Setting up the ${app} venv"
