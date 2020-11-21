@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function dist_info() {
+	DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+	DIST_ID="$(source /etc/os-release && echo "$ID")"
+}
+
 function install_rar() {
 	if [[ -z $(which rar) ]]; then
 		apt_install rar unrar
