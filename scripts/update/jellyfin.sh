@@ -18,7 +18,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
         echo_progress_start "Removing old Jellyfin service"
         systemctl -q disable --now jellyfin.service
         rm_if_exists /etc/systemd/system/jellyfin.service
-        kill -9 $(ps xU ${username} | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') >/dev/null 2>&1
+        kill -9 $(ps xU "${username}" | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') > /dev/null 2>&1
         rm_if_exists /opt/jellyfin
         rm_if_exists /opt/ffmpeg
         echo_progress_done "Old JF service removed"
@@ -33,6 +33,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
         [[ -d "/home/${username}/.config/Jellyfin/config" ]] && cp -fRT "/home/${username}/.config/Jellyfin/config" /etc/jellyfin
         rm_if_exists /etc/jellyfin/encoding.xml
         [[ -d "/home/${username}/.config/Jellyfin/data" ]] && cp -fRT "/home/${username}/.config/Jellyfin/data" /var/lib/jellyfin/data
+        [[ -d "/home/${username}/.config/Jellyfin/data/library.db" ]] && cp -f "/home/${username}/.config/Jellyfin/data/library.db" /var/lib/jellyfin/data/library.db.bak
         [[ -d "/home/${username}/.config/Jellyfin/metadata" ]] && cp -fRT "/home/${username}/.config/Jellyfin/metadata" /var/lib/jellyfin/metadata
         [[ -d "/home/${username}/.config/Jellyfin/root" ]] && cp -fRT "/home/${username}/.config/Jellyfin/root" /var/lib/jellyfin/root
         #
@@ -54,14 +55,24 @@ if [[ -f /install/.jellyfin.lock ]]; then
         rm_if_exists "/home/${username}/.cache/jellyfin"
         rm_if_exists "/home/${username}/.aspnet"
         echo_progress_done "Configs adjusted"
+        #
+        apt_update          # forces apt refresh
+        apt_install sqlite3 # We need this to edit the library.db
+        # Get our array of copied directories
+        readarray -d '' jelly_array < <(find "/var/lib/jellyfin/root/default/" -maxdepth 1 -mindepth 1 -type d -print0)
+        #
+        for fixjelly in "${jelly_array[@]}"; do
+            sqlite3 /var/lib/jellyfin/data/library.db "UPDATE TypedBaseItems SET Path=REPLACE(Path, \"/home/${username}/.config/Jellyfin/root/default/${fixjelly##*/}\", \"${fixjelly}\");"
+            sqlite3 /var/lib/jellyfin/data/library.db "UPDATE TypedBaseItems SET Data=REPLACE(Data, \"/home/${username}/.config/Jellyfin/root/default/${fixjelly##*/}\", \"${fixjelly}\");"
+        done
     fi
     #
     if ! check_installed jellyfin; then
         echo_info "Moving Jellyfin to apt-managed installation"
         #
         # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-        wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >>"${log}" 2>&1
-        echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" >/etc/apt/sources.list.d/jellyfin.list
+        wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+        echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
         #
         # install jellyfin and jellyfin-ffmepg using apt functions.
         apt_update #forces apt refresh
