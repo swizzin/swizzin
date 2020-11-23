@@ -1,8 +1,9 @@
-<!-- Heya! Thanks for the PR. Please fill out this short little form below to help us review this faster-->
+<!--Heya! Thanks for the PR. Please fill out this short little form below to help us review this faster-->
 
-## Fixes issues: <!-- Not required>
+## Fixes issues: 
 - Issue #420
 - Issue #69
+- ...
 
 ## Proposed Changes:
 - Change 1
