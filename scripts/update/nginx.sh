@@ -37,8 +37,8 @@ function update_nginx() {
 
     cd /etc/php
     phpv=$(ls -d */ | cut -d/ -f1)
-    if [[ $phpv =~ "7.1" ]]; then
-        if [[ $phpv =~ "7.0" ]]; then
+    if [[ $phpv =~ 7\\.1 ]]; then
+        if [[ $phpv =~ 7\\.0 ]]; then
             apt_remove purge php7.0-fpm
         fi
     fi
