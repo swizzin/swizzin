@@ -83,7 +83,7 @@ EOF
 			--data-urlencode "api=${api_key}" \
 			--data-urlencode "dbName=orgdb" \
 			--data-urlencode "dbPath=${organizr_dir}_db" \
-			--data-urlencode "formKey=${organizr_dir}_db" \
+			--data-urlencode "formKey=${form_key}_db" \
 			-sk >> "$log" 2>&1
 
 		# sleep 10
