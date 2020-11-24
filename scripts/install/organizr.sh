@@ -68,15 +68,6 @@ hash_key = $hash_key
 reg_pass = $reg_pass
 EOF
 		echo_progress_start "Setting up the organizr database"
-		# curl --location --request POST 'https://127.0.0.1/organizr/api/v2/wizard' \
-		# 	--header 'content-type: application/x-www-form-urlencoded' \
-		# 	--header 'charset: UTF-8' \
-		# 	--header 'Content-Encoding: gzip' \
-		# 	--header 'Content-Type: application/x-www-form-urlencoded' \
-		# 	--data-urlencode "path=${organizr_dir}_db" \
-		# 	--data-urlencode "formKey=${form_key}" \
-		# 	-sk >> $log 2>&1
-		# sleep 2
 
 		curl --location --request POST 'https://127.0.0.1/organizr/api/v2/wizard' \
 			--header 'content-type: application/x-www-form-urlencoded' \
