@@ -129,16 +129,16 @@ EOF
 organizr_addusers() {
 	#TODO implement when organizr API supports this
 	echo_warn "Remember to manually create accounts for the user(s) in Organizr!"
-	#shellcheck source=sources/functions/utils
-	. /etc/swizzin/sources/functions/utils
-	#shellcheck source=sources/functions/organizr
-	. /etc/swizzin/sources/functions/organizr
-	for u in $users; do
-		:
-		# echo_progress_start "Adding $u to organizr"
-		# organizr_adduser "$u" "$u@localhost" "$(_get_user_password "$u")"
-		# echo_progress_done "$u added to organizr"
-	done
+	# #shellcheck source=sources/functions/utils
+	# . /etc/swizzin/sources/functions/utils
+	# #shellcheck source=sources/functions/organizr
+	# . /etc/swizzin/sources/functions/organizr
+	# for u in $users; do
+	# 	:
+	# 	echo_progress_start "Adding $u to organizr"
+	# 	organizr_adduser "$u" "$u@localhost" "$(_get_user_password "$u")"
+	# 	echo_progress_done "$u added to organizr"
+	# done
 }
 
 #Catch script being called with parameter
