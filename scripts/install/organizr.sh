@@ -24,7 +24,7 @@ function organizr_install() {
 
 	if [[ ! -d $organizr_dir ]]; then
 		echo_progress_start "Cloning the Organizr Repo"
-		git clone -b v2-master https://github.com/causefx/Organizr $organizr_dir --depth 1 >> $log 2>&1
+		git clone -b v2-master https://github.com/causefx/Organizr $organizr_dir --depth 1 >> "$log" 2>&1
 		chown -R www-data:www-data $organizr_dir
 		chmod 0700 -R $organizr_dir
 		echo_progress_done "Organizr cloned"
@@ -113,7 +113,7 @@ logpath = /srv/organizr_db/organizrLoginLog.json
 ignoreip = 127.0.0.1/24
 EOF
 
-	fail2ban-client reload >> $log 2>&1
+	fail2ban-client reload >> "$log" 2>&1
 	echo_progress_done "Fail2Ban configured"
 }
 
@@ -147,6 +147,7 @@ organizr_nginx
 touch /install/.organizr.lock
 organizr_setup
 # Removing master because that's already done in the _setup
+# shellcheck disable=SC2034 #(while addusers is commented)
 mapfile -t users < <(_get_user_list | grep -vw "$(_get_master_username)")
 organizr_addusers
 organizr_f2b
