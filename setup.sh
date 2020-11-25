@@ -31,18 +31,20 @@ if [[ ! $(uname -m) == "x86_64" ]]; then
 fi
 
 RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
-while test $# -gt 0
-    do
+while test $# -gt 0; do
         case "$1" in
-            --user) shift
+		--user)
+			shift
                 user="$1"
               echo "User = $user" | tee -a $log
                 ;;
-            --pass) shift
+		--pass)
+			shift
                 pass="$1"
               echo "Pass = $pass" | tee -a $log
                 ;;
-          --domain) shift
+		--domain)
+			shift
               export LE_hostname="$1"
               export LE_defaultconf=yes
               export LE_bool_cf=no
@@ -56,8 +58,12 @@ while test $# -gt 0
               rmgrsec=yes
               echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
                 ;;
-            --env) shift
-              if [[ ! -f $1 ]]; then echo "File does not exist" ; exit 1; fi
+		--env)
+			shift
+			if [[ ! -f $1 ]]; then
+				echo "File does not exist"
+				exit 1
+			fi
               echo -en "Parsing env variables from $1\n--->" | tee -a $log
               #shellcheck disable=SC2046
               export $(grep -v '^#' "$1" | xargs -t -d '\n')  | tee -a $log
@@ -67,14 +73,16 @@ while test $# -gt 0
             --unattend) 
                 unattend=true
             ;;
-          -*) echo "Error: Invalid option: $1"  | tee -a $log
+		-*)
+			echo "Error: Invalid option: $1" | tee -a $log
                 exit 1
                 ;;
-          *) installArray+=("$1")
+		*)
+			installArray+=("$1")
                 ;;
         esac
         shift
-    done
+done
 
 if [[ $unattend = "true" ]]; then 
   # hushes errors that happen when no package is being 
@@ -86,8 +94,7 @@ if [[ ${#installArray[@]} -gt 0 ]]; then
   echo "Application install picker will be skipped"  | tee -a $log
   #check Line 229 or something
   priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
-  for i in "${installArray[@]}"
-  do
+	for i in "${installArray[@]}"; do
     #shellcheck disable=SC2199,SC2076
     if [[ " ${priority[@]} " =~ " ${i} " ]]; then
       echo "$i" >> /root/results
@@ -101,8 +108,8 @@ if [[ ${#installArray[@]} -gt 0 ]]; then
 fi
 
 _os() {
-  if [ ! -d /install ]; then mkdir /install ; fi
-  if [ ! -d /root/logs ]; then mkdir /root/logs ; fi
+	if [ ! -d /install ]; then mkdir /install; fi
+	if [ ! -d /root/logs ]; then mkdir /root/logs; fi
 	# echo "Checking OS version and release ... "
 	if ! which lsb_release > /dev/null; then
 		apt-get -y -qq update >> ${log} 2>&1
@@ -424,9 +431,9 @@ _preparation
 ## If install is attended, do the nice intro
 if [[ $unattend != "true" ]]; then _intro; fi
 ## If the user asked for rmgrsec or the install is not being attended, get into the kernel business
-if [[ -n $rmgrsec ]] || [[ $unattend != "true" ]]; then _nukeovh ; fi
+if [[ -n $rmgrsec ]] || [[ $unattend != "true" ]]; then _nukeovh; fi
 _adduser
 #If setup is attended and there are no choices, go get some apps
-if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices ;fi
+if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _install
 _post

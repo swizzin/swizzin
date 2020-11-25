@@ -44,7 +44,7 @@ if [[ $main == yes ]]; then
 	sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-if [ -n $LE_cf_api ] || [ -n $LE_cf_email ] || [ -n $LE_cf_zone ] ; then 
+if [ -n $LE_cf_api ] || [ -n $LE_cf_email ] || [ -n $LE_cf_zone ]; then
     LE_bool_cf=yes
 fi
 
@@ -126,7 +126,7 @@ if [[ ${cf} == yes ]]; then
             zone=$LE_cf_zone
         fi
 
-        zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1 )
+		zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
 		addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
 		if [[ $addrecord == *"\"success\":false"* ]]; then
 			message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"

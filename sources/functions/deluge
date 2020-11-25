@@ -1,6 +1,7 @@
 #!/bin/bash
 
-function whiptail_deluge () {
+function whiptail_deluge() {
+	echo_progress_start "Choosing Deluge versions"
   if [[ -z $DELUGE_v ]]; then
 		repov=$(get_candidate_version deluge)
 		case $(lsb_release -cs) in
@@ -131,7 +132,13 @@ function build_deluge () {
 			fi
 		fi
 		cd /tmp
-    git clone -b ${DELUGE_v} git://deluge-torrent.org/deluge.git >>"${log}" 2>&1 || { echo "WARN: Cloning Deluge from deluge-torrent.org failed, attempting github backup."; git clone -b ${DELUGE_v} https://github.com/deluge-torrent/deluge/ >>"${log}" 2>&1 || { echo "ERROR: Cloning Deluge from github failed"; exit 1; } ; }
+		git clone -b ${DELUGE_v} git://deluge-torrent.org/deluge.git >> "${log}" 2>&1 || {
+			echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
+			git clone -b ${DELUGE_v} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
+				echo_error "Cloning Deluge from github failed"
+				exit 1
+			}
+		}
 		cd deluge
 		VERSION=$(git describe | cut -d- -f2)
 		sed -i 's/-dev//g' setup.cfg
@@ -151,7 +158,7 @@ function build_deluge () {
 	echo_progress_done "Deluge installed"
 }
 
-function dweb_check () {
+function dweb_check() {
   if [[ $DELUGE_v == master ]]; then
 		sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
 	else

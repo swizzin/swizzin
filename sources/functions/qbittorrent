@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function whiptail_qbittorrent () {
+function whiptail_qbittorrent() {
   if [[ -z $QBITTORRENT_v ]]; then
 		. /etc/swizzin/sources/functions/apt
 		codename=$(lsb_release -cs)

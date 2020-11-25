@@ -26,8 +26,8 @@ case $codename in
 "buster")
 	echo_progress_start "Adding adoptopenjdk repository"
 	apt_install software-properties-common
-	wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >>"${log}" 2>&1
-	add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >>"${log}" 2>&1
+		wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
+		add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
 	echo_progress_done "adoptopenjdk repos enabled"
 	apt_update
 	apt_install adoptopenjdk-8-hotspot
@@ -45,16 +45,16 @@ wget -qO /root/subsonic-tmp/subsonic.deb $latest || {
 	exit 1
 }
 cd /root/subsonic-tmp
-dpkg -i subsonic.deb >>"${log}" 2>&1
+dpkg -i subsonic.deb >> "${log}" 2>&1
 rm -rf /root/subsonic-tmp
 echo_progress_done "Subsonic installed"
 
 touch /install/.subsonic.lock
 
 echo_progress_start "Modifying Subsonic startup script"
-cat >/usr/share/subsonic/subsonic.sh <<SUBS
+cat > /usr/share/subsonic/subsonic.sh << SUBS
 #!/bin/sh
-MASTER=$(cut -d: -f1 </root/.master.info)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 SUBSONICIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 SUBSONIC_HOME=/srv/subsonic
@@ -102,8 +102,8 @@ SUBS
 echo_progress_done
 
 echo_progress_start "Enabling Subsonic Systemd configuration"
-systemctl stop subsonic >/dev/null 2>&1
-cat >/etc/systemd/system/subsonic.service <<SUBSD
+systemctl stop subsonic > /dev/null 2>&1
+cat > /etc/systemd/system/subsonic.service << SUBSD
 [Unit]
 Description=Subsonic Sound-Server
 

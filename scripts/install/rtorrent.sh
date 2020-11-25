@@ -96,16 +96,28 @@ if [[ -n $noexec ]]; then
 	mount -o remount,exec /tmp
 	noexec=1
 fi
-	  echo "Installing rTorrent Dependencies ... ";depends_rtorrent
-		if [[ ! $RTORRENT_v == repo ]]; then
-			echo "Building xmlrpc-c from source ... ";build_xmlrpc-c
-			echo "Building libtorrent from source ... ";build_libtorrent_rakshasa
-			echo "Building rtorrent from source ... ";build_rtorrent
-		else
-			echo "Installing rtorrent with apt-get ... ";rtorrent_apt
-		fi
-		echo "Making ${user} directory structure ... ";_makedirs
-		echo "setting up rtorrent.rc ... ";_rconf;_systemd
+depends_rtorrent
+if [[ ! $RTORRENT_v == repo ]]; then
+	echo_progress_start "Building xmlrpc-c from source"
+	build_xmlrpc-c
+	echo_progress_done
+	echo_progress_start "Building libtorrent from source"
+	build_libtorrent_rakshasa
+	echo_progress_done
+	echo_progress_start "Building rtorrent from source"
+	build_rtorrent
+	echo_progress_done
+else
+	echo_info "Installing rtorrent with apt-get"
+	rtorrent_apt
+fi
+echo_progress_start "Making ${user} directory structure"
+_makedirs
+echo_progress_done
+echo_progress_start "setting up rtorrent.rc"
+_rconf
+_systemd
+echo_progress_done
 
 if [[ -n $noexec ]]; then
 	mount -o remount,noexec /tmp
