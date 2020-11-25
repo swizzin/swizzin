@@ -26,9 +26,6 @@ export log="/root/logs/swizzin.log"
 . /etc/swizzin/sources/functions/ask
 echo_log_only "$(/usr/games/fortune -s)"
 
-os_id="$(_os_id)"
-os_codename="$(_os_codename)"
-
 function _intro() {
 	whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
 }
