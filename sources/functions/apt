@@ -228,21 +228,21 @@ apt_upgrade() {
 	_apt_update
 	_apt_simulate upgrade
 
-    upgradable=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
-    if [[ $upgradable -gt 0 ]]; then
-        echo_progress_start "Performing apt upgrade\n$upgradable packages to upgrade."
-	if [[ $_apt_interactive == "true" ]]; then
-		DEBIAN_FRONTEND=readline apt-get upgrade -y | tee -a $log
-	else
-		DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
-	fi
+	upgradable=$(apt list --upgradable 2> /dev/null | grep -c upgradable)
+	if [[ $upgradable -gt 0 ]]; then
+		echo_progress_start "Performing apt upgrade\n$upgradable packages to upgrade."
+		if [[ $_apt_interactive == "true" ]]; then
+			DEBIAN_FRONTEND=readline apt-get upgrade -y | tee -a $log
+		else
+			DEBIAN_FRONTEND=noninteractive apt-get upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y >> $log 2>&1
+		fi
 
-	_apt_logcheck
-	# TODO check if any configs have changed and alert the users
-	echo_progress_done "Apt upgrade complete"
-    else
-        echo_log_only "$upgradable packages to upgrade."
-    fi
+		_apt_logcheck
+		# TODO check if any configs have changed and alert the users
+		echo_progress_done "Apt upgrade complete"
+	else
+		echo_log_only "$upgradable packages to upgrade."
+	fi
 }
 export -f apt_upgrade
 

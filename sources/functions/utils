@@ -110,110 +110,118 @@ function tmp_swap_off() {
 }
 
 # Will recurse if $pass isn't set or isn't valid
-function password_check(){
-    #If no password set, then get one 
-    if [[ -z $pass ]]; then
-        while [[ -z $confirmedPass ]]; do
-            if [[ $1 = "whiptail" ]]; then
-                pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-        else
-            echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
-                read -rs 'pass'; echo
-            fi
-                if [[ $pass = "" ]]; then
-                #If password should be generated, skip the check
-                confirmedPass=true
-                else
-                if [[ $1 = "whiptail" ]]; then
-                    pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-                else
-                    echo_query "Please confirm password" "hidden"
-                    read -rs 'pass2'; echo
-                fi
-                if [[ $pass != "$pass2" ]];then
-                        if [[ $1 = "whiptail" ]]; then 
-                            whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
-                        else
-                        echo_warn "Passwords did not match. Press enter to try again"
-                            read -n 1 -r
-                        fi
-                    else
-                    confirmedPass=true
-                    fi
-                fi
-            done
-        unset confirmedPass
-        fi
+function password_check() {
+	#If no password set, then get one
+	if [[ -z $pass ]]; then
+		while [[ -z $confirmedPass ]]; do
+			if [[ $1 = "whiptail" ]]; then
+				pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3)
+				exitstatus=$?
+				if [ "$exitstatus" = 1 ]; then exit 0; fi
+			else
+				echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
+				read -rs 'pass'
+				echo
+			fi
+			if [[ $pass = "" ]]; then
+				#If password should be generated, skip the check
+				confirmedPass=true
+			else
+				if [[ $1 = "whiptail" ]]; then
+					pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3)
+					exitstatus=$?
+					if [ "$exitstatus" = 1 ]; then exit 0; fi
+				else
+					echo_query "Please confirm password" "hidden"
+					read -rs 'pass2'
+					echo
+				fi
+				if [[ $pass != "$pass2" ]]; then
+					if [[ $1 = "whiptail" ]]; then
+						whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
+					else
+						echo_warn "Passwords did not match. Press enter to try again"
+						read -n 1 -r
+					fi
+				else
+					confirmedPass=true
+				fi
+			fi
+		done
+		unset confirmedPass
+	fi
 
-        if [[ -z "${pass}" ]]; then
-            echo_progress_start "Generating password"
-            pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-                whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
-            echo_progress_done "Password generated and hidden"
-        fi
-    
-    #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
-    ##Cracklib test
-        if [[ -n $(which cracklib-check) ]]; then 
-        echo_progress_start "Checking password strength"
-        result=$(cracklib-check <<< "$pass")
-        if ! grep -q OK <<< "$result"; then
-            result=""
-            unset result
-            if [[ $1 = "whiptail" ]]; then
-                whiptail --title "Error" --msgbox "Password did not pass cracklib check." --ok-button="Try again" 10 50
-            else
-                echo_warn "Password did not pass cracklib check. Press enter to try again"
-                read -n 1 -r
-            fi
-                pass=
-            unset pass
-            password_check "$1"
-        else
-        echo_progress_done "Password passed"
-        fi
+	if [[ -z "${pass}" ]]; then
+		echo_progress_start "Generating password"
+		pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+		whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+		echo_progress_done "Password generated and hidden"
+	fi
 
-    fi
+	#Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $1`
+	##Cracklib test
+	if [[ -n $(which cracklib-check) ]]; then
+		echo_progress_start "Checking password strength"
+		result=$(cracklib-check <<< "$pass")
+		if ! grep -q OK <<< "$result"; then
+			result=""
+			unset result
+			if [[ $1 = "whiptail" ]]; then
+				whiptail --title "Error" --msgbox "Password did not pass cracklib check." --ok-button="Try again" 10 50
+			else
+				echo_warn "Password did not pass cracklib check. Press enter to try again"
+				read -n 1 -r
+			fi
+			pass=
+			unset pass
+			password_check "$1"
+		else
+			echo_progress_done "Password passed"
+		fi
+
+	fi
 }
 
 # Will recurse while $user isn't set or isn't valid
-function username_check(){
-    if [[ -z $user ]]; then
-        if [[ $1 = "whiptail" ]]; then 
-            user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3); exitstatus=$?; if [ "$exitstatus" = 1 ]; then exit 0; fi
-        else
-            echo_query "Enter a name for the new user"
-            read -r user
-        fi
-    fi
+function username_check() {
+	if [[ -z $user ]]; then
+		if [[ $1 = "whiptail" ]]; then
+			user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3)
+			exitstatus=$?
+			if [ "$exitstatus" = 1 ]; then exit 0; fi
+		else
+			echo_query "Enter a name for the new user"
+			read -r user
+		fi
+	fi
 
-    #Perform tests. If failure is set message and set flag
-    ## Quick caps check
-    error_message=""
-        if [[ $user =~ [A-Z] ]]; then
-        error_message+="Usernames must not contain capital letters.\n"
-        badUsername=true
-    fi
-    ## Check reserved usernames
-    if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root") ]]; then
-        error_message+="$user is a reserved username -- please use something else.\n"
-        badUsername=true
-    fi
-    ## Do the complicated regex
-    if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
-        error_message+="Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\n"
-        badUsername=true
-    fi
-    ## Recurse if error found
-    if [[ $badUsername = "true" ]]; then 
-        if [[ $1 = "whiptail" ]]; then
-            whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
-        else
-            echo_warn "$error_message. Press enter to try again"
-            read -n 1 -r
-        fi
-        user=
-        badUsername=false
-        username_check "$1"
-        fi
+	#Perform tests. If failure is set message and set flag
+	## Quick caps check
+	error_message=""
+	if [[ $user =~ [A-Z] ]]; then
+		error_message+="Usernames must not contain capital letters.\n"
+		badUsername=true
+	fi
+	## Check reserved usernames
+	if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root") ]]; then
+		error_message+="$user is a reserved username -- please use something else.\n"
+		badUsername=true
+	fi
+	## Do the complicated regex
+	if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
+		error_message+="Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\n"
+		badUsername=true
+	fi
+	## Recurse if error found
+	if [[ $badUsername = "true" ]]; then
+		if [[ $1 = "whiptail" ]]; then
+			whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
+		else
+			echo_warn "$error_message. Press enter to try again"
+			read -n 1 -r
+		fi
+		user=
+		badUsername=false
+		username_check "$1"
+	fi
 }

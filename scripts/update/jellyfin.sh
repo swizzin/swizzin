@@ -56,8 +56,8 @@ if [[ -f /install/.jellyfin.lock ]]; then
 		rm_if_exists "/home/${username}/.aspnet"
 		echo_progress_done "Configs adjusted"
 		#
-		apt_update			# forces apt refresh
-		apt_install sqlite3	# We need this to edit the library.db
+		apt_update          # forces apt refresh
+		apt_install sqlite3 # We need this to edit the library.db
 		# Get our array of copied directories
 		readarray -d '' jelly_array < <(find "/var/lib/jellyfin/root/default/" -maxdepth 1 -mindepth 1 -type d -print0)
 		#
