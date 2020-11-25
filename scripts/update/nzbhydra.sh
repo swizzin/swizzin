@@ -1,37 +1,37 @@
 #!/bin/bash
 
 if [[ -f /install/.nzbhydra.lock ]]; then
-    if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
-        codename=$(lsb_release -cs)
-        active=$(systemctl is-active nzbhydra@${user})
-        . /etc/swizzin/sources/functions/pyenv
-        if [[ $active == "active" ]]; then
-            systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
-        fi
+	if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
+		user=$(cut -d: -f1 < /root/.master.info)
+		codename=$(lsb_release -cs)
+		active=$(systemctl is-active nzbhydra@${user})
+		. /etc/swizzin/sources/functions/pyenv
+		if [[ $active == "active" ]]; then
+			systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
+		fi
 
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            LIST='git python2.7-dev virtualenv python-virtualenv'
-        else
-            LIST='git python2.7-dev'
-        fi
-        
-        apt_install $LIST
+		if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+			LIST='git python2.7-dev virtualenv python-virtualenv'
+		else
+			LIST='git python2.7-dev'
+		fi
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-            python_getpip
-        fi
+		apt_install $LIST
 
-        python2_venv ${user} nzbhydra
+		if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+			python_getpip
+		fi
 
-        if [[ ! -d /home/${user}/.config ]]; then
-            mkdir /home/${user}/.config
-            chown ${user}: /home/${user}/.config
-        fi
+		python2_venv ${user} nzbhydra
 
-        mv /home/${user}/.nzbhydra /home/${user}/.config/nzbhydra
-        mv /home/${user}/nzbhydra /opt
-        cat > /etc/systemd/system/nzbhydra.service <<NZBH
+		if [[ ! -d /home/${user}/.config ]]; then
+			mkdir /home/${user}/.config
+			chown ${user}: /home/${user}/.config
+		fi
+
+		mv /home/${user}/.nzbhydra /home/${user}/.config/nzbhydra
+		mv /home/${user}/nzbhydra /opt
+		cat > /etc/systemd/system/nzbhydra.service << NZBH
 [Unit]
 Description=NZBHydra
 Documentation=https://github.com/theotherp/nzbhydra
@@ -51,10 +51,10 @@ Restart=on-failure
 WantedBy=multi-user.target
 NZBH
 
-        systemctl daemon-reload
-        rm /etc/systemd/system/nzbhydra@.service
-        if [[ $active == "active" ]]; then
-            systemctl enable -q --now nzbhydra 2>&1  | tee -a $log
-        fi
-    fi
+		systemctl daemon-reload
+		rm /etc/systemd/system/nzbhydra@.service
+		if [[ $active == "active" ]]; then
+			systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
+		fi
+	fi
 fi

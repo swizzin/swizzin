@@ -11,11 +11,11 @@
 MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active jackett@$MASTER)
 if [[ $isactive == "active" ]]; then
-  systemctl stop jackett@$MASTER
+	systemctl stop jackett@$MASTER
 fi
 systemctl stop jackett@$MASTER
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
-  cat > /etc/nginx/apps/jackett.conf <<RAD
+	cat > /etc/nginx/apps/jackett.conf << RAD
 location /jackett {
   return 301 /jackett/;
 }
@@ -33,5 +33,5 @@ fi
 sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
 
 if [[ $isactive == "active" ]]; then
-  systemctl start jackett@$MASTER
+	systemctl start jackett@$MASTER
 fi

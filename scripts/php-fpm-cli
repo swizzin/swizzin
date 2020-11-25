@@ -23,7 +23,7 @@
 # THE SOFTWARE.
 
 usage() {
-    cat <<USAGE
+	cat << USAGE
 Usage: $(basename $0) [-connect CONN] -r <code>
 
 Options:
@@ -36,15 +36,15 @@ USAGE
 }
 
 main() {
-    echo "<?php $PHPCODE" > $PHPFPMCLI_FILE
-    SCRIPT_FILENAME=$PHPFPMCLI_FILE \
-    REQUEST_METHOD=GET \
-    cgi-fcgi -bind -connect "$CONN" | stripheaders
-    rm $PHPFPMCLI_FILE
+	echo "<?php $PHPCODE" > $PHPFPMCLI_FILE
+	SCRIPT_FILENAME=$PHPFPMCLI_FILE \
+		REQUEST_METHOD=GET \
+		cgi-fcgi -bind -connect "$CONN" | stripheaders
+	rm $PHPFPMCLI_FILE
 }
 
 stripheaders() {
-    sed -E '1,/^.$/ d'
+	sed -E '1,/^.$/ d'
 }
 
 . /etc/swizzin/sources/functions/php
@@ -55,32 +55,40 @@ PHPFPMCLI_FILE="/tmp/php-fpm-cli.$$.php"
 CONN="/run/php/${sock}.sock"
 PHPCODE=""
 init() {
-  until [ -z "$1" ]; do
-    case "$1" in
-      -connect|--connect) shift; CONN="$1"; shift; ;;
-      
-      -r) shift; PHPCODE="$1"; shift; ;;
+	until [ -z "$1" ]; do
+		case "$1" in
+			-connect | --connect)
+				shift
+				CONN="$1"
+				shift
+				;;
 
-      help|-h|-help|--help)
-        usage;
-        exit 0
-        ;;
+			-r)
+				shift
+				PHPCODE="$1"
+				shift
+				;;
 
-      *)
-        echo_error "unknown option: $1";
-        usage;
-        exit 1
-        ;;
-    esac
-  done
-  if [ -z "$PHPCODE" ]; then
-    echo_error "missing option: -r <code>";
-    usage;
-    exit 1
-  fi
+			help | -h | -help | --help)
+				usage
+				exit 0
+				;;
+
+			*)
+				echo_error "unknown option: $1"
+				usage
+				exit 1
+				;;
+		esac
+	done
+	if [ -z "$PHPCODE" ]; then
+		echo_error "missing option: -r <code>"
+		usage
+		exit 1
+	fi
 }
 
 if [[ -z $(which cgi-fcgi) ]]; then
-  apt_install --recommends libfcgi-bin libfcgi0ldbl
+	apt_install --recommends libfcgi-bin libfcgi0ldbl
 fi
 init "$@" && main

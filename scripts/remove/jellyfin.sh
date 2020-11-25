@@ -1,29 +1,22 @@
 #!/usr/bin/env bash
 #
-# Set the required variables
-username="$(cat /root/.master.info | cut -d: -f1)"
+. /etc/swizzin/sources/functions/utils
 #
-# Define the removal function for jellyfin.
-function remove_jellyfin() {
-    systemctl stop -q "jellyfin.service"
-    #
-    systemctl disable -q "jellyfin.service"
-    #
-    rm -f "/etc/systemd/system/jellyfin.service"
-    #
-    kill -9 $(ps xU ${username} | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}') >/dev/null 2>&1
-    #
-    rm -rf "/opt/jellyfin"
-    rm -rf "/opt/ffmpeg"
-    rm -rf "/home/${username}/.config/Jellyfin"
-    #
-    if [[ -f /install/.nginx.lock ]]; then
-        rm -f "/etc/nginx/apps/jellyfin.conf"
-        systemctl reload nginx
-    fi
-    #
-    rm -f "/install/.jellyfin.lock"
-}
+systemctl -q stop jellyfin.service
 #
-# run the removal function
-remove_jellyfin
+apt_remove --purge jellyfin jellyfin-ffmpeg
+#
+rm_if_exists /var/lib/jellyfin
+rm_if_exists /var/log/jellyfin
+rm_if_exists /var/cache/jellyfin
+rm_if_exists /usr/share/jellyfin/web
+#
+# Remove the nginx conf and reload nginx.
+if [[ -f /install/.nginx.lock ]]; then
+	rm_if_exists /etc/nginx/apps/jellyfin.conf
+	systemctl -q reload nginx.service
+fi
+#
+rm_if_exists /install/.jellyfin.lock
+#
+exit

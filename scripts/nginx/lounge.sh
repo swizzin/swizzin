@@ -3,7 +3,7 @@
 
 isactive=$(systemctl is-active lounge)
 
-cat > /etc/nginx/apps/lounge.conf <<EOF
+cat > /etc/nginx/apps/lounge.conf << EOF
 location /irc/ {
 proxy_pass http://127.0.0.1:9000/;
 proxy_http_version 1.1;
@@ -18,5 +18,5 @@ sed -i 's/host: undefined,/host: "127.0.0.1",/g' /home/lounge/.thelounge/config.
 sed -i 's/reverseProxy: false,/reverseProxy: true,/g' /home/lounge/.thelounge/config.js
 
 if [[ $isactive == "active" ]]; then
-  systemctl restart lounge
+	systemctl restart lounge
 fi
