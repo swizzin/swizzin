@@ -8,9 +8,8 @@ if [[ -f /install/organizr.sh ]]; then
 		bash /etc/swizzin/scripts/nginx/organizr.sh
 		echo_progress_done "Organizr nginx config updated"
 
-		# TODO update /srv/organizr past the commit where baseurls are broken
 		echo_progress_start "Pulling down new organizr source code"
-		git -C "/srv/organizr" pull 
+		git -C "/srv/organizr" pull >> "${log:?}"
 		echo_progress_done "Retrieved new organizr source code"
 	fi
 
