@@ -5,40 +5,38 @@ user=$(cut -d: -f1 < /root/.master.info)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 latest=$(curl -s https://github.com/xmrig/xmrig/releases/latest | grep -oP 'v\K\d+.\d+.\d+')
 
-
-
 while true; do
-echo_query "Please choose a dev donation amount. Minimum fee is 1%."
-read -r fee
-floatReg='^([0-9]*\.[0-9])$'
-    if [[ ! $fee =~ $floatReg ]]; then
-        if (( $(echo "$fee < 1" | bc -l) )); then
-            echo_info "Minimum fee is 1"
-        else
-            echo_info "Configurable fee has been set to $fee"
-            break
-        fi
-    else
-        echo_warn "Must not be a decimal! E.g. 5"
-    fi
+	echo_query "Please choose a dev donation amount. Minimum fee is 1%."
+	read -r fee
+	floatReg='^([0-9]*\.[0-9])$'
+	if [[ ! $fee =~ $floatReg ]]; then
+		if (($(echo "$fee < 1" | bc -l))); then
+			echo_info "Minimum fee is 1"
+		else
+			echo_info "Configurable fee has been set to $fee"
+			break
+		fi
+	else
+		echo_warn "Must not be a decimal! E.g. 5"
+	fi
 done
 
 password=$(hostname)
 
 if [[ -z $address ]]; then
-    address=pool.supportxmr.com:5555
-    echo_query "Please enter your desired pool and port. Default: pool.supportxmr.com:5555"
-    read 'custom'
-    address="${custom:-$address}"
+	address=pool.supportxmr.com:5555
+	echo_query "Please enter your desired pool and port. Default: pool.supportxmr.com:5555"
+	read 'custom'
+	address="${custom:-$address}"
 
-    echo_query "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: "
-    read 'wallet'
-    if [[ -z $wallet ]]; then
-        echo_info "Thank you for your donation!"
-        fee=100
-        address=diglett.swizzin.ltd:5555
-        wallet=$(hostname)
-    fi
+	echo_query "Enter wallet address for miner. If you do not enter an address, the installer will default to a 100% donation: "
+	read 'wallet'
+	if [[ -z $wallet ]]; then
+		echo_info "Thank you for your donation!"
+		fee=100
+		address=diglett.swizzin.ltd:5555
+		wallet=$(hostname)
+	fi
 fi
 
 apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev
@@ -54,9 +52,9 @@ sed -i "s/donate.v2.xmrig.com/diglett.swizzin.ltd/g" src/net/strategies/DonateSt
 sed -i "s/kDefaultDonateLevel = 5/kDefaultDonateLevel = $fee/g" src/donate.h
 
 if [[ -n $noexec ]]; then
-    mount -o remount,exec /tmp
-    noexec=1
-fi	
+	mount -o remount,exec /tmp
+	noexec=1
+fi
 echo_progress_start "Building xmrig"
 mkdir build
 cd build
@@ -79,15 +77,15 @@ cd /tmp
 rm -rf xmrig
 
 if [[ -n $noexec ]]; then
-    mount -o remount,noexec /tmp
+	mount -o remount,noexec /tmp
 fi
 
 if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf) ]]; then
-    echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
-    sysctl -p
+	echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
+	sysctl -p
 fi
 
-cat > /etc/systemd/system/xmrig.service <<XMR
+cat > /etc/systemd/system/xmrig.service << XMR
 [Unit]
 Description=xmrig miner
 After=network.target
@@ -107,7 +105,7 @@ XMR
 echo_progress_done
 
 echo_progress_start
-systemctl enable -q --now xmrig 2>&1  | tee -a $log
+systemctl enable -q --now xmrig 2>&1 | tee -a $log
 echo_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"

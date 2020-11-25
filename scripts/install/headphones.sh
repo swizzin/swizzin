@@ -19,32 +19,32 @@ codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 
 if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-    LIST='git python2.7-dev virtualenv python-virtualenv python-pip'
+	LIST='git python2.7-dev virtualenv python-virtualenv python-pip'
 else
-    LIST='git python2.7-dev'
+	LIST='git python2.7-dev'
 fi
 
 apt_install $LIST
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
-  python_getpip
+	python_getpip
 fi
 
 python2_venv ${user} headphones
 
 PIP='wheel cheetah asn1'
 echo_progress_start "Installing python dependencies"
-/opt/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
+/opt/.venv/headphones/bin/pip install $PIP >> "${log}" 2>&1
 chown -R ${user}: /opt/.venv/headphones
 echo_progress_done "Python dependencies installed"
 
 echo_progress_start "Cloning Headphones source code"
-git clone https://github.com/rembo10/headphones.git /opt/headphones >>"${log}" 2>&1
+git clone https://github.com/rembo10/headphones.git /opt/headphones >> "${log}" 2>&1
 chown -R $user: /opt/headphones
 echo_progress_done "Source cloned"
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/headphones.service <<HEADSD
+cat > /etc/systemd/system/headphones.service << HEADSD
 [Unit]
 Description=Headphones
 Wants=network.target network-online.target
@@ -62,15 +62,15 @@ PIDFile=/run/${user}/headphones.pid
 WantedBy=multi-user.target
 HEADSD
 
-systemctl enable -q --now headphones 2>&1  | tee -a $log
+systemctl enable -q --now headphones 2>&1 | tee -a $log
 sleep 10
 echo_progress_done "Systemd service installed"
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Installing nginx config"
-  bash /usr/local/bin/swizzin/nginx/headphones.sh
-  systemctl reload nginx
-  echo_info "Please note headphones access url is: https://$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')/headphones/home"
+	echo_progress_start "Installing nginx config"
+	bash /usr/local/bin/swizzin/nginx/headphones.sh
+	systemctl reload nginx
+	echo_info "Please note headphones access url is: https://$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')/headphones/home"
 fi
 echo_success "Headphones installed"
 

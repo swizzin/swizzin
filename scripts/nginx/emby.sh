@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 MASTER=$(cut -d: -f1 < /root/.master.info)
 if [[ ! -f /etc/nginx/apps/emby.conf ]]; then
-cat > /etc/nginx/apps/emby.conf <<EMB
+	cat > /etc/nginx/apps/emby.conf << EMB
 location /emby/ {
   rewrite /emby/(.*) /\$1 break;
   include /etc/nginx/snippets/proxy.conf;

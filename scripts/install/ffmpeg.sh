@@ -16,8 +16,6 @@ export distribution=$(lsb_release -is)
 export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
-
 apt_install ffmpeg
-
 
 touch /install/.ffmpeg.lock
