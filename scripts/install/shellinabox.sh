@@ -13,7 +13,7 @@ echo_progress_start "Configuring shellinabox"
 systemctl stop shellinabox >> $log 2>&1
 rm -rf /etc/init.d/shellinabox
 
-cat > /etc/systemd/system/shellinabox.service <<SIAB
+cat > /etc/systemd/system/shellinabox.service << SIAB
 [Unit]
 Description=Shell in a Box service
 After=sshd.service
@@ -32,14 +32,14 @@ WantedBy=multi-user.target
 SIAB
 
 systemctl daemon-reload -q
-systemctl enable -q shellinabox 2>&1  | tee -a $log
+systemctl enable -q shellinabox 2>&1 | tee -a $log
 systemctl start shellinabox >> $log 2>&1
 echo_progress_done "Configured and restarted"
 
 if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring nginx"
-    bash /usr/local/bin/swizzin/nginx/shellinabox.sh
-    echo_progress_done
+	echo_progress_start "Configuring nginx"
+	bash /usr/local/bin/swizzin/nginx/shellinabox.sh
+	echo_progress_done
 fi
 
 echo_success "Shellinabox installed"

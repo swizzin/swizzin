@@ -12,10 +12,10 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active radarr)
 
 if [[ $isactive == "active" ]]; then
-  systemctl stop radarr
+	systemctl stop radarr
 fi
 if [[ ! -f /etc/nginx/apps/radarr.conf ]]; then
-  cat > /etc/nginx/apps/radarr.conf <<RAD
+	cat > /etc/nginx/apps/radarr.conf << RAD
 location /radarr {
   proxy_pass        http://127.0.0.1:7878/radarr;
   proxy_set_header Host \$proxy_host;
@@ -28,7 +28,7 @@ location /radarr {
 RAD
 fi
 if [[ ! -d /home/${MASTER}/.config/Radarr/ ]]; then mkdir -p /home/${MASTER}/.config/Radarr/; fi
-cat > /home/${MASTER}/.config/Radarr/config.xml <<RAD
+cat > /home/${MASTER}/.config/Radarr/config.xml << RAD
 <Config>
   <Port>7878</Port>
   <UrlBase>radarr</UrlBase>
@@ -44,5 +44,5 @@ cat > /home/${MASTER}/.config/Radarr/config.xml <<RAD
 RAD
 chown -R ${MASTER}: /home/${MASTER}/.config/Radarr
 if [[ $isactive == "active" ]]; then
-  systemctl start radarr
+	systemctl start radarr
 fi

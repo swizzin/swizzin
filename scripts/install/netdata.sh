@@ -7,10 +7,10 @@ bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive >> $log 2>
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Configuring nginx"
-  bash /usr/local/bin/swizzin/nginx/netdata.sh
-  systemctl reload nginx
-  echo_progress_done
+	echo_progress_start "Configuring nginx"
+	bash /usr/local/bin/swizzin/nginx/netdata.sh
+	systemctl reload nginx
+	echo_progress_done
 fi
 
 echo_success "Netdata installed"

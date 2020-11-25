@@ -14,8 +14,8 @@
 #
 # awaiting pull to remove
 function dist_info() {
-    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-    DIST_ID="$(source /etc/os-release && echo "$ID")"
+	DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+	DIST_ID="$(source /etc/os-release && echo "$ID")"
 }
 #
 # Get our some useful information from functions in the sourced utils script
@@ -43,40 +43,40 @@ mkdir -p /etc/jellyfin
 chmod 755 /etc/jellyfin
 #
 # Create the dnla.xml so that we can Disable DNLA
-cat >/etc/jellyfin/dlna.xml <<-CONFIG
-<?xml version="1.0"?>
-<DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <EnablePlayTo>false</EnablePlayTo>
-  <EnableServer>false</EnableServer>
-  <EnableDebugLog>false</EnableDebugLog>
-  <BlastAliveMessages>false</BlastAliveMessages>
-  <SendOnlyMatchedHost>true</SendOnlyMatchedHost>
-  <ClientDiscoveryIntervalSeconds>60</ClientDiscoveryIntervalSeconds>
-  <BlastAliveMessageIntervalSeconds>1800</BlastAliveMessageIntervalSeconds>
-</DlnaOptions>
+cat > /etc/jellyfin/dlna.xml <<- CONFIG
+	<?xml version="1.0"?>
+	<DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  <EnablePlayTo>false</EnablePlayTo>
+	  <EnableServer>false</EnableServer>
+	  <EnableDebugLog>false</EnableDebugLog>
+	  <BlastAliveMessages>false</BlastAliveMessages>
+	  <SendOnlyMatchedHost>true</SendOnlyMatchedHost>
+	  <ClientDiscoveryIntervalSeconds>60</ClientDiscoveryIntervalSeconds>
+	  <BlastAliveMessageIntervalSeconds>1800</BlastAliveMessageIntervalSeconds>
+	</DlnaOptions>
 CONFIG
 #
 # Create the system.xml. This is the applications main configuration file.
-cat >/etc/jellyfin/system.xml <<-CONFIG
-<?xml version="1.0"?>
-<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
-  <EnableUPnP>false</EnableUPnP>
-  <EnableHttps>true</EnableHttps>
-  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
-  <IsPortAuthorized>true</IsPortAuthorized>
-  <EnableRemoteAccess>true</EnableRemoteAccess>
-  <BaseUrl />
-  <LocalNetworkAddresses>
-	<string>0.0.0.0</string>
-  </LocalNetworkAddresses>
-  <RequireHttps>true</RequireHttps>
-</ServerConfiguration>
+cat > /etc/jellyfin/system.xml <<- CONFIG
+	<?xml version="1.0"?>
+	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
+	  <EnableUPnP>false</EnableUPnP>
+	  <EnableHttps>true</EnableHttps>
+	  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
+	  <IsPortAuthorized>true</IsPortAuthorized>
+	  <EnableRemoteAccess>true</EnableRemoteAccess>
+	  <BaseUrl />
+	  <LocalNetworkAddresses>
+		<string>0.0.0.0</string>
+	  </LocalNetworkAddresses>
+	  <RequireHttps>true</RequireHttps>
+	</ServerConfiguration>
 CONFIG
 #
 # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >>"${log}" 2>&1
-echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" >/etc/apt/sources.list.d/jellyfin.list
+wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
 #
 # install jellyfin and jellyfin-ffmepg using apt functions.
 apt_update #forces apt refresh
@@ -92,8 +92,8 @@ chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
-    systemctl -q restart nginx.service
+	bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+	systemctl -q restart nginx.service
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect

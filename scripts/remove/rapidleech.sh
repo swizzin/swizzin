@@ -19,12 +19,11 @@
 #
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
-
 function _removeRapidleech() {
-  sudo rm -r  /home/"${MASTER}"/rapidleech
-  sudo rm /etc/nginx/apps/rapidleech.conf
-  sudo rm /install/.rapidleech.lock
-  systemctl reload nginx
+	sudo rm -r /home/"${MASTER}"/rapidleech
+	sudo rm /etc/nginx/apps/rapidleech.conf
+	sudo rm /install/.rapidleech.lock
+	systemctl reload nginx
 }
 
 _removeRapidleech
