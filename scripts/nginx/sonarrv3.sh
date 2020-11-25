@@ -3,7 +3,7 @@
 # Flying sausages 2020
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/sonarrv3.conf <<SONARR
+cat > /etc/nginx/apps/sonarrv3.conf << SONARR
 location /sonarr {
   proxy_pass        http://127.0.0.1:8989/sonarr;
   proxy_set_header Host \$proxy_host;
@@ -18,7 +18,7 @@ SONARR
 isactive=$(systemctl is-active sonarr)
 
 if [[ $isactive == "active" ]]; then
-  systemctl stop sonarr
+	systemctl stop sonarr
 fi
 user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
@@ -26,7 +26,7 @@ echo "Sonarr user detected as $user" >> "$log"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
 echo "API Key  = $apikey" >> "$log"
 #TODO cahnge Branch whenever that becomes relevant
-cat > /home/"$user"/.config/sonarr/config.xml <<SONN
+cat > /home/"$user"/.config/sonarr/config.xml << SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
@@ -46,5 +46,5 @@ chown -R "$user":"$user" /home/"$user"/.config/sonarr
 
 # chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-  systemctl start sonarr
+	systemctl start sonarr
 fi
