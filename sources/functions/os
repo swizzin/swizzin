@@ -1,7 +1,8 @@
-_os_id() {
+_os_distro() {
 	source /etc/os-release
 	echo "$ID"
 }
+export -f _os_distro
 
 _os_codename() {
 	source /etc/os-release
