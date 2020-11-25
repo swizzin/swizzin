@@ -22,21 +22,21 @@
 _string() { perl -le 'print map {(a..z,A..Z,0..9)[rand 62] } 0..pop' 15; }
 
 function _installautodl() {
-	APT="irssi screen unzip libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl"
-	apt_install $APT
+	apt_install irssi screen unzip libarchive-zip-perl libnet-ssleay-perl libhtml-parser-perl libxml-libxml-perl libjson-perl libjson-xs-perl libxml-libxslt-perl
 }
 
 function _autoconf() {
+	echo_progress_start "Downloading autodl source code"
+	curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget -O /tmp/autodl-irssi.zip --quiet
+	echo_progress_done "Download finished"
 	for u in "${users[@]}"; do
-		echo_progress_start "configuring autodl for $u"
+		echo_progress_start "Configuring autodl for $u"
 		IRSSI_PASS=$(_string)
 		IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
-		mkdir -p "/home/${u}/.irssi/scripts/autorun/" >> "${log}" 2>&1
-		cd "/home/${u}/.irssi/scripts/"
-		curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget --quiet -O autodl-irssi.zip
-		unzip -o autodl-irssi.zip >> "${log}" 2>&1
-		rm autodl-irssi.zip
-		cp autodl-irssi.pl autorun/
+		newdir="/home/${u}/.irssi/scripts/autorun/"
+		mkdir -p "$newdir" >> "${log}" 2>&1
+		unzip -o /tmp/autodl-irssi.zip -d /home/"${u}"/.irssi/scripts/ >> "${log}" 2>&1
+		cp /home/"${u}"/.irssi/scripts/autodl-irssi.pl "$newdir"
 		mkdir -p "/home/${u}/.autodl" >> "${log}" 2>&1
 		touch "/home/${u}/.autodl/autodl.cfg"
 		cat > "/home/${u}/.autodl/autodl.cfg" << ADC
@@ -46,8 +46,9 @@ gui-server-password = ${IRSSI_PASS}
 ADC
 		chown -R $u: /home/${u}/.autodl/
 		chown -R $u: /home/${u}/.irssi/
-		echo_progress_done
+		echo_progress_done "Autodl for $u configured"
 	done
+	rm /tmp/autodl-irssi.zip
 	if [[ -f /install/.nginx.lock ]]; then
 		bash /usr/local/bin/swizzin/nginx/autodl.sh
 	fi

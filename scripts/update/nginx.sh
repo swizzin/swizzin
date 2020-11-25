@@ -37,8 +37,8 @@ function update_nginx() {
 
 	cd /etc/php
 	phpv=$(ls -d */ | cut -d/ -f1)
-	if [[ $phpv =~ "7.1" ]]; then
-		if [[ $phpv =~ "7.0" ]]; then
+	if [[ $phpv =~ 7\\.1 ]]; then
+		if [[ $phpv =~ 7\\.0 ]]; then
 			apt_remove purge php7.0-fpm
 		fi
 	fi
@@ -86,10 +86,11 @@ function update_nginx() {
 		sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
 	fi
 
-	if grep -q "php" /etc/nginx/apps/rindex.conf; then
-		:
-	else
-		cat > /etc/nginx/apps/rindex.conf << EOR
+	if [[ -f /install/.rutorrent.lock ]]; then
+		if grep -q "php" /etc/nginx/apps/rindex.conf; then
+			:
+		else
+			cat > /etc/nginx/apps/rindex.conf << EOR
 location /rtorrent.downloads {
   alias /home/\$remote_user/torrents/rtorrent;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -101,12 +102,14 @@ location /rtorrent.downloads {
   } 
 }
 EOR
+		fi
 	fi
 
-	if grep -q "php" /etc/nginx/apps/dindex.conf; then
-		:
-	else
-		cat > /etc/nginx/apps/dindex.conf << DIN
+	if [[ -f /install/.deluge.lock ]]; then
+		if grep -q "php" /etc/nginx/apps/dindex.conf; then
+			:
+		else
+			cat > /etc/nginx/apps/dindex.conf << DIN
 location /deluge.downloads {
   alias /home/\$remote_user/torrents/deluge;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -118,6 +121,7 @@ location /deluge.downloads {
   } 
 }
 DIN
+		fi
 	fi
 
 	# Remove php directive at the root level since we no longer use php

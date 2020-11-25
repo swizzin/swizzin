@@ -22,7 +22,7 @@ function pyenv_update() {
 
 function pyenv_install_version() {
 	version=$1
-	versions=$(/opt/pyenv/bin/pyenv versions >> "$log" 2>&1)
+	versions=$(/opt/pyenv/bin/pyenv versions 2> "$log")
 	if [[ ! $versions =~ $version ]]; then
 		echo_progress_start "Compiling Python $version. This may take some time"
 		/opt/pyenv/bin/pyenv install "$version" >> "$log" 2>&1

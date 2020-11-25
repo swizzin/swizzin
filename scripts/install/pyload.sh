@@ -37,7 +37,7 @@ fi
 python2_venv ${user} pyload
 
 echo_progress_start "Installing python dependencies"
-PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
 /opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
 chown -R ${user}: /opt/.venv/pyload
 echo_progress_done

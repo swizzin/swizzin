@@ -150,7 +150,7 @@ function _adduser() {
 			read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
 			printf "\n"
 			user=
-		elif [[ $user =~ ("swizzin"|"admin") ]]; then
+		elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
 			read -n 1 -s -r -p "$user is a reserved username -- please use something else. Press enter to try again."
 			printf "\n"
 			user=

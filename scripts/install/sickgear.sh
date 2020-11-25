@@ -32,6 +32,7 @@ fi
 mkdir -p /opt/.venv
 chown ${user}: /opt/.venv
 
+#minver 3.7.2
 if [[ ! $codename =~ ("xenial"|"stretch"|"bionic") ]]; then
 	apt_install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv
 	echo_progress_start "Setting up venv for Sickgear"
@@ -53,8 +54,8 @@ echo_progress_done
 install_rar
 
 echo_progress_start "Cloning Sickgear"
-sudo git clone https://github.com/SickGear/SickGear.git /home/$user/sickgear >> ${log} 2>&1
-chown -R $user:$user /home/$user/sickgear
+git clone https://github.com/SickGear/SickGear.git /opt/sickgear >> ${log} 2>&1
+chown -R $user:$user /opt/sickgear
 echo_progress_done
 
 echo_progress_start "Installing systemd service"
