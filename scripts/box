@@ -209,7 +209,7 @@ function _list() {
 	done
 }
 
-function _adduser {
+function _adduser() {
 	user=$2
 	[[ -n $3 ]] && pass=$3
 
