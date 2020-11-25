@@ -11,10 +11,10 @@
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
 if [[ -f /etc/nginx/apps/ombi.conf ]]; then
-  if grep -q '$scheme://$host' /etc/nginx/apps/ombi.conf; then
-    :
-  else
-  cat > /etc/nginx/apps/ombi.conf <<'RAD'
+	if grep -q '$scheme://$host' /etc/nginx/apps/ombi.conf; then
+		:
+	else
+		cat > /etc/nginx/apps/ombi.conf << 'RAD'
 location /ombi {		
      return 301 $scheme://$host/ombi/;		
 }
@@ -39,11 +39,11 @@ if ($http_referer ~* /ombi/) {
     rewrite ^/images/(.*) $scheme://$host/ombi/images/$1 permanent;
 }
 RAD
-  fi
+	fi
 fi
 
 if [[ ! -f /etc/nginx/apps/ombi.conf ]]; then
-  cat > /etc/nginx/apps/ombi.conf <<'RAD'
+	cat > /etc/nginx/apps/ombi.conf << 'RAD'
 location /ombi {		
      return 301 $scheme://$host/ombi/;		
 }
@@ -71,7 +71,7 @@ RAD
 fi
 
 if grep -q 0.0.0.0 /etc/systemd/system/ombi.service; then
-  cat > /etc/systemd/system/ombi.service <<OMB
+	cat > /etc/systemd/system/ombi.service << OMB
 [Unit]
 Description=Ombi - PMS Requests System
 After=network-online.target
@@ -89,5 +89,5 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 OMB
-  systemctl daemon-reload
+	systemctl daemon-reload
 fi

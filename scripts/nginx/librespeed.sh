@@ -5,11 +5,10 @@
 
 . /etc/swizzin/sources/functions/php
 
-
 if [[ ! -f /etc/nginx/apps/librespeed.conf ]]; then
-    phpversion=$(php_service_version)
-    sock="php${phpversion}-fpm"
-	cat > /etc/nginx/apps/librespeed.conf <<RAP
+	phpversion=$(php_service_version)
+	sock="php${phpversion}-fpm"
+	cat > /etc/nginx/apps/librespeed.conf << RAP
 location /librespeed {
 	alias /srv/librespeed;
 	client_max_body_size 50M;

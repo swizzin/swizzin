@@ -29,10 +29,12 @@ function _intro() {
 }
 
 function _function() {
-	function=$(whiptail --title "Swizzin" --menu "Choose an option:" --ok-button "Continue" --nocancel 12 50 3 \
+	function=$(
+		whiptail --title "Swizzin" --menu "Choose an option:" --ok-button "Continue" --nocancel 12 50 3 \
 		Install "packages" \
 		Remove "packages" \
-		Exit "" 3>&1 1>&2 2>&3)
+		Exit "" 3>&1 1>&2 2>&3
+	)
 
 	if [[ $function == Install ]]; then
 		_install

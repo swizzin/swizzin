@@ -23,19 +23,19 @@ passwd znc -l >> ${log} 2>&1
 echo_progress_done
 
 if [[ $DISTRO == Debian ]]; then
-  #shellcheck source=sources/functions/backports
-  . /etc/swizzin/sources/functions/backports
-  check_debian_backports
-  set_packages_to_backports znc
-  apt_update
+	#shellcheck source=sources/functions/backports
+	. /etc/swizzin/sources/functions/backports
+	check_debian_backports
+	set_packages_to_backports znc
+	apt_update
 elif [[ $CODENAME =~ ("xenial"|"bionic") ]]; then
-  add-apt-repository --yes ppa:teward/znc >> ${log} 2>&1
-  apt_update
+	add-apt-repository --yes ppa:teward/znc >> ${log} 2>&1
+	apt_update
 fi
-  apt_install znc
-  #sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
-  echo_progress_start "Installing systemd service"
-  cat > /etc/systemd/system/znc.service <<ZNC
+apt_install znc
+#sudo -u znc crontab -l | echo -e "*/10 * * * * /usr/bin/znc >/dev/null 2>&1\n@reboot /usr/bin/znc >/dev/null 2>&1" | crontab -u znc - > /dev/null 2>&1
+echo_progress_start "Installing systemd service"
+cat > /etc/systemd/system/znc.service << ZNC
 [Unit]
 Description=ZNC, an advanced IRC bouncer
 After=network-online.target
@@ -58,8 +58,8 @@ killall -u znc znc > /dev/null 2>&1
 sleep 1
 
 # Check for LE cert, and copy it if available.
-if [[ -f /install/nginx.lock ]]; then 
-  le_znc_hook
+if [[ -f /install/nginx.lock ]]; then
+	le_znc_hook
 fi
 
 systemctl start znc
