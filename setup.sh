@@ -32,79 +32,79 @@ fi
 
 RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
 while test $# -gt 0; do
-        case "$1" in
+	case "$1" in
 		--user)
 			shift
-                user="$1"
-              echo "User = $user" | tee -a $log
-                ;;
+			user="$1"
+			echo "User = $user" | tee -a $log
+			;;
 		--pass)
 			shift
-                pass="$1"
-              echo "Pass = $pass" | tee -a $log
-                ;;
+			pass="$1"
+			echo "Pass = $pass" | tee -a $log
+			;;
 		--domain)
 			shift
-              export LE_hostname="$1"
-              export LE_defaultconf=yes
-              export LE_bool_cf=no
-              echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf" | tee -a $log
-              ;;
-          --local) 
-              local=true
-              echo "Local = $local" | tee -a $log
-              ;;
-          --rmgrsec) 
-              rmgrsec=yes
-              echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
-                ;;
+			export LE_hostname="$1"
+			export LE_defaultconf=yes
+			export LE_bool_cf=no
+			echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf" | tee -a $log
+			;;
+		--local)
+			local=true
+			echo "Local = $local" | tee -a $log
+			;;
+		--rmgrsec)
+			rmgrsec=yes
+			echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
+			;;
 		--env)
 			shift
 			if [[ ! -f $1 ]]; then
 				echo "File does not exist"
 				exit 1
 			fi
-              echo -en "Parsing env variables from $1\n--->" | tee -a $log
-              #shellcheck disable=SC2046
-              export $(grep -v '^#' "$1" | xargs -t -d '\n')  | tee -a $log
-              if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
-                  unattend=true
-                ;;
-            --unattend) 
-                unattend=true
-            ;;
+			echo -en "Parsing env variables from $1\n--->" | tee -a $log
+			#shellcheck disable=SC2046
+			export $(grep -v '^#' "$1" | xargs -t -d '\n') | tee -a $log
+			if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
+			unattend=true
+			;;
+		--unattend)
+			unattend=true
+			;;
 		-*)
 			echo "Error: Invalid option: $1" | tee -a $log
-                exit 1
-                ;;
+			exit 1
+			;;
 		*)
 			installArray+=("$1")
-                ;;
-        esac
-        shift
+			;;
+	esac
+	shift
 done
 
-if [[ $unattend = "true" ]]; then 
-  # hushes errors that happen when no package is being 
-  touch /root/results
-  touch /root/results2
+if [[ $unattend = "true" ]]; then
+	# hushes errors that happen when no package is being
+	touch /root/results
+	touch /root/results2
 fi
 
 if [[ ${#installArray[@]} -gt 0 ]]; then
-  echo "Application install picker will be skipped"  | tee -a $log
-  #check Line 229 or something
-  priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+	echo "Application install picker will be skipped" | tee -a $log
+	#check Line 229 or something
+	priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
 	for i in "${installArray[@]}"; do
-    #shellcheck disable=SC2199,SC2076
-    if [[ " ${priority[@]} " =~ " ${i} " ]]; then
-      echo "$i" >> /root/results
-      echo "$i" added to install queue 1 | tee -a $log
-      touch /tmp/."$i".lock
-    else
-      echo "$i" >> /root/results2
-      echo "$i" added to install queue 2 | tee -a $log
-    fi
-  done
+		#shellcheck disable=SC2199,SC2076
+		if [[ " ${priority[@]} " =~ " ${i} " ]]; then
+			echo "$i" >> /root/results
+			echo "$i" added to install queue 1 | tee -a $log
+			touch /tmp/."$i".lock
+		else
+			echo "$i" >> /root/results2
+			echo "$i" added to install queue 2 | tee -a $log
+		fi
+	done
 fi
 
 _os() {
@@ -148,19 +148,19 @@ function _preparation() {
 	apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-  if [[ $local != "true" ]]; then 
-    echo "Cloning swizzin repo to localhost"
+	if [[ $local != "true" ]]; then
+		echo "Cloning swizzin repo to localhost"
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
 		#shellcheck source=sources/functions/color_echo
 		. /etc/swizzin/sources/functions/color_echo
 	else
-    echo "Symlinking $RelativeScriptPath to /etc/swizzin"
-    ln -sr "$RelativeScriptPath" /etc/swizzin
-    echo "We appreciate any and all PRs. please read the Contributing.md as it has a lot of useful tips when working with swizzin."
-    if [[ ! -e /etc/swizzin ]]; then
-      echo "so something fucked up, please join discord and tell us what you did coz that shouldn't have happened"
-      exit 1
-    fi
+		echo "Symlinking $RelativeScriptPath to /etc/swizzin"
+		ln -sr "$RelativeScriptPath" /etc/swizzin
+		echo "We appreciate any and all PRs. please read the Contributing.md as it has a lot of useful tips when working with swizzin."
+		if [[ ! -e /etc/swizzin ]]; then
+			echo "so something fucked up, please join discord and tell us what you did coz that shouldn't have happened"
+			exit 1
+		fi
 	fi
 	ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
 	chmod -R 700 /etc/swizzin/scripts
@@ -174,28 +174,28 @@ function _preparation() {
 function _nukeovh() {
 	grsec=$(uname -a | grep -i grs)
 	if [[ -n $grsec ]]; then
-    if [[ -z $rmgrsec ]]; then
-		echo
-		echo -e "Your server is currently running with kernel version: $(uname -r)"
-		echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-		echo
-		echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "
-		read input
-		case $input in
-			[yY] | [yY][Ee][Ss] | "")
-				kernel=yes
-				echo "Your distribution's default kernel will be installed. A reboot will be required."
-				;;
-			[nN] | [nN][Oo]) echo "Installer will continue as is. If you change your mind in the future run $(box rmgrsec) after install." ;;
-			*)
-				kernel=yes
-				echo "Your distribution's default kernel will be installed. A reboot will be required."
-				;;
-		esac
-    else
-      # --rmgresc only takes =yes
-      kernel=yes
-    fi
+		if [[ -z $rmgrsec ]]; then
+			echo
+			echo -e "Your server is currently running with kernel version: $(uname -r)"
+			echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
+			echo
+			echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "
+			read input
+			case $input in
+				[yY] | [yY][Ee][Ss] | "")
+					kernel=yes
+					echo "Your distribution's default kernel will be installed. A reboot will be required."
+					;;
+				[nN] | [nN][Oo]) echo "Installer will continue as is. If you change your mind in the future run $(box rmgrsec) after install." ;;
+				*)
+					kernel=yes
+					echo "Your distribution's default kernel will be installed. A reboot will be required."
+					;;
+			esac
+		else
+			# --rmgresc only takes =yes
+			kernel=yes
+		fi
 		if [[ $kernel == yes ]]; then
 			if [[ $DISTRO == Ubuntu ]]; then
 				apt-get install -q -y linux-image-generic >> "${log}" 2>&1
@@ -290,7 +290,7 @@ function _choices() {
 	extras=()
 	guis=()
 	#locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
-  locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota transmission)
+	locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota transmission)
 	for i in "${locks[@]}"; do
 		app=${i}
 		if [[ ! -f /install/.$app.lock ]]; then
@@ -340,11 +340,11 @@ function _choices() {
 		. /etc/swizzin/sources/functions/qbittorrent
 		whiptail_qbittorrent
 	fi
-  if grep -q transmission "$results"; then
-    #shellcheck source=sources/functions/transmission
-    . /etc/swizzin/sources/functions/transmission
-    whiptail_transmission_source
-  fi
+	if grep -q transmission "$results"; then
+		#shellcheck source=sources/functions/transmission
+		. /etc/swizzin/sources/functions/transmission
+		whiptail_transmission_source
+	fi
 	if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
 		. /etc/swizzin/sources/functions/libtorrent
 		check_client_compatibility setup

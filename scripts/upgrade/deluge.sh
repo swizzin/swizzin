@@ -14,13 +14,13 @@ check_client_compatibility
 whiptail_deluge_downupgrade
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $DELUGE_v == master ]]; then
-  echo "Major version upgrade detected. User-data will be backed-up."
+	echo "Major version upgrade detected. User-data will be backed-up."
 fi
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
-  if [[ $dver == 1.3* ]] && [[ $DELUGE_v == master ]]; then
-    echo "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
+	if [[ $dver == 1.3* ]] && [[ $DELUGE_v == master ]]; then
+		echo "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
 		cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
 	fi
 done

@@ -17,24 +17,24 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-MASTER=$(cut -d: -f1 </root/.master.info)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 
 mkdir /root/subsonic-tmp
 
 case $codename in
-"buster")
-	echo_progress_start "Adding adoptopenjdk repository"
-	apt_install software-properties-common
+	"buster")
+		echo_progress_start "Adding adoptopenjdk repository"
+		apt_install software-properties-common
 		wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
 		add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
-	echo_progress_done "adoptopenjdk repos enabled"
-	apt_update
-	apt_install adoptopenjdk-8-hotspot
-	;;
-*)
-	apt_install openjdk-8-jre
-	;;
+		echo_progress_done "adoptopenjdk repos enabled"
+		apt_update
+		apt_install adoptopenjdk-8-hotspot
+		;;
+	*)
+		apt_install openjdk-8-jre
+		;;
 esac
 
 echo_progress_start "Downloading and installing subsonic"

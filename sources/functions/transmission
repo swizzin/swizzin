@@ -48,7 +48,7 @@ function whiptail_transmission_source() {
 }
 
 function _install_transmission() {
-    whiptail_transmission_source
+	whiptail_transmission_source
 	distribution=$(lsb_release -is)
 	if [[ $version = "PPA" ]]; then
 		if [[ ! $distribution =~ 'Ubuntu' ]]; then

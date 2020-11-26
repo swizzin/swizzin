@@ -2,7 +2,7 @@
 
 function whiptail_deluge() {
 	echo_progress_start "Choosing Deluge versions"
-  if [[ -z $DELUGE_v ]]; then
+	if [[ -z $DELUGE_v ]]; then
 		repov=$(get_candidate_version deluge)
 		case $(lsb_release -cs) in
 			*)
@@ -13,11 +13,11 @@ function whiptail_deluge() {
 				;;
 		esac
 		if [[ $function == "Repo" ]]; then
-      export DELUGE_v=repo
+			export DELUGE_v=repo
 		elif [[ $function == "Deluge 1.3" ]]; then
-      export DELUGE_v=1.3-stable
+			export DELUGE_v=1.3-stable
 		elif [[ $function == "Deluge 2.0" ]]; then
-      export DELUGE_v=master
+			export DELUGE_v=master
 		fi
 	fi
 }
@@ -49,10 +49,10 @@ function remove_ltcheckinstall() {
 	fi
 }
 
-function build_deluge () {
-		echo_progress_start "Building Deluge"
+function build_deluge() {
+	echo_progress_start "Building Deluge"
 
-  if [[ $DELUGE_v == repo ]]; then
+	if [[ $DELUGE_v == repo ]]; then
 		apt_install deluged deluge-web deluge-console
 		dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 		if [[ $dver =~ ^1\. ]]; then
@@ -68,7 +68,7 @@ function build_deluge () {
 			mount -o remount,exec /tmp
 			noexec=1
 		fi
-    case $DELUGE_v in
+		case $DELUGE_v in
 			master)
 				LIST='python3 python3-setuptools intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
 				pythonver=python3
@@ -146,7 +146,7 @@ function build_deluge () {
 		fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
 		dpkg -i /root/dist/deluge-common_${VERSION}.deb
 		chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-    if [[ $DELUGE_v == 1.3-stable ]]; then
+		if [[ $DELUGE_v == 1.3-stable ]]; then
 			#update-tracker is built into v2 (update_tracker)
 			cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
 			chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
@@ -159,7 +159,7 @@ function build_deluge () {
 }
 
 function dweb_check() {
-  if [[ $DELUGE_v == master ]]; then
+	if [[ $DELUGE_v == master ]]; then
 		sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
 	else
 		sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
