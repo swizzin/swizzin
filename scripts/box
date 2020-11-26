@@ -213,11 +213,12 @@ function _adduser() {
 	user=$2
 	[[ -n $3 ]] && pass=$3
 
+	#shellcheck source=sources/functions/utils
 	. /etc/swizzin/sources/functions/utils
 	username_check
 
 	if [[ -f /root/${user}.info ]]; then
-		echo_error "User already exists withinm swizzin"
+		echo_error "User already exists within swizzin"
 		exit 1
 	fi
 
@@ -482,7 +483,7 @@ case "$1" in
 		;;
 	"chpasswd")
 		if [[ -z $2 ]]; then
-			echo_error "You must specify a username.\nCorrect usage: box chpasswd <username>"
+			echo_error "You must specify a username.\nCorrect usage: box chpasswd <username> [<password>]"
 			exit 1
 		fi
 		if [[ -n $4 ]]; then
