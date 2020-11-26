@@ -215,7 +215,7 @@ function _adduser() {
 		echo_warn "Usernames must not contain capital letters. Please try again."
 		exit 1
 	elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
-		echo "$user is a reserved username -- please use something else."
+		echo_error "$user is a reserved username -- please use something else."
 		exit 1
 	fi
 
@@ -357,7 +357,7 @@ function _deluser() {
 				eval systemctl stop ${app}@${user}
 			elif [[ $app == "organizr" ]]; then
 				#TODO automate removal steps
-				echo "Remember to manually remove the organizr account!"
+				echo_info "Remember to manually remove the organizr account!"
 			elif [[ $app == "autodl" ]]; then
 				systemctl disable --now irssi@${user}
 			else

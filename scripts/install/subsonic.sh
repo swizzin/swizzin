@@ -41,7 +41,7 @@ echo_progress_start "Downloading and installing subsonic"
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
 wget -qO /root/subsonic-tmp/subsonic.deb $latest || {
-	echo "Could not download Subsonic. Exiting."
+	echo_error "Could not download Subsonic. Exiting."
 	exit 1
 }
 cd /root/subsonic-tmp
