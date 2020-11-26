@@ -1,3 +1,5 @@
+#!/bin/bash
+
 _os_distro() {
 	source /etc/os-release
 	printf "$ID"
