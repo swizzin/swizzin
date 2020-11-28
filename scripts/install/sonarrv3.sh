@@ -2,9 +2,6 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
-
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
@@ -40,6 +37,7 @@ _sonarrv2_flow() {
 				address="http://127.0.0.1:8989/api"
 			fi
 
+			[[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
 			if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
 				echo_error "No Sonarr config folder found for $sonarrv2owner. Exiting"
 				exit 1

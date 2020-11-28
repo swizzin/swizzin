@@ -12,7 +12,7 @@
 
 echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin/swizzin.cfg
 
-cat > /etc/nginx/apps/panel.conf <<'EON'
+cat > /etc/nginx/apps/panel.conf << 'EON'
 location / {
   #rewrite ^/panel/(.*) /$1 break;
   proxy_set_header Host $host;
@@ -27,4 +27,3 @@ location / {
   proxy_set_header Connection "Upgrade";
 }
 EON
-

@@ -1,37 +1,33 @@
 #!/bin/bash
 
 #Gets the version nginx is using and restarts it
-function restart_php_fpm () {
-    version=$(php_service_version)
-    serv="php${version}-fpm.service"
-    echo_log_only "Restarting $serv"
-    systemctl restart $serv >> $log 2>&1
+function restart_php_fpm() {
+	version=$(php_service_version)
+	serv="php${version}-fpm.service"
+	echo_log_only "Restarting $serv"
+	systemctl restart $serv >> $log 2>&1
 }
 
-function reload_php_fpm () {
-    version=$(php_service_version)
-    serv="php${version}-fpm.service"
-    echo_log_only "Reloading $serv"
-    systemctl reload $serv >> $log 2>&1
+function reload_php_fpm() {
+	version=$(php_service_version)
+	serv="php${version}-fpm.service"
+	echo_log_only "Reloading $serv"
+	systemctl reload $serv >> $log 2>&1
 }
 
-function reload_php_opcache (){
-    echo_log_only "Reloading OPcache"
-    /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset() ?>';
+function reload_php_opcache() {
+	echo_log_only "Reloading OPcache"
+	/usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset() ?>'
 }
 
 #Returns for example '7.4'
-function php_v_from_nginxconf () { 
-    nginxconfpath='/etc/nginx/sites-enabled/default'
-    version=$(cat $nginxconfpath | grep -o -P '(?<=/php/php).*(?=-fpm.sock)')
-    echo "${version}"
+function php_v_from_nginxconf() {
+	nginxconfpath='/etc/nginx/sites-enabled/default'
+	version=$(cat $nginxconfpath | grep -o -P '(?<=/php/php).*(?=-fpm.sock)')
+	echo "${version}"
 }
 
 #returns for example '7.4'
-function php_service_version () {
-    echo "$(ls /lib/systemd/system | grep php | grep fpm | sort | tail -1 | grep -o -P '(?<=php).*(?=-fpm)')"
+function php_service_version() {
+	echo "$(ls /lib/systemd/system | grep php | grep fpm | sort | tail -1 | grep -o -P '(?<=php).*(?=-fpm)')"
 }
-
-
-
-

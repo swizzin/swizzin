@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 # Swizzin :: Shellinabox uninstaller
 # Author: liara
 #
