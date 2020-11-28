@@ -3,7 +3,7 @@
 # Flying sausages 2020
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/radarrv3.conf <<RADARR
+cat > /etc/nginx/apps/radarrv3.conf << RADARR
 location /radarr {
   proxy_pass        http://127.0.0.1:7878/radarr;
   proxy_set_header Host \$proxy_host;
@@ -22,7 +22,7 @@ RADARR
 isactive=$(systemctl is-active radarr)
 
 if [[ $isactive == "active" ]]; then
-  systemctl stop radarr
+	systemctl stop radarr
 fi
 user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
@@ -30,7 +30,7 @@ echo "Radarr user detected as $user" >> "$log"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/Radarr/config.xml)
 echo "API Key  = $apikey" >> "$log"
 #TODO cahnge Branch whenever that becomes relevant
-cat > /home/"$user"/.config/Radarr/config.xml <<SONN
+cat > /home/"$user"/.config/Radarr/config.xml << SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
@@ -45,13 +45,13 @@ cat > /home/"$user"/.config/Radarr/config.xml <<SONN
 </Config>
 SONN
 
-if [[ -f  /install/.rutorrent.lock ]]; then
-  sqlite3 /home/"$user"/.config/Radarr/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+if [[ -f /install/.rutorrent.lock ]]; then
+	sqlite3 /home/"$user"/.config/Radarr/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
 fi
 
 chown -R "$user":"$user" /home/"$user"/.config/Radarr
 
 # chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-  systemctl start radarr
+	systemctl start radarr
 fi
