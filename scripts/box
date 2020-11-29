@@ -14,16 +14,9 @@
 #
 #################################################################################
 
-# shellcheck source=sources/functions/color_echo
-. /etc/swizzin/sources/functions/color_echo
-export log="/root/logs/swizzin.log"
-# Sourcing functions
-#shellcheck source=sources/functions/os
-. /etc/swizzin/sources/functions/os
-#shellcheck source=sources/functions/apt
-. /etc/swizzin/sources/functions/apt
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
+# shellcheck source=sources/bootstrap.sh
+. /etc/swizzin/sources/bootstrap.sh
+
 echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {

@@ -81,8 +81,6 @@ function _preparation() {
 	echo "Cloning swizzin repo to localhost"
 	if [[ $dev != "true" ]]; then
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
-		#shellcheck source=sources/functions/color_echo
-		. /etc/swizzin/sources/functions/color_echo
 	else
 		RelativeScriptPath=$(dirname "$0")
 		ln -sr "$RelativeScriptPath" /etc/swizzin
@@ -94,10 +92,9 @@ function _preparation() {
 	fi
 	ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
 	chmod -R 700 /etc/swizzin/scripts
-	#shellcheck source=sources/functions/apt
-	. /etc/swizzin/sources/functions/apt
-	#shellcheck source=sources/functions/ask
-	. /etc/swizzin/sources/functions/ask
+	echo "Switching logs to /root/logs/swizzin.log" >> "$log"
+	#shellcheck source=sources/bootstrap.sh
+	. /etc/swizzin/sources/bootstrap.sh
 }
 
 function _nukeovh() {
