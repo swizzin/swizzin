@@ -54,7 +54,7 @@ systemctl start radarr -q # Switch radarr on regardless whether it was off befor
 sleep 5 # TODO replace with a loop until the API is available
 payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" \
 	--user "${user}:$(_get_user_password "${user}")" --insecure \
-	| \
+	-s | \
 	jq '.certificateValidation = "disabledForLocalAddresses"')"
 echo_log_only "Payload = \n${payload}"
 echo_log_only "Return from radarr after PUT ="
@@ -62,7 +62,7 @@ curl "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" -X PUT --ins
 	-H 'Accept: application/json, text/javascript, */*; q=0.01' \
 	--compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 	--user "${user}:$(_get_user_password "${user}")" \
-	--data-raw "$payload" >> "$log"
+	--data-raw "$payload" -s >> "$log"
 
 # Switch radarr back off if it was dead before
 if [[ $isactive != "active" ]]; then
