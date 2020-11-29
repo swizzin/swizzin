@@ -10,8 +10,8 @@ if [[ -f /install/.radarr.lock ]]; then
 		. /etc/swizzin/sources/functions/utils
 
 		if [[ -z $radarrOwner ]]; then
-	radarrOwner=$(_get_master_username)
-fi
+			radarrOwner=$(_get_master_username)
+		fi
 		radarrOwner=$(_get_master_username) #TODO should this be double-checked against the service and/or overrides in case the user has changed it?
 		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
 		# basicauth=$(echo "${radarrOwner}:$(_get_user_password ${radarrOwner})" | base64)
@@ -29,7 +29,7 @@ fi
 			systemctl stop radarr -q
 
 			echo_progress_start "Downloading source files"
-			if ! wget "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+			if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
 				echo_error "Download failed, exiting"
 				exit 1
 			fi
