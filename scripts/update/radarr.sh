@@ -7,11 +7,9 @@ if [[ -f /install/.radarr.lock ]]; then
 		echo_log_only "Found radarr service pointing to mono"
 		#shellcheck source=sources/functions/utils
 		. /etc/swizzin/sources/functions/utils
-
-		if [[ -z $radarrOwner ]]; then
-			radarrOwner=$(_get_master_username)
-		fi
+		[[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
 		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
+		echo_log_only "Apikey = $apikey"
 		# basicauth=$(echo "${radarrOwner}:$(_get_user_password ${radarrOwner})" | base64)
 		if [[ -f /install/.nginx.lock ]]; then
 			ret=$(curl -sS -L --insecure --user "${radarrOwner}":"$(_get_user_password "${radarrOwner}")" "http://localhost/radarr/api/v3/system/status?apiKey=${apikey}")
@@ -49,11 +47,6 @@ if [[ -f /install/.radarr.lock ]]; then
 			systemctl start radarr -q
 			echo_success "Radarr upgraded to .Net"
 
-			echo_progress_start "Upgrading nginx config for Radarr"
-			bash /etc/swizzin/scripts/nginx/radarr.sh
-			systemctl reload nginx -q
-			echo_progress_done "Nginx conf for Radarr upgraded"
-
 		else #	This case triggers if the v3 API did not return correctly, which would indicate a switched off v3 or a v02
 			echo_warn "Please migrate your radarr instance manually to v3 via the application's interface, or ennsure it's running if it's on v3 already.
 The next time you will run 'box update', the instance will be migrated to .Net core
@@ -63,11 +56,12 @@ Please consult the support in Discord if this message is persistent"
 	fi
 
 	#If nginx config is missing the attributes to have radarrv3 refresh UI right, then trigger the nginx script and reload
-	if ! grep "proxy_http_version 1.1" /etc/nginx/apps/radarr.conf -q; then
-		echo_progress_start "Upgrading nginx config for Radarr"
-		bash /etc/swizzin/scripts/nginx/radarr.sh
-		systemctl reload nginx -q
-		echo_progress_done "Nginx conf for Radarr upgraded"
+	if [[ -f /install/.nginx.lock ]]; then
+		if ! grep "proxy_http_version 1.1" /etc/nginx/apps/radarr.conf -q; then
+			echo_progress_start "Upgrading nginx config for Radarr"
+			bash /etc/swizzin/scripts/nginx/radarr.sh
+			systemctl reload nginx -q
+			echo_progress_done "Nginx conf for Radarr upgraded"
+		fi
 	fi
-
 fi
