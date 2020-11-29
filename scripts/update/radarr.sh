@@ -12,7 +12,6 @@ if [[ -f /install/.radarr.lock ]]; then
 		if [[ -z $radarrOwner ]]; then
 			radarrOwner=$(_get_master_username)
 		fi
-		radarrOwner=$(_get_master_username) #TODO should this be double-checked against the service and/or overrides in case the user has changed it?
 		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
 		# basicauth=$(echo "${radarrOwner}:$(_get_user_password ${radarrOwner})" | base64)
 		if [[ -f /install/.nginx.lock ]]; then

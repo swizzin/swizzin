@@ -72,13 +72,6 @@ EOF
 		echo_progress_done "Upgrade finished"
 	fi
 
-	echo_progress_start "Configuring security policy"
-	#Ensures that local clients running over HTTPS don't need valid certs
-	sleep 5
-	systemctl -q stop radarr
-	sqlite3 "$radarrConfDir"/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
-	systemctl -q start radarr
-	echo_progress_done "Policy configured"
 }
 
 _nginx_radarr() {

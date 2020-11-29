@@ -25,7 +25,6 @@ if [[ $isactive == "active" ]]; then
 	systemctl stop radarr
 fi
 user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
-#shellcheck disable=SC2154
 echo_log_only "Radarr user detected as $user"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/Radarr/config.xml)
 echo_log_only "API Key  = $apikey" >> "$log"
@@ -45,13 +44,18 @@ cat > /home/"$user"/.config/Radarr/config.xml << SONN
 </Config>
 SONN
 
-if [[ -f /install/.rutorrent.lock ]]; then
-	sqlite3 /home/"$user"/.config/Radarr/radarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
-fi
-
 chown -R "$user":"$user" /home/"$user"/.config/Radarr
 
-# chown -R ${master}: /home/${master}/.config/NzbDrone/
-if [[ $isactive == "active" ]]; then
-	systemctl start radarr
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
+payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" --user "${user}:$(_get_user_password "${user}")" --insecure | jq '.certificateValidation = "disabledForLocalAddresses"')"
+curl "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" -X PUT --insecure -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+	--compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+	--user "${user}:$(_get_user_password "${user}")" \
+	--data-raw "$payload" >> "$log"
+
+# Switch radarr back off if it was dead before
+if [[ $isactive != "active" ]]; then
+	systemctl stop radarr
 fi
