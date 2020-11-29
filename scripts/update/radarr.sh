@@ -25,14 +25,14 @@ if [[ -f /install/.radarr.lock ]]; then
 			systemctl stop radarr -q
 
 			echo_progress_start "Downloading source files"
-			if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarrv3.tar.gz >> "$log" 2>&1; then
+			if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarr.tar.gz >> "$log" 2>&1; then
 				echo_error "Download failed, exiting"
 				exit 1
 			fi
 			echo_progress_done "Source downloaded"
 
 			echo_progress_start "Extracting archive"
-			tar -xvf /tmp/Radarrv3.tar.gz -C /opt >> "$log" 2>&1
+			tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
 			chown -R "$radarruser":"$radarruser" /opt/Radarr
 			echo_progress_done "Archive extracted"
 
