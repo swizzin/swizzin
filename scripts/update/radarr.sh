@@ -40,9 +40,16 @@ if [[ -f /install/.radarr.lock ]]; then
 			systemctl daemon-reload
 			systemctl start radarr -q
 			echo_success "Radarr upgraded to .Net"
+
+			echo_progress_start "Upgrading nginx config for Radarr"
+			bash /etc/swizzin/scripts/nginx/radarr.sh
+			systemctl reload nginx -q
+			echo_progress_done "Nginx conf for Radarr upgraded"
+
 		else #	This case triggers if the v3 API did not return correctly, which would indicate a switched off v3 or a v02
 			echo_warn "Please migrate your radarr instance manually to v3 via the application's interface, or ennsure it's running if it's on v3 already.
-The next time you will run 'box update', the instance will be migrated to .Net core"
+The next time you will run 'box update', the instance will be migrated to .Net core
+Please consult the support in Discord if this message is persistent"
 			echo_docs "application/radarr#Migration-to-v3"
 		fi
 	fi
