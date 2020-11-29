@@ -26,7 +26,6 @@ if [[ -f /install/.radarr.lock ]]; then
 
 		if [[ $isnetcore = "false" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
 			echo_info "Moving Radarr from mono to .Net"
-			systemctl stop radarr -q
 
 			echo_progress_start "Downloading source files"
 			if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
@@ -34,8 +33,10 @@ if [[ -f /install/.radarr.lock ]]; then
 				exit 1
 			fi
 			echo_progress_done "Source downloaded"
-
+			
 			echo_progress_start "Extracting archive"
+			systemctl stop radarr -q
+			rm /opt/Radarr/Radarr.exe
 			tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
 			chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
 			echo_progress_done "Archive extracted"
