@@ -5,12 +5,6 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-if [[ -z $radarrOwner ]]; then
-	radarrOwner=$(_get_master_username)
-fi
-
-[[ -z $radarrv02owner ]] && radarrv02owner=$(_get_master_username)
-
 _install_radarr() {
 	apt_install curl mediainfo sqlite3
 
@@ -19,7 +13,8 @@ _install_radarr() {
 	chown -R "$radarrOwner":"$radarrOwner" "$radarrConfDir"
 
 	echo_progress_start "Downloading source files"
-	if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+	#curl https://api.github.com/repos/Radarr/Radarr/releases | jq -r '.[0].assets | .[] | select (.browser_download_url | contains ("linux-core")).browser_download_url'
+	if ! wget "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarr.tar.gz >> "$log" 2>&1; then
 		echo_error "Download failed, exiting"
 		exit 1
 	fi
@@ -96,6 +91,10 @@ _nginx_radarr() {
 		echo_progress_done "Nginx configured"
 	fi
 }
+
+if [[ -z $radarrOwner ]]; then
+	radarrOwner=$(_get_master_username)
+fi
 
 _install_radarr
 _nginx_radarr
