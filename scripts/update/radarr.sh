@@ -33,7 +33,7 @@ if [[ -f /install/.radarr.lock ]]; then
 				exit 1
 			fi
 			echo_progress_done "Source downloaded"
-			
+
 			echo_progress_start "Extracting archive"
 			systemctl stop radarr -q
 			rm /opt/Radarr/Radarr.exe
