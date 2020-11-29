@@ -3,7 +3,7 @@
 # Flying sausages 2020
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/radarrv3.conf << RADARR
+cat > /etc/nginx/apps/radarr.conf << RADARR
 location /radarr {
   proxy_pass        http://127.0.0.1:7878/radarr;
   proxy_set_header Host \$proxy_host;
