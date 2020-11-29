@@ -54,9 +54,9 @@ if [[ -f /install/.radarr.lock ]]; then
 			echo_success "Radarr upgraded to .Net"
 
 		else #	This case triggers if the v3 API did not return correctly, which would indicate a switched off v3 or a v02
-			echo_warn "Please migrate your radarr instance manually to v3 via the application's interface, or ennsure it's running if it's on v3 already.
-The next time you will run 'box update', the instance will be migrated to .Net core
-Please consult the support in Discord if this message is persistent"
+			echo_warn "Could not reach v3 API.
+Please upgrade your radarr to v3 and ensure it is running to continue.
+The next time you will run 'box update', the instance will be migrated to .Net core"
 			echo_docs "application/radarr#Migrating-to-v3-on-.Net-Core "
 		fi
 	fi
