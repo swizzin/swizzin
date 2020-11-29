@@ -2,43 +2,49 @@
 
 if [[ -f /install/.radarr.lock ]]; then
 
-	#Update Radarr to .net install if it is running and on on v3
-	##TODO find a different way to check this seeing as we need to query Radarr API every update, would ben nicer to do from FS
-	#shellcheck source=sources/functions/utils
-	. /etc/swizzin/sources/functions/utils
-	radarruser=$(_get_master_username) #TODO should this be double-checked against the service and/or overrides in case the user has changed it?
-	apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarruser}"/.config/Radarr/config.xml)
-	# basicauth=$(echo "${radarruser}:$(_get_user_password ${radarruser})" | base64)
-	if [[ -f /install/.nginx.lock ]]; then
-		ret=$(curl -sS -L --insecure --user "${radarruser}":"$(_get_user_password "${radarruser}")" "http://localhost/radarr/api/v3/system/status?apiKey=${apikey}")
-	else
-		ret=$(curl -sS -L --insecure "http://localhost:7878/api/v3/system/status?apiKey=${apikey}")
-	fi
-	isnetcore=$(jq '.isNetCore' <<< "$ret")
-
-	if [[ $isnetcore = "false" ]]; then
-		echo_info "Moving Radarr from mono to .Net"
-		systemctl stop radarr -q
-		sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service
-		systemctl daemon-reload
-		## TODO replace binary
-
-		echo_progress_start "Downloading source files"
-		if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarrv3.tar.gz >> $log 2>&1; then
-			echo_error "Download failed, exiting"
-			exit 1
+	#Move v3mono installs to v3.net
+	if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
+		echo_log_only "Found radarr service pointing to mono"
+		##TODO find a different way to check this seeing as we need to query Radarr API, would ben nicer to do from FS
+		#shellcheck source=sources/functions/utils
+		. /etc/swizzin/sources/functions/utils
+		radarruser=$(_get_master_username) #TODO should this be double-checked against the service and/or overrides in case the user has changed it?
+		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarruser}"/.config/Radarr/config.xml)
+		# basicauth=$(echo "${radarruser}:$(_get_user_password ${radarruser})" | base64)
+		if [[ -f /install/.nginx.lock ]]; then
+			ret=$(curl -sS -L --insecure --user "${radarruser}":"$(_get_user_password "${radarruser}")" "http://localhost/radarr/api/v3/system/status?apiKey=${apikey}")
+		else
+			ret=$(curl -sS -L --insecure "http://localhost:7878/api/v3/system/status?apiKey=${apikey}")
 		fi
-		echo_progress_done "Source downloaded"
-
-		echo_progress_start "Extracting archive"
-		tar -xvf /tmp/Radarrv3.tar.gz -C /opt >> $log 2>&1
-		chown -R "$radarruser":"$radarruser" /opt/Radarr
-		echo_progress_done "Archive extracted"
-
-		systemctl start radarr -q
-		echo_success "Radarr upgraded to .Net"
-	else
 		echo_log_only "Content of ret =\n ${ret}"
+
+		isnetcore=$(jq '.isNetCore' <<< "$ret")
+
+		if [[ $isnetcore = "false" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
+			echo_info "Moving Radarr from mono to .Net"
+			systemctl stop radarr -q
+
+			echo_progress_start "Downloading source files"
+			if ! wget "https://radarr.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore&arch=x64" -O /tmp/Radarrv3.tar.gz >> "$log" 2>&1; then
+				echo_error "Download failed, exiting"
+				exit 1
+			fi
+			echo_progress_done "Source downloaded"
+
+			echo_progress_start "Extracting archive"
+			tar -xvf /tmp/Radarrv3.tar.gz -C /opt >> "$log" 2>&1
+			chown -R "$radarruser":"$radarruser" /opt/Radarr
+			echo_progress_done "Archive extracted"
+
+			sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service #Watch out! If this condition runs, the updater will not trigger anymore. keep this at the bottom.
+			systemctl daemon-reload
+			systemctl start radarr -q
+			echo_success "Radarr upgraded to .Net"
+		else #	This case triggers if the v3 API did not return correctly, which would indicate a switched off v3 or a v02
+			echo_warn "Please migrate your radarr instance manually to v3 via the application's interface, or ennsure it's running if it's on v3 already.
+The next time you will run 'box update', the instance will be migrated to .Net core"
+			echo_docs "application/radarr#Migration-to-v3"
+		fi
 	fi
 
 	#If nginx config is missing the attributes to have radarrv3 refresh UI right, then trigger the nginx script and reload
