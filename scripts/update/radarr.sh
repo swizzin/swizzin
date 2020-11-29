@@ -55,7 +55,7 @@ if [[ -f /install/.radarr.lock ]]; then
 			echo_warn "Please migrate your radarr instance manually to v3 via the application's interface, or ennsure it's running if it's on v3 already.
 The next time you will run 'box update', the instance will be migrated to .Net core
 Please consult the support in Discord if this message is persistent"
-			echo_docs "application/radarr#Migration-to-v3"
+			echo_docs "application/radarr#Migrating-to-v3-on-.Net-Core "
 		fi
 	fi
 

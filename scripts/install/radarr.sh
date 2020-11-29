@@ -89,6 +89,8 @@ _nginx_radarr() {
 		bash /usr/local/bin/swizzin/nginx/radarr.sh
 		systemctl -q reload nginx
 		echo_progress_done "Nginx configured"
+	else
+		echo_info "Radarr will be available on port 7878. Secure your installation manually through the web interface."
 	fi
 }
 
