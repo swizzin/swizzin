@@ -5,7 +5,6 @@ if [[ -f /install/.radarr.lock ]]; then
 	#Move v3mono installs to v3.net
 	if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
 		echo_log_only "Found radarr service pointing to mono"
-		##TODO find a different way to check this seeing as we need to query Radarr API, would ben nicer to do from FS
 		#shellcheck source=sources/functions/utils
 		. /etc/swizzin/sources/functions/utils
 
@@ -23,6 +22,7 @@ if [[ -f /install/.radarr.lock ]]; then
 
 		isnetcore=$(jq '.isNetCore' <<< "$ret")
 
+		##TODO find a different way to check this seeing as we need to query Radarr API, would ben nicer to do from FS
 		if [[ $isnetcore = "false" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
 			echo_info "Moving Radarr from mono to .Net"
 
@@ -40,7 +40,11 @@ if [[ -f /install/.radarr.lock ]]; then
 			chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
 			echo_progress_done "Archive extracted"
 
-			sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service #Watch out! If this condition runs, the updater will not trigger anymore. keep this at the bottom.
+			# Watch out!
+			# If this sed runs, the updater will not trigger anymore. keep this at the bottom.
+			sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service
+			# 
+
 			systemctl daemon-reload
 			systemctl start radarr -q
 			echo_success "Radarr upgraded to .Net"

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nginx conf for Sonarr v3
+# Nginx conf for Radarr v3
 # Flying sausages 2020
 master=$(cut -d: -f1 < /root/.master.info)
 
@@ -49,8 +49,16 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
-payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" --user "${user}:$(_get_user_password "${user}")" --insecure | jq '.certificateValidation = "disabledForLocalAddresses"')"
-curl "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" -X PUT --insecure -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+
+sleep 10 # TODO replace with a loop until the API is available
+payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" \
+	--user "${user}:$(_get_user_password "${user}")" --insecure \
+	| \
+	jq '.certificateValidation = "disabledForLocalAddresses"')"
+echo_log_only "Payload = \n${payload}"
+echo_log_only "Return from radarr after PUT ="
+curl "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" -X PUT --insecure \
+	-H 'Accept: application/json, text/javascript, */*; q=0.01' \
 	--compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
 	--user "${user}:$(_get_user_password "${user}")" \
 	--data-raw "$payload" >> "$log"
