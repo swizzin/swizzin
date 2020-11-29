@@ -60,7 +60,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-
+	chown -R "$radarrv3owner":"$radarrv3owner" /opt/Radarr
 	systemctl -q daemon-reload
 	systemctl enable --now -q radarr
 	sleep 1
