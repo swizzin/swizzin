@@ -12,9 +12,9 @@ if [[ -f /install/.radarr.lock ]]; then
 		echo_log_only "Apikey = $apikey"
 		# basicauth=$(echo "${radarrOwner}:$(_get_user_password ${radarrOwner})" | base64)
 		if [[ -f /install/.nginx.lock ]]; then
-			ret=$(curl -sS -L --insecure --user "${radarrOwner}":"$(_get_user_password "${radarrOwner}")" "http://localhost/radarr/api/v3/system/status?apiKey=${apikey}")
+			ret=$(curl -sS -L --insecure --user "${radarrOwner}":"$(_get_user_password "${radarrOwner}")" "http://127.0.0.1/radarr/api/v3/system/status?apiKey=${apikey}")
 		else
-			ret=$(curl -sS -L --insecure "http://localhost:7878/api/v3/system/status?apiKey=${apikey}")
+			ret=$(curl -sS -L --insecure "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
 		fi
 		echo_log_only "Content of ret =\n ${ret}"
 
