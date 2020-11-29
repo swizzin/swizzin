@@ -1,0 +1,18 @@
+#!/bin/bash
+
+_os_distro() {
+	source /etc/os-release
+	printf "$ID"
+}
+export -f _os_distro
+
+_os_codename() {
+	source /etc/os-release
+	printf "$VERSION_CODENAME"
+}
+export -f _os_codename
+
+_os_arch() {
+    dpkg --print-architecture
+}
+export -f _os_arch
