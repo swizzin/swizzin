@@ -6,6 +6,8 @@
 
 Added initial support for "any 'group'" (see https://feathub.com/liaralabs/swizzin/+55)
 
+WIP!!! This is, for sure, broken.
+
 # 2.6.0 Stable
 
 [website](https://swizzin.ltd) | [docs](https://docs.swizzin.ltd) | [discord](https://discord.gg/bDFqAUF)
