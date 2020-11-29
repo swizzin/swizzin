@@ -22,6 +22,7 @@ RADARR
 isactive=$(systemctl is-active radarr)
 
 if [[ $isactive == "active" ]]; then
+	echo_log_only "Stopping radarr"
 	systemctl stop radarr
 fi
 user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
@@ -50,7 +51,7 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
 
-sleep 10 # TODO replace with a loop until the API is available
+sleep 5 # TODO replace with a loop until the API is available
 payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" \
 	--user "${user}:$(_get_user_password "${user}")" --insecure \
 	| \

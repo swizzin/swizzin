@@ -4,6 +4,8 @@ if [[ -f /install/.radarr.lock ]]; then
 
 	#Move v3mono installs to v3.net
 	if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
+		echo_info "Moving Radarr from mono to .Net"
+		sleep 5
 		echo_log_only "Found radarr service pointing to mono"
 		#shellcheck source=sources/functions/utils
 		. /etc/swizzin/sources/functions/utils
@@ -17,12 +19,11 @@ if [[ -f /install/.radarr.lock ]]; then
 			ret=$(curl -sS -L --insecure "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
 		fi
 		echo_log_only "Content of ret =\n ${ret}"
-
+		# if jq 
 		isnetcore=$(jq '.isNetCore' <<< "$ret")
 
 		##TODO find a different way to check this seeing as we need to query Radarr API, would ben nicer to do from FS
 		if [[ $isnetcore = "false" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
-			echo_info "Moving Radarr from mono to .Net"
 
 			echo_progress_start "Downloading source files"
 			if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
