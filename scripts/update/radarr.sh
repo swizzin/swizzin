@@ -55,7 +55,7 @@ if [[ -f /install/.radarr.lock ]]; then
 			echo_warn "Could not reach v3 API.
 Please upgrade your radarr to v3 and ensure it is running to continue.
 The next time you will run 'box update', the instance will be migrated to .Net core"
-			echo_docs "application/radarr#Migrating-to-v3-on-.Net-Core "
+			echo_docs "application/radarr#migrating-to-v3-on-net-core"
 		fi
 	fi
 
