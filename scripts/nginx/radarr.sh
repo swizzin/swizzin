@@ -51,18 +51,20 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
 
-sleep 5 # TODO replace with a loop until the API is available
-payload="$(curl -s "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" \
-	--user "${user}:$(_get_user_password "${user}")" --insecure \
-	-s | \
-	jq '.certificateValidation = "disabledForLocalAddresses"')"
+echo_progress_start "Waiting for Radarr"
+if ! timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5; done'; then
+	echo_error "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
+	exit 1
+else
+	urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
+	echo_log_only "Radarr API tested and reachable"
+fi
+echo_progress_done
+#
+payload=$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
 echo_log_only "Return from radarr after PUT ="
-curl "https://127.0.0.1/radarr/api/v3/config/host?apiKey=${apikey}" -X PUT --insecure \
-	-H 'Accept: application/json, text/javascript, */*; q=0.01' \
-	--compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-	--user "${user}:$(_get_user_password "${user}")" \
-	--data-raw "$payload" -s >> "$log"
+curl -s "http://127.0.0.1:7878${urlbase}/api/v3/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "$log"
 
 # Switch radarr back off if it was dead before
 if [[ $isactive != "active" ]]; then
