@@ -20,7 +20,7 @@ if [[ -f /install/.radarr.lock ]]; then
 			exit 1
 		else
 			urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
-			echo_success "Radarr API tested and working!"
+			echo_log_only "Radarr API tested and working!"
 		fi
 		#
 		ret=$(curl -sL "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
