@@ -12,12 +12,19 @@ if [[ -f /install/.radarr.lock ]]; then
 		[[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
 		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
 		echo_log_only "Apikey = $apikey"
-		# basicauth=$(echo "${radarrOwner}:$(_get_user_password ${radarrOwner})" | base64)
-		if [[ -f /install/.nginx.lock ]]; then
-			ret=$(curl -sS -L --insecure --user "${radarrOwner}":"$(_get_user_password "${radarrOwner}")" "http://127.0.0.1/radarr/api/v3/system/status?apiKey=${apikey}")
+		#
+		timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5;done'
+		#
+		if [[ "$?" -ge "1" ]]; then
+			echo_warn "There is a problem talking to the Radarr API, we need to stop here and exit."
+			exit 1
 		else
-			ret=$(curl -sS -L --insecure "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
+			urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
+			echo_success "Radarr API tested and working!"
 		fi
+		#
+		ret=$(curl -sL "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
+		#
 		echo_log_only "Content of ret =\n ${ret}"
 		if echo "$ret " | jq . >> "$log" 2>&1; then
 			isnetcore=$(jq '.isNetCore' <<< "$ret")
