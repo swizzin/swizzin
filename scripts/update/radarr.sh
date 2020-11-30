@@ -13,15 +13,15 @@ if [[ -f /install/.radarr.lock ]]; then
 		apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
 		echo_log_only "Apikey = $apikey"
 		#
-		timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5;done'
-		#
-		if [[ "$?" -ge "1" ]]; then
-			echo_warn "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
+		echo_progress_start "Waiting for Radarr"
+		if ! timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5; done'; then
+			echo_warn "There is a problem talking to the Radarr API, we need to stop here and exit."
 			exit 1
 		else
 			urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
-			echo_log_only "Radarr API tested and working!"
+			echo_log_only "Radarr API tested and reachable"
 		fi
+		echo_progress_done
 		#
 		ret=$(curl -sL "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
 		#
