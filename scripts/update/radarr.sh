@@ -14,7 +14,7 @@ if [[ -f /install/.radarr.lock ]]; then
 		echo_log_only "Apikey = $apikey"
 		#
 		echo_progress_start "Waiting for Radarr"
-		if ! timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5; done'; then
+		if ! timeout 30 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
 			echo_warn "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
 			exit 1
 		else
