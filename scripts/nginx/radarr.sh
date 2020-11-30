@@ -52,8 +52,7 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
 
 echo_progress_start "Waiting for Radarr API"
-timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5;done'
-if [[ "$?" -ge "1" ]]; then
+if ! timeout 30 bash -c -- 'while ! curl -sfL "http://127.0.0.1:7878/api/v3/system/status?apiKey='"${apikey}"'" > /dev/null 2>&1; do sleep 5; done' ; then
 	echo_warn "There is a problem talking to the Radarr API, we need to stop here and exit."
 	exit 1
 else
