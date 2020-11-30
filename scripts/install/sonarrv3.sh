@@ -5,6 +5,14 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+[[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
+
+if [[ -z $sonarrv3owner ]]; then
+	sonarrv3owner=$(_get_master_username)
+fi
+
+sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+
 #Handles existing v2 instances
 _sonarrv2_flow() {
 	v2present=false
@@ -77,6 +85,17 @@ _sonarrv2_flow() {
 		cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
 		echo_progress_done "Backups copied"
 
+		if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
+			if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
+				rm -rf
+				cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+			else
+				echo_info "Leaving v3 dir as is, why did we do any of this..."
+			fi
+		else
+			cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+		fi
+
 		systemctl stop sonarr@"${sonarrv2owner}"
 
 		# We don't have the debconf configuration yet so we can't migrate the data.
@@ -91,7 +110,6 @@ _sonarrv2_flow() {
 		# shellcheck source=scripts/remove/sonarr.sh
 		bash /etc/swizzin/scripts/remove/sonarr.sh
 		echo_progress_done
-
 	fi
 }
 
@@ -113,31 +131,18 @@ _add_sonarr_repos() {
 		echo_error "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
 		exit 1
 	fi
-	echo_progress_done "Sources added"
 }
 
 _install_sonarrv3() {
-	if [[ -z $sonarrv3owner ]]; then
-		sonarrv3owner=$(_get_master_username)
-	fi
-	sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
 	mkdir -p "$sonarrv3confdir"
 	chown -R "$sonarrv3owner":"$sonarrv3owner" "$sonarrv3confdir"
 
-	# Migrate v2 data in if there is any
-	if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
-		echo_progress_start "Copying v2 data to be migrated during install"
-		cp /root/swizzin/backups/sonarrv2.bak "${sonarrv3confdir}" -R
-		chown "$sonarrv3owner":"$sonarrv3owner" "${sonarrv3confdir}"
-		echo_progress_done "Data copied"
-	fi
-
-	echo_info "Setting sonarr v3 owner to $sonarrv3owner" >> $log
+	echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
 	# settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
 	echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
 	echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
 	echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
-	apt_install sonarr
+	apt_install sonarr sqlite3
 	touch /install/.sonarrv3.lock
 	sleep 1
 
@@ -177,8 +182,8 @@ _install_sonarrv3() {
 _nginx_sonarr() {
 	if [[ -f /install/.nginx.lock ]]; then
 		#TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-		sleep 10
 		echo_progress_start "Installing nginx configuration"
+		sleep 10
 		bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
 		systemctl reload nginx >> $log 2>&1
 		echo_progress_done
