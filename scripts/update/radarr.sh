@@ -5,7 +5,7 @@ if [[ -f /install/.radarr.lock ]]; then
 	#Move v3mono installs to v3.net
 	if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
 		echo_info "Moving Radarr from mono to .Net"
-		sleep 5 # TODO change this to something that would check that the Rqadarr API is query-able, as without this you will see nginx 502s
+		sleep 10 # TODO change this to something that would check that the Rqadarr API is query-able, as without this you will see nginx 502s
 		echo_log_only "Found radarr service pointing to mono"
 		#shellcheck source=sources/functions/utils
 		. /etc/swizzin/sources/functions/utils
