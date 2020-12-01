@@ -1,7 +1,7 @@
 #!/bin/bash
-. /etc/swizzin/sources/functions/radarr
-if [[ $(_radarr_version) != 'mono-v2' ]]; then
-	if [[ -f /install/.radarr.lock ]]; then
+if [[ -f /install/.radarr.lock ]]; then
+	. /etc/swizzin/sources/functions/radarr
+	if [[ $(_radarr_version) != 'mono-v2' ]]; then
 		#Move v3mono installs to v3.net
 		if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
 			echo_info "Moving Radarr from mono to .Net"
