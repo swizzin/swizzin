@@ -24,14 +24,8 @@ if [[ -f /install/.radarr.lock ]]; then
 			ret=$(curl -sL "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
 			#
 			echo_log_only "Content of ret =\n ${ret}"
-			if echo "$ret " | jq . >> "$log" 2>&1; then
-				isnetcore=$(jq '.isNetCore' <<< "$ret")
-			else
-				echo_log_only "jq decided ret wasn't valid"
-			fi
 
-			##TODO find a different way to check this seeing as we need to query Radarr API, would ben nicer to do from FS
-			if [[ $isnetcore = "false" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
+			if [[ $(_radarr_version) = "mono-v3" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
 
 				echo_progress_start "Downloading source files"
 				if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
@@ -50,7 +44,6 @@ if [[ -f /install/.radarr.lock ]]; then
 				# Watch out!
 				# If this sed runs, the updater will not trigger anymore. keep this at the bottom.
 				sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service
-				#
 
 				systemctl daemon-reload
 				systemctl start radarr -q
