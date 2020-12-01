@@ -7,6 +7,6 @@ _radarr_version() {
 	elif radarrv="$(/opt/Radarr/Radarr \? |& head -n 1 | grep -Eo "Version(.*)$")"; then
 		[[ "$radarrv" =~ ^(Version 3.0.(.*))$ ]] && echo "netcore-v3"
 	else
-		echo "there is no spoon?"
+		echo_log_only "Radarr Version Error: No version could be determined"
 	fi
 }
