@@ -24,6 +24,7 @@ function _sources() {
 
 function _install() {
 	apt_install ombi
+	systemctl enable --now -q ombi
 }
 
 function _nginx() {
