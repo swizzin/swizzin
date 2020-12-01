@@ -16,10 +16,8 @@
 
 function _sources() {
 	echo_progress_start "Installing ombi apt sources"
-	if [[ ! -f /etc/apt/sources.list.d/ombi.list ]]; then
-		echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list >> "$log" 2>&1
-		wget -qO - https://repo.ombi.turd.me/pubkey.txt | sudo apt-key add - >> "$log" 2>&1
-	fi
+	echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list
+	wget -qO - https://repo.ombi.turd.me/pubkey.txt | sudo apt-key add -
 	echo_progress_done "Sources installed"
 	apt_update
 }
