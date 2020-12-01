@@ -10,4 +10,3 @@ _radarr_version() {
 		echo "there is no spoon?"
 	fi
 }
-export -f _radarr_version
