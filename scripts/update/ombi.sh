@@ -33,6 +33,12 @@ if [[ -f /install/.ombi.lock ]]; then
 		rm /etc/systemd/system/ombi.service
 		systemctl daemon-reload
 		systemctl cat ombi >> $log
+		
+		if [[ -f /install/.nginx.lock ]]; then
+			bash /etc/swizzin/scripts/nginx/ombi.sh
+			systemctl nginx reload
+		fi
+
 		if [[ $ombiwasactive = "true" ]]; then
 			systemctl start ombi
 		fi
