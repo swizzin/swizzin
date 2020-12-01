@@ -30,7 +30,7 @@ echo_log_only "Radarr user detected as $user"
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
 echo_log_only "Apikey = $apikey" >> "$log"
 #TODO cahnge Branch whenever that becomes relevant
-cat > /home/"$user"/.config/Radarr/config.xml << SONN
+cat > /home/"$user"/.config/Radarr/config.xml << RADARR
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
@@ -43,7 +43,7 @@ cat > /home/"$user"/.config/Radarr/config.xml << SONN
   <AuthenticationMethod>None</AuthenticationMethod>
   <UrlBase>radarr</UrlBase>
 </Config>
-SONN
+RADARR
 
 chown -R "$user":"$user" /home/"$user"/.config/Radarr
 
@@ -51,7 +51,6 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
 #
-echo_progress_start "Waiting for Radarr"
 if ! timeout 30 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
 	echo_error "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
 	exit 1
@@ -59,7 +58,6 @@ else
 	urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
 	echo_log_only "Radarr API tested and reachable"
 fi
-echo_progress_done
 #
 payload=$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
