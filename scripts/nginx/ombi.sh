@@ -40,7 +40,7 @@ if [[ $status = "active" ]]; then
 	systemctl stop -q ombi
 fi
 # Change this to 127.0.0.1 to make it bing to nginx only?
-sed -i "s|ExecStart=.*|ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://0.0.0.0:5000 --storage /etc/Ombi|" /lib/systemd/system/ombi.service
+sed -i "s|ExecStart=.*|ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://0.0.0.0:3000 --storage /etc/Ombi|" /lib/systemd/system/ombi.service
 
 systemctl daemon-reload
 if [[ $status = "active" ]]; then
