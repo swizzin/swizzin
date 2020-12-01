@@ -5,7 +5,6 @@ if [[ $(_radarr_version) != 'mono-v2' ]]; then
 		#Move v3mono installs to v3.net
 		if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/radarr.service; then
 			echo_info "Moving Radarr from mono to .Net"
-			echo_log_only "Found radarr service pointing to mono"
 			#shellcheck source=sources/functions/utils
 			. /etc/swizzin/sources/functions/utils
 			[[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
