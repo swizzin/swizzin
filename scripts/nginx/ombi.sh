@@ -11,27 +11,27 @@
 
 cat > /etc/nginx/apps/ombi.conf << 'RAD'
 location /ombi {		
-     return 301 \$scheme://\$host/ombi/;		
+     return 301 $scheme://$host/ombi/;		
 }
 location ^~ /ombi/ {
     proxy_pass http://127.0.0.1:3000/ombi/;
     proxy_pass_header Server;
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Forwarded-Host \$server_name;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-Host $server_name;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Ssl on;
     proxy_set_header X-Forwarded-Proto https;
-    proxy_set_header X-Scheme \$scheme;
+    proxy_set_header X-Scheme $scheme;
     proxy_read_timeout  120;
     proxy_connect_timeout 10;
     proxy_http_version 1.1;
     proxy_redirect off;
 }
 
-if (\$http_referer ~* /ombi/) {
-    rewrite ^/dist/(.*) \$scheme://\$host/ombi/dist/\$1 permanent;
-    rewrite ^/images/(.*) \$scheme://\$host/ombi/images/\$1 permanent;
+if ($http_referer ~* /ombi/) {
+    rewrite ^/dist/(.*) $scheme://$host/ombi/dist/$1 permanent;
+    rewrite ^/images/(.*) $scheme://$host/ombi/images/$1 permanent;
 }
 RAD
 
