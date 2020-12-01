@@ -8,25 +8,8 @@ if [[ -f /install/.radarr.lock ]]; then
 			#shellcheck source=sources/functions/utils
 			. /etc/swizzin/sources/functions/utils
 			[[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
-			apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"${radarrOwner}"/.config/Radarr/config.xml)
-			echo_log_only "Apikey = $apikey"
 			#
-			echo_progress_start "Waiting for Radarr"
-			if ! timeout 30 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
-				echo_warn "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
-				exit 1
-			else
-				urlbase="$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
-				echo_log_only "Radarr API tested and reachable"
-			fi
-			echo_progress_done
-			#
-			ret=$(curl -sL "http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}")
-			#
-			echo_log_only "Content of ret =\n ${ret}"
-
 			if [[ $(_radarr_version) = "mono-v3" ]]; then # This case confirms we are running on v3 without .net core, i.e. the case we want to update
-
 				echo_progress_start "Downloading source files"
 				if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
 					echo_error "Download failed, exiting"

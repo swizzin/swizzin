@@ -27,8 +27,8 @@ if [[ $isactive == "active" ]]; then
 fi
 user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
 echo_log_only "Radarr user detected as $user"
-apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/Radarr/config.xml)
-echo_log_only "API Key  = $apikey" >> "$log"
+apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
+echo_log_only "Apikey = $apikey" >> "$log"
 #TODO cahnge Branch whenever that becomes relevant
 cat > /home/"$user"/.config/Radarr/config.xml << SONN
 <Config>
@@ -50,7 +50,7 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
-
+#
 echo_progress_start "Waiting for Radarr"
 if ! timeout 30 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
 	echo_error "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
