@@ -17,4 +17,6 @@ if ! grep roxedus.github.io /etc/apt/sources.list.d/ombi.list; then
 
 	fi
 	echo_success "Ombi upgraded to v4"
+else
+	echo_info "Please upgrade ombi through apt"
 fi
