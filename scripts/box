@@ -14,16 +14,8 @@
 #
 #################################################################################
 
-# shellcheck source=sources/functions/color_echo
-. /etc/swizzin/sources/functions/color_echo
-export log="/root/logs/swizzin.log"
-# Sourcing functions
-#shellcheck source=sources/functions/os
-. /etc/swizzin/sources/functions/os
-#shellcheck source=sources/functions/apt
-. /etc/swizzin/sources/functions/apt
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
+#shellcheck source=sources/globals.sh
+. /etc/swizzin/sources/globals.sh
 echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {
@@ -33,9 +25,9 @@ function _intro() {
 function _function() {
 	function=$(
 		whiptail --title "Swizzin" --menu "Choose an option:" --ok-button "Continue" --nocancel 12 50 3 \
-		Install "packages" \
-		Remove "packages" \
-		Exit "" 3>&1 1>&2 2>&3
+			Install "packages" \
+			Remove "packages" \
+			Exit "" 3>&1 1>&2 2>&3
 	)
 
 	if [[ $function == Install ]]; then
