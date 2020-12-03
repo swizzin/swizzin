@@ -13,6 +13,6 @@ _os_codename() {
 export -f _os_codename
 
 _os_arch() {
-    dpkg --print-architecture
+	dpkg --print-architecture
 }
 export -f _os_arch
