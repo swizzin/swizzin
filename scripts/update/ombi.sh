@@ -4,7 +4,7 @@ if [[ -f /install/.ombi.lock ]]; then
 	if [[ -f /etc/systemd/system/ombi.service ]]; then
 		echo_progress_start "Moving ombi back to stock service file"
 		systemctl cat ombi >> $log
-		if systemctl is-active ombi; then
+		if systemctl is-active ombi -q; then
 			ombiwasactive=true
 			systemctl -q stop ombi
 		fi
@@ -14,7 +14,7 @@ if [[ -f /install/.ombi.lock ]]; then
 
 		if [[ -f /install/.nginx.lock ]]; then
 			bash /etc/swizzin/scripts/nginx/ombi.sh
-			systemctl nginx reload
+			systemctl reload nginx
 		fi
 
 		if [[ $ombiwasactive = "true" ]]; then
