@@ -1,7 +1,12 @@
-#!/bin/sh
-systemctl stop -q radarr
-systemctl disable -q radarr
-rm -rf /etc/systemd/system/radarr.service
+#!/bin/bash
+systemctl disable --now -q radarr
+rm /etc/systemd/system/radarr.service
+systemctl daemon-reload -q
 rm -rf /opt/Radarr
-rm -rf /etc/nginx/apps/radarr.conf
-rm -rf /install/.radarr.lock
+
+if [[ -f /install/.nginx.lock ]]; then
+	rm /etc/nginx/apps/radarr.conf
+	systemctl reload nginx
+fi
+
+rm /install/.radarr.lock

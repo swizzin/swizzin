@@ -18,7 +18,7 @@ distribution=$(lsb_release -is)
 release=$(lsb_release -cs)
 echo_info "Please note that both xfce4 and x2go are VERY heavy packages to install and will take quite some time. If you're concerned whether the install is still running or not, please inspect the swizzin log through another session by running \`tail -f /root/logs/swizzin.log\`"
 
-apt_install xfce4
+apt_install xfce4 midori
 #disable lightdm because it causes suspend issues on Ubuntu
 systemctl disable --now lightdm >> ${log} 2>&1
 
@@ -30,7 +30,7 @@ if [[ $distribution == Ubuntu ]]; then
 	echo_progress_done "Repos installed via PPA"
 	apt_update
 else
-	cat >/etc/apt/sources.list.d/x2go.list<<EOF
+	cat > /etc/apt/sources.list.d/x2go.list << EOF
 # X2Go Repository (release builds)
 deb http://packages.x2go.org/debian ${release} main
 # X2Go Repository (sources of release builds)
@@ -42,11 +42,7 @@ deb-src http://packages.x2go.org/debian ${release} main
 #deb-src http://packages.x2go.org/debian ${release} heuler
 EOF
 	echo_progress_done "Repo added"
-	apt_update
 	apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
-
-	apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
-
 	apt_update
 	apt_install x2go-keyring
 fi

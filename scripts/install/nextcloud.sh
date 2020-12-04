@@ -16,43 +16,42 @@
 inst=$(which mysql)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ ! -f /install/.nginx.lock ]]; then
-  echo_error "Web server not detected. Please install nginx and restart panel install."
-  exit 1
+	echo_error "Web server not detected. Please install nginx and restart panel install."
+	exit 1
 fi
 
 #Check for existing mysql and install if not found
 if [[ -n $inst ]]; then
-  # echo_info -n -e "Existing MySQL server detected!\n"
-  :
+	# echo_info -n -e "Existing MySQL server detected!\n"
+	:
 else
-  echo_info -n -e "No MySQL server found! Setup will install. \n"
-  while [ -z "$mysqlRootPW" ]; do
-  echo_query "Please enter a MySQL root password \n"
-    read -r -s 'pass1'
-    echo_query "Confirm password"
-    read -r -s  'pass2'
-    if [ "$pass1" = "$pass2" ]; then
-       mysqlRootPW=$pass1
-    else
-       echo_warn "Passwords do not match. Please try again."
-    fi
-  done
-  installmysql=true
+	echo_info -n -e "No MySQL server found! Setup will install. \n"
+	while [ -z "$mysqlRootPW" ]; do
+		echo_query "Please enter a MySQL root password \n"
+		read -r -s 'pass1'
+		echo_query "Confirm password"
+		read -r -s 'pass2'
+		if [ "$pass1" = "$pass2" ]; then
+			mysqlRootPW=$pass1
+		else
+			echo_warn "Passwords do not match. Please try again."
+		fi
+	done
+	installmysql=true
 fi
 
-if [[ -z $nextcldMySqlPW ]]; then 
-  echo_query "Please choose a password for the Nextcloud MySQL user."
-  read -r -s 'nextcldMySqlPW'
+if [[ -z $nextcldMySqlPW ]]; then
+	echo_query "Please choose a password for the Nextcloud MySQL user."
+	read -r -s 'nextcldMySqlPW'
 fi
 
-
-if [[ $installmysql = "true" ]]; then 
-  # echo "Installing MySQL*" #MariaDB yeeee 
-  apt_install mariadb-server
-  if [[ $(systemctl is-active MySQL) != "active" ]]; then
-    systemctl start mysql
-  fi
-  mysqladmin -u root password "${mysqlRootPW}"
+if [[ $installmysql = "true" ]]; then
+	# echo "Installing MySQL*" #MariaDB yeeee
+	apt_install mariadb-server
+	if [[ $(systemctl is-active MySQL) != "active" ]]; then
+		systemctl start mysql
+	fi
+	mysqladmin -u root password "${mysqlRootPW}"
 fi
 
 # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
@@ -65,9 +64,8 @@ mysql --execute="SET GLOBAL innodb_file_format=Barracuda;"
 mysql --execute="FLUSH PRIVILEGES;"
 echo_progress_done
 
-
-if ! grep -Fxq innodb_file_per_table=1 /etc/mysql/my.cnf; then 
-  cat >> /etc/mysql/my.cnf << EOF
+if ! grep -Fxq innodb_file_per_table=1 /etc/mysql/my.cnf; then
+	cat >> /etc/mysql/my.cnf << EOF
 [mysqld]
 innodb_file_per_table=1
 EOF
@@ -76,7 +74,7 @@ fi
 systemctl restart mysqld
 
 #Depends
-apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php-zip php-xml php-mbstring
+apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-zip php-xml php-mbstring
 #a2enmod rewrite > /dev/null 2>&1
 # cd /tmp
 
@@ -84,9 +82,9 @@ apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl  php
 echo_progress_start "Downloading and extracting Nextcloud"
 codename=$(lsb_release -cs)
 if [[ $codename =~ ("stretch"|"xenial") ]]; then
-  version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
+	version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
 else
-  version=latest
+	version=latest
 fi
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip >> $log 2>&1
 unzip /tmp/nextcloud.zip -d /srv >> $log 2>&1
@@ -106,15 +104,13 @@ find ${ocpath}/ -type d -print0 | xargs -0 chmod 0750
 chown -R ${rootuser}:${htgroup} ${ocpath}/
 chown -R ${htuser}:${htgroup} ${ocpath}/{apps,assets,config,data,themes,updater}
 chmod +x ${ocpath}/occ
-if [ -f ${ocpath}/.htaccess ]
-then
- chmod 0644 ${ocpath}/.htaccess
- chown ${rootuser}:${htgroup} ${ocpath}/.htaccess
+if [ -f ${ocpath}/.htaccess ]; then
+	chmod 0644 ${ocpath}/.htaccess
+	chown ${rootuser}:${htgroup} ${ocpath}/.htaccess
 fi
-if [ -f ${ocpath}/data/.htaccess ]
-then
- chmod 0644 ${ocpath}/data/.htaccess
- chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
+if [ -f ${ocpath}/data/.htaccess ]; then
+	chmod 0644 ${ocpath}/data/.htaccess
+	chown ${rootuser}:${htgroup} ${ocpath}/data/.htaccess
 fi
 echo_progress_done "Permissions set"
 
@@ -130,7 +126,7 @@ phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
 
 echo_progress_start "Configuting nginx and PHP"
-cat > /etc/nginx/apps/nextcloud.conf <<EOF
+cat > /etc/nginx/apps/nextcloud.conf << EOF
 # The following 2 rules are only needed for the user_webfinger app.
 # Uncomment it if you're planning to use this app.
 #rewrite ^/.well-known/host-meta /nextcloud/public.php?service=host-meta last;
@@ -236,8 +232,6 @@ location ^~ /nextcloud {
 }
 EOF
 
-
-
 systemctl reload nginx
 
 #shellcheck source=sources/functions/php
@@ -284,21 +278,21 @@ _occ "config:system:set trusted_domains $i --value=$(hostname)"
 _occ "config:system:set trusted_domains $i --value=$(hostname)"
 # shellcheck disable=SC2013
 for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
-  if [[ $value != "_" ]]; then 
-    _occ "config:system:set trusted_domains $i --value=$value"
-    ((i++))
-  fi
+	if [[ $value != "_" ]]; then
+		_occ "config:system:set trusted_domains $i --value=$value"
+		((i++))
+	fi
 done
 #All users but the master user
-users=($(cut -d: -f1 < /etc/htpasswd |sed "/^$masteruser\b/Id"))
+users=($(cut -d: -f1 < /etc/htpasswd | sed "/^$masteruser\b/Id"))
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 for u in "${users[@]}"; do
-    OC_PASS=$(_get_user_password "$u")
-    export OC_PASS
-    #TODO decide what happens wih the stdout from this
-    _occ "user:add --password-from-env --display-name=${u} --group='users' ${u}"
-    unset OC_PASS
+	OC_PASS=$(_get_user_password "$u")
+	export OC_PASS
+	#TODO decide what happens wih the stdout from this
+	_occ "user:add --password-from-env --display-name=${u} --group='users' ${u}"
+	unset OC_PASS
 done
 echo_progress_done "Nextcloud configured"
 
@@ -307,4 +301,3 @@ restart_php_fpm
 
 echo_success "Nextcloud installed"
 echo_info "Please log in using your master credentials."
-
