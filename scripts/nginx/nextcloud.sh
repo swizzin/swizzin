@@ -99,13 +99,12 @@ location ^~ /nextcloud {
         # will add the domain to a hardcoded list that is shipped
         # in all major browsers and getting removed from this list
         # could take several months.
-        add_header Referrer-Policy "no-referrer" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Download-Options "noopen" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-Permitted-Cross-Domain-Policies "none" always;
-        add_header X-Robots-Tag "none" always;
-        add_header X-XSS-Protection "1; mode=block" always;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header X-Robots-Tag none;
+        add_header X-Download-Options noopen;
+        add_header X-Permitted-Cross-Domain-Policies none;
+        add_header Referrer-Policy no-referrer;
 
         # Optional: Don't log access to assets
         access_log off;
