@@ -13,18 +13,14 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-inst=$(which mysql)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ ! -f /install/.nginx.lock ]]; then
-	echo_error "Web server not detected. Please install nginx and restart panel install."
+	echo_error "Nginx not detected. Please install nginx and restart panel install."
 	exit 1
 fi
 
 #Check for existing mysql and install if not found
-if [[ -n $inst ]]; then
-	# echo_info -n -e "Existing MySQL server detected!\n"
-	:
-else
+if ! which mysql; then
 	echo_info -n -e "No MySQL server found! Setup will install. \n"
 	while [ -z "$mysqlRootPW" ]; do
 		echo_query "Please enter a MySQL root password \n"
@@ -37,21 +33,16 @@ else
 			echo_warn "Passwords do not match. Please try again."
 		fi
 	done
-	installmysql=true
-fi
-
-if [[ -z $nextcldMySqlPW ]]; then
-	echo_query "Please choose a password for the Nextcloud MySQL user."
-	read -r -s 'nextcldMySqlPW'
-fi
-
-if [[ $installmysql = "true" ]]; then
-	# echo "Installing MySQL*" #MariaDB yeeee
 	apt_install mariadb-server
 	if [[ $(systemctl is-active MySQL) != "active" ]]; then
 		systemctl start mysql
 	fi
 	mysqladmin -u root password "${mysqlRootPW}"
+fi
+
+if [[ -z $nextcldMySqlPW ]]; then
+	echo_query "Please choose a password for the Nextcloud MySQL user."
+	read -r -s 'nextcldMySqlPW'
 fi
 
 # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
@@ -82,14 +73,17 @@ apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-
 echo_progress_start "Downloading and extracting Nextcloud"
 codename=$(lsb_release -cs)
 if [[ $codename =~ ("stretch"|"xenial") ]]; then
+	echo_info "Switching to Nextcloud 15 due to an outdated version of PHP set by the OS"
 	version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
 else
 	version=latest
 fi
+
+# TODO switch to tar.bz2 and curl?
 wget -q https://download.nextcloud.com/server/releases/${version}.zip -O /tmp/nextcloud.zip >> $log 2>&1
 unzip /tmp/nextcloud.zip -d /srv >> $log 2>&1
 rm -rf /tmp/nextcloud.zip
-echo_progress_done
+echo_progress_done "Downloaded"
 
 #Set permissions as per nextcloud
 echo_progress_start "Configuring permissions"
@@ -276,7 +270,6 @@ _occ "config:system:set trusted_domains $i --value=$ip"
 _occ "config:system:set trusted_domains $i --value=$(hostname)"
 ((i++))
 _occ "config:system:set trusted_domains $i --value=$(hostname)"
-# shellcheck disable=SC2013
 for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
 	if [[ $value != "_" ]]; then
 		_occ "config:system:set trusted_domains $i --value=$value"
