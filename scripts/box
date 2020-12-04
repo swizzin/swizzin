@@ -279,7 +279,7 @@ function _adduser() {
 	echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
 	systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create >> $log 2>&1
 
-	for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
+	for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission nextcloud wireguard organizr mango qbittorrent; do
 		if [[ $app = "rutorrent" ]]; then
 			if [[ -d /srv/rutorrent ]]; then
 				if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -289,6 +289,14 @@ function _adduser() {
 		if [[ -f /install/.${app}.lock ]]; then
 			if [[ $app = "flood" ]]; then
 				/usr/local/bin/swizzin/install/${app}.sh
+			elif [[ $app = "nextcloud" ]]; then
+				cd /srv/nextcloud || echo "ERROR /srv/nexcloud does not exist"
+				export OC_PASS="$pass"
+				# shellcheck source=sources/functions/nextcloud
+				. /etc/swizzin/sources/functions/nextcloud
+				_occ "user:add --password-from-env --display-name=${user} --group='users' ${user}"
+				unset OC_PASS
+				cd - || :
 			else
 				/usr/local/bin/swizzin/install/${app}.sh ${user}
 				if [[ $app = "deluge" ]]; then
@@ -338,7 +346,7 @@ function _deluser() {
 	echo_query "Press enter to continue, or CTRL+C to cancel"
 	read -rep ''
 
-	for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
+	for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango nextcloud wireguard organizr qbittorrent; do
 		if [[ $app = "rutorrent" ]]; then
 			if [[ -d /srv/rutorrent ]]; then
 				if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -350,6 +358,10 @@ function _deluser() {
 				rm -rf /srv/rutorrent/conf/users/${user}
 				rm -rf /srv/rutorrent/share/users/${user}
 				rm -f /etc/nginx/apps/${user}*
+			elif [[ $app = "nextcloud" ]]; then
+				# shellcheck source=sources/functions/nextcloud
+				. /etc/swizzin/sources/functions/nextcloud
+				_occ "user:delete ${user}"
 			elif [[ $app = "lounge" ]]; then
 				su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
 			elif [[ $app = "mango" ]]; then
@@ -443,6 +455,14 @@ function _chpasswd() {
 		sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
 		systemctl start transmission@${user} >> $log 2>&1
 	fi
+	if [[ -e /install/.nextcloud.lock ]]; then
+		# shellcheck source=sources/functions/nextcloud
+		. /etc/swizzin/sources/functions/nextcloud
+		export OC_PASS="$pass"
+		_occ 'user:resetpassword --password-from-env'
+		unset OC_PASS
+	fi
+
 	if [[ -f /install/.lounge.lock ]]; then
 		su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
 	fi
