@@ -16,6 +16,7 @@ if [[ -f /install/.ombi.lock ]]; then
 			bash /etc/swizzin/scripts/nginx/ombi.sh
 			systemctl reload nginx
 		fi
+		echo_warn "Please note that the port for Ombi has changed from 3000 to 5000. Please propagate this change to your configurations in any other apps using Ombi API."
 
 		if [[ $ombiwasactive = "true" ]]; then
 			systemctl start ombi

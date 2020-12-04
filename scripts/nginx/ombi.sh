@@ -14,7 +14,7 @@ location /ombi {
      return 301 $scheme://$host/ombi/;		
 }
 location ^~ /ombi/ {
-    proxy_pass http://127.0.0.1:3000/ombi/;
+    proxy_pass http://127.0.0.1:5000/ombi/;
     proxy_pass_header Server;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Host $server_name;
@@ -39,10 +39,10 @@ status=$(systemctl is-active ombi)
 if [[ $status = "active" ]]; then
 	systemctl stop -q ombi
 fi
-# Change this to 127.0.0.1 to make it bing to nginx only?
-sed -i "s|ExecStart=.*|ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://127.0.0.1:3000 --storage /etc/Ombi|" /lib/systemd/system/ombi.service
 
+sed -i "s|ExecStart=.*|ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://127.0.0.1:5000 --storage /etc/Ombi|" /lib/systemd/system/ombi.service
 systemctl daemon-reload
+
 if [[ $status = "active" ]]; then
 	systemctl start -q ombi
 fi

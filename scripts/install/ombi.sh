@@ -21,6 +21,8 @@ function _nginx() {
 		bash /usr/local/bin/swizzin/nginx/ombi.sh
 		systemctl reload nginx
 		echo_progress_done "Nginx configured"
+	else
+		echo_info "Ombi is accessible under port 5000"
 	fi
 
 }
