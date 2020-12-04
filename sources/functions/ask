@@ -22,7 +22,7 @@ ask() {
 	while true; do
 
 		# Ask the question (not using "read -p" as it uses stderr not stdout)
-		echo -n "$1 [$prompt] "
+		echo_query "$1" "$prompt"
 
 		# Read the answer (use /dev/tty in case stdin is redirected from somewhere else)
 		# shellcheck disable=SC2162
