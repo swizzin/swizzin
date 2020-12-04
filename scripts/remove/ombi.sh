@@ -1,9 +1,11 @@
 #!/bin/bash
-systemctl disable -q ombi
-systemctl stop -q ombi
-rm /etc/systemd/system/ombi.service
-rm -f /etc/nginx/apps/ombi.conf
-systemctl reload nginx
+systemctl disable -q --now ombi
+if [[ -f /install/.nginx.lock ]]; then
+	rm -f /etc/nginx/apps/ombi.conf
+	systemctl reload nginx
+fi
+
+rm /etc/apt/sources.list.d/ombi.list
 
 apt_remove ombi
 
