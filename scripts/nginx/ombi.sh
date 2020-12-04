@@ -14,7 +14,7 @@ location /ombi {
      return 301 $scheme://$host/ombi/;		
 }
 location ^~ /ombi/ {
-    proxy_pass http://127.0.0.1:5000/ombi/;
+    proxy_pass http://127.0.0.1:3000/ombi/;
     proxy_pass_header Server;
     proxy_set_header Host $http_host;
     proxy_set_header X-Forwarded-Host $server_name;
@@ -40,7 +40,12 @@ if [[ $status = "active" ]]; then
 	systemctl stop -q ombi
 fi
 
-sed -i "s|ExecStart=.*|ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://127.0.0.1:5000 --storage /etc/Ombi|" /lib/systemd/system/ombi.service
+mkdir -p /etc/systemd/system/ombi.service.d
+cat > /etc/systemd/system/ombi.service.d/override.conf << CONF
+[Service]
+ExecStart=
+ExecStart=/opt/Ombi/Ombi --baseurl /ombi --host http://127.0.0.1:3000 --storage /etc/Ombi
+CONF
 systemctl daemon-reload
 
 if [[ $status = "active" ]]; then

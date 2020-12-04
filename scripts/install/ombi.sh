@@ -12,6 +12,14 @@ function _sources() {
 
 function _install() {
 	apt_install ombi
+
+	mkdir -p /etc/systemd/system/ombi.service.d
+	cat > /etc/systemd/system/ombi.service.d/override.conf << CONF
+[Service]
+ExecStart=
+ExecStart=/opt/Ombi/Ombi --host http://0.0.0.0:3000 --storage /etc/Ombi
+CONF
+	systemctl daemon-reload
 	systemctl enable --now -q ombi
 }
 
@@ -22,7 +30,7 @@ function _nginx() {
 		systemctl reload nginx
 		echo_progress_done "Nginx configured"
 	else
-		echo_info "Ombi is accessible under port 5000"
+		echo_info "Ombi is accessible under port 3000"
 	fi
 
 }

@@ -21,7 +21,7 @@ if ! grep -q roxedus.github.io /etc/apt/sources.list.d/ombi.list; then
 		bash /etc/swizzin/scripts/nginx/ombi.sh
 		systemctl reload nginx
 	else
-		echo_info "Ombi will be running on port 5000"
+		echo_info "Ombi will be running on port 3000"
 	fi
 	echo_success "Ombi upgraded to v4"
 else
