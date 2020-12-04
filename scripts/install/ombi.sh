@@ -40,3 +40,4 @@ _install
 _nginx
 touch /install/.ombi.lock
 echo_success "Ombi installed"
+echo_info "Please continue setting up your administrator user through the browser"
