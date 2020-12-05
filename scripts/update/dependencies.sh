@@ -2,7 +2,7 @@
 # Ensures that dependencies are installed and corrects them if that is not the case.
 
 #space-separated list of required GLOBAL SWIZZIN dependencies (NOT application specific ones)
-dependencies="jq sl uuid-runtime net-tools fortune"
+dependencies="jq uuid-runtime net-tools fortune"
 
 missing=()
 for dep in $dependencies; do
