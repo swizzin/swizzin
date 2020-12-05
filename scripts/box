@@ -443,7 +443,7 @@ function _chpasswd() {
 		# shellcheck source=sources/functions/nextcloud
 		. /etc/swizzin/sources/functions/nextcloud
 		export OC_PASS="$pass"
-		_occ 'user:resetpassword --password-from-env'
+		_occ "user:resetpassword $user --password-from-env"
 		unset OC_PASS
 	fi
 
