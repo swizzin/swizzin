@@ -12,24 +12,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ $(systemctl is-active jellyfin) == "active" ]]; then
-	active=jellyfin
-fi
-
-if [[ -n $active ]]; then
-	echo_info "Jellyfin and Emby cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain"
-	if ask "Do you want to disable $active?" Y; then
-		disable=yes
-	fi
-	if [[ $disable == "yes" ]]; then
-		echo_progress_start "Disabling service"
-		systemctl disable -q --now ${active} >> ${log} 2>&1
-		echo_progress_done
-	else
-		exit 1
-	fi
-fi
-
 username=$(cut -d: -f1 < /root/.master.info)
 
 if [[ ! $(command -v mono) ]]; then
