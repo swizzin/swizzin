@@ -61,11 +61,11 @@ function _install() {
 		version=latest
 	fi
 	# TODO switch to tar.bz2 and curl?
-	wget -q https://download.nextcloud.com/server/releases/${version}.zip -nc -O /tmp/nextcloud.zip >> $log 2>&1
+	wget -q https://download.nextcloud.com/server/releases/${version}.zip -nc -O /tmp/nextcloud.zip >> "$log" 2>&1
 	echo_progress_done "Downloaded"
 
 	echo_progress_start "Extracting nextcloud"
-	unzip -q /tmp/nextcloud.zip -d /srv >> $log 2>&1
+	unzip -q /tmp/nextcloud.zip -d /srv >> "$log" 2>&1
 	echo_progress_done "Extracted"
 
 	#Set permissions as per nextcloud
@@ -162,7 +162,7 @@ masteruser=$(_get_master_username)
 masterpass=$(_get_user_password "$masteruser")
 
 if [[ -n $1 ]]; then
-	users=($1)
+	users=("$1")
 	_users
 	exit 0
 fi
@@ -171,7 +171,7 @@ _install
 _db_setup
 _nginx
 _bootstrap
-users=($(_get_user_list | sed "/^$masteruser\b/Id"))
+readarray -t users < <(_get_user_list | sed "/^$masteruser\b/Id")
 _users
 
 echo_success "Nextcloud installed"

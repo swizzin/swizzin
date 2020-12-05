@@ -1,8 +1,7 @@
 #!/bin/bash
 # nextcloud uninstaller
 host=$(mysql --execute="select host from mysql.user where user = 'nextcloud';" | grep -E "localhost|127.0.0.1")
-mysql --execute="DROP DATABASE nextcloud;" && mysql --execute="DROP USER nextcloud@$host;"
-if [[ $? != "0" ]]; then
+if ! mysql --execute="DROP DATABASE nextcloud;" && mysql --execute="DROP USER nextcloud@$host;"; then
 	echo_error "MySQL Drop failed. Please try again or investigate"
 	exit 1
 fi
