@@ -281,22 +281,14 @@ function _adduser() {
 		if [[ -f /install/.${app}.lock ]]; then
 			if [[ $app = "flood" ]]; then
 				/usr/local/bin/swizzin/install/${app}.sh
-			elif [[ $app = "nextcloud" ]]; then
-				cd /srv/nextcloud || echo "ERROR /srv/nexcloud does not exist"
-				export OC_PASS="$pass"
-				# shellcheck source=sources/functions/nextcloud
-				. /etc/swizzin/sources/functions/nextcloud
-				_occ "user:add --password-from-env --display-name=${user} --group='users' ${user}"
-				unset OC_PASS
-				cd - || :
 			else
 				/usr/local/bin/swizzin/install/${app}.sh ${user}
 				if [[ $app = "deluge" ]]; then
 					app="{deluged,deluge-web}"
 					eval systemctl enable -q ${app}@${user}
 					eval systemctl start ${app}@${user}
-				elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard") ]]; then
-					: #Multi-user app without user service files. wireguard interface is started in wg script
+				elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard"|"nextcloud") ]]; then
+					: # Multi-user app without user service files. wireguard interface is started in wg script
 				else
 					if [[ $app = "autodl" ]]; then app=irssi; fi
 					systemctl enable -q ${app}@${user}
