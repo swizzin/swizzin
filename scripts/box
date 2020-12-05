@@ -16,7 +16,11 @@
 
 #shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
-echo_log_only "$(/usr/games/fortune -s)"
+echo_log_only "\n$(/usr/games/fortune | cowsay)"
+
+normal=$(tput sgr0) # TODO replace with `nc` in all instances
+git_hash=$(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD)
+echo_log_only ">>>> \`box $*\`, \tGIT HEAD @ $git_hash"
 
 function _intro() {
 	whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
@@ -490,11 +494,6 @@ function _nukeovh() {
 		echo_warn "grsec not detected. Nothing to do."
 	fi
 }
-
-# args=("$@")
-normal=$(tput sgr0)
-git_hash=$(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD)
-echo_log_only ">>>> \`box $*\`, \tGIT HEAD @ $git_hash"
 
 case "$1" in
 	"")
