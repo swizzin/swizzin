@@ -1,0 +1,86 @@
+#!/bin/bash
+# Swizzin troubleshooting utility
+# GPLv3, flying_sayusages for Swizzin 2020
+
+# seds through an entire log and tries to replace any instances of any password
+# To be used as a shorthand for piping
+_wash_content() {
+	sed '1 i\This function should wash logs from passwords'
+}
+
+echo_info "Generating content for github issue"
+
+list_installed="$(find /install -type f -printf "%f\n" | sed -e 's/\.\([a-z]*\)\.lock/\1/g')"
+
+# Get a list of apps to make logs for
+cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
+#TODO generate the whiptail list properly
+# readarray -t options < <(echo "$list_installed")
+options=(libtorrent "" off
+	qbittorrent "" off
+	nginx "" on)
+choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+	:
+else
+	echo_warn "Upload cancelled"
+	exit 1
+fi
+
+# echo "Choices = $choices"
+
+echo_progress_start "Uploading logs to termbin..."
+logs_install="$(tail -c 671872 /root/logs/install.log | _wash_content | nc termbin.com 9999)"
+logs_swizzin=$(tail -c 671872 /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
+
+# shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+logs_app_list=()
+for choice in $choices; do
+	ret="- [$choice logs]"
+	paths=()
+	case $choice in
+		qbittorrent)
+			# TODO some user selection mechanism?
+			user=$(_get_master_username)
+			echo_info "Assuming qbittorrent for $user"
+			paths=("/home/test/.local/share/data/qBittorrent/logs/qbittorrent.log")
+			;;
+		nginx)
+			paths=(/var/log/nginx/error.log)
+			;;
+		*)
+			note="(No logs for $choice defined)"
+			;;
+
+	esac
+	link=$(cat "${paths[@]}" | _wash_content | nc termbin.com 9999)
+	ret+="(${link}) $note"
+	logs_app_list+=("${ret}")
+done
+
+echo_progress_done "Logs uploaded"
+
+echo_warn "Please paste everything between these lines into your issue
+Make sure to replace the content where indicated, otherwise the issue might get automatically closed.
+"
+echo "<!-- ---------------------------------------------------------- -->
+
+## Installed applications through swizzin
+${list_installed}
+
+## Server Info
+- OS: $(_os_pretty)
+- Arch:
+- Hardware: 
+
+## Swizzin version
+\`$(git -C /etc/swizzin log -1 --pretty=format:"(%h) %s %d (%cd)")\`
+
+## Logs and output
+- [Install logs](${logs_install})
+- [Swizzin logs](${logs_swizzin})
+${logs_app_list[*]}
+
+<!-- ---------------------------------------------------------- -->"
