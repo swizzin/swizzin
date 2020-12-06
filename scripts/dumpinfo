@@ -48,6 +48,7 @@ logs_app_list=()
 for choice in $choices; do
 	ret="- [$choice logs]"
 	paths=()
+	note=""
 	case $choice in
 		qbittorrent)
 			# TODO some user selection mechanism?
