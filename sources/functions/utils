@@ -60,6 +60,10 @@ function _get_master_username() {
 	cut -d: -f1 < /root/.master.info
 }
 
+function _get_nonmaster_list() {
+	_get_user_list | grep -vw "$(_get_master_username)"
+}
+
 # Removes a file or a directory in case it exists
 function rm_if_exists() {
 	path="$1"
