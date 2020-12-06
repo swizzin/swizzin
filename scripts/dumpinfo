@@ -4,8 +4,16 @@
 
 # seds through an entire log and tries to replace any instances of any password
 # To be used as a shorthand for piping
+
+# shellcheck source=sources/globals.sh
+. /etc/swizzin/sources/globals.sh
+# shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
 _wash_content() {
-	sed '1 i\This function should wash logs from passwords'
+	#TODO make this work lmao
+	password="$(_get_user_password "$(_get_master_username)")"
+	sed '1 i\This function should wash logs from passwords' | sed "s/$password/###PASSWORD###/g"
 }
 
 echo_info "Generating content for github issue"
@@ -32,11 +40,9 @@ echo_log_only "Choices = $choices"
 
 echo_progress_start "Uploading logs to termbin..."
 # TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
-logs_install="$(tail /root/logs/install.log | _wash_content | nc termbin.com 9999)"
-logs_swizzin=$(tail /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
+logs_install="$(cat /root/logs/install.log | _wash_content | nc termbin.com 9999)"
+logs_swizzin=$(cat /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
 
-# shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
 logs_app_list=()
 for choice in $choices; do
 	ret="- [$choice logs]"
