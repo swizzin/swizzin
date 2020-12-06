@@ -12,6 +12,12 @@ _os_codename() {
 }
 export -f _os_codename
 
+_os_pretty() {
+	source /etc/os-release
+	printf "$PRETTY_NAME"
+}
+export -f _os_pretty
+
 _os_arch() {
 	dpkg --print-architecture
 }
