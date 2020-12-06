@@ -12,6 +12,7 @@
 
 _wash_content() {
 	#TODO make this work lmao
+	# TODO wash API keys, hostnames, IP addresses, usernames??
 	password="$(_get_user_password "$(_get_master_username)")"
 	sed '1 i\This function should wash logs from passwords' | sed "s/$password/###PASSWORD###/g"
 }
