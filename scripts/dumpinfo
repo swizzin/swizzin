@@ -74,7 +74,8 @@ $(echo ${list_installed} | sed 's/ /\n/g' | sed 's/^/- /')
 ## Server Info
 - OS: $(_os_pretty)
 - Arch: \`$(_os_arch)\`
-- Hardware: $(dmidecode | grep -A3 '^System Information')
+- Hardware
+$(dmidecode | grep -A3 '^System Information' | grep -v "System Information" | sed 's/^/  - /')
 
 ## Swizzin version
 \`$(git -C /etc/swizzin log -1 --pretty=format:"(%h) %s %d (%cd)")\`
