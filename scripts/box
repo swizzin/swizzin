@@ -578,6 +578,9 @@ case "$1" in
 		_list
 		exit 0
 		;;
+	"dumpinfo")
+		bash /etc/swizzin/scripts/dumpinfo
+		;;
 	*)
 		echo_error "Invalid command: $1"
 		exit 1
