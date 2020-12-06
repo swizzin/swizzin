@@ -10,74 +10,117 @@
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+# Processes stdin and posts it online
+_post_content() {
+	_wash_content | nc termbin.com 9999
+}
+
+# Removes any private info out of stdin
 _wash_content() {
 	#TODO make this work lmao
 	# TODO wash API keys, hostnames, IP addresses, usernames??
-	password="$(_get_user_password "$(_get_master_username)")"
-	sed '1 i\This function should wash logs from passwords' | sed "s/$password/###PASSWORD###/g"
+	pwuser="$(_get_master_username)"
+	password="$(_get_user_password "$pwuser")"
+	domain=""                                                                                                    #TODO figure out how to get this
+	ipaddress=""                                                                                                 #TODO figure out how to get this
+	sed '1 i\This content should be washed of any identifiable information' | sed "s/$password/###PASSWORD###/g" # | sed "s/$domain/###DOMAIN###/g" | sed "s/$ipaddress/###IPADDRESS###/g"
 }
 
-echo_info "Generating content for github issue"
+_make_app_choices() {
+	readarray users < <(_get_user_list | grep -v "$(_get_master_username)")
+	if [[ ${#users[@]} -eq 0 ]]; then
+		user=$(_get_master_username)
+	else
+		useroptions=("$(_get_master_username) "" on")
+		for u in "${users[@]}"; do
+			useroptions+=("$u" "" off)
+		done
+		user=$(whiptail --radiolist "Which user to upload the logs for?" 9 40 2 "${useroptions[@]}" > /dev/tty)
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+			:
+		else
+			echo_warn "Upload cancelled"
+			exit 1
+		fi
+	fi
 
-list_installed="$(find /install -type f -printf "%f\n" | sed -e 's/\.\([a-z]*\)\.lock/\1/g')"
+	# Get a list of installed apps to make logs for
+	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
+	cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
+	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
+	# readarray options < <(printf '%s "" on\n' "$list_installed")
 
-# Get a list of apps to make logs for
-cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
-#TODO generate the whiptail list properly
-# readarray -t options < <(echo "$list_installed")
-options=(libtorrent "" off
-	qbittorrent "" off
-	nginx "" on)
-choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
-exitstatus=$?
-if [ $exitstatus = 0 ]; then
-	:
-else
-	echo_warn "Upload cancelled"
-	exit 1
-fi
+	for app in "${list_installed[@]}"; do
+		options+=("$app" "" on)
+	done
+	choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
+	exitstatus=$?
+	if [ $exitstatus = 0 ]; then
+		:
+	else
+		echo_warn "Upload cancelled"
+		exit 1
+	fi
 
-echo_log_only "Choices = $choices"
+	echo_log_only "Choices = $choices"
+}
 
-echo_progress_start "Uploading logs to termbin..."
-# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
-logs_install="$(cat /root/logs/install.log | _wash_content | nc termbin.com 9999)"
-logs_swizzin=$(cat /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
+_log_uploads() {
+	echo_progress_start "Uploading logs to termbin..."
+	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
+	logs_install="$(cat /root/logs/install.log | _post_content)"
+	logs_swizzin=$(cat /root/logs/swizzin.log | _post_content)
 
-logs_app_list=()
-for choice in $choices; do
-	ret="- [$choice logs]"
-	paths=()
-	note=""
-	case $choice in
-		qbittorrent)
-			# TODO some user selection mechanism?
-			user=$(_get_master_username)
-			echo_info "Assuming qbittorrent for $user"
-			paths=("/home/test/.local/share/data/qBittorrent/logs/qbittorrent.log")
-			;;
-		nginx)
-			paths=(/var/log/nginx/error.log)
-			;;
-		*)
-			echo_warn "No logs for $choice defined, please supply these manually"
-			note="(No logs for $choice defined)"
-			;;
-	esac
-	[[ ! ${#paths[@]} -eq 0 ]] && link=$(cat "${paths[@]}" | _wash_content | nc termbin.com 9999)
-	ret+="(${link}) $note"
-	logs_app_list+=("${ret}")
-done
+	logs_app_list=()
+	for choice in $choices; do
+		ret="- [$choice logs]"
+		paths=()
+		note=" "
+		case $choice in
+			qbittorrent)
+				# TODO some user selection mechanism?
+				user=$(_get_master_username)
+				echo_info "Assuming qbittorrent for $user"
+				paths=("/home/test/.local/share/data/qBittorrent/logs/qbittorrent.log")
+				;;
+			nginx)
+				paths=(/var/log/nginx/error.log)
+				;;
+			*)
+				echo_warn "No logs for $choice defined, please upload these manually"
+				note="(No logs for $choice defined)"
+				;;
+		esac
+		[[ ! ${#paths[@]} -eq 0 ]] && link=$(cat "${paths[@]}" | _post_content)
+		ret+="(${link}) $note"
+		logs_app_list+=("$choice" "$link" "$note")
 
-echo_progress_done "Logs uploaded"
+	done
+	echo_progress_done "Logs uploaded"
+}
 
-echo_warn "Please paste everything between these lines into your issue
-Make sure to replace the content where indicated, otherwise the issue might get automatically closed.
+_output_discord() {
+	echo_warn "Please paste everything between these lines into your issue
+Make sure to replace the content where indicated, otherwise the issue might get automatically closed."
+	echo "
+**Apps:**		$(printf -- '`%s` ' "${list_installed[@]}")
+**Server:**		$(_os_pretty), \`$(_os_arch)\`
+**Git:**		$(git -C /etc/swizzin log -1 --pretty=format:'`(%h)` %s')
+**Logs**
+- Install logs: <${logs_install}>
+- Swizzin logs: <${logs_swizzin}>
+$(printf -- '- %s <%s> _%s_\n' "${logs_app_list[@]}")
 "
-echo "<!-- ---------------------------------------------------------- -->
+}
+
+_output_github() {
+	echo_warn "Please paste everything between these lines into your issue
+Make sure to replace the content where indicated, otherwise the issue might get automatically closed."
+	echo "<!-- ---------------------------------------------------------- -->
 
 ## Installed applications through swizzin
-$(echo ${list_installed} | sed 's/ /\n/g' | sed 's/^/- /')
+$(printf -- '- %s\n' "${list_installed[@]}")
 
 ## Server Info
 - OS: $(_os_pretty)
@@ -91,6 +134,33 @@ $(dmidecode | grep -A3 '^System Information' | grep -v "System Information" | se
 ## Logs and output
 - [Install logs](${logs_install})
 - [Swizzin logs](${logs_swizzin})
-$(printf '%s\n' "${logs_app_list[@]}")
+$(printf -- '- [%s](%s) _%s_\n' "${logs_app_list[@]}")
 
 <!-- ---------------------------------------------------------- -->"
+}
+
+_choose_destination() {
+	destination=$(whiptail --radiolist \
+		"Where are you going to paste your info" 9 40 2 \
+		"GitHub" "" ON \
+		"Discord" "" OFF > /dev/tty)
+	exitstatus=$?
+	if [ $exitstatus = 0 ]; then
+		:
+	else
+		echo_warn "Upload cancelled"
+		exit 1
+	fi
+
+	echo_info "Generating dump for $destination"
+}
+
+_choose_destination
+_make_app_choices
+_log_uploads
+
+if [[ $destination == "GitHub" ]]; then
+	_output_github
+else
+	_output_discord
+fi
