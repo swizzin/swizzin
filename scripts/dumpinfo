@@ -28,11 +28,12 @@ else
 	exit 1
 fi
 
-# echo "Choices = $choices"
+echo_log_only "Choices = $choices"
 
 echo_progress_start "Uploading logs to termbin..."
-logs_install="$(tail -c 671872 /root/logs/install.log | _wash_content | nc termbin.com 9999)"
-logs_swizzin=$(tail -c 671872 /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
+# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
+logs_install="$(tail /root/logs/install.log | _wash_content | nc termbin.com 9999)"
+logs_swizzin=$(tail /root/logs/swizzin.log | _wash_content | nc termbin.com 9999)
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
@@ -51,11 +52,11 @@ for choice in $choices; do
 			paths=(/var/log/nginx/error.log)
 			;;
 		*)
+			echo_warn "No logs for $choice defined, please supply these manually"
 			note="(No logs for $choice defined)"
 			;;
-
 	esac
-	link=$(cat "${paths[@]}" | _wash_content | nc termbin.com 9999)
+	[[ ! ${#paths[@]} -eq 0 ]] && link=$(cat "${paths[@]}" | _wash_content | nc termbin.com 9999)
 	ret+="(${link}) $note"
 	logs_app_list+=("${ret}")
 done
@@ -68,12 +69,12 @@ Make sure to replace the content where indicated, otherwise the issue might get 
 echo "<!-- ---------------------------------------------------------- -->
 
 ## Installed applications through swizzin
-${list_installed}
+$(echo ${list_installed} | sed 's/ /\n/g' | sed 's/^/- /')
 
 ## Server Info
 - OS: $(_os_pretty)
-- Arch:
-- Hardware: 
+- Arch: \`$(_os_arch)\`
+- Hardware: $(dmidecode | grep -A3 '^System Information')
 
 ## Swizzin version
 \`$(git -C /etc/swizzin log -1 --pretty=format:"(%h) %s %d (%cd)")\`
@@ -81,6 +82,6 @@ ${list_installed}
 ## Logs and output
 - [Install logs](${logs_install})
 - [Swizzin logs](${logs_swizzin})
-${logs_app_list[*]}
+$(printf '%s\n' "${logs_app_list[@]}")
 
 <!-- ---------------------------------------------------------- -->"
