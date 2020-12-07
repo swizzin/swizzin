@@ -112,3 +112,23 @@ function tmp_swap_off() {
 	swapoff /.swapfile > /dev/null 2>&1
 	rm -f /.swapfile > /dev/null 2>&1
 }
+
+#Echo a line separated list of possible domains for the instance
+function guess_domain() {
+	ret=""
+	if [[ -f /install/.duckdns.lock ]]; then
+		eval "$(grep subdomain /opt/duckdns/duck.sh | head -1)"
+		ret+="$subdomain.duckdns.org\n"
+	fi
+
+	if [[ -e /etc/nginx/ssl ]]; then
+		ret+=$(find /etc/nginx/ssl/ -maxdepth 1 -mindepth 1 -type d -printf '%f\n')
+	fi
+
+	ret=$(echo "$ret" | sort | uniq)
+	if [[ $ret == "" ]]; then
+		return 1
+	else
+		echo "$ret"
+	fi
+}
