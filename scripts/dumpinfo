@@ -2,9 +2,6 @@
 # Swizzin troubleshooting utility
 # GPLv3, flying_sayusages for Swizzin 2020
 
-# seds through an entire log and tries to replace any instances of any password
-# To be used as a shorthand for piping
-
 # shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
 # shellcheck source=sources/functions/utils
@@ -13,23 +10,44 @@
 # Processes stdin and posts it online
 _post_content() {
 	_wash_content | nc termbin.com 9999
+	# _wash_content | less
 }
 
-# ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|.|g')
-# extipaddressv4=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
-# extipaddressv6=$(curl -q -6 icanhazip.com)
 # Removes any private info out of stdin
 _wash_content() {
-	# TODO wash API keys, hostnames, IP addresses, usernames??
-	password="$(_get_user_password "$user")"
-	domain="" #TODO figure out how to get this
-	# sed '1 i\This content should be washed of any identifiable information'
-	sed "s/$password/###PASSWORD###/g" | sed "s/$user/###USER###/g"
-	# | sed -r 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b'/"###IPADDRESS###"/g
-	# | sed "s/${ipaddress}|${extipaddressv4}/###IPADDRESS###/g"
-	# | sed "s/$domain/###DOMAIN###/g" |
+	sed "$sedString"
 }
 
+_set_identifiable_values() {
+	echo_progress_start "Constructing array for washing sensitive information"
+	sensitive=()
+	sensitive+=("$loguser" "USER")
+	sensitive+=("$(_get_user_password "$loguser")" "PASSWORD")
+	# ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|.|g')
+	# extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
+	# sensitive+=("$extip" "EXTIP")
+
+	sensitive+=($(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g') "IPADDR")
+
+	for domain in $(guess_domains); do
+		sensitive+=("$domain" "DOMAIN")
+	done
+
+	for hoststr in $(
+		hostname -A
+		hostname -a
+	); do
+		sensitive+=("$hoststr" "HOST")
+	done
+
+	# echo "Sesnitive Array = ${sensitive[*]}"
+	# echo "sedstr = $sedString"
+
+	sedString="$(printf 's/%s/###%s###/g; ' "${sensitive[@]}")"
+	echo_progress_done "Array constructed"
+}
+
+#Holds whiptails
 _make_app_choices() {
 	# Get a list of installed apps to make logs for
 	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
@@ -52,18 +70,16 @@ _make_app_choices() {
 		exit 1
 	fi
 
-	echo_log_only "Choices = $choices"
-
 	# Determine which users to uploads logs for when MU apps are being used
 	readarray users < <(_get_nonmaster_list)
 	if [[ ${#users[@]} -eq 0 ]]; then
-		user=$(_get_master_username)
+		loguser=$(_get_master_username)
 	else
 		useroptions=("$(_get_master_username)" "" on)
 		for u in "${users[@]}"; do
 			useroptions+=("$u" "" off)
 		done
-		if ! user=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 40 2 "${useroptions[@]}" 2>&1 > /dev/tty); then
+		if ! loguser=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 40 2 "${useroptions[@]}" 2>&1 > /dev/tty); then
 			echo_warn "Upload cancelled"
 			exit 1
 		fi
@@ -94,7 +110,7 @@ _log_uploads() {
 				commands=('dmesg')
 				;;
 			qbittorrent)
-				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
+				paths=("/home/$loguser/.local/share/data/qBittorrent/logs/qbittorrent.log")
 				version="$(/usr/bin/qbittorrent-nox --version | awk {'print $2'})"
 				;;
 			nginx)
@@ -106,11 +122,11 @@ _log_uploads() {
 				;;
 			transmission)
 				commands=('transmission-daemon --version')
-				paths=("/home/$user/.config/transmission-daemon/config.json") # TODO is it?
+				paths=("/home/$loguser/.config/transmission-daemon/config.json") # TODO is it?
 				;;
 			rtorrent)
 				# commands=('rtorrent')
-				paths=("/home/$user/.rtorrent.rc")
+				paths=("/home/$loguser/.rtorrent.rc")
 				;;
 			*)
 				echo_warn "No logs for $choice defined, please upload these manually"
@@ -206,6 +222,7 @@ _choose_destination() {
 
 _choose_destination
 _make_app_choices
+_set_identifiable_values
 _log_uploads
 
 if [[ $destination == "GitHub" ]]; then
