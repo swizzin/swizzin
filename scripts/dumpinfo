@@ -31,7 +31,14 @@ _make_app_choices() {
 	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
 	cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
 	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
-	readarray options < <(printf '%s\n "" \n ON \n' "${list_installed[@]}")
+
+	options=(journalctl "" off
+		syslog "" off
+		dmesg "" off)
+	# readarray -t options < <(printf '%s\n""\nON\n' "${list_installed[@]}")
+	for app in "${list_installed[@]}"; do
+		options+=("$app" "" on)
+	done
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 	exitstatus=$?
 	if [ $exitstatus = 0 ]; then
@@ -71,6 +78,15 @@ _log_uploads() {
 		commands=()
 		note=""
 		case $choice in
+			journalctl)
+				commands=('journalctl -xe')
+				;;
+			syslog)
+				paths=('/var/log/syslog')
+				;;
+			dmesg)
+				commands=('dmesg')
+				;;
 			qbittorrent)
 				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
 				;;
