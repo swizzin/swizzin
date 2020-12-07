@@ -15,7 +15,7 @@ _post_content() {
 
 # Removes any private info out of stdin
 _wash_content() {
-	tr -d '\0' | sed "$sedString"
+	sed "$sedString" | tr -d '\0'
 }
 
 _set_identifiable_values() {
@@ -29,13 +29,13 @@ _set_identifiable_values() {
 
 	sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "IPADDR")
 
-	for domain in $(guess_domains); do
+	for domain in $(guess_domains | sed 's|\.|\\.|g'); do
 		sensitive+=("$domain" "DOMAIN")
 	done
 
 	for hoststr in $(
-		hostname -A
-		hostname -a
+		hostname -A | sed 's|\.|\\.|g'
+		hostname -a | sed 's|\.|\\.|g'
 	); do
 		sensitive+=("$hoststr" "HOST")
 	done
@@ -151,10 +151,10 @@ _log_uploads() {
 		link=
 		if [[ -s "$tmpfile" ]]; then
 			link=$(_post_content < "$tmpfile")
+			rm "$tmpfile"
 		else
 			note="_(No logs generated for $choice)_"
 		fi
-		rm "$tmpfile"
 
 		if [[ -n $version ]]; then
 			logs_app_list+=("$choice ($version)" "$link" "$note")
