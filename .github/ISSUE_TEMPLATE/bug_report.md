@@ -29,7 +29,7 @@ Steps to reproduce the behavior:
 <!-- Log into your server, run `box dumpinfo`, and replace everything underneath with the output of the command-->
 <!-- ######################################### -->
 
-## Installed applications through swizzin
+## Installed swizzin apps
 <!-- e.g. Nginx, ffmpeg, panel -->
 - App1
 - App2

@@ -91,15 +91,15 @@ _log_uploads() {
 				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
 				;;
 			nginx)
-				paths=(/var/log/nginx/error.log)
 				commands=('nginx -T')
+				paths=(/var/log/nginx/error.log)
 				;;
 			panel)
 				commands=('journalctl -u panel')
 				;;
 			*)
 				echo_warn "No logs for $choice defined, please upload these manually"
-				note="(No logs for $choice defined)"
+				note=_"(No logs for $choice defined)_"
 				;;
 		esac
 
@@ -149,7 +149,7 @@ _output_github() {
 Make sure to replace the content where indicated, otherwise the issue might get automatically closed."
 	echo "<!-- ---------------------------------------------------------- -->
 
-## Installed applications through swizzin
+## Installed swizzin apps
 $(printf -- '- `%s`\n' "${list_installed[@]}")
 
 ## Server Info
