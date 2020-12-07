@@ -27,33 +27,11 @@ _wash_content() {
 }
 
 _make_app_choices() {
-	readarray users < <(_get_user_list | grep -v "$(_get_master_username)")
-	if [[ ${#users[@]} -eq 0 ]]; then
-		user=$(_get_master_username)
-	else
-		useroptions=("$(_get_master_username) "" on")
-		for u in "${users[@]}"; do
-			useroptions+=("$u" "" off)
-		done
-		user=$(whiptail --radiolist "Which user to upload the logs for?" 9 40 2 "${useroptions[@]}" > /dev/tty)
-		exitstatus=$?
-		if [ $exitstatus = 0 ]; then
-			:
-		else
-			echo_warn "Upload cancelled"
-			exit 1
-		fi
-	fi
-
 	# Get a list of installed apps to make logs for
 	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
 	cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
 	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
-	# readarray options < <(printf '%s "" on\n' "$list_installed")
-
-	for app in "${list_installed[@]}"; do
-		options+=("$app" "" on)
-	done
+	readarray options < <(printf '%s\n""\non\n' "${list_installed[@]}")
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 	exitstatus=$?
 	if [ $exitstatus = 0 ]; then
@@ -67,6 +45,25 @@ _make_app_choices() {
 }
 
 _log_uploads() {
+	# Determine which users to uploads logs for when MU apps are being used
+	readarray users < <(_get_nonmaster_list)
+	if [[ ${#users[@]} -eq 0 ]]; then
+		user=$(_get_master_username)
+	else
+		useroptions=("$(_get_master_username)" "" on)
+		for u in "${users[@]}"; do
+			useroptions+=("$u" "" off)
+		done
+		user=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 40 2 "${useroptions[@]}" 2>&1 > /dev/tty)
+		exitstatus=$?
+		if [ $exitstatus = 0 ]; then
+			:
+		else
+			echo_warn "Upload cancelled"
+			exit 1
+		fi
+	fi
+
 	echo_progress_start "Uploading logs to termbin..."
 	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
 	logs_install="$(cat /root/logs/install.log | _post_content)"
@@ -74,26 +71,44 @@ _log_uploads() {
 
 	logs_app_list=()
 	for choice in $choices; do
-		ret="- [$choice logs]"
 		paths=()
+		commands=()
 		note=" "
 		case $choice in
 			qbittorrent)
-				# TODO some user selection mechanism?
-				user=$(_get_master_username)
-				echo_info "Assuming qbittorrent for $user"
-				paths=("/home/test/.local/share/data/qBittorrent/logs/qbittorrent.log")
+				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
 				;;
 			nginx)
 				paths=(/var/log/nginx/error.log)
+				commands=('nginx -T')
 				;;
 			*)
 				echo_warn "No logs for $choice defined, please upload these manually"
 				note="(No logs for $choice defined)"
 				;;
 		esac
-		[[ ! ${#paths[@]} -eq 0 ]] && link=$(cat "${paths[@]}" | _post_content)
-		ret+="(${link}) $note"
+
+		# Generating file to post
+		tmpfile="/tmp/$choice"
+		rm $tmpfile
+		for cmdbruh in "${commands[@]}"; do
+			{
+				echo "#### Output of \"$cmdbruh\""
+				$cmdbruh
+				echo ""
+			} >> "$tmpfile" 2>&1
+		done
+
+		for path in "${paths[@]}"; do
+			{
+				echo "#### Content of \"$path\""
+				cat "$path"
+				echo ""
+			} >> "$tmpfile" 2>&1
+		done
+
+		[[ -s "$tmpfile" ]] && link=$(cat "$tmpfile" | _post_content)
+
 		logs_app_list+=("$choice" "$link" "$note")
 
 	done
@@ -120,7 +135,7 @@ Make sure to replace the content where indicated, otherwise the issue might get 
 	echo "<!-- ---------------------------------------------------------- -->
 
 ## Installed applications through swizzin
-$(printf -- '- %s\n' "${list_installed[@]}")
+$(printf -- '- `%s`\n' "${list_installed[@]}")
 
 ## Server Info
 - OS: $(_os_pretty)
@@ -143,7 +158,7 @@ _choose_destination() {
 	destination=$(whiptail --radiolist \
 		"Where are you going to paste your info" 9 40 2 \
 		"GitHub" "" ON \
-		"Discord" "" OFF > /dev/tty)
+		"Discord" "" OFF 2>&1 > /dev/tty)
 	exitstatus=$?
 	if [ $exitstatus = 0 ]; then
 		:
