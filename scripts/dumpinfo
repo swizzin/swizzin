@@ -15,15 +15,20 @@ _post_content() {
 	_wash_content | nc termbin.com 9999
 }
 
+ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
+extipaddressv4=$(curl -s -4 icanhazip.com)
+# extipaddressv6=$(curl -q -6 icanhazip.com)
 # Removes any private info out of stdin
 _wash_content() {
 	#TODO make this work lmao
 	# TODO wash API keys, hostnames, IP addresses, usernames??
-	pwuser="$(_get_master_username)"
-	password="$(_get_user_password "$pwuser")"
-	domain=""                                                                                                    #TODO figure out how to get this
-	ipaddress=""                                                                                                 #TODO figure out how to get this
-	sed '1 i\This content should be washed of any identifiable information' | sed "s/$password/###PASSWORD###/g" # | sed "s/$domain/###DOMAIN###/g" | sed "s/$ipaddress/###IPADDRESS###/g"
+	# pwuser="$(_get_master_username)"
+	password="$(_get_user_password "$user")"
+	domain="" #TODO figure out how to get this
+
+	# sed '1 i\This content should be washed of any identifiable information'
+	sed "s/$password/###PASSWORD###/g" | sed "s/$user/###USER###/g" | sed "s/$ipaddress|$extipaddressv4/###IPADDRESS###/g"
+	# | sed "s/$domain/###DOMAIN###/g" |
 }
 
 _make_app_choices() {
@@ -66,6 +71,7 @@ _make_app_choices() {
 	fi
 }
 
+#Holds all the logic for creating the application logs array
 _log_uploads() {
 	echo_progress_start "Uploading logs to termbin..."
 	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
@@ -74,9 +80,10 @@ _log_uploads() {
 
 	logs_app_list=()
 	for choice in $choices; do
-		paths=()
-		commands=()
-		note=""
+		paths=()    # Files to upload the content of
+		commands=() # Commands to upload the ouptut of
+		note=""     # A string to append behind each application row
+		version=    # A string of the application version
 		case $choice in
 			journalctl)
 				commands=('journalctl -xe')
@@ -89,6 +96,7 @@ _log_uploads() {
 				;;
 			qbittorrent)
 				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
+				version="$(/usr/bin/qbittorrent-nox --version | awk {'print $2'})"
 				;;
 			nginx)
 				commands=('nginx -T')
@@ -97,9 +105,16 @@ _log_uploads() {
 			panel)
 				commands=('journalctl -u panel')
 				;;
+			transmission)
+				commands=('transmission-daemon --version')
+				paths=("/home/$user/.config/transmission-daemon/config.json") # TODO is it?
+				;;
+			rtorrent)
+				# commands=('rtorrent')
+				paths=("/home/$user/.rtorrent.rc")
+				;;
 			*)
 				echo_warn "No logs for $choice defined, please upload these manually"
-				note=_"(No logs for $choice defined)_"
 				;;
 		esac
 
@@ -121,10 +136,19 @@ _log_uploads() {
 			} >> "$tmpfile" 2>&1
 		done
 
-		[[ -s "$tmpfile" ]] && link=$(cat "$tmpfile" | _post_content)
+		link=
+		if [[ -s "$tmpfile" ]]; then
+			link=$(_post_content < "$tmpfile")
+		else
+			note="_(No logs generated for $choice)_"
+		fi
 		rm "$tmpfile"
 
-		logs_app_list+=("$choice" "$link" "$note")
+		if [[ -n $version ]]; then
+			logs_app_list+=("$choice ($version)" "$link" "$note")
+		else
+			logs_app_list+=("$choice" "$link" "$note")
+		fi
 
 	done
 	echo_progress_done "Logs uploaded"
