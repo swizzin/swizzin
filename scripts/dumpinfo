@@ -31,7 +31,7 @@ _make_app_choices() {
 	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
 	cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
 	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
-	readarray options < <(printf '%s\n""\n on \n' "${list_installed[@]}")
+	readarray options < <(printf '%s\n "" \n ON \n' "${list_installed[@]}")
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 	exitstatus=$?
 	if [ $exitstatus = 0 ]; then
@@ -140,10 +140,10 @@ $(printf -- '- `%s`\n' "${list_installed[@]}")
 - OS: $(_os_pretty)
 - Arch: \`$(_os_arch)\`
 - Hardware
-$(dmidecode | grep -A3 '^System Information' | grep -v "System Information" | sed 's/^/  - /')
+$(dmidecode | grep -A3 '^System Information' | grep -v "System Information" | tr -d '\t' | sed 's/^/  - /')
 
 ## Swizzin version
-\`$(git -C /etc/swizzin log -1 --pretty=format:"(%h) %s %d (%cd)")\`
+$(git -C /etc/swizzin log -1 --pretty=format:"(%h) \`%s\` %d %an")
 
 ## Logs and output
 - [Install logs](${logs_install})
