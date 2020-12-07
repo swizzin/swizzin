@@ -114,7 +114,7 @@ function tmp_swap_off() {
 }
 
 #Echo a line separated list of possible domains for the instance
-function guess_domain() {
+function guess_domains() {
 	ret=""
 	if [[ -f /install/.duckdns.lock ]]; then
 		eval "$(grep subdomain /opt/duckdns/duck.sh | head -1)"

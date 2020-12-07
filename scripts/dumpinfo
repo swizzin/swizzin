@@ -15,7 +15,7 @@ _post_content() {
 
 # Removes any private info out of stdin
 _wash_content() {
-	sed "$sedString"
+	tr -d '\0' | sed "$sedString"
 }
 
 _set_identifiable_values() {
@@ -23,11 +23,11 @@ _set_identifiable_values() {
 	sensitive=()
 	sensitive+=("$loguser" "USER")
 	sensitive+=("$(_get_user_password "$loguser")" "PASSWORD")
-	# ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|.|g')
-	# extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
-	# sensitive+=("$extip" "EXTIP")
 
-	sensitive+=($(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g') "IPADDR")
+	extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
+	sensitive+=("$extip" "EXTIP")
+
+	sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "IPADDR")
 
 	for domain in $(guess_domains); do
 		sensitive+=("$domain" "DOMAIN")
@@ -39,9 +39,6 @@ _set_identifiable_values() {
 	); do
 		sensitive+=("$hoststr" "HOST")
 	done
-
-	# echo "Sesnitive Array = ${sensitive[*]}"
-	# echo "sedstr = $sedString"
 
 	sedString="$(printf 's/%s/###%s###/g; ' "${sensitive[@]}")"
 	echo_progress_done "Array constructed"
