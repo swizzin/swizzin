@@ -15,19 +15,18 @@ _post_content() {
 	_wash_content | nc termbin.com 9999
 }
 
-ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-extipaddressv4=$(curl -s -4 icanhazip.com)
+# ipaddress=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|.|g')
+# extipaddressv4=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
 # extipaddressv6=$(curl -q -6 icanhazip.com)
 # Removes any private info out of stdin
 _wash_content() {
-	#TODO make this work lmao
 	# TODO wash API keys, hostnames, IP addresses, usernames??
-	# pwuser="$(_get_master_username)"
 	password="$(_get_user_password "$user")"
 	domain="" #TODO figure out how to get this
-
 	# sed '1 i\This content should be washed of any identifiable information'
-	sed "s/$password/###PASSWORD###/g" | sed "s/$user/###USER###/g" | sed "s/$ipaddress|$extipaddressv4/###IPADDRESS###/g"
+	sed "s/$password/###PASSWORD###/g" | sed "s/$user/###USER###/g"
+	# | sed -r 's/(\b[0-9]{1,3}\.){3}[0-9]{1,3}\b'/"###IPADDRESS###"/g
+	# | sed "s/${ipaddress}|${extipaddressv4}/###IPADDRESS###/g"
 	# | sed "s/$domain/###DOMAIN###/g" |
 }
 
