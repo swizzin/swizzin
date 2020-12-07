@@ -31,7 +31,7 @@ _make_app_choices() {
 	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
 	cmd=(whiptail --title "Choose apps to upload logs for" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 40 7)
 	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
-	readarray options < <(printf '%s\n""\non\n' "${list_installed[@]}")
+	readarray options < <(printf '%s\n""\n on \n' "${list_installed[@]}")
 	choices=$("${cmd[@]}" "${options[@]}" 2>&1 > /dev/tty)
 	exitstatus=$?
 	if [ $exitstatus = 0 ]; then
@@ -42,9 +42,7 @@ _make_app_choices() {
 	fi
 
 	echo_log_only "Choices = $choices"
-}
 
-_log_uploads() {
 	# Determine which users to uploads logs for when MU apps are being used
 	readarray users < <(_get_nonmaster_list)
 	if [[ ${#users[@]} -eq 0 ]]; then
@@ -54,16 +52,14 @@ _log_uploads() {
 		for u in "${users[@]}"; do
 			useroptions+=("$u" "" off)
 		done
-		user=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 40 2 "${useroptions[@]}" 2>&1 > /dev/tty)
-		exitstatus=$?
-		if [ $exitstatus = 0 ]; then
-			:
-		else
+		if ! user=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 40 2 "${useroptions[@]}" 2>&1 > /dev/tty); then
 			echo_warn "Upload cancelled"
 			exit 1
 		fi
 	fi
+}
 
+_log_uploads() {
 	echo_progress_start "Uploading logs to termbin..."
 	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
 	logs_install="$(cat /root/logs/install.log | _post_content)"
@@ -73,7 +69,7 @@ _log_uploads() {
 	for choice in $choices; do
 		paths=()
 		commands=()
-		note=" "
+		note=""
 		case $choice in
 			qbittorrent)
 				paths=("/home/$user/.local/share/data/qBittorrent/logs/qbittorrent.log")
@@ -81,6 +77,9 @@ _log_uploads() {
 			nginx)
 				paths=(/var/log/nginx/error.log)
 				commands=('nginx -T')
+				;;
+			panel)
+				commands=('journalctl -u panel')
 				;;
 			*)
 				echo_warn "No logs for $choice defined, please upload these manually"
@@ -125,7 +124,7 @@ Make sure to replace the content where indicated, otherwise the issue might get 
 **Logs**
 - Install logs: <${logs_install}>
 - Swizzin logs: <${logs_swizzin}>
-$(printf -- '- %s <%s> _%s_\n' "${logs_app_list[@]}")
+$(printf -- '- %s <%s> %s\n' "${logs_app_list[@]}")
 "
 }
 
@@ -149,20 +148,16 @@ $(dmidecode | grep -A3 '^System Information' | grep -v "System Information" | se
 ## Logs and output
 - [Install logs](${logs_install})
 - [Swizzin logs](${logs_swizzin})
-$(printf -- '- [%s](%s) _%s_\n' "${logs_app_list[@]}")
+$(printf -- '- [%s](%s) %s\n' "${logs_app_list[@]}")
 
 <!-- ---------------------------------------------------------- -->"
 }
 
 _choose_destination() {
-	destination=$(whiptail --radiolist \
+	if ! destination=$(whiptail --radiolist \
 		"Where are you going to paste your info" 9 40 2 \
 		"GitHub" "" ON \
-		"Discord" "" OFF 2>&1 > /dev/tty)
-	exitstatus=$?
-	if [ $exitstatus = 0 ]; then
-		:
-	else
+		"Discord" "" OFF 2>&1 > /dev/tty); then
 		echo_warn "Upload cancelled"
 		exit 1
 	fi
