@@ -93,8 +93,9 @@ _make_app_choices() {
 	# readarray -t options < <(printf '%s\n""\nON\n' "${list_installed[@]}")
 	appoptions=()
 	for app in "${list_installed[@]}"; do
-		appoptions+=("$app" "" on)
+		appoptions+=("$app" "" off)
 	done
+	choices+=" "
 	if ! choices+=$("${cmd[@]}" "${appoptions[@]}" 2>&1 > /dev/tty); then
 		echo_warn "Upload cancelled"
 		exit 1
@@ -221,8 +222,7 @@ Make sure to replace the content where indicated, otherwise the issue might get 
 **Logs**
 - Install logs: <${logs_install}>
 - Swizzin logs: <${logs_swizzin}>
-$(printf -- '- %s <%s> %s\n' "${logs_app_list[@]}")
-"
+$([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- %s <%s> %s\n' "${logs_app_list[@]}")"
 }
 
 _output_github() {
@@ -245,8 +245,7 @@ $(git -C /etc/swizzin log -1 --pretty=format:"(%h) \`%s\` %d %an")
 ## Logs and output
 - [Install logs](${logs_install})
 - [Swizzin logs](${logs_swizzin})
-$(printf -- '- [%s](%s) %s\n' "${logs_app_list[@]}")
-
+$([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- [%s](%s) %s\n' "${logs_app_list[@]}")
 <!-- ---------------------------------------------------------- -->"
 }
 
