@@ -10,15 +10,20 @@
 - Change 2
 - ...
 
-## Tick these if they apply
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
-- [ ] Some existing `utils` got changed
+## Categories
+<!-- Delete whichever don't apply -->
+- Bug fix (non-breaking change which fixes an issue)
+- New feature (non-breaking change which adds functionality)
+- Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- This change requires a documentation update
+- Some existing `utils` got changed
+- Changes structure of project
+- Impacts the flow of how we contribute
 
 ## Checklist
 - [ ] Docs have been made/are not necessary
+    - PR link: 
+- [ ] Changes to panel have been made/are not necessary
     - PR link: 
 - [ ] Code is formatted [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
