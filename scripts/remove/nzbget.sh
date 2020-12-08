@@ -3,10 +3,10 @@
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
-	systemctl stop -q nzbget@$u
-	systemctl disable -q nzbget@$u
-	rm -rf /home/$u/nzbget
-	rm /etc/nginx/conf.d/$u.nzbget.conf
+    systemctl stop -q nzbget@$u
+    systemctl disable -q nzbget@$u
+    rm -rf /home/$u/nzbget
+    rm /etc/nginx/conf.d/$u.nzbget.conf
 done
 
 rm /etc/systemd/system/nzbget@.service

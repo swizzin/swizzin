@@ -37,7 +37,7 @@ RAD
 
 status=$(systemctl is-active ombi)
 if [[ $status = "active" ]]; then
-	systemctl stop -q ombi
+    systemctl stop -q ombi
 fi
 
 mkdir -p /etc/systemd/system/ombi.service.d
@@ -49,5 +49,5 @@ CONF
 systemctl daemon-reload
 
 if [[ $status = "active" ]]; then
-	systemctl start -q ombi
+    systemctl start -q ombi
 fi

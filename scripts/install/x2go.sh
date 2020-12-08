@@ -25,12 +25,12 @@ systemctl disable --now lightdm >> ${log} 2>&1
 echo_progress_start "Installing x2go repositories ... "
 
 if [[ $distribution == Ubuntu ]]; then
-	apt_install software-properties-common
-	apt-add-repository ppa:x2go/stable -y >> ${log} 2>&1
-	echo_progress_done "Repos installed via PPA"
-	apt_update
+    apt_install software-properties-common
+    apt-add-repository ppa:x2go/stable -y >> ${log} 2>&1
+    echo_progress_done "Repos installed via PPA"
+    apt_update
 else
-	cat > /etc/apt/sources.list.d/x2go.list << EOF
+    cat > /etc/apt/sources.list.d/x2go.list << EOF
 # X2Go Repository (release builds)
 deb http://packages.x2go.org/debian ${release} main
 # X2Go Repository (sources of release builds)
@@ -41,10 +41,10 @@ deb-src http://packages.x2go.org/debian ${release} main
 # X2Go Repository (sources of nightly builds)
 #deb-src http://packages.x2go.org/debian ${release} heuler
 EOF
-	echo_progress_done "Repo added"
-	apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
-	apt_update
-	apt_install x2go-keyring
+    echo_progress_done "Repo added"
+    apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
+    apt_update
+    apt_install x2go-keyring
 fi
 
 apt_install x2goserver x2goserver-xsession pulseaudio

@@ -6,14 +6,14 @@ dependencies="jq uuid-runtime net-tools fortune"
 
 missing=()
 for dep in $dependencies; do
-	if ! check_installed "$dep"; then
-		missing+=("$dep")
-	fi
+    if ! check_installed "$dep"; then
+        missing+=("$dep")
+    fi
 done
 
 if [[ ${missing[1]} != "" ]]; then
-	echo_info "Installing the following dependencies: ${missing[*]}"
-	apt_install "${missing[@]}"
+    echo_info "Installing the following dependencies: ${missing[*]}"
+    apt_install "${missing[@]}"
 else
-	echo_log_only "No dependencies required to install"
+    echo_log_only "No dependencies required to install"
 fi

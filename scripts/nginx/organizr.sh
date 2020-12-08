@@ -9,8 +9,8 @@
 #   under the GPL along with build & install instructions.
 
 if [[ ! -f /install/.nginx.lock ]]; then
-	echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
-	exit 1
+    echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+    exit 1
 fi
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
@@ -21,7 +21,7 @@ phpv=$(php_v_from_nginxconf)
 sock="php${phpv}-fpm"
 
 if [[ ! -f /etc/nginx/apps/organizr.conf ]]; then
-	cat > /etc/nginx/apps/organizr.conf << RUM
+    cat > /etc/nginx/apps/organizr.conf << RUM
 location /organizr {
   alias /srv/organizr;
 

@@ -11,7 +11,7 @@
 MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active shellinabox)
 if [[ ! -f /etc/nginx/apps/shell.conf ]]; then
-	cat > /etc/nginx/apps/shell.conf << RAD
+    cat > /etc/nginx/apps/shell.conf << RAD
 location /shell/ {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:4200;
@@ -21,13 +21,13 @@ location /shell/ {
 RAD
 fi
 if [[ -z $(grep disable-ssl /etc/default/shellinabox) ]]; then
-	sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--disable-ssl /g' /etc/default/shellinabox
+    sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--disable-ssl /g' /etc/default/shellinabox
 fi
 if [[ -z $(grep localhost-only /etc/default/shellinabox) ]]; then
-	sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--localhost-only /g' /etc/default/shellinabox
+    sed -i 's/SHELLINABOX_ARGS="/SHELLINABOX_ARGS="--localhost-only /g' /etc/default/shellinabox
 fi
 systemctl reload nginx
 
 if [[ $isactive == "active" ]]; then
-	systemctl restart shellinabox
+    systemctl restart shellinabox
 fi

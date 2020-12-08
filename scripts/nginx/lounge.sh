@@ -18,5 +18,5 @@ sed -i 's/host: undefined,/host: "127.0.0.1",/g' /home/lounge/.thelounge/config.
 sed -i 's/reverseProxy: false,/reverseProxy: true,/g' /home/lounge/.thelounge/config.js
 
 if [[ $isactive == "active" ]]; then
-	systemctl restart lounge
+    systemctl restart lounge
 fi
