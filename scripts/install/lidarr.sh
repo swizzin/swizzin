@@ -59,11 +59,11 @@ LID
 echo_progress_done "Lidarr configured"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	sleep 10
-	bash /usr/local/bin/swizzin/nginx/lidarr.sh
-	systemctl reload nginx
-	echo_progress_done "Nginx configured"
+    echo_progress_start "Configuring nginx"
+    sleep 10
+    bash /usr/local/bin/swizzin/nginx/lidarr.sh
+    systemctl reload nginx
+    echo_progress_done "Nginx configured"
 fi
 
 echo_progress_start "Enabling Lidarr"

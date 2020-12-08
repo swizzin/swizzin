@@ -32,7 +32,7 @@ export estout=$(tput rmso || tput se)  # End stand-out
 # resetAllModes="\e[21m\e[22m\e[24m\e[25m\e[27m\e[28m"
 
 ring_the_bell() {
-	[[ $bell == "true" ]] && tput bel
+    [[ $bell == "true" ]] && tput bel
 }
 export -f ring_the_bell
 
@@ -41,63 +41,63 @@ export -f ring_the_bell
 # $1    the message to print
 # $log  (optionally declared outside) the file to log to
 echo_warn() {
-	ring_the_bell
-	colorprint "${yellow}${bold}WARN" "$1"
+    ring_the_bell
+    colorprint "${yellow}${bold}WARN" "$1"
 }
 export -f echo_warn
 
 echo_error() {
-	ring_the_bell
-	colorprint "${red}${bold}ERROR" "$1"
-	colorprint "${red}${italic}" "Please consult the above and/or check the log (less -R +G $log)"
+    ring_the_bell
+    colorprint "${red}${bold}ERROR" "$1"
+    colorprint "${red}${italic}" "Please consult the above and/or check the log (less -R +G $log)"
 }
 export -f echo_error
 
 echo_info() {
-	colorprint "${bold}INFO" "$1"
+    colorprint "${bold}INFO" "$1"
 }
 export -f echo_info
 
 echo_docs() {
-	colorprint "${cyan}${bold}DOCS" "${nc}${cyan}${italic}Further reference: ${under}https://swizzin.ltd/$1"
+    colorprint "${cyan}${bold}DOCS" "${nc}${cyan}${italic}Further reference: ${under}https://swizzin.ltd/$1"
 }
 export -f echo_docs
 
 echo_progress_start() {
-	colorprint "${dim}..." "$1"
+    colorprint "${dim}..." "$1"
 }
 export -f echo_progress_start
 
 # Prints the reply to echo_progess_start or "Done" if no params
 echo_progress_done() {
-	if [[ -z $1 ]]; then
-		message="Done"
-	else
-		message="$1"
-	fi
-	colorprint "" "${green}${dim}\u2714   ${italic}$message"
+    if [[ -z $1 ]]; then
+        message="Done"
+    else
+        message="$1"
+    fi
+    colorprint "" "${green}${dim}\u2714   ${italic}$message"
 }
 export -f echo_progress_done
 
 echo_success() {
-	colorprint "${green}${bold}SUCCESS" "$1"
+    colorprint "${green}${bold}SUCCESS" "$1"
 }
 export -f echo_success
 
 echo_query() {
-	colorprint "${blue}${bold}INPUT" "${italic}$1"
-	if [[ -n $2 ]]; then
-		options="($2) "
-	else
-		options=""
-	fi
-	echo -en "${blue}${bold}${options}>${nc} "
+    colorprint "${blue}${bold}INPUT" "${italic}$1"
+    if [[ -n $2 ]]; then
+        options="($2) "
+    else
+        options=""
+    fi
+    echo -en "${blue}${bold}${options}>${nc} "
 }
 export -f echo_query
 
 # Prints only into the logpath
 echo_log_only() {
-	colorprint "${cyan}LOG" "$1"
+    colorprint "${cyan}LOG" "$1"
 }
 export -f echo_log_only
 
@@ -105,105 +105,105 @@ export -f echo_log_only
 # $2 = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
 # $log = location of the file to log into
 function colorprint() {
-	heading="$1\t"
-	body="$2"
-	# If the optional logfile was specified...
-	if [[ -n $log ]]; then
-		printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "$log"
-		# ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
-		# echo "${FUNCNAME[ 1 ]}"
-		if [[ ${FUNCNAME[1]} == "echo_log_only" ]]; then
-			printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
-		else # otherwise append it
-			#Wrapped for the user
-			printf '%b' "${heading}"
-			printf '%b\n' "${body}${nc}" | do_the_wrap
-			#Unwrapped for the log
-			printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
-		fi
-	else # If log was not specified...
-		printf '%b' "${heading}"
-		printf '%b\n' "${body}${nc}" | do_the_wrap
-	fi
+    heading="$1\t"
+    body="$2"
+    # If the optional logfile was specified...
+    if [[ -n $log ]]; then
+        printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "$log"
+        # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
+        # echo "${FUNCNAME[ 1 ]}"
+        if [[ ${FUNCNAME[1]} == "echo_log_only" ]]; then
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
+        else # otherwise append it
+            #Wrapped for the user
+            printf '%b' "${heading}"
+            printf '%b\n' "${body}${nc}" | do_the_wrap
+            #Unwrapped for the log
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
+        fi
+    else # If log was not specified...
+        printf '%b' "${heading}"
+        printf '%b\n' "${body}${nc}" | do_the_wrap
+    fi
 }
 export -f colorprint
 
 # Wraps indents the text according to variables / terminal output
 function do_the_wrap() {
-	if [[ $fold = true ]]; then
-		# width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
-		width=$(tput cols)
-		if [[ $full_width == "false" ]]; then
-			if [[ $width -gt $width_cap ]]; then
-				width=$width_cap
-			fi
-		fi
-		width=$((width - 8))
-		fold -s -w${width} | sed -e '2,$s/^/\t/'
-	else
-		cat
-	fi
+    if [[ $fold = true ]]; then
+        # width to use for folding and wrapping (excludes tab for indentation, subtract 8 char to account for that)
+        width=$(tput cols)
+        if [[ $full_width == "false" ]]; then
+            if [[ $width -gt $width_cap ]]; then
+                width=$width_cap
+            fi
+        fi
+        width=$((width - 8))
+        fold -s -w${width} | sed -e '2,$s/^/\t/'
+    else
+        cat
+    fi
 }
 export -f do_the_wrap
 
 function strip_ansi() {
-	if [[ $strip_ansi_from_log == "true" ]]; then
-		sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
-	else
-		cat
-	fi
+    if [[ $strip_ansi_from_log == "true" ]]; then
+        sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'
+    else
+        cat
+    fi
 }
 export -f strip_ansi
 
 function echo_tests() {
-	echo_test_basic
-	echo
-	echo_test_wrap
-	echo
-	echo_test_log
+    echo_test_basic
+    echo
+    echo_test_wrap
+    echo
+    echo_test_log
 }
 
 function echo_test_basic() {
-	echo "Here are some basic echos"
-	echo
-	echo_success "Installation complete"
-	echo_warn "Some hiccups"
-	echo_error "wOoopsie fwings awe fucky wucky"
-	echo_info "Something of note to user"
-	echo_docs applications/transmission
-	echo_progress_start "Something started"
-	echo_progress_done "Done message"
-	echo_query "Can you tell me this please" "YES/no"
-	echo
+    echo "Here are some basic echos"
+    echo
+    echo_success "Installation complete"
+    echo_warn "Some hiccups"
+    echo_error "wOoopsie fwings awe fucky wucky"
+    echo_info "Something of note to user"
+    echo_docs applications/transmission
+    echo_progress_start "Something started"
+    echo_progress_done "Done message"
+    echo_query "Can you tell me this please" "YES/no"
+    echo
 }
 
 function echo_test_wrap() {
-	echo -E "Look at this nice wrapping biz going on"
-	# Really long text just for illustration.
-	# the "<Line Break> is there just to show where the actual escape char is"
-	echo "Base string = "
-	lipsum="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
-	echo -E "$lipsum"
-	echo
-	echo_success "${lipsum}"
-	echo_warn "${lipsum}"
-	echo_error "${lipsum}"
-	echo_info "${lipsum}"
-	echo_progress_start "${lipsum}"
-	echo_progress_done "Duis bibendum justo lorem"
-	echo_query "${lipsum}"
+    echo -E "Look at this nice wrapping biz going on"
+    # Really long text just for illustration.
+    # the "<Line Break> is there just to show where the actual escape char is"
+    echo "Base string = "
+    lipsum="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus sodales orci vitae facilisis venenatis. Integer lobortis feugiat viverra. Morbi sit amet quam aliquet, ullamcorper turpis quis, porttitor erat. Nulla quis eleifend nisi.<Line break>\nFusce feugiat rutrum libero ut dictum. Nullam lacus eros, consequat et sem in, suscipit efficitur diam. Proin euismod nisi eu est congue, ut tempor diam gravida. Curabitur sit amet aliquam orci, quis fermentum augue."
+    echo -E "$lipsum"
+    echo
+    echo_success "${lipsum}"
+    echo_warn "${lipsum}"
+    echo_error "${lipsum}"
+    echo_info "${lipsum}"
+    echo_progress_start "${lipsum}"
+    echo_progress_done "Duis bibendum justo lorem"
+    echo_query "${lipsum}"
 }
 
 function echo_test_log() {
-	echo "And this is what happens when you set the \$log variable. (check source)"
-	echo "What the screen sees:"
-	log="/tmp/dumblog.txt"
-	if [[ -f $log ]]; then rm $log; fi
-	echo_info "${lipsum}"
-	echo_log_only "${lipsum}"
-	echo
-	echo "The contents of the log:"
-	cat $log
-	rm $log
-	log=""
+    echo "And this is what happens when you set the \$log variable. (check source)"
+    echo "What the screen sees:"
+    log="/tmp/dumblog.txt"
+    if [[ -f $log ]]; then rm $log; fi
+    echo_info "${lipsum}"
+    echo_log_only "${lipsum}"
+    echo
+    echo "The contents of the log:"
+    cat $log
+    rm $log
+    log=""
 }
