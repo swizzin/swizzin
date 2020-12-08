@@ -7,15 +7,15 @@
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-pastebinlog="/root/logs/pastebin.log"
+pastebinlog="/root/logs/privatebin.log"
 
 _choose_pastehost() {
 	if which privatebin; then
 		echo_info "Using privatebin.net"
 		pastetool="privatebin"
 	else
-		echo_warn "Privatebin CLI tool not installed. Your logs will NOT BE ENCRYPTED"
-		if ask "Install privatebin cli tool?"; then
+		echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
+		if ask "Install Privatebin CLI tool?"; then
 			/etc/swizzin/scripts/install/privatebin.sh
 			box dumpinfo
 		else
