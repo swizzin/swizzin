@@ -4,11 +4,11 @@
 
 users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -n $1 ]]; then
-	users=($1)
+    users=($1)
 fi
 
 if [[ ! -f /etc/nginx/apps/flood.conf ]]; then
-	cat > /etc/nginx/apps/flood.conf << 'FLO'
+    cat > /etc/nginx/apps/flood.conf << 'FLO'
 location /flood {
   return 301 /flood/;
 }
@@ -24,7 +24,7 @@ FLO
 fi
 
 if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
-	cat > /etc/nginx/apps/rindex.conf << RIN
+    cat > /etc/nginx/apps/rindex.conf << RIN
 location /rtorrent.downloads {
   alias /home/\$remote_user/torrents/rtorrent;
   include /etc/nginx/snippets/fancyindex.conf;
@@ -35,28 +35,28 @@ RIN
 fi
 
 for u in "${users[@]}"; do
-	isactive=$(systemctl is-active flood@$u)
-	if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
-		port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
-		cat > /etc/nginx/conf.d/$u.flood.conf << FLUP
+    isactive=$(systemctl is-active flood@$u)
+    if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
+        port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
+        cat > /etc/nginx/conf.d/$u.flood.conf << FLUP
 upstream $u.flood {
   server 127.0.0.1:$port;
 }
 FLUP
-	fi
+    fi
 
-	sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
-	base=$(grep baseURI /home/$u/.flood/config.js | cut -d"'" -f2)
-	sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
+    sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
+    base=$(grep baseURI /home/$u/.flood/config.js | cut -d"'" -f2)
+    sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
 
-	if [[ ! -d /home/$u/.flood/server/assets ]]; then
-		su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
-	elif [[ -d /home/$u/.flood/server/assets ]] && [[ $base == "/" ]]; then
-		su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
-	fi
+    if [[ ! -d /home/$u/.flood/server/assets ]]; then
+        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+    elif [[ -d /home/$u/.flood/server/assets ]] && [[ $base == "/" ]]; then
+        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+    fi
 
-	if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-		cat > /etc/nginx/apps/${u}.scgi.conf << RUC
+    if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
+        cat > /etc/nginx/apps/${u}.scgi.conf << RUC
 location /${u} {
 include scgi_params;
 scgi_pass unix:/var/run/${u}/.rtorrent.sock;
@@ -64,11 +64,11 @@ auth_basic "What's the password?";
 auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
 }
 RUC
-	fi
+    fi
 
-	if [[ $isactive == "active" ]]; then
-		systemctl restart flood@$u
-	fi
+    if [[ $isactive == "active" ]]; then
+        systemctl restart flood@$u
+    fi
 
 done
 systemctl reload nginx

@@ -18,7 +18,7 @@ SONARR
 isactive=$(systemctl is-active sonarr)
 
 if [[ $isactive == "active" ]]; then
-	systemctl stop sonarr
+    systemctl stop sonarr
 fi
 user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
@@ -44,12 +44,12 @@ cat > /home/"$user"/.config/sonarr/config.xml << SONN
 SONN
 
 if [[ -f /install/.rutorrent.lock ]]; then
-	sqlite3 /home/"$user"/.config/sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+    sqlite3 /home/"$user"/.config/sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
 fi
 
 chown -R "$user":"$user" /home/"$user"/.config/sonarr
 
 # chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-	systemctl start sonarr
+    systemctl start sonarr
 fi

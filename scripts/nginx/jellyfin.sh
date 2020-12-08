@@ -2,23 +2,23 @@
 #
 # A functions for reused commands.
 function reused_commands() {
-	sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i /etc/jellyfin/system.xml
-	sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i /etc/jellyfin/system.xml
-	chown jellyfin:jellyfin /etc/jellyfin/system.xml
+    sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i /etc/jellyfin/system.xml
+    sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i /etc/jellyfin/system.xml
+    chown jellyfin:jellyfin /etc/jellyfin/system.xml
 }
 #
 # Do this for jellyfin if is not already installed
 if [[ ! -f /install/.jellyfin.lock ]]; then
-	reused_commands
+    reused_commands
 fi
 #
 # Do this for jellyfin if is already installed
 if [[ -f /install/.jellyfin.lock ]]; then
-	systemctl -q stop jellyfin.service
-	#
-	reused_commands
-	#
-	systemctl -q start jellyfin.service
+    systemctl -q stop jellyfin.service
+    #
+    reused_commands
+    #
+    systemctl -q start jellyfin.service
 fi
 #
 # Create our nginx application conf for jellyfin

@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 MASTER=$(cut -d: -f1 < /root/.master.info)
 if [[ ! -f /etc/nginx/apps/syncthing.conf ]]; then
-	cat > /etc/nginx/apps/syncthing.conf << SYNC
+    cat > /etc/nginx/apps/syncthing.conf << SYNC
 location /syncthing/ {
   proxy_pass              http://127.0.0.1:8384/;
   proxy_set_header        Host \$proxy_host;
