@@ -177,12 +177,12 @@ function skip_libtorrent_rasterbar() {
                 fi
                 ;;
             1.1.*)
-                if [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                if [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
+                    false
                     return
                 elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
-                elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
-                    false
+                elif [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
                 elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
