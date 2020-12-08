@@ -16,7 +16,7 @@ _choose_pastehost() {
 	else
 		echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
 		if ask "Install Privatebin CLI tool?"; then
-			/etc/swizzin/scripts/install/privatebincli.sh
+			bash /etc/swizzin/scripts/install/privatebincli.sh
 			box dumpinfo
 		else
 			echo_info "Continuing with termbin.com"
