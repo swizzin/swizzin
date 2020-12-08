@@ -84,16 +84,22 @@ function build_qbittorrent() {
 
 function qbittorrent_service() {
 	if [[ ! -f /etc/systemd/system/qbittorent@.service ]]; then
+		type=simple
+		if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+			type=exec
+		fi
 		cat > /etc/systemd/system/qbittorrent@.service << EOQBS
 [Unit]
-Description=qBittorrent noX for %i
-After=network.target
+Description=qBittorrent-nox service for %i
+Documentation=man:qbittorrent-nox(1)
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Type=forking
+Type=$type
 User=%i
 Group=%i
-ExecStart=/usr/bin/qbittorrent-nox -d
+ExecStart=/usr/bin/qbittorrent-nox
 
 [Install]
 WantedBy=multi-user.target
