@@ -158,7 +158,8 @@ _log_uploads() {
 			nginx)
 				commands+=('nginx -T')
 				paths+=(/var/log/nginx/error.log)
-				paths+=('/var/log/php*-fpm.log')
+				. /etc/swizzin/sources/functions/php
+				paths+=("/var/log/php$(php_service_version)-fpm.log")
 				;;
 			panel)
 				commands+=('journalctl -u panel')
@@ -166,6 +167,10 @@ _log_uploads() {
 			transmission)
 				commands+=('transmission-daemon --version')
 				paths+=("/home/$loguser/.config/transmission-daemon/config.json") # TODO is it?
+				;;
+			tautulli)
+				commands+=('journalctl -u tautuli')
+				paths+=("/opt/tautulli/logs/tautulli.log") # TODO is it?
 				;;
 			rtorrent)
 				# commands+=('rtorrent')
@@ -245,7 +250,7 @@ $(git -C /etc/swizzin log -1 --pretty=format:"(%h) \`%s\` %d %an")
 ## Logs and output
 - [Install logs](${logs_install})
 - [Swizzin logs](${logs_swizzin})
-$([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- [%s](%s) %s\n' "${logs_app_list[@]}")
+$([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- [%s](%s):\t%s\n' "${logs_app_list[@]}")
 <!-- ---------------------------------------------------------- -->"
 }
 
@@ -273,5 +278,6 @@ else
 fi
 
 if [[ $pastetool == "privatebin" ]]; then
+	echo
 	echo_info "You can find delete links for each paste in $pastebinlog"
 fi
