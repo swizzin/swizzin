@@ -32,6 +32,7 @@ _post_content() {
 	if [[ $pastetool == "privatebin" ]]; then
 		touch $pastebinlog
 		echo "" >> $pastebinlog
+		#TODO something here is making the "FS busy" bug
 		_wash_content | privatebin send -o text >> $pastebinlog
 		tail -3 $pastebinlog | grep "pasteURL" | awk '{print $2}'
 	else
@@ -171,9 +172,10 @@ _log_uploads() {
 				;;
 			transmission)
 				commands+=('transmission-daemon --version')
-				paths+=("/home/$loguser/.config/transmission-daemon/config.json") # TODO is it?
+				paths+=("/home/$loguser/.config/transmission-daemon/settings.json") # TODO is it?
 				;;
 			tautulli)
+				# TODO clashes with journalctl for panel...???
 				commands+=('journalctl -u tautuli')
 				paths+=("/opt/tautulli/logs/tautulli.log") # TODO is it?
 				;;
@@ -204,7 +206,7 @@ _log_uploads() {
 			} >> "$tmpfile" 2>&1
 		done
 
-		link=
+		link=''
 		if [[ -s "$tmpfile" ]]; then
 			link=$(_post_content < "$tmpfile")
 			rm "$tmpfile"
