@@ -42,7 +42,7 @@ _post_content() {
 # Removes any private info out of stdin
 _wash_content() {
 	# Makes the pattern from every two items in the array
-	now_sensitive=(${sensitive[@]} ${app_sensitive[@]})
+	now_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
 	sedString="$(printf 's/%s/%s/g; ' "${now_sensitive[@]}")"
 	sed "$sedString" | tr -d '\0'
 }
@@ -163,8 +163,8 @@ _log_uploads() {
 				paths+=(/var/log/nginx/error.log)
 				. /etc/swizzin/sources/functions/php
 				paths+=("/var/log/php$(php_service_version)-fpm.log")
-				# TODO verify this
-				app_sensitive+=("client: \d*\.\d*\.\d*\.\d*" "client: ###CLIENTIP###")
+				# TODO add IPV6 addresses?
+				app_sensitive+=("client: [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" "client: ###-CLIENTIP-###")
 				;;
 			panel)
 				commands+=('journalctl -u panel')
