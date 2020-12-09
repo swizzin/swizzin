@@ -339,7 +339,7 @@ function build_libtorrent_rasterbar() {
             PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >> "${log}" 2>&1
             fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin$tag" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
             dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
-            echo_progress_done "Pbox ython binding built"
+            echo_progress_done "Python binding built"
         fi
         ldconfig
         cd /tmp
