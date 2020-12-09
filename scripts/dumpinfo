@@ -16,6 +16,7 @@ _choose_pastehost() {
 	else
 		echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
 		if ask "Install Privatebin CLI tool?"; then
+			# TODO change permissions on this file to +x so I don't have ti use bash because of the NTFS perms translation
 			bash /etc/swizzin/scripts/install/privatebincli.sh
 			box dumpinfo
 		else
@@ -41,7 +42,8 @@ _post_content() {
 # Removes any private info out of stdin
 _wash_content() {
 	# Makes the pattern from every two items in the array
-	sedString="$(printf 's/%s/###%s###/g; ' "${sensitive[@]}")"
+	now_sensitive=(${sensitive[@]} ${app_sensitive[@]})
+	sedString="$(printf 's/%s/%s/g; ' "${now_sensitive[@]}")"
 	sed "$sedString" | tr -d '\0'
 }
 
@@ -50,23 +52,23 @@ _wash_content() {
 _set_identifiable_values() {
 	echo_progress_start "Constructing array for washing sensitive information"
 	sensitive=()
-	sensitive+=("$loguser" "USER")
-	sensitive+=("$(_get_user_password "$loguser")" "PASSWORD")
+	sensitive+=("$loguser" "###-USER-###")
+	sensitive+=("$(_get_user_password "$loguser")" "###-PASSWORD-###")
 
 	extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
-	sensitive+=("$extip" "EXTIP")
+	sensitive+=("$extip" "###-EXTIP-###")
 
-	sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "IPADDR")
+	sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "###-IPADDR-###")
 
 	for domain in $(guess_domains | sed 's|\.|\\.|g'); do
-		sensitive+=("$domain" "DOMAIN")
+		sensitive+=("$domain" "###-DOMAIN-###")
 	done
 
 	for hoststr in $(
 		hostname -A | sed 's|\.|\\.|g'
 		hostname -a | sed 's|\.|\\.|g'
 	); do
-		sensitive+=("$hoststr" "HOST")
+		sensitive+=("$hoststr" "###-HOST-###")
 	done
 
 	echo_progress_done "Array constructed"
@@ -121,6 +123,7 @@ _make_app_choices() {
 _log_uploads() {
 	echo_progress_start "Uploading logs to $pastetool"
 	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
+	app_sensitive=()
 	logs_install="$(cat /root/logs/install.log | _post_content)"
 	logs_swizzin=$(cat /root/logs/swizzin.log | _post_content)
 
@@ -160,6 +163,8 @@ _log_uploads() {
 				paths+=(/var/log/nginx/error.log)
 				. /etc/swizzin/sources/functions/php
 				paths+=("/var/log/php$(php_service_version)-fpm.log")
+				# TODO verify this
+				app_sensitive+=("client: \d*\.\d*\.\d*\.\d*" "client: ###CLIENTIP###")
 				;;
 			panel)
 				commands+=('journalctl -u panel')
