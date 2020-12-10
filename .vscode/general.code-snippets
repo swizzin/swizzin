@@ -2,7 +2,7 @@
     "Ask a yes/no question with if block": {
         "scope": "shellscript",
         "prefix": [
-            "ask"
+            "askif"
         ],
         "body": [
             "if ask \"${1:question}\" ${2| ,Y,N|}; then",
@@ -10,7 +10,19 @@
             "else",
             "\t: # no condition",
             "fi$0"
-        ]
+        ],
+        "description": "Inserts an if block with an `ask` command"
+    },
+    "Ask a yes/no question": {
+        "scope": "shellscript",
+        "prefix": [
+            "ask"
+        ],
+        "body": [
+            "ask \"${1:question}\" ${2| ,Y,N|}",
+            "echo \"Return code = $?\" # 0 = Yes, # 1 = No"
+        ],
+        "description": "Inserts an if block with an `ask` command"
     },
     "Remove if exists": {
         "scope": "shellscript",
