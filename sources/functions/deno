@@ -1,0 +1,10 @@
+#!/bin/bash
+# Deno installer
+
+install_deno() {
+	if ! which deno; then
+		curl -fsSL https://deno.land/x/install/install.sh | sh
+	else
+		echo_log_only "Deno already installed"
+	fi
+}
