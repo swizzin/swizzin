@@ -1,9 +1,16 @@
 #!/bin/bash
 
-# if [[ -f /install/,plex.lock ]]; then
-# 	echo_error "This app is useless without Plex"
-# 	exit 1
-# fi
+if [[ ! -f /install/.plex.lock ]]; then
+	echo_warn "Plex server not installed"
+	echo_query "Please enter your Plex Server's address (e.g. domain.ltd:32400)"
+	read -r plexaddress
+else
+	plexaddress="localhost:32400"
+fi
+
+echo_info "Moviematch needs to connect to Plex via a Token. You can hear how to retrieve one here:\nhttps://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/"
+echo_query "Please enter your Plex Token"
+read -r plextoken
 
 #shellcheck source=sources/functions/deno
 . /etc/swizzin/sources/functions/deno
@@ -22,15 +29,10 @@ useradd moviematch --system -d "$mmatchDir" >> $log 2>&1
 sudo chown -R moviematch:moviematch $mmatchDir
 
 cat > $mmatchDir/.env << ENV
-# !!! Change the PLEX_TOKEN in this file, then close the editor (CTRL + X)
-PLEX_URL="http://localhost:32400"
-# Follow guide here to retrieve the token
-# https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
-PLEX_TOKEN=ChangeThisObviouslyFakePlexToken
+PLEX_URL="http://$plexaddress"
+PLEX_TOKEN=$plextoken
 PORT=8420
 ENV
-
-nano $mmatchDir/.env
 
 echo_progress_start "Installing systemd service and starting moviematch"
 cat > /etc/systemd/system/moviematch.service << SYSTEMD
@@ -51,15 +53,18 @@ WantedBy=multi-user.target
 
 SYSTEMD
 
-# if [[ -f /install/.nginx.lock ]]; then
-# 	bash /etc/swizzin/scripts/nginx/moviematch.sh
-# 	systemctl reload nginx
-# else
-echo_info "Moviematch is available on port 8420 (NGINX/baseurl support coming https://github.com/LukeChannings/moviematch/issues/10)"
-# fi
+if [[ -f /install/.nginx.lock ]]; then
+	echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
+	# TODO change baseurl config when issue above is fixed
+	# bash /etc/swizzin/scripts/nginx/moviematch.sh
+	# systemctl reload nginx
+else
+	echo_info "Moviematch is available on port 8420"
+fi
 
 systemctl daemon-reload
 systemctl enable --now -q moviematch
 
+touch /install/.moviematch.lock
 echo_success "Moviematch installed"
 # deno run --allow-net --allow-read --allow-env $mmatchDir/src/index.ts
