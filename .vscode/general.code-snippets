@@ -6,10 +6,10 @@
         ],
         "body": [
             "if ask \"${1:question}\" ${2| ,Y,N|}; then",
-            "\t${3:: # yes condition}",
+            "\t: # yes condition",
             "else",
-            "\t${4:: # nocondition}",
-            "fi"
+            "\t: # no condition",
+            "fi$0"
         ]
     },
     "Remove if exists": {
