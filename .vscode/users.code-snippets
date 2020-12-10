@@ -1,0 +1,41 @@
+{
+    "Get master username": {
+        "scope": "shellscript",
+        "prefix": [
+            "_get_master_username",
+            "master"
+        ],
+        "body": [
+            "_get_master_username"
+        ],
+        "description": "Returns username of master user"
+    },
+    "Get user pasword": {
+        "scope": "shellscript",
+        "prefix": [
+            "_get_user_password",
+            "password"
+        ],
+        "body": [
+            "_get_user_password"
+        ]
+    },
+    "Get user list": {
+        "scope": "shellscript",
+        "prefix": [
+            "_get_user_list",
+            "userlist",
+        ],
+        "body": [
+            "_get_user_list"
+        ]
+    },
+    "Set a user array": {
+        "scope": "shellscript",
+        "prefix": "users",
+        "body": [
+            "readarray -t ${1:users} < <(_get_user_list)"
+        ],
+        "description": "Defines an array which contains all the swizzin users"
+    },
+}
