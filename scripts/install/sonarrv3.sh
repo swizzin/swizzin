@@ -44,7 +44,7 @@ _sonarrv2_flow() {
 			fi
 
 			apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarrv2owner}"/.config/NzbDrone/config.xml)
-			echo_log_only "apikey = $apikey"
+			# echo_log_only "apikey = $apikey" # TODO sanitise this from the logs
 
 			#This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
 			response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" --insecure)
