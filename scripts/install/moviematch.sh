@@ -45,19 +45,18 @@ After=network.target
 Type=simple
 User=moviematch
 WorkingDirectory=${mmatchDir}
-ExecStart=/usr/local/bin/deno run --allow-net --allow-read --allow-env ${mmatchDir}/src/index.ts
+ExecStart=/usr/local/bin/deno run --allow-net --allow-read --allow-env --unstable ${mmatchDir}/src/index.ts
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-
 SYSTEMD
 
 if [[ -f /install/.nginx.lock ]]; then
-    echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
+    # echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
     # TODO change baseurl config when issue above is fixed
-    # bash /etc/swizzin/scripts/nginx/moviematch.sh
-    # systemctl reload nginx
+    bash /etc/swizzin/scripts/nginx/moviematch.sh
+    systemctl reload nginx
 else
     echo_info "Moviematch is available on port 8420"
 fi
