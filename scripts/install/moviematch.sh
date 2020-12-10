@@ -1,11 +1,11 @@
 #!/bin/bash
 
 if [[ ! -f /install/.plex.lock ]]; then
-	echo_warn "Plex server not installed"
-	echo_query "Please enter your Plex Server's address (e.g. domain.ltd:32400)"
-	read -r plexaddress
+    echo_warn "Plex server not installed"
+    echo_query "Please enter your Plex Server's address (e.g. domain.ltd:32400)"
+    read -r plexaddress
 else
-	plexaddress="localhost:32400"
+    plexaddress="localhost:32400"
 fi
 
 echo_info "Moviematch needs to connect to Plex via a Token. You can hear how to retrieve one here:\nhttps://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/"
@@ -54,12 +54,12 @@ WantedBy=multi-user.target
 SYSTEMD
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
-	# TODO change baseurl config when issue above is fixed
-	# bash /etc/swizzin/scripts/nginx/moviematch.sh
-	# systemctl reload nginx
+    echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
+    # TODO change baseurl config when issue above is fixed
+    # bash /etc/swizzin/scripts/nginx/moviematch.sh
+    # systemctl reload nginx
 else
-	echo_info "Moviematch is available on port 8420"
+    echo_info "Moviematch is available on port 8420"
 fi
 
 systemctl daemon-reload
