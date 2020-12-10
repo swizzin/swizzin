@@ -9,3 +9,5 @@ cat > /etc/nginx/apps/moviematch.conf << NGINX
 NGINX
 
 echo "ROOT_PATH=/moviematch" >> /opt/moviematch/.env
+
+systemctl try-restart moviematch -q
