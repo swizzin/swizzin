@@ -1,6 +1,16 @@
 #!/bin/bash
-# Swizzin troubleshooting utility
 # GPLv3, flying_sayusages for Swizzin 2020
+# Swizzin troubleshooting utility
+# The tool does the following:
+# - Lets user make choices about applications and system components to examine
+# - Compiles all the info for each application
+# - Sanitizes those logs
+# - Posts them online and saves deletion links when necessary
+#
+# !!! CONTRIBUTORS, please do the following:
+# - add your paths and commands to the switchcase in _log_upload
+# - test your logs through running bashinfo
+# - add any patterns through the app_sensitive array to get rid of sensitive information
 
 # shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
@@ -9,9 +19,11 @@
 
 pastebinlog="/root/logs/privatebin.log"
 
+# Picks privatebin if available, otherwise offers the choice to install or use termbin
 _choose_pastehost() {
 	if which privatebin; then
 		echo_info "Using privatebin.net"
+		echo -e "\n\n###### Links from $(date)"
 		pastetool="privatebin"
 	else
 		echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
@@ -28,12 +40,17 @@ _choose_pastehost() {
 }
 
 # Processes a file and posts it online
+# Takes stdin, washes it, posts it on the required platform
 _post_content() {
 	if [[ $pastetool == "privatebin" ]]; then
+		# TODO check this works as expected
+		tmpid=$(uuidgen)
+		cat > /tmp/"$tmpid"
 		touch $pastebinlog
 		echo "" >> $pastebinlog
 		#TODO something here is making the "FS busy" bug
-		_wash_content | privatebin send -o text >> $pastebinlog
+		cat /tmp/"$tmpid" | _wash_content | privatebin send -o text >> $pastebinlog
+		rm /tmp/"$tmpid"
 		tail -3 $pastebinlog | grep "pasteURL" | awk '{print $2}'
 	else
 		_wash_content | nc termbin.com 9999
@@ -43,8 +60,8 @@ _post_content() {
 # Removes any private info out of stdin
 _wash_content() {
 	# Makes the pattern from every two items in the array
-	now_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
-	sedString="$(printf 's/%s/%s/g; ' "${now_sensitive[@]}")"
+	cur_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
+	sedString="$(printf 's/%s/%s/g; ' "${cur_sensitive[@]}")"
 	sed "$sedString" | tr -d '\0'
 }
 
@@ -130,12 +147,12 @@ _log_uploads() {
 
 	logs_app_list=()
 	for choice in $choices; do
-		# Please use the following variables
+		# !!! CONTRIBUTORS this is where you need to set up the logs for your apps
 		paths=()         # Paths of files/logs to upload the content of
 		commands=()      # Commands to run, which will have their 2>&1 output included in the upload
 		note=""          # A string to append behind each application row
 		version=         # A string of the application version if applicable
-		app_sensitive=() # Tuples of strings to redact, e.g. ("5871" "RPCPORT")
+		app_sensitive=() # Tuples of sed patterns to redact, e.g. ("5871" "###-RPCPORT-###"). or ("api: [a-zA-Z0-9]*" "api: ###-APIKEY-###")
 		case $choice in
 			journalctl)
 				commands+=('journalctl -xe')
