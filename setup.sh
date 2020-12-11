@@ -75,7 +75,7 @@ function _preparation() {
 
     echo "Installing dependencies"
     # this apt-get should be checked and handled if fails, otherwise the install borks.
-    apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
+    apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 >> ${log} 2>&1
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     echo "Cloning swizzin repo to localhost"
