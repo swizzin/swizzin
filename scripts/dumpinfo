@@ -21,230 +21,230 @@ pastebinlog="/root/logs/privatebin.log"
 
 # Picks privatebin if available, otherwise offers the choice to install or use termbin
 _choose_pastehost() {
-	if which privatebin; then
-		echo_info "Using privatebin.net"
-		echo -e "\n\n###### Links from $(date)"
-		pastetool="privatebin"
-	else
-		echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
-		if ask "Install Privatebin CLI tool?"; then
-			# TODO change permissions on this file to +x so I don't have ti use bash because of the NTFS perms translation
-			bash /etc/swizzin/scripts/install/privatebincli.sh
-			box dumpinfo
-		else
-			echo_info "Continuing with termbin.com"
-			pastetool="termbin"
-		fi
+    if which privatebin; then
+        echo_info "Using privatebin.net"
+        echo -e "\n\n###### Links from $(date)"
+        pastetool="privatebin"
+    else
+        echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
+        if ask "Install Privatebin CLI tool?"; then
+            # TODO change permissions on this file to +x so I don't have ti use bash because of the NTFS perms translation
+            bash /etc/swizzin/scripts/install/privatebincli.sh
+            box dumpinfo
+        else
+            echo_info "Continuing with termbin.com"
+            pastetool="termbin"
+        fi
 
-	fi
+    fi
 }
 
 # Processes a file and posts it online
 # Takes stdin, washes it, posts it on the required platform
 _post_content() {
-	if [[ $pastetool == "privatebin" ]]; then
-		# TODO check this works as expected
-		tmpid=$(uuidgen)
-		cat > /tmp/"$tmpid"
-		touch $pastebinlog
-		echo "" >> $pastebinlog
-		#TODO something here is making the "FS busy" bug
-		cat /tmp/"$tmpid" | _wash_content | privatebin send -o text >> $pastebinlog
-		rm /tmp/"$tmpid"
-		tail -3 $pastebinlog | grep "pasteURL" | awk '{print $2}'
-	else
-		_wash_content | nc termbin.com 9999
-	fi
+    if [[ $pastetool == "privatebin" ]]; then
+        # TODO check this works as expected
+        tmpid=$(uuidgen)
+        cat > /tmp/"$tmpid"
+        touch $pastebinlog
+        echo "" >> $pastebinlog
+        #TODO something here is making the "FS busy" bug
+        cat /tmp/"$tmpid" | _wash_content | privatebin send -o text >> $pastebinlog
+        rm /tmp/"$tmpid"
+        tail -3 $pastebinlog | grep "pasteURL" | awk '{print $2}'
+    else
+        _wash_content | nc termbin.com 9999
+    fi
 }
 
 # Removes any private info out of stdin
 _wash_content() {
-	# Makes the pattern from every two items in the array
-	cur_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
-	sedString="$(printf 's/%s/%s/g; ' "${cur_sensitive[@]}")"
-	sed "$sedString" | tr -d '\0'
+    # Makes the pattern from every two items in the array
+    cur_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
+    sedString="$(printf 's/%s/%s/g; ' "${cur_sensitive[@]}")"
+    sed "$sedString" | tr -d '\0'
 }
 
 #Creates a search pattern for sed
 # the array is (search1 replace1 search2 replace2 etc.)
 _set_identifiable_values() {
-	echo_progress_start "Constructing array for washing sensitive information"
-	sensitive=()
-	sensitive+=("$loguser" "###-USER-###")
-	sensitive+=("$(_get_user_password "$loguser")" "###-PASSWORD-###")
+    echo_progress_start "Constructing array for washing sensitive information"
+    sensitive=()
+    sensitive+=("$loguser" "###-USER-###")
+    sensitive+=("$(_get_user_password "$loguser")" "###-PASSWORD-###")
 
-	extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
-	sensitive+=("$extip" "###-EXTIP-###")
+    extip=$(curl -s -4 icanhazip.com | sed 's|\.|\\.|g')
+    sensitive+=("$extip" "###-EXTIP-###")
 
-	sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "###-IPADDR-###")
+    sensitive+=("$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p' | sed 's|\.|\\.|g')" "###-IPADDR-###")
 
-	for domain in $(guess_domains | sed 's|\.|\\.|g'); do
-		sensitive+=("$domain" "###-DOMAIN-###")
-	done
+    for domain in $(guess_domains | sed 's|\.|\\.|g'); do
+        sensitive+=("$domain" "###-DOMAIN-###")
+    done
 
-	for hoststr in $(
-		hostname -A | sed 's|\.|\\.|g'
-		hostname -a | sed 's|\.|\\.|g'
-	); do
-		sensitive+=("$hoststr" "###-HOST-###")
-	done
+    for hoststr in $(
+        hostname -A | sed 's|\.|\\.|g'
+        hostname -a | sed 's|\.|\\.|g'
+    ); do
+        sensitive+=("$hoststr" "###-HOST-###")
+    done
 
-	echo_progress_done "Array constructed"
+    echo_progress_done "Array constructed"
 }
 
 #Holds whiptails
 _make_app_choices() {
-	# Get a list of installed apps to make logs for
-	sysoptions=(
-		journalctl "" off
-		syslog "" off
-		apt "" off
-		dmesg "" off
-		kern "" off
-	)
-	cmd=(whiptail --title "Choose system components to include" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 50 7)
-	if ! choices+=$("${cmd[@]}" "${sysoptions[@]}" 2>&1 > /dev/tty); then
-		echo_warn "Upload cancelled"
-		exit 1
-	fi
-	list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
-	cmd=(whiptail --title "Choose apps to include" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 50 7)
-	#shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
-	# readarray -t options < <(printf '%s\n""\nON\n' "${list_installed[@]}")
-	appoptions=()
-	for app in "${list_installed[@]}"; do
-		appoptions+=("$app" "" off)
-	done
-	choices+=" "
-	if ! choices+=$("${cmd[@]}" "${appoptions[@]}" 2>&1 > /dev/tty); then
-		echo_warn "Upload cancelled"
-		exit 1
-	fi
+    # Get a list of installed apps to make logs for
+    sysoptions=(
+        journalctl "" off
+        syslog "" off
+        apt "" off
+        dmesg "" off
+        kern "" off
+    )
+    cmd=(whiptail --title "Choose system components to include" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 50 7)
+    if ! choices+=$("${cmd[@]}" "${sysoptions[@]}" 2>&1 > /dev/tty); then
+        echo_warn "Upload cancelled"
+        exit 1
+    fi
+    list_installed=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
+    cmd=(whiptail --title "Choose apps to include" --separate-output --checklist "The logs for the selected applications will be included in the paste for your issue" 15 50 7)
+    #shellcheck disable=2086 # The result is broken when it actually is quoted, we want the words to expand here.
+    # readarray -t options < <(printf '%s\n""\nON\n' "${list_installed[@]}")
+    appoptions=()
+    for app in "${list_installed[@]}"; do
+        appoptions+=("$app" "" off)
+    done
+    choices+=" "
+    if ! choices+=$("${cmd[@]}" "${appoptions[@]}" 2>&1 > /dev/tty); then
+        echo_warn "Upload cancelled"
+        exit 1
+    fi
 
-	# Determine which users to uploads logs for when MU apps are being used
-	readarray users < <(_get_nonmaster_list)
-	if [[ ${#users[@]} -eq 0 ]]; then
-		loguser=$(_get_master_username)
-	else
-		useroptions=("$(_get_master_username)" "" on)
-		for u in "${users[@]}"; do
-			useroptions+=("$u" "" off)
-		done
-		if ! loguser=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 50 2 "${useroptions[@]}" 2>&1 > /dev/tty); then
-			echo_warn "Upload cancelled"
-			exit 1
-		fi
-	fi
+    # Determine which users to uploads logs for when MU apps are being used
+    readarray users < <(_get_nonmaster_list)
+    if [[ ${#users[@]} -eq 0 ]]; then
+        loguser=$(_get_master_username)
+    else
+        useroptions=("$(_get_master_username)" "" on)
+        for u in "${users[@]}"; do
+            useroptions+=("$u" "" off)
+        done
+        if ! loguser=$(whiptail --radiolist "Which user to upload the logs for their MU apps?" 9 50 2 "${useroptions[@]}" 2>&1 > /dev/tty); then
+            echo_warn "Upload cancelled"
+            exit 1
+        fi
+    fi
 }
 
 #Holds all the logic for creating the application logs array
 _log_uploads() {
-	echo_progress_start "Uploading logs to $pastetool"
-	# TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
-	app_sensitive=()
-	logs_install="$(cat /root/logs/install.log | _post_content)"
-	logs_swizzin=$(cat /root/logs/swizzin.log | _post_content)
+    echo_progress_start "Uploading logs to $pastetool"
+    # TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
+    app_sensitive=()
+    logs_install="$(cat /root/logs/install.log | _post_content)"
+    logs_swizzin=$(cat /root/logs/swizzin.log | _post_content)
 
-	logs_app_list=()
-	for choice in $choices; do
-		# !!! CONTRIBUTORS this is where you need to set up the logs for your apps
-		paths=()         # Paths of files/logs to upload the content of
-		commands=()      # Commands to run, which will have their 2>&1 output included in the upload
-		note=""          # A string to append behind each application row
-		version=         # A string of the application version if applicable
-		app_sensitive=() # Tuples of sed patterns to redact, e.g. ("5871" "###-RPCPORT-###"). or ("api: [a-zA-Z0-9]*" "api: ###-APIKEY-###")
-		case $choice in
-			journalctl)
-				commands+=('journalctl -xe')
-				;;
-			syslog)
-				paths+=('/var/log/syslog')
-				;;
-			dmesg)
-				commands+=('dmesg')
-				;;
-			kern)
-				paths+=('/var/log/kern.log')
+    logs_app_list=()
+    for choice in $choices; do
+        # !!! CONTRIBUTORS this is where you need to set up the logs for your apps
+        paths=()         # Paths of files/logs to upload the content of
+        commands=()      # Commands to run, which will have their 2>&1 output included in the upload
+        note=""          # A string to append behind each application row
+        version=         # A string of the application version if applicable
+        app_sensitive=() # Tuples of sed patterns to redact, e.g. ("5871" "###-RPCPORT-###"). or ("api: [a-zA-Z0-9]*" "api: ###-APIKEY-###")
+        case $choice in
+            journalctl)
+                commands+=('journalctl -xe')
+                ;;
+            syslog)
+                paths+=('/var/log/syslog')
+                ;;
+            dmesg)
+                commands+=('dmesg')
+                ;;
+            kern)
+                paths+=('/var/log/kern.log')
 
-				;;
-			apt)
-				commands+=('dmesg')
-				paths+=('/var/log/apt/history.log')
-				paths+=('/var/log/dpkg.log')
-				;;
-			qbittorrent)
-				paths+=("/home/$loguser/.local/share/data/qBittorrent/logs/qbittorrent.log")
-				version="$(/usr/bin/qbittorrent-nox --version | awk {'print $2'})"
-				;;
-			nginx)
-				commands+=('nginx -T')
-				paths+=(/var/log/nginx/error.log)
-				. /etc/swizzin/sources/functions/php
-				paths+=("/var/log/php$(php_service_version)-fpm.log")
-				# TODO add IPV6 addresses?
-				app_sensitive+=("client: [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" "client: ###-CLIENTIP-###")
-				;;
-			panel)
-				commands+=('journalctl -u panel')
-				;;
-			transmission)
-				commands+=('transmission-daemon --version')
-				paths+=("/home/$loguser/.config/transmission-daemon/settings.json") # TODO is it?
-				;;
-			tautulli)
-				# TODO clashes with journalctl for panel...???
-				commands+=('journalctl -u tautuli')
-				paths+=("/opt/tautulli/logs/tautulli.log") # TODO is it?
-				;;
-			rtorrent)
-				# commands+=('rtorrent')
-				paths+=("/home/$loguser/.rtorrent.rc")
-				;;
-			*)
-				echo_warn "No logs for $choice defined, please upload these manually"
-				;;
-		esac
+                ;;
+            apt)
+                commands+=('dmesg')
+                paths+=('/var/log/apt/history.log')
+                paths+=('/var/log/dpkg.log')
+                ;;
+            qbittorrent)
+                paths+=("/home/$loguser/.local/share/data/qBittorrent/logs/qbittorrent.log")
+                version="$(/usr/bin/qbittorrent-nox --version | awk {'print $2'})"
+                ;;
+            nginx)
+                commands+=('nginx -T')
+                paths+=(/var/log/nginx/error.log)
+                . /etc/swizzin/sources/functions/php
+                paths+=("/var/log/php$(php_service_version)-fpm.log")
+                # TODO add IPV6 addresses?
+                app_sensitive+=("client: [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" "client: ###-CLIENTIP-###")
+                ;;
+            panel)
+                commands+=('journalctl -u panel')
+                ;;
+            transmission)
+                commands+=('transmission-daemon --version')
+                paths+=("/home/$loguser/.config/transmission-daemon/settings.json") # TODO is it?
+                ;;
+            tautulli)
+                # TODO clashes with journalctl for panel...???
+                commands+=('journalctl -u tautuli')
+                paths+=("/opt/tautulli/logs/tautulli.log") # TODO is it?
+                ;;
+            rtorrent)
+                # commands+=('rtorrent')
+                paths+=("/home/$loguser/.rtorrent.rc")
+                ;;
+            *)
+                echo_warn "No logs for $choice defined, please upload these manually"
+                ;;
+        esac
 
-		# Generating file to post
-		tmpfile="/tmp/$choice"
-		for cmdbruh in "${commands[@]}"; do
-			{
-				echo "#### Output of \"$cmdbruh\""
-				$cmdbruh
-				echo ""
-			} >> "$tmpfile" 2>&1
-		done
+        # Generating file to post
+        tmpfile="/tmp/$choice"
+        for cmdbruh in "${commands[@]}"; do
+            {
+                echo "#### Output of \"$cmdbruh\""
+                $cmdbruh
+                echo ""
+            } >> "$tmpfile" 2>&1
+        done
 
-		for path in "${paths[@]}"; do
-			{
-				echo "#### Content of \"$path\""
-				cat "$path"
-				echo ""
-			} >> "$tmpfile" 2>&1
-		done
+        for path in "${paths[@]}"; do
+            {
+                echo "#### Content of \"$path\""
+                cat "$path"
+                echo ""
+            } >> "$tmpfile" 2>&1
+        done
 
-		link=''
-		if [[ -s "$tmpfile" ]]; then
-			link=$(_post_content < "$tmpfile")
-			rm "$tmpfile"
-		else
-			note="_(No logs generated for $choice)_"
-		fi
+        link=''
+        if [[ -s "$tmpfile" ]]; then
+            link=$(_post_content < "$tmpfile")
+            rm "$tmpfile"
+        else
+            note="_(No logs generated for $choice)_"
+        fi
 
-		if [[ -n $version ]]; then
-			logs_app_list+=("$choice ($version)" "$link" "$note")
-		else
-			logs_app_list+=("$choice" "$link" "$note")
-		fi
+        if [[ -n $version ]]; then
+            logs_app_list+=("$choice ($version)" "$link" "$note")
+        else
+            logs_app_list+=("$choice" "$link" "$note")
+        fi
 
-	done
-	echo_progress_done "Logs uploaded"
+    done
+    echo_progress_done "Logs uploaded"
 }
 
 _output_discord() {
-	echo_warn "Please paste everything between these lines into your issue
+    echo_warn "Please paste everything between these lines into your issue
 Make sure to replace the content where indicated, otherwise the issue might get automatically closed."
-	echo "
+    echo "
 **Apps:**		$(printf -- '`%s` ' "${list_installed[@]}")
 **Server:**		$(_os_pretty), \`$(_os_arch)\`
 **Git:**		$(git -C /etc/swizzin log -1 --pretty=format:'`(%h)` %s')
@@ -255,9 +255,9 @@ $([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- %s <%s> %s\n' "${logs_app_lis
 }
 
 _output_github() {
-	echo_warn "Please paste everything between these lines into your issue
+    echo_warn "Please paste everything between these lines into your issue
 Make sure to replace the content where indicated, otherwise the issue might get automatically closed."
-	echo "<!-- ---------------------------------------------------------- -->
+    echo "<!-- ---------------------------------------------------------- -->
 
 ## Installed swizzin apps
 $(printf -- '- `%s`\n' "${list_installed[@]}")
@@ -279,15 +279,15 @@ $([[ ${#logs_app_list[@]} -gt 0 ]] && printf -- '- [%s](%s):\t%s\n' "${logs_app_
 }
 
 _choose_destination() {
-	if ! destination=$(whiptail --radiolist \
-		"Where are you going to paste your info" 9 50 2 \
-		"GitHub" "" ON \
-		"Discord" "" OFF 2>&1 > /dev/tty); then
-		echo_warn "Upload cancelled"
-		exit 1
-	fi
+    if ! destination=$(whiptail --radiolist \
+        "Where are you going to paste your info" 9 50 2 \
+        "GitHub" "" ON \
+        "Discord" "" OFF 2>&1 > /dev/tty); then
+        echo_warn "Upload cancelled"
+        exit 1
+    fi
 
-	echo_info "Generating dump for $destination"
+    echo_info "Generating dump for $destination"
 }
 _choose_pastehost
 _choose_destination
@@ -296,12 +296,12 @@ _set_identifiable_values
 _log_uploads
 
 if [[ $destination == "GitHub" ]]; then
-	_output_github
+    _output_github
 else
-	_output_discord
+    _output_discord
 fi
 
 if [[ $pastetool == "privatebin" ]]; then
-	echo
-	echo_info "You can find delete links for each paste in $pastebinlog"
+    echo
+    echo_info "You can find delete links for each paste in $pastebinlog"
 fi
