@@ -1,6 +1,7 @@
 #!/bin/bash
 
-function update_nginx() {
+if [[ -f /install/.nginx.lock ]]; then
+
     codename=$(lsb_release -cs)
 
     if [[ $codename =~ ("xenial"|"stretch") ]]; then
@@ -13,11 +14,13 @@ function update_nginx() {
     # (unless you use xenial)
     if [[ ! $codename == "xenial" ]]; then
         if dpkg -s nginx-extras > /dev/null 2>&1; then
+            echo_info "Migrating nginx-extras to nginx fancyindex mod"
             apt_remove nginx-extras
             apt_install nginx libnginx-mod-http-fancyindex
             apt_autoremove
             rm $(ls -d /etc/nginx/modules-enabled/*.removed)
             systemctl reload nginx
+            echo_success "fancyindex migrated"
         fi
     fi
 
@@ -30,11 +33,16 @@ function update_nginx() {
         fi
     done
 
-    if [[ ${missing[1]} != "" ]]; then
-        # echo_inf "Installing the following dependencies: ${missing[*]}" | tee -a $log
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo_info "Installing dependencies for nginx"
         apt_install "${missing[@]}"
+        echo_success "Nginx dependencies installed"
     fi
 
+    # THis seems to remove old versions of PHP?
+    # TODO rewrite this and document and/or remove this
+    # Possibly linked to xenial / stretch and theor old PHP versions?
+    # a `cd` and an `ls -d` in a script, what a crime
     cd /etc/php
     phpv=$(ls -d */ | cut -d/ -f1)
     if [[ $phpv =~ 7\\.1 ]]; then
@@ -49,6 +57,8 @@ function update_nginx() {
 
     for version in $phpv; do
         if [[ -f /etc/php/$version/fpm/php.ini ]]; then
+            #TODO add condition to only do this if necessary
+            echo_info "Configuring php $version"
             sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
                 -e "s/upload_max_filesize = 2M/upload_max_filesize = 92M/" \
                 -e "s/expose_php = On/expose_php = Off/" \
@@ -59,37 +69,45 @@ function update_nginx() {
                 -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
                 -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
             phpenmod -v $version opcache
+            echo_success "php $version configured"
         fi
     done
 
     if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
         mkdir -p /etc/nginx/modules-enabled/
         ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
+        echo_log_only "Did a fancyindex link thing"
     fi
 
     phpversion=$(php_service_version)
 
+    #todo what do these changes all do? can they be wrapped into one if statement or documented?
     fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))
     err=()
     for f in ${fcgis[@]}; do
         err+=($(grep -L "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" $f))
+        echo_log_only "did a fcgis thing in nginx updater with $f"
     done
     for fix in ${err[@]}; do
         sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $fix
+        echo_log_only "did a fix thing with $fix in nginx"
     done
 
     if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
         sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
+        echo_log_only "something was not dark enough for fancyindex?"
     fi
 
     if grep -q "Nginx-Fancyindex" /srv/fancyindex/footer.html; then
         sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+        echo_log_only "some missing footer being fixed"
     fi
 
     if [[ -f /install/.rutorrent.lock ]]; then
         if grep -q "php" /etc/nginx/apps/rindex.conf; then
             :
         else
+            echo_log_only "fixing rindex for nginx"
             cat > /etc/nginx/apps/rindex.conf << EOR
 location /rtorrent.downloads {
   alias /home/\$remote_user/torrents/rtorrent;
@@ -109,6 +127,7 @@ EOR
         if grep -q "php" /etc/nginx/apps/dindex.conf; then
             :
         else
+            echo_log_only "fixing dindex for nginx"
             cat > /etc/nginx/apps/dindex.conf << DIN
 location /deluge.downloads {
   alias /home/\$remote_user/torrents/deluge;
@@ -134,9 +153,11 @@ DIN
         sed -i '/index.html/d' /etc/nginx/sites-enabled/default
     fi
 
+    #shellcheck source=sources/functions/php
     . /etc/swizzin/sources/functions/php
+    echo_log_only "Restarting PHP and nginx because why not"
+    #TODO make a condition to check if this needs to be done
     restart_php_fpm
     systemctl reload nginx
-}
 
-if [[ -f /install/.nginx.lock ]]; then update_nginx; fi
+fi
