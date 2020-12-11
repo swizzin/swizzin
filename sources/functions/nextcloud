@@ -4,7 +4,7 @@
 
 #Passes a command to the nextcloud OCC command
 function _occ() {
-	torun="$1"
-	echo_log_only "Passing \"${torun}\" to occ"
-	su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" >> "$log" 2>&1
+    torun="$1"
+    echo_log_only "Passing \"${torun}\" to occ"
+    su -s /bin/sh www-data -c "php /srv/nextcloud/occ ${torun}" >> "$log" 2>&1
 }
