@@ -15,11 +15,11 @@
 username=$(cut -d: -f1 < /root/.master.info)
 
 if [[ ! $(command -v mono) ]]; then
-	echo_progress_start "Adding mono repository and installing mono"
-	. /etc/swizzin/sources/functions/mono
-	mono_repo_setup
-	apt_install libmono-cil-dev
-	echo_progress_done "Mono repository and dependencies set up"
+    echo_progress_start "Adding mono repository and installing mono"
+    . /etc/swizzin/sources/functions/mono
+    mono_repo_setup
+    apt_install libmono-cil-dev
+    echo_progress_done "Mono repository and dependencies set up"
 fi
 
 echo_progress_start "Installing Emby from GitHub releases"
@@ -30,14 +30,14 @@ rm /tmp/emby.dpkg
 echo_progress_done "Emby package installed"
 
 if [[ -f /etc/emby-server.conf ]]; then
-	printf "\nEMBY_USER="${username}"\nEMBY_GROUP="${username}"\n" >> /etc/emby-server.conf
+    printf "\nEMBY_USER="${username}"\nEMBY_GROUP="${username}"\n" >> /etc/emby-server.conf
 fi
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Setting up Emby nginx configuration"
-	bash /usr/local/bin/swizzin/nginx/emby.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Setting up Emby nginx configuration"
+    bash /usr/local/bin/swizzin/nginx/emby.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_progress_start "Starting Emby"

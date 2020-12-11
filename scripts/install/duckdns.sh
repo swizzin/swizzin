@@ -7,35 +7,35 @@
 # Gathering variables and gettin go-ahead
 ##########################################################
 if [[ -z $duck_subdomain ]] || [[ -z $duck_token ]]; then
-	echo_info "This script requires an account at duckdns.org. You can always refer to the swizzin documentation for guidance.\n https://swizzin.ltd/applications/duckdns"
-	echo_query "Would you like to continue?" "y/N"
-	read -r yn
-	case $yn in
-		[Yy]*) : ;;
-		*) exit 0 ;;
-	esac
+    echo_info "This script requires an account at duckdns.org. You can always refer to the swizzin documentation for guidance.\n https://swizzin.ltd/applications/duckdns"
+    echo_query "Would you like to continue?" "y/N"
+    read -r yn
+    case $yn in
+        [Yy]*) : ;;
+        *) exit 0 ;;
+    esac
 fi
 
 if [[ -z $duck_subdomain ]]; then
-	echo_query "Enter your full Duck DNS domain" "e.g mydomain.duckdns.org"
-	read -r fulldomain
-	subdomain="${fulldomain%%.*}"
-	domain="${fulldomain#*.}"
-	if [ "$domain" != "duckdns.org" ] && [ "$domain" != "$subdomain" ] || [ "$subdomain" = "" ]; then
-		echo_error "Invalid domain name. Program will now quit."
-		exit 0
-	fi
+    echo_query "Enter your full Duck DNS domain" "e.g mydomain.duckdns.org"
+    read -r fulldomain
+    subdomain="${fulldomain%%.*}"
+    domain="${fulldomain#*.}"
+    if [ "$domain" != "duckdns.org" ] && [ "$domain" != "$subdomain" ] || [ "$subdomain" = "" ]; then
+        echo_error "Invalid domain name. Program will now quit."
+        exit 0
+    fi
 else
-	subdomain=$duck_subdomain
-	echo_info "Domain set to $subdomain.duckdns.org"
+    subdomain=$duck_subdomain
+    echo_info "Domain set to $subdomain.duckdns.org"
 fi
 
 if [[ -z $duck_token ]]; then
-	echo_query "Enter your Duck DNS Token value"
-	read -r token
-	token=$(echo "$token" | tr -d '\040\011\012\015')
+    echo_query "Enter your Duck DNS Token value"
+    read -r token
+    token=$(echo "$token" | tr -d '\040\011\012\015')
 else
-	token=$duck_token
+    token=$duck_token
 fi
 
 ##########################################################
@@ -49,7 +49,7 @@ duckLog="$duckPath/duck.log"
 duckScript="$duckPath/duck.sh"
 
 if [[ ! -d $duckPath ]]; then
-	mkdir -p $duckPath
+    mkdir -p $duckPath
 fi
 
 echo_progress_start "Installing duckdns update script"
@@ -66,10 +66,10 @@ chmod 700 $duckScript
 
 checkCron=$(crontab -l | grep -c $duckScript)
 if [ "$checkCron" -eq 0 ]; then
-	crontab -l | {
-		cat
-		echo "*/5 * * * * bash $duckScript"
-	} | crontab - >> $log 2>&1
+    crontab -l | {
+        cat
+        echo "*/5 * * * * bash $duckScript"
+    } | crontab - >> $log 2>&1
 fi
 echo_progress_done
 
@@ -78,13 +78,13 @@ echo_progress_start "Registering domain with Duck DNS"
 bash $duckScript >> "$log" 2>&1
 response=$(cat $duckLog)
 if [ "$response" != "OK" ]; then
-	echo_error "Duck DNS did not update correctly. Please check your settings or run the setup again."
-	exit 1
+    echo_error "Duck DNS did not update correctly. Please check your settings or run the setup again."
+    exit 1
 else
-	echo_progress_done
-	echo_success "Duck DNS setup succesfully completed!"
-	if [[ ! -f /install/.nginx.lock ]]; then
-		echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
-	fi
-	touch /install/.duckdns.lock
+    echo_progress_done
+    echo_success "Duck DNS setup succesfully completed!"
+    if [[ ! -f /install/.nginx.lock ]]; then
+        echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
+    fi
+    touch /install/.duckdns.lock
 fi

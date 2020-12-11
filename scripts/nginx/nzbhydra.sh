@@ -12,11 +12,11 @@
 user=$(_get_master_username)
 active=$(systemctl is-active nzbhydra)
 if [[ $active == "active" ]]; then
-	systemctl stop nzbhydra
+    systemctl stop nzbhydra
 fi
 
 if [[ ! -f /etc/nginx/apps/nzbhydra.conf ]]; then
-	cat > /etc/nginx/apps/nzbhydra.conf << RAD
+    cat > /etc/nginx/apps/nzbhydra.conf << RAD
 location /nzbhydra {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:5076/nzbhydra;
@@ -28,5 +28,5 @@ fi
 sed -i "s/urlBase.*/urlBase: \"\/nzbhydra\"/g" /home/${user}/.config/nzbhydra2/nzbhydra.yml
 sed -i "s/host: \"0.0.0.0\"/host: \"127.0.0.1\"/g" /home/${user}/.config/nzbhydra2/nzbhydra.yml
 if [[ $active == "active" ]]; then
-	systemctl start nzbhydra
+    systemctl start nzbhydra
 fi
