@@ -2,6 +2,7 @@
 
 if [[ -f /install/.panel.lock ]]; then
     if [[ ! -d /opt/swizzin ]]; then
+        echo_info "Moving panel files to correct location"
         master=$(cut -d: -f1 < /root/.master.info)
 
         apt_install python3-venv
@@ -80,9 +81,10 @@ EOSUD
         rm -f /etc/cron.d/set_interface
 
         systemctl enable -q --now panel
-
+        echo_success "panel files moved"
     else
-        echo_progress_start "Updating panel to latest version"
+        #TODO check if there _are_ any new commits and do that here rather than the upgrade function (we kinda use it to reset panel anyway)
+        echo_info "Updating panel to latest version"
         bash /usr/local/bin/swizzin/upgrade/panel.sh
         echo_progress_done
     fi
