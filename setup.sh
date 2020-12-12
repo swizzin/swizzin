@@ -99,7 +99,11 @@ function _adduser() {
     echo "$user:$pass" > /root/.master.info
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
-    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then echo_warn "No sudoers modification made"; else echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin; fi
+    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then
+        echo_warn "No sudoers modification made"
+    else
+        echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
+    fi
     pass=
     unset pass
 }
@@ -116,10 +120,7 @@ function _choices() {
             packages+=("$i" '""')
         fi
     done
-    whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results
-    exitstatus=$?
-    if [ "$exitstatus" = 1 ]; then exit 0; fi
-    #readarray packages < /root/results
+    whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results || exit 1
     results=/root/results
 
     if grep -q nginx "$results"; then
@@ -139,9 +140,7 @@ function _choices() {
                 guis+=("$i" '""')
             fi
         done
-        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis
-        exitstatus=$?
-        if [ "$exitstatus" = 1 ]; then exit 0; fi
+        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
         readarray guis < /root/guis
         for g in "${guis[@]}"; do
             g=$(echo $g)
@@ -187,16 +186,20 @@ function _choices() {
             extras+=("$i" '""')
         fi
     done
-    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2
-    exitstatus=$?
-    if [ "$exitstatus" = 1 ]; then exit 0; fi
-    # results2=/root/results2
+    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2 || exit 1
+
 }
 
 function _install() {
     begin=$(date +"%s")
-    [[ -s /root/results ]] && bash /etc/swizzin/scripts/box install $(< /root/results) && rm /root/results && showTimer=true
-    [[ -s /root/results2 ]] && bash /etc/swizzin/scripts/box install $(< /root/results2) && rm /root/results2 && showTimer=true
+    if [[ -s /root/results ]]; then
+        bash /etc/swizzin/scripts/box install $(< /root/results) && rm /root/results
+        showTimer=true
+    fi
+    if [[ -s /root/results2 ]]; then
+        bash /etc/swizzin/scripts/box install $(< /root/results2) && rm /root/results2
+        showTimer=true
+    fi
     termin=$(date +"%s")
     difftimelps=$((termin - begin))
     [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
@@ -204,13 +207,16 @@ function _install() {
 
 function _post() {
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-    if grep -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc &> /dev/null; then true; else echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc; fi
+    if ! grep -q -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc; then
+        echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+    fi
     #echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
     #chown ${user}: /home/$user/.profile
     echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
     if [[ $distribution = "Ubuntu" ]]; then
         echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
     fi
+
     echo_success "Swizzin installation complete!"
     if [[ -f /install/.nginx.lock ]]; then
         echo_info "Seedbox can be accessed at https://${user}@${ip}"
@@ -218,7 +224,6 @@ function _post() {
     if [[ -f /install/.deluge.lock ]]; then
         echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)\nYour deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
     fi
-
     if [[ -f /var/run/reboot-required ]]; then
         echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
     else
