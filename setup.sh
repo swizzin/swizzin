@@ -339,7 +339,19 @@ function _post() {
         echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
         echo ""
     fi
-    echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now\e[0m"
+    #
+    if [[ -f /var/run/reboot-required ]]; then
+        echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
+        echo
+    else
+        echo_success "You can now use the box command to manage swizzin features"
+        echo
+        echo_info "box install nginx panel"
+        echo
+        echo_docs /getting-started/box-basics
+        echo
+    fi
+
 }
 
 _os
