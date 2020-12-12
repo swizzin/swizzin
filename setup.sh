@@ -176,21 +176,22 @@ function _adduser() {
     done
     echo "$user:$pass" > /root/.master.info
     if [[ -d /home/"$user" ]]; then
-        echo_info "User directory already exists ... "
-        echo_info "Changing password to new password"
+        echo "User directory already exists ... "
+
+        echo "Changing password to new password"
         chpasswd <<< "${user}:${pass}"
         htpasswd -b -c /etc/htpasswd $user $pass
         mkdir -p /etc/htpasswd.d/
         htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
         chown -R $user:$user /home/${user}
     else
-        echo_info "Creating new user \e[1;95m$user\e[0m ... "
+        echo -e "Creating new user \e[1;95m$user\e[0m ... "
         useradd "${user}" -m -G www-data -s /bin/bash || {
-            echo_error "There was an error creating the user ${user}. Please check your logs."
+            echo "There was an error creating the user ${user}. Please check your logs."
             exit 1
         }
         chpasswd <<< "${user}:${pass}" || {
-            echo_error "There was an error setting the password for ${user}. Please check your logs."
+            echo "There was an error setting the password for ${user}. Please check your logs."
             exit 1
         }
         htpasswd -b -c /etc/htpasswd $user $pass
@@ -198,11 +199,7 @@ function _adduser() {
         htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
     fi
     chmod 750 /home/${user}
-    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then
-        echo_log_only "No sudoers modification made ... "
-    else
-        echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
-    fi
+    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then echo "No sudoers modification made ... "; else echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin; fi
 
     echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
 
@@ -302,7 +299,7 @@ function _install() {
     readarray result < /root/results
     for i in "${result[@]}"; do
         result=$(echo $i)
-        echo_info "Installing ${result}"
+        echo -e "Installing ${result}"
         bash /usr/local/bin/swizzin/install/${result}.sh
         rm /tmp/.$result.lock
     done
@@ -310,14 +307,14 @@ function _install() {
     readarray result < /root/results2
     for i in "${result[@]}"; do
         result=$(echo $i)
-        echo_info "Installing ${result}"
+        echo -e "Installing ${result}"
         bash /usr/local/bin/swizzin/install/${result}.sh
     done
     rm /root/results2
     rm /tmp/.install.lock
     termin=$(date +"%s")
     difftimelps=$((termin - begin))
-    echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+    echo "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 }
 
 function _post() {
@@ -329,21 +326,28 @@ function _post() {
     if [[ $distribution = "Ubuntu" ]]; then
         echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
     fi
-    echo_success "Installation complete!"
-    echo_info "You may now login with the following info: ${user}:${pass}"
+    echo "Installation complete!"
+    echo ""
+    echo "You may now login with the following info: ${user}:${pass}"
+    echo ""
     if [[ -f /install/.nginx.lock ]]; then
-        echo_info "Seedbox can be accessed at https://${user}:${pass}@${ip}"
+        echo "Seedbox can be accessed at https://${user}:${pass}@${ip}"
+        echo ""
     fi
     if [[ -f /install/.deluge.lock ]]; then
-        echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
-Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
+        echo "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)"
+        echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
+        echo ""
     fi
     #
     if [[ -f /var/run/reboot-required ]]; then
         echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
         echo
     else
-        echo_info "You can now use the box command to manage swizzin features, e.g.:\nbox install nginx panel"
+        echo_success "You can now use the box command to manage swizzin features"
+        echo
+        echo_info "box install nginx panel"
+        echo
         echo_docs getting-started/box-basics
         echo
     fi
