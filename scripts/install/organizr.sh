@@ -20,12 +20,11 @@ organizr_dir="/srv/organizr"
 
 ####### Source download
 function organizr_install() {
-    export DEBIAN_FRONTEND=noninteractive
     apt_install php-mysql php-sqlite3 sqlite3 php-xml php-zip openssl php-curl
 
     if [[ ! -d $organizr_dir ]]; then
         echo_progress_start "Cloning the Organizr Repo"
-        git clone https://github.com/causefx/Organizr $organizr_dir --depth 1 >> $log 2>&1
+        git clone -b v2-master https://github.com/causefx/Organizr $organizr_dir --depth 1 >> "$log" 2>&1
         chown -R www-data:www-data $organizr_dir
         chmod 0700 -R $organizr_dir
         echo_progress_done "Organizr cloned"
@@ -57,53 +56,35 @@ function organizr_setup() {
     if [[ $user == "$pass" ]]; then
         echo_warn "Your username and password seem to be identical, please finish the Organizr setup manually."
     else
-        echo_progress_start "Setting up the organizr database"
-        curl --location --request POST 'https://127.0.0.1/organizr/api/?v1/wizard_path' \
-            --header 'content-type: application/x-www-form-urlencoded' \
-            --header 'charset: UTF-8' \
-            --header 'Content-Encoding: gzip' \
-            --header 'Content-Type: application/x-www-form-urlencoded' \
-            --data-urlencode "data[path]=${organizr_dir}_db" \
-            --data-urlencode 'data[formKey]=' \
-            -sk |
-            python3 -m json.tool >> $log 2>&1
-        sleep 2
 
         api_key="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
         hash_key="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
         reg_pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+        form_key="$(php -r "echo password_hash(substr(\"$hash_key\", 2, 10), PASSWORD_BCRYPT);")"
 
         cat > /root/.organizr << EOF
-API key = $api_key
-Hash key = $hash_key
-Registration pass = $reg_pass
+api_key = $api_key
+hash_key = $hash_key
+reg_pass = $reg_pass
 EOF
-        curl --location --request POST 'https://127.0.0.1/organizr/api/?v1/wizard_config' \
+        echo_progress_start "Setting up the organizr database"
+
+        curl --location --request POST 'https://127.0.0.1/organizr/api/v2/wizard' \
             --header 'content-type: application/x-www-form-urlencoded' \
             --header 'charset: UTF-8' \
             --header 'Content-Encoding: gzip' \
             --header 'Content-Type: application/x-www-form-urlencoded' \
-            --data-urlencode "data[0][name]=license" \
-            --data-urlencode "data[0][value]=personal" \
-            --data-urlencode "data[1][name]=username" \
-            --data-urlencode "data[1][value]=${user}" \
-            --data-urlencode "data[2][name]=email" \
-            --data-urlencode "data[2][value]=root@localhost" \
-            --data-urlencode "data[3][name]=password" \
-            --data-urlencode "data[3][value]=${pass}" \
-            --data-urlencode "data[4][name]=hashKey" \
-            --data-urlencode "data[4][value]=${hash_key}" \
-            --data-urlencode "data[5][name]=registrationPassword" \
-            --data-urlencode "data[5][value]=${reg_pass}" \
-            --data-urlencode "data[6][name]=api" \
-            --data-urlencode "data[6][value]=${api_key}" \
-            --data-urlencode "data[7][name]=dbName" \
-            --data-urlencode "data[7][value]=db" \
-            --data-urlencode "data[8][name]=location" \
-            --data-urlencode "data[8][value]=${organizr_dir}_db" \
-            -sk |
-            python3 -m json.tool \
-                >> $log 2>&1
+            --data-urlencode "license=personal" \
+            --data-urlencode "username=${user}" \
+            --data-urlencode "email=${user}@localhost" \
+            --data-urlencode "password=${pass}" \
+            --data-urlencode "hashKey=${hash_key}" \
+            --data-urlencode "registrationPassword=${reg_pass}" \
+            --data-urlencode "api=${api_key}" \
+            --data-urlencode "dbName=orgdb" \
+            --data-urlencode "dbPath=${organizr_dir}_db" \
+            --data-urlencode "formKey=${form_key}_db" \
+            -sk >> "$log" 2>&1
 
         # sleep 10
         curl -k https://127.0.0.1/organizr/api/functions.php
@@ -132,31 +113,43 @@ logpath = /srv/organizr_db/organizrLoginLog.json
 ignoreip = 127.0.0.1/24
 EOF
 
-    fail2ban-client reload >> $log 2>&1
+    fail2ban-client reload >> "$log" 2>&1
     echo_progress_done "Fail2Ban configured"
 }
 
-organizr_adduser() {
+organizr_addusers() {
     #TODO implement when organizr API supports this
     echo_warn "Remember to manually create accounts for the user(s) in Organizr!"
-    for u in $users; do
-        #TODO make the api call here
-        :
-    done
+    # #shellcheck source=sources/functions/utils
+    # . /etc/swizzin/sources/functions/utils
+    # #shellcheck source=sources/functions/organizr
+    # . /etc/swizzin/sources/functions/organizr
+    # for u in $users; do
+    # 	:
+    # 	echo_progress_start "Adding $u to organizr"
+    # 	organizr_adduser "$u" "$u@localhost" "$(_get_user_password "$u")"
+    # 	echo_progress_done "$u added to organizr"
+    # done
 }
 
 #Catch script being called with parameter
 if [[ -n $1 ]]; then
     users=$1
-    organizr_adduser
+
+    organizr_addusers
     exit 0
 fi
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 organizr_install
 organizr_nginx
 touch /install/.organizr.lock
 organizr_setup
-organizr_adduser
+# Removing master because that's already done in the _setup
+# shellcheck disable=SC2034 #(while addusers is commented)
+mapfile -t users < <(_get_user_list | grep -vw "$(_get_master_username)")
+organizr_addusers
 organizr_f2b
 echo_success "Organizr installed"
 echo_info "Log in using your master credentials and configure your instance"
