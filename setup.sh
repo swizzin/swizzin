@@ -319,7 +319,7 @@ function _install() {
 
 function _post() {
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-    echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+    if grep -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc &> /dev/null; then true; else echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc; fi
     #echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
     #chown ${user}: /home/$user/.profile
     echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
