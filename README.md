@@ -19,13 +19,13 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 wget
 
 ```shell
-bash <(wget -qO - git.io/swizzin) && . ~/bashrc
+bash <(wget -qO - git.io/swizzin) && . ~/.bashrc
 ```
 
 curl
 
 ```shell
-bash <(curl -sL git.io/swizzin) && . ~/bashrc
+bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 ```
 
 Please note that if you are running Ubuntu and choose to run the initial setup though `sudo` you should include the `-H` argument to ensure that your home directory is modified to /root when you sudo up. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command.
@@ -33,7 +33,7 @@ Please note that if you are running Ubuntu and choose to run the initial setup t
 Example:
 
 ```shell
-sudo -H su -c 'bash <(wget -qO - git.io/swizzin) && . ~/bashrc'
+sudo -H su -c 'bash <(wget -qO - git.io/swizzin) && . ~/.bashrc'
 ```
 
 #### Supported Operating Systems
