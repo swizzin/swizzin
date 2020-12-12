@@ -39,10 +39,15 @@ function _db_setup() {
     mysql --execute="FLUSH PRIVILEGES;"
 
     if ! grep -Fxq innodb_file_per_table=1 /etc/mysql/my.cnf; then
-        cat >> /etc/mysql/my.cnf << EOF
+        echo_log_only "Fixing innodb file per table"
+        if ! grep -Fxq '[mysqld]' /etc/mysql/my.cnf; then
+            cat >> /etc/mysql/my.cnf << EOF
 [mysqld]
 innodb_file_per_table=1
 EOF
+        else
+            sed '/^[mysqld]/a innodb_file_per_table=1' /etc/mysql/my.cnf
+        fi
     fi
     echo_progress_done "DB Set up"
     systemctl restart mysqld
