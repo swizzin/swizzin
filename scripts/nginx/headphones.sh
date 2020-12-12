@@ -12,11 +12,11 @@ user=$(cut -d: -f1 < /root/.master.info)
 
 active=$(systemctl is-active headphones)
 if [[ $active == "active" ]]; then
-	systemctl stop headphones
+    systemctl stop headphones
 fi
 
 if [[ ! -f /etc/nginx/apps/headphones.conf ]]; then
-	cat > /etc/nginx/apps/headphones.conf << RAD
+    cat > /etc/nginx/apps/headphones.conf << RAD
 location /headphones {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:8004/headphones;
@@ -355,5 +355,5 @@ mpc_enabled = 0
 HPCONF
 
 if [[ $active == "active" ]]; then
-	systemctl start headphones
+    systemctl start headphones
 fi

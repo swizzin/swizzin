@@ -49,63 +49,63 @@ echo -e "${bold}${yellow}2)${normal} /home - ${green}home mount${normal}"
 echo -ne "${bold}${yellow}What is your mount point for user quotas?${normal} (Default ${green}1${normal}): "
 read version
 case $version in
-	1 | "") primaryroot=root ;;
-	2) primaryroot=home ;;
-	*) primaryroot=root ;;
+    1 | "") primaryroot=root ;;
+    2) primaryroot=home ;;
+    *) primaryroot=root ;;
 esac
 echo "Using ${green}$primaryroot mount${normal} for quotas"
 echo
 
 function _installquota() {
-	#TODO why are we installing the quota package twice?
-	apt_install quota
-	if [[ ${primaryroot} == "root" ]]; then
-		loc=$(echo -e "/\t")
-		loc2="/ "
-	elif [[ ${primaryroot} == "home" ]]; then
-		loc=$(echo -e "/home\t")
-		loc2="/home "
-	fi
-	hook=$(grep "${loc}" /etc/fstab)
-	hook2=$(grep "${loc2}" /etc/fstab)
+    #TODO why are we installing the quota package twice?
+    apt_install quota
+    if [[ ${primaryroot} == "root" ]]; then
+        loc=$(echo -e "/\t")
+        loc2="/ "
+    elif [[ ${primaryroot} == "home" ]]; then
+        loc=$(echo -e "/home\t")
+        loc2="/home "
+    fi
+    hook=$(grep "${loc}" /etc/fstab)
+    hook2=$(grep "${loc2}" /etc/fstab)
 
-	if [[ -z $hook ]]; then
-		if [[ -z $hook2 ]]; then
-			echo "ERROR: Cannot determine $primaryroot mount point. Installer cannot continue."
-			exit 1
-		fi
-		hook=$hook2
-		loc=$loc2
-	fi
+    if [[ -z $hook ]]; then
+        if [[ -z $hook2 ]]; then
+            echo "ERROR: Cannot determine $primaryroot mount point. Installer cannot continue."
+            exit 1
+        fi
+        hook=$hook2
+        loc=$loc2
+    fi
 
-	if [[ -n $(echo $hook | grep defaults) ]]; then
-		hook=defaults
-	elif [[ -n $(echo $hook | grep errors=remount-ro) ]]; then
-		hook=errors=remount-ro
-	else
-		echo "ERROR: Could not find a hook in /etc/fstab for quotas to install to. Quota requires either defaults or errors=remount-ro to be present as a mount option for the intended quota partition."
-		exit 1
-	fi
+    if [[ -n $(echo $hook | grep defaults) ]]; then
+        hook=defaults
+    elif [[ -n $(echo $hook | grep errors=remount-ro) ]]; then
+        hook=errors=remount-ro
+    else
+        echo "ERROR: Could not find a hook in /etc/fstab for quotas to install to. Quota requires either defaults or errors=remount-ro to be present as a mount option for the intended quota partition."
+        exit 1
+    fi
 
-	echo "Installing dependencies"
-	if [[ $DISTRO == Ubuntu ]]; then
-		sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-		apt_install linux-image-extra-virtual quota
-		mount -o remount ${loc} >> "${log}" 2>&1
-		quotacheck -auMF vfsv1 >> "${log}" 2>&1
-		quotaon -uv / >> "${log}" 2>&1
-		systemctl start quota >> "${log}" 2>&1
-	elif [[ $DISTRO == Debian ]]; then
-		sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
-		apt_install quota
-		mount -o remount ${loc} >> "${log}" 2>&1
-		quotacheck -auMF vfsv1 >> "${log}" 2>&1
-		quotaon -uv / >> "${log}" 2>&1
-		systemctl start quota >> "${log}" 2>&1
-	fi
+    echo "Installing dependencies"
+    if [[ $DISTRO == Ubuntu ]]; then
+        sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
+        apt_install linux-image-extra-virtual quota
+        mount -o remount ${loc} >> "${log}" 2>&1
+        quotacheck -auMF vfsv1 >> "${log}" 2>&1
+        quotaon -uv / >> "${log}" 2>&1
+        systemctl start quota >> "${log}" 2>&1
+    elif [[ $DISTRO == Debian ]]; then
+        sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
+        apt_install quota
+        mount -o remount ${loc} >> "${log}" 2>&1
+        quotacheck -auMF vfsv1 >> "${log}" 2>&1
+        quotaon -uv / >> "${log}" 2>&1
+        systemctl start quota >> "${log}" 2>&1
+    fi
 
-	if [[ -d /srv/rutorrent ]]; then
-		cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
+    if [[ -d /srv/rutorrent ]]; then
+        cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
 <?php
 #################################################################################
 ##  [Quick Box - action.php modified for quota systems use]
@@ -129,13 +129,13 @@ function _installquota() {
   }
 ?>
 DSKSP
-		if [[ $primaryroot == "root" ]]; then
-			sed -i 's/MOUNT/\//g' /srv/rutorrent/plugins/diskspace/action.php
-		elif [[ $primaryroot == "home" ]]; then
-			sed -i 's/MOUNT/\/home/g' /srv/rutorrent/plugins/diskspace/action.php
-		fi
+        if [[ $primaryroot == "root" ]]; then
+            sed -i 's/MOUNT/\//g' /srv/rutorrent/plugins/diskspace/action.php
+        elif [[ $primaryroot == "home" ]]; then
+            sed -i 's/MOUNT/\/home/g' /srv/rutorrent/plugins/diskspace/action.php
+        fi
 
-	fi
+    fi
 }
 
 DISTRO=$(lsb_release -is)

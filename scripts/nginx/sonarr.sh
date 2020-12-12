@@ -12,11 +12,11 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active sonarr@"$MASTER")
 
 if [[ $isactive == "active" ]]; then
-	systemctl stop sonarr@"$MASTER"
+    systemctl stop sonarr@"$MASTER"
 fi
 
 if [[ ! -f /etc/nginx/apps/sonarr.conf ]]; then
-	cat > /etc/nginx/apps/sonarr.conf << SONARR
+    cat > /etc/nginx/apps/sonarr.conf << SONARR
 location /sonarr {
   proxy_pass        http://127.0.0.1:8989/sonarr;
   proxy_set_header Host \$proxy_host;
@@ -43,5 +43,5 @@ cat > /home/"${MASTER}"/.config/NzbDrone/config.xml << SONN
 SONN
 chown -R "${MASTER}": /home/"${MASTER}"/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-	systemctl start sonarr@"$MASTER"
+    systemctl start sonarr@"$MASTER"
 fi

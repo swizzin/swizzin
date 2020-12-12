@@ -14,13 +14,32 @@
 #
 # awaiting pull to remove
 function dist_info() {
-	DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-	DIST_ID="$(source /etc/os-release && echo "$ID")"
+    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+    DIST_ID="$(source /etc/os-release && echo "$ID")"
 }
 #
 # Get our some useful information from functions in the sourced utils script
 username="$(_get_master_username)"
 dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
+
+if [[ $(systemctl is-active emby) == "active" ]]; then
+	active=emby
+fi
+
+if [[ -n $active ]]; then
+	echo_info "Jellyfin and Emby cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain"
+	if ask "Do you want to disable $active?" Y; then
+		disable=yes
+	fi
+	if [[ $disable == "yes" ]]; then
+		echo_progress_start "Disabling service"
+		systemctl disable -q --now ${active} >> ${log} 2>&1
+		echo_progress_done
+	else
+		exit 1
+	fi
+fi
+
 #
 ########
 ######## Variables End
@@ -92,8 +111,8 @@ chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-	bash /usr/local/bin/swizzin/nginx/jellyfin.sh
-	systemctl -q restart nginx.service
+    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+    systemctl -q restart nginx.service
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect

@@ -37,9 +37,9 @@ systemctl start shellinabox >> $log 2>&1
 echo_progress_done "Configured and restarted"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	bash /usr/local/bin/swizzin/nginx/shellinabox.sh
-	echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/shellinabox.sh
+    echo_progress_done
 fi
 
 echo_success "Shellinabox installed"
