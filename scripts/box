@@ -389,6 +389,17 @@ function _deluser() {
 
 function _chpasswd() {
     user=$2
+    if ! id -u $user > /dev/null 2>&1; then
+        echo_error "User '$user' does not exist"
+        exit 1
+    fi
+
+    . /etc/swizzin/sources/functions/utils
+    if ! _get_user_list | grep -q $user; then
+        echo_error "User '$user' is not managed through swizzin"
+        exit 1
+    fi
+
     echo_query "Enter new password for ${user}. Leave empty to generate a password" "hidden"
     read -s 'pass'
     echo
