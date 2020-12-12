@@ -10,62 +10,62 @@
 #   under the GPL along with build & install instructions.
 
 function _defiface_confirm() {
-	echo_query "Setup has detected that $defiface is your main interface, is this correct?" ""
-	select yn in "yes" "no"; do
-		case $yn in
-			yes)
-				wgiface=$defiface
-				break
-				;;
-			no)
-				_selectiface
-				break
-				;;
-		esac
-	done
+    echo_query "Setup has detected that $defiface is your main interface, is this correct?" ""
+    select yn in "yes" "no"; do
+        case $yn in
+            yes)
+                wgiface=$defiface
+                break
+                ;;
+            no)
+                _selectiface
+                break
+                ;;
+        esac
+    done
 }
 
 function _selectiface() {
-	echo_query "Please choose the correct interface from the following list:" ""
-	select seliface in "${IFACES[@]}"; do
-		case $seliface in
-			*)
-				wgiface=$seliface
-				break
-				;;
-		esac
-	done
-	# echo "Your interface has been set as $wgiface"
-	# echo "Groovy. Please wait a few moments while wireguard is installed ..."
+    echo_query "Please choose the correct interface from the following list:" ""
+    select seliface in "${IFACES[@]}"; do
+        case $seliface in
+            *)
+                wgiface=$seliface
+                break
+                ;;
+        esac
+    done
+    # echo "Your interface has been set as $wgiface"
+    # echo "Groovy. Please wait a few moments while wireguard is installed ..."
 }
 
 function _install_wg() {
-	if [[ $distribution == "Debian" ]]; then
-		if [[ ! $codename == "stretch" ]]; then
-			check_debian_backports
-		else
-			echo_info "Adding debian unstable repository and limiting packages"
-			echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-			printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
-		fi
-	elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-		#This *should* be enabled by default but you know what they say about assumptions.
-		check_ubuntu_updates
-	fi
+    if [[ $distribution == "Debian" ]]; then
+        if [[ ! $codename == "stretch" ]]; then
+            check_debian_backports
+        else
+            echo_info "Adding debian unstable repository and limiting packages"
+            echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+            printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
+        fi
+    elif [[ $codename =~ ("bionic"|"xenial") ]]; then
+        #This *should* be enabled by default but you know what they say about assumptions.
+        check_ubuntu_updates
+    fi
 
-	apt_update
-	apt_install --recommends wireguard qrencode
+    apt_update
+    apt_install --recommends wireguard qrencode
 
-	if [[ ! -d /etc/wireguard ]]; then
-		mkdir /etc/wireguard
-	fi
+    if [[ ! -d /etc/wireguard ]]; then
+        mkdir /etc/wireguard
+    fi
 
-	chown -R root:root /etc/wireguard/
-	chmod -R 700 /etc/wireguard
+    chown -R root:root /etc/wireguard/
+    chmod -R 700 /etc/wireguard
 
-	if ! modprobe wireguard >> $log 2>&1; then
-		echo_error "Could not modprobe Wireguard, script will now terminate."
-		echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel.
+    if ! modprobe wireguard >> $log 2>&1; then
+        echo_error "Could not modprobe Wireguard, script will now terminate."
+        echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel.
 Currently running kernel:
 $(uname -r)
 Installed kernel headers: 
@@ -73,40 +73,40 @@ $(dpkg -l | awk '{print $2}' | grep headers | grep amd64 | grep -v linux-headers
 
 You may be able to resolve this error with \`apt install linux-headers-$(uname -r)\` or a system reboot. If you are using a custom kernel, your package names may differ.
 Please consult the swizzin log for further info if required."
-		exit 1
-	fi
-	systemctl daemon-reload -q
-	echo_progress_done
+        exit 1
+    fi
+    systemctl daemon-reload -q
+    echo_progress_done
 
-	echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
-	sysctl -p > /dev/null 2>&1
-	echo "$wgiface" > /install/.wireguard.lock
-	touch /install/.wireguard.lock
+    echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+    sysctl -p > /dev/null 2>&1
+    echo "$wgiface" > /install/.wireguard.lock
+    touch /install/.wireguard.lock
 }
 
 function _mkconf_wg() {
-	echo_progress_start "Configuring Wireguard for $u"
+    echo_progress_start "Configuring Wireguard for $u"
 
-	mkdir -p /home/$u/.wireguard/{server,client}
+    mkdir -p /home/$u/.wireguard/{server,client}
 
-	cd /home/$u/.wireguard/server
-	wg genkey | tee wg$(id -u $u).key | wg pubkey > wg$(id -u $u).pub
+    cd /home/$u/.wireguard/server
+    wg genkey | tee wg$(id -u $u).key | wg pubkey > wg$(id -u $u).pub
 
-	cd /home/$u/.wireguard/client
-	wg genkey | tee $u.key | wg pubkey > $u.pub
+    cd /home/$u/.wireguard/client
+    wg genkey | tee $u.key | wg pubkey > $u.pub
 
-	chown $u: /home/$u/.wireguard
-	chmod -R 700 /home/$u/.wireguard
+    chown $u: /home/$u/.wireguard
+    chmod -R 700 /home/$u/.wireguard
 
-	serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
-	serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
-	peerpriv=$(cat /home/$u/.wireguard/client/$u.key)
-	peerpub=$(cat /home/$u/.wireguard/client/$u.pub)
+    serverpriv=$(cat /home/$u/.wireguard/server/wg$(id -u $u).key)
+    serverpub=$(cat /home/$u/.wireguard/server/wg$(id -u $u).pub)
+    peerpriv=$(cat /home/$u/.wireguard/client/$u.key)
+    peerpub=$(cat /home/$u/.wireguard/client/$u.pub)
 
-	net=$(id -u $u | cut -c 1-3)
-	sub=$(id -u $u | rev | cut -c 1 | rev)
-	subnet=10.$net.$sub.
-	cat > /etc/wireguard/wg$(id -u $u).conf << EOWGS
+    net=$(id -u $u | cut -c 1-3)
+    sub=$(id -u $u | rev | cut -c 1 | rev)
+    subnet=10.$net.$sub.
+    cat > /etc/wireguard/wg$(id -u $u).conf << EOWGS
 [Interface]
 Address = ${subnet}1
 SaveConfig = true
@@ -120,16 +120,16 @@ PublicKey = $peerpub
 AllowedIPs = ${subnet}2/32
 EOWGS
 
-	#[Interface]
-	#Address = ${subnet}1
-	#PrivateKey = $serverpriv
-	#ListenPort = 5$(id -u $u)
+    #[Interface]
+    #Address = ${subnet}1
+    #PrivateKey = $serverpriv
+    #ListenPort = 5$(id -u $u)
 
-	#[Peer]
-	#PublicKey = $peerpub
-	#AllowedIPs = ${subnet}2/32
+    #[Peer]
+    #PublicKey = $peerpub
+    #AllowedIPs = ${subnet}2/32
 
-	cat > /home/$u/.wireguard/$u.conf << EOWGC
+    cat > /home/$u/.wireguard/$u.conf << EOWGC
 [Interface]
 Address = ${subnet}2/24
 PrivateKey = $peerpriv
@@ -150,12 +150,12 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-	systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1 | tee -a $log
-	if [[ $? == 0 ]]; then
-		echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
-	else
-		echo_error "Configuration for $u failed"
-	fi
+    systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1 | tee -a $log
+    if [[ $? == 0 ]]; then
+        echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
+    else
+        echo_error "Configuration for $u failed"
+    fi
 }
 
 # shellcheck source=sources/functions/utils
@@ -166,28 +166,28 @@ distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -f /install/.wireguard.lock ]]; then
-	wgiface=$(cat /install/.wireguard.lock)
+    wgiface=$(cat /install/.wireguard.lock)
 fi
 if [[ -z $wgiface ]]; then
-	defiface=$(route | grep '^default' | grep -o '[^ ]*$')
-	IFACES=($(ip link show | grep -i broadcast | grep UP | grep qlen | cut -d: -f 2 | cut -d@ -f 1 | sed -e 's/ //g'))
-	#MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
-	_defiface_confirm
-	if [[ -f /install/.wireguard.lock ]]; then echo $wgiface > /install/.wireguard.lock; fi
+    defiface=$(route | grep '^default' | grep -o '[^ ]*$')
+    IFACES=($(ip link show | grep -i broadcast | grep UP | grep qlen | cut -d: -f 2 | cut -d@ -f 1 | sed -e 's/ //g'))
+    #MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
+    _defiface_confirm
+    if [[ -f /install/.wireguard.lock ]]; then echo $wgiface > /install/.wireguard.lock; fi
 fi
 
 #When a new user is being installed
 if [[ -n $1 ]]; then
-	u=$1
-	_mkconf_wg
-	exit 0
+    u=$1
+    _mkconf_wg
+    exit 0
 fi
 
 _install_wg
 
 users=($(_get_user_list))
 for u in ${users[@]}; do
-	_mkconf_wg
+    _mkconf_wg
 done
 masteruser=$(_get_master_username)
 echo_info "Configuration QR code can be generated with the following command:\n${bold}qrencode -t ansiutf8 < /home/$masteruser/.wireguard/$masteruser.conf"

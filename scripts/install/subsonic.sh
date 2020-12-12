@@ -23,26 +23,26 @@ codename=$(lsb_release -cs)
 mkdir /root/subsonic-tmp
 
 case $codename in
-	"buster")
-		echo_progress_start "Adding adoptopenjdk repository"
-		apt_install software-properties-common
-		wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
-		add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
-		echo_progress_done "adoptopenjdk repos enabled"
-		apt_update
-		apt_install adoptopenjdk-8-hotspot
-		;;
-	*)
-		apt_install openjdk-8-jre
-		;;
+    "buster")
+        echo_progress_start "Adding adoptopenjdk repository"
+        apt_install software-properties-common
+        wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
+        add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
+        echo_progress_done "adoptopenjdk repos enabled"
+        apt_update
+        apt_install adoptopenjdk-8-hotspot
+        ;;
+    *)
+        apt_install openjdk-8-jre
+        ;;
 esac
 
 echo_progress_start "Downloading and installing subsonic"
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
 wget -qO /root/subsonic-tmp/subsonic.deb $latest || {
-	echo "Could not download Subsonic. Exiting."
-	exit 1
+    echo "Could not download Subsonic. Exiting."
+    exit 1
 }
 cd /root/subsonic-tmp
 dpkg -i subsonic.deb >> "${log}" 2>&1
@@ -126,10 +126,10 @@ systemctl enable -q --now subsonic.service 2>&1 | tee -a $log
 echo_progress_done "Started subsonic"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	bash /usr/local/bin/swizzin/nginx/subsonic.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/subsonic.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_success "Subsonic installed"

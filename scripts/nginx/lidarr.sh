@@ -13,7 +13,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active lidarr)
 
 if [[ $isactive == "active" ]]; then
-	systemctl stop lidarr
+    systemctl stop lidarr
 fi
 
 cat > /etc/nginx/apps/lidarr.conf << LIDN
@@ -44,5 +44,5 @@ LID
 chown -R ${user}: /home/${user}/.config
 
 if [[ $isactive == "active" ]]; then
-	systemctl start lidarr
+    systemctl start lidarr
 fi
