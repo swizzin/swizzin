@@ -348,7 +348,7 @@ function _post() {
         echo
         echo_info "box install nginx panel"
         echo
-        echo_docs /getting-started/box-basics
+        echo_docs getting-started/box-basics
         echo
     fi
 
