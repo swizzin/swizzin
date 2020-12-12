@@ -22,7 +22,7 @@ function _db_setup() {
     #Check for existing mysql and install if not found
     if ! which mysql; then
         apt_install mariadb-server
-        systemctl start mysql -q
+        systemctl enable --now mysql -q
     fi
 
     if [[ -z $nextcldMySqlPW ]]; then
