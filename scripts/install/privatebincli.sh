@@ -6,5 +6,5 @@
 npm_install
 
 echo_progress_start "Installing Privatebin CLI"
-npm install -g @pixelfactory/privatebin >> "$log"
+npm install --quiet --silent -g @pixelfactory/privatebin >> "$log"
 echo_progress_done "Privatebin CLI installed"
