@@ -16,8 +16,7 @@
 . /etc/swizzin/sources/globals.sh
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-
-pastebinlog="/root/logs/privatebin.log"
+privatebinlog="/root/logs/privatebin.log"
 
 # Picks privatebin if available, otherwise offers the choice to install or use termbin
 _choose_pastehost() {
@@ -30,7 +29,7 @@ _choose_pastehost() {
         if ask "Install Privatebin CLI tool?"; then
             # TODO change permissions on this file to +x so I don't have ti use bash because of the NTFS perms translation
             bash /etc/swizzin/scripts/install/privatebincli.sh
-            box dumpinfo
+            pastetool="privatebin"
         else
             echo_info "Continuing with termbin.com"
             pastetool="termbin"
@@ -45,13 +44,13 @@ _post_content() {
     if [[ $pastetool == "privatebin" ]]; then
         # TODO check this works as expected
         tmpid=$(uuidgen)
-        cat > /tmp/"$tmpid"
-        touch $pastebinlog
-        echo "" >> $pastebinlog
-        #TODO something here is making the "FS busy" bug
-        cat /tmp/"$tmpid" | _wash_content | privatebin send -o text >> $pastebinlog
+        cat | _wash_content > /tmp/"$tmpid"
+        touch $privatebinlog
+        echo "" >> $privatebinlog
+        cat /tmp/"$tmpid" | privatebin send -o text >> $privatebinlog
+        # privatebin send -o text "$(cat /tmp/"$tmpid")" >> $privatebinlog
         rm /tmp/"$tmpid"
-        tail -3 $pastebinlog | grep "pasteURL" | awk '{print $2}'
+        tail -3 $privatebinlog | grep "pasteURL" | awk '{print $2}'
     else
         _wash_content | nc termbin.com 9999
     fi
@@ -303,5 +302,5 @@ fi
 
 if [[ $pastetool == "privatebin" ]]; then
     echo
-    echo_info "You can find delete links for each paste in $pastebinlog"
+    echo_info "You can find delete links for each paste in $privatebinlog"
 fi
