@@ -85,10 +85,10 @@ SERVICE
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Installing nginx config"
-	bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
-	systemctl reload nginx
-	echo_progress_done "Nginx config installed"
+    echo_progress_start "Installing nginx config"
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
+    systemctl reload nginx
+    echo_progress_done "Nginx config installed"
 fi
 #
 # Start the filebrowser service.
@@ -103,9 +103,9 @@ touch "/install/.filebrowser.lock"
 echo_success "FileBrowser installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
-	echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"
+    echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"
 else
-	echo_info "Filebrowser is now available in the panel"
+    echo_info "Filebrowser is now available in the panel"
 fi
 echo_warn "Make sure to use your swizzin credentials when logging in"
 #

@@ -20,24 +20,24 @@
 username=$(cut -d: -f1 < /root/.master.info)
 
 function _removeSonarr() {
-	systemctl stop -q sonarr@"${username}"
-	systemctl -q disable sonarr@"${username}"
-	rm -rf /etc/systemd/system/sonarr\@.service
-	systemctl daemon-reload
-	apt_remove nzbdrone
-	rm -f /etc/apt/sources.list.d/sonarr.list
+    systemctl stop -q sonarr@"${username}"
+    systemctl -q disable sonarr@"${username}"
+    rm -rf /etc/systemd/system/sonarr\@.service
+    systemctl daemon-reload
+    apt_remove nzbdrone
+    rm -f /etc/apt/sources.list.d/sonarr.list
 
-	if [[ -f /etc/init.d/sonarr ]]; then
-		sudo update-rc.d -f sonarr remove > /dev/null 2>&1
-		sudo rm /etc/default/sonarr
-		sudo rm /etc/init.d/sonarr
-	fi
-	sudo rm /install/.sonarr.lock
+    if [[ -f /etc/init.d/sonarr ]]; then
+        sudo update-rc.d -f sonarr remove > /dev/null 2>&1
+        sudo rm /etc/default/sonarr
+        sudo rm /etc/init.d/sonarr
+    fi
+    sudo rm /install/.sonarr.lock
 
-	if [[ -f /install/.nginx.lock ]]; then
-		rm -f /etc/nginx/apps/sonarr.conf
-		systemctl reload nginx
-	fi
+    if [[ -f /install/.nginx.lock ]]; then
+        rm -f /etc/nginx/apps/sonarr.conf
+        systemctl reload nginx
+    fi
 }
 
 _removeSonarr

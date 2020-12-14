@@ -7,25 +7,25 @@ user=$(cut -d: -f1 < /root/.master.info)
 . /etc/swizzin/sources/functions/utils
 
 if [[ $(systemctl is-active sickgear) == "active" ]]; then
-	active=sickgear
+    active=sickgear
 fi
 
 if [[ $(systemctl is-active sickchill) == "active" ]]; then
-	active=sickchill
+    active=sickchill
 fi
 
 if [[ -n $active ]]; then
-	echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
-	if ask "Do you want to disable $active?" Y; then
-		disable=yes
-	fi
-	if [[ $disable == "yes" ]]; then
-		echo_progress_start "Disabling service"
-		systemctl disable -q --now ${active} >> ${log} 2>&1
-		echo_progress_done
-	else
-		exit 1
-	fi
+    echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
+    if ask "Do you want to disable $active?" Y; then
+        disable=yes
+    fi
+    if [[ $disable == "yes" ]]; then
+        echo_progress_start "Disabling service"
+        systemctl disable -q --now ${active} >> ${log} 2>&1
+        echo_progress_done
+    else
+        exit 1
+    fi
 fi
 
 mkdir -p /opt/.venv
@@ -71,10 +71,10 @@ systemctl enable -q --now medusa 2>&1 | tee -a $log
 echo_progress_done "Medusa started"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	bash /usr/local/bin/swizzin/nginx/medusa.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/medusa.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_success "Medua installed"

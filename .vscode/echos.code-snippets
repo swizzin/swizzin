@@ -1,0 +1,65 @@
+{
+    "Echo Success": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_success",
+            "success"
+        ],
+        "body": "echo_success \"${1:message}\""
+    },
+    "Echo query": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_query",
+            "query"
+        ],
+        "body": "echo_query \"${1:message}\" \"${2:hint}\""
+    },
+    "Echo query to variable": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_query2var",
+            "query2var"
+        ],
+        "body": [
+            "echo_query \"${1:message}\" \"${2:default}\"",
+            "read -r ${3:variable}"
+        ],
+        "description": "Creates an echo query and reads stdin into a variable"
+    },
+    "Echo info": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_info",
+            "info"
+        ],
+        "body": "echo_info \"${1:message}\""
+    },
+    "Echo log_only": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_log_only",
+            "log_only",
+            "log"
+        ],
+        "body": "echo_log_only \"${1:message}\""
+    },
+    "Echo progress_start": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_progress_start",
+            "progress_start",
+            "start"
+        ],
+        "body": "echo_progress_start \"${1:message}\""
+    },
+    "Echo progress_done": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_progress_done",
+            "progress_done",
+            "start"
+        ],
+        "body": "echo_progress_done \"${1:message}\""
+    },
+}

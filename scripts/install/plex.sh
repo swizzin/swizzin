@@ -39,19 +39,19 @@ echo_progress_done "Sources and keys retrieved and installed"
 apt_install plexmediaserver
 
 if [[ ! -d /var/lib/plexmediaserver ]]; then
-	mkdir -p /var/lib/plexmediaserver
+    mkdir -p /var/lib/plexmediaserver
 fi
 perm=$(stat -c '%U' /var/lib/plexmediaserver/)
 if [[ ! $perm == plex ]]; then
-	chown -R plex:plex /var/lib/plexmediaserver
+    chown -R plex:plex /var/lib/plexmediaserver
 fi
 usermod -a -G ${master} plex
 
 if [[ -n $claim ]]; then
-	sleep 5
-	#shellcheck source=sources/functions/plex
-	. /etc/swizzin/sources/functions/plex
-	claimPlex ${claim}
+    sleep 5
+    #shellcheck source=sources/functions/plex
+    . /etc/swizzin/sources/functions/plex
+    claimPlex ${claim}
 fi
 
 systemctl restart plexmediaserver >> $log 2>&1
