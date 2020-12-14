@@ -26,7 +26,7 @@ Steps to reproduce the behavior:
 
 <!-- ######################################### -->
 <!-- Everything under here can be generated from your swizzin install!-->
-<!-- Log into your server, run `box dumpinfo`, and replace everything underneath with the output of the command-->
+<!-- Log into your server, run `box sysinfo`, and replace everything underneath with the output of the command-->
 <!-- ######################################### -->
 
 ## Installed swizzin apps

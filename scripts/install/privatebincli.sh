@@ -1,5 +1,5 @@
 #!/bin/bash
-# Privatebin CLI installer, dependency for dumpinfo
+# Privatebin CLI installer, dependency for sysinfo
 
 #shellcheck source=sources/functions/npm
 . /etc/swizzin/sources/functions/npm

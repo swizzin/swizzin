@@ -29,7 +29,7 @@
 - [ ] Code is formatted [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
-- [ ] Changes have been made or are not necessary in `scripts/dumpinfo.sh`
+- [ ] Changes have been made or are not necessary in `scripts/sysinfo`
 - [ ] I have commented my code, particularly in hard-to-understand areas
 
 ## Testing done

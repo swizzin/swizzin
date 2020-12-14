@@ -6,11 +6,6 @@
 # - Compiles all the info for each application
 # - Sanitizes those logs
 # - Posts them online and saves deletion links when necessary
-#
-# !!! CONTRIBUTORS, please do the following:
-# - add your paths and commands to the switchcase in _log_upload
-# - test your logs through running bashinfo
-# - add any patterns through the app_sensitive array to get rid of sensitive information
 
 # shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
