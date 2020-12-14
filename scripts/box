@@ -578,8 +578,8 @@ case "$1" in
         _list
         exit 0
         ;;
-    "dumpinfo")
-        bash /etc/swizzin/scripts/dumpinfo
+    "sysinfo")
+        bash /etc/swizzin/scripts/sysinfo
         ;;
     *)
         echo_error "Invalid command: $1"

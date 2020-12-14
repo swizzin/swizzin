@@ -146,63 +146,18 @@ _log_uploads() {
 
     logs_app_list=()
     for choice in $choices; do
-        # !!! CONTRIBUTORS this is where you need to set up the logs for your apps
-        paths=()         # Paths of files/logs to upload the content of
-        commands=()      # Commands to run, which will have their 2>&1 output included in the upload
-        note=""          # A string to append behind each application row
-        version=         # A string of the application version if applicable
-        app_sensitive=() # Tuples of sed patterns to redact, e.g. ("5871" "###-RPCPORT-###"). or ("api: [a-zA-Z0-9]*" "api: ###-APIKEY-###")
-        case $choice in
-            journalctl)
-                commands+=('journalctl -xe')
-                ;;
-            syslog)
-                paths+=('/var/log/syslog')
-                ;;
-            dmesg)
-                commands+=('dmesg')
-                ;;
-            kern)
-                paths+=('/var/log/kern.log')
+        paths=()
+        commands=()
+        note=""
+        version=
+        app_sensitive=()
 
-                ;;
-            apt)
-                commands+=('dmesg')
-                paths+=('/var/log/apt/history.log')
-                paths+=('/var/log/dpkg.log')
-                ;;
-            qbittorrent)
-                paths+=("/home/$loguser/.local/share/data/qBittorrent/logs/qbittorrent.log")
-                version="$(/usr/bin/qbittorrent-nox --version | awk {'print $2'})"
-                ;;
-            nginx)
-                commands+=('nginx -T')
-                paths+=(/var/log/nginx/error.log)
-                . /etc/swizzin/sources/functions/php
-                paths+=("/var/log/php$(php_service_version)-fpm.log")
-                # TODO add IPV6 addresses?
-                app_sensitive+=("client: [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" "client: ###-CLIENTIP-###")
-                ;;
-            panel)
-                commands+=('journalctl -u panel')
-                ;;
-            transmission)
-                commands+=('transmission-daemon --version')
-                paths+=("/home/$loguser/.config/transmission-daemon/settings.json") # TODO is it?
-                ;;
-            tautulli)
-                # TODO clashes with journalctl for panel...???
-                commands+=('journalctl -u tautuli')
-                paths+=("/opt/tautulli/logs/tautulli.log") # TODO is it?
-                ;;
-            rtorrent)
-                # commands+=('rtorrent')
-                paths+=("/home/$loguser/.rtorrent.rc")
-                ;;
-            *)
-                echo_warn "No logs for $choice defined, please upload these manually"
-                ;;
-        esac
+        logscript=/etc/swizzin/scripts/logging/$choice.sh
+        if [ -e "$logscript" ]; then
+            . "$logscript"
+        else
+            echo_warn "No loggin variables for $choice defined, please upload these manually"
+        fi
 
         # Generating file to post
         tmpfile="/tmp/$choice"
