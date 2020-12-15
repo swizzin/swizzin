@@ -1,9 +1,12 @@
 #!/bin/bash
 #
+# Get our externial IP
 ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
+# Create an /etc/nginx/apps subdirectory we need
 mkdir -p "/etc/nginx/apps/authelia"
+# Fix nginx to not try to load a directory when using an include
 sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/nginx/sites-enabled/default
-
+# Create the main reverse proxy - it contains 2 location driectoive for this example.
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
 location / {
     set \$upstream_authelia http://127.0.0.1:9091;
@@ -50,7 +53,7 @@ location /authelia {
     proxy_connect_timeout 240;
 }
 AUTHELIA_NGINX_1
-
+# Create the auth redicrect conf
 cat > "/etc/nginx/apps/authelia/authelia_auth.conf" << AUTHELIA_NGINX_2
 # Basic Authelia Config
 # Send a subsequent request to Authelia to verify if the user is authenticated
@@ -72,7 +75,7 @@ proxy_set_header Remote-Groups \$groups;
 # For other type of errors, nginx will handle them as usual.
 error_page 401 =302 https://${ex_ip}/?rd=\$target_url;
 AUTHELIA_NGINX_2
-
+# Create the proxy settign conf
 cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_NGINX_3
 client_body_buffer_size 128k;
 
