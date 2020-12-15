@@ -116,7 +116,7 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
-systemctl enable -q --now panel 2>&1 | tee -a $log
+systemctl enable -q --now panel >> ${log} 2>&1
 echo_progress_done "Panel started"
 
 echo_success "Panel installed"
