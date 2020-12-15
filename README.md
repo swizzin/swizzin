@@ -38,7 +38,7 @@ sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
 ### Advanced setup
-There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://docs.swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
+There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
 
 Want to use your local swizzin clone instead of cloning upstream? Use the `--local` flag!
 ```bash
