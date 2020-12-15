@@ -16,10 +16,15 @@ if [[ -f /install/.panel.lock ]]; then
     else
         echo_progress_start "Updating panel to latest version"
         if [[ -d /opt/swizzin/venv ]]; then
+            echo_progress_start "Moving swizzin venv to /opt/.venv"
             mkdir -p /opt/.venv
             mv /opt/swizzin/venv /opt/.venv/swizzin
             mv /opt/swizzin/swizzin/* /opt/swizzin
             rm_if_exists "/opt/swizzin/swizzin"
+            sed -i 's|ExecStart=.*|ExecStart=/opt/.venv/swizzin/bin/python swizzin.py|g' /etc/systemd/system/panel.service
+            sed -i 's|WorkingDirectory=.*|WorkingDirectory=/opt/swizzin|g' /etc/systemd/system/panel.service
+            systemctl daemon-reload
+            echo_progress_done "venv moved"
         fi
         pyminver=3.6.0
         pyenv_version=$(/opt/.venv/swizzin/bin/python3 --version | awk '{print $2}')
