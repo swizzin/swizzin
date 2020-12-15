@@ -5,7 +5,7 @@ function whiptail_qbittorrent() {
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
         repov=$(get_candidate_version qbittorrent-nox)
-        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+        releases=$(git ls-remote -t --sort=-v:refname --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }')
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
         latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
@@ -130,7 +130,7 @@ function qbittorrent_user_config() {
     chown $user: /home/${user}/.config/qBittorrent
     cat > /home/${user}/.config/qBittorrent/qBittorrent.conf << QBTCONF
 [BitTorrent]
-Session\DisableAutoTMMByDefault=false 
+Session\DisableAutoTMMByDefault=false
 
 [Preferences]
 Bittorrent\MaxConnecs=-1
