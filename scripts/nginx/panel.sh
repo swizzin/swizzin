@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin/swizzin.cfg
+echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin.cfg
 
 cat > /etc/nginx/apps/panel.conf << 'EON'
 location / {
