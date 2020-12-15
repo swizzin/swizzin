@@ -135,4 +135,4 @@ systemctl enable -q --now authelia 2>&1 | tee -a $log
 # Create the lock file
 touch /install/.authelia.lock
 # echo we are done
-echo_success Authelia Installed
+echo_success "Authelia Installed"
