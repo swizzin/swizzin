@@ -113,16 +113,19 @@ function tmp_swap_off() {
 function password_check() {
     #If no password set, then get one
     if [[ -z $pass ]]; then
+        # While password isn't confirmed ...
         while [[ -z $confirmedPass ]]; do
+            # Get a password
             if [[ $1 = "whiptail" ]]; then
                 pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3)
                 exitstatus=$?
-                if [ "$exitstatus" = 1 ]; then exit 0; fi
+                if [ "$exitstatus" = 1 ]; then exit 1; fi
             else
                 echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
                 read -rs 'pass'
                 echo
             fi
+            # Check the password
             if [[ $pass = "" ]]; then
                 #If password should be generated, skip the check
                 confirmedPass=true
@@ -130,13 +133,14 @@ function password_check() {
                 if [[ $1 = "whiptail" ]]; then
                     pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3)
                     exitstatus=$?
-                    if [ "$exitstatus" = 1 ]; then exit 0; fi
+                    if [ "$exitstatus" = 1 ]; then exit 1; fi
                 else
                     echo_query "Please confirm password" "hidden"
                     read -rs 'pass2'
                     echo
                 fi
                 if [[ $pass != "$pass2" ]]; then
+                    # Restart if they don't match
                     if [[ $1 = "whiptail" ]]; then
                         whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
                     else
@@ -144,13 +148,14 @@ function password_check() {
                         read -n 1 -r
                     fi
                 else
+                    #continue if they're good
                     confirmedPass=true
                 fi
             fi
         done
         unset confirmedPass
     fi
-
+    # If password was empty then it needs to be generated
     if [[ -z "${pass}" ]]; then
         echo_progress_start "Generating password"
         pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
@@ -188,7 +193,7 @@ function username_check() {
         if [[ $1 = "whiptail" ]]; then
             user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3)
             exitstatus=$?
-            if [ "$exitstatus" = 1 ]; then exit 0; fi
+            if [ "$exitstatus" = 1 ]; then exit 1; fi
         else
             echo_query "Enter a name for the new user"
             read -r user
