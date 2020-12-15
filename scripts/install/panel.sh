@@ -1,7 +1,7 @@
 #!/bin/bash
-# QuickBox dashboard installer for Swizzin
+# swizzin dashboard installer
 # Author: liara
-# Copyright (C) 2017 Swizzin
+# Copyright (C) 2020 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
 #   You may copy, distribute and modify the software as long as you track
@@ -35,8 +35,8 @@ fi
 case ${PYENV} in
     True)
         pyenv_install
-        pyenv_install_version 3.7.7
-        pyenv_create_venv 3.7.7 /opt/.venv/swizzin
+        pyenv_install_version 3.8.6
+        pyenv_create_venv 3.8.6 /opt/.venv/swizzin
         chown -R swizzin: /opt/.venv/swizzin
         ;;
     *)
@@ -56,6 +56,7 @@ echo_progress_done
 
 echo_progress_start "Setting permissions"
 chown -R swizzin: /opt/swizzin
+chown -R swizzin: /opt/.venv/swizzin
 setfacl -m g:swizzin:rx /home/*
 echo_progress_done
 
