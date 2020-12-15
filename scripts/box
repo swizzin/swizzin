@@ -502,6 +502,15 @@ case "$1" in
         _function
         exit 0
         ;;
+    "dev" | "-d")
+        if [[ ! $3 ]]; then
+            echo_error "You must choose at least one package to update."
+            exit 1
+        fi
+        shift 1
+        _upgrade "$@"
+        exit 0
+        ;;
     "help" | "-h")
         _help "$0"
         exit 0
