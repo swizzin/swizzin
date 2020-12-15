@@ -29,7 +29,8 @@
 - [ ] Code is formatted [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
-- [ ] Changes have been made or are not necessary in `scripts/sysinfo`
+- [ ] Changes have been made or are not necessary in `scripts/sysinfo` [(See nore)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#sysinfo-support)
+
 - [ ] I have commented my code, particularly in hard-to-understand areas
 
 ## Testing done
@@ -40,4 +41,3 @@ OS & Version:
 Scenarios tested:
 - I ran this and it worked
 - I ran that and it didn't work
-
