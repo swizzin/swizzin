@@ -20,7 +20,13 @@ if [[ ! -f /install/.nginx.lock ]]; then
     fi
 fi
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/pyenv
+. /etc/swizzin/sources/functions/pyenv
+
 master=$(_get_master_username)
+
 useradd -r swizzin -s /usr/sbin/nologin > /dev/null 2>&1
 
 systempy3_ver=$(get_candidate_version python3)
