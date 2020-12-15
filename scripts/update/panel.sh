@@ -3,6 +3,8 @@
 if [[ -f /install/.panel.lock ]]; then
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
+    #shellcheck source=sources/functions/pyenv
+    . /etc/swizzin/sources/functions/pyenv
     if [[ ! -d /opt/swizzin ]]; then
         echo_progress_start "swizzifying the panel"
         rm_if_exists "/srv/panel"
