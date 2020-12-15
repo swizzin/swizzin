@@ -45,9 +45,6 @@ esac
 
 apt_install $LIST
 
-mkdir -p /opt/swizzin/
-#TODO do the pyenv?
-
 echo_progress_start "Cloning panel"
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin >> ${log} 2>&1
 echo_progress_done "Panel cloned"
