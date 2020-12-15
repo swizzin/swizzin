@@ -5,11 +5,12 @@ function whiptail_qbittorrent() {
 		. /etc/swizzin/sources/functions/apt
 		codename=$(lsb_release -cs)
 		repov=$(get_candidate_version qbittorrent-nox)
-		latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
-		if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
-		latestv42=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.2\.\d')
-		if [[ -z $latestv41 ]]; then latestv42=4.2.5; fi
-		latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
+        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+
+        latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
+        latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
+        latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
+
 		case ${codename} in
 			"xenial" | "stretch")
 				function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -78,16 +79,22 @@ function build_qbittorrent() {
 
 function qbittorrent_service() {
 	if [[ ! -f /etc/systemd/system/qbittorent@.service ]]; then
+        type=simple
+        if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+            type=exec
+        fi
 		cat > /etc/systemd/system/qbittorrent@.service << EOQBS
 [Unit]
-Description=qBittorrent noX for %i
-After=network.target
+Description=qBittorrent-nox service for %i
+Documentation=man:qbittorrent-nox(1)
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Type=forking
+Type=$type
 User=%i
 Group=%i
-ExecStart=/usr/bin/qbittorrent-nox -d
+ExecStart=/usr/bin/qbittorrent-nox
 
 [Install]
 WantedBy=multi-user.target

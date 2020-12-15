@@ -4,7 +4,7 @@
 
 # 2.6.0 Stable
 
-[website](https://swizzin.ltd) | [docs](https://swizzin.ltd/getting-started) | [discord](https://discord.gg/bDFqAUF)
+[website](https://swizzin.ltd) \| [docs](https://swizzin.ltd/getting-started) \| [discord](https://discord.gg/bDFqAUF)
 
 Please use Discord for all community functions, [feathub](https://feathub.com/liaralabs/swizzin) for feature requests and leave issues for actual issues.
 
@@ -23,13 +23,13 @@ You can see what that looks like here:
 [![asciicast](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv.svg)](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv)
 
 Using `wget`:
-```
-bash <(wget -qO - git.io/swizzin)
+```shell
+bash <(wget -qO - git.io/swizzin) && . ~/.bashrc
 ```
 
 Using `curl`:
-```
-bash <(curl -s  git.io/swizzin)
+```shell
+bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 ```
 
 **Please note**: If you are running Ubuntu and use `sudo` for the installation you should include the `-H` argument to ensure that your home directory is modified to /root. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command. For example:
@@ -60,8 +60,8 @@ bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup
 
 Long-term support branches only:
 
-* Debian 9/10
-* Ubuntu 16.04/18.04/20.04
+-   Debian 9/10
+-   Ubuntu 16.04/18.04/20.04
 
 ## Support and Help
 
@@ -74,26 +74,26 @@ Box is a great tool, but it didn't quite do everything I wanted it to. That's wh
 
 Box functions:
 
-* list - list all available packages in the repo and a description, if available.
-  * Usage: `box list`
-* install - installs a package from the script repository. Accepts one or more package.
-  * Usage: `box install sickrage couchpotato plex`
-* remove - removes an installed package. Accepts one or more package
-  * Usage: `box remove sonarr radarr`
-* adduser - adds a new user. Define a single user with the command.
-  * Usage: `box adduser freeloadingfriend`
-* deluser - deletes the specified user. Define a single user with the command.
-  * Usage: `box deluser exgirlfriend`
-* chpasswd - changes the password for a user. Define a single user with the command.
-  * Usage: `box chpasswd forgetfulfriend`
-* update - use this command to update your box with the newest changes from github
-  * Usage: `box update`
-* upgrade - upgrade the given package (available scripts are in scripts/upgrade)
-  * Usage: `box upgrade nginx`
-* rmgrsec - removes grsec kernels installed by ovh
-  * Usage: `box rmgrsec`
-* rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
-  * Usage: `box rtx` or `rtx`
+-   list - list all available packages in the repo and a description, if available.
+    -   Usage: `box list`
+-   install - installs a package from the script repository. Accepts one or more package.
+    -   Usage: `box install sickrage couchpotato plex`
+-   remove - removes an installed package. Accepts one or more package
+    -   Usage: `box remove sonarr radarr`
+-   adduser - adds a new user. Define a single user with the command.
+    -   Usage: `box adduser freeloadingfriend`
+-   deluser - deletes the specified user. Define a single user with the command.
+    -   Usage: `box deluser exgirlfriend`
+-   chpasswd - changes the password for a user. Define a single user with the command.
+    -   Usage: `box chpasswd forgetfulfriend`
+-   update - use this command to update your box with the newest changes from github
+    -   Usage: `box update`
+-   upgrade - upgrade the given package (available scripts are in scripts/upgrade)
+    -   Usage: `box upgrade nginx`
+-   rmgrsec - removes grsec kernels installed by ovh
+    -   Usage: `box rmgrsec`
+-   rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
+    -   Usage: `box rtx` or `rtx`
 
 ## Feature Requests:
 

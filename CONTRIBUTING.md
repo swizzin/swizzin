@@ -2,12 +2,21 @@
 Here are a couple things to take into account when contributing to swizzin.
 
 ## Editor plugins and tooling
+### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
 - `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
   - If you are not using VS Code with the plugin above, please make sure to catch **anything** that `shellcheck` does not like.
   - Wherever you deem appropriate, add `#shellcheck disable=...` _inline_ to suppress the warnings.
 - `shell-format` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format) (auto-installs binary) and [Binary](https://github.com/mvdan/sh)
   - If you are not using VS Code with the plugin above, please make sure to apply formatting with the flags mentioned in [`settings.json`](.vscode/settings.json)
+
+### Suggested
+These are just some super useful ones we really like that you should give a shot
+- `shellman` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
+    - It's just a collection of super useful snippets
+- `Bash IDE` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode)
+    - Offers a lot of the Intellisense features that make VSCode worth using
+
 
 ## Directories and files
 - Please use `/opt` to install any new software. **Avoid using home directories to install application binaries/source**
@@ -17,17 +26,29 @@ Please make sure that you have the following plugins and tools installed and wor
   - Record any application information that might need to be dynamically retrieved into the .lock file above.
 
 ## Bash code styleguide
+
+### Formatting
+We are a 4-space gang. Please make sure to run your code through `shfmt` with the right flags specified. Check the first chapter here.
+
 ### Shellcheck
 Please use `shellcheck` and its IDE plugins and resolve any warnings for the code you have contributed.
 
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
+A list of the files that are included on a `box` or a `setup.sh` by default arte in `sources/globals.sh`
+
 Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
 # Retrieves all users that are managed by swizzin
 # Returns usernames separated by newline
 ```
+
+#### Snippets
+We have made a couple snippet definitions in the `.vscode` folder that should be getting loaded into your project whenever you open the workspace.
+
+These should cover most of the functions included in `globals.sh`, but feel free to add yours if you have any suggestions
+
 ### Return codes
 Please use `exit 1` or `return 1` when handling exiting due to some run-time errors
 

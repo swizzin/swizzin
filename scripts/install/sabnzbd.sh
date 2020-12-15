@@ -39,7 +39,7 @@ echo_progress_done
 
 echo_progress_start "Installing pip requirements"
 if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
-	sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
+    sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
 fi
 /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1
 echo_progress_done
@@ -94,10 +94,10 @@ systemctl restart sabnzbd >> ${log} 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring Nginx"
-	bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Configuring Nginx"
+    bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_success "Sabnzbd installed"

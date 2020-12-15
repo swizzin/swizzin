@@ -11,10 +11,10 @@
 user=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active couchpotato)
 if [[ $isactive == "active" ]]; then
-	systemctl stop couchpotato
+    systemctl stop couchpotato
 fi
 if [[ ! -f /etc/nginx/apps/couchpotato.conf ]]; then
-	cat > /etc/nginx/apps/couchpotato.conf << RAD
+    cat > /etc/nginx/apps/couchpotato.conf << RAD
 location /couchpotato {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:5050/couchpotato;
@@ -25,5 +25,5 @@ RAD
 fi
 sed -i "s/url_base.*/url_base = couchpotato\nhost = 127.0.0.1/g" /home/${user}/.config/couchpotato/settings.conf
 if [[ $isactive == "active" ]]; then
-	systemctl start couchpotato
+    systemctl start couchpotato
 fi

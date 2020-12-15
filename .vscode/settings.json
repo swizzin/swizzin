@@ -6,7 +6,7 @@
         "swizzin",
         "xenial"
     ],
-    "shellformat.flag": "-ci -sr -i 0 -ln bash",
+    "shellformat.flag": "-ci -sr -i 4 -ln bash",
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,

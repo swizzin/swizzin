@@ -52,7 +52,7 @@ WantedBy=multi-user.target
 JAK
 
 if [[ ! -f /home/${username}/Jackett/jackett_launcher.sh ]]; then
-	cat > /home/${username}/Jackett/jackett_launcher.sh << 'JL'
+    cat > /home/${username}/Jackett/jackett_launcher.sh << 'JL'
 #!/bin/bash
 user=$(whoami)
 
@@ -64,7 +64,7 @@ done
 
 echo "Jackett update complete"
 JL
-	chmod +x /home/${username}/Jackett/jackett_launcher.sh
+    chmod +x /home/${username}/Jackett/jackett_launcher.sh
 fi
 echo_progress_done "Service file installed"
 
@@ -97,10 +97,10 @@ chown ${username}.${username} -R /home/${username}/.config/Jackett
 echo_progress_done "Jackett configured"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Installing nginx config"
-	bash /usr/local/bin/swizzin/nginx/jackett.sh
-	systemctl reload nginx >> $log 2>&1
-	echo_progress_done "Nginx configured"
+    echo_progress_start "Installing nginx config"
+    bash /usr/local/bin/swizzin/nginx/jackett.sh
+    systemctl reload nginx >> $log 2>&1
+    echo_progress_done "Nginx configured"
 fi
 
 systemctl enable -q --now jackett@${username} 2>&1 | tee -a $log

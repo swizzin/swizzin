@@ -145,14 +145,12 @@ function _preparation() {
 
 	echo "Installing dependencies"
 	# this apt-get should be checked and handled if fails, otherwise the install borks.
-	apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
+    apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 >> ${log} 2>&1
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
 	if [[ $local != "true" ]]; then
 		echo "Cloning swizzin repo to localhost"
 		git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
-		#shellcheck source=sources/functions/color_echo
-		. /etc/swizzin/sources/functions/color_echo
 	else
 		echo "Symlinking $RelativeScriptPath to /etc/swizzin"
 		ln -sr "$RelativeScriptPath" /etc/swizzin
@@ -164,10 +162,9 @@ function _preparation() {
 	fi
 	ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
 	chmod -R 700 /etc/swizzin/scripts
-	#shellcheck source=sources/functions/apt
-	. /etc/swizzin/sources/functions/apt
-	#shellcheck source=sources/functions/ask
-	. /etc/swizzin/sources/functions/ask
+    echo " ##### Switching logs to /root/logs/swizzin.log  ##### " >> "$log"
+    #shellcheck source=sources/globals.sh
+    . /etc/swizzin/sources/globals.sh
 }
 
 #FYI code duplication from `box rmgrsec`
@@ -403,7 +400,7 @@ function _install() {
 
 function _post() {
 	ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-	echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+    if grep -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc &> /dev/null; then true; else echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc; fi
 	#echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
 	#chown ${user}: /home/$user/.profile
 	echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
@@ -423,7 +420,19 @@ function _post() {
 		echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
 		echo ""
 	fi
-	echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now\e[0m"
+    #
+    if [[ -f /var/run/reboot-required ]]; then
+        echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
+        echo
+    else
+        echo_success "You can now use the box command to manage swizzin features"
+        echo
+        echo_info "box install nginx panel"
+        echo
+        echo_docs getting-started/box-basics
+        echo
+    fi
+
 }
 
 _os

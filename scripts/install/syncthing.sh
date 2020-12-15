@@ -50,10 +50,10 @@ systemctl start syncthing@${MASTER} >> $log 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	bash /usr/local/bin/swizzin/nginx/syncthing.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/syncthing.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 touch /install/.syncthing.lock

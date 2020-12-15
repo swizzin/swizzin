@@ -14,14 +14,8 @@
 #
 #################################################################################
 
-# shellcheck source=sources/functions/color_echo
-. /etc/swizzin/sources/functions/color_echo
-export log="/root/logs/swizzin.log"
-# Sourcing functions
-#shellcheck source=sources/functions/apt
-. /etc/swizzin/sources/functions/apt
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
+#shellcheck source=sources/globals.sh
+. /etc/swizzin/sources/globals.sh
 echo_log_only "$(/usr/games/fortune -s)"
 
 function _intro() {
@@ -29,10 +23,12 @@ function _intro() {
 }
 
 function _function() {
-	function=$(whiptail --title "Swizzin" --menu "Choose an option:" --ok-button "Continue" --nocancel 12 50 3 \
+    function=$(
+        whiptail --title "Swizzin" --menu "Choose an option:" --ok-button "Continue" --nocancel 12 50 3 \
 		Install "packages" \
 		Remove "packages" \
-		Exit "" 3>&1 1>&2 2>&3)
+            Exit "" 3>&1 1>&2 2>&3
+    )
 
 	if [[ $function == Install ]]; then
 		_install
@@ -125,13 +121,17 @@ function _clr() {
 }
 
 function _update() {
+    if [[ -L /etc/swizzin ]]; then
+        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+    else
 	echo_progress_start "Updating swizzin local repository"
-	cd /etc/swizzin
+        cd /etc/swizzin || exit
 	git checkout master
 	git fetch origin master
 	git reset --hard origin/master
 	echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
 	echo_progress_done "Local repository updated"
+    fi
 
 	for f in /etc/swizzin/scripts/update/*; do
 		bash "$f"
