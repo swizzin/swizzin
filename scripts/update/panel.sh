@@ -9,10 +9,7 @@ if [[ -f /install/.panel.lock ]]; then
 
         bash /usr/local/bin/swizzin/install/panel.sh
 
-        systemctl enable -q --now panel
-
         echo_progress_done "Panel has been swizzified"
-
     else
         echo_progress_start "Updating panel to latest version"
         if [[ -d /opt/swizzin/venv ]]; then
