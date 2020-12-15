@@ -20,7 +20,7 @@ fi
 
 function _db_setup() {
     #Check for existing mysql and install if not found
-    if ! which mysql; then
+    if ! which mysql >> /dev/null; then
         apt_install mariadb-server
         systemctl enable --now mysql -q
     fi
@@ -32,9 +32,9 @@ function _db_setup() {
 
     # BIG TODO HERE https://docs.nextcloud.com/server/18/admin_manual/configuration_database/mysql_4byte_support.html
     echo_progress_start "Setting up DB for Nextcloud"
-    mysql --execute="CREATE DATABASE nextcloud character set UTF8mb4 COLLATE utf8mb4_general_ci;"
-    mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextcldMySqlPW';"
-    mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;"
+    mysql --execute="CREATE DATABASE nextcloud character set UTF8mb4 COLLATE utf8mb4_general_ci;" || exit 1
+    mysql --execute="CREATE USER nextcloud@localhost IDENTIFIED BY '$nextcldMySqlPW';" || exit 1
+    mysql --execute="GRANT ALL PRIVILEGES ON nextcloud.* TO nextcloud@localhost;" || exit 1
     # mysql --execute="SET GLOBAL innodb_file_format=Barracuda;"
     mysql --execute="FLUSH PRIVILEGES;"
 
@@ -115,30 +115,23 @@ function _nginx() {
 function _bootstrap() {
     echo_progress_start "Configuring Nextcloud settings"
 
-    _occ "maintenance:install -n --database 'mysql' --database-name 'nextcloud'  --database-user 'nextcloud' --database-pass '$nextcldMySqlPW' --admin-user '$masteruser' --admin-pass '$masterpass' "
-    _occ "maintenance:mode --on"
-    _occ "db:add-missing-indices"
-    _occ "db:convert-filecache-bigint --no-interaction"
-    # _occ "config:system:set memcache.local --value='\OC\Memcache\APCu" # TODO follow https://github.com/nextcloud/server/issues/24567
+    _occ "maintenance:install -n --database 'mysql' --database-name 'nextcloud'  --database-user 'nextcloud' --database-pass '$nextcldMySqlPW' --admin-user '$masteruser' --admin-pass '$masterpass' " -q
+    _occ "maintenance:mode --on -n" -q
+    _occ "db:add-missing-indices-n " -q
+    _occ "db:convert-filecache-bigint --no-interaction -n" -q
+    # _occ "config:system:set memcache.local --value='\OC\Memcache\APCu" -q # TODO follow https://github.com/nextcloud/server/issues/24567
 
-    i=1
-    _occ "config:system:set trusted_domains $i --value='localhost'"
-    ((i++))
-    ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-    _occ "config:system:set trusted_domains $i --value=$ip"
-    ((i++))
-    _occ "config:system:set trusted_domains $i --value=$(hostname)"
-    ((i++))
-    _occ "config:system:set trusted_domains $i --value=$(hostname)"
+    _occ_add_trusted_domain "localhost" >> $log
+    _occ_add_trusted_domain "$(hostname)" >> $log
+    _occ_add_trusted_domain "$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')" >> $log
     for value in $(grep server_name /etc/nginx/sites-enabled/default | cut -d' ' -f 4 | cut -d\; -f 1); do
         if [[ $value != "_" ]]; then
-            _occ "config:system:set trusted_domains $i --value=$value"
-            ((i++))
+            _occ_add_trusted_domain "$(value)" >> $log
         fi
     done
     #All users but the master user
 
-    _occ "maintenance:mode --off"
+    _occ "maintenance:mode --off" -q
     restart_php_fpm
     systemctl restart nginx
     echo_progress_done "Nextcloud configured"
@@ -150,7 +143,10 @@ function _users() {
         OC_PASS=$(_get_user_password "$u")
         export OC_PASS
         #TODO decide what happens wih the stdout from this
-        _occ "user:add --password-from-env --display-name=${u} --group='users' ${u}"
+        if ! _occ "user:add --password-from-env --display-name=${u} --group='users' ${u}" -q; then
+            echo_error "Error adding user"
+            exit 1
+        fi
         unset OC_PASS
         echo_progress_done "$u added to nextcloud"
     done
