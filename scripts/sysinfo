@@ -56,7 +56,7 @@ _wash_content() {
     # Makes the pattern from every two items in the array
     cur_sensitive=("${sensitive[@]}" "${app_sensitive[@]}")
     sedString="$(printf 's/%s/%s/g; ' "${cur_sensitive[@]}")"
-    sed "$sedString" | tr -d '\0'
+    tr -d '\0' | sed "$sedString" | tr -d '\0' 2> $log
 }
 
 #Creates a search pattern for sed
