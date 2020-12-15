@@ -20,26 +20,45 @@ if [[ ! -f /install/.nginx.lock ]]; then
     fi
 fi
 
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 
-apt_install python3-pip python3-venv git acl
+systempy3_ver=$(get_candidate_version python3)
+
+if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+    LIST='acl'
+    PYENV=True
+else
+    LIST='python3-pip python3-venv acl'
+fi
+
+case ${PYENV} in
+    True)
+        pyenv_install
+        pyenv_install_version 3.7.7
+        pyenv_create_venv 3.7.7 /opt/.venv/swizzin
+        chown -R swizzin: /opt/.venv/swizzin
+        ;;
+    *)
+        python3_venv swizzin swizzin
+        ;;
+esac
+
+apt_install $LIST
+
 mkdir -p /opt/swizzin/
 #TODO do the pyenv?
 
-python3 -m venv /opt/swizzin/venv
 echo_progress_start "Cloning panel"
-git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin >> ${log} 2>&1
+git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin >> ${log} 2>&1
 echo_progress_done "Panel cloned"
 
 echo_progress_start "Installing python dependencies"
-/opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
+/opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> ${log} 2>&1
 echo_progress_done
 
 echo_progress_start "Setting permissions"
-useradd -r swizzin -s /usr/sbin/nologin > /dev/null 2>&1
 chown -R swizzin: /opt/swizzin
 setfacl -m g:swizzin:rx /home/*
-mkdir -p /etc/nginx/apps
 echo_progress_done
 
 echo_progress_start "Configuring panel"
@@ -71,8 +90,8 @@ After=nginx.service
 Type=simple
 User=swizzin
 
-ExecStart=/opt/swizzin/venv/bin/python swizzin.py
-WorkingDirectory=/opt/swizzin/swizzin
+ExecStart=/opt/.venv/swizzin/bin/python swizzin.py
+WorkingDirectory=/opt/swizzin
 Restart=on-failure
 TimeoutStopSec=300
 
