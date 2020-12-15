@@ -157,7 +157,7 @@ if [[ -f /install/.vsftpd.lock ]]; then
 fi
 
 if [[ -f /install/.nextcloud.lock ]]; then
-    echo_progress_start "Adding $domain to Nextcloud"
+    echo_progress_start "Adding $hostname to Nextcloud"
     #shellcheck source=sources/functions/nextcloud
     . /etc/swizzin/sources/functions/nextcloud
     _occ_add_trusted_domain "$hostname"

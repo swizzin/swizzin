@@ -20,5 +20,5 @@ function _occ_add_trusted_domain() {
     echo_log_only "Adding $domain to Nextcloud"
     count=$(_occ "config:system:get trusted_domains" | wc -l)
     ((count += 1))
-    _occ "config:system:set trusted_domains ${count} --value=${domain}" >> $log 2>&1
+    _occ "config:system:set trusted_domains ${count} --value=${domain}" -q >> $log 2>&1
 }
