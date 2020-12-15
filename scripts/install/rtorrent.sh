@@ -74,7 +74,6 @@ EOF
     systemctl enable -q --now rtorrent@${user} 2>> $log
 }
 
-
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
