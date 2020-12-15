@@ -15,7 +15,7 @@ privatebinlog="/root/logs/privatebin.log"
 
 # Picks privatebin if available, otherwise offers the choice to install or use termbin
 _choose_pastehost() {
-    if which privatebin; then
+    if which privatebin > /dev/null; then
         echo_info "Using privatebin.net"
         echo -e "\n\n###### Links from $(date)"
         pastetool="privatebin"
