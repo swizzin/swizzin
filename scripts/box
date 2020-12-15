@@ -345,7 +345,7 @@ function _deluser() {
             elif [[ $app = "nextcloud" ]]; then
                 # shellcheck source=sources/functions/nextcloud
                 . /etc/swizzin/sources/functions/nextcloud
-                _occ "user:delete ${user}"
+                _occ "user:delete ${user}" -q
             elif [[ $app = "lounge" ]]; then
                 su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
             elif [[ $app = "mango" ]]; then
@@ -443,7 +443,7 @@ function _chpasswd() {
         # shellcheck source=sources/functions/nextcloud
         . /etc/swizzin/sources/functions/nextcloud
         export OC_PASS="$pass"
-        _occ "user:resetpassword $user --password-from-env"
+        _occ "user:resetpassword $user --password-from-env" -q
         unset OC_PASS
     fi
 
