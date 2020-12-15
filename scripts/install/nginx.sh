@@ -209,7 +209,7 @@ done
 
 echo_progress_start "Restarting nginx"
 systemctl restart nginx
-echo_progress_done "Nginx restared"
+echo_progress_done "Nginx restarted"
 
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
