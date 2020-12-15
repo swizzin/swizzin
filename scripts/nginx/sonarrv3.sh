@@ -18,7 +18,7 @@ SONARR
 isactive=$(systemctl is-active sonarr)
 
 if [[ $isactive == "active" ]]; then
-	systemctl stop sonarr
+    systemctl stop sonarr
 fi
 user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
@@ -51,5 +51,5 @@ chown -R "$user":"$user" /home/"$user"/.config/sonarr
 
 # chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
-	systemctl start sonarr
+    systemctl start sonarr
 fi
