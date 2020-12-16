@@ -38,6 +38,8 @@ else
     LIST='python3-pip python3-venv acl'
 fi
 
+apt_install $LIST
+
 case ${PYENV} in
     True)
         pyenv_install
@@ -49,8 +51,6 @@ case ${PYENV} in
         python3_venv swizzin swizzin
         ;;
 esac
-
-apt_install $LIST
 
 echo_progress_start "Cloning panel"
 git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin >> ${log} 2>&1
