@@ -160,6 +160,9 @@ function password_check() {
         echo_progress_start "Generating password"
         pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
         whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+        while ! whiptail --title "Did you write it down?" --yesno "Just checking, we're not going to show you this password again after you tell us you got it." --defaultno --yes-button "Yeah I got it" --no-button "Let's see it again" 8 78; do
+            whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+        done
         echo_progress_done "Password generated and hidden"
     fi
 
@@ -183,7 +186,6 @@ function password_check() {
         else
             echo_progress_done "Password passed"
         fi
-
     fi
 }
 
