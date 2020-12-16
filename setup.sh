@@ -97,7 +97,7 @@ function _adduser() {
     echo "$user:$pass" > /root/.master.info
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
-    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then
+    if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then
         echo_log_only "No sudoers modification made"
     else
         echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
