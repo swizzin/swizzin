@@ -114,6 +114,7 @@ function _cmd_log() {
         log_end="$(wc -l ${log} | awk '{ print $1 }')"
         log_echo="$((log_end - log_start))"
         echo_error "$(tail -n "${log_echo}" "${log}")\n"
+        exit
     else
         true
     fi
