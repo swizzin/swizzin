@@ -9,52 +9,78 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-
-user=$(cut -d: -f1 < /root/.master.info)
-password=$(cut -d: -f2 < /root/.master.info)
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
-#latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
-latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | grep -Po '(?<="browser_download_url":).*?[^\\].tar.gz"' | sed 's/"//g')
-latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
-
+#
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
-. /etc/swizzin/sources/functions/utils
+#
+user="$(_get_master_username)"
+password="$(_get_user_password "$user")"
+#
+latestversion=$(git ls-remote -t --sort=-v:refname --refs https://github.com/sabnzbd/sabnzbd.git | awk '{sub("refs/tags/", "");sub("(.*)(RC|Alpha|Beta|Final)(.*)", ""); print $2 }' | awk '!/^$/' | head -n1)
+latest="https://github.com/sabnzbd/sabnzbd/releases/download/${latestversion}/SABnzbd-${latestversion}-src.tar.gz"
 
-LIST='par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
+apt_install par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev
 
-apt_install $LIST
+python3_venv "${user}" sabnzbd
 
-python3_venv ${user} sabnzbd
-
-install_rar
+[[ "$(_os_distro)" == 'ubuntu' ]] && install_rar
+[[ "$(_os_distro)" == 'debian' ]] && _rar
 
 echo_progress_start "Downloading and extracting sabnzbd"
-cd /opt
+cd /opt || exit 1
 mkdir -p /opt/sabnzbd
-wget -O sabnzbd.tar.gz $latest >> $log 2>&1
-tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
+_cmd_log wget -O sabnzbd.tar.gz "${latest}"
+_cmd_log tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd
 rm -rf sabnzbd.tar.gz
 echo_progress_done
 
 echo_progress_start "Installing pip requirements"
-if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
+if [[ "${latestversion}" =~ ^3\.0\.[1-2] ]]; then
     sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
 fi
-/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1
+
+_cmd_log /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt
+
 echo_progress_done
 
-chown -R ${user}: /opt/.venv/sabnzbd
-mkdir -p /home/${user}/.config/sabnzbd
-mkdir -p /home/${user}/Downloads/{complete,incomplete}
-chown -R ${user}: /opt/sabnzbd
-chown ${user}: /home/${user}/.config
-chown -R ${user}: /home/${user}/.config/sabnzbd
-chown ${user}: /home/${user}/Downloads
-chown ${user}: /home/${user}/Downloads/{complete,incomplete}
+chown -R "${user}:" /opt/.venv/sabnzbd
+chown -R "${user}:" /opt/sabnzbd
+
+mkdir -p "/home/${user}/.config/sabnzbd"
+mkdir -p "/home/${user}/Downloads/"{complete,incomplete}
+
+chown -R "${user}:" "/home/${user}/Downloads"
+
+echo_progress_start "Configuring SABnzbd"
+cat > "/home/${user}/.config/sabnzbd/sabnzbd.ini" << SAB_INI
+[misc]
+host_whitelist = $(hostname -f), $(hostname)
+host = 0.0.0.0
+port = 65080
+download_dir = $HOME/Downloads/incomplete
+complete_dir = $HOME/Downloads/complete
+ionice = -c2 -n5
+par_option = -t4
+nice = -n10
+pause_on_post_processing = 1
+enable_all_par = 1
+direct_unpack_threads = 1
+password = "${password}"
+username = "${user}"
+SAB_INI
+
+chown -R "${user}:" "/home/${user}/.config"
+chmod 700 "/home/${user}/.config/sabnzbd/sabnzbd.ini"
+
+if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring Nginx"
+    bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
+    _cmd_log systemctl reload nginx
+    echo_progress_done
+fi
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/sabnzbd.service << SABSD
+cat > /etc/systemd/system/sabnzbd.service << SAB_SERVICE
 [Unit]
 Description=Sabnzbd
 Wants=network-online.target
@@ -68,34 +94,10 @@ Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-SABSD
+SAB_SERVICE
 
-echo_progress_start "Configuring SABnzbd"
-cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
-[misc]
-host_whitelist = $(hostname -f), $(hostname)
-host = 0.0.0.0
-port = 65080
-download_dir = ~/Downloads/incomplete
-complete_dir = ~/Downloads/complete
-ionice = -c2 -n5
-par_option = -t4
-nice = -n10
-pause_on_post_processing = 1
-enable_all_par = 1
-direct_unpack_threads = 1
-password = "${password}"
-username = "${user}"
-SAB_INI
-
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring Nginx"
-    bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
-    systemctl reload nginx
-    echo_progress_done
-fi
-
-systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
+_cmd_log systemctl enable -q --now sabnzbd
 
 echo_success "Sabnzbd installed"
-touch /install/.sabnzbd.lock
+
+touch "/install/.sabnzbd.lock"

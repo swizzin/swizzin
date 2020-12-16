@@ -8,11 +8,10 @@ function install_rar() {
 
 function _rar() {
     cd /tmp
-    wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-    tar -xzf rarlinux-x64-5.5.0.tar.gz > /dev/null 2>&1
-    cp rar/*rar /bin > /dev/null 2>&1
-    rm -rf rarlinux*.tar.gz > /dev/null 2>&1
-    rm -rf /tmp/rar > /dev/null 2>&1
+    unrar_version="6.0.0"
+    wget -q "http://www.rarlab.com/rar/rarlinux-x64-${unrar_version}.tar.gz"
+    tar -xzf "rarlinux-x64-${unrar_version}.tar.gz" --overwrite --strip-components 1 -C /bin 'rar/unrar' 'rar/rar' &> /dev/null
+    rm -f rarlinux-x64-${unrar_version}.tar.gz
 }
 
 # Returns a password for a user in case one exists.
@@ -107,4 +106,15 @@ function tmp_swap_on() {
 function tmp_swap_off() {
     swapoff /.swapfile > /dev/null 2>&1
     rm -f /.swapfile > /dev/null 2>&1
+}
+
+function _cmd_log() {
+    log_start="$(wc -l ${log} | awk '{ print $1 }')"
+    if ! "${@}" &>> "${log}"; then
+        log_end="$(wc -l ${log} | awk '{ print $1 }')"
+        log_echo="$((log_end - log_start))"
+        echo_error "$(tail -n "${log_echo}" "${log}")\n"
+    else
+        true
+    fi
 }
