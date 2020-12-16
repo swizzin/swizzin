@@ -68,30 +68,25 @@ Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
-
 SABSD
 
-systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
-sleep 2
-echo_progress_done "SABnzbd started"
-
 echo_progress_start "Configuring SABnzbd"
-systemctl stop sabnzbd >> ${log} 2>&1
-sed -i "s/host_whitelist = .*/host_whitelist = $(hostname -f), $(hostname)/g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "s|^host = .*|host = 0.0.0.0|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "0,/^port = /s/^port = .*/port = 65080/" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "s|^download_dir = .*|download_dir = ~/Downloads/incomplete|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "s|^complete_dir = .*|complete_dir = ~/Downloads/complete|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^ionice = .*|ionice = -c2 -n5|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^par_option = .*|par_option = -t4|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^nice = .*|nice = -n10|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^pause_on_post_processing = .*|pause_on_post_processing = 1|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^enable_all_par = .*|enable_all_par = 1|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-#sed -i "s|^direct_unpack_threads = .*|direct_unpack_threads = 1|g" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "0,/password = /s/password = .*/password = ${password}/" /home/${user}/.config/sabnzbd/sabnzbd.ini
-sed -i "0,/username = /s/username = .*/username = ${user}/" /home/${user}/.config/sabnzbd/sabnzbd.ini
-systemctl restart sabnzbd >> ${log} 2>&1
-echo_progress_done
+cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
+[misc]
+host_whitelist = $(hostname -f), $(hostname)
+host = 0.0.0.0
+port = 65080
+download_dir = ~/Downloads/incomplete
+complete_dir = ~/Downloads/complete
+ionice = -c2 -n5
+par_option = -t4
+nice = -n10
+pause_on_post_processing = 1
+enable_all_par = 1
+direct_unpack_threads = 1
+password = "${password}"
+username = "${user}"
+SAB_INI
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring Nginx"
@@ -99,6 +94,8 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done
 fi
+
+systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
 
 echo_success "Sabnzbd installed"
 touch /install/.sabnzbd.lock
