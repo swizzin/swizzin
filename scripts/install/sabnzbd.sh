@@ -73,6 +73,7 @@ SAB_INI
 
 chown -R "${user}:" "/home/${user}/.config"
 chmod 700 "/home/${user}/.config/sabnzbd/sabnzbd.ini"
+echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring Nginx"
@@ -97,6 +98,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 SAB_SERVICE
+echo_progress_done
 
 _cmd_log systemctl enable -q --now sabnzbd
 
