@@ -59,18 +59,16 @@ function _preparation() {
     fi
     apt_upgrade
     # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
-    bash <(curl -s https://raw.githubusercontent.com/flying-sausages/swizzin/setup-trimdown/scripts/update/10-dependencies.sh)
+    bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/setup-trimdown/scripts/update/10-dependencies.sh)
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     if [[ $dev != "true" ]]; then
         echo_progress_start "Cloning swizzin repo to localhost"
-        git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo_progress_done
     else
         RelativeScriptPath=$(dirname "$0")
         ln -sr "$RelativeScriptPath" /etc/swizzin
-        #shellcheck source=sources/functions/color_echo
-        . /etc/swizzin/sources/functions/color_echo
         echo
         echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is symlinked to /etc/swizzin"
         echo_info "That directory is relative to your pwd  = $(pwd)/$RelativeScriptPath"
@@ -100,7 +98,7 @@ function _adduser() {
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
     if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then
-        echo_warn "No sudoers modification made"
+        echo_log_only "No sudoers modification made"
     else
         echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
     fi
