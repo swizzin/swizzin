@@ -67,8 +67,6 @@ nice = -n10
 pause_on_post_processing = 1
 enable_all_par = 1
 direct_unpack_threads = 1
-password = "${password}"
-username = "${user}"
 SAB_INI
 
 chown -R "${user}:" "/home/${user}/.config"
