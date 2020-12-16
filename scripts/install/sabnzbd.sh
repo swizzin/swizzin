@@ -59,8 +59,8 @@ cat > "/home/${user}/.config/sabnzbd/sabnzbd.ini" << SAB_INI
 host_whitelist = $(hostname -f), $(hostname)
 host = 0.0.0.0
 port = 65080
-download_dir = $HOME/Downloads/incomplete
-complete_dir = $HOME/Downloads/complete
+download_dir = /home/${user}/Downloads/incomplete
+complete_dir = /home/${user}/Downloads/complete
 ionice = -c2 -n5
 par_option = -t4
 nice = -n10
