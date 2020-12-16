@@ -74,7 +74,7 @@ fi
 if [[ $master == $(id -nu 1000) ]]; then
     :
 else
-    echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin/swizzin.cfg
+    echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin.cfg
 fi
 echo_progress_done
 
