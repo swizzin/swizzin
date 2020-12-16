@@ -214,7 +214,7 @@ function username_check() {
     fi
     ## Do the complicated regex
     if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
-        error_message+="Usernames must conform to this regex ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\\$)$.\n"
+        error_message+="Usernames must contain no capitals or special characters, start with a letter and be no longer than 32 characters"
         badUsername=true
     fi
     ## Recurse if error found
