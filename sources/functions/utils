@@ -7,11 +7,10 @@ function install_rar() {
 }
 
 function _rar() {
-    cd /tmp
     unrar_version="6.0.0"
-    wget -q "http://www.rarlab.com/rar/rarlinux-x64-${unrar_version}.tar.gz"
-    tar -xzf "rarlinux-x64-${unrar_version}.tar.gz" --overwrite --strip-components 1 -C /bin 'rar/unrar' 'rar/rar' &> /dev/null
-    rm -f rarlinux-x64-${unrar_version}.tar.gz
+    wget -qO "/tmp/rarlinux-x64-${unrar_version}.tar.gz" "http://www.rarlab.com/rar/rarlinux-x64-${unrar_version}.tar.gz"
+    tar -xzf "/tmp/rarlinux-x64-${unrar_version}.tar.gz" --overwrite --strip-components 1 -C /bin 'rar/unrar' 'rar/rar' &> /dev/null
+    rm -f "/tmp/rarlinux-x64-${unrar_version}.tar.gz"
 }
 
 # Returns a password for a user in case one exists.
