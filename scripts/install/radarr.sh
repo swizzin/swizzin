@@ -10,7 +10,7 @@ _install_radarr() {
 
     radarrConfDir="/home/$radarrOwner/.config/Radarr"
     mkdir -p "$radarrConfDir"
-    chown -R "$radarrOwner":"$radarrOwner" "$radarrConfDir"
+    chown -R "$radarrOwner":"$radarrOwner" /home/$radarrOwner/.config
 
     echo_progress_start "Downloading source files"
     #curl https://api.github.com/repos/Radarr/Radarr/releases | jq -r '.[0].assets | .[] | select (.browser_download_url | contains ("linux-core")).browser_download_url'
