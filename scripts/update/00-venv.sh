@@ -14,3 +14,13 @@ if [[ -d /home/${user}/.venv ]]; then
         systemctl try-restart $app
     done
 fi
+
+if [[ -d /opt/.venv ]]; then
+    envs=($(find /opt/.venv/* -maxdepth 0 -type d))
+    for venvpath in ${envs[@]}; do
+        if ! grep -q "#\!${venvpath}/bin/python" ${venvpath}/bin/*; then
+            echo_log_only "Replacing venv path in $venvpath"
+            sed -i "s|#\!/.*/bin/python|#\!${venvpath}/bin/python|g" ${venvpath}/bin/*
+        fi
+    done
+fi
