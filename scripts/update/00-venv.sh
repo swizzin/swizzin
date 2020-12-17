@@ -16,10 +16,11 @@ if [[ -d /home/${user}/.venv ]]; then
 fi
 
 if [[ -d /opt/.venv ]]; then
-    envs=($(ls /opt/.venv))
-    for app in ${envs[@]}; do
-        if ! grep -q "#\!/opt/.venv/${app}/bin/python" /opt/.venv/${app}/bin/*; then
-            sed -i "s|#\!/.*/bin/python|#\!/opt/.venv/${app}/bin/python|g" /opt/.venv/${app}/bin/*
+    envs=($(find /opt/.venv/* -maxdepth 0 -type d))
+    for venvpath in ${envs[@]}; do
+        if ! grep -q "#\!${venvpath}/bin/python" ${venvpath}/bin/*; then
+            echo_log_only "Replacing venv path in $venvpath"
+            sed -i "s|#\!/.*/bin/python|#\!${venvpath}/bin/python|g" ${venvpath}/bin/*
         fi
     done
 fi
