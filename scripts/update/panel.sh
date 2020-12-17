@@ -19,7 +19,8 @@ if [[ -f /install/.panel.lock ]]; then
         if [[ -d /opt/swizzin/venv ]]; then
             echo_progress_start "Moving swizzin venv to /opt/.venv"
             mkdir -p /opt/.venv
-            mv /opt/swizzin/venv /opt/.venv/swizzin
+            python3 -m venv /opt/.venv/swizzin
+            rm -rf /opt/swizzin/venv
             mv /opt/swizzin/swizzin/* /opt/swizzin/swizzin/.git /opt/swizzin
             rm_if_exists "/opt/swizzin/swizzin"
             sed -i 's|ExecStart=.*|ExecStart=/opt/.venv/swizzin/bin/python swizzin.py|g' /etc/systemd/system/panel.service
