@@ -6,7 +6,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 # Set the current version using a git ls-remote tag check
-authelia_latestv="$(git ls-remote -t --sort=-v:refname --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | head -n1)"
+authelia_latestv="$(git ls-remote -t --sort=-v:refname --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | head -n1)"
 # Create the download url using the version provided by authelia_latestv
 authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-amd64.tar.gz"
 # Create the loction for the stored binary
