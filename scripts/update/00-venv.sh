@@ -14,3 +14,12 @@ if [[ -d /home/${user}/.venv ]]; then
         systemctl try-restart $app
     done
 fi
+
+if [[ -d /opt/.venv ]]; then
+    envs=($(ls /opt/.venv))
+    for app in ${envs[@]}; do
+        if ! grep -q "#\!/opt/.venv/${app}/bin/python" /opt/.venv/${app}/bin/*; then
+            sed -i "s|#\!/.*/bin/python|#\!/opt/.venv/${app}/bin/python|g" /opt/.venv/${app}/bin/*
+        fi
+    done
+fi
