@@ -4,7 +4,6 @@ if [[ ! -f /install/.nginx.lock ]]; then
     echo_warn "Nginx is required for this application"
     exit
 fi
-
 # Set the current version using a git ls-remote tag check
 authelia_latestv="$(git ls-remote -t --sort=-v:refname --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | head -n1)"
 # Create the download url using the version provided by authelia_latestv
@@ -26,7 +25,8 @@ ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
 # Create a random secret for the config.yml
 secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 # Set our password for this example
-password='password'
+username="$(_get_master_username)"
+password="$(_get_user_password "${username}")"
 # Hash our password using authelia hash-password to use in the users_database.yml
 password_hash="$(/opt/authelia/authelia hash-password "${password}" | awk '{ print $3 }')"
 # generate the /etc/authelia/config.yml
