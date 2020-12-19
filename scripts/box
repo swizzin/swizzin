@@ -120,9 +120,14 @@ function _clr() {
     fi
 }
 
+#shellcheck disable=SC2120
 function _update() {
-    if [[ -L /etc/swizzin ]] || [[ -e /etc/swizzin/.dev.lock ]]; then
-        echo_warn "Not updating /etc/swizzin as it is a symlink, or a dev lockfile is present. Please consult your provider/maintainers in case you believe this is an error."
+    if [[ -L /etc/swizzin ]]; then
+        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+    elif [[ -e /etc/swizzin/.dev.lock ]]; then
+        echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
+    elif [[ $2 == "--dev" ]]; then # TODO check if _any_ argument is --dev
+        echo_warn "Not updating from git due to --dev flag"
     else
         echo_progress_start "Updating swizzin local repository"
         cd /etc/swizzin || exit
