@@ -121,8 +121,8 @@ function _clr() {
 }
 
 function _update() {
-    if [[ -L /etc/swizzin ]]; then
-        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+    if [[ -L /etc/swizzin ]] || [[ -e /etc/swizzin/.dev.lock ]]; then
+        echo_warn "Not updating /etc/swizzin as it is a symlink, or a dev lockfile is present. Please consult your provider/maintainers in case you believe this is an error."
     else
         echo_progress_start "Updating swizzin local repository"
         cd /etc/swizzin || exit
