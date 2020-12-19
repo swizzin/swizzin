@@ -18,7 +18,10 @@ else
     echo 'export PATH=$PATH:/usr/local/bin/swizzin' >> /root/.bashrc
 fi
 
-perm=$(stat -c '%U' /home/${master}/.config)
-if [[ ! $perm == ${master} ]]; then
-    chown -R ${master}: /home/${master}/.config
+# Ensure .config dir is correctly owned
+if [[ -e /home/${master}/.config ]]; then
+    perm=$(stat -c '%U' /home/"${master}"/.config)
+    if [[ ! $perm == ${master} ]]; then
+        chown -R "${master}": /home/"${master}"/.config
+    fi
 fi
