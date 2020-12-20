@@ -36,7 +36,7 @@ cat > /home/"$user"/.config/Radarr/config.xml << RADARR
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>7878</Port>
-  <SslPort>8787</SslPort>
+  <SslPort>9898</SslPort>
   <EnableSsl>False</EnableSsl>
   <LaunchBrowser>False</LaunchBrowser>
   <ApiKey>${apikey}</ApiKey>
