@@ -8,8 +8,8 @@
 
 app_name="readarr"
 if [ -z "$READARR_OWNER" ]; then
-    if ! READARR_OWNER="$(swizdb get $app_name/owner)"; then
-        READARR_OWNER=$(_get_master_username)
+    if ! READARR_OWNER="$(swizdb get "$app_name/owner")"; then
+        READARR_OWNER="$(_get_master_username)"
         echo_info "Setting ${app_name^} owner = $READARR_OWNER"
         swizdb set "$app_name/owner" "$READARR_OWNER"
     fi
