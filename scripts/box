@@ -120,9 +120,14 @@ function _clr() {
     fi
 }
 
+#shellcheck disable=SC2120
 function _update() {
     if [[ -L /etc/swizzin ]]; then
         echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+    elif [[ -e /etc/swizzin/.dev.lock ]]; then
+        echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
+    elif [[ $1 == "--dev" ]]; then
+        echo_warn "Not updating from git due to --dev flag"
     else
         echo_progress_start "Updating swizzin local repository"
         cd /etc/swizzin || exit
@@ -562,15 +567,19 @@ case "$1" in
         /usr/local/bin/swizzin/rtx
         ;;
     "update")
-        _update
+        _update "$2"
         exit 0
         ;;
     "upgrade")
+        if [[ $2 = "--dev" ]]; then
+            dev="--dev"
+            shift
+        fi
         if [[ ! $2 ]]; then
             echo_error "You must choose at least one package to update."
             exit 1
         fi
-        _update
+        _update $dev
         _upgrade "$@"
         exit 0
         ;;
