@@ -63,8 +63,8 @@ EOF
 
     if [[ -f $radarrConfDir/update_required ]]; then
         echo_progress_start "Radarr is installing an internal upgrade..."
-        # echo "You can track the update by running \`systemctl status Radarr\`0. in another shell."
-        # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
+        # echo "You can track the update by running \`systemctl status radarr\`0. in another shell."
+        # echo "In case of errors, please press CTRL+C and run \`box remove radarr\` in this shell and check in with us in the Discord"
         while [[ -f $radarrConfDir/update_required ]]; do
             sleep 1
             echo_log_only "Upgrade file is still here"
