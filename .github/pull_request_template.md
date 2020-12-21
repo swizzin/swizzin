@@ -25,10 +25,13 @@
 - `x86_64` is specifically handled as:
     - [ ] Success
     - [ ] Error
+    - Notes: 
 - `arm64` is specifically handled as:
     - [ ] Success
     - [ ] Error
+    - Notes: 
 - [ ] Changes are arch agnostic <!-- This means things like nginx/systemd/bash changes -->
+    - Notes: 
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
