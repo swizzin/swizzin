@@ -20,6 +20,16 @@
 - Changes structure of project (major rewrites, large directory changes, etc.)
 - Impacts the flow of how we contribute (IDE changes, `.github` dir, etc.)
 
+## Architectures
+<!-- In case it is impossible to handle due to some issues, please make sure to handle that case for the end-user's sexperience-->
+- `x86_64` is specifically handled as:
+    - [ ] Success
+    - [ ] Error
+- `arm64` is specifically handled as:
+    - [ ] Success
+    - [ ] Error
+- [ ] Changes are arch agnostic <!-- This means things like nginx/systemd/bash changes -->
+
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
 - [ ] Docs have been made OR are not necessary
