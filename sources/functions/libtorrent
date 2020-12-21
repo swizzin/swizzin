@@ -247,7 +247,7 @@ function build_libtorrent_rasterbar() {
                 master)
                     python=python3
                     pythonbin=$python
-                    pythonapt=python3-dev
+                    pythonapt="python3-dev python3-setuptools libboost-python-dev"
                     case $release in
                         "stretch" | "xenial")
                             python_configure_args="--with-boost-python=boost_python-py35"
@@ -261,13 +261,14 @@ function build_libtorrent_rasterbar() {
                 1.3-stable)
                     python=python
                     pythonbin=python2
-                    pythonapt=python2.7-dev
+                    pythonapt="python2.7-dev python-setuptools libboost-python-dev"
                     remove=python3-libtorrent
                     case $release in
                         "focal")
                             pythonbin=python2.7
+                            pythonapt="python2.7-dev python-setuptools libboost-python1.67-dev"
                             #python_configure_args="--with-boost-python=boost_python27"
-                            LIST="libboost1.67-dev libboost-python1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt} python-setuptools"
+                            LIST="libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev libboost1.67-tools-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt}"
                             ;;
                     esac
                     ;;
@@ -282,7 +283,7 @@ function build_libtorrent_rasterbar() {
         done
         LTRC=$libtorrent
         if [[ -z $LIST ]]; then
-            LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libboost-python-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev geoip-database ${pythonapt} python-setuptools"
+            LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev libboost-tools-dev geoip-database ${pythonapt}"
         fi
         apt_install $LIST
         apt_autoremove
@@ -309,6 +310,8 @@ function build_libtorrent_rasterbar() {
             tag=" with c++14"
             #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
             sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
+            #Temporarily pin libtorrent to 1.2.11 to prevent b2 python binding issues
+            git checkout tags/v1.2.11 >> ${log} 2>&1
         fi
         ./autotool.sh >> "${log}" 2>&1
         ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >> "${log}" 2>&1
@@ -330,9 +333,9 @@ function build_libtorrent_rasterbar() {
             patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
         fi
         make -j$(nproc) >> "${log}" 2>&1
-        make DESTDIR=/tmp/dist/libtorrent install > /dev/null 2>&1
+        make DESTDIR=/tmp/dist/libtorrent install >> ${log} 2>&1
         mkdir -p /root/dist
-        fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" > /dev/null 2>&1
+        fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
         dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
         if [[ -n $deluge ]]; then
             echo_progress_start "Building python binding"
