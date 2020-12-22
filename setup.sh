@@ -66,6 +66,7 @@ As such, we cannot guarantee everything works 100%, so please don't feel like yo
 DO NOT CREATE ISSUES ON GITHUB."
         fi
         ask "Agree with the above and continue?" N || exit 1
+        echo
     fi
 }
 _arch_check
@@ -162,15 +163,19 @@ _os() {
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
     if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
-        echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
+        echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
+        exit 1
     fi
     if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
-        echo_error "Your release ($codename) of $distribution is not supported." && exit 1
+        echo_error "Your release ($codename) of $distribution is not supported."
+        exit 1
     fi
 }
 
 function _preparation() {
+    echo_info "Preparing system"
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
+
     if [[ $distribution = "Ubuntu" ]]; then
         echo_progress_start "Enabling required repos"
         if ! which add-apt-repository > /dev/null; then
@@ -181,25 +186,17 @@ function _preparation() {
         add-apt-repository restricted -u >> ${log} 2>&1
         echo_progress_done
     fi
+
     apt_upgrade
 
-    # Run dependency update function either from locall if available or from remote (default for end-users)
-    if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
-        echo_warn "Loaded dependency list from local files"
-        bash /etc/swizzin/scripts/update/10-dependencies.sh
-    elif [[ -f $RelativeScriptPath/scripts/update/10-dependencies.sh ]]; then
-        echo_warn "Loaded dependency list from local files"
-        bash "$RelativeScriptPath"/scripts/update/10-dependencies.sh
-    else
-        # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
-        if ! bash <(curl -sS https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
-            echo_error "Dependency installation failed, please check the output."
-            exit 1
-        fi
+    if ! bash /etc/swizzin/scripts/update/10-dependencies.sh; then
+        echo_error "Dependencies failed to install"
     fi
 
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
+    echo_progress_done "Setup succesful"
+    echo
 }
 
 #FYI code duplication from `box rmgrsec`
@@ -212,6 +209,7 @@ function _intro() {
 }
 
 function _adduser() {
+    echo_info "Creating master user"
     username_check whiptail
     password_check whiptail
     echo "$user:$pass" > /root/.master.info
@@ -314,7 +312,6 @@ function _choices() {
         fi
     done
     whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2 || exit 1
-
 }
 
 function _install() {
