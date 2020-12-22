@@ -128,15 +128,17 @@ function _intro() {
 function _adduser() {
     username_check whiptail
     password_check whiptail
-    bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     echo "$user:$pass" > /root/.master.info
-    rm /root/"$user".info # TODO Switch to some different user-tracking implementation
+    export CREATINGMASTER=true                            # TODO this way we skip the master check in adduser
+    bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
+    rm /root/"$user".info                                 # TODO Switch to some different user-tracking implementation
+    unser $CREATINGMASTER
 
-    if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
-        echo_log_only "No sudoers modification made"
-    else
-        echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
-    fi
+    # if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
+    #     echo_log_only "No sudoers modification made"
+    # else
+    echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
+    # fi
     pass=
     unset pass
 }
