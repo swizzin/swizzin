@@ -31,6 +31,7 @@ function _source_setup() {
     apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
 
     # if [[ $LOCAL != "true" ]]; then
+    echo "$*"
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
         if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
@@ -43,6 +44,8 @@ function _source_setup() {
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
         echo "Cloning swizzin repo to localhost"
+        echo "not it"
+        exit 0
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo "Swizzin cloned!"
     fi
@@ -51,6 +54,7 @@ function _source_setup() {
     echo " ##### Switching logs to /root/logs/swizzin.log  ##### " >> "$log"
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
+    echo
     # echo "Pulling down some magic..."
     # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
     # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
@@ -58,7 +62,7 @@ function _source_setup() {
     # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
     # source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
 }
-_source_setup
+_source_setup "$@"
 
 function _arch_check() {
     if [[ ! $(uname -m) == "x86_64" ]]; then
@@ -156,6 +160,7 @@ function _option_parse() {
         done
     fi
 }
+_option_parse "$@"
 
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
