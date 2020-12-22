@@ -20,7 +20,7 @@ Just paste this in your terminal and go! This will ask you all the necessary que
 
 You can see what that looks like here:
 
-[![asciicast](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv.svg)](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv)
+<!-- [![asciicast](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv.svg)](https://asciinema.org/a/iz7DBvcNXcgbYWddIJmzoWMCv) -->
 
 Using `wget`:
 ```shell
