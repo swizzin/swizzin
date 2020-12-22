@@ -13,6 +13,12 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
+    exit 1
+fi
+
 export log=/root/logs/install.log
 mkdir -p /root/logs
 touch $log
@@ -23,11 +29,6 @@ source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sou
 source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
 source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
 # source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
-
-if [[ $EUID -ne 0 ]]; then
-    echo_error "Swizzin setup requires user to be root. su or sudo -s and run again ..."
-    exit 1
-fi
 
 if [[ ! $(uname -m) == "x86_64" ]]; then
     echo_warn "$(_os_arch) detected!"
