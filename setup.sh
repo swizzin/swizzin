@@ -26,14 +26,13 @@ touch $log
 # Setting up /etc/swizzin
 #shellcheck disable=SC2120
 function _source_setup() {
-    # The one true dependency
-    echo "Installing git"
+    echo "Installing git"              # The one true dependency
     apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
+    :                                  # All dependencies go to scripts/update/10-dependencies.sh
 
-    # if [[ $LOCAL != "true" ]]; then
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
-        if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
+        if [[ ! -e /etc/swizzin ]]; then # If there is no valid file or dir there...
             ln -sr "$RelativeScriptPath" /etc/swizzin
             echo "The directory where the setup script is located is symlinked to /etc/swizzin"
         else
