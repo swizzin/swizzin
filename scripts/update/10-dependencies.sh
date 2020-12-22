@@ -11,7 +11,7 @@ for dep in $dependencies; do
     fi
 done
 
-if [[ ${missing[1]} != "" ]]; then
+if [[ ${missing[0]} != "" ]]; then
     echo_info "Installing missing dependencies"
     apt_install "${missing[@]}"
 else
