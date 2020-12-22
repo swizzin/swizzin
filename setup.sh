@@ -19,7 +19,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-export log=/root/logs/install.log
+export log=/root/logs/swizzin.log
 mkdir -p /root/logs
 touch $log
 
