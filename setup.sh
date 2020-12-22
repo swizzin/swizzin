@@ -46,10 +46,10 @@ while test $# -gt 0; do
             ;;
         --domain)
             shift
-            export LE_hostname="$1"
-            export LE_defaultconf=yes
-            export LE_bool_cf=no
-            echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf" | tee -a $log
+            export LE_HOSTNAME="$1"
+            export LE_DEFAULTCONF=yes
+            export LE_BOOL_CF=no
+            echo "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF" | tee -a $log
             ;;
         --local)
             local=true

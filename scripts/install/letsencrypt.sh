@@ -18,40 +18,40 @@ fi
 . /etc/swizzin/sources/functions/letsencrypt
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
-if [[ -z $LE_hostname ]]; then
+if [[ -z $LE_HOSTNAME ]]; then
     echo_query "Enter domain name to secure with LE"
     read -e hostname
 else
-    hostname=$LE_hostname
+    hostname=$LE_HOSTNAME
 fi
 
-if [[ -z $LE_defaultconf ]]; then
+if [[ -z $LE_DEFAULTCONF ]]; then
     if ask "Do you want to apply this certificate to your swizzin default conf?"; then
         main=yes
     else
         main=no
     fi
 else
-    main=$LE_defaultconf
+    main=$LE_DEFAULTCONF
 fi
 
 if [[ $main == yes ]]; then
     sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-if [ -n $LE_cf_api ] || [ -n $LE_cf_email ] || [ -n $LE_cf_zone ]; then
-    LE_bool_cf=yes
+if [[ -n $LE_CF_API ]] || [[ -n $LE_CF_EMAIL ]] || [[ -n $LE_CF_ZONE ]]; then
+    LE_BOOL_CF=yes
 fi
 
-if [[ -z $LE_bool_cf ]]; then
+if [[ -z $LE_BOOL_CF ]]; then
     if ask "Is your DNS managed by CloudFlare?"; then
         cf=yes
     else
         cf=no
     fi
 else
-    [[ $LE_bool_cf = "yes" ]] && cf=yes
-    [[ $LE_bool_cf = "no" ]] && cf=no
+    [[ $LE_BOOL_CF = "yes" ]] && cf=yes
+    [[ $LE_BOOL_CF = "no" ]] && cf=no
 fi
 
 if [[ ${cf} == yes ]]; then
@@ -61,33 +61,33 @@ if [[ ${cf} == yes ]]; then
         exit 1
     fi
 
-    if [[ -n $LE_cf_zone ]]; then
-        LE_cf_zoneexists=no
+    if [[ -n $LE_CF_ZONE ]]; then
+        LE_CF_ZONEEXISTS=no
     fi
 
-    if [[ -z $LE_cf_zoneexists ]]; then
+    if [[ -z $LE_CF_ZONEEXISTS ]]; then
         if ask "Does the record for this subdomain already exist?"; then
             main=yes
         else
             main=no
         fi
     else
-        [[ $LE_cf_zoneexists = "yes" ]] && zone=yes
-        [[ $LE_cf_zoneexists = "no" ]] && zone=no
+        [[ $LE_CF_ZONEEXISTS = "yes" ]] && zone=yes
+        [[ $LE_CF_ZONEEXISTS = "no" ]] && zone=no
     fi
 
-    if [[ -z $LE_cf_api ]]; then
+    if [[ -z $LE_CF_API ]]; then
         echo_query "Enter CF API key"
         read -e api
     else
-        api=$LE_cf_api
+        api=$LE_CF_API
     fi
 
-    if [[ -z $LE_cf_email ]]; then
+    if [[ -z $LE_CF_EMAIL ]]; then
         echo_query "CF Email"
         read -e email
     else
-        api=$LE_cf_email
+        api=$LE_CF_EMAIL
     fi
 
     export CF_Key="${api}"
@@ -102,11 +102,11 @@ if [[ ${cf} == yes ]]; then
 
     if [[ ${record} == no ]]; then
 
-        if [[ -z $LE_cf_zone ]]; then
+        if [[ -z $LE_CF_ZONE ]]; then
             echo_query "Zone Name (example.com)"
             read -e zone
         else
-            zone=$LE_cf_zone
+            zone=$LE_CF_ZONE
         fi
 
         zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
