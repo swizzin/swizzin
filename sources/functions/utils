@@ -208,8 +208,8 @@ function username_check() {
         badUsername=true
     fi
     ## Check reserved usernames
-    if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root") ]]; then
-        error_message+="$user is a reserved username -- please use something else.\n"
+    if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root"|"cydrex"|"sudo"|"user"|"users") ]]; then
+        error_message+="$user is a not an allowed username -- please use something else.\n"
         badUsername=true
     fi
     ## Do the complicated regex
