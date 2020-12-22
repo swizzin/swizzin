@@ -36,9 +36,8 @@ Steps to reproduce the behavior:
 
 ## Server Info
 - OS: (e.g. Debian 10, Ubuntu 20.04)
-<!-- The rest is optional -->
-- Arch:
-- Hardware: 
+- Arch: (e.g. x86, arm64)
+- Hardware: <!-- Optional -->
 
 ## Swizzin version
 <!-- Please run `box update`, and report whether that was succesful. Please try to reproduce your issue) again. mention the commit hash you are seeing -->
