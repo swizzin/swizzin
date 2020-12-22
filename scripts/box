@@ -227,9 +227,14 @@ function _adduser() {
         exit 1
     fi
 
+    if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]]; then
+        echo_error "User already exists within swizzin"
+        exit 1
+    fi
+
     if id -u "${user}" > /dev/null 2>&1; then
         echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-        ask "Continue setting up user?" Y || exit 1
+        ask "Continue setting up user?" N || exit 1
         existing=true
     fi
 
