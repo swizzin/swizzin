@@ -224,14 +224,10 @@ function _adduser() {
         echo_error "User already exists within swizzin"
         exit 1
     fi
-    if [[ -f /root/.master.info ]]; then
-        if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]]; then
-            echo_error "User already exists within swizzin"
-            exit 1
-        fi
-    else
-        # This is the only time this could be the case
-        echo_log_only "Looks like this is coming from the setup.sh because there is no master.info file??????????????????????"
+
+    if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]] && [[ -z $CREATINGMASTER ]]; then
+        echo_error "User already exists within swizzin"
+        exit 1
     fi
 
     if id -u "${user}" > /dev/null 2>&1; then
@@ -251,7 +247,7 @@ function _adduser() {
         echo_log_only "htpasswd file exists"
         htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
     else
-        echo "creating htpasswd file???"
+        echo_log_only "creating htpasswd file"
         htpasswd -b -c /etc/htpasswd $user $pass >> $log 2>&1
     fi
     mkdir -p /etc/htpasswd.d/
