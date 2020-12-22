@@ -343,6 +343,7 @@ function _post() {
         echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
     fi
 
+    ring_the_bell
     echo_success "Swizzin installation complete!"
     if [[ -f /install/.nginx.lock ]]; then
         echo_info "Seedbox can be accessed at https://${user}@${ip}"
