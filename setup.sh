@@ -111,8 +111,8 @@ function _intro() {
 }
 
 function _adduser() {
-    # username_check whiptail
-    # password_check whiptail
+    username_check whiptail
+    password_check whiptail
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     echo "$user:$pass" > /root/.master.info
     rm /root/."$user".lock # TODO Switch to some different user-tracking implementation
