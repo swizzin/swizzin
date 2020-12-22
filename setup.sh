@@ -227,6 +227,7 @@ function _adduser() {
     # fi
     pass=
     unset pass
+    echo
 }
 
 function _choices() {
