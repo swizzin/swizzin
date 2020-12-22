@@ -46,6 +46,7 @@ if [[ $dev = "true" ]]; then
     # If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
     # You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
     echo_info "Found dev=true option!"
+    RelativeScriptPath=$(dirname "$0")
 fi
 
 _os() {
@@ -78,11 +79,15 @@ function _preparation() {
     fi
     apt_upgrade
     if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
-        echo_warn "Installing dependencies from local definitions"
+        # This needs to be here to allow installer dependency testing
+        echo_warn "Loaded dependency list from local files"
         bash /etc/swizzin/scripts/update/10-dependencies.sh
+    elif [[ -f $RelativeScriptPath/scripts/update/10-dependencies.sh ]]; then
+        echo_warn "Loaded dependency list from local files"
+        bash "$RelativeScriptPath"/scripts/update/10-dependencies.sh
     else
         # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
-        if ! bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
+        if ! bash <(curl -sS https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
             echo_error "Dependency installation failed."
             exit 1
         fi
@@ -95,7 +100,6 @@ function _preparation() {
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo_progress_done
     else
-        RelativeScriptPath=$(dirname "$0")
         if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
             ln -sr "$RelativeScriptPath" /etc/swizzin
             echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
