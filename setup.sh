@@ -81,7 +81,7 @@ function _option_parse() {
                 ;;
             --pass)
                 shift
-                pass="$1"
+                pass="$1" #TODO try ensure nothing gets expanded as soon as we can, otheriwse $$ expands to PID obviously
                 echo_info "Pass = $pass"
                 ;;
             --domain)
