@@ -52,8 +52,8 @@ while test $# -gt 0; do
             echo "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF" | tee -a $log
             ;;
         --local)
-            local=true
-            echo "Local = $local" | tee -a $log
+            LOCAL=true
+            echo "Local = $LOCAL" | tee -a $log
             ;;
         --run-checks)
             export RUN_CHECKS=true
@@ -153,7 +153,7 @@ function _preparation() {
     apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 >> ${log} 2>&1
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-    if [[ $local != "true" ]]; then
+    if [[ $LOCAL != "true" ]]; then
         echo "Cloning swizzin repo to localhost"
         git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
     else
