@@ -27,14 +27,11 @@ touch $log
 #shellcheck disable=SC2120
 function _source_setup() {
     # The one true dependency
-    apt-get install git -yq # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
+    apt-get install git -y --quiet # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
 
     # if [[ $LOCAL != "true" ]]; then
-    if [[ "$*" != *--local* ]]; then
-        echo "Cloning swizzin repo to localhost"
-        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
-        echo "Swizzin cloned!"
-    else
+    if [[ "$*" == *--local* ]]; then
+
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
         if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
             ln -sr "$RelativeScriptPath" /etc/swizzin
@@ -44,6 +41,10 @@ function _source_setup() {
             echo "/etc/swizzin/.dev.lock created"
         fi
         echo "Best of luck and please follow the contribution guidelines cheerio"
+    else
+        echo "Cloning swizzin repo to localhost"
+        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
+        echo "Swizzin cloned!"
     fi
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
