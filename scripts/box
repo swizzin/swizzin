@@ -224,10 +224,14 @@ function _adduser() {
         echo_error "User already exists within swizzin"
         exit 1
     fi
-
-    if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]]; then
-        echo_error "User already exists within swizzin"
-        exit 1
+    if [[ -f /root/.master.info ]]; then
+        if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]]; then
+            echo_error "User already exists within swizzin"
+            exit 1
+        fi
+    else
+        # This is the only time this could be the case
+        echo_log_only "Looks like this is coming from the setup.sh because there is no master.info file??????????????????????"
     fi
 
     if id -u "${user}" > /dev/null 2>&1; then
