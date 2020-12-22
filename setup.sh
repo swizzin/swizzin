@@ -23,105 +23,138 @@ export log=/root/logs/install.log
 mkdir -p /root/logs
 touch $log
 
-echo "Pulling down some magic..."
-source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
-source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
-source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
-source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
-# source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
+# Setting up /etc/swizzin
+#shellcheck disable=SC2120
+function _source_setup() {
+    # The one true dependency
+    apt-get install git -yq # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
 
-if [[ ! $(uname -m) == "x86_64" ]]; then
-    echo_warn "$(_os_arch) detected!"
-    if [[ $(_os_arch) = "arm64" ]]; then
-        echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
-As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
+    # if [[ $LOCAL != "true" ]]; then
+    if [[ "$*" != *--local* ]]; then
+        echo "Cloning swizzin repo to localhost"
+        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
+        echo "Swizzin cloned!"
     else
-        echo_warn "This is an unsupported architecture and THINGS WILL BREAK.
-DO NOT CREATE ISSUES ON GITHUB."
-    fi
-    ask "Agree with the above and continue?" N || exit 1
-fi
-
-RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
-while test $# -gt 0; do
-    case "$1" in
-        --user)
-            shift
-            user="$1"
-            echo_info "User = $user"
-            ;;
-        --pass)
-            shift
-            pass="$1"
-            echo_info "Pass = $pass"
-            ;;
-        --domain)
-            shift
-            export LE_HOSTNAME="$1"
-            export LE_DEFAULTCONF=yes
-            export LE_BOOL_CF=no
-            echo_info "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF"
-            ;;
-        --local)
-            LOCAL=true
-            echo_info "Local = $LOCAL"
-            ;;
-        --run-checks)
-            export RUN_CHECKS=true
-            echo_info "RUN_CHECKS = $RUN_CHECKS"
-            ;;
-        --rmgrsec)
-            rmgrsec=yes
-            echo_info "OVH Kernel nuke = $rmgrsec"
-            ;;
-        --env)
-            shift
-            if [[ ! -f $1 ]]; then
-                echo_error "File does not exist"
-                exit 1
-            fi
-            echo_info "Parsing env variables from $1\n--->"
-            #shellcheck disable=SC2046
-            export $(grep -v '^#' "$1" | xargs -t -d '\n')
-            if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
-            unattend=true
-            ;;
-        --unattend)
-            unattend=true
-            ;;
-        -*)
-            echo_error "Error: Invalid option: $1"
-            exit 1
-            ;;
-        *)
-            installArray+=("$1")
-            ;;
-    esac
-    shift
-done
-
-if [[ $unattend = "true" ]]; then
-    # hushes errors that happen when no package is being
-    touch /root/results
-    touch /root/results2
-fi
-
-if [[ ${#installArray[@]} -gt 0 ]]; then
-    echo_warn "Application install picker will be skipped"
-    #check Line 229 or something
-    priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
-    for i in "${installArray[@]}"; do
-        #shellcheck disable=SC2199,SC2076
-        if [[ " ${priority[@]} " =~ " ${i} " ]]; then
-            echo "$i" >> /root/results
-            echo_info "$i added to install queue 1"
-            touch /tmp/."$i".lock
+        RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
+        if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
+            ln -sr "$RelativeScriptPath" /etc/swizzin
+            echo "The directory where the setup script is located is symlinked to /etc/swizzin"
         else
-            echo "$i" >> /root/results2
-            echo_warn "$i added to install queue 2"
+            touch /etc/swizzin/.dev.lock
+            echo "/etc/swizzin/.dev.lock created"
         fi
+        echo "Best of luck and please follow the contribution guidelines cheerio"
+    fi
+    ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
+    chmod -R 700 /etc/swizzin/scripts
+    echo " ##### Switching logs to /root/logs/swizzin.log  ##### " >> "$log"
+    #shellcheck source=sources/globals.sh
+    . /etc/swizzin/sources/globals.sh
+    # echo "Pulling down some magic..."
+    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
+    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
+    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
+    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
+    # source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
+}
+_source_setup
+
+function _arch_check() {
+    if [[ ! $(uname -m) == "x86_64" ]]; then
+        echo_warn "$(_os_arch) detected!"
+        if [[ $(_os_arch) = "arm64" ]]; then
+            echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
+As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
+        else
+            echo_warn "This is an unsupported architecture and THINGS WILL BREAK.
+DO NOT CREATE ISSUES ON GITHUB."
+        fi
+        ask "Agree with the above and continue?" N || exit 1
+    fi
+}
+_arch_check
+
+function _option_parse() {
+    while test $# -gt 0; do
+        case "$1" in
+            --user)
+                shift
+                user="$1"
+                echo_info "User = $user"
+                ;;
+            --pass)
+                shift
+                pass="$1"
+                echo_info "Pass = $pass"
+                ;;
+            --domain)
+                shift
+                export LE_HOSTNAME="$1"
+                export LE_DEFAULTCONF=yes
+                export LE_BOOL_CF=no
+                echo_info "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF"
+                ;;
+            --local)
+                LOCAL=true
+                echo_info "Local = $LOCAL"
+                ;;
+            --run-checks)
+                export RUN_CHECKS=true
+                echo_info "RUN_CHECKS = $RUN_CHECKS"
+                ;;
+            --rmgrsec)
+                rmgrsec=yes
+                echo_info "OVH Kernel nuke = $rmgrsec"
+                ;;
+            --env)
+                shift
+                if [[ ! -f $1 ]]; then
+                    echo_error "File does not exist"
+                    exit 1
+                fi
+                echo_info "Parsing env variables from $1\n--->"
+                #shellcheck disable=SC2046
+                export $(grep -v '^#' "$1" | xargs -t -d '\n')
+                if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
+                unattend=true
+                ;;
+            --unattend)
+                unattend=true
+                ;;
+            -*)
+                echo_error "Error: Invalid option: $1"
+                exit 1
+                ;;
+            *)
+                installArray+=("$1")
+                ;;
+        esac
+        shift
     done
-fi
+
+    if [[ $unattend = "true" ]]; then
+        # hushes errors that happen when no package is being
+        touch /root/results
+        touch /root/results2
+    fi
+
+    if [[ ${#installArray[@]} -gt 0 ]]; then
+        echo_warn "Application install picker will be skipped"
+        #check Line 229 or something
+        priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+        for i in "${installArray[@]}"; do
+            #shellcheck disable=SC2199,SC2076
+            if [[ " ${priority[@]} " =~ " ${i} " ]]; then
+                echo "$i" >> /root/results
+                echo_info "$i added to install queue 1"
+                touch /tmp/."$i".lock
+            else
+                echo "$i" >> /root/results2
+                echo_warn "$i added to install queue 2"
+            fi
+        done
+    fi
+}
 
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
@@ -170,25 +203,6 @@ function _preparation() {
 
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-    if [[ $LOCAL != "true" ]]; then
-        echo_progress_start "Cloning swizzin repo to localhost"
-        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
-        echo_progress_done
-    else
-        if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
-            ln -sr "$RelativeScriptPath" /etc/swizzin
-            echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
-        else
-            touch /etc/swizzin/.dev.lock
-            echo_info "/etc/swizzin/.dev.lock created"
-        fi
-        echo_warn "Best of luck and please follow the contribution guidelines cheerio"
-    fi
-    ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-    chmod -R 700 /etc/swizzin/scripts
-    echo " ##### Switching logs to /root/logs/swizzin.log  ##### " >> "$log"
-    #shellcheck source=sources/globals.sh
-    . /etc/swizzin/sources/globals.sh
 }
 
 #FYI code duplication from `box rmgrsec`
@@ -349,6 +363,7 @@ function _post() {
 
 _run_checks() {
     if [[ $RUN_CHECKS = "true" ]]; then
+        echo
         echo_info "Running post-install checks"
         echo_progress_start "Checking all failed units"
         systemctl list-units --failed
