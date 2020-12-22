@@ -34,7 +34,6 @@ As such, we cannot guarantee everything works 100%, so please don't feel like yo
 DO NOT CREATE ISSUES ON GITHUB."
     fi
     ask "Agree with the above and continue?" N || exit 1
-    read -re
 fi
 
 #shellcheck disable=SC2154
@@ -83,10 +82,13 @@ function _preparation() {
         echo_progress_done
     else
         RelativeScriptPath=$(dirname "$0")
-        ln -sr "$RelativeScriptPath" /etc/swizzin
-        echo
-        echo_info "WELCOME TO THE WORLD OF THE SWIZ YOUNG PADAWAN\nInstead of cloning from upstream, the directory where the setup script is located is symlinked to /etc/swizzin"
-        echo_info "That directory is relative to your pwd  = $(pwd)/$RelativeScriptPath"
+        if [[ ! -e /etc/swizzin ]]; then
+            ln -sr "$RelativeScriptPath" /etc/swizzin
+            echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
+        else
+            : > /etc/swizzin/.dev.lock
+            echo_info "/etc/swizzin/.dev.lock created"
+        fi
         echo_warn "Best of luck and please follow the contribution guidelines cheerio"
     fi
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
