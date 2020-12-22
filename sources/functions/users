@@ -143,10 +143,11 @@ function username_check() {
         error_message+="Usernames must not contain capital letters.\n"
         badUsername=true
     fi
-    ## Check reserved usernames
+    # Check reserved usernames
     badnames=("swizzin" "admin" "www-data" "root" "cydrex" "sudo" "user" "users")
     # Reserving usernames from the names of apps in install folder
     badnames+=($(find /etc/swizzin/scripts/install/ -type f -printf '%f\n' | cut -d. -f1))
+    #shellcheck disable=SC2199,SC2076
     if [[ " ${badnames[@]} " =~ " ${user} " ]]; then
         error_message+="$user is a not an allowed username -- please use something else.\n"
         badUsername=true
