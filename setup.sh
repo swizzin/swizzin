@@ -30,8 +30,7 @@ function _source_setup() {
     apt-get install git -y --quiet # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
 
     # if [[ $LOCAL != "true" ]]; then
-    if [[ "$*" == *--local* ]]; then
-
+    if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
         if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
             ln -sr "$RelativeScriptPath" /etc/swizzin
