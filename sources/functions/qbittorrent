@@ -33,8 +33,10 @@ function whiptail_qbittorrent() {
             export qbittorrent=${latestv41}
         elif [[ $function == "4.2" ]]; then
             export qbittorrent=${latestv42}
-        elif [[ $function == "Latest" ]]; then
-            export qbittorrent=${latestv}
+        elif [[ $function == "4.3" ]]; then
+            export qbittorrent=${latestv43}
+        #elif [[ $function == "Latest" ]]; then
+        #    export qbittorrent=${latestv}
         fi
     fi
 }
