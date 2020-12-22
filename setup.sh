@@ -55,6 +55,10 @@ while test $# -gt 0; do
             local=true
             echo "Local = $local" | tee -a $log
             ;;
+        --run-checks)
+            export RUN_CHECKS=true
+            echo "RUN_CHECKS = $RUN_CHECKS" | tee -a $log
+            ;;
         --rmgrsec)
             rmgrsec=yes
             echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
@@ -436,6 +440,15 @@ function _post() {
 
 }
 
+_run_checks() {
+    if [[ $RUN_CHECKS = "true" ]]; then
+        echo_info "Running post-install checks"
+        echo_progress_start "Checking all failed units"
+        systemctl list-units --failed
+        echo_progress_done "listed"
+    fi
+}
+
 _os
 _preparation
 ## If install is attended, do the nice intro
@@ -447,3 +460,4 @@ _adduser
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _install
 _post
+_run_checks
