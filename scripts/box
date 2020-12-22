@@ -468,10 +468,6 @@ case "$1" in
         exit 0
         ;;
     "adduser")
-        if [[ -z $2 ]]; then
-            echo_error "You must specify a user"
-            exit 1
-        fi
         if [[ -n $4 ]]; then
             echo_error "Too many arguments\nCorrect usage: box adduser <username> [<password>]"
             exit 1
