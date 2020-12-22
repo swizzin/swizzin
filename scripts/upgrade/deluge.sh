@@ -10,7 +10,7 @@ fi
 . /etc/swizzin/sources/functions/libtorrent
 
 whiptail_deluge
-check_client_compatibility
+#check_client_compatibility
 whiptail_deluge_downupgrade
 dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
 if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
@@ -27,11 +27,11 @@ done
 
 echo_progress_start "Checking for outdated deluge install method."
 remove_ltcheckinstall
+install_fpm
 
 if ! skip_libtorrent_rasterbar; then
-    whiptail_libtorrent_rasterbar
     echo_progress_start "Rebuilding libtorrent"
-    build_libtorrent_rasterbar
+    build_libtorrent_deluge
     echo_progress_done
 fi
 cleanup_deluge
