@@ -18,6 +18,7 @@ source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sour
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os)
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt)
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask)
+# source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
 
 if [[ $EUID -ne 0 ]]; then
     echo_error "Swizzin setup requires user to be root. su or sudo -s and run again ..."
