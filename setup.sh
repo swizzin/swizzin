@@ -116,7 +116,7 @@ function _adduser() {
     password_check whiptail
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     echo "$user:$pass" > /root/.master.info
-    rm /root/."$user".lock # TODO Switch to some different user-tracking implementation
+    rm /root/."$user".info # TODO Switch to some different user-tracking implementation
 
     if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
         echo_log_only "No sudoers modification made"
