@@ -210,13 +210,11 @@ function _intro() {
 
 function _adduser() {
     echo_info "Creating master user"
-    username_check whiptail
-    password_check whiptail
     echo "$user:$pass" > /root/.master.info
-    export CREATINGMASTER=true                            # TODO this way we skip the master check in adduser
+    export SETUP_USER=true                                # TODO this way we skip the master check in adduser
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     rm /root/"$user".info                                 # TODO Switch to some different user-tracking implementation
-    unset $CREATINGMASTER
+    unset $SETUP_USER
 
     # if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
     #     echo_log_only "No sudoers modification made"
