@@ -29,7 +29,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ ! $(_os_arch) == "x86_64" ]]; then
+if [[ ! $(uname -m) == "x86_64" ]]; then
     echo_warn "$(_os_arch) detected!"
     if [[ $(_os_arch) = "arm64" ]]; then
         echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
