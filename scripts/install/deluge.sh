@@ -294,7 +294,7 @@ install_fpm
 
 if ! skip_libtorrent_rasterbar; then
     echo_progress_start "Building libtorrent-rasterbar"
-    build_libtorrent_rasterbar
+    build_libtorrent_deluge
     echo_progress_done "Libtorrent-rasterbar installed"
 fi
 
