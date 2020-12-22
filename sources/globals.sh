@@ -26,3 +26,7 @@ export log="/root/logs/swizzin.log"
 # A script to standardise yes/no dialogues
 #shellcheck source=sources/functions/ask
 . /etc/swizzin/sources/functions/ask
+
+# A script to offer user and password management functions
+#shellcheck source=sources/functions/users
+. /etc/swizzin/sources/functions/users

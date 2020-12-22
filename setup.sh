@@ -14,21 +14,32 @@
 #
 #################################################################################
 
-time=$(date +"%s")
-export log=/root/logs/install.log
-
 if [[ $EUID -ne 0 ]]; then
     echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
     exit 1
 fi
 
+export log=/root/logs/install.log
+mkdir -p /root/logs
+touch $log
+
+echo "Pulling down some magic..."
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
+# source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
+
 if [[ ! $(uname -m) == "x86_64" ]]; then
-    echo -e "\033[0;31mExperimental architecture ($(uname -m)) detected! \033[0m"
-    echo
-    echo "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template."
-    echo "As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
-    echo
-    read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
+    echo_warn "$(_os_arch) detected!"
+    if [[ $(_os_arch) = "arm64" ]]; then
+        echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
+As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
+    else
+        echo_warn "This is an unsupported architecture and THINGS WILL BREAK.
+DO NOT CREATE ISSUES ON GITHUB."
+    fi
+    ask "Agree with the above and continue?" N || exit 1
 fi
 
 RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
@@ -111,55 +122,63 @@ fi
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
-    # echo "Checking OS version and release ... "
     if ! which lsb_release > /dev/null; then
-        apt-get -y -qq update >> ${log} 2>&1
-        apt-get -y -qq install lsb-release >> ${log} 2>&1
+        apt_install lsb-release
     fi
     distribution=$(lsb_release -is)
-    release=$(lsb_release -rs)
     codename=$(lsb_release -cs)
     if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
-        echo "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
+        echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian." && exit 1
     fi
     if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
-        echo "Your release ($codename) of $distribution is not supported." && exit 1
+        echo_error "Your release ($codename) of $distribution is not supported." && exit 1
     fi
-    # echo "I have determined you are using $distribution $release."
 }
 
 function _preparation() {
-    echo "Updating system and grabbing core dependencies."
+    apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
     if [[ $distribution = "Ubuntu" ]]; then
-        echo "Enabling required repos"
+        echo_progress_start "Enabling required repos"
         if ! which add-apt-repository > /dev/null; then
-            apt-get install -y -q software-properties-common >> ${log} 2>&1
+            apt_install software-properties-common
         fi
         add-apt-repository universe >> ${log} 2>&1
         add-apt-repository multiverse >> ${log} 2>&1
         add-apt-repository restricted -u >> ${log} 2>&1
+        echo_progress_done
+    fi
+    apt_upgrade
+
+    # Run dependency update function either from locall if available or from remote (default for end-users)
+    if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
+        echo_warn "Loaded dependency list from local files"
+        bash /etc/swizzin/scripts/update/10-dependencies.sh
+    elif [[ -f $RelativeScriptPath/scripts/update/10-dependencies.sh ]]; then
+        echo_warn "Loaded dependency list from local files"
+        bash "$RelativeScriptPath"/scripts/update/10-dependencies.sh
+    else
+        # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
+        if ! bash <(curl -sS https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
+            echo_error "Dependency installation failed, please check the output."
+            exit 1
+        fi
     fi
 
-    echo "Performing a system upgrade"
-    apt-get -q -y update >> ${log} 2>&1
-    apt-get -q -y upgrade >> ${log} 2>&1
-
-    echo "Installing dependencies"
-    # this apt-get should be checked and handled if fails, otherwise the install borks.
-    apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 >> ${log} 2>&1
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     if [[ $local != "true" ]]; then
-        echo "Cloning swizzin repo to localhost"
-        git clone https://github.com/liaralabs/swizzin.git /etc/swizzin >> ${log} 2>&1
+        echo_progress_start "Cloning swizzin repo to localhost"
+        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
+        echo_progress_done
     else
-        echo "Symlinking $RelativeScriptPath to /etc/swizzin"
-        ln -sr "$RelativeScriptPath" /etc/swizzin
-        echo "We appreciate any and all PRs. please read the Contributing.md as it has a lot of useful tips when working with swizzin."
-        if [[ ! -e /etc/swizzin ]]; then
-            echo "so something fucked up, please join discord and tell us what you did coz that shouldn't have happened"
-            exit 1
+        if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
+            ln -sr "$RelativeScriptPath" /etc/swizzin
+            echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
+        else
+            touch /etc/swizzin/.dev.lock
+            echo_info "/etc/swizzin/.dev.lock created"
         fi
+        echo_warn "Best of luck and please follow the contribution guidelines cheerio"
     fi
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
@@ -170,45 +189,7 @@ function _preparation() {
 
 #FYI code duplication from `box rmgrsec`
 function _nukeovh() {
-    grsec=$(uname -a | grep -i grs)
-    if [[ -n $grsec ]]; then
-        if [[ -z $rmgrsec ]]; then
-            echo
-            echo -e "Your server is currently running with kernel version: $(uname -r)"
-            echo -e "While it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-            echo
-            echo -ne "Would you like swizzin to install the distribution kernel? (Default: Y) "
-            read input
-            case $input in
-                [yY] | [yY][Ee][Ss] | "")
-                    kernel=yes
-                    echo "Your distribution's default kernel will be installed. A reboot will be required."
-                    ;;
-                [nN] | [nN][Oo]) echo "Installer will continue as is. If you change your mind in the future run $(box rmgrsec) after install." ;;
-                *)
-                    kernel=yes
-                    echo "Your distribution's default kernel will be installed. A reboot will be required."
-                    ;;
-            esac
-        else
-            # --rmgresc only takes =yes
-            kernel=yes
-        fi
-        if [[ $kernel == yes ]]; then
-            if [[ $DISTRO == Ubuntu ]]; then
-                apt-get install -q -y linux-image-generic >> "${log}" 2>&1
-            elif [[ $DISTRO == Debian ]]; then
-                arch=$(uname -m)
-                if [[ $arch =~ ("i686"|"i386") ]]; then
-                    apt-get install -q -y linux-image-686 >> "${log}" 2>&1
-                elif [[ $arch == x86_64 ]]; then
-                    apt-get install -q -y linux-image-amd64 >> "${log}" 2>&1
-                fi
-            fi
-            mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-            update-grub >> "${log}" 2>&1
-        fi
-    fi
+    bash /etc/swizzin/scripts/nukeovh
 }
 
 function _intro() {
@@ -216,71 +197,21 @@ function _intro() {
 }
 
 function _adduser() {
-    while [[ -z $user ]]; do
-        user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3)
-        exitstatus=$?
-        if [ "$exitstatus" = 1 ]; then exit 0; fi
-        if [[ $user =~ [A-Z] ]]; then
-            read -n 1 -s -r -p "Usernames must not contain capital letters. Press enter to try again."
-            printf "\n"
-            user=
-        elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
-            read -n 1 -s -r -p "$user is a reserved username -- please use something else. Press enter to try again."
-            printf "\n"
-            user=
-        fi
-    done
-    while [[ -z "${pass}" ]]; do
-        pass=$(whiptail --inputbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3)
-        exitstatus=$?
-        if [ "$exitstatus" = 1 ]; then exit 0; fi
-        if [[ -z "${pass}" ]]; then
-            pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-        fi
-        if [[ -n $(which cracklib-check) ]]; then
-            echo "Cracklib detected. Checking password strength."
-            sleep 1
-            str="$(cracklib-check <<< "$pass")"
-            check=$(grep OK <<< "$str")
-            if [[ -z $check ]]; then
-                read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-                printf "\n"
-                pass=
-            else
-                echo "OK."
-            fi
-        fi
-    done
+    username_check whiptail
+    password_check whiptail
     echo "$user:$pass" > /root/.master.info
-    if [[ -d /home/"$user" ]]; then
-        echo "User directory already exists ... "
+    export CREATINGMASTER=true                            # TODO this way we skip the master check in adduser
+    bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
+    rm /root/"$user".info                                 # TODO Switch to some different user-tracking implementation
+    unset $CREATINGMASTER
 
-        echo "Changing password to new password"
-        chpasswd <<< "${user}:${pass}"
-        htpasswd -b -c /etc/htpasswd $user $pass
-        mkdir -p /etc/htpasswd.d/
-        htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-        chown -R $user:$user /home/${user}
-    else
-        echo -e "Creating new user \e[1;95m$user\e[0m ... "
-        useradd "${user}" -m -G www-data -s /bin/bash || {
-            echo "There was an error creating the user ${user}. Please check your logs."
-            exit 1
-        }
-        chpasswd <<< "${user}:${pass}" || {
-            echo "There was an error setting the password for ${user}. Please check your logs."
-            exit 1
-        }
-        htpasswd -b -c /etc/htpasswd $user $pass
-        mkdir -p /etc/htpasswd.d/
-        htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass
-    fi
-    chmod 750 /home/${user}
-    if grep ${user} /etc/sudoers.d/swizzin > /dev/null 2>&1; then echo "No sudoers modification made ... "; else echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin; fi
-
-    echo "D /run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
-
-    systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create
+    # if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
+    #     echo_log_only "No sudoers modification made"
+    # else
+    echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
+    # fi
+    pass=
+    unset pass
 }
 
 function _choices() {
@@ -295,10 +226,7 @@ function _choices() {
             packages+=("$i" '""')
         fi
     done
-    whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results
-    exitstatus=$?
-    if [ "$exitstatus" = 1 ]; then exit 0; fi
-    #readarray packages < /root/results
+    whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results || exit 1
     results=/root/results
 
     if grep -q nginx "$results"; then
@@ -318,9 +246,7 @@ function _choices() {
                 guis+=("$i" '""')
             fi
         done
-        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis
-        exitstatus=$?
-        if [ "$exitstatus" = 1 ]; then exit 0; fi
+        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
         readarray guis < /root/guis
         for g in "${guis[@]}"; do
             g=$(echo $g)
@@ -349,6 +275,8 @@ function _choices() {
         whiptail_libtorrent_rasterbar
         export SKIP_LT=True
     fi
+    # TODO this should check for anything that requires nginx instead of just rutorrent...
+    # A specific comment should be added to these installers, and if they are amongst results, should be grepped if they contain the comment or not
     if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
         if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
             sed -i '1s/^/nginx\n/' /root/results
@@ -369,71 +297,50 @@ function _choices() {
             extras+=("$i" '""')
         fi
     done
-    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2
-    exitstatus=$?
-    if [ "$exitstatus" = 1 ]; then exit 0; fi
-    results2=/root/results2
+    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2 || exit 1
+
 }
 
 function _install() {
-    touch /tmp/.install.lock
     begin=$(date +"%s")
-    readarray result < /root/results
-    for i in "${result[@]}"; do
-        result=$(echo $i)
-        echo -e "Installing ${result}"
-        bash /usr/local/bin/swizzin/install/${result}.sh
-        rm /tmp/.$result.lock
-    done
-    rm /root/results
-    readarray result < /root/results2
-    for i in "${result[@]}"; do
-        result=$(echo $i)
-        echo -e "Installing ${result}"
-        bash /usr/local/bin/swizzin/install/${result}.sh
-    done
-    rm /root/results2
-    rm /tmp/.install.lock
+    if [[ -s /root/results ]]; then
+        bash /etc/swizzin/scripts/box install $(< /root/results) && rm /root/results
+        showTimer=true
+    fi
+    if [[ -s /root/results2 ]]; then
+        bash /etc/swizzin/scripts/box install $(< /root/results2) && rm /root/results2
+        showTimer=true
+    fi
     termin=$(date +"%s")
     difftimelps=$((termin - begin))
-    echo "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+    [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 }
 
 function _post() {
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-    if grep -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc &> /dev/null; then true; else echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc; fi
+    if ! grep -q -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc; then
+        echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+    fi
     #echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
     #chown ${user}: /home/$user/.profile
     echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
     if [[ $distribution = "Ubuntu" ]]; then
         echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
     fi
-    echo "Installation complete!"
-    echo ""
-    echo "You may now login with the following info: ${user}:${pass}"
-    echo ""
+
+    echo_success "Swizzin installation complete!"
     if [[ -f /install/.nginx.lock ]]; then
-        echo "Seedbox can be accessed at https://${user}:${pass}@${ip}"
-        echo ""
+        echo_info "Seedbox can be accessed at https://${user}@${ip}"
     fi
     if [[ -f /install/.deluge.lock ]]; then
-        echo "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)"
-        echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
-        echo ""
+        echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)\nYour deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
     fi
-    #
     if [[ -f /var/run/reboot-required ]]; then
         echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
-        echo
     else
-        echo_success "You can now use the box command to manage swizzin features"
-        echo
-        echo_info "box install nginx panel"
-        echo
-        echo_docs getting-started/box-basics
-        echo
+        echo_info "You can now use the box command to manage swizzin features, e.g. \`box install nginx panel\`"
     fi
-
+    echo_docs getting-started/box-basics
 }
 
 _os
