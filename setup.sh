@@ -24,9 +24,24 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-if [[ ! $(uname -m) == "x86_64" ]]; then
-    echo_error -e "Unsupported architecture ($(uname -m)) detected!\nSetup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind. Things may work, things may not work."
+if [[ ! $(_os_arch) == "x86_64" ]]; then
+    echo_warn "($(_os_arch)) detected!"
+    if [[ $(_os_arch) = "arm64" ]]; then
+        echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
+As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
+    else
+        echo_warn "This is an unsupported architecture and THINGS WILL BREAK.
+DO NOT CREATE ISSUES ON GITHUB."
+    fi
     ask "Agree with the above and continue?" N || exit 1
+    read -re
+fi
+
+#shellcheck disable=SC2154
+if [[ $dev = "true" ]]; then
+    # If you're looking at this code, this is for those of us who just want to have a development setup fast without cloning the upstream repo
+    # You can run `dev=true bash /path/to/setup.sh` to enable the "dev mode"
+    echo_info "Found dev=true option!"
 fi
 
 _os() {

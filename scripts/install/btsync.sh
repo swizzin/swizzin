@@ -36,7 +36,7 @@ function _installBTSync4() {
     cd && mkdir /home/"${MASTER}"/sync_folder
     chown ${MASTER}: /home/${MASTER}/sync_folder
     chmod 2775 /home/${MASTER}/sync_folder
-    chown ${MASTER}: -R /home/${MASTER}/.config/resilio-sync
+    chown ${MASTER}: -R /home/${MASTER}/.config/
 }
 function _installBTSync5() {
     cat > /etc/resilio-sync/config.json << RSCONF

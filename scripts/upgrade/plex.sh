@@ -7,11 +7,11 @@ if [[ ! -f /install/.plex.lock ]]; then
     exit 1
 fi
 
-if [[ ! -f /install/.updateplex.lock ]]; then
+if [[ ! -f /opt/plexupdate/plexupdate.sh ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
     sudo -H -u $user bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
-    # In case I need this file to do more than install updateplex in the future (unlikely)
-    touch /install/.updateplex.lock
+else
+    /opt/plexupdate/plexupdate.sh
 fi
 
 # Yes that's it, get outta here you dirty club rats
