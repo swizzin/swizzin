@@ -11,11 +11,12 @@ users=($(_get_user_list))
 qbtvold=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 
 whiptail_qbittorrent
-check_client_compatibility
+#check_client_compatibility
+install_fpm
+
 if ! skip_libtorrent_rasterbar; then
-    whiptail_libtorrent_rasterbar
     echo_progress_start "Building libtorrent-rasterbar"
-    build_libtorrent_rasterbar
+    build_libtorrent_qbittorrent
     echo_progress_done
 fi
 

@@ -357,3 +357,16 @@ function build_libtorrent_rasterbar() {
     fi
     if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
 }
+
+function booststrap() {
+    BOOST_VERSION=1_75_0
+    export BOOST_ROOT=/opt/boost_${BOOST_VERSION}
+    export BOOST_INCLUDEDIR=${BOOST_ROOT}
+    export BOOST_BUILD_PATH=${BOOST_ROOT}
+    if [[ ! -d ${BOOST_ROOT} ]]; then
+        cd /opt
+        wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
+        tar xvf boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
+        /opt/boost_${BOOST_VERSION}/bootstrap.sh >> ${log} 2>&1
+    fi
+}

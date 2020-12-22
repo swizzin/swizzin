@@ -289,9 +289,10 @@ if [[ -n $1 ]]; then
 fi
 
 whiptail_deluge
-check_client_compatibility
+#check_client_compatibility
+install_fpm
+
 if ! skip_libtorrent_rasterbar; then
-    whiptail_libtorrent_rasterbar
     echo_progress_start "Building libtorrent-rasterbar"
     build_libtorrent_rasterbar
     echo_progress_done "Libtorrent-rasterbar installed"

@@ -40,6 +40,7 @@ function whiptail_deluge_downupgrade() {
     echo_progress_done
     echo_log_only "deluge = $deluge"
 }
+
 function remove_ltcheckinstall() {
     oldv=$(apt-cache show libtorrent | grep checkinstall)
     if [[ -n $oldv ]]; then
@@ -47,6 +48,62 @@ function remove_ltcheckinstall() {
         dpkg -r libtorrent
         echo_progress_done
     fi
+}
+
+function build_libtorrent_deluge() {
+    case $deluge in
+        1.3-stable)
+            libtorrent_branch=RC_1_1
+            pythonver=python2.7
+            pythonmajor=2.7
+            ;;
+        master)
+            libtorrent_branch=RC_1_2
+            pythonver=python3
+            pythonmajor=$(get_candidate_version python3 | cut -d. -f1-2)
+            ;;
+        *)
+            echo_error "Deluge version should not be empty. Setup will not proceed."
+            exit 1
+            ;;
+    esac
+    booststrap
+    echo 'using gcc : : : <cflags>"-march=native -std=c++14" <cxxflags>"-march=native -std=c++14" ;' > /root/user-config.jam
+    echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
+
+    cd /tmp
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent >> ${log} 2>&1
+    cd /tmp/libtorrent
+    VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+
+    if [[ -f /root/libtorrent.patch ]]; then
+        patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
+    fi
+    #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
+    #If not enabled, Deluge may not properly reannounce on unregistered torrents.
+    #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
+    case $LTRC in
+        RC_1_1)
+            sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
+            #Patch the Jamfile to allow 1.1 to use stage_module
+            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch
+            ;;
+        RC_1_2)
+            sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
+            #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
+            ;;
+    esac
+    cd /tmp/libtorrent/bindings/python
+    /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=openssl variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
+    tag=" static with c++14 march=native"
+    fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version ${VERSION} --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> ${log} 2>&1
+    cd /tmp
+    rm_if_exists /tmp/libtorrent
+    rm_if_exists /tmp/dist
+    dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb >> ${log} 2>&1 || {
+        echo_error "Libtorrent python binding could not be installed. Setup will not proceed"
+        exit 1
+    }
 }
 
 function build_deluge() {
