@@ -13,6 +13,10 @@
 #   under the GPL along with build & install instructions.
 #
 #################################################################################
+export log=/root/logs/install.log
+mkdir /root/logs
+touch $log
+
 echo "Pulling down some magic..."
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo)
 source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os)
@@ -47,7 +51,6 @@ fi
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
-    export log=/root/logs/install.log
     if ! which lsb_release > /dev/null; then
         apt_install lsb-release
     fi
