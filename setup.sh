@@ -25,7 +25,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if [[ ! $(_os_arch) == "x86_64" ]]; then
-    echo_warn "($(_os_arch)) detected!"
+    echo_warn "$(_os_arch) detected!"
     if [[ $(_os_arch) = "arm64" ]]; then
         echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
 As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
@@ -86,7 +86,7 @@ function _preparation() {
             ln -sr "$RelativeScriptPath" /etc/swizzin
             echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
         else
-            : > /etc/swizzin/.dev.lock
+            touch /etc/swizzin/.dev.lock
             echo_info "/etc/swizzin/.dev.lock created"
         fi
         echo_warn "Best of luck and please follow the contribution guidelines cheerio"
