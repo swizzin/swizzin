@@ -43,10 +43,8 @@ function _source_setup() {
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
         echo "Cloning swizzin repo to localhost"
-        echo "not it"
-        exit 0
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
-        echo "Swizzin cloned!"
+        echo -e "\tSwizzin cloned!"
     fi
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
