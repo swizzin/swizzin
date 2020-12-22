@@ -4,7 +4,7 @@
 users=($(_get_user_list))
 
 if [[ ! -f /etc/nginx/apps/qbtindex.conf ]]; then
-  cat > /etc/nginx/apps/qbtindex.conf <<DIN
+    cat > /etc/nginx/apps/qbtindex.conf << DIN
 location /qbittorrent.downloads {
     alias /home/\$remote_user/torrents/qbittorrent;
     include /etc/nginx/snippets/fancyindex.conf;
@@ -19,7 +19,7 @@ DIN
 fi
 
 if [[ ! -f /etc/nginx/apps/qbittorrent.conf ]]; then
-    cat > /etc/nginx/apps/qbittorrent.conf <<'QBTN'
+    cat > /etc/nginx/apps/qbittorrent.conf << 'QBTN'
 location /qbt {
     return 301 /qbittorrent/;
 }
@@ -53,7 +53,7 @@ fi
 
 for user in ${users[@]}; do
     port=$(grep 'WebUI\\Port' /home/${user}/.config/qBittorrent/qBittorrent.conf | cut -d= -f2)
-    cat > /etc/nginx/conf.d/${user}.qbittorrent.conf <<QBTUC
+    cat > /etc/nginx/conf.d/${user}.qbittorrent.conf << QBTUC
 upstream ${user}.qbittorrent {
   server 127.0.0.1:${port};
 }

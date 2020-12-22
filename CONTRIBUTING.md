@@ -1,6 +1,23 @@
 # Contributing guidelines
 Here are a couple things to take into account when contributing to swizzin.
 
+## Editor plugins and tooling
+### Required
+Please make sure that you have the following plugins and tools installed and working correctly.
+- `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
+  - If you are not using VS Code with the plugin above, please make sure to catch **anything** that `shellcheck` does not like.
+  - Wherever you deem appropriate, add `#shellcheck disable=...` _inline_ to suppress the warnings.
+- `shell-format` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format) (auto-installs binary) and [Binary](https://github.com/mvdan/sh)
+  - If you are not using VS Code with the plugin above, please make sure to apply formatting with the flags mentioned in [`settings.json`](.vscode/settings.json)
+
+### Suggested
+These are just some super useful ones we really like that you should give a shot
+- `shellman` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
+    - It's just a collection of super useful snippets
+- `Bash IDE` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode)
+    - Offers a lot of the Intellisense features that make VSCode worth using
+
+
 ## Directories and files
 - Please use `/opt` to install any new software. **Avoid using home directories to install application binaries/source**
 - When creating configuration for users, please add it to an appropriate folder under `~/.config/` when possible
@@ -9,17 +26,29 @@ Here are a couple things to take into account when contributing to swizzin.
   - Record any application information that might need to be dynamically retrieved into the .lock file above.
 
 ## Bash code styleguide
+
+### Formatting
+We are a 4-space gang. Please make sure to run your code through `shfmt` with the right flags specified. Check the first chapter here.
+
 ### Shellcheck
 Please use `shellcheck` and its IDE plugins and resolve any warnings for the code you have contributed.
 
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
+A list of the files that are included on a `box` or a `setup.sh` by default arte in `sources/globals.sh`
+
 Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
 # Retrieves all users that are managed by swizzin
 # Returns usernames separated by newline
 ```
+
+#### Snippets
+We have made a couple snippet definitions in the `.vscode` folder that should be getting loaded into your project whenever you open the workspace.
+
+These should cover most of the functions included in `globals.sh`, but feel free to add yours if you have any suggestions
+
 ### Return codes
 Please use `exit 1` or `return 1` when handling exiting due to some run-time errors
 
@@ -75,7 +104,7 @@ The following options can be used with any of the exported functions above to ov
 ## Printing into the terminal
 Please use the functions exported from `sources/functions/color_echo` that are available whenever something is ran from the context of either `box` or `setup.sh`.
 
-### Formatting
+### Formatting prints
 * Instead of making a sequence of the same exact echo calls to make new line separation, please use the `\n`, or make your quoted text span multiple lines (with no pre-pending white spaces) instead. THe output will be nicely indented. as a result.
 * In general, there should be no un-styled prints thrown at the end-user.
 
@@ -107,7 +136,7 @@ There is a wide choice of "styles" to choose from, please use them appropriately
   * necessary follow up steps
   * pointers to documentation, etc
 * `echo_query` is meant to highlight the fact user interaction is required
-* `echo_progress_start` and `echo_progress_start` are meant to be used to "wrap" a chunk of code that can take a while to complete. If it takes more than 0.1s, you should probably wrap it in this. Examples could be:
+* `echo_progress_start` and `echo_progress_done` are meant to be used to "wrap" a chunk of code that can take a while to complete. If it takes more than 0.1s, you should probably wrap it in this. Examples could be:
   * Doing `apt` calls like `install`, `update`, `upgrade`, etc.
   * Generating ciphers/keys
   * Git pulls/clones

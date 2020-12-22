@@ -54,33 +54,33 @@ echo_progress_start "Initialising database and configuring Filebrowser"
 "/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
 #
 # Set the permissions after we are finsished configuring filebrowser.
-chown "${username}.${username}" -R "/home/${username}/bin" >/dev/null 2>&1
-chown "${username}.${username}" -R "/home/${username}/.config" >/dev/null 2>&1
-chmod 700 "/home/${username}/bin/filebrowser" >/dev/null 2>&1
+chown "${username}.${username}" -R "/home/${username}/bin" > /dev/null 2>&1
+chown "${username}.${username}" -R "/home/${username}/.config" > /dev/null 2>&1
+chmod 700 "/home/${username}/bin/filebrowser" > /dev/null 2>&1
 echo_progress_done
 #
 # Create the service file that will start and stop filebrowser.
 echo_progress_start "Installing systemd service"
-cat > "/etc/systemd/system/filebrowser.service" <<-SERVICE
-[Unit]
-Description=filebrowser
-After=network.target
+cat > "/etc/systemd/system/filebrowser.service" <<- SERVICE
+	[Unit]
+	Description=filebrowser
+	After=network.target
 
-[Service]
-User=${username}
-Group=${username}
-UMask=002
+	[Service]
+	User=${username}
+	Group=${username}
+	UMask=002
 
-Type=simple
-WorkingDirectory=/home/${username}
-ExecStart=/home/${username}/bin/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db
-TimeoutStopSec=20
-KillMode=process
-Restart=always
-RestartSec=2
+	Type=simple
+	WorkingDirectory=/home/${username}
+	ExecStart=/home/${username}/bin/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db
+	TimeoutStopSec=20
+	KillMode=process
+	Restart=always
+	RestartSec=2
 
-[Install]
-WantedBy=multi-user.target
+	[Install]
+	WantedBy=multi-user.target
 SERVICE
 #
 # Configure the nginx proxypass using positional parameters.
@@ -93,7 +93,7 @@ fi
 #
 # Start the filebrowser service.
 systemctl daemon-reload -q
-systemctl enable -q --now "filebrowser.service" 2>&1  | tee -a $log
+systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a $log
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.

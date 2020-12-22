@@ -8,7 +8,7 @@
 
 _mkservice_transmission() {
     echo_progress_start "Creating systemd services"
-    cat > /etc/systemd/system/transmission@.service <<EOF
+    cat > /etc/systemd/system/transmission@.service << EOF
 [Unit]
 Description=Transmission BitTorrent Daemon for %i
 After=network.target
@@ -27,7 +27,7 @@ EOF
     echo_progress_done "Done"
 }
 
-_start_transmission () {
+_start_transmission() {
     #This always needs to be done only after the configs have been made, otherwise transmission will overwrite them.
     echo_progress_start "Starting transmission instance for ${bold}$user"
     systemctl enable -q transmission@${user} 2>> $log
@@ -35,7 +35,7 @@ _start_transmission () {
     echo_progress_done "Instance started"
 }
 
-_setenv_transmission(){
+_setenv_transmission() {
     echo_log_only "Setting environment variables"
     [[ -z $download_dir ]] && export download_dir='transmission/downloads'
     echo_log_only "download_dir = $download_dir"
@@ -66,7 +66,7 @@ _setenv_transmission(){
     [[ -z $watch_dir_enabled ]] && export watch_dir_enabled="true"
 }
 
-_unsetenv_transmission(){
+_unsetenv_transmission() {
     # unset download_dir
     # unset incomplete_dir
     # unset incomplete_dir_enabled
@@ -79,9 +79,7 @@ _unsetenv_transmission(){
     # unset watch_dir_enabled
 }
 
-
-
-_mkdir_transmission (){
+_mkdir_transmission() {
     echo_progress_start "Creating directories for ${bold}$user"
     mkdir -p /home/${user}/${download_dir}
     chown ${user}:${user} -R /home/${user}/${download_dir%%/*}
@@ -91,12 +89,12 @@ _mkdir_transmission (){
     mkdir -p /home/${user}/.config/transmission-daemon/torrents
     chown ${user}:${user} -R /home/${user}/.config
 
-    if [[ $incomplete_dir_enabled = "true" ]]; then 
+    if [[ $incomplete_dir_enabled = "true" ]]; then
         mkdir -p /home/${user}/${incomplete_dir}
         chown ${user}:${user} -R /home/${user}/${incomplete_dir%%/*}
     fi
 
-    if [[ $watch_dir_enabled = "true" ]]; then 
+    if [[ $watch_dir_enabled = "true" ]]; then
         mkdir -p /home/${user}/${watch_dir}
         chown ${user}:${user} -R /home/${user}/${watch_dir%%/*}
     fi
@@ -104,9 +102,9 @@ _mkdir_transmission (){
     echo_progress_done "Directories created"
 }
 
-_mkconf_transmission () {
+_mkconf_transmission() {
     echo_progress_start "Creating config for ${bold}$user"
-cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
+    cat > /home/${user}/.config/transmission-daemon/settings.json << EOF
 {
     "alt-speed-down": 50,
     "alt-speed-enabled": false,
@@ -184,18 +182,14 @@ cat > /home/${user}/.config/transmission-daemon/settings.json <<EOF
 }
 EOF
     echo_progress_done "Config created"
-if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Transmission RPC port for ${bold}${user} = ${rpc_port}"
-fi
+    if [[ ! -f /install/.nginx.lock ]]; then
+        echo_info "Transmission RPC port for ${bold}${user} = ${rpc_port}"
+    fi
 }
 
-_nginx_transmission () {
-    echo_progress_start "Creating nginx config"
-    if [[ -f /install/.nginx.lock ]]; then
-        bash /usr/local/bin/swizzin/nginx/transmission.sh
-        systemctl reload nginx
-    fi
-    echo_progress_done "Nginx configured"
+_nginx_transmission() {
+    bash /usr/local/bin/swizzin/nginx/transmission.sh
+    systemctl reload nginx
 }
 
 ##########################################################################
@@ -210,25 +204,25 @@ users=($(cut -d: -f1 < /etc/htpasswd))
 
 # Extra-user-only functions
 if [[ -n $1 ]]; then
-	user=$1
+    user=$1
     echo_info "Configuring transmission for ${bold}$user"
     _setenv_transmission
-	_mkdir_transmission
+    _mkdir_transmission
     _mkconf_transmission
     _nginx_transmission
     _unsetenv_transmission
     _start_transmission
-	exit 0
+    exit 0
 fi
 
 #Not sure what this does but I'll copy it for now
 if [[ -n $noexec ]]; then
-	mount -o remount,exec /tmp
-	noexec=1
+    mount -o remount,exec /tmp
+    noexec=1
 fi
 
 if [[ -n $noexec ]]; then
-	mount -o remount,noexec /tmp
+    mount -o remount,noexec /tmp
 fi
 
 . /etc/swizzin/sources/functions/transmission
@@ -244,10 +238,10 @@ for user in ${users[@]}; do
     echo_progress_done "Transmission set up for $user"
 done
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Creating nginx config"
     _nginx_transmission
-    echo_progress_done
+    echo_progress_done "Nginx configured"
 fi
 
 for user in ${users[@]}; do

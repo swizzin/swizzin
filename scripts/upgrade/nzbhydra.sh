@@ -8,16 +8,30 @@ if [[ -d /opt/.venv/nzbhydra ]]; then
     echo_query "NZBHydra v1 detected. Do you want to migrate data?\nIf you select no, a migration will not be attempted but your old data will be left." ""
     select yn in "Yes" "No"; do
         case $yn in
-            Yes ) migrate=True; majorupgrade=True; break;;
-            No ) migrate=False; majorupgrade=True; break;;
+            Yes)
+                migrate=True
+                majorupgrade=True
+                break
+                ;;
+            No)
+                migrate=False
+                majorupgrade=True
+                break
+                ;;
         esac
     done
     if [[ $migrate == True ]]; then
         echo_query "Do you wish to migrate your old database? If you select no, only settings will be transferred." ""
         select yn in "Yes" "No"; do
             case $yn in
-                Yes ) database=true; break;;
-                No ) database=false; break;;
+                Yes)
+                    database=true
+                    break
+                    ;;
+                No)
+                    database=false
+                    break
+                    ;;
             esac
         done
         oldport=$(grep \"port\" /home/${username}/.config/nzbhydra/settings.cfg | grep -oP '\d+')
@@ -64,7 +78,7 @@ if [[ $migrate == True ]]; then
     #fi
     sleep 15
     echo_progress_done "NZBhydra2 initialised"
-    
+
     echo_progress_start "Starting migration"
     result=$(curl -s "http://127.0.0.1:5076/internalapi/migration/url?baseurl=http:%2F%2F127.0.0.1:${oldport}${oldbaseconv}&doMigrateDatabase=${database}")
     errors=$(echo $result | jq .error)
@@ -73,7 +87,7 @@ if [[ $migrate == True ]]; then
         if [[ $database == true ]]; then
             echo_info "  databaseMigrated: $(echo $result | jq .databaseMigrated)"
         fi
-        
+
         echo_progress_done "No errors reported!"
         #shellcheck disable=SC2162
         echo_query "Press enter to continue setting up NZBHydra2"
@@ -101,7 +115,7 @@ if [[ $majorupgrade == True ]]; then
     rm_if_exists /etc/nginx/apps/nzbhydra.conf
     rm_if_exists /opt/.venv/nzbhydra
     rm_if_exists /opt/nzbhydra
-    cat > /etc/systemd/system/nzbhydra.service <<EOH2
+    cat > /etc/systemd/system/nzbhydra.service << EOH2
 [Unit]
 Description=NZBHydra2 Daemon
 Documentation=https://github.com/theotherp/nzbhydra2
@@ -132,7 +146,7 @@ EOH2
     echo_progress_done "Systemd files reconfigured"
 fi
 
-localversion=$(/opt/nzbhydra2/nzbhydra2 --version 2>/dev/null | grep -oP 'v\d+\.\d+\.\d+')
+localversion=$(/opt/nzbhydra2/nzbhydra2 --version 2> /dev/null | grep -oP 'v\d+\.\d+\.\d+')
 latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | head -1 | cut -d\" -f 4)
 latestversion=$(echo $latest | grep -oP 'v\d+\.\d+\.\d+')
 if [[ -z $localversion ]] || dpkg --compare-versions ${localversion#v} lt ${latestversion#v}; then

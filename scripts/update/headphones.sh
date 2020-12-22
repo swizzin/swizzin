@@ -21,12 +21,12 @@ if [[ -f /install/.headphones.lock ]]; then
         python2_venv ${user} headphones
 
         PIP='wheel cheetah asn1'
-        /opt/.venv/headphones/bin/pip install $PIP >>"${log}" 2>&1
+        /opt/.venv/headphones/bin/pip install $PIP >> "${log}" 2>&1
         chown -R ${user}: /opt/.venv/headphones
 
         mv /home/${user}/.headphones /opt/headphones
 
-        cat > /etc/systemd/system/headphones.service <<HEADSD
+        cat > /etc/systemd/system/headphones.service << HEADSD
 [Unit]
 Description=Headphones
 Wants=network.target network-online.target
@@ -47,7 +47,7 @@ HEADSD
         sed -i "s|/home/${user}/.headphones|/opt/headphones|g" /opt/headphones/config.ini
 
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now headphones 2>&1  | tee -a $log
+            systemctl enable -q --now headphones 2>&1 | tee -a $log
         fi
     fi
 

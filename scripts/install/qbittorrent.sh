@@ -2,8 +2,6 @@
 # qBittorrent Installer for swizzin
 # Author: liara
 
-
-
 # Source the required functions
 . /etc/swizzin/sources/functions/qbittorrent
 . /etc/swizzin/sources/functions/libtorrent
@@ -41,14 +39,14 @@ qbittorrent_service
 for user in ${users[@]}; do
     echo_progress_start "Enabling qbittorrent for $user"
     qbittorrent_user_config ${user}
-    systemctl enable -q --now qbittorrent@${user} 2>&1  | tee -a $log
+    systemctl enable -q --now qbittorrent@${user} 2>&1 | tee -a $log
     echo_progress_done "Started qbt for $user"
 done
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /etc/swizzin/scripts/nginx/qbittorrent.sh
     systemctl reload nginx >> $log 2>&1
-    echo_progress_done 
+    echo_progress_done
 fi
 
 touch /install/.qbittorrent.lock

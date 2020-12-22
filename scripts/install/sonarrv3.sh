@@ -2,19 +2,24 @@
 # Sonarr v3 installer
 # Flying sauasges for swizzin 2020
 
-#shellcheck source=sources/functions/ask
-. /etc/swizzin/sources/functions/ask
-
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+[[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
+
+if [[ -z $sonarrv3owner ]]; then
+    sonarrv3owner=$(_get_master_username)
+fi
+
+sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+
 #Handles existing v2 instances
-_sonarrv2_flow(){
+_sonarrv2_flow() {
     v2present=false
     if [[ -f /install/.sonarr.lock ]]; then
         v2present=true
     fi
-    if dpkg -l | grep nzbdrone > /dev/null 2>&1 ; then
+    if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
         v2present=true
     fi
 
@@ -44,7 +49,7 @@ _sonarrv2_flow(){
             #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
             response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" --insecure)
             echo_log_only "$response"
-            id=$(echo "$response" | jq '.id' )
+            id=$(echo "$response" | jq '.id')
             echo_log_only "id=$id"
 
             if [[ -z $id ]]; then
@@ -60,13 +65,13 @@ _sonarrv2_flow(){
                 while [[ $status =~ ^(queued|started|)$ ]]; do
                     sleep 0.2
                     status=$(curl -s "${address}/command/$id?apikey=${apikey}" --insecure | jq -r '.status')
-                    ((counter+=1))
+                    ((counter += 1))
                     if [[ $counter -gt 100 ]]; then
                         echo_error "Sonarr backup timed out (20s), cancelling installation."
                         exit 1
                     fi
                 done
-                if [[ $status = "completed" ]]; then 
+                if [[ $status = "completed" ]]; then
                     echo_progress_done "Backup complete"
                 else
                     echo_error "Sonarr returned unexpected status ($status). Terminating. Please try again."
@@ -79,7 +84,18 @@ _sonarrv2_flow(){
         echo_progress_start "Copying files to a backup location"
         cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
         echo_progress_done "Backups copied"
-        
+
+        if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
+            if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
+                rm -rf
+                cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+            else
+                echo_info "Leaving v3 dir as is, why did we do any of this..."
+            fi
+        else
+            cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+        fi
+
         systemctl stop sonarr@"${sonarrv2owner}"
 
         # We don't have the debconf configuration yet so we can't migrate the data.
@@ -94,11 +110,10 @@ _sonarrv2_flow(){
         # shellcheck source=scripts/remove/sonarr.sh
         bash /etc/swizzin/scripts/remove/sonarr.sh
         echo_progress_done
-        
     fi
 }
 
-_add_sonarr_repos () {
+_add_sonarr_repos() {
     echo_progress_start "Adding apt sources for Sonarr v3"
     codename=$(lsb_release -cs)
     distribution=$(lsb_release -is)
@@ -112,35 +127,22 @@ _add_sonarr_repos () {
 
     apt_update
 
-    if ! apt-cache policy sonarr | grep -q apt.sonarr.tv ; then
+    if ! apt-cache policy sonarr | grep -q apt.sonarr.tv; then
         echo_error "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
         exit 1
     fi
-    echo_progress_done "Sources added"
 }
 
-_install_sonarrv3 () {
-    if [[ -z $sonarrv3owner ]];then
-        sonarrv3owner=$(_get_master_username)
-    fi;
-    sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+_install_sonarrv3() {
     mkdir -p "$sonarrv3confdir"
-    chown -R "$sonarrv3owner":"$sonarrv3owner" "$sonarrv3confdir"
+    chown -R "$sonarrv3owner":"$sonarrv3owner" /home/$sonarrv3owner/.config
 
-    # Migrate v2 data in if there is any
-    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
-        echo_progress_start "Copying v2 data to be migrated during install"
-        cp /root/swizzin/backups/sonarrv2.bak "${sonarrv3confdir}" -R
-        chown "$sonarrv3owner":"$sonarrv3owner" "${sonarrv3confdir}"
-        echo_progress_done "Data copied"
-    fi
-
-    echo_info "Setting sonarr v3 owner to $sonarrv3owner" >> $log
+    echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
     echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
-    apt_install sonarr
+    apt_install sonarr sqlite3
     touch /install/.sonarrv3.lock
     sleep 1
 
@@ -149,11 +151,11 @@ _install_sonarrv3 () {
         exit 1
     fi
 
-    if [[ -f $sonarrv3confdir/update_required ]]; then 
+    if [[ -f $sonarrv3confdir/update_required ]]; then
         echo_progress_start "Sonarr is installing an internal upgrade..."
         # echo "You can track the update by running \`systemctl status sonarr\` in another shell."
         # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
-        while [[ -f $sonarrv3confdir/update_required ]]; do 
+        while [[ -f $sonarrv3confdir/update_required ]]; do
             sleep 1
             # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
         done
@@ -177,11 +179,11 @@ _install_sonarrv3 () {
 #         fi
 # }
 
-_nginx_sonarr () {
+_nginx_sonarr() {
     if [[ -f /install/.nginx.lock ]]; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-        sleep 10
         echo_progress_start "Installing nginx configuration"
+        sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
         echo_progress_done

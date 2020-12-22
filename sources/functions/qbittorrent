@@ -1,39 +1,44 @@
 #!/bin/bash
 
-function whiptail_qbittorrent () {
-  if [[ -z $qbittorrent ]]; then
-    . /etc/swizzin/sources/functions/apt
-    codename=$(lsb_release -cs)
-    repov=$(get_candidate_version qbittorrent-nox)
-    latestv41=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.1\.\d')
-    if [[ -z $latestv41 ]]; then latestv41=4.1.9; fi
-    latestv42=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 -oP '4\.2\.\d')
-    if [[ -z $latestv41 ]]; then latestv42=4.2.5; fi
-    latestv=$(curl -s https://github.com/qbittorrent/qBittorrent/releases | grep -m1 .tar.gz | grep -oP '\d.\d?.?\d')
-    case ${codename} in
-    "xenial"|"stretch")
-        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                "Repo" "(${repov})" \
-                "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
-    ;;
-    *)
-        function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 4 \
-                "Repo" "(${repov})" \
-                "4.1" "(${latestv41})" \
-                "4.2" "(${latestv42})" \
-                "Latest" "(${latestv})" 3>&1 1>&2 2>&3)
-    ;;
-    esac
-    if [[ $function == "Repo" ]]; then
-        export qbittorrent=repo
-    elif [[ $function == "4.1" ]]; then
-        export qbittorrent=${latestv41}
-    elif [[ $function == "4.2" ]]; then
-        export qbittorrent=${latestv42}
-    elif [[ $function == "Latest" ]]; then
-        export qbittorrent=${latestv}
+function whiptail_qbittorrent() {
+    if [[ -z $qbittorrent ]]; then
+        . /etc/swizzin/sources/functions/apt
+        codename=$(lsb_release -cs)
+        repov=$(get_candidate_version qbittorrent-nox)
+        releases=$(git ls-remote -t --sort=-v:refname --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/')
+
+        latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
+        latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
+        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
+        #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
+
+        case ${codename} in
+            "xenial" | "stretch")
+                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                    "Repo" "(${repov})" \
+                    "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
+                ;;
+            *)
+                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 4 \
+                    "Repo" "(${repov})" \
+                    "4.1" "(${latestv41})" \
+                    "4.2" "(${latestv42})" \
+                    "4.3" "(${latestv43})" 3>&1 1>&2 2>&3)
+                #"Latest" "(${latestv})" 3>&1 1>&2 2>&3)
+                ;;
+        esac
+        if [[ $function == "Repo" ]]; then
+            export qbittorrent=repo
+        elif [[ $function == "4.1" ]]; then
+            export qbittorrent=${latestv41}
+        elif [[ $function == "4.2" ]]; then
+            export qbittorrent=${latestv42}
+        elif [[ $function == "4.3" ]]; then
+            export qbittorrent=${latestv43}
+        #elif [[ $function == "Latest" ]]; then
+        #    export qbittorrent=${latestv}
+        fi
     fi
-  fi
 }
 
 function build_qbittorrent() {
@@ -50,7 +55,11 @@ function build_qbittorrent() {
             noexec=1
         fi
         VERSION=${qbittorrent}
-        LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        if [[ $(lsb_release -cs) == focal && $deluge == 1.3-stable ]]; then
+            LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        else
+            LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        fi
         apt_install --no-recommends $LIST
         cd /tmp
         rm_if_exists "/tmp/qbittorrent"
@@ -69,7 +78,7 @@ function build_qbittorrent() {
         cd /tmp
         rm -rf /tmp/qbittorrent
         if [[ -n $noexec ]]; then
-        	mount -o remount,noexec /tmp
+            mount -o remount,noexec /tmp
         fi
         if [[ $swap == "true" ]]; then
             tmp_swap_off
@@ -79,16 +88,22 @@ function build_qbittorrent() {
 
 function qbittorrent_service() {
     if [[ ! -f /etc/systemd/system/qbittorent@.service ]]; then
-    cat > /etc/systemd/system/qbittorrent@.service <<EOQBS
+        type=simple
+        if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+            type=exec
+        fi
+        cat > /etc/systemd/system/qbittorrent@.service << EOQBS
 [Unit]
-Description=qBittorrent noX for %i
-After=network.target
+Description=qBittorrent-nox service for %i
+Documentation=man:qbittorrent-nox(1)
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Type=forking
+Type=$type
 User=%i
 Group=%i
-ExecStart=/usr/bin/qbittorrent-nox -d
+ExecStart=/usr/bin/qbittorrent-nox
 
 [Install]
 WantedBy=multi-user.target
@@ -117,7 +132,7 @@ function qbittorrent_user_config() {
     chown ${user}: /home/${user}/torrents/qbittorrent
     chown $user: /home/${user}/.config
     chown $user: /home/${user}/.config/qBittorrent
-    cat > /home/${user}/.config/qBittorrent/qBittorrent.conf<<QBTCONF
+    cat > /home/${user}/.config/qBittorrent/qBittorrent.conf << QBTCONF
 [BitTorrent]
 Session\DisableAutoTMMByDefault=false 
 

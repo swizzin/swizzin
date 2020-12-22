@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [[ -f /install/.couchpotato.lock ]]; then
     if [[ -f /etc/systemd/system/couchpotato@.service ]]; then
         codename=$(lsb_release -cs)
@@ -19,11 +18,11 @@ if [[ -f /install/.couchpotato.lock ]]; then
             python_getpip
         fi
         python2_venv ${user} couchpotato
-        /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >>"${log}" 2>&1
+        /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >> "${log}" 2>&1
         chown -R ${user}: /opt/.venv/couchpotato
 
         mv /home/${user}/.couchpotato /opt/couchpotato
-        cat > /etc/systemd/system/couchpotato.service <<CPSD
+        cat > /etc/systemd/system/couchpotato.service << CPSD
 [Unit]
 Description=CouchPotato
 After=syslog.target network.target
@@ -46,8 +45,7 @@ CPSD
         systemctl daemon-reload
 
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now couchpotato 2>&1  | tee -a $log
+            systemctl enable -q --now couchpotato 2>&1 | tee -a $log
         fi
     fi
 fi
-

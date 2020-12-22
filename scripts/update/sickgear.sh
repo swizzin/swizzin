@@ -30,7 +30,7 @@ if [[ -f /install/.sickgear.lock ]]; then
 
         mv /home/${user}/.sickgear /opt/sickgear
 
-        cat > /etc/systemd/system/sickgear.service <<MSD
+        cat > /etc/systemd/system/sickgear.service << MSD
 [Unit]
 Description=SickGear
 After=syslog.target network.target
@@ -48,7 +48,7 @@ MSD
         systemctl daemon-reload
         rm /etc/systemd/system/sickchill@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now sickgear 2>&1  | tee -a $log
+            systemctl enable -q --now sickgear 2>&1 | tee -a $log
         fi
     fi
 fi

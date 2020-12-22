@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 user=$(cut -d: -f1 < /root/.master.info)
 if [[ ! -f /etc/nginx/apps/pyload.conf ]]; then
-cat > /etc/nginx/apps/pyload.conf <<PYLOAD
+    cat > /etc/nginx/apps/pyload.conf << PYLOAD
 location /pyload/ {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass http://127.0.0.1:8000/;
@@ -25,6 +25,6 @@ location /pyload/ {
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 PYLOAD
-sed -i 's/"Path Prefix" = /"Path Prefix" = \/pyload/g' /opt/pyload/pyload.conf
-sed -i 's/"IP" = 0.0.0.0/"IP" = 127.0.0.1/g' /opt/pyload/pyload.conf
+    sed -i 's/"Path Prefix" = /"Path Prefix" = \/pyload/g' /opt/pyload/pyload.conf
+    sed -i 's/"IP" = 0.0.0.0/"IP" = 127.0.0.1/g' /opt/pyload/pyload.conf
 fi

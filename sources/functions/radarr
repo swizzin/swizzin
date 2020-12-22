@@ -1,0 +1,12 @@
+#!/bin/bash
+
+_radarr_version() {
+    if radarrv="$(/usr/bin/mono /opt/Radarr/Radarr.exe \? |& head -n 1 | grep -Eo "Version(.*)$")"; then
+        [[ "$radarrv" =~ ^(Version 0.2.(.*))$ ]] && echo "mono-v2"
+        [[ "$radarrv" =~ ^(Version 3.0.(.*))$ ]] && echo "mono-v3"
+    elif radarrv="$(/opt/Radarr/Radarr \? |& head -n 1 | grep -Eo "Version(.*)$")"; then
+        [[ "$radarrv" =~ ^(Version 3.0.(.*))$ ]] && echo "netcore-v3"
+    else
+        echo_log_only "Radarr Version Error: No version could be determined"
+    fi
+}

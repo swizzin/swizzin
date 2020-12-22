@@ -8,25 +8,25 @@ codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/utils
 
 if [[ $(systemctl is-active medusa) == "active" ]]; then
-  active=medusa
+    active=medusa
 fi
 
 if [[ $(systemctl is-active sickgear) == "active" ]]; then
-  active=sickgear
+    active=sickgear
 fi
 
 if [[ -n $active ]]; then
-  echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
-if ask "Do you want to disable $active?" Y; then
- disable=yes
-fi
-  if [[ $disable == "yes" ]]; then
-    echo_progress_start "Disabling service"
-    systemctl disable -q --now ${active}
-    echo_progress_done
-  else
-    exit 1
-  fi
+    echo_info "SickChill and Medusa and Sickgear cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain at /opt/$active"
+    if ask "Do you want to disable $active?" Y; then
+        disable=yes
+    fi
+    if [[ $disable == "yes" ]]; then
+        echo_progress_start "Disabling service"
+        systemctl disable -q --now ${active}
+        echo_progress_done
+    else
+        exit 1
+    fi
 fi
 
 if [[ $codename =~ ("xenial"|"stretch") ]]; then
@@ -43,7 +43,7 @@ fi
 
 chown -R ${user}: /opt/.venv/sickchill
 echo_progress_start "Cloning SickChill"
-git clone https://github.com/SickChill/SickChill.git  /opt/sickchill >> ${log} 2>&1
+git clone https://github.com/SickChill/SickChill.git /opt/sickchill >> ${log} 2>&1
 chown -R $user: /opt/sickchill
 echo_progress_done
 
@@ -54,7 +54,7 @@ echo_progress_done
 install_rar
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/sickchill.service <<SCSD
+cat > /etc/systemd/system/sickchill.service << SCSD
 [Unit]
 Description=SickChill
 After=syslog.target network.target
@@ -71,14 +71,14 @@ ExecStart=/opt/.venv/sickchill/bin/python3 /opt/sickchill/SickChill.py -q --daem
 WantedBy=multi-user.target
 SCSD
 
-systemctl enable -q --now sickchill 2>&1  | tee -a $log
+systemctl enable -q --now sickchill 2>&1 | tee -a $log
 echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Configuring nginx"
-  bash /usr/local/bin/swizzin/nginx/sickchill.sh
-  systemctl reload nginx
-  echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/sickchill.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_success "SickChill installed"

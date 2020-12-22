@@ -11,7 +11,7 @@
 MASTER=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active shellinabox)
 if [[ ! -f /etc/nginx/apps/shell.conf ]]; then
-  cat > /etc/nginx/apps/shell.conf <<RAD
+    cat > /etc/nginx/apps/shell.conf << RAD
 location /shell/ {
   include /etc/nginx/snippets/proxy.conf;
   proxy_pass        http://127.0.0.1:4200;
@@ -29,5 +29,5 @@ fi
 systemctl reload nginx
 
 if [[ $isactive == "active" ]]; then
-  systemctl restart shellinabox
+    systemctl restart shellinabox
 fi

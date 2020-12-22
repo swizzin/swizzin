@@ -15,7 +15,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         else
             LIST='git python2.7-dev'
         fi
-        
+
         apt_install $LIST
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -31,7 +31,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
 
         mv /home/${user}/.nzbhydra /home/${user}/.config/nzbhydra
         mv /home/${user}/nzbhydra /opt
-        cat > /etc/systemd/system/nzbhydra.service <<NZBH
+        cat > /etc/systemd/system/nzbhydra.service << NZBH
 [Unit]
 Description=NZBHydra
 Documentation=https://github.com/theotherp/nzbhydra
@@ -54,7 +54,7 @@ NZBH
         systemctl daemon-reload
         rm /etc/systemd/system/nzbhydra@.service
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now nzbhydra 2>&1  | tee -a $log
+            systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
         fi
     fi
 fi

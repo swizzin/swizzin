@@ -14,10 +14,10 @@ if [[ -f /install/.sickrage.lock ]]; then
     cp -a .sickrage/config.ini .sickchill
     cp -a .sickrage/sickbeard.db .sickchill
     sed -i "s|git_remote_url.*|git_remote_url = https://github.com/SickChill/SickChill.git|g" /home/${master}/.sickchill/config.ini
-    echo "Moving ~/.sickrage to ~/sickrage.defunct. You can safely delete this yourself if the upgrade completes successfully."
+    echo_warn "Moving ~/.sickrage to ~/sickrage.defunct. You can safely delete this yourself if the upgrade completes successfully."
     mv .sickrage sickrage.defunct
     rm -f /etc/systemd/system/sickrage@.service
-    cat > /etc/systemd/system/sickchill@.service <<SSS
+    cat > /etc/systemd/system/sickchill@.service << SSS
 [Unit]
 Description=SickChill
 After=syslog.target network.target
@@ -35,7 +35,7 @@ WantedBy=multi-user.target
 SSS
     if [[ -f /install/.nginx.lock ]]; then
         rm -f /etc/nginx/apps/sickrage.conf
-        cat > /etc/nginx/apps/sickchill.conf <<SRC
+        cat > /etc/nginx/apps/sickchill.conf << SRC
 location /sickchill {
     include /etc/nginx/snippets/proxy.conf;
     proxy_pass        http://127.0.0.1:8081/sickchill;
@@ -78,15 +78,16 @@ if [[ -f /install/.sickchill.lock ]]; then
             python3 -m venv /opt/.venv/sickchill
         fi
         chown -R ${user}: /opt/.venv/sickchill
-        echo "Updating SickChill ..."
+
+        echo_progress_start "Updating SickChill ..."
         if [[ -d /home/${user}/.sickchill ]]; then
             mv /home/${user}/.sickchill /opt/sickchill
         fi
         sudo -u ${user} bash -c "cd /opt/sickchill; git pull" >> $log 2>&1
-        echo "Installing requirements.txt with pip ..."
+        # echo "Installing requirements.txt with pip ..."
         sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
 
-        cat > /etc/systemd/system/sickchill.service <<SCSD
+        cat > /etc/systemd/system/sickchill.service << SCSD
 [Unit]
 Description=SickChill
 After=syslog.target network.target
@@ -103,8 +104,9 @@ WantedBy=multi-user.target
 SCSD
         systemctl daemon-reload
         rm_if_exists /etc/systemd/system/sickchill@.service
+        echo_progress_done
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now sickchill 2>&1  | tee -a $log
+            systemctl enable -q --now sickchill 2>&1 | tee -a $log
         fi
     fi
 fi

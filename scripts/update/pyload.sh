@@ -27,20 +27,20 @@ if [[ -f /install/.pyload.lock ]]; then
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then            
+        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
 
         python2_venv ${user} pyload
 
         PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-        /opt/.venv/pyload/bin/pip install $PIP >>"${log}" 2>&1
+        /opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
         chown -R ${user}: /opt/.venv/pyload
 
         mv /home/${user}/.pyload /opt/pyload
         echo "/opt/pyload" > /opt/pyload/module/config/configdir
 
-cat >/etc/systemd/system/pyload.service<<PYSD
+        cat > /etc/systemd/system/pyload.service << PYSD
 [Unit]
 Description=pyLoad
 After=network.target
@@ -56,8 +56,7 @@ PYSD
         systemctl daemon-reload
         rm /etc/systemd/system/pyload@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now pyload 2>&1  | tee -a $log
+            systemctl enable -q --now pyload 2>&1 | tee -a $log
         fi
     fi
 fi
-

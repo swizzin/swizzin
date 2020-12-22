@@ -42,7 +42,7 @@ chown ${user}: /home/${user}/.config
 chown ${user}: /home/${user}/.config/nzbhydra2
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/nzbhydra.service <<EOH2
+cat > /etc/systemd/system/nzbhydra.service << EOH2
 [Unit]
 Description=NZBHydra2 Daemon
 Documentation=https://github.com/theotherp/nzbhydra2
@@ -66,18 +66,16 @@ Restart=always
 WantedBy=multi-user.target
 EOH2
 
-systemctl enable -q --now nzbhydra 2>&1  | tee -a $log
+systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
 echo_progress_done "Service installed and nzbhydra started"
 
-
 if [[ -f /install/.nginx.lock ]]; then
-  echo_progress_start "Configuring nginx"
-  sleep 15
-  bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
-  systemctl reload nginx
-  echo_progress_done "Nginx configured"
+    echo_progress_start "Configuring nginx"
+    sleep 15
+    bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
+    systemctl reload nginx
+    echo_progress_done "Nginx configured"
 fi
 
 echo_success "Nzbhydra installed"
 touch /install/.nzbhydra.lock
-

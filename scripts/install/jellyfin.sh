@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# authors: liara userdocs
+# authors: liara userdocs flying-sausages
 #
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
@@ -8,26 +8,38 @@
 ######## Variables Start
 ########
 #
-# Get our main user credentials.
-username="$(cat /root/.master.info | cut -d: -f1)"
-password="$(cat /root/.master.info | cut -d: -f2)"
+# Source the global functions we require for this script.
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/ssl
 #
-# This will generate random ports for the script to use with applications between the range 10001 to 32001.
-app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done
-app_port_https="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_https}"'')" -ge "1" ]]; do app_port_https="$(shuf -i 10001-32001 -n 1)"; done
-echo_log_only "app_port_http = $app_port_http, app_port_https = $app_port_https"
+# awaiting pull to remove
+function dist_info() {
+    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+    DIST_ID="$(source /etc/os-release && echo "$ID")"
+}
 #
-# Get our exertnal IP 4 address and set it as a variable.
-ip_address="$(curl -s4 icanhazip.com)"
-#
-# Define the location where we want the application installed
-install_dir="/opt/jellyfin"
-#
-# Define the location where we want ffmpeg installed.
-install_ffmpeg="/opt/ffmpeg"
-#
-# Set an installation temporay directory.
-install_tmp="/tmp/jellyfin"
+# Get our some useful information from functions in the sourced utils script
+username="$(_get_master_username)"
+dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
+
+if [[ $(systemctl is-active emby) == "active" ]]; then
+    active=emby
+fi
+
+if [[ -n $active ]]; then
+    echo_info "Jellyfin and Emby cannot be active at the same time.\nDo you want to disable $active and continue with the installation?\nDon't worry, your install will remain"
+    if ask "Do you want to disable $active?" Y; then
+        disable=yes
+    fi
+    if [[ $disable == "yes" ]]; then
+        echo_progress_start "Disabling service"
+        systemctl disable -q --now ${active} >> ${log} 2>&1
+        echo_progress_done
+    else
+        exit 1
+    fi
+fi
+
 #
 ########
 ######## Variables End
@@ -37,313 +49,78 @@ install_tmp="/tmp/jellyfin"
 ######## Application script starts.
 ########
 #
-# Source the global functions we require for this script.
-. /etc/swizzin/sources/functions/ssl
-#
 # Generate the ssl certificates using the sourced function.
 create_self_ssl "${username}"
 #
-# Generate our mono specific ssl cert from the default certs created using the ssl function
-echo_progress_start "Generating key for mono"
+# Generate our NET core ssl format cert from the default certs created using the ssl function and give it the required permissions.
 openssl pkcs12 -export -nodes -out "/home/${username}/.ssl/${username}-self-signed.pfx" -inkey "/home/${username}/.ssl/${username}-self-signed.key" -in "/home/${username}/.ssl/${username}-self-signed.crt" -passout pass:
-echo_progress_done
+chown "${username}.${username}" -R "/home/${username}/.ssl"
+chmod -R g+r "/home/${username}/.ssl"
 #
 # Create the required directories for this application.
-mkdir -p "$install_dir"
-mkdir -p "$install_ffmpeg"
-mkdir -p "$install_tmp"
-mkdir -p "/home/${username}/.config/Jellyfin/config"
-#
-# Download and extract the files to the defined location.
-echo_progress_start "Downloading Jellyfin files"
-baseurl=$(curl -s https://repo.jellyfin.org/releases/server/linux/stable/ | grep -Po "href=[\'\"]\K.*?(?=['\"])" | grep combined | grep -v sha256)
-wget -O "$install_tmp/jellyfin.tar.gz" "https://repo.jellyfin.org/releases/server/linux/stable/${baseurl}" >> "$log" 2>&1
-echo_progress_done "files downloaded"
-#wget -O "$install_tmp/jellyfin.tar.gz" "$(curl -s https://api.github.com/repos/jellyfin/jellyfin/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "$log" 2>&1
-echo_progress_start "Extracting..."
-tar -xvzf "$install_tmp/jellyfin.tar.gz" --strip-components=2 -C "$install_dir" >> "$log" 2>&1
-echo_progress_done
-#
-# Download the FFmpeg prebuilt binary to the installation temporary directory
-echo_progress_start "Installing jellyfin's own ffmpeg"
-wget -O "$install_tmp/ffmpeg.tar.xz" "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz" >> "$log" 2>&1
-#
-# Get the top level dir of the archive so we don't need to guess the dir name in future commands
-ffmpeg_dir_name="$(tar tf "$install_tmp/ffmpeg.tar.xz" | head -1 | cut -f1 -d"/")"
-#
-# Extract the archive to the to the installation temporary directory
-tar xf "$install_tmp/ffmpeg.tar.xz" -C "$install_tmp"
-#
-# Removes files we don't need before copying to the ffmpeg installation directory.
-rm -rf "$install_tmp/$ffmpeg_dir_name"/{manpages,model,GPLv3.txt,readme.txt}
-#
-# Copy the required binaries to the ffmpeg installation folder.
-cp "$install_tmp/$ffmpeg_dir_name"/* "$install_ffmpeg"
-#
-# Set the correct permissions
-chmod -R 700 "$install_ffmpeg"
-#
-# Removes the installation temporary folder as we no longer need it.
-rm -rf "$install_tmp" >> "$log" 2>&1
-
-echo_progress_done "installed"
-#
-## Create the configuration files
-echo_progress_start "Configuring jellyfin"
-#
-# Create the encoding.xml so that we can define the custom ffmpeg provided.
-cat > "/home/${username}/.config/Jellyfin/config/encoding.xml" <<-CONFIG
-<?xml version="1.0"?>
-<EncodingOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <TranscodingTempPath>/home/${username}/.config/Jellyfin/transcoding-temp</TranscodingTempPath>
-  <EncoderAppPath>$install_ffmpeg/ffmpeg</EncoderAppPath>
-  <EncoderAppPathDisplay>$install_ffmpeg/ffmpeg</EncoderAppPathDisplay>
-</EncodingOptions>
-CONFIG
+mkdir -p /etc/jellyfin
+chmod 755 /etc/jellyfin
 #
 # Create the dnla.xml so that we can Disable DNLA
-cat > "/home/${username}/.config/Jellyfin/config/dlna.xml" <<-CONFIG
-<?xml version="1.0"?>
-<DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <EnablePlayTo>false</EnablePlayTo>
-  <EnableServer>false</EnableServer>
-  <EnableDebugLog>false</EnableDebugLog>
-  <BlastAliveMessages>false</BlastAliveMessages>
-  <SendOnlyMatchedHost>true</SendOnlyMatchedHost>
-  <ClientDiscoveryIntervalSeconds>60</ClientDiscoveryIntervalSeconds>
-  <BlastAliveMessageIntervalSeconds>1800</BlastAliveMessageIntervalSeconds>
-</DlnaOptions>
+cat > /etc/jellyfin/dlna.xml <<- CONFIG
+	<?xml version="1.0"?>
+	<DlnaOptions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  <EnablePlayTo>false</EnablePlayTo>
+	  <EnableServer>false</EnableServer>
+	  <EnableDebugLog>false</EnableDebugLog>
+	  <BlastAliveMessages>false</BlastAliveMessages>
+	  <SendOnlyMatchedHost>true</SendOnlyMatchedHost>
+	  <ClientDiscoveryIntervalSeconds>60</ClientDiscoveryIntervalSeconds>
+	  <BlastAliveMessageIntervalSeconds>1800</BlastAliveMessageIntervalSeconds>
+	</DlnaOptions>
 CONFIG
 #
 # Create the system.xml. This is the applications main configuration file.
-cat > "/home/${username}/.config/Jellyfin/config/system.xml" <<-CONFIG
-<?xml version="1.0"?>
-<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <LogFileRetentionDays>3</LogFileRetentionDays>
-  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
-  <EnableUPnP>false</EnableUPnP>
-  <PublicPort>${app_port_http}</PublicPort>
-  <PublicHttpsPort>${app_port_https}</PublicHttpsPort>
-  <HttpServerPortNumber>${app_port_http}</HttpServerPortNumber>
-  <HttpsPortNumber>${app_port_https}</HttpsPortNumber>
-  <EnableHttps>true</EnableHttps>
-  <EnableNormalizedItemByNameIds>false</EnableNormalizedItemByNameIds>
-  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
-  <IsPortAuthorized>true</IsPortAuthorized>
-  <AutoRunWebApp>true</AutoRunWebApp>
-  <EnableRemoteAccess>true</EnableRemoteAccess>
-  <CameraUploadUpgraded>false</CameraUploadUpgraded>
-  <CollectionsUpgraded>false</CollectionsUpgraded>
-  <EnableCaseSensitiveItemIds>true</EnableCaseSensitiveItemIds>
-  <DisableLiveTvChannelUserDataName>false</DisableLiveTvChannelUserDataName>
-  <PreferredMetadataLanguage>en</PreferredMetadataLanguage>
-  <MetadataCountryCode>US</MetadataCountryCode>
-  <SortReplaceCharacters>
-    <string>.</string>
-    <string>+</string>
-    <string>%</string>
-  </SortReplaceCharacters>
-  <SortRemoveCharacters>
-    <string>,</string>
-    <string>&amp;</string>
-    <string>-</string>
-    <string>{</string>
-    <string>}</string>
-    <string>'</string>
-  </SortRemoveCharacters>
-  <SortRemoveWords>
-    <string>the</string>
-    <string>a</string>
-    <string>an</string>
-  </SortRemoveWords>
-  <MinResumePct>5</MinResumePct>
-  <MaxResumePct>90</MaxResumePct>
-  <MinResumeDurationSeconds>300</MinResumeDurationSeconds>
-  <LibraryMonitorDelay>60</LibraryMonitorDelay>
-  <EnableDashboardResponseCaching>true</EnableDashboardResponseCaching>
-  <ImageSavingConvention>Compatible</ImageSavingConvention>
-  <MetadataOptions>
-    <MetadataOptions>
-      <ItemType>Book</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers />
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>Movie</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers />
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>MusicVideo</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>The Open Movie Database</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers>
-        <string>The Open Movie Database</string>
-      </DisabledImageFetchers>
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>Series</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>TheMovieDb</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers>
-        <string>TheMovieDb</string>
-      </DisabledImageFetchers>
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>MusicAlbum</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>TheAudioDB</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>MusicArtist</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>TheAudioDB</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>BoxSet</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers />
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>Season</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>TheMovieDb</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers />
-      <ImageFetcherOrder />
-    </MetadataOptions>
-    <MetadataOptions>
-      <ItemType>Episode</ItemType>
-      <DisabledMetadataSavers />
-      <LocalMetadataReaderOrder />
-      <DisabledMetadataFetchers>
-        <string>The Open Movie Database</string>
-        <string>TheMovieDb</string>
-      </DisabledMetadataFetchers>
-      <MetadataFetcherOrder />
-      <DisabledImageFetchers>
-        <string>The Open Movie Database</string>
-        <string>TheMovieDb</string>
-      </DisabledImageFetchers>
-      <ImageFetcherOrder />
-    </MetadataOptions>
-  </MetadataOptions>
-  <EnableAutomaticRestart>true</EnableAutomaticRestart>
-  <SkipDeserializationForBasicTypes>false</SkipDeserializationForBasicTypes>
-  <BaseUrl />
-  <UICulture>en-US</UICulture>
-  <SaveMetadataHidden>false</SaveMetadataHidden>
-  <ContentTypes />
-  <RemoteClientBitrateLimit>0</RemoteClientBitrateLimit>
-  <EnableFolderView>false</EnableFolderView>
-  <EnableGroupingIntoCollections>false</EnableGroupingIntoCollections>
-  <DisplaySpecialsWithinSeasons>true</DisplaySpecialsWithinSeasons>
-  <LocalNetworkSubnets />
-  <LocalNetworkAddresses>
-    <string>0.0.0.0</string>
-  </LocalNetworkAddresses>
-  <CodecsUsed />
-  <IgnoreVirtualInterfaces>false</IgnoreVirtualInterfaces>
-  <EnableExternalContentInSuggestions>true</EnableExternalContentInSuggestions>
-  <RequireHttps>false</RequireHttps>
-  <IsBehindProxy>false</IsBehindProxy>
-  <EnableNewOmdbSupport>false</EnableNewOmdbSupport>
-  <RemoteIPFilter />
-  <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
-  <ImageExtractionTimeoutMs>0</ImageExtractionTimeoutMs>
-  <PathSubstitutions />
-  <EnableSimpleArtistDetection>true</EnableSimpleArtistDetection>
-  <UninstalledPlugins />
-</ServerConfiguration>
+cat > /etc/jellyfin/system.xml <<- CONFIG
+	<?xml version="1.0"?>
+	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
+	  <EnableUPnP>false</EnableUPnP>
+	  <EnableHttps>true</EnableHttps>
+	  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
+	  <IsPortAuthorized>true</IsPortAuthorized>
+	  <EnableRemoteAccess>true</EnableRemoteAccess>
+	  <BaseUrl />
+	  <LocalNetworkAddresses>
+		<string>0.0.0.0</string>
+	  </LocalNetworkAddresses>
+	  <RequireHttps>true</RequireHttps>
+	</ServerConfiguration>
 CONFIG
 #
-# Create the service file that will start and stop jellyfin.
-cat > "/etc/systemd/system/jellyfin.service" <<-SERVICE
-[Unit]
-Description=Jellyfin
-After=network.target
-
-[Service]
-User=${username}
-Group=${username}
-UMask=002
-
-Type=simple
-WorkingDirectory=$install_dir
-ExecStart=$install_dir/jellyfin -d /home/${username}/.config/Jellyfin
-TimeoutStopSec=20
-KillMode=process
-Restart=always
-RestartSec=2
-
-[Install]
-WantedBy=multi-user.target
-SERVICE
+# Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
+wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
+#
+# install jellyfin and jellyfin-ffmepg using apt functions.
+apt_update #forces apt refresh
+apt_install jellyfin jellyfin-ffmpeg
+#
+# Add the jellyfin user to the master user's group.
+usermod -a -G "${username}" jellyfin
+#
+chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
+chown jellyfin:jellyfin /etc/jellyfin/system.xml
+chown jellyfin:root /etc/jellyfin/logging.json
+chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
-    bash "/usr/local/bin/swizzin/nginx/jellyfin.sh" "${app_port_http}" "${app_port_https}"
-    systemctl reload nginx
+    bash /usr/local/bin/swizzin/nginx/jellyfin.sh
+    systemctl -q restart nginx.service
 fi
-echo_progress_done "Jellyfin configured"
 #
-# Set the correct and required permissions of any directories we created or modified.
-chown "${username}.${username}" -R "$install_dir"
-chown "${username}.${username}" -R "$install_ffmpeg"
-chown "${username}.${username}" -R "/home/${username}/.config"
-chown "${username}.${username}" -R "/home/${username}/.ssl"
-#
-# Enable and start the jellyfin service.
-systemctl daemon-reload -q
-systemctl enable -q --now "jellyfin.service" 2>&1  | tee -a $log
+# Restart the jellyfin service to make sure our changes take effect
+systemctl -q restart "jellyfin.service"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
-touch "/install/.jellyfin.lock"
+touch /install/.jellyfin.lock
 #
 echo_success "Jellyfin installed"
-#
-if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Jellyfin is available at: https://$(curl -s4 icanhazip.com):${app_port_https}"
-else
-    echo_info "Jellyfin is now available in the panel"
-    echo_info "Please visit https://$ip_address/jellyfin"
-fi
 #
 exit

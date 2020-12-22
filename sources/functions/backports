@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function check_debian_backports () {
+function check_debian_backports() {
     codename=$(lsb_release -cs)
     if grep -q "${codename}-backports" /etc/apt/sources.list; then
         echo_log_only "Debian ${codename} backports already enabled."
@@ -13,10 +13,10 @@ function check_debian_backports () {
 }
 
 # Creates a backport pin for all packages in arguments
-set_packages_to_backports () {
+set_packages_to_backports() {
     codename=$(lsb_release -cs)
     for package in "$@"; do
-        cat > /etc/apt/preferences.d/"$package" <<BPO
+        cat > /etc/apt/preferences.d/"$package" << BPO
 Package: *$package*
 Pin: release a=${codename}-backports
 Pin-Priority: 500
@@ -24,7 +24,7 @@ BPO
     done
 }
 
-function check_ubuntu_updates(){
+function check_ubuntu_updates() {
     codename=$(lsb_release -cs)
     if grep -h "${codename}-updates" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
         #If ${codename} updates in our sources.list or sources.list.d/* and not commented out, do nothing

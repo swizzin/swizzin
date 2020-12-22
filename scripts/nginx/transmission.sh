@@ -6,7 +6,7 @@
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ ! -f /etc/nginx/apps/transmission.conf ]]; then
-    cat > /etc/nginx/apps/transmission.conf <<TCONF
+    cat > /etc/nginx/apps/transmission.conf << TCONF
 location /transmission {
     return 301 /transmission/web/;
 }
@@ -35,10 +35,10 @@ for u in ${users[@]}; do
     fi
 
     timeout=0
-    while systemctl is-active transmission@"$u" > /dev/null ;do
+    while systemctl is-active transmission@"$u" > /dev/null; do
         # echo "is active"
         timeout+=0.3
-        if [[ $timeout -ge 20 ]]; then 
+        if [[ $timeout -ge 20 ]]; then
             echo "The service transmission@$u took too long to shut down. Aborting."
             exit 1
         fi
@@ -48,9 +48,8 @@ for u in ${users[@]}; do
     confpath="/home/${u}/.config/transmission-daemon/settings.json"
     jq '.["rpc-bind-address"] = "127.0.0.1"' "$confpath" >> /root/logs/swizzin.log
     RPCPORT=$(jq -r '.["rpc-port"]' < "$confpath")
-    echo "RPC-port = $RPCPORT"
     if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
-        cat > /etc/nginx/conf.d/${u}.transmission.conf <<TDCONF
+        cat > /etc/nginx/conf.d/${u}.transmission.conf << TDCONF
 upstream ${u}.transmission {
     server 127.0.0.1:${RPCPORT};
 }
@@ -61,4 +60,3 @@ TDCONF
         echo_log_only "Activating service"
     fi
 done
-

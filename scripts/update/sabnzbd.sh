@@ -22,7 +22,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         python2_venv ${user} sabnzbd
 
         PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc sabyenc cheetah pyOpenSSL'
-        /opt/.venv/sabnzbd/bin/pip install $PIP >>"${log}" 2>&1
+        /opt/.venv/sabnzbd/bin/pip install $PIP >> "${log}" 2>&1
         chown -R ${user}: /opt/.venv/sabnzbd
 
         mkdir /home/${user}/.config > /dev/null 2>&1
@@ -31,7 +31,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         mv /home/${user}/.sabnzbd /home/${user}/.config/sabnzbd
         mv /home/${user}/SABnzbd /opt/sabnzbd
 
-        cat >/etc/systemd/system/sabnzbd.service<<SABSD
+        cat > /etc/systemd/system/sabnzbd.service << SABSD
 [Unit]
 Description=Sabnzbd
 Wants=network-online.target
@@ -51,7 +51,7 @@ SABSD
         rm /etc/systemd/system/sabnzbd@.service
 
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now sabnzbd 2>&1  | tee -a $log
+            systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
         fi
     fi
 fi

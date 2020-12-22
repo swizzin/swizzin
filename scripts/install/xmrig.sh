@@ -5,14 +5,12 @@ user=$(cut -d: -f1 < /root/.master.info)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 latest=$(curl -s https://github.com/xmrig/xmrig/releases/latest | grep -oP 'v\K\d+.\d+.\d+')
 
-
-
 while true; do
-echo_query "Please choose a dev donation amount. Minimum fee is 1%."
-read -r fee
-floatReg='^([0-9]*\.[0-9])$'
+    echo_query "Please choose a dev donation amount. Minimum fee is 1%."
+    read -r fee
+    floatReg='^([0-9]*\.[0-9])$'
     if [[ ! $fee =~ $floatReg ]]; then
-        if (( $(echo "$fee < 1" | bc -l) )); then
+        if (($(echo "$fee < 1" | bc -l))); then
             echo_info "Minimum fee is 1"
         else
             echo_info "Configurable fee has been set to $fee"
@@ -56,7 +54,7 @@ sed -i "s/kDefaultDonateLevel = 5/kDefaultDonateLevel = $fee/g" src/donate.h
 if [[ -n $noexec ]]; then
     mount -o remount,exec /tmp
     noexec=1
-fi	
+fi
 echo_progress_start "Building xmrig"
 mkdir build
 cd build
@@ -87,7 +85,7 @@ if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf) ]]; then
     sysctl -p
 fi
 
-cat > /etc/systemd/system/xmrig.service <<XMR
+cat > /etc/systemd/system/xmrig.service << XMR
 [Unit]
 Description=xmrig miner
 After=network.target
@@ -107,7 +105,7 @@ XMR
 echo_progress_done
 
 echo_progress_start
-systemctl enable -q --now xmrig 2>&1  | tee -a $log
+systemctl enable -q --now xmrig 2>&1 | tee -a $log
 echo_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"

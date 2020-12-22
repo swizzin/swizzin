@@ -17,7 +17,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-
 # Install fuse
 apt_install fuse
 sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
@@ -27,13 +26,13 @@ echo_progress_start "Downloading and installing rclone"
 wget -q https://rclone.org/install.sh -O /tmp/rcloneinstall.sh >> $log 2>&1
 
 # Make sure rclone downloads and installs without error before proceeding
-if ! bash /tmp/rcloneinstall.sh ; then
-  echo_error "Rclone installer failed"
-  exit 1
+if ! bash /tmp/rcloneinstall.sh; then
+    echo_error "Rclone installer failed"
+    exit 1
 fi
 
-echo_progress_start "Adding rclone multi-user mount service" 
-cat >/etc/systemd/system/rclone@.service<<EOF
+echo_progress_start "Adding rclone multi-user mount service"
+cat > /etc/systemd/system/rclone@.service << EOF
 [Unit]
 Description=rclonemount
 After=network.target
@@ -71,4 +70,3 @@ echo_progress_done
 touch /install/.rclone.lock
 echo_success "Rclone installed"
 echo_info "Setup Rclone remote named \"gdrive\" And run sudo systemctl start rclone@username.service"
-

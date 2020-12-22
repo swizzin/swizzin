@@ -10,4 +10,3 @@ rm_if_exists /usr/sbin/rclone
 rm_if_exists /etc/systemd/system/rclone@.service
 rm_if_exists /usr/local/share/man/man1/rclone.1
 rm -f /install/.rclone.lock
-
