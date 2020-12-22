@@ -78,6 +78,7 @@ function _preparation() {
     apt_upgrade
     # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
     bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/setup-trimdown/scripts/update/10-dependencies.sh)
+    apt_install libcrack2-dev # TODO remove when this is merged as this is not in the file linked above and installer fails
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     if [[ $dev != "true" ]]; then
@@ -86,7 +87,7 @@ function _preparation() {
         echo_progress_done
     else
         RelativeScriptPath=$(dirname "$0")
-        if [[ ! -e /etc/swizzin ]]; then
+        if [[ ! -e /etc/swizzin ]]; then # There is no valid file or dir there
             ln -sr "$RelativeScriptPath" /etc/swizzin
             echo_info "The directory where the setup script is located is symlinked to /etc/swizzin"
         else
