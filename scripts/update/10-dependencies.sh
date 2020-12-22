@@ -12,7 +12,7 @@ for dep in $dependencies; do
 done
 
 if [[ ${missing[1]} != "" ]]; then
-    echo_info "Installing the following dependencies: ${missing[*]}"
+    echo_info "Installing missing dependencies"
     apt_install "${missing[@]}"
 else
     echo_log_only "No dependencies required to install"
