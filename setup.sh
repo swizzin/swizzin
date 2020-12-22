@@ -18,10 +18,10 @@ mkdir -p /root/logs
 touch $log
 
 echo "Pulling down some magic..."
-source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo)
-source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os)
-source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt)
-source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask)
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
+source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
 # source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
 
 if [[ $EUID -ne 0 ]]; then
@@ -65,6 +65,7 @@ _os() {
 }
 
 function _preparation() {
+    apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
     if [[ $distribution = "Ubuntu" ]]; then
         echo_progress_start "Enabling required repos"
         if ! which add-apt-repository > /dev/null; then
@@ -77,8 +78,16 @@ function _preparation() {
     fi
     apt_upgrade
     # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
-    bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/setup-trimdown/scripts/update/10-dependencies.sh)
-    apt_install libcrack2-dev # TODO remove when this is merged as this is not in the file linked above and installer fails
+    if ! bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
+        if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
+            echo_warn "We're installting off of local FS because the remote pull was broken"
+            bash /etc/swizzin/scripts/update/10-dependencies.sh
+        else
+            echo_error "Dependency installation failed."
+            exit 1
+        fi
+    fi
+    apt_install libcrack2-dev apache2-utils # TODO remove when this is merged as this is not in the file linked above and installer fails
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     if [[ $dev != "true" ]]; then
@@ -116,7 +125,7 @@ function _adduser() {
     password_check whiptail
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
     echo "$user:$pass" > /root/.master.info
-    rm /root/."$user".info # TODO Switch to some different user-tracking implementation
+    rm /root/"$user".info # TODO Switch to some different user-tracking implementation
 
     if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
         echo_log_only "No sudoers modification made"
