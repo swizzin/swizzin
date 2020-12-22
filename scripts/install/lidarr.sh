@@ -9,13 +9,8 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-if [[ -f /tmp/.install.lock ]]; then
-  log="/root/logs/install.log"
-else
-  log="/root/logs/swizzin.log"
-fi
 
-user=$(cut -d: -f1 < /root/.master.info )
+user=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 #shellcheck source=sources/functions/mono
@@ -24,18 +19,18 @@ mono_repo_setup
 apt_install libmono-cil-dev libchromaprint-tools
 
 echo_progress_done "Fetching Lidarr source files"
-wget -O /tmp/lidarr.tar.gz "$( curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4 )" >> $log 2>&1
-echo_progress_done
+wget -O /tmp/lidarr.tar.gz "$(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)" >> $log 2>&1
+echo_progress_done "Source fetched"
 
-echo_progress_start "Extracting..."
+echo_progress_start "Extracting source"
 tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
 rm -rf /tmp/lidarr.tar.gz
 chown -R "${user}": /opt/Lidarr
-echo_progress_done
+echo_progress_done "Source extracted"
 
 echo_progress_start "Creating configuration and service files"
 if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
-cat > "/home/${user}/.config/Lidarr/config.xml" <<LID
+cat > "/home/${user}/.config/Lidarr/config.xml" << LID
 <Config>
   <Port>8686</Port>
   <UrlBase>lidarr</UrlBase>
@@ -46,7 +41,7 @@ cat > "/home/${user}/.config/Lidarr/config.xml" <<LID
 </Config>
 LID
 chown -R "${user}": "/home/${user}/.config"
-cat > /etc/systemd/system/lidarr.service <<LID
+cat > /etc/systemd/system/lidarr.service << LID
 [Unit]
 Description=lidarr for ${user}
 After=syslog.target network.target
@@ -66,13 +61,13 @@ WantedBy=multi-user.target
 LID
 echo_progress_done "Services configured"
 
-  if [[ -f /install/.nginx.lock ]]; then
+if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     sleep 10
     bash /usr/local/bin/swizzin/nginx/lidarr.sh
     systemctl reload nginx
     echo_progress_done "Nginx configured"
-  fi
+fi
 
 echo_progress_start "Enabling auto-start and executing Lidarr"
 systemctl enable -q --now lidarr

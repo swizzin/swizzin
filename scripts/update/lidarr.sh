@@ -1,10 +1,10 @@
 #!/bin/bash
 if [[ -f /install/.lidarr.lock ]]; then
- 
+
     #Move old homedirectory installations to opt
-    user=$(cut -d: -f1 < /root/.master.info )
+    user=$(cut -d: -f1 < /root/.master.info)
     if [[ -d /home/$user/Lidarr ]]; then
-        echo_info "Moving Lidarr instllation to opt" 
+        echo_info "Moving Lidarr instllation to opt"
         wasActive=$(systemctl is-active lidarr)
         systemctl stop lidarr
 
