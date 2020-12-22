@@ -60,11 +60,11 @@ while test $# -gt 0; do
             export LE_HOSTNAME="$1"
             export LE_DEFAULTCONF=yes
             export LE_BOOL_CF=no
-            echo "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF" | tee -a $log
+            echo_info "Domain = $LE_HOSTNAME, Used in default nginx config = $LE_DEFAULTCONF"
             ;;
         --local)
             LOCAL=true
-            echo "Local = $LOCAL" | tee -a $log
+            echo_info "Local = $LOCAL"
             ;;
         --run-checks)
             export RUN_CHECKS=true
@@ -107,18 +107,18 @@ if [[ $unattend = "true" ]]; then
 fi
 
 if [[ ${#installArray[@]} -gt 0 ]]; then
-    echo "Application install picker will be skipped" | tee -a $log
+    echo_warn "Application install picker will be skipped"
     #check Line 229 or something
     priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
     for i in "${installArray[@]}"; do
         #shellcheck disable=SC2199,SC2076
         if [[ " ${priority[@]} " =~ " ${i} " ]]; then
             echo "$i" >> /root/results
-            echo "$i" added to install queue 1 | tee -a $log
+            echo_info "$i added to install queue 1"
             touch /tmp/."$i".lock
         else
             echo "$i" >> /root/results2
-            echo "$i" added to install queue 2 | tee -a $log
+            echo_warn "$i added to install queue 2"
         fi
     done
 fi
@@ -170,7 +170,7 @@ function _preparation() {
 
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-    if [[ $local != "true" ]]; then
+    if [[ $LOCAL != "true" ]]; then
         echo_progress_start "Cloning swizzin repo to localhost"
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo_progress_done
