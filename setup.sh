@@ -48,7 +48,6 @@ function _source_setup() {
     fi
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
-    echo " ##### Switching logs to /root/logs/swizzin.log  ##### " >> "$log"
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
     echo
