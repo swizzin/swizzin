@@ -330,6 +330,8 @@ function _install() {
 }
 
 function _post() {
+    echo
+    echo
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
     if ! grep -q -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc; then
         echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
