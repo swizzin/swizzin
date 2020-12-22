@@ -27,7 +27,8 @@ touch $log
 #shellcheck disable=SC2120
 function _source_setup() {
     # The one true dependency
-    apt-get install git -y --quiet # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
+    echo "Installing git"
+    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
 
     # if [[ $LOCAL != "true" ]]; then
     if [[ "$*" =~ '--local' ]]; then
