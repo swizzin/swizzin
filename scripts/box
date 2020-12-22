@@ -248,8 +248,10 @@ function _adduser() {
     fi
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
     if [[ -f /etc/htpasswd ]]; then
+        echo_log_only "htpasswd file exists"
         htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
     else
+        echo "creating htpasswd file???"
         htpasswd -b -c /etc/htpasswd $user $pass >> $log 2>&1
     fi
     mkdir -p /etc/htpasswd.d/
