@@ -14,7 +14,7 @@
 #
 #################################################################################
 export log=/root/logs/install.log
-mkdir /root/logs
+mkdir -p /root/logs
 touch $log
 
 echo "Pulling down some magic..."
