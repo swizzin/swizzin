@@ -77,12 +77,12 @@ function _preparation() {
         echo_progress_done
     fi
     apt_upgrade
-    # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
-    if ! bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
-        if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
-            echo_warn "We're installting off of local FS because the remote pull was broken"
-            bash /etc/swizzin/scripts/update/10-dependencies.sh
-        else
+    if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
+        echo_warn "Installing dependencies from local definitions"
+        bash /etc/swizzin/scripts/update/10-dependencies.sh
+    else
+        # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
+        if ! bash <(curl -s https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
             echo_error "Dependency installation failed."
             exit 1
         fi
