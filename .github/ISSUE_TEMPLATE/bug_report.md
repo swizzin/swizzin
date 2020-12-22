@@ -27,6 +27,7 @@ Steps to reproduce the behavior:
 ## Server Info
 **(please complete the following information):**
  - OS: (e.g. Debian 10, Ubuntu 20.04)
+ - Arch: <!-- e.g. x86_64 / 64bit / arm64, etc. -->
  - Image Source: (e.g. "Vanilla download" or "Installscript from specific provider")
 
 ## Is Swizzin up to date?
