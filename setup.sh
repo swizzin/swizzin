@@ -54,12 +54,6 @@ function _source_setup() {
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
     echo
-    # echo "Pulling down some magic..."
-    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/color_echo) || exit 1
-    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/os) || exit 1
-    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/apt) || exit 1
-    # source <(curl -sS https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/ask) || exit 1
-    # source <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/sources/functions/users) # Not necessary as it gets sourced from `globals` maybe?
 }
 _source_setup "$@"
 
