@@ -195,7 +195,7 @@ function username_check() {
             exitstatus=$?
             if [ "$exitstatus" = 1 ]; then exit 1; fi
         else
-            echo_query "Enter a name for the new user"
+            echo_query "Enter a name for the new user (CTRL+C to cancel)"
             read -r user
         fi
     fi
@@ -208,7 +208,10 @@ function username_check() {
         badUsername=true
     fi
     ## Check reserved usernames
-    if [[ $user =~ ("swizzin"|"admin"|"www-data"|"root"|"cydrex"|"sudo"|"user"|"users") ]]; then
+    badnames=("swizzin" "admin" "www-data" "root" "cydrex" "sudo" "user" "users")
+    # Reserving usernames from the names of apps in install folder
+    badnames+=($(find /etc/swizzin/scripts/install/ -type f -printf '%f\n' | cut -d. -f1))
+    if [[ " ${badnames[@]} " =~ " ${user} " ]]; then
         error_message+="$user is a not an allowed username -- please use something else.\n"
         badUsername=true
     fi
@@ -222,8 +225,7 @@ function username_check() {
         if [[ $1 = "whiptail" ]]; then
             whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
         else
-            echo_warn "$error_message. Press enter to try again"
-            read -n 1 -r
+            echo_warn "${error_message}Please try again"
         fi
         user=
         badUsername=false
