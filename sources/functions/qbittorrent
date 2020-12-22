@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function whiptail_qbittorrent() {
-    if [[ -z $QBITTORRENT_v ]]; then
+    if [[ -z $qbittorrent ]]; then
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
         repov=$(get_candidate_version qbittorrent-nox)
@@ -28,17 +28,19 @@ function whiptail_qbittorrent() {
                 ;;
         esac
         if [[ $function == "Repo" ]]; then
-            export QBITTORRENT_v=repo
+            export qbittorrent=repo
         elif [[ $function == "4.1" ]]; then
-            export QBITTORRENT_v=${latestv41}
+            export qbittorrent=${latestv41}
+        elif [[ $function == "4.2" ]]; then
+            export qbittorrent=${latestv42}
         elif [[ $function == "Latest" ]]; then
-            export QBITTORRENT_v=${latestv}
+            export qbittorrent=${latestv}
         fi
     fi
 }
 
 function build_qbittorrent() {
-    if [[ $QBITTORRENT_v == repo ]]; then
+    if [[ $qbittorrent == repo ]]; then
         apt_install qbittorrent-nox
     else
         if ! check_ram 2G; then
@@ -50,33 +52,36 @@ function build_qbittorrent() {
             mount -o remount,exec /tmp
             noexec=1
         fi
-        VERSION=${QBITTORRENT_v}
-        LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        VERSION=${qbittorrent}
+        if [[ $(lsb_release -cs) == focal && $deluge == 1.3-stable ]]; then
+            LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        else
+            LIST='build-essential pkg-config automake libtool git zlib1g-dev libssl-dev libgeoip-dev libboost-dev libboost-system-dev libboost-chrono-dev libboost-random-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+        fi
+        apt_install --no-recommends $LIST
+        cd /tmp
+        rm_if_exists "/tmp/qbittorrent"
+        wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
+        mkdir qbittorrent
+        tar -xvf release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
+        rm -rf release-${VERSION}.tar.gz
+        cd qbittorrent
+        ./configure --prefix=/usr --disable-gui >> $log 2>&1
+        make -j$(nproc) >> $log 2>&1
+        install_fpm
+        make INSTALL_ROOT=/tmp/dist/qbittorrent install > /dev/null 2>&1
+        mkdir -p /root/dist
+        fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin" > /dev/null 2>&1
+        dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb
+        cd /tmp
+        rm -rf /tmp/qbittorrent
+        if [[ -n $noexec ]]; then
+            mount -o remount,noexec /tmp
+        fi
+        if [[ $swap == "true" ]]; then
+            tmp_swap_off
+        fi
     fi
-    apt_install --no-recommends $LIST
-    cd /tmp
-    rm_if_exists "/tmp/qbittorrent"
-    wget -q https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
-    mkdir qbittorrent
-    tar -xvf release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
-    rm -rf release-${VERSION}.tar.gz
-    cd qbittorrent
-    ./configure --prefix=/usr --disable-gui >> $log 2>&1
-    make -j$(nproc) >> $log 2>&1
-    install_fpm
-    make INSTALL_ROOT=/tmp/dist/qbittorrent install > /dev/null 2>&1
-    mkdir -p /root/dist
-    fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb
-    cd /tmp
-    rm -rf /tmp/qbittorrent
-    if [[ -n $noexec ]]; then
-        mount -o remount,noexec /tmp
-    fi
-    if [[ $swap == "true" ]]; then
-        tmp_swap_off
-    fi
-
 }
 
 function qbittorrent_service() {

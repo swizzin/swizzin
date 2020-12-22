@@ -74,6 +74,8 @@ EOF
     systemctl enable -q --now rtorrent@${user} 2>> $log
 }
 
+export DEBIAN_FRONTEND=noninteractive
+
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
@@ -95,7 +97,7 @@ if [[ -n $noexec ]]; then
     noexec=1
 fi
 depends_rtorrent
-if [[ ! $RTORRENT_v == repo ]]; then
+if [[ ! $rtorrentver == repo ]]; then
     echo_progress_start "Building xmlrpc-c from source"
     build_xmlrpc-c
     echo_progress_done

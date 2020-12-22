@@ -33,7 +33,7 @@ echo_progress_done
 echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
 echo_progress_done
-if [[ ! $RTORRENT_v == repo ]]; then
+if [[ ! $rtorrentver == repo ]]; then
     echo_progress_start "Building xmlrpc-c from source ... "
     build_xmlrpc-c
     echo_progress_done

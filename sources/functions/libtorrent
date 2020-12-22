@@ -1,11 +1,29 @@
 #!/bin/bash
 
 function whiptail_libtorrent_rasterbar() {
-    if [[ -z $LIBTORRENT_v ]]; then
+    if [[ -z $libtorrent ]]; then
         repov=$(get_candidate_version libtorrent-rasterbar7)
         repov+=$(get_candidate_version libtorrent-rasterbar8)
         repov+=$(get_candidate_version libtorrent-rasterbar9)
-        if [[ ($DELUGE_v == "1.3-stable" && -n $QBITTORRENT_v) || ($DELUGE_v == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
+        if [[ -n $qbittorrent ]] && [[ $qbittorrent == "repo" ]]; then
+            qbitversion=$(get_candidate_version qbittorrent-nox)
+        elif [[ -n $qbittorrent ]]; then
+            qbitversion=$qbittorrent
+        fi
+        if [[ -n $deluge ]] && [[ $deluge == "repo" ]]; then
+            delugeversion=$(get_candidate_version deluge)
+            case $delugeversion in
+                1.3.*)
+                    delugeversion=1.3-stable
+                    ;;
+                *)
+                    delugeversion=master
+                    ;;
+            esac
+        elif [[ -n $deluge ]]; then
+            delugeversion=$deluge
+        fi
+        if [[ ($delugeversion == "1.3-stable" && -n $qbittorrent) || ($delugeversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
             case $(lsb_release -cs) in
                 "xenial" | "focal")
                     function="1.1"
@@ -17,7 +35,10 @@ function whiptail_libtorrent_rasterbar() {
                         1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
                     ;;
             esac
-        elif [[ $DELUGE_v == master ]] || [[ -n $QBITTORRENT_v ]]; then
+        elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbitversion ge 4.3.0; then
+            function="1.2"
+            echo_info "Defaulting to libtorrent branch RC_1_2 for compatibility"
+        elif [[ $delugeversion == master ]] || [[ -n $qbittorrent ]]; then
             case $(lsb_release -cs) in
                 "xenial")
                     function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -48,13 +69,13 @@ function whiptail_libtorrent_rasterbar() {
         fi
 
         if [[ $function == Repo ]]; then
-            export LIBTORRENT_v=repo
+            export libtorrent=repo
         elif [[ $function == 1.0 ]]; then
-            export LIBTORRENT_v=RC_1_0
+            export libtorrent=RC_1_0
         elif [[ $function == 1.1 ]]; then
-            export LIBTORRENT_v=RC_1_1
+            export libtorrent=RC_1_1
         elif [[ $function == 1.2 ]]; then
-            export LIBTORRENT_v=RC_1_2
+            export libtorrent=RC_1_2
         fi
         echo_log_only "Libtorrent = $libtorrent"
     fi
@@ -69,14 +90,14 @@ function whiptail_libtorrent_install_resolve_conflict() {
         "Remove Deluge" "" \
         "Remove qBittorrent" "" 3>&1 1>&2 2>&3)
     case $function in
-        "Upgrade Deluge") export DELUGE_v=master ;;
-        "Downgrade qBittorrent") export QBITTORRENT_v=4.2.5 ;;
+        "Upgrade Deluge") export deluge=master ;;
+        "Downgrade qBittorrent") export qbittorrent=4.2.5 ;;
         "Remove Deluge")
             unset deluge
             sed -i '/deluge/d' /root/results{,2}
             ;;
         "Remove qBittorrent")
-            unset QBITTORRENT_v
+            unset qbittorrent
             sed -i '/qbittorrent/d' /root/results{,2}
             ;;
     esac
@@ -86,27 +107,27 @@ function check_client_compatibility() {
     if [[ $1 == "setup" ]]; then
         setup=true
     fi
-    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $QBITTORRENT_v ]]; then
-        QBITTORRENT_v$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
-        qbitversion=$QBITTORRENT_v
-    elif [[ $QBITTORRENT_v == "repo" ]]; then
+    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
+        qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+        qbitversion=$qbittorrent
+    elif [[ $qbittorrent == "repo" ]]; then
         qbitversion=$(get_candidate_version qbittorrent-nox)
-    elif [[ -n $QBITTORRENT_v ]]; then
-        qbitversion=$QBITTORRENT_v
+    elif [[ -n $qbittorrent ]]; then
+        qbitversion=$qbittorrent
     fi
-    if [[ -f /install/.deluge.lock ]] && [[ -z $DELUGE_v ]]; then
+    if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
         dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
         case $dver in
             1.3.*)
-                DELUGE_v1.3-stable
+                deluge=1.3-stable
                 ;;
             *)
-                DELUGE_vmaster
+                deluge=master
                 ;;
         esac
     fi
-    if [[ -n $DELUGE_v && -n $QBITTORRENT_v ]]; then
-        if [[ $DELUGE_v == "1.3-stable" ]] || ([[ $DELUGE_v == "repo" && $(lsb_release -cs) =~ ("stretch"|"buster"|"xenial"|"bionic") ]]); then
+    if [[ -n $deluge && -n $qbittorrent ]]; then
+        if [[ $deluge == "1.3-stable" ]] || ([[ $deluge == "repo" && $(lsb_release -cs) =~ ("stretch"|"buster"|"xenial"|"bionic") ]]); then
             if dpkg --compare-versions ${qbitversion} ge 4.3.0; then
                 if [[ ${setup} == true ]]; then
                     whiptail_libtorrent_install_resolve_conflict
@@ -131,52 +152,47 @@ function skip_libtorrent_rasterbar() {
     elif [[ -n $SKIP_LT ]]; then
         return
     else
-        LIBTORRENT_v_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
-        if [[ -f /install/.qbittorrent.lock ]] && [[ -z $QBITTORRENT_v ]]; then
-            QBITTORRENT_v=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+        libtorrent_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
+        if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
+            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
         fi
-        if [[ -f /install/.deluge.lock ]] && [[ -z $DELUGE_v ]]; then
+        if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
             dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
             case $dver in
                 1.3.*)
-                    DELUGE_v1.3-stable
+                    deluge=1.3-stable
                     ;;
                 *)
-                    DELUGE_vmaster
+                    deluge=master
                     ;;
             esac
         fi
-        case $LIBTORRENT_v_current in
+        case $libtorrent_current in
             1.2.*)
                 if ! dpkg -s libtorrent-rasterbar | grep -q c++14; then
                     false
                     return
-                elif [[ ! $DELUGE_v == 1.3-stable ]] && whiptail_skip_libtorrent_rasterbar; then
+                elif [[ ! $deluge == 1.3-stable ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
                 ;;
             1.1.*)
-                if [[ -n $QBITTORRENT_v ]] && dpkg --compare-versions $QBITTORRENT_v ge 4.3.0; then
+                if [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
                     false
                     return
-                elif [[ $DELUGE_v == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
-                elif [[ $DELUGE_v == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
+                elif [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
                     return
-                elif [[ -z $DELUGE_v ]] && [[ -n $QBITTORRENT_v ]] && whiptail_skip_libtorrent_rasterbar; then
+                elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
                 ;;
             1.0.*)
-                if [[ -z $QBITTORRENT_v ]] && whiptail_skip_libtorrent_rasterbar; then
+                if [[ -z $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
                     return
                 fi
                 ;;
-            *)
-                echo_error "Unexpected Libtorrent version = $LIBTORRENT_v_current"
-                exit 1
-                ;;
-
         esac
     fi
     false
@@ -195,7 +211,7 @@ function build_libtorrent_rasterbar() {
     release=$(lsb_release -cs)
     . /etc/swizzin/sources/functions/fpm
 
-    if [[ $LIBTORRENT_v = "repo" ]]; then
+    if [[ $libtorrent = "repo" ]]; then
         cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
         for a in ${cleanup[@]}; do
             if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
@@ -216,8 +232,8 @@ function build_libtorrent_rasterbar() {
 
         esac
     else
-        if [[ -n $DELUGE_v ]]; then
-            dcanditate=$DELUGE_v
+        if [[ -n $deluge ]]; then
+            dcanditate=$deluge
             if [[ $dcanditate == "repo" ]]; then
                 . /etc/swizzin/sources/functions/apt
                 daptver=$(get_candidate_version deluged)
@@ -265,7 +281,7 @@ function build_libtorrent_rasterbar() {
                 dpkg -r $a > /dev/null 2>&1
             fi
         done
-        LTRC=$LIBTORRENT_v
+        LTRC=$libtorrent
         if [[ -z $LIST ]]; then
             LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev libboost-tools-dev geoip-database ${pythonapt}"
         fi
@@ -321,7 +337,7 @@ function build_libtorrent_rasterbar() {
         mkdir -p /root/dist
         fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
         dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
-        if [[ -n $DELUGE_v ]]; then
+        if [[ -n $deluge ]]; then
             echo_progress_start "Building python binding"
             PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >> "${log}" 2>&1
             fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin$tag" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
