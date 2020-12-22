@@ -48,41 +48,41 @@ while test $# -gt 0; do
         --user)
             shift
             user="$1"
-            echo "User = $user" | tee -a $log
+            echo_info "User = $user"
             ;;
         --pass)
             shift
             pass="$1"
-            echo "Pass = $pass" | tee -a $log
+            echo_info "Pass = $pass"
             ;;
         --domain)
             shift
             export LE_hostname="$1"
             export LE_defaultconf=yes
             export LE_bool_cf=no
-            echo "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf" | tee -a $log
+            echo_info "Domain = $LE_hostname, Used in default nginx config = $LE_defaultconf"
             ;;
         --local)
             local=true
-            echo "Local = $local" | tee -a $log
+            echo_info "Local = $local"
             ;;
         --run-checks)
             export RUN_CHECKS=true
-            echo "RUN_CHECKS = $RUN_CHECKS" | tee -a $log
+            echo_info "RUN_CHECKS = $RUN_CHECKS"
             ;;
         --rmgrsec)
             rmgrsec=yes
-            echo "OVH Kernel nuke = $rmgrsec" | tee -a $log
+            echo_info "OVH Kernel nuke = $rmgrsec"
             ;;
         --env)
             shift
             if [[ ! -f $1 ]]; then
-                echo "File does not exist"
+                echo_error "File does not exist"
                 exit 1
             fi
-            echo -en "Parsing env variables from $1\n--->" | tee -a $log
+            echo_info "Parsing env variables from $1\n--->"
             #shellcheck disable=SC2046
-            export $(grep -v '^#' "$1" | xargs -t -d '\n') | tee -a $log
+            export $(grep -v '^#' "$1" | xargs -t -d '\n')
             if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
             unattend=true
             ;;
@@ -90,7 +90,7 @@ while test $# -gt 0; do
             unattend=true
             ;;
         -*)
-            echo "Error: Invalid option: $1" | tee -a $log
+            echo_error "Error: Invalid option: $1"
             exit 1
             ;;
         *)
