@@ -35,9 +35,9 @@ git clone https://github.com/CouchPotato/CouchPotatoServer.git /opt/couchpotato 
 }
 chown ${user}: -R /opt/couchpotato
 chown ${user}: -R /opt/.venv/couchpotato
-mkdir -p /opt/.config/couchpotato
-chown ${user}: /opt/.config
-chown ${user}: /opt/.config/couchpotato
+mkdir -p /home/${user}/.config/couchpotato
+chown ${user}: /home/${user}/.config
+chown ${user}: /home/${user}/.config/couchpotato
 echo_progress_done "Cloned"
 
 echo_progress_start "Adding systemd service and starting"

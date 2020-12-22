@@ -23,9 +23,10 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if [[ ! $(uname -m) == "x86_64" ]]; then
-    echo -e "\033[0;31mUnsupported architecture ($(uname -m)) detected! \033[0m"
+    echo -e "\033[0;31mExperimental architecture ($(uname -m)) detected! \033[0m"
     echo
-    echo "Setup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
+    echo "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template."
+    echo "As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
     echo
     read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi

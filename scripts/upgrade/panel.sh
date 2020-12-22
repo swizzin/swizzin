@@ -8,7 +8,8 @@ if [[ -f /install/.panel.lock ]]; then
         setfacl -m g:swizzin:rx /home/*
         echo_progress_done
     fi
-    cd /opt/swizzin/swizzin
+
+    cd /opt/swizzin
     #git reset HEAD --hard
     echo_progress_start "Pulling new commits"
     git pull >> ${log} 2>&1 || { PANELRESET=1; }
@@ -22,8 +23,8 @@ if [[ -f /install/.panel.lock ]]; then
     fi
     echo_progress_done "Commits pulled"
     echo_progress_start "Checking pip for new depends"
-    if ! /opt/swizzin/venv/bin/python /opt/swizzin/swizzin/tests/test_requirements.py >> ${log} 2>&1; then
-        /opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt >> ${log} 2>&1
+    if ! /opt/.venv/swizzin/bin/python /opt/swizzin/tests/test_requirements.py >> ${log} 2>&1; then
+        /opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> ${log} 2>&1
     fi
     echo_progress_done "Depends up-to-date"
     echo_progress_start "Restarting Panel"
