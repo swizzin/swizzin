@@ -79,8 +79,9 @@ function _preparation() {
         echo_progress_done
     fi
     apt_upgrade
+
+    # Run dependency update function either from locall if available or from remote (default for end-users)
     if [[ -f /etc/swizzin/scripts/update/10-dependencies.sh ]]; then
-        # This needs to be here to allow installer dependency testing
         echo_warn "Loaded dependency list from local files"
         bash /etc/swizzin/scripts/update/10-dependencies.sh
     elif [[ -f $RelativeScriptPath/scripts/update/10-dependencies.sh ]]; then
@@ -89,11 +90,11 @@ function _preparation() {
     else
         # bash <(curl -s https://raw.githubusercontent.com/liaralabs/swizzin/master/scripts/update/0-dependencies.sh)
         if ! bash <(curl -sS https://raw.githubusercontent.com/swizzin/swizzin/master/scripts/update/10-dependencies.sh); then
-            echo_error "Dependency installation failed."
+            echo_error "Dependency installation failed, please check the output."
             exit 1
         fi
     fi
-    apt_install libcrack2-dev apache2-utils # TODO remove when this is merged as this is not in the file linked above and installer fails
+
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     if [[ $dev != "true" ]]; then
