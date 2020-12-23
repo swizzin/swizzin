@@ -71,8 +71,9 @@ function build_libtorrent_qbittorrent() {
         patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
     fi
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
-    /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=openssl variant=release link=static install --prefix=/tmp/dist/libtorrent install >> ${log} 2>&1
+    /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=openssl variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
     tag=" static with c++14 march=native"
+    mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
