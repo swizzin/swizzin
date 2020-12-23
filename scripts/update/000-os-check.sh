@@ -1,26 +1,20 @@
 #!/usr/bin/env bash
 
 warnmessage() {
-    echo_warn "We would like to express our condolences to $(_os_codename) which has reached swizzin EOL.
-You will not be receiving any new updates from this point on.
-We urge you to migrate to a supported OS if/while you still have the chance.    
-"
+    name=$(_os_codename)
+    echo_warn "${name^} is no longer a supported by swizzin.
+You will not be receiving any new updates. Swizzin will continue to run as-is.
+We URGE you to migrate to a supported release if/while you still have the chance."
 }
 
 case "$(_os_codename)" in
-    "xenial")
-        warnmessage
-        export SWIZ_GIT_CHECKOUT="eol-xenial"
-        ;;
-    "jessie")
-        warnmessage
-        export SWIZ_GIT_CHECKOUT="eol-jessie"
-        ;;
     "bionic" | "focal" | "buster" | "stretch")
         echo_log_only "OS supported"
+        # No need to do anything
         ;;
     *)
-        echo_error "Unknown OS codename $(_os_codename)\nHow the actual fuck did you do this"
-        exit 1 # TODO maybe kill a bit better?
+        warnmessage
+        SWIZ_GIT_CHECKOUT="eol-$(_os_codename)"
+        export SWIZ_GIT_CHECKOUT
         ;;
 esac
