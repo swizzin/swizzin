@@ -7,14 +7,11 @@ function whiptail_deluge() {
         case $(lsb_release -cs) in
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-                    "Repo" "(${repov})" \
                     "Deluge 1.3" "" \
                     "Deluge 2.0" "" 3>&1 1>&2 2>&3)
                 ;;
         esac
-        if [[ $function == "Repo" ]]; then
-            export deluge=repo
-        elif [[ $function == "Deluge 1.3" ]]; then
+        if [[ $function == "Deluge 1.3" ]]; then
             export deluge=1.3-stable
         elif [[ $function == "Deluge 2.0" ]]; then
             export deluge=master
@@ -76,8 +73,8 @@ function build_libtorrent_deluge() {
     cd /tmp/libtorrent
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
 
-    if [[ -f /root/libtorrent.patch ]]; then
-        patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
+    if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
     fi
     #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
     #If not enabled, Deluge may not properly reannounce on unregistered torrents.

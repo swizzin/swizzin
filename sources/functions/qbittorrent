@@ -4,8 +4,12 @@ function whiptail_qbittorrent() {
     if [[ -z $qbittorrent ]]; then
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
+<<<<<<< HEAD
         repov=$(get_candidate_version qbittorrent-nox)
         releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+=======
+        releases=$(git ls-remote -t --sort=-v:refname --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/')
+>>>>>>> Remove repo option and fix patching
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
         latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
@@ -15,21 +19,17 @@ function whiptail_qbittorrent() {
         case ${codename} in
             "xenial" | "stretch")
                 function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                    "Repo" "(${repov})" \
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 4 \
-                    "Repo" "(${repov})" \
                     "4.1" "(${latestv41})" \
                     "4.2" "(${latestv42})" \
                     "4.3" "(${latestv43})" 3>&1 1>&2 2>&3)
                 #"Latest" "(${latestv})" 3>&1 1>&2 2>&3)
                 ;;
         esac
-        if [[ $function == "Repo" ]]; then
-            export qbittorrent=repo
-        elif [[ $function == "4.1" ]]; then
+        if [[ $function == "4.1" ]]; then
             export qbittorrent=${latestv41}
         elif [[ $function == "4.2" ]]; then
             export qbittorrent=${latestv42}
@@ -67,8 +67,8 @@ function build_libtorrent_qbittorrent() {
     cd /tmp
     git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent >> ${log} 2>&1
     cd /tmp/libtorrent
-    if [[ -f /root/libtorrent.patch ]]; then
-        patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
+    if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
     fi
     VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=openssl variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
