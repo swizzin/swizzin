@@ -367,6 +367,8 @@ function booststrap() {
         cd /opt
         wget https://dl.bintray.com/boostorg/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
         tar xvf boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
-        /opt/boost_${BOOST_VERSION}/bootstrap.sh >> ${log} 2>&1
+        rm -f boost_${BOOST_VERSION}.tar.gz
+        cd ${BOOST_ROOT}
+        /opt/boost_${BOOST_VERSION}/bootstrap.sh --with-libraries=system >> ${log} 2>&1
     fi
 }

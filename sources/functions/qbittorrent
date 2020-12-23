@@ -107,13 +107,13 @@ function build_qbittorrent() {
         tar -xvf release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
         rm -rf release-${VERSION}.tar.gz
         cd qbittorrent
-        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/lib" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" LDFLAGS="${LDFLAGS} -l:libboost_system.a" CXXFLAGS="-march=native" >> $log 2>&1
+        tag=" stdc++14 march=native"
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=c++14" >> ${log} 2>&1
         make -j$(nproc) >> $log 2>&1
-        install_fpm
-        make INSTALL_ROOT=/tmp/dist/qbittorrent install > /dev/null 2>&1
+        make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
         mkdir -p /root/dist
-        fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin" > /dev/null 2>&1
-        dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb
+        fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin$tag" >> ${log} 2>&1
+        dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb >> ${log} 2>&1
         cd /tmp
         rm -rf /tmp/qbittorrent
         if [[ -n $noexec ]]; then
