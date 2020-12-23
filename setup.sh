@@ -209,12 +209,12 @@ function _intro() {
 function _adduser() {
     echo_info "Creating master user"
     echo "$user:$pass" > /root/.master.info
-    export SETUP_USER=true                                # TODO this way we skip the master check in adduser
+    export SETUP_USER=true                                # This sets whiptail in box adduser
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
-    rm /root/"$user".info                                 # TODO Switch to some different user-tracking implementation
+    rm /root/"$user".info
     unset $SETUP_USER
 
-    # if grep -q -P "^${user}\b" /etc/sudoers.d/swizzin; then #TODO this should match word exactly, because amking user test, cancaelling, and making test1 will make no sudo modifications
+    # if grep -q -w "${user}" /etc/sudoers.d/swizzin; then # TODO why is this commented out? what did this do?
     #     echo_log_only "No sudoers modification made"
     # else
     echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
@@ -228,7 +228,6 @@ function _choices() {
     packages=()
     extras=()
     guis=()
-    #locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "-" -f 2 | sort -d))
     locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota transmission)
     for i in "${locks[@]}"; do
         app=${i}
@@ -285,9 +284,8 @@ function _choices() {
         whiptail_libtorrent_rasterbar
         export SKIP_LT=True
     fi
-    # TODO this should check for anything that requires nginx instead of just rutorrent...
-    # A specific comment should be added to these installers, and if they are amongst results, should be grepped if they contain the comment or not
-    if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then
+
+    if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then # Check nginx requirement for more than rutorrent
         if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
             sed -i '1s/^/nginx\n/' /root/results
             touch /tmp/.nginx.lock
