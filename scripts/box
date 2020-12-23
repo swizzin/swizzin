@@ -122,22 +122,6 @@ function _clr() {
 
 #shellcheck disable=SC2120
 function _update() {
-    if [[ -L /etc/swizzin ]]; then
-        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
-    elif [[ -e /etc/swizzin/.dev.lock ]]; then
-        echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
-    elif [[ $1 == "--dev" ]]; then
-        echo_warn "Not updating from git due to --dev flag"
-    else
-        echo_progress_start "Updating swizzin local repository"
-        cd /etc/swizzin || exit
-        git checkout master
-        git fetch origin master
-        git reset --hard origin/master
-        echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
-        echo_progress_done "Local repository updated"
-    fi
-
     for f in /etc/swizzin/scripts/update/*; do
         bash "$f"
     done
@@ -150,7 +134,7 @@ function _upgrade() {
     for i in "${packages[@]}"; do
         app=${i}
         if [[ "${repo[*]}" =~ $i ]]; then
-            bash /usr/local/bin/swizzin/upgrade/$i.sh
+            /usr/local/bin/swizzin/upgrade/"$i".sh # Running this through `bash path/to/script.sh` prevents exits to cascade all the way up
         else
             echo_warn "Upgrade script for $i does not exist"
         fi
