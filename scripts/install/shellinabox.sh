@@ -40,6 +40,8 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/shellinabox.sh
     echo_progress_done
+else
+    echo_info "Shellinabox will run on port 4200"
 fi
 
 echo_success "Shellinabox installed"

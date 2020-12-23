@@ -104,6 +104,8 @@ SONARR
         bash /usr/local/bin/swizzin/nginx/sonarr.sh
         systemctl reload nginx
         echo_progress_done
+    else
+        echo_info "Sonarr will run on port 8989"
     fi
 }
 
