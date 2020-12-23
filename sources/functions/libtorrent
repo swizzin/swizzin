@@ -3,7 +3,7 @@
 function detect_libtorrent_rasterbar_conflict() {
     libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
     conflicting_libtorrent_packages=()
-    for lib in ${libtorrent_libnames[@]}; do
+    for lib in "${libtorrent_libnames[@]}"; do
         if dpkg -l | grep $lib && ! dpkg -l | grep $lib | grep static; then
             echo_warn "$lib has been detected but is not a static library"
             staticconflict=true
@@ -12,7 +12,7 @@ function detect_libtorrent_rasterbar_conflict() {
     done
     if [[ $staticconflict == true ]]; then
         echo_warn "Setup cannot proceed with the current task unless you agree to rebuild your libtorrent with the new build process."
-        if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (~/libtorrent.patch)."; then
+        if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch)."; then
             libtorrent_resolve_conflict
         else
             echo_info "Install will now exit"
@@ -36,7 +36,7 @@ function libtorrent_resolve_shared_conflict() {
     if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
         qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
     fi
-    apt_remove ${conflicting_libtorrent_packages[@]}
+    apt_remove "${conflicting_libtorrent_packages[@]}"
     if [[ -n $deluge ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
