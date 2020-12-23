@@ -1,0 +1,34 @@
+diff --git a/bindings/python/Jamfile b/bindings/python/Jamfile
+index 202d15398..d26baf88e 100644
+--- a/bindings/python/Jamfile
++++ b/bindings/python/Jamfile
+@@ -113,9 +113,10 @@ rule libtorrent_linking ( properties * )
+         ECHO "WARNING: you probably want to specify libtorrent-link=static rather than link=static" ;
+     }
+ 
+-    if <boost-link>static in $(properties) && <target-os>linux in $(properties)
++	local BOOST_VERSION_TAG = [ modules.peek boostcpp : BOOST_VERSION_TAG ] ;
++    if <boost-link>static in $(properties) && $(BOOST_VERSION_TAG) < 1_74 && <target-os>linux in $(properties)
+     {
+-        ECHO "WARNING: you cannot link statically against boost-python on linux, because it links against pthread statically in that case, which is not allowed" ;
++        ECHO "WARNING: you cannot link statically against boost-python on linux before version 1.74.0, because it links against pthread statically in that case, which is not allowed" ;
+     }
+ 
+ 	local boost_python_lib ;
+@@ -138,13 +139,13 @@ rule libtorrent_linking ( properties * )
+     # linux must link dynamically against boost python because it pulls
+     # in libpthread, which must be linked dynamically since we're building a .so
+     # (the static build of libpthread is not position independent)
+-    if <boost-link>shared in $(properties) || <target-os>linux in $(properties)
++    if <boost-link>shared in $(properties) || ( <target-os>linux in $(properties) && $(BOOST_VERSION_TAG) < 1_74 )
+     {
+-        result += <library>$(boost_python_lib)/<link>shared ;
++        result += <library>$(boost_python_lib)/<link>shared/<warnings>off ;
+     }
+     else
+     {
+-        result += <library>$(boost_python_lib)/<link>static ;
++        result += <library>$(boost_python_lib)/<link>static/<warnings>off ;
+     }
+ 
+     if <libtorrent-link>shared in $(properties)
