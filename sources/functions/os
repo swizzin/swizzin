@@ -2,13 +2,13 @@
 
 _os_distro() {
     source /etc/os-release
-    printf "$ID"
+    printf '%s' "$ID"
 }
 export -f _os_distro
 
 _os_codename() {
     source /etc/os-release
-    printf "$VERSION_CODENAME"
+    printf '%s' "$VERSION_CODENAME"
 }
 export -f _os_codename
 
