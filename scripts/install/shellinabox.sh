@@ -39,6 +39,7 @@ echo_progress_done "Configured and restarted"
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/shellinabox.sh
+    systemctl reload nginx
     echo_progress_done
 else
     echo_info "Shellinabox will run on port 4200"

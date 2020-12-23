@@ -51,4 +51,3 @@ ORGNGINX
 reload_php_fpm
 
 chown -R www-data:www-data /srv/organizr
-systemctl reload nginx
