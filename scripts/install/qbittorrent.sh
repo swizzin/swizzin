@@ -22,9 +22,11 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
+detect_libtorrent_rasterbar_conflict qbittorrent
 whiptail_qbittorrent
 #check_client_compatibility
 install_fpm
+check_swap_on
 
 if ! skip_libtorrent_rasterbar; then
     echo_progress_start "Building libtorrent-rasterbar"
@@ -35,6 +37,7 @@ fi
 echo_progress_start "Building qBittorrent"
 build_qbittorrent
 echo_progress_done
+check_swap_off
 
 qbittorrent_service
 for user in ${users[@]}; do

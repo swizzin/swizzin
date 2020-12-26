@@ -1,22 +1,38 @@
 #!/bin/bash
 
 function detect_libtorrent_rasterbar_conflict() {
-    libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
+    called_by=$1
+    libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar-dev)
     conflicting_libtorrent_packages=()
     for lib in "${libtorrent_libnames[@]}"; do
-        if dpkg -l | grep $lib && ! dpkg -l | grep $lib | grep static; then
+        if dpkg -l | grep $lib > /dev/null 2>&1 && ! dpkg -l | grep $lib | grep static > /dev/null 2>&1; then
             echo_warn "$lib has been detected but is not a static library"
             staticconflict=true
             conflicting_libtorrent_packages+=($lib)
         fi
     done
     if [[ $staticconflict == true ]]; then
-        echo_warn "Setup cannot proceed with the current task unless you agree to rebuild your libtorrent with the new build process."
-        if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch)."; then
+        echo_warn "Deprecated libtorrent build method detected. It is recommended that you upgrade to the new method of static libtorrent libraries."
+        if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch).
+        Your build/version options may be limited if you say no."; then
             libtorrent_resolve_conflict
         else
             echo_info "Install will now exit"
-            exit 1
+            sharedlibtorrent=true
+            for lib in "${conflicting_libtorrent_packages[@]}"; do
+                case ${lib} in
+                    libtorrent-rasterbar)
+                        libtorrentsharedversion=$(strings /usr/local/lib/libtorrent-rasterbar.so | grep libtorrent/ | cut -d/ -f2)
+                        ;;
+                    libtorrent-rasterbar[789])
+                        libtorrentsharedversion=$(get_candidate_version ${lib})
+                        ;;
+                    *)
+                        echo_error "Libtorrent version could not be determined."
+                        exit 1
+                        ;;
+                esac
+            done
         fi
     fi
 }
@@ -37,14 +53,15 @@ function libtorrent_resolve_shared_conflict() {
         qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
     fi
     apt_remove "${conflicting_libtorrent_packages[@]}"
-    if [[ -n $deluge ]]; then
+    if [[ -n $deluge && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         build_libtorrent_deluge
     fi
-    if [[ -n $qbittorrent ]]; then
+    if [[ -n $qbittorrent && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
+        whiptail_qbittorrent
         build_libtorrent_qbittorrent
         build_qbittorrent
     fi
@@ -157,7 +174,6 @@ function whiptail_skip_libtorrent_rasterbar() {
 
 function build_libtorrent_rasterbar() {
     release=$(lsb_release -cs)
-    . /etc/swizzin/sources/functions/fpm
 
     if [[ $libtorrent = "repo" ]]; then
         cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
@@ -235,7 +251,6 @@ function build_libtorrent_rasterbar() {
         fi
         apt_install $LIST
         apt_autoremove
-        install_fpm
         noexec=$(grep "/tmp" /etc/fstab | grep noexec)
         if [[ -n $noexec ]]; then
             mount -o remount,exec /tmp
