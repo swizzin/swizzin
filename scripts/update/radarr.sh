@@ -45,7 +45,7 @@ if [[ -f /install/.radarr.lock ]]; then
 
         elif [[ $(_radarr_version) = "mono-v2" ]]; then
             echo_warn "Please upgrade your radarr to v3. It will be migrated to .Net core on the next \`box update\` run"
-            echo_docs "application/radarr#migrating-to-v3-on-net-core"
+            echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
     fi
 fi
