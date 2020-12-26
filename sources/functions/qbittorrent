@@ -5,7 +5,7 @@ function whiptail_qbittorrent() {
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
         repov=$(get_candidate_version qbittorrent-nox)
-        releases=$(git ls-remote -t --sort=-v:refname --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/')
+        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
         latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
