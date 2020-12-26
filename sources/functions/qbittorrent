@@ -65,7 +65,7 @@ function build_libtorrent_qbittorrent() {
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
         patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
     fi
-    VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
+    VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=openssl variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
     tag=" static with c++14 march=native"
     mkdir -p /root/dist
@@ -82,10 +82,6 @@ function build_qbittorrent() {
     if [[ $qbittorrent == repo ]]; then
         apt_install qbittorrent-nox
     else
-        if ! check_ram 2G; then
-            swap=true
-            tmp_swap_on
-        fi
         noexec=$(grep "/tmp" /etc/fstab | grep noexec)
         if [[ -n $noexec ]]; then
             mount -o remount,exec /tmp
@@ -113,9 +109,6 @@ function build_qbittorrent() {
         rm -rf /tmp/qbittorrent
         if [[ -n $noexec ]]; then
             mount -o remount,noexec /tmp
-        fi
-        if [[ $swap == "true" ]]; then
-            tmp_swap_off
         fi
     fi
 }

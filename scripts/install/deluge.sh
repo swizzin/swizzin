@@ -33,14 +33,17 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
+detect_libtorrent_rasterbar_conflict deluge
 whiptail_deluge
 #check_client_compatibility
 install_fpm
 
 if ! skip_libtorrent_rasterbar; then
+    check_swap_on
     echo_progress_start "Building libtorrent-rasterbar"
     build_libtorrent_deluge
     echo_progress_done "Libtorrent-rasterbar installed"
+    check_swap_off
 fi
 
 build_deluge

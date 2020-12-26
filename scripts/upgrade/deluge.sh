@@ -9,6 +9,7 @@ fi
 . /etc/swizzin/sources/functions/deluge
 . /etc/swizzin/sources/functions/libtorrent
 
+detect_libtorrent_rasterbar_conflict deluge
 whiptail_deluge
 #check_client_compatibility
 whiptail_deluge_downupgrade
@@ -27,11 +28,13 @@ done
 
 echo_progress_start "Checking for outdated deluge install method."
 remove_ltcheckinstall
-install_fpm
 
+install_fpm
 if ! skip_libtorrent_rasterbar; then
+    check_swap_on
     echo_progress_start "Rebuilding libtorrent"
     build_libtorrent_deluge
+    check_swap_off
     echo_progress_done
 fi
 cleanup_deluge
