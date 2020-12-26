@@ -26,12 +26,10 @@ function _install_mango() {
 
     mkdir -p "$mangodir"
     mkdir -p "$mangodir"/library
-    wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
+    wget "${dlurl}" -O $mangodir/mango >> "$log" 2>&1 || {
         echo_error "Failed to download binary"
         exit 1
-    fi
+    }
     echo_progress_done "Binary downloaded"
 
     chmod +x $mangodir/mango
