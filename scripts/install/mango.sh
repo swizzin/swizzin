@@ -12,6 +12,7 @@ function _install_mango() {
 
     case "$(_os_arch)" in
         "arm64" | "arm32")
+            # TODO this needs the build process for amr
             dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | grep "$(_os_arch)" | cut -d\" -f 4)
             ;;
         "amd64")
