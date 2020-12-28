@@ -66,12 +66,9 @@ function depends_rtorrent() {
         apt_install $APT
     fi
 
-    # (un)rar
-    if [[ $distribution == "Debian" ]]; then
-        _rar
-    else
-        apt_install rar unrar
-    fi
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    install_rar
 
     # mktorrent from source
     cd /tmp
@@ -176,15 +173,6 @@ function build_rtorrent() {
 
 function rtorrent_apt() {
     apt_install rtorrent
-}
-
-function _rar() {
-    cd /tmp
-    wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-    tar -xzf rarlinux-x64-5.5.0.tar.gz > /dev/null 2>&1
-    cp rar/*rar /bin > /dev/null 2>&1
-    rm -rf rarlinux*.tar.gz > /dev/null 2>&1
-    rm -rf /tmp/rar > /dev/null 2>&1
 }
 
 function remove_rtorrent() {
