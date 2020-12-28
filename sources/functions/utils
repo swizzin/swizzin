@@ -2,15 +2,19 @@
 
 # Handles rar installation for all distros and architectures
 function install_rar() {
+    # Checking for unrar because that's what we really need. rar itself is quite problematic to install, but is installed whenever possible.
     if ! which unrar > /dev/null; then
         case "$(_os_distro)-$(_os_arch)" in
             "ubuntu-amd64")
                 apt_install rar unrar
                 ;;
+            "ubuntu-arm64")
+                apt_install unrar
+                ;;
             "debian-amd64")
                 dlurl="http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz"
                 ;;
-            "debian-arm64")
+            "debian-arm64") #This should _only_ really trigger raspbian
                 deburl="http://raspbian.raspberrypi.org/raspbian/pool/main/u/unrar-free/unrar-free_0.0.1+cvs20140707-4_armhf.deb"
                 ;;
             *) # Default case if needs to be compiled from source
