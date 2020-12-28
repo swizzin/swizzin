@@ -12,6 +12,11 @@ _os_codename() {
 }
 export -f _os_codename
 
+# Returns the architecture of the device as interpreted by dpkg
+# Possible output is one of the following:
+# - `amd64` # x86_64 essentially
+# - `arm64`
+# - `armhf`
 _os_arch() {
     dpkg --print-architecture
 }
