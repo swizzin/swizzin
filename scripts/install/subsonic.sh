@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-MASTER=$(cut -d: -f1 </root/.master.info)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
 
 mkdir /root/subsonic-tmp
@@ -30,20 +30,20 @@ echo_progress_start "Downloading and installing subsonic"
 current=$(wget -qO- http://www.subsonic.org/pages/download.jsp | grep -m1 .deb | cut -d'"' -f2)
 latest=$(wget -qO- http://www.subsonic.org/pages/$current | grep -m1 .deb | cut -d'"' -f2)
 wget -qO /root/subsonic-tmp/subsonic.deb $latest || {
-	echo "Could not download Subsonic. Exiting."
-	exit 1
+    echo "Could not download Subsonic. Exiting."
+    exit 1
 }
 cd /root/subsonic-tmp
-dpkg -i subsonic.deb >>"${log}" 2>&1
+dpkg -i subsonic.deb >> "${log}" 2>&1
 rm -rf /root/subsonic-tmp
 echo_progress_done "Subsonic installed"
 
 touch /install/.subsonic.lock
 
 echo_progress_start "Modifying Subsonic startup script"
-cat >/usr/share/subsonic/subsonic.sh <<SUBS
+cat > /usr/share/subsonic/subsonic.sh << SUBS
 #!/bin/sh
-MASTER=$(cut -d: -f1 </root/.master.info)
+MASTER=$(cut -d: -f1 < /root/.master.info)
 SUBSONICIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 SUBSONIC_HOME=/srv/subsonic
@@ -91,8 +91,8 @@ SUBS
 echo_progress_done
 
 echo_progress_start "Enabling Subsonic Systemd configuration"
-systemctl stop subsonic >/dev/null 2>&1
-cat >/etc/systemd/system/subsonic.service <<SUBSD
+systemctl stop subsonic > /dev/null 2>&1
+cat > /etc/systemd/system/subsonic.service << SUBSD
 [Unit]
 Description=Subsonic Sound-Server
 
@@ -115,10 +115,10 @@ systemctl enable -q --now subsonic.service 2>&1 | tee -a $log
 echo_progress_done "Started subsonic"
 
 if [[ -f /install/.nginx.lock ]]; then
-	echo_progress_start "Configuring nginx"
-	bash /usr/local/bin/swizzin/nginx/subsonic.sh
-	systemctl reload nginx
-	echo_progress_done
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/subsonic.sh
+    systemctl reload nginx
+    echo_progress_done
 fi
 
 echo_success "Subsonic installed"
