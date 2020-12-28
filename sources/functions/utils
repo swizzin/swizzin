@@ -1,18 +1,39 @@
 #!/bin/bash
 
 function install_rar() {
-    if [[ -z $(which rar) ]]; then
-        apt_install rar unrar
-    fi
-}
+    if ! which rar > /dev/null; then
+        case "$(_os_distro)-$(_os_arch)" in
+            "debian-arm64" | "ubuntu-arm64")
+                dlurl=http://archive.raspbian.org/raspbian/pool/non-free/r/rar/rar_5.5.0.orig.tar.gz
+                # TODO fix missing libraries as this is dynamically linked
+                # or something like that
+                ;;
+            "ubuntu-amd64")
+                apt_install rar unrar
+                ;;
+            "debian-amd64")
+                dlurl=http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
+                ;;
+            *)
+                echo "Rar is not supported on $(_os_distro)-$(_os_arch)"
+                exit 1
+                ;;
+        esac
 
-function _rar() {
-    cd /tmp
-    wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-    tar -xzf rarlinux-x64-5.5.0.tar.gz > /dev/null 2>&1
-    cp rar/*rar /bin > /dev/null 2>&1
-    rm -rf rarlinux*.tar.gz > /dev/null 2>&1
-    rm -rf /tmp/rar > /dev/null 2>&1
+        if [ -n "$dlurl" ]; then
+            # cd /tmp
+            echo_progress_start "Downloading rar & unrar binaries for $(_os_distro)-$(_os_arch)"
+            wget -q "$dlurl" -O /tmp/rarbins.tar.gz
+            tar -xzf /tmp/rarbins.tar.gz -C /tmp >> "$log" 2>&1
+            cp /tmp/rar/*rar /bin >> "$log" 2>&1
+            rm -rf /tmp/rarbins.tar.gz
+            rm -rf /tmp/rar
+            echo_progress_done "rar & unrar installed"
+        fi
+
+    else
+        echo_log_only "Rar seems to be installed"
+    fi
 }
 
 # Returns a password for a user in case one exists.
