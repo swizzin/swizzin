@@ -3,8 +3,8 @@
 
 users=($(_get_user_list))
 for user in ${users[@]}; do
-	systemctl disable --now -q qbittorrent@${user}
-	rm -rf /home/${user}/.config/qbittorrent
+    systemctl disable --now -q qbittorrent@${user}
+    rm -rf /home/${user}/.config/qbittorrent
 done
 rm /etc/nginx/apps/qbittorrent.conf
 rm /etc/nginx/conf.d/*.qbittorrent.conf
@@ -15,5 +15,5 @@ systemctl reload nginx
 rm /install/.qbittorrent.lock
 
 if [[ ! -f /install/.deluge.lock ]]; then
-	bash /etc/swizzin/scripts/remove/libtorrent.sh
+    bash /etc/swizzin/scripts/remove/libtorrent.sh
 fi

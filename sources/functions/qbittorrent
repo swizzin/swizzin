@@ -9,7 +9,12 @@ function whiptail_qbittorrent() {
 
 		latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
 		latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
+<<<<<<< HEAD
 		latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
+=======
+        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
+        #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
+>>>>>>> master
 
 		case ${codename} in
 			"xenial" | "stretch")
@@ -22,7 +27,8 @@ function whiptail_qbittorrent() {
 					"Repo" "(${repov})" \
 					"4.1" "(${latestv41})" \
 					"4.2" "(${latestv42})" \
-					"Latest" "(${latestv})" 3>&1 1>&2 2>&3)
+                    "4.3" "(${latestv43})" 3>&1 1>&2 2>&3)
+                #"Latest" "(${latestv})" 3>&1 1>&2 2>&3)
 				;;
 		esac
 		if [[ $function == "Repo" ]]; then
@@ -31,8 +37,10 @@ function whiptail_qbittorrent() {
 			export qbittorrent=${latestv41}
 		elif [[ $function == "4.2" ]]; then
 			export qbittorrent=${latestv42}
-		elif [[ $function == "Latest" ]]; then
-			export qbittorrent=${latestv}
+        elif [[ $function == "4.3" ]]; then
+            export qbittorrent=${latestv43}
+        #elif [[ $function == "Latest" ]]; then
+        #    export qbittorrent=${latestv}
 		fi
 	fi
 }
@@ -84,16 +92,22 @@ function build_qbittorrent() {
 
 function qbittorrent_service() {
 	if [[ ! -f /etc/systemd/system/qbittorent@.service ]]; then
+        type=simple
+        if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+            type=exec
+        fi
 		cat > /etc/systemd/system/qbittorrent@.service << EOQBS
 [Unit]
-Description=qBittorrent noX for %i
-After=network.target
+Description=qBittorrent-nox service for %i
+Documentation=man:qbittorrent-nox(1)
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Type=forking
+Type=$type
 User=%i
 Group=%i
-ExecStart=/usr/bin/qbittorrent-nox -d
+ExecStart=/usr/bin/qbittorrent-nox
 
 [Install]
 WantedBy=multi-user.target

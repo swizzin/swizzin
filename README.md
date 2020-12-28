@@ -4,7 +4,7 @@
 
 # 2.6.0 Stable
 
-[website](https://swizzin.ltd) | [docs](https://swizzin.ltd/getting-started) | [discord](https://discord.gg/bDFqAUF)
+[website](https://swizzin.ltd) \| [docs](https://swizzin.ltd/getting-started) \| [discord](https://discord.gg/bDFqAUF)
 
 Please use Discord for all community functions, [feathub](https://feathub.com/liaralabs/swizzin) for feature requests and leave issues for actual issues.
 
@@ -17,13 +17,15 @@ Box has been revamped to reduce and consolidate the amount of commands you need 
 ### Quick Start:
 
 wget
+
 ```shell
-bash <(wget -qO - git.io/swizzin)
+bash <(wget -qO - git.io/swizzin) && . ~/.bashrc
 ```
 
 curl
+
 ```shell
-bash <(curl -sL git.io/swizzin)
+bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 ```
 
 Please note that if you are running Ubuntu and choose to run the initial setup though `sudo` you should include the `-H` argument to ensure that your home directory is modified to /root when you sudo up. The installer will take care of this for you, and this should be the only time you need to specify `sudo -H` before running a swizzin command.
@@ -31,15 +33,15 @@ Please note that if you are running Ubuntu and choose to run the initial setup t
 Example:
 
 ```shell
-sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
+sudo -H su -c 'bash <(wget -qO - git.io/swizzin) && . ~/.bashrc'
 ```
 
 #### Supported Operating Systems
 
 Long-term support branches only:
 
-* Debian 9/10
-* Ubuntu 16.04/18.04/20.04
+-   Debian 9/10
+-   Ubuntu 16.04/18.04/20.04
 
 ### Support and Help
 
@@ -48,30 +50,31 @@ If you have any questions, please read the [documentation](https://swizzin.ltd/g
 Do not use GitHub issues for technical support or feature requests. GitHub issues are only to be used to report bugs and other issues with the project
 
 ### This is my box. There are many like it, but this one is mine.
+
 Box is a great tool, but it didn't quite do everything I wanted it to. That's why I've upgraded it and added a few commands intended to make your life a bit easier.
 
 Box functions:
 
-* list - list all available packages in the repo and a description, if available.
-  * Usage: `box list`
-* install - installs a package from the script repository. Accepts one or more package.
-  * Usage: `box install sickrage couchpotato plex`
-* remove - removes an installed package. Accepts one or more package
-  * Usage: `box remove sonarr radarr`
-* adduser - adds a new user. Define a single user with the command.
-  * Usage: `box adduser freeloadingfriend`
-* deluser - deletes the specified user. Define a single user with the command.
-  * Usage: `box deluser exgirlfriend`
-* chpasswd - changes the password for a user. Define a single user with the command.
-  * Usage: `box chpasswd forgetfulfriend`
-* update - use this command to update your box with the newest changes from github
-  * Usage: `box update`
-* upgrade - upgrade the given package (available scripts are in scripts/upgrade)
-  * Usage: `box upgrade nginx`
-* rmgrsec - removes grsec kernels installed by ovh
-  * Usage: `box rmgrsec`
-* rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
-  * Usage: `box rtx` or `rtx`
+-   list - list all available packages in the repo and a description, if available.
+    -   Usage: `box list`
+-   install - installs a package from the script repository. Accepts one or more package.
+    -   Usage: `box install sickrage couchpotato plex`
+-   remove - removes an installed package. Accepts one or more package
+    -   Usage: `box remove sonarr radarr`
+-   adduser - adds a new user. Define a single user with the command.
+    -   Usage: `box adduser freeloadingfriend`
+-   deluser - deletes the specified user. Define a single user with the command.
+    -   Usage: `box deluser exgirlfriend`
+-   chpasswd - changes the password for a user. Define a single user with the command.
+    -   Usage: `box chpasswd forgetfulfriend`
+-   update - use this command to update your box with the newest changes from github
+    -   Usage: `box update`
+-   upgrade - upgrade the given package (available scripts are in scripts/upgrade)
+    -   Usage: `box upgrade nginx`
+-   rmgrsec - removes grsec kernels installed by ovh
+    -   Usage: `box rmgrsec`
+-   rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
+    -   Usage: `box rtx` or `rtx`
 
 ### Feature Requests:
 

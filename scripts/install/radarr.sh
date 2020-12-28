@@ -6,28 +6,28 @@
 . /etc/swizzin/sources/functions/utils
 
 _install_radarr() {
-	apt_install curl mediainfo sqlite3
+    apt_install curl mediainfo sqlite3
 
-	radarrConfDir="/home/$radarrOwner/.config/Radarr"
-	mkdir -p "$radarrConfDir"
-	chown -R "$radarrOwner":"$radarrOwner" "$radarrConfDir"
+    radarrConfDir="/home/$radarrOwner/.config/Radarr"
+    mkdir -p "$radarrConfDir"
+    chown -R "$radarrOwner":"$radarrOwner" /home/$radarrOwner/.config
 
-	echo_progress_start "Downloading source files"
-	#curl https://api.github.com/repos/Radarr/Radarr/releases | jq -r '.[0].assets | .[] | select (.browser_download_url | contains ("linux-core")).browser_download_url'
-	if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
-		echo_error "Download failed, exiting"
-		exit 1
-	fi
-	echo_progress_done "Source downloaded"
+    echo_progress_start "Downloading source files"
+    #curl https://api.github.com/repos/Radarr/Radarr/releases | jq -r '.[0].assets | .[] | select (.browser_download_url | contains ("linux-core")).browser_download_url'
+    if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+        echo_error "Download failed, exiting"
+        exit 1
+    fi
+    echo_progress_done "Source downloaded"
 
-	echo_progress_start "Extracting archive"
-	tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
-	echo_progress_done "Archive extracted"
+    echo_progress_start "Extracting archive"
+    tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
+    echo_progress_done "Archive extracted"
 
-	touch /install/.radarr.lock
+    touch /install/.radarr.lock
 
-	echo_progress_start "Installing Systemd service"
-	cat > /etc/systemd/system/radarr.service << EOF
+    echo_progress_start "Installing Systemd service"
+    cat > /etc/systemd/system/radarr.service << EOF
 [Unit]
 Description=Radarr Daemon
 After=syslog.target network.target
@@ -55,55 +55,55 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-	chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
-	systemctl -q daemon-reload
-	systemctl enable --now -q radarr
-	sleep 1
-	echo_progress_done "Radarr service installed and enabled"
+    chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
+    systemctl -q daemon-reload
+    systemctl enable --now -q radarr
+    sleep 1
+    echo_progress_done "Radarr service installed and enabled"
 
-	if [[ -f $radarrConfDir/update_required ]]; then
-		echo_progress_start "Radarr is installing an internal upgrade..."
-		# echo "You can track the update by running \`systemctl status Radarr\`0. in another shell."
-		# echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
-		while [[ -f $radarrConfDir/update_required ]]; do
-			sleep 1
-			echo_log_only "Upgrade file is still here"
-		done
-		echo_progress_done "Upgrade finished"
-	fi
+    if [[ -f $radarrConfDir/update_required ]]; then
+        echo_progress_start "Radarr is installing an internal upgrade..."
+        # echo "You can track the update by running \`systemctl status radarr\`0. in another shell."
+        # echo "In case of errors, please press CTRL+C and run \`box remove radarr\` in this shell and check in with us in the Discord"
+        while [[ -f $radarrConfDir/update_required ]]; do
+            sleep 1
+            echo_log_only "Upgrade file is still here"
+        done
+        echo_progress_done "Upgrade finished"
+    fi
 
 }
 
 _nginx_radarr() {
-	if [[ -f /install/.nginx.lock ]]; then
-		echo_progress_start "Installing nginx configuration"
-		#TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-		sleep 10
-		bash /usr/local/bin/swizzin/nginx/radarr.sh
-		systemctl -q reload nginx
-		echo_progress_done "Nginx configured"
-	else
-		echo_info "Radarr will be available on port 7878. Secure your installation manually through the web interface."
-	fi
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Installing nginx configuration"
+        #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
+        sleep 10
+        bash /usr/local/bin/swizzin/nginx/radarr.sh
+        systemctl -q reload nginx
+        echo_progress_done "Nginx configured"
+    else
+        echo_info "Radarr will be available on port 7878. Secure your installation manually through the web interface."
+    fi
 }
 
 if [[ -z $radarrOwner ]]; then
-	radarrOwner=$(_get_master_username)
+    radarrOwner=$(_get_master_username)
 fi
 
 _install_radarr
 _nginx_radarr
 
 if [[ -f /install/.ombi.lock ]]; then
-	echo_info "Please adjust your Ombi setup accordingly"
+    echo_info "Please adjust your Ombi setup accordingly"
 fi
 
 if [[ -f /install/.tautulli.lock ]]; then
-	echo_info "Please adjust your Tautulli setup accordingly"
+    echo_info "Please adjust your Tautulli setup accordingly"
 fi
 
 if [[ -f /install/.bazarr.lock ]]; then
-	echo_info "Please adjust your Bazarr setup accordingly"
+    echo_info "Please adjust your Bazarr setup accordingly"
 fi
 
 echo_success "Radarr v3 installed"

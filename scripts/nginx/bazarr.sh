@@ -13,7 +13,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 isactive=$(systemctl is-active bazarr)
 
 if [[ $isactive == "active" ]]; then
-	systemctl stop bazarr
+    systemctl stop bazarr
 fi
 
 cat > /etc/nginx/apps/bazarr.conf << BAZN
@@ -27,7 +27,7 @@ location /bazarr {
 BAZN
 
 if ! grep -q "\[general\]" /opt/bazarr/data/config/config.ini > /dev/null 2>&1; then
-	cat >> /opt/bazarr/data/config/config.ini << BAZC
+    cat >> /opt/bazarr/data/config/config.ini << BAZC
 
 [general]
 ip = 127.0.0.1
@@ -36,5 +36,5 @@ BAZC
 fi
 
 if [[ $isactive == "active" ]]; then
-	systemctl start bazarr
+    systemctl start bazarr
 fi

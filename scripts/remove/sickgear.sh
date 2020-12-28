@@ -10,6 +10,6 @@ systemctl reload nginx
 rm -rf /opt/sickgear
 rm -rf /opt/.venv/sickgear
 if [ -z "$(ls -A /opt/.venv)" ]; then
-	rm -rf /opt/.venv
+    rm -rf /opt/.venv
 fi
 rm -f /install/.sickgear.lock

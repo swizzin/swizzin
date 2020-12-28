@@ -22,9 +22,10 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 if [[ ! $(uname -m) == "x86_64" ]]; then
-	echo -e "\033[0;31mUnsupported architecture ($(uname -m)) detected! \033[0m"
+    echo -e "\033[0;31mExperimental architecture ($(uname -m)) detected! \033[0m"
 	echo
-	echo "Setup will not be blocked; however, none of the scripts have been written with alternative archtectures in mind, nor will they be. Things may work, things may not work. Do not open issues on github if they do not."
+    echo "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template."
+    echo "As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
 	echo
 	read -rep 'By pressing enter to continue, you agree to the above statement. Press control-c to quit.'
 fi
@@ -75,7 +76,7 @@ function _preparation() {
 
 	echo "Installing dependencies"
 	# this apt-get should be checked and handled if fails, otherwise the install borks.
-	apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune >> ${log} 2>&1
+    apt-get -y install whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 >> ${log} 2>&1
 	nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
 	if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
 	echo "Cloning swizzin repo to localhost"
@@ -319,7 +320,7 @@ function _install() {
 
 function _post() {
 	ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-	echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
+    if grep -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc &> /dev/null; then true; else echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc; fi
 	#echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /home/$user/.bashrc
 	#chown ${user}: /home/$user/.profile
 	echo "Defaults    secure_path = /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin" > /etc/sudoers.d/secure_path
@@ -339,7 +340,19 @@ function _post() {
 		echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
 		echo ""
 	fi
-	echo -e "\e[1m\e[31mPlease note, certain functions may not be fully functional until your server is rebooted or you log out and back in. However you may issue the command 'source /root/.bashrc' to begin using box and related functions now\e[0m"
+    #
+    if [[ -f /var/run/reboot-required ]]; then
+        echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
+        echo
+    else
+        echo_success "You can now use the box command to manage swizzin features"
+        echo
+        echo_info "box install nginx panel"
+        echo
+        echo_docs getting-started/box-basics
+        echo
+    fi
+
 }
 
 _os

@@ -1,38 +1,38 @@
 #!/bin/bash
 
 function check_debian_backports() {
-	codename=$(lsb_release -cs)
-	if grep -q "${codename}-backports" /etc/apt/sources.list; then
-		echo_log_only "Debian ${codename} backports already enabled."
-	else
-		echo_info "Enabling Debian ${codename} backports repository"
-		echo "deb http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
-		echo "deb-src http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
-		apt_update
-	fi
+    codename=$(lsb_release -cs)
+    if grep -q "${codename}-backports" /etc/apt/sources.list; then
+        echo_log_only "Debian ${codename} backports already enabled."
+    else
+        echo_info "Enabling Debian ${codename} backports repository"
+        echo "deb http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
+        echo "deb-src http://ftp.debian.org/debian ${codename}-backports main" >> /etc/apt/sources.list
+        apt_update
+    fi
 }
 
 # Creates a backport pin for all packages in arguments
 set_packages_to_backports() {
-	codename=$(lsb_release -cs)
-	for package in "$@"; do
-		cat > /etc/apt/preferences.d/"$package" << BPO
+    codename=$(lsb_release -cs)
+    for package in "$@"; do
+        cat > /etc/apt/preferences.d/"$package" << BPO
 Package: *$package*
 Pin: release a=${codename}-backports
 Pin-Priority: 500
 BPO
-	done
+    done
 }
 
 function check_ubuntu_updates() {
-	codename=$(lsb_release -cs)
-	if grep -h "${codename}-updates" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
-		#If ${codename} updates in our sources.list or sources.list.d/* and not commented out, do nothing
-		:
-	else
-		echo "Enabling Ubuntu ${codename} recommended updates repository"
-		echo "deb http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
-		echo "#deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
-		apt_update
-	fi
+    codename=$(lsb_release -cs)
+    if grep -h "${codename}-updates" /etc/apt/sources.list{,.d/*} | grep -q -v -P '^#'; then
+        #If ${codename} updates in our sources.list or sources.list.d/* and not commented out, do nothing
+        :
+    else
+        echo "Enabling Ubuntu ${codename} recommended updates repository"
+        echo "deb http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+        echo "#deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+        apt_update
+    fi
 }

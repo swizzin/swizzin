@@ -1,70 +1,49 @@
 #! /bin/bash
 
 if [[ -f /install/.panel.lock ]]; then
-	if [[ ! -d /opt/swizzin ]]; then
-		master=$(cut -d: -f1 < /root/.master.info)
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    #shellcheck source=sources/functions/pyenv
+    . /etc/swizzin/sources/functions/pyenv
+    if [[ ! -d /opt/swizzin ]]; then
+        echo_progress_start "swizzifying the panel"
+        rm_if_exists "/srv/panel"
+        rm_if_exists "/etc/cron.d/set_interface"
+        rm_if_exists "/etc/nginx/apps/panel.conf"
 
-		apt_install python3-venv
-		mkdir -p /opt/swizzin/
-		python3 -m venv /opt/swizzin/venv
-		git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin/swizzin > /dev/null 2>&1
-		/opt/swizzin/venv/bin/pip install -r /opt/swizzin/swizzin/requirements.txt > /dev/null 2>&1
-		useradd -r swizzin > /dev/null 2>&1
-		chown -R swizzin: /opt/swizzin
-		setfacl -m g:swizzin:rx /home/*
-		mkdir -p /etc/nginx/apps
+        bash /usr/local/bin/swizzin/install/panel.sh
 
-		if [[ -f /install/.deluge.lock ]]; then
-			touch /install/.delugeweb.lock
-		fi
+        echo_progress_done "Panel has been swizzified"
+    else
+        echo_progress_start "Updating panel to latest version"
+        if [[ -d /opt/swizzin/venv ]]; then
+            echo_progress_start "Moving swizzin venv to /opt/.venv"
+            mkdir -p /opt/.venv
+            python3 -m venv /opt/.venv/swizzin
+            rm -rf /opt/swizzin/venv
+            mv /opt/swizzin/swizzin/* /opt/swizzin/swizzin/.git /opt/swizzin
+            rm_if_exists "/opt/swizzin/swizzin"
+            sed -i 's|ExecStart=.*|ExecStart=/opt/.venv/swizzin/bin/python swizzin.py|g' /etc/systemd/system/panel.service
+            sed -i 's|WorkingDirectory=.*|WorkingDirectory=/opt/swizzin|g' /etc/systemd/system/panel.service
+            systemctl daemon-reload
+            echo_progress_done "venv moved"
+        fi
+        pyminver=3.6.0
+        pyenv_version=$(/opt/.venv/swizzin/bin/python3 --version | awk '{print $2}')
 
-		if [[ $master == $(id -nu 1000) ]]; then
-			:
-		else
-			echo "ADMIN_USER = '$master'" >> /opt/swizzin/swizzin/swizzin.cfg
-		fi
+        if dpkg --compare-versions ${pyenv_version} lt ${pyminver}; then
+            rm_if_exists "/opt/.venv/swizzin"
+            pyenv_install
+            pyenv_install_version 3.8.6
+            pyenv_create_venv 3.8.6 /opt/.venv/swizzin
+            chown -R swizzin: /opt/.venv/swizzin
+        fi
 
-		if [[ -f /install/.nginx.lock ]]; then
-			echo "HOST = '127.0.0.1'" >> /opt/swizzin/swizzin/swizzin.cfg
-
-			cat > /etc/nginx/apps/panel.conf << 'EON'
-location / {
-  #rewrite ^/panel/(.*) /$1 break;
-  proxy_set_header Host $host;
-  proxy_set_header X-Real-IP $remote_addr;
-  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Host $host;
-  proxy_set_header X-Forwarded-Proto $scheme;
-  proxy_set_header Origin "";
-  proxy_pass http://127.0.0.1:8333;
-  proxy_http_version 1.1;
-  proxy_set_header Upgrade $http_upgrade;
-  proxy_set_header Connection "Upgrade";
-}
-EON
-			systemctl reload nginx
-
-		fi
-
-		cat > /etc/systemd/system/panel.service << EOS
-[Unit]
-Description=swizzin panel service
-After=nginx.service
-
-[Service]
-Type=simple
-User=swizzin
-
-ExecStart=/opt/swizzin/venv/bin/python swizzin.py
-WorkingDirectory=/opt/swizzin/swizzin
-Restart=on-failure
-TimeoutStopSec=300
-
-[Install]
-WantedBy=multi-user.target
-EOS
-
-		cat > /etc/sudoers.d/panel << EOSUD
+        bash /usr/local/bin/swizzin/upgrade/panel.sh
+        echo_progress_done
+    fi
+    if ! grep -q SYSDCMNDS /etc/sudoers.d/panel; then
+        cat > /etc/sudoers.d/panel << EOSUD
 #Defaults  env_keep -="HOME"
 Defaults:swizzin !logfile
 Defaults:swizzin !syslog
@@ -75,31 +54,8 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
-
-		rm -rf /srv/panel
-		rm -f /etc/cron.d/set_interface
-
-		systemctl enable -q --now panel
-
-	else
-		echo_progress_start "Updating panel to latest version"
-		bash /usr/local/bin/swizzin/upgrade/panel.sh
-		echo_progress_done
-	fi
-	if ! grep -q SYSDCMNDS /etc/sudoers.d/panel; then
-		cat > /etc/sudoers.d/panel << EOSUD
-#Defaults  env_keep -="HOME"
-Defaults:swizzin !logfile
-Defaults:swizzin !syslog
-Defaults:swizzin !pam_session
-
-Cmnd_Alias   CMNDS = /usr/bin/quota
-Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/systemctl restart *, /bin/systemctl disable *, /bin/systemctl enable *
-
-swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
-EOSUD
-	fi
-	if grep -q -E "swizzin.*/bin/sh" /etc/passwd; then
-		usermod swizzin -s /usr/sbin/nologin
-	fi
+    fi
+    if grep -q -E "swizzin.*/bin/sh" /etc/passwd; then
+        usermod swizzin -s /usr/sbin/nologin
+    fi
 fi

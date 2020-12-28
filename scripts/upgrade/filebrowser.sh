@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [[ ! -f /install/.filebrowser.lock ]]; then
-	echo "Filebrowser does not appear to be installed!"
-	exit 1
+    echo "Filebrowser does not appear to be installed!"
+    exit 1
 fi
 
 . /etc/swizzin/sources/functions/utils
@@ -15,9 +15,9 @@ rm -f "/home/${username}/filebrowser.tar.gz"
 chown $username: "/home/${username}/bin/filebrowser"
 chmod 700 "/home/${username}/bin/filebrowser"
 if [[ -f /home/${username}/bin/filebrowser ]]; then
-	rm /home/${username}/bin/filebrowser.bak
+    rm /home/${username}/bin/filebrowser.bak
 else
-	echo_error "Something went wrong during the upgrade, reverting changes"
-	mv /home/${username}/bin/filebrowser.bak /home/${username}/bin/filebrowser
+    echo_error "Something went wrong during the upgrade, reverting changes"
+    mv /home/${username}/bin/filebrowser.bak /home/${username}/bin/filebrowser
 fi
 systemctl try-restart filebrowser
