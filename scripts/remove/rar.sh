@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
 if check_installed rar; then
     apt_remove rar
 else
