@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Handles rar installation for all distros and architectures
 function install_rar() {
     if ! which unrar > /dev/null; then
         case "$(_os_distro)-$(_os_arch)" in
@@ -7,7 +8,7 @@ function install_rar() {
                 apt_install rar unrar
                 ;;
             "debian-amd64")
-                dlurl=http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
+                dlurl="http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz"
                 ;;
             "debian-arm64")
                 deburl="http://raspbian.raspberrypi.org/raspbian/pool/main/u/unrar-free/unrar-free_0.0.1+cvs20140707-4_armhf.deb"
@@ -24,8 +25,12 @@ function install_rar() {
                 exit 1
             }
             tar -xzf /tmp/unrarsrc.tar.gz -C /tmp >> "$log" 2>&1
-            make -C /tmp/unarsrc -f makefile
-            # install -v -m755
+            if ! make -C /tmp/unrar -f makefile >> $log 2>&1; then
+                echo_warn "Failed to compile unrar. Please investigate\nInstallation will continue"
+            else
+                install -v -m755 /tmp/unrar/unrar /usr/bin >> $log
+                echo_progress_done "Unrar compiled and installed"
+            fi
         fi
 
         if [ -n "$dlurl" ]; then
@@ -48,14 +53,16 @@ function install_rar() {
                 echo_error "Failed to download"
                 exit 1
             }
-            dpkg -i /tmp/unrar.deb
-            rm /tmp/unrar.deb
-            echo_progress_done "Unrar installed"
-            echo_warning "Rar is not available. Please make sure to install that yourself"
+            if ! dpkg -i /tmp/unrar.deb >> "$log" 2>&1; then
+                echo_warn "Failed to install unrar. Please investigate\nInstallation will continue"
+            else
+                rm /tmp/unrar.deb
+                echo_progress_done "Unrar installed"
+            fi
         fi
 
         if ! which rar > /dev/null; then
-            echo_warning "Rar is not supported on $(_os_distro)-$(_os_arch). Please install these yourself\nInstallation will continue, see if something breaks and let us know :shrug:"
+            echo_warn "Rar is not supported on $(_os_distro)-$(_os_arch). Please install these yourself\nInstallation will continue."
         fi
 
     else
