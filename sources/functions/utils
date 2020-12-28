@@ -14,10 +14,7 @@ function install_rar() {
             "debian-amd64")
                 dlurl="http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz"
                 ;;
-            "debian-arm64") #This should _only_ really trigger raspbian
-                deburl="http://raspbian.raspberrypi.org/raspbian/pool/main/u/unrar-free/unrar-free_0.0.1+cvs20140707-4_armhf.deb"
-                ;;
-            *) # Default case if needs to be compiled from source
+            *) # Default case if needs to be compiled from source, e.g. Debian-arm and Raspbian
                 srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
                 ;;
         esac
