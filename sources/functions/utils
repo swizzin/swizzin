@@ -1,29 +1,40 @@
 #!/bin/bash
 
 function install_rar() {
-    if ! which rar > /dev/null; then
+    if ! which unrar > /dev/null; then
         case "$(_os_distro)-$(_os_arch)" in
-            "debian-arm64" | "ubuntu-arm64")
-                # TODO fix missing libraries as this is dynamically linked
-                # or something like that
-                dlurl=http://archive.raspbian.org/raspbian/pool/non-free/r/rar/rar_5.5.0.orig.tar.gz
-                ;;
             "ubuntu-amd64")
                 apt_install rar unrar
                 ;;
             "debian-amd64")
                 dlurl=http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
                 ;;
-            *)
-                echo "Rar is not supported on $(_os_distro)-$(_os_arch)"
-                exit 1
+            "debian-arm64")
+                deburl="http://raspbian.raspberrypi.org/raspbian/pool/main/u/unrar-free/unrar-free_0.0.1+cvs20140707-4_armhf.deb"
+                ;;
+            *) # Default case if needs to be compiled from source
+                srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
                 ;;
         esac
+
+        if [ -n "$srcurl" ]; then
+            echo_progress_start "Compiling unrar from source"
+            wget -q "$srcurl" -O /tmp/unrarsrc.tar.gz || {
+                echo_error "Failed to download"
+                exit 1
+            }
+            tar -xzf /tmp/unrarsrc.tar.gz -C /tmp >> "$log" 2>&1
+            make -C /tmp/unarsrc -f makefile
+            # install -v -m755
+        fi
 
         if [ -n "$dlurl" ]; then
             # cd /tmp
             echo_progress_start "Downloading rar & unrar binaries for $(_os_distro)-$(_os_arch)"
-            wget -q "$dlurl" -O /tmp/rarbins.tar.gz
+            wget -q "$dlurl" -O /tmp/rarbins.tar.gz || {
+                echo_error "Failed to download"
+                exit 1
+            }
             tar -xzf /tmp/rarbins.tar.gz -C /tmp >> "$log" 2>&1
             cp /tmp/rar/*rar /bin >> "$log" 2>&1
             rm -rf /tmp/rarbins.tar.gz
@@ -31,7 +42,24 @@ function install_rar() {
             echo_progress_done "rar & unrar installed"
         fi
 
+        if [ -n "$deburl" ]; then
+            echo_progress_start "Installing unrar"
+            wget -q "$deburl" -O /tmp/unrar.deb || {
+                echo_error "Failed to download"
+                exit 1
+            }
+            dpkg -i /tmp/unrar.deb
+            rm /tmp/unrar.deb
+            echo_progress_done "Unrar installed"
+            echo_warning "Rar is not available. Please make sure to install that yourself"
+        fi
+
+        if ! which rar > /dev/null; then
+            echo_warning "Rar is not supported on $(_os_distro)-$(_os_arch). Please install these yourself\nInstallation will continue, see if something breaks and let us know :shrug:"
+        fi
+
     else
+
         echo_log_only "Rar seems to be installed"
     fi
 }
