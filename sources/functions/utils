@@ -63,9 +63,8 @@ function install_rar() {
         if ! which rar > /dev/null; then
             echo_warn "Rar is not supported on $(_os_distro)-$(_os_arch). Please install these yourself\nInstallation will continue."
         fi
-
+        touch /install/.rar.lock
     else
-
         echo_log_only "Rar seems to be installed"
     fi
 }
