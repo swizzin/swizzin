@@ -4,9 +4,9 @@ function install_rar() {
     if ! which rar > /dev/null; then
         case "$(_os_distro)-$(_os_arch)" in
             "debian-arm64" | "ubuntu-arm64")
-                dlurl=http://archive.raspbian.org/raspbian/pool/non-free/r/rar/rar_5.5.0.orig.tar.gz
                 # TODO fix missing libraries as this is dynamically linked
                 # or something like that
+                dlurl=http://archive.raspbian.org/raspbian/pool/non-free/r/rar/rar_5.5.0.orig.tar.gz
                 ;;
             "ubuntu-amd64")
                 apt_install rar unrar
