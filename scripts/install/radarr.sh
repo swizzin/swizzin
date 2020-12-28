@@ -15,7 +15,7 @@ _install_radarr() {
     echo_progress_start "Downloading source files"
     case "$(_os_arch)" in
         "amd64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" ;;
-        "arm32") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
+        "armhf") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
         "arm64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64" ;;
         *)
             echo_error "Arch not supported"
