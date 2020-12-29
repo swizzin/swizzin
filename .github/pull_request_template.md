@@ -25,22 +25,6 @@
 - Project structure <!-- major rewrites, large directory changes, etc. -->
 - Contribution flow <!-- IDE changes, `.github` dir, etc. -->
 
-## Architectures
-<!--
-Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry
-Leave empty wherever you do not know / have not tested
-✅ = Runs successfully
-⚠️ = Does not work but is handled
-❌ = Broken / not working
--->
-|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unspecified 	|
-|--------		|-------- 	|-------- 	|-------- 	|----------		|
-| Focal 		|			|			|			|				|
-| Bionic		|			|			|			|				|
-| Buster		|			|			|			|				|
-| Stretch		|			|			|			|				|
-| Raspbian  	|	N/A		|			|	N/A		|	N/A			|
-
 ### Notes
 <!-- Optional, in case you'd like to elaborate on some case in the table above -->
 
@@ -58,11 +42,28 @@ Leave empty wherever you do not know / have not tested
 ## Test scenarios
 <!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste the examples at the bottom of this section -->
 
-### Passed
+### Architectures
+<!--
+Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry
+Leave empty wherever you do not know / have not tested
+✅ = Works successfully
+❎ = Does not work but is handled gracefully
+🛠 = Still WIP
+❌ = Broken / not working
+-->
+|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unspecified 	|
+|--------		|-------- 	|-------- 	|-------- 	|----------		|
+| Focal 		|			|			|			|				|
+| Bionic		|			|			|			|				|
+| Buster		|			|			|			|				|
+| Stretch		|			|			|			|				|
+| Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
 
-### TODO
+### ✅ & ❎ Passed
 
-### Currently failing
+### 🛠 TODO
+
+### ❌ Currently failing
 
 <!-- EXAMPLES :
 - Fresh app install without nginx
