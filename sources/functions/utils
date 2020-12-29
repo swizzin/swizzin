@@ -83,10 +83,11 @@ function rm_if_exists() {
 }
 
 # Finds a random free port between a range
-#\
+# \
 # Parameters:
 # $1 = Lower bound
 # $2 = Upper bounf
+# \
 # Returns an integer
 function port() {
     LOW_BOUND=$1
