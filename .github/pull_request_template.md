@@ -56,8 +56,15 @@ Leave empty wherever you do not know / have not tested
 - [ ] I have commented my code, particularly in hard-to-understand areas
 
 ## Test scenarios
-<!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste these into the sections below.
+<!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste the examples at the bottom of this section -->
 
+### Passed
+
+### TODO
+
+### Currently failing
+
+<!-- EXAMPLES :
 - Fresh app install without nginx
     - With only one user
     - With multiple users present
@@ -76,11 +83,4 @@ Leave empty wherever you do not know / have not tested
     - Info washed
     - Content available
 -->
-### Passed
-
-### TODO
-
-### Currently failing
-
-
 
