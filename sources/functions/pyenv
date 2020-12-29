@@ -29,7 +29,7 @@ function pyenv_update() {
 
 # Install a specific version of python through `pyenv` if not yet available
 # \
-# Arguments:
+# Parameters:
 # - `$1` = The version necessary
 function pyenv_install_version() {
     version=$1
@@ -45,7 +45,7 @@ function pyenv_install_version() {
 
 # Install venv of a specific version
 # \
-# Arguments:
+# Parameters:
 # - `$1` = The version necessary
 # - `$2` = Full path of the destination to create it in
 function pyenv_create_venv() {
@@ -76,7 +76,7 @@ function python_getpip() {
 
 # Creates a `venv` with `python2`, using the right system binary
 # \
-# Arguments:
+# Parameters:
 # - `$1` = The user to install the `venv` for
 # - `$2` = The name of the app to install it for
 #    - This will create `/opt/.venv/$2` and `chown $1:` the directory
@@ -98,7 +98,7 @@ function python2_venv() {
 
 # Creates a `venv` with `python2`, using the right system binary inside of the user's home directory
 #\
-# Arguments:
+# Parameters:
 # - `$1` = The user to install the `venv` for
 # - `$2` = The name of the app to install it for
 #    - This will create `/opt/.venv/$2` and `chown $1:` the directory
@@ -119,7 +119,7 @@ function python2_home_venv() {
 }
 # Creates a `venv` with `python3`, using the right system binary
 # \
-# Arguments:
+# Parameters:
 # - `$1` = The user to install the `venv` for
 # - `$2` = The name of the app to install it for
 #    - This will create `/opt/.venv/$2` and `chown $1:` the directory

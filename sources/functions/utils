@@ -73,7 +73,7 @@ function _get_master_username() {
 
 # Removes a file or a directory in case it exists
 #\
-# Arguments:
+# Parameters:
 # $1 = Full path of directory, fath or link to remove
 function rm_if_exists() {
     path="$1"
@@ -84,7 +84,7 @@ function rm_if_exists() {
 
 # Finds a random free port between a range
 #\
-# Arguments:
+# Parameters:
 # $1 = Lower bound
 # $2 = Upper bounf
 # Returns an integer
@@ -96,7 +96,7 @@ function port() {
 
 # Checks if there is enough RAM and Swap in total
 # \
-# Arguments:
+# Parameters:
 # $1 = The amount of total space to require
 function check_ram() {
     if [[ -z $1 ]]; then

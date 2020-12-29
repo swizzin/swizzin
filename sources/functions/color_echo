@@ -45,7 +45,7 @@ export -f ring_the_bell
 # Printing this message will ring the terminal bell.
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_warn() {
     ring_the_bell
@@ -57,7 +57,7 @@ export -f echo_warn
 # Printing this message will ring the terminal bell.
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_error() {
     ring_the_bell
@@ -69,7 +69,7 @@ export -f echo_error
 # Prints an echo styled as an information block
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_info() {
     colorprint "${bold}INFO" "$1"
@@ -79,7 +79,7 @@ export -f echo_info
 # Prints an echo which points to a link in the documentation
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = a URL suffix such as `applications/panel`
 echo_docs() {
     colorprint "${cyan}${bold}DOCS" "${nc}${cyan}${italic}Further reference: ${under}https://swizzin.ltd/$1"
@@ -90,7 +90,7 @@ export -f echo_docs
 # The next echo **has** to be a `echo_progress_done`
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_progress_start() {
     colorprint "${dim}..." "$1"
@@ -100,7 +100,7 @@ export -f echo_progress_start
 # Prints the end of the progress "block"
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message (Optional, prints `Done!` by default)
 echo_progress_done() {
     if [[ -z $1 ]]; then
@@ -116,7 +116,7 @@ export -f echo_progress_done
 # Should be installed at the end of an action.
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_success() {
     colorprint "${green}${bold}SUCCESS" "$1"
@@ -128,7 +128,7 @@ export -f echo_success
 # A `read` or some other stdin reading mechanism **has** to follow, as the second line does not contain a line break.
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = Query string
 # - `$2` = Default or hint printed in parentheses on the second line before the caret.
 echo_query() {
@@ -145,7 +145,7 @@ export -f echo_query
 # Prints a message to the log, and to the log **only**
 # \
 # \
-# Arguments:
+# Parameters:
 # - `$1` = message
 echo_log_only() {
     colorprint "${cyan}LOG" "$1"
@@ -154,7 +154,7 @@ export -f echo_log_only
 
 # Formats a string with colour flags
 # \
-# Arguments:
+# Parameters:
 # - `$1` = "Heading" (Include colours and other non-printing chars here)
 # - `$2` = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
 # $log = location of the file to log into
