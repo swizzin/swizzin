@@ -50,14 +50,32 @@ Leave empty wherever you do not know / have not tested
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
 - [ ] I have commented my code, particularly in hard-to-understand areas
 
-## Testing done
-OS & Version:
+## Test scenarios
+<!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste these into the sections below.
 
-### How have you tested this
-<!-- Story time, please! -->
-Scenarios tested:
-- I ran this and it worked
-- I ran that and it didn't work
+- Fresh app install without nginx
+    - With only one user
+    - With multiple users present
+- Fresh Install with nginx present nginx
+    - With only one user
+    - With multiple users present
+- Fresh install and nginx install afterwards
+    - With only one user
+    - With multiple users present
+- Update from version in master
+- Upgrade from version in master
+- Password gets changed from `box` in app
+- User removal from `box` acting on app
+- New user in `box` gets added to app
+- Sysinfo compatibility
+    - Info washed
+    - Content available
+-->
+### Passed
+
+### TODO
+
+### Currently failing
 
 ## Other remarks
 
