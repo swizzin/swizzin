@@ -158,16 +158,20 @@ _log_uploads() {
         tmpfile="/tmp/$choice"
         for cmdbruh in "${commands[@]}"; do
             {
-                echo "#### Output of \"$cmdbruh\""
+                echo "# Output of \"$cmdbruh\""
+                echo "\`\`\`"
                 $cmdbruh
-                echo ""
+                echo "\`\`\`"
+                echo
             } >> "$tmpfile" 2>&1
         done
 
         for path in "${paths[@]}"; do
             {
-                echo "#### Content of \"$path\""
+                echo "# Content of \"$path\""
+                echo "\`\`\`"
                 cat "$path"
+                echo "\`\`\`"
                 echo ""
             } >> "$tmpfile" 2>&1
         done
