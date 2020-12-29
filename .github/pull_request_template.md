@@ -25,9 +25,6 @@
 - Project structure <!-- major rewrites, large directory changes, etc. -->
 - Contribution flow <!-- IDE changes, `.github` dir, etc. -->
 
-### Notes
-<!-- Optional, in case you'd like to elaborate on some case in the table above -->
-
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
 - [ ] Docs have been made OR are not necessary
@@ -44,10 +41,9 @@
 
 ### Architectures
 <!--
-Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry
-Leave empty wherever you do not know / have not tested
+Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry. Leave empty wherever you do not know / have not tested
 ✅ = Works successfully
-❎ = Does not work but is handled gracefully
+❎ = Does not work BUT is handled gracefully
 🛠 = Still WIP
 ❌ = Broken / not working
 -->
@@ -59,11 +55,11 @@ Leave empty wherever you do not know / have not tested
 | Stretch		|			|			|			|				|
 | Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
 
-### ✅ & ❎ Passed
+### ✅❎ Passed
 
-### 🛠 TODO
+### 🛠🛠 TODO
 
-### ❌ Currently failing
+### ❌❌ Currently failing
 
 <!-- EXAMPLES :
 - Fresh app install without nginx
