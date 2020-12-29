@@ -21,17 +21,23 @@
 - Impacts the flow of how we contribute (IDE changes, `.github` dir, etc.)
 
 ## Architectures
-<!-- In case it is impossible to handle due to some issues, please make sure to handle that case for the end-user's sexperience-->
-- `x86_64` is specifically handled as:
-    - [ ] Success
-    - [ ] Error
-    - Notes: 
-- `arm64` is specifically handled as:
-    - [ ] Success
-    - [ ] Error
-    - Notes: 
-- [ ] Changes are arch agnostic <!-- This means things like nginx/systemd/bash changes -->
-    - Notes: 
+<!--
+Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry
+Leave empty wherever you do not know / have not tested
+✅ = Runs succesfully
+⚠️ = Does not work but is handled
+❌ = Broken / not working
+-->
+|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unsepcified 	|
+|--------		|-------- 	|-------- 	|-------- 	|----------		|
+| Focal 		|			|			|			|				|
+| Bionic		|			|			|			|				|
+| Buster		|			|			|			|				|
+| Stretch		|			|			|			|				|
+| Raspbian  	|	N/A		|			|	N/A		|	N/A			|
+
+### Notes
+<!-- Optional, in case you'd like to elaborate on some case in the table above -->
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
