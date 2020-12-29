@@ -5,19 +5,19 @@
 
 <!-- This will create an expandable section. Feel free to delete this if you don't need it-->
 <details>
-<summary>Label of collapsible goes here</summarry>
+<summary>Label of collapsible goes here</summary>
 <!-- This is where you can put pictures, huge logs, or anything.-->
 </details>
 
 ## Fixes issues: 
 - Issue #nr...
-- Untracked issue...
+- Un-tracked issue...
 
 ## Proposed Changes:
 - Changed xyz...
 
 ## Change Categories
-<!-- DELTE WHICHEVER BULLET DOES NOT APPLY -->
+<!-- DELETE WHICHEVER BULLET DOES NOT APPLY -->
 - Bug fix <!-- non-breaking change which fixes an issue -->
 - New feature <!-- non-breaking change which adds functionality -->
 - Breaking change <!-- fix or feature that would cause existing functionality to not work as expected -->
@@ -29,11 +29,11 @@
 <!--
 Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry
 Leave empty wherever you do not know / have not tested
-✅ = Runs succesfully
+✅ = Runs successfully
 ⚠️ = Does not work but is handled
 ❌ = Broken / not working
 -->
-|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unsepcified 	|
+|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unspecified 	|
 |--------		|-------- 	|-------- 	|-------- 	|----------		|
 | Focal 		|			|			|			|				|
 | Bionic		|			|			|			|				|
