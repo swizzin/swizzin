@@ -16,14 +16,14 @@
 ## Proposed Changes:
 - Changed xyz...
 
-## Categories
+## Change Categories
 <!-- DELTE WHICHEVER BULLET DOES NOT APPLY -->
 - Bug fix <!-- non-breaking change which fixes an issue -->
 - New feature <!-- non-breaking change which adds functionality -->
 - Breaking change <!-- fix or feature that would cause existing functionality to not work as expected -->
-- Some existing `functions` got changed <!-- e.g. `utils`, `os`, `apt`, `ask`, etc. -->
-- Changes structure of project <!-- major rewrites, large directory changes, etc. -->
-- Impacts the flow of how we contribute <!-- IDE changes, `.github` dir, etc. -->
+- Change in `functions` <!-- e.g. `utils`, `os`, `apt`, `ask`, etc. -->
+- Project structure <!-- major rewrites, large directory changes, etc. -->
+- Contribution flow <!-- IDE changes, `.github` dir, etc. -->
 
 ## Architectures
 <!--
