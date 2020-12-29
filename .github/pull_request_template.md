@@ -3,6 +3,12 @@
 ## Description
 <!-- Any general story time goes here :) Feel free to add screenshots/recording of your change in action here-->
 
+<!-- This will create an expandable section. Feel free to delete this if you don't need it-->
+<details>
+<summary>Label of collapsible goes here</summarry>
+<!-- This is where you can put pictures, huge logs, or anything.-->
+</details>
+
 ## Fixes issues: 
 - Issue #nr...
 - Untracked issue...
