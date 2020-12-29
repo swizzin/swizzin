@@ -4,14 +4,11 @@
 <!-- Any general story time goes here :) Feel free to add screenshots/recording of your change in action here-->
 
 ## Fixes issues: 
-- Issue #420
-- Issue #69
-- ...
+- Issue #nr...
+- Untracked issue...
 
 ## Proposed Changes:
-- Change 1
-- Change 2
-- ...
+- Changed xyz...
 
 ## Categories
 <!-- DELTE WHICHEVER BULLET DOES NOT APPLY -->
