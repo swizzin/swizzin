@@ -257,7 +257,7 @@ DW
 
     echo_progress_done "Services added and started"
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Adding nginx configs"
         bash /usr/local/bin/swizzin/nginx/deluge.sh
         systemctl reload nginx
@@ -281,7 +281,7 @@ ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -n $1 ]]; then
     users=($1)
     _dconf
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         bash /etc/swizzin/scripts/nginx/deluge.sh $users
         systemctl reload nginx
     fi

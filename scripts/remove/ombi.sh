@@ -1,6 +1,6 @@
 #!/bin/bash
 systemctl disable -q --now ombi
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     rm -f /etc/nginx/apps/ombi.conf
     systemctl reload nginx
 fi

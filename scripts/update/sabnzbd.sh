@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.sabnzbd.lock ]]; then
+if islocked "sabnzbd"; then
     if [[ -f /etc/systemd/system/sabnzbd@.service ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         password=$(cut -d: -f2 < /root/.master.info)

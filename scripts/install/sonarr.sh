@@ -27,7 +27,7 @@ function _check_for_sonarr3() {
         #TODO check if unit is still masked. Unmaks it if that's the case.
     fi
 
-    if [[ -f /install/.sonarrv3.lock ]]; then
+    if islocked "sonarrv3"; then
         v3present=true
     fi
 
@@ -98,7 +98,7 @@ SONARR
     sleep 10
     echo_progress_done "Sonarr started"
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarr.sh

@@ -69,7 +69,7 @@ EOH2
 systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
 echo_progress_done "Service installed and nzbhydra started"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     sleep 15
     bash /usr/local/bin/swizzin/nginx/nzbhydra.sh

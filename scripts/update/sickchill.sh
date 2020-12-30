@@ -1,7 +1,7 @@
 #!/bin/bash
 # Update sickrage to sickchill
 
-if [[ -f /install/.sickrage.lock ]]; then
+if islocked "sickrage"; then
     echo "Updating SickRage to SickChill"
     user=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active sickrage@$user)
@@ -33,7 +33,7 @@ ExecStart=/usr/bin/python /home/%I/.sickchill/SickBeard.py -q --daemon --nolaunc
 [Install]
 WantedBy=multi-user.target
 SSS
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         rm -f /etc/nginx/apps/sickrage.conf
         cat > /etc/nginx/apps/sickchill.conf << SRC
 location /sickchill {
@@ -53,7 +53,7 @@ SRC
     mv /install/.sickrage.lock /install/.sickchill.lock
 fi
 
-if [[ -f /install/.sickchill.lock ]]; then
+if islocked "sickchill"; then
     if [[ -f /etc/systemd/system/sickchill@.service ]] || [[ -f /opt/.venv/sickchill/bin/python2 ]]; then
         . /etc/swizzin/sources/functions/pyenv
         . /etc/swizzin/sources/functions/utils

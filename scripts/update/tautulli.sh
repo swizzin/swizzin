@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.tautulli.lock ]]; then
+if islocked "tautulli"; then
     if [[ ! -d /opt/tautulli/.git ]]; then
         systemctl stop tautulli
         cd /opt/tautulli
@@ -21,7 +21,7 @@ if [[ -f /install/.tautulli.lock ]]; then
     fi
 fi
 
-if [[ -f /install/.plexpy.lock ]]; then
+if islocked "plexpy"; then
     # only update if plexpy is installed, otherwise use the app built-in updater
 
     # backup plexpy config and remove it

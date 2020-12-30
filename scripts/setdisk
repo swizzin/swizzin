@@ -86,7 +86,7 @@ function _setdisk() {
     esac
 }
 
-if [[ -f /install/.quota.lock ]]; then
+if islocked "quota"; then
     _setdisk "$1" "$2"
 else
     echo "Quota not installed"

@@ -58,7 +58,7 @@ killall -u znc znc > /dev/null 2>&1
 sleep 1
 
 # Check for LE cert, and copy it if available.
-if [[ -f /install/nginx.lock ]]; then
+if islocked "ginx"; then
     le_znc_hook
 fi
 

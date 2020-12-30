@@ -32,7 +32,7 @@ function _installRapidleech1() {
 }
 
 function _installRapidleech3() {
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/rapidleech.sh
         systemctl reload nginx

@@ -70,7 +70,7 @@ function _install() {
     sed -i "s/SecureCert=/SecureCert=\/home\/$u\/.ssl\/$u-self-signed.crt/g" /home/$u/nzbget/nzbget.conf
     sed -i "s/SecureKey=/SecureKey=\/home\/$u\/.ssl\/$u-self-signed.key/g" /home/$u/nzbget/nzbget.conf
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/nzbget.sh
         systemctl reload nginx

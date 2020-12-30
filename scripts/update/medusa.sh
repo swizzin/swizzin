@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.medusa.lock ]]; then
+if islocked "medusa"; then
     if [[ -f /etc/systemd/system/medusa@.service ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active medusa@${user})

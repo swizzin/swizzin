@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ -f /install/.ombi.lock ]]; then
+if islocked "ombi"; then
     # Change ombi service to stock one
     if [[ -f /etc/systemd/system/ombi.service ]]; then
         echo_progress_start "Moving ombi back to stock service file"
@@ -18,7 +18,7 @@ CONF
         systemctl daemon-reload
         systemctl cat ombi >> $log 2>&1
 
-        if [[ -f /install/.nginx.lock ]]; then
+        if islocked "nginx"; then
             bash /etc/swizzin/scripts/nginx/ombi.sh
             systemctl reload nginx
         fi

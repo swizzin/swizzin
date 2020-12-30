@@ -13,7 +13,7 @@ if [[ ! -f /install/.jellyfin.lock ]]; then
 fi
 #
 # Do this for jellyfin if is already installed
-if [[ -f /install/.jellyfin.lock ]]; then
+if islocked "jellyfin"; then
     systemctl -q stop jellyfin.service
     #
     reused_commands

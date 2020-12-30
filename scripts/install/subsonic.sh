@@ -125,7 +125,7 @@ chown ${MASTER}: /srv/subsonic
 systemctl enable -q --now subsonic.service 2>&1 | tee -a $log
 echo_progress_done "Started subsonic"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/subsonic.sh
     systemctl reload nginx

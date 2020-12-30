@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ -f /install/.radarr.lock ]]; then
+if islocked "radarr"; then
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/radarr
 
@@ -36,7 +36,7 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_progress_done "Service fixed and restarted"
             echo_success "Radarr upgraded to .Net"
 
-            if [[ -f /install/.nginx.lock ]]; then
+            if islocked "nginx"; then
                 echo_progress_start "Upgrading nginx config for Radarr"
                 bash /etc/swizzin/scripts/nginx/radarr.sh
                 systemctl reload nginx -q

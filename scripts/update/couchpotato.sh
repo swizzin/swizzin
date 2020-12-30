@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.couchpotato.lock ]]; then
+if islocked "couchpotato"; then
     if [[ -f /etc/systemd/system/couchpotato@.service ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)

@@ -66,7 +66,7 @@ systemctl enable -q --now headphones 2>&1 | tee -a $log
 sleep 10
 echo_progress_done "Systemd service installed"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Installing nginx config"
     bash /usr/local/bin/swizzin/nginx/headphones.sh
     systemctl reload nginx

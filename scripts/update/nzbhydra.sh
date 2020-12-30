@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.nzbhydra.lock ]]; then
+if islocked "nzbhydra"; then
     if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         codename=$(lsb_release -cs)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.znc.lock ]]; then
+if islocked "znc"; then
     . /etc/swizzin/sources/functions/letsencrypt
     le_znc_hook
     if [[ ! -s /install/.znc.lock ]]; then

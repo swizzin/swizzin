@@ -17,7 +17,7 @@ if ! grep -q roxedus.github.io /etc/apt/sources.list.d/ombi.list; then
 
     apt_update
     apt_install ombi
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         bash /etc/swizzin/scripts/nginx/ombi.sh
         systemctl reload nginx
     else

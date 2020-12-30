@@ -35,7 +35,7 @@ function _installLibreSpeed2() {
 }
 
 function _installLibreSpeed3() {
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/librespeed.sh
         systemctl reload nginx

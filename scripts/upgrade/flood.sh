@@ -28,7 +28,7 @@ for u in "${users[@]}"; do
     sed -i "s/secret: 'flood'/secret: '$salt'/g" config.js
     if [[ ! -f /install/.nginx.lock ]]; then
         sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js
-    elif [[ -f /install/.nginx.lock ]]; then
+    elif islocked "nginx"; then
         sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
         sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
     fi

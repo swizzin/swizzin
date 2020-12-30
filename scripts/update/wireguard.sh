@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.wireguard.lock ]]; then
+if islocked "wireguard"; then
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
     #Fix potential wireguard repo issues under Debian

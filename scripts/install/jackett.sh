@@ -96,7 +96,7 @@ chown ${username}.${username} -R /home/${username}/.config
 
 echo_progress_done "Jackett configured"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Installing nginx config"
     bash /usr/local/bin/swizzin/nginx/jackett.sh
     systemctl reload nginx >> $log 2>&1

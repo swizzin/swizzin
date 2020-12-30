@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.qbittorrent.lock ]]; then
+if islocked "qbittorrent"; then
     #Check systemd service for updates
     type=simple
     if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then

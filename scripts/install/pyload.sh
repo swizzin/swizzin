@@ -173,7 +173,7 @@ WantedBy=multi-user.target
 PYSD
 echo_progress_done
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/pyload.sh
     systemctl reload nginx

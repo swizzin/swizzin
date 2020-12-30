@@ -1,7 +1,7 @@
 #!/bin/bash
 # Temporary upgrade script for the panel until panel becomes more self-sufficient
 
-if [[ -f /install/.panel.lock ]]; then
+if islocked "panel"; then
     if ! dpkg -s acl > /dev/null 2>&1; then
         echo_progress_start "Modifying ACLs for swizzin group to prevent panel issues"
         apt_install acl

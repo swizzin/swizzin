@@ -9,7 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 users=($(cut -d: -f1 < /etc/htpasswd))
-if [[ -f /install/.rutorrent.lock ]]; then
+if islocked "rutorrent"; then
     cd /srv/rutorrent/plugins/
     if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
         git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi > /dev/null 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }

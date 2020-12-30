@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.quota.lock ]]; then
+if islocked "quota"; then
     if [[ ! -f /etc/sudoers.d/quota ]]; then
         cat > /etc/sudoers.d/quota << EOSUD
 #Defaults  env_keep -="HOME"

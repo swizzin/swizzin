@@ -13,7 +13,7 @@ fi
 
 for i in "${locks[@]}"; do
     app=${i}
-    if [[ -f /install/.$app.lock ]]; then
+    if islocked "$app"; then
         rm -f /etc/nginx/apps/$app.conf
     fi
 done
@@ -48,7 +48,7 @@ fi
 
 for i in "${locks[@]}"; do
     app=${i}
-    if [[ -f /install/.$app.lock ]]; then
+    if islocked "$app"; then
         echo_progress_start "Reinstalling nginx config for $app"
         /usr/local/bin/swizzin/nginx/$app.sh
         echo_progress_done

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.sickgear.lock ]]; then
+if islocked "sickgear"; then
     if [[ -f /etc/systemd/system/sickgear@.service ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active sickgear@${user})

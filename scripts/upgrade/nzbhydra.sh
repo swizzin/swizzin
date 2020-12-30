@@ -70,7 +70,7 @@ if [[ $migrate == True ]]; then
     chown -R ${username}: /opt/nzbhydra2
     echo_progress_start "Initializing NZBHydra2"
     sudo -u ${username} bash -c "cd /opt/nzbhydra2; /opt/nzbhydra2/nzbhydra2 --daemon --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile > /dev/null 2>&1"
-    #if [[ -f /install/.nginx.lock ]]; then
+    #if islocked "nginx"; then
     #    message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075/nzbhydra. Press enter once migration is complete."
     #else
     #    message="Go to nzbhydra2 (http://${ip}:5076) and follow the migration instructions. When prompted, your old NZBHydra install should be located at http://127.0.0.1:5075. Press enter once migration is complete."
@@ -139,7 +139,7 @@ Restart=always
 WantedBy=multi-user.target
 EOH2
     systemctl daemon-reload
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         bash /etc/swizzin/scripts/nginx/nzbhydra.sh
         systemctl reload nginx
     fi

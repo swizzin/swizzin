@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.headphones.lock ]]; then
+if islocked "headphones"; then
     user=$(cut -d: -f1 < /root/.master.info)
     if [[ -d /home/${user}/.headphones ]]; then
         active=$(systemctl is-active headphones)
@@ -51,7 +51,7 @@ HEADSD
         fi
     fi
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         if grep -q 'http_proxy = 1' /opt/headphones/config.ini; then
             sed -i 's/http_proxy = 1/http_proxy = 0/g' /opt/headphones/config.ini
             systemctl try-restart headphones

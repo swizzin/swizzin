@@ -15,7 +15,7 @@ _install_webmin() {
 }
 
 _install_webmin
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     bash /etc/swizzin/scripts/nginx/webmin.sh
     echo_progress_done

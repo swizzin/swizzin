@@ -93,7 +93,7 @@ sed -i "0,/username = /s/username = .*/username = ${user}/" /home/${user}/.confi
 systemctl restart sabnzbd >> ${log} 2>&1
 echo_progress_done
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring Nginx"
     bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
     systemctl reload nginx

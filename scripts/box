@@ -66,7 +66,7 @@ function _remove() {
     locks=($(find /usr/local/bin/swizzin/remove -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
     for i in "${locks[@]}"; do
         app=${i}
-        if [[ -f /install/.$app.lock ]]; then
+        if islocked "$app"; then
             removea+=("$i" '""')
         fi
     done
@@ -87,7 +87,7 @@ function _cli() {
     repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1))
     for i in "${packages[@]}"; do
         app=${i}
-        if [[ -f /install/.${app}.lock ]]; then
+        if islocked "${app}"; then
             echo_warn "Package $i already installed"
         else
             if [[ "${repo[*]}" =~ $i ]]; then
@@ -106,7 +106,7 @@ function _clr() {
     packages=("${arg[@]:1}")
     for i in "${packages[@]}"; do
         app=${i}
-        if [[ -f /install/.$app.lock ]]; then
+        if islocked "$app"; then
             schedule_remove="true"
             echo_info "Removing $i "
             bash /usr/local/bin/swizzin/remove/$i.sh
@@ -268,11 +268,11 @@ function _adduser() {
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
     chmod 750 /home/${user}
 
-    if [[ -f /install/.quota.lock ]]; then
+    if islocked "quota"; then
         setdisk "$user"
     fi
 
-    if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
+    if islocked "panel"; then setfacl -m g:swizzin:rx /home/${user}; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
     systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create >> $log 2>&1
 
@@ -283,7 +283,7 @@ function _adduser() {
             fi
         fi
 
-        if [[ -f /install/.${app}.lock ]]; then
+        if islocked "${app}"; then
             if [[ $app = "flood" ]]; then
                 /usr/local/bin/swizzin/install/${app}.sh
             else
@@ -309,7 +309,7 @@ Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl res
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         systemctl reload nginx
     fi
 
@@ -342,7 +342,7 @@ function _deluser() {
             fi
         fi
 
-        if [[ -f /install/.${app}.lock ]]; then
+        if islocked "${app}"; then
             if [[ $app = "rutorrent" ]]; then
                 rm -rf /srv/rutorrent/conf/users/${user}
                 rm -rf /srv/rutorrent/share/users/${user}
@@ -440,18 +440,18 @@ function _chpasswd() {
         sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
         systemctl start transmission@${user} >> $log 2>&1
     fi
-    if [[ -f /install/.lounge.lock ]]; then
+    if islocked "lounge"; then
         su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
     fi
-    if [[ -f /install/.mango.lock ]]; then
+    if islocked "mango"; then
         if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
         su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
     fi
-    if [[ -f /install/.organizr.lock ]]; then
+    if islocked "organizr"; then
         #TODO fix when API allows to
         echo_warn "Remember to manually change the organizr account's password!"
     fi
-    if [[ -f /install/.qbittorrent.lock ]]; then
+    if islocked "qbittorrent"; then
         . /etc/swizzin/sources/functions/qbittorrent
         qbittorrent_chpasswd ${user} ${pass}
     fi

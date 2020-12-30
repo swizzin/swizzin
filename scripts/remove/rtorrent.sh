@@ -1,7 +1,7 @@
 #!/bin/bash
 users=($(cut -d: -f1 < /etc/htpasswd))
 
-if [[ -f /install/.rutorrent.lock || -f /install/.flood.lock ]]; then
+if islocked "rutorrent.lock || -f /install/.flood"; then
     if ! ask "This will remove ruTorrent&/Flood. Continue?" Y; then
         exit 0
     fi
@@ -23,7 +23,7 @@ fi
 echo_progress_done
 
 for a in rutorrent flood; do
-    if [[ -f /install/.$a.lock ]]; then
+    if islocked "$a"; then
         /usr/local/bin/swizzin/remove/$a.sh
     fi
 done

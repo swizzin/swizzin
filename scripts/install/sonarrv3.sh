@@ -16,7 +16,7 @@ sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
 #Handles existing v2 instances
 _sonarrv2_flow() {
     v2present=false
-    if [[ -f /install/.sonarr.lock ]]; then
+    if islocked "sonarr"; then
         v2present=true
     fi
     if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
@@ -31,7 +31,7 @@ _sonarrv2_flow() {
 
         if ask "Would you like to trigger a Sonarr-side backup?" Y; then
             echo_progress_start "Backing up Sonarr v2"
-            if [[ -f /install/.nginx.lock ]]; then
+            if islocked "nginx"; then
                 address="http://127.0.0.1:8989/sonarr/api"
             else
                 address="http://127.0.0.1:8989/api"
@@ -180,7 +180,7 @@ _install_sonarrv3() {
 # }
 
 _nginx_sonarr() {
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
         echo_progress_start "Installing nginx configuration"
         sleep 10
@@ -197,15 +197,15 @@ _nginx_sonarr
 
 lock "sonarrv3"
 
-if [[ -f /install/.ombi.lock ]]; then
+if islocked "ombi"; then
     echo_info "Please adjust your Ombi setup accordingly"
 fi
 
-if [[ -f /install/.tautulli.lock ]]; then
+if islocked "tautulli"; then
     echo_info "Please adjust your Tautulli setup accordingly"
 fi
 
-if [[ -f /install/.bazarr.lock ]]; then
+if islocked "bazarr"; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 

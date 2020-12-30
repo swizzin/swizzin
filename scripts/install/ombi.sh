@@ -24,7 +24,7 @@ CONF
 }
 
 function _nginx() {
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/ombi.sh
         systemctl reload nginx

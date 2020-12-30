@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-if [[ -f /install/.jellyfin.lock ]]; then
+if islocked "jellyfin"; then
     # awaiting pull to remove
     function dist_info() {
         DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"

@@ -165,7 +165,7 @@ EOWGC
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-if [[ -f /install/.wireguard.lock ]]; then
+if islocked "wireguard"; then
     wgiface=$(cat /install/.wireguard.lock)
 fi
 if [[ -z $wgiface ]]; then
@@ -173,7 +173,7 @@ if [[ -z $wgiface ]]; then
     IFACES=($(ip link show | grep -i broadcast | grep UP | grep qlen | cut -d: -f 2 | cut -d@ -f 1 | sed -e 's/ //g'))
     #MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
     _defiface_confirm
-    if [[ -f /install/.wireguard.lock ]]; then echo $wgiface > /install/.wireguard.lock; fi
+    if islocked "wireguard"; then echo $wgiface > /install/.wireguard.lock; fi
 fi
 
 #When a new user is being installed

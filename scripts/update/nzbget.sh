@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.nzbget.lock ]]; then
+if islocked "nzbget"; then
     if grep -q "ExecStart=/home/%I/nzbget/nzbget -D" /etc/systemd/system/nzbget@.service; then
         cat > /etc/systemd/system/nzbget@.service << NZBGD
 [Unit]

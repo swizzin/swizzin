@@ -50,7 +50,7 @@ systemctl enable -q --now tautulli 2>&1 | tee -a $log
 
 echo_progress_done "Tautulli started"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     while [ ! -f /opt/tautulli/config.ini ]; do
         sleep 2

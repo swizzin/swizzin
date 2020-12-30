@@ -59,7 +59,7 @@ for u in "${users[@]}"; do
             su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
             systemctl start flood@$u
             echo_info "Flood port for $u is $port"
-        elif [[ -f /install/.nginx.lock ]]; then
+        elif islocked "nginx"; then
             bash /usr/local/bin/swizzin/nginx/flood.sh $u
             systemctl start flood@$u
         fi

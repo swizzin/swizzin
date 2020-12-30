@@ -37,7 +37,7 @@ if [[ -f /etc/nginx/apps/rutorrent.conf ]]; then
     fi
 fi
 
-if [[ -f /install/.flood.lock ]]; then
+if islocked "flood"; then
     users=($(cut -d: -f1 < /etc/htpasswd))
     for u in ${users[@]}; do
         if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then

@@ -6,7 +6,7 @@ systemctl disable --now -q mango
 rm /etc/systemd/system/mango.service
 systemctl daemon-reload -q
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     rm /etc/nginx/apps/mango.conf
     systemctl reload nginx
 fi

@@ -86,7 +86,7 @@ function update_nginx() {
         sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
     fi
 
-    if [[ -f /install/.rutorrent.lock ]]; then
+    if islocked "rutorrent"; then
         if grep -q "php" /etc/nginx/apps/rindex.conf; then
             :
         else
@@ -105,7 +105,7 @@ EOR
         fi
     fi
 
-    if [[ -f /install/.deluge.lock ]]; then
+    if islocked "deluge"; then
         if grep -q "php" /etc/nginx/apps/dindex.conf; then
             :
         else
@@ -139,4 +139,4 @@ DIN
     systemctl reload nginx
 }
 
-if [[ -f /install/.nginx.lock ]]; then update_nginx; fi
+if islocked "nginx"; then update_nginx; fi

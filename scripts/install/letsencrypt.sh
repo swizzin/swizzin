@@ -146,12 +146,12 @@ fi
 echo_progress_done "Certificate installed"
 
 # Add LE certs to ZNC, if installed.
-if [[ -f /install/.znc.lock ]]; then
+if islocked "znc"; then
     le_znc_hook
 fi
 
 # Add LE certs to VSFTPD, if installed.
-if [[ -f /install/.vsftpd.lock ]]; then
+if islocked "vsftpd"; then
     le_vsftpd_hook
     systemctl restart vsftpd
 fi

@@ -14,7 +14,7 @@ function remove_filebrowser() {
     rm -f "/home/${username}/bin/filebrowser"
     rm -rf "/home/${username}/.config/Filebrowser"
     #
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         rm -f "/etc/nginx/apps/filebrowser.conf"
         systemctl reload nginx
     fi

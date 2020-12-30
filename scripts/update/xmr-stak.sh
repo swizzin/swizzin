@@ -1,7 +1,7 @@
 #!/bin/bash
 #xmr-stak upgrade to xmrig
 
-if [[ -f /install/.xmr-stak.lock ]]; then
+if islocked "xmr-stak"; then
     if [[ ! -f /install/.xmrig.lock ]]; then
         user=$(cat /root/.master.info | cut -d: -f1)
         systemctl disable -q --now xmr >> $log 2>&1

@@ -58,7 +58,7 @@ WantedBy=multi-user.target
 LID
 echo_progress_done "Lidarr configured"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     sleep 10
     bash /usr/local/bin/swizzin/nginx/lidarr.sh

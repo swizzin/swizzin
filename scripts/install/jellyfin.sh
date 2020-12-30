@@ -110,7 +110,7 @@ chown jellyfin:root /etc/jellyfin/logging.json
 chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     bash /usr/local/bin/swizzin/nginx/jellyfin.sh
     systemctl -q restart nginx.service
 fi

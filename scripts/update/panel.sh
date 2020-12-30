@@ -1,6 +1,6 @@
 #! /bin/bash
 
-if [[ -f /install/.panel.lock ]]; then
+if islocked "panel"; then
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     #shellcheck source=sources/functions/pyenv

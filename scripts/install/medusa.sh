@@ -70,7 +70,7 @@ MSD
 systemctl enable -q --now medusa 2>&1 | tee -a $log
 echo_progress_done "Medusa started"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/medusa.sh
     systemctl reload nginx

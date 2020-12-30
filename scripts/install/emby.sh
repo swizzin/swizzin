@@ -51,7 +51,7 @@ if [[ -f /etc/emby-server.conf ]]; then
     printf "\nEMBY_USER="${username}"\nEMBY_GROUP="${username}"\n" >> /etc/emby-server.conf
 fi
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Setting up Emby nginx configuration"
     bash /usr/local/bin/swizzin/nginx/emby.sh
     systemctl reload nginx

@@ -323,7 +323,7 @@ EOF
 
     chown -R lounge: /home/lounge
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/lounge.sh
         systemctl reload nginx

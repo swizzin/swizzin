@@ -38,7 +38,7 @@ sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt"
 mkdir -p /opt/bazarr/data/config/
 echo_progress_done "Dependencies installed"
 
-if [[ -f /install/.sonarr.lock ]]; then
+if islocked "sonarr"; then
     sonarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
     sonarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
     sonarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
@@ -55,7 +55,7 @@ port = ${sonarrport}
 SONC
 fi
 
-if [[ -f /install/.radarr.lock ]]; then
+if islocked "radarr"; then
     radarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
     radarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
     radarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
@@ -73,7 +73,7 @@ port = ${radarrport}
 RADC
 fi
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     sleep 10
     bash /usr/local/bin/swizzin/nginx/bazarr.sh
     systemctl reload nginx
@@ -87,13 +87,13 @@ base_url = /
 BAZC
 fi
 
-if [[ -f /install/.sonarr.lock ]]; then
+if islocked "sonarr"; then
     echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
 else
     echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
 fi
 
-if [[ -f /install/.radarr.lock ]]; then
+if islocked "radarr"; then
     echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
 else
     echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini

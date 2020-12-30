@@ -49,7 +49,7 @@ ADC
         echo_progress_done "Autodl for $u configured"
     done
     rm /tmp/autodl-irssi.zip
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         bash /usr/local/bin/swizzin/nginx/autodl.sh
     fi
 }

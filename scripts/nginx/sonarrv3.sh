@@ -43,7 +43,7 @@ cat > /home/"$user"/.config/sonarr/config.xml << SONN
 </Config>
 SONN
 
-if [[ -f /install/.rutorrent.lock ]]; then
+if islocked "rutorrent"; then
     sqlite3 /home/"$user"/.config/sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
 fi
 

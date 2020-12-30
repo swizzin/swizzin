@@ -1,7 +1,7 @@
 #!/bin/bash
 # Nextcloud updates
 
-if [[ -f /install/.nextcloud.lock ]]; then
+if islocked "nextcloud"; then
     if ! grep -q 'set $path_info' /etc/nginx/apps/nextcloud.conf; then
         . /etc/swizzin/sources/functions/php
         phpversion=$(php_service_version)

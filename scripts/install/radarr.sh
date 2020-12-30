@@ -75,7 +75,7 @@ EOF
 }
 
 _nginx_radarr() {
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo_progress_start "Installing nginx configuration"
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
         sleep 10
@@ -94,15 +94,15 @@ fi
 _install_radarr
 _nginx_radarr
 
-if [[ -f /install/.ombi.lock ]]; then
+if islocked "ombi"; then
     echo_info "Please adjust your Ombi setup accordingly"
 fi
 
-if [[ -f /install/.tautulli.lock ]]; then
+if islocked "tautulli"; then
     echo_info "Please adjust your Tautulli setup accordingly"
 fi
 
-if [[ -f /install/.bazarr.lock ]]; then
+if islocked "bazarr"; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 

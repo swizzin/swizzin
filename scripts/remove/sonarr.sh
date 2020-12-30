@@ -34,7 +34,7 @@ function _removeSonarr() {
     fi
     sudo unlock "sonarr"
 
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         rm -f /etc/nginx/apps/sonarr.conf
         systemctl reload nginx
     fi

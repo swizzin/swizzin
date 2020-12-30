@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ -f /install/.bazarr.lock ]]; then
+if islocked "bazarr"; then
     codename=$(lsb_release -cs)
     user=$(cut -d: -f1 < /root/.master.info)
     if ! grep -q .venv /etc/systemd/system/bazarr.service; then

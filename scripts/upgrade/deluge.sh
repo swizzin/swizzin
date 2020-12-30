@@ -39,7 +39,7 @@ echo_progress_start "Upgrading Deluge. Please wait"
 build_deluge
 echo_progress_done
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Reconfiguring deluge nginx configs"
     bash /usr/local/bin/swizzin/nginx/deluge.sh
     systemctl reload nginx

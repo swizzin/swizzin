@@ -82,7 +82,7 @@ systemctl restart sickgear
 sleep 10
 echo_progress_done "Started Sickgear"
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/sickgear.sh
     systemctl reload nginx

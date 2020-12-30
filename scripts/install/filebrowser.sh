@@ -84,7 +84,7 @@ cat > "/etc/systemd/system/filebrowser.service" <<- SERVICE
 SERVICE
 #
 # Configure the nginx proxypass using positional parameters.
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     echo_progress_start "Installing nginx config"
     bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
     systemctl reload nginx

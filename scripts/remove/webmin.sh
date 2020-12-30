@@ -6,7 +6,7 @@ apt_remove webmin
 rm -rf /etc/webmin
 rm /etc/apt/sources.list.d/webmin.list
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     rm /etc/nginx/apps/webmin.conf
     systemctl reload nginx
 fi

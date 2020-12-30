@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ -f /install/.btsync.lock ]]; then
+if islocked "btsync"; then
     if [[ ! -f /etc/systemd/system/resilio-sync.service ]]; then
         active=$(systemctl is-active lounge)
         if [[ $active == "active" ]]; then

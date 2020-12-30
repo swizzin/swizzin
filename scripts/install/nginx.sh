@@ -200,7 +200,7 @@ echo_progress_done "Fancyindex installed"
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
 for i in "${locks[@]}"; do
     app=${i}
-    if [[ -f /install/.$app.lock ]]; then
+    if islocked "$app"; then
         echo_progress_start "Installing nginx config for $app"
         bash /usr/local/bin/swizzin/nginx/$app.sh
         echo_progress_done "Nginx config for $app installed"

@@ -331,11 +331,11 @@ function _post() {
     echo ""
     echo "You may now login with the following info: ${user}:${pass}"
     echo ""
-    if [[ -f /install/.nginx.lock ]]; then
+    if islocked "nginx"; then
         echo "Seedbox can be accessed at https://${user}:${pass}@${ip}"
         echo ""
     fi
-    if [[ -f /install/.deluge.lock ]]; then
+    if islocked "deluge"; then
         echo "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)"
         echo "Your deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
         echo ""

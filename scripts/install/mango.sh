@@ -123,7 +123,7 @@ _mkconf_mango
 _addusers_mango
 _mkservice_mango
 
-if [[ -f /install/.nginx.lock ]]; then
+if islocked "nginx"; then
     bash /etc/swizzin/scripts/nginx/mango.sh
 fi
 

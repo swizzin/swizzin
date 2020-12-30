@@ -13,7 +13,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ -f /install/.pyload.lock ]]; then
+if islocked "pyload"; then
     if [[ -f /etc/systemd/system/pyload@.service ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
