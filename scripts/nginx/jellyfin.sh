@@ -8,7 +8,7 @@ function reused_commands() {
 }
 #
 # Do this for jellyfin if is not already installed
-if [[ ! -f /install/.jellyfin.lock ]]; then
+if ! islocked "jellyfin"; then
     reused_commands
 fi
 #

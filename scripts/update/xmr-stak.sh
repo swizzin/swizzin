@@ -2,7 +2,7 @@
 #xmr-stak upgrade to xmrig
 
 if islocked "xmr-stak"; then
-    if [[ ! -f /install/.xmrig.lock ]]; then
+    if ! islocked "xmrig"; then
         user=$(cat /root/.master.info | cut -d: -f1)
         systemctl disable -q --now xmr >> $log 2>&1
         echo_info "Deprecated package 'xmr-stak' detected. Package 'xmr-stak' will be replaced with 'xmrig'"

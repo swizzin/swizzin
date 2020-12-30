@@ -102,7 +102,7 @@ touch "/install/.filebrowser.lock"
 # A helpful echo to the terminal.
 echo_success "FileBrowser installed"
 #
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"
 else
     echo_info "Filebrowser is now available in the panel"

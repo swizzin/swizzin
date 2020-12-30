@@ -2,7 +2,7 @@
 # Install updateplex by mrworf
 # https://github.com/mrworf/plexupdate
 
-if [[ ! -f /install/.plex.lock ]]; then
+if ! islocked "plex"; then
     echo_error "Plex doesn't appear to be installed. What do you hope to accomplish by running this script?"
     exit 1
 fi

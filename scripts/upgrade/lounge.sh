@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ ! -f /install/.lounge.lock ]]; then
+if ! islocked "lounge"; then
     echo "lounge does not appear to be installed!"
     exit 1
 fi

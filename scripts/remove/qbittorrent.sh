@@ -14,6 +14,6 @@ dpkg -r qbittorrent-nox > /dev/null 2>&1
 systemctl reload nginx
 unlock "qbittorrent"
 
-if [[ ! -f /install/.deluge.lock ]]; then
+if ! islocked "deluge"; then
     bash /etc/swizzin/scripts/remove/libtorrent.sh
 fi

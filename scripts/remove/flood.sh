@@ -10,7 +10,7 @@ for u in "${users[@]}"; do
     rm -rf /etc/nginx/conf.d/$u.flood.conf
 done
 rm -rf /etc/nginx/apps/flood.conf
-if [[ ! -f /install/.rutorrent.lock ]]; then
+if ! islocked "rutorrent"; then
     rm -rf /etc/nginx/apps/rindex.conf
     rm -f /etc/nginx/apps/${u}.scgi.conf
 fi

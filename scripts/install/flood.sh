@@ -2,7 +2,7 @@
 # Flood for rtorrent installation script for swizzin
 # Author: liara
 
-if [[ ! -f /install/.rtorrent.lock ]]; then
+if ! islocked "rtorrent"; then
     echo_error "Flood is a GUI for rTorrent, which doesn't appear to be installed. Exiting."
     exit 1
 fi
@@ -49,13 +49,13 @@ for u in "${users[@]}"; do
         sed -i "s/socket: false/socket: true/g" config.js
         sed -i "s/socketPath.*/socketPath: '\/var\/run\/${u}\/.rtorrent.sock'/g" config.js
         sed -i "s/secret: 'flood'/secret: '$salt'/g" config.js
-        if [[ ! -f /install/.nginx.lock ]]; then
+        if ! islocked "nginx"; then
             sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js
         fi
         echo_progress_start "Building Flood for $u. This might take some time..."
         su - $u -c "cd /home/$u/.flood; npm install" >> $log 2>&1
         echo_progress_done "Flood built for $u"
-        if [[ ! -f /install/.nginx.lock ]]; then
+        if ! islocked "nginx"; then
             su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
             systemctl start flood@$u
             echo_info "Flood port for $u is $port"

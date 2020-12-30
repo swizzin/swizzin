@@ -18,7 +18,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "Web server not detected. Please install nginx and restart panel install."
     exit 1
 fi

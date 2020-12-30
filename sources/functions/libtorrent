@@ -146,7 +146,7 @@ You can resolve this error with one of the following actions:
 }
 
 function skip_libtorrent_rasterbar() {
-    if [[ ! -f /install/.libtorrent.lock ]]; then
+    if ! islocked "libtorrent"; then
         false
         return
     elif [[ -n $SKIP_LT ]]; then
@@ -355,5 +355,5 @@ function build_libtorrent_rasterbar() {
             mount -o remount,noexec /tmp
         fi
     fi
-    if [[ ! -f /install/.libtorrent.lock ]]; then lock "libtorrent"; fi
+    if ! islocked "libtorrent"; then lock "libtorrent"; fi
 }

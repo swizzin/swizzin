@@ -26,7 +26,7 @@ for u in "${users[@]}"; do
     sed -i "s/socket: false/socket: true/g" config.js
     sed -i "s/socketPath.*/socketPath: '\/var\/run\/${u}\/.rtorrent.sock'/g" config.js
     sed -i "s/secret: 'flood'/secret: '$salt'/g" config.js
-    if [[ ! -f /install/.nginx.lock ]]; then
+    if ! islocked "nginx"; then
         sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js
     elif islocked "nginx"; then
         sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js

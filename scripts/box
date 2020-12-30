@@ -44,7 +44,7 @@ function _install() {
     locks=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
     for i in "${locks[@]}"; do
         app=${i}
-        if [[ ! -f /install/.$app.lock ]]; then
+        if ! islocked "$app"; then
             installa+=("$i" '""')
         fi
     done
@@ -279,7 +279,7 @@ function _adduser() {
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
-                if [[ ! -f /install/.rutorrent.lock ]]; then lock "rutorrent"; fi
+                if ! islocked "rutorrent"; then lock "rutorrent"; fi
             fi
         fi
 
@@ -338,7 +338,7 @@ function _deluser() {
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
-                if [[ ! -f /install/.rutorrent.lock ]]; then lock "rutorrent"; fi
+                if ! islocked "rutorrent"; then lock "rutorrent"; fi
             fi
         fi
 

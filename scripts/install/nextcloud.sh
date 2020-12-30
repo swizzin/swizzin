@@ -15,7 +15,7 @@
 
 inst=$(which mysql)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "Web server not detected. Please install nginx and restart panel install."
     exit 1
 else

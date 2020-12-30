@@ -215,7 +215,7 @@ function _choices() {
     locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
     for i in "${locks[@]}"; do
         app=${i}
-        if [[ ! -f /install/.$app.lock ]]; then
+        if ! islocked "$app"; then
             packages+=("$i" '""')
         fi
     done
@@ -238,7 +238,7 @@ function _choices() {
         gui=(rutorrent flood)
         for i in "${gui[@]}"; do
             app=${i}
-            if [[ ! -f /install/.$app.lock ]]; then
+            if ! islocked "$app"; then
                 guis+=("$i" '""')
             fi
         done

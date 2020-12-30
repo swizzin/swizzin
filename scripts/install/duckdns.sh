@@ -83,7 +83,7 @@ if [ "$response" != "OK" ]; then
 else
     echo_progress_done
     echo_success "Duck DNS setup succesfully completed!"
-    if [[ ! -f /install/.nginx.lock ]]; then
+    if ! islocked "nginx"; then
         echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
     fi
     lock "duckdns"

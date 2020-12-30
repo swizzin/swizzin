@@ -2,7 +2,7 @@
 # rtorrent upgrade/downgrade/reinstall script
 # Author: liara
 
-if [[ ! -f /install/.rtorrent.lock ]]; then
+if ! islocked "rtorrent"; then
     echo_error "rTorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
     exit 1
 fi

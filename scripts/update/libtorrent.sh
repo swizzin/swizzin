@@ -4,7 +4,7 @@
 # Copyright (c) swizzin 2018
 
 if islocked "deluge"; then
-    if [[ ! -f /install/.libtorrent.lock ]]; then
+    if ! islocked "libtorrent"; then
         lock "libtorrent"
     fi
 fi

@@ -10,7 +10,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "This script is meant to be used in conjunction with nginx and it has not been installed. Please install nginx first and restart this installer."
     exit 1
 fi

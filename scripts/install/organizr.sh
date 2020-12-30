@@ -1,7 +1,7 @@
 #!/bin/bash
 # organizr installation wrapper
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "nginx does not appear to be installed, organizr requires a webserver to function. Please install nginx first before installing this package."
     exit 1
 fi

@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ ! -f /install/.ombi.lock ]]; then
+if ! islocked "ombi"; then
     echo_error "Ombi not installed"
     exit 1
 fi

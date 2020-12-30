@@ -9,7 +9,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
     exit 1
 fi
@@ -257,7 +257,7 @@ users=($(_get_user_list))
 codename=$(lsb_release -cs)
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
-if [[ ! -f /install/.rutorrent.lock ]]; then
+if ! islocked "rutorrent"; then
     rutorrent_install
 fi
 rutorrent_nginx_config

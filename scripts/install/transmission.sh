@@ -182,7 +182,7 @@ _mkconf_transmission() {
 }
 EOF
     echo_progress_done "Config created"
-    if [[ ! -f /install/.nginx.lock ]]; then
+    if ! islocked "nginx"; then
         echo_info "Transmission RPC port for ${bold}${user} = ${rpc_port}"
     fi
 }

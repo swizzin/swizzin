@@ -1,7 +1,7 @@
 #!/bin/bash
 # Deluge upgrade/downgrade/reinstall script
 # Author: liara
-if [[ ! -f /install/.deluge.lock ]]; then
+if ! islocked "deluge"; then
     echo_error "Deluge doesn't appear to be installed. What do you hope to accomplish by running this script?"
     exit 1
 fi

@@ -2,7 +2,7 @@
 # Librespeed installer for swizzin
 # Author: hwcltjn
 
-if [[ ! -f /install/.nginx.lock ]]; then
+if ! islocked "nginx"; then
     echo_error "Web server not detected. Please install nginx and restart panel install."
     exit 1
 fi
