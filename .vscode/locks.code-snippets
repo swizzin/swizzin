@@ -29,9 +29,9 @@
     },
     "List installed apps": {
         "scope": "shellcheck",
-        "prefix": "unlock",
-        "body": "unlock ${1:app}",
-        "description": "Removes a lock for an application"
+        "prefix": "locklist",
+        "body": "locklist",
+        "description": "Lists all applications by linebreaks"
     },
     "Is app installed": {
         "scope": "shellcheck",
