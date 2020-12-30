@@ -11,4 +11,4 @@ done
 
 rm /etc/systemd/system/nzbget@.service
 rm /etc/nginx/apps/nzbget.conf
-rm /install/.nzbget.lock
+unlock "nzbget"

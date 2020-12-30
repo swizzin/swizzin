@@ -28,4 +28,4 @@ for a in rutorrent flood; do
     fi
 done
 rm /etc/systemd/system/rtorrent@.service
-rm /install/.rtorrent.lock
+unlock "rtorrent"

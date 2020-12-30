@@ -11,4 +11,4 @@ fi
 rm /etc/systemd/system/sabnzbd.service
 rm -f /etc/nginx/apps/sabnzbd.conf
 systemctl reload nginx
-rm /install/.sabnzbd.lock
+unlock "sabnzbd"

@@ -31,8 +31,8 @@ fi
 
 rm -rf /usr/lib/python2.7/dist-packages/deluge*
 
-rm /install/.deluge.lock
-rm /install/.delugeweb.lock
+unlock "deluge"
+unlock "delugeweb"
 
 if [[ ! -f /install/.qbittorrent.lock ]]; then
     bash /etc/swizzin/scripts/remove/libtorrent.sh

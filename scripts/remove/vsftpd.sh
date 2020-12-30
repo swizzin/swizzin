@@ -4,4 +4,4 @@
 apt_remove vsftpd
 rm /etc/vsftpd.conf
 
-rm /install/.vsftpd.lock
+unlock "vsftpd"

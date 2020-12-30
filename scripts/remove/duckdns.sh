@@ -13,4 +13,4 @@ echo_progress_done
 rm -rf /opt/duckdns
 crontab -l | grep -v '/opt/duckdns' | crontab -
 
-rm /install/.duckdns.lock
+unlock "duckdns"

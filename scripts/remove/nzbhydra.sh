@@ -17,5 +17,5 @@ rm_if_exists /home/${user}/.config/nzbhydra2
 
 rm /etc/systemd/system/nzbhydra.service
 rm -f /etc/nginx/apps/nzbhydra.conf
-rm /install/.nzbhydra.lock
+unlock "nzbhydra"
 systemctl reload nginx

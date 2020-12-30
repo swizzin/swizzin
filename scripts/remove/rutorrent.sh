@@ -13,5 +13,5 @@ if [[ ! -f /install/.flood.lock ]]; then
         rm -f /etc/nginx/apps/${u}.scgi.conf
     done
 fi
-rm -rf /install/.rutorrent.lock
+unlock "rutorrent"
 systemctl reload nginx

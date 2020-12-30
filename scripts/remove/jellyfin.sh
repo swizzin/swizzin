@@ -17,6 +17,6 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl -q reload nginx.service
 fi
 #
-rm_if_exists /install/.jellyfin.lock
+unlock "jellyfin"
 #
 exit

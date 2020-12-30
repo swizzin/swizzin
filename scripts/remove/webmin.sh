@@ -11,4 +11,4 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
 fi
 
-rm /install/.webmin.lock
+unlock "webmin"

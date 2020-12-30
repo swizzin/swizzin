@@ -9,4 +9,4 @@ for u in "${users[@]}"; do
     rm -rf /home/${u}/.irssi
 done
 rm /etc/systemd/system/irssi@.service
-rm /install/.autodl.lock
+unlock "autodl"

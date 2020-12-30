@@ -11,4 +11,4 @@ fi
 rm /etc/nginx/apps/sickchill.conf > /dev/null 2>&1
 rm /etc/systemd/sickchill.service > /dev/null 2>&1
 systemctl reload nginx
-rm -f /install/.sickchill.lock
+unlock "sickchill"

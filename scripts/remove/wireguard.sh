@@ -26,4 +26,4 @@ echo_progress_done
 
 apt_update
 
-rm /install/.wireguard.lock
+unlock "wireguard"

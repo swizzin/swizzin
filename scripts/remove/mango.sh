@@ -13,4 +13,4 @@ fi
 
 userdel mango -f -r >> $log 2>&1
 
-rm /install/.mango.lock
+unlock "mango"

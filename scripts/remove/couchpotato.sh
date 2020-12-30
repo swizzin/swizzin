@@ -12,4 +12,4 @@ if [ -z "$(ls -A /opt/.venv)" ]; then
 fi
 rm -f /etc/nginx/apps/couchpotato.conf
 systemctl reload nginx
-rm /install/.couchpotato.lock
+unlock "couchpotato"

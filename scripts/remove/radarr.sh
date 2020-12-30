@@ -9,4 +9,4 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
 fi
 
-rm /install/.radarr.lock
+unlock "radarr"

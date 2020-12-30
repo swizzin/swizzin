@@ -26,8 +26,8 @@ if [[ $distribution == "Ubuntu" ]]; then
     apt_remove --purge quassel-core
     rm /etc/apt/sources.list.d/mamarley-ubuntu-quassel*.list
     apt_update
-    rm /install/.quassel.lock
+    unlock "quassel"
 else
     dpkg -r quassel-core* > /dev/null 2>&1
-    rm /install/.quassel.lock
+    unlock "quassel"
 fi

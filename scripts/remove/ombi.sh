@@ -19,4 +19,4 @@ if [[ -d /opt/Ombi ]]; then
     rm -rf /etc/Ombi
 fi
 
-rm /install/.ombi.lock
+unlock "ombi"

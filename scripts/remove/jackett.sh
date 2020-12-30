@@ -2,7 +2,7 @@
 username=$(cut -d: -f1 < /root/.master.info)
 
 rm -r /home/$username/Jackett
-rm /install/.jackett.lock
+unlock "jackett"
 rm -r /home/${username}/.config/Jackett
 
 systemctl stop -q jackett@${username}

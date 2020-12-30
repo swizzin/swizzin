@@ -13,4 +13,4 @@ if [ -z "$(ls -A /opt/.venv)" ]; then
     rm -rf /opt/.venv
 fi
 
-sudo rm /install/.medusa.lock
+sudo unlock "medusa"

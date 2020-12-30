@@ -6,4 +6,4 @@ systemctl stop -q netdata
 rm -rf $(which netdata)
 rm -rf /etc/netdata
 rm -rf /var/log/netdata
-rm -rf /install/.netdata.lock
+unlock "netdata"

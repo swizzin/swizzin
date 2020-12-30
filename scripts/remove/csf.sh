@@ -21,7 +21,7 @@
 function _removeCSF() {
     cd /etc/csf
     sh uninstall.sh >> "${log}" 2>&1
-    rm /install/.csf.lock
+    unlock "csf"
 }
 
 _removeCSF

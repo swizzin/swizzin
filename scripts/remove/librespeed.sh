@@ -5,7 +5,7 @@
 function _removeLibreSpeed() {
     sudo rm -r /srv/librespeed
     sudo rm /etc/nginx/apps/librespeed.conf
-    sudo rm /install/.librespeed.lock
+    sudo unlock "librespeed"
     systemctl reload nginx
 }
 

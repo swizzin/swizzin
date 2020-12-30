@@ -9,5 +9,5 @@ rm -rf /home/${user}/.xmr
 rm -rf /etc/systemd/system/xmr.service
 rm -rf /usr/local/bin/xmr-stak-cpu
 rm -rf /usr/local/bin/xmr-stak
-rm -rf /install/.xmr-stak.lock
-rm -rf /install/.xmr-stak-cpu.lock
+unlock "xmr-stak"
+unlock "xmr-stak-cpu"
