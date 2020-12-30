@@ -220,7 +220,7 @@ EOF
     systemctl reload nginx
     echo_progress_start "nginx restarted"
 
-    touch /install/.nextcloud.lock
+    lock "nextcloud"
     echo_success "Nextcloud installed"
 
     echo_info "Visit https://${ip}/nextcloud to finish installation."

@@ -112,7 +112,7 @@ _service
 _install
 _cleanup
 echo_success "Nzbget installed"
-touch /install/.nzbget.lock
+lock "nzbget"
 
 if [[ -n $noexec ]]; then
     mount -o remount,noexec /tmp

@@ -18,4 +18,4 @@ export codename=$(lsb_release -cs)
 
 apt_install ffmpeg
 
-touch /install/.ffmpeg.lock
+lock "ffmpeg"

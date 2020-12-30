@@ -184,4 +184,4 @@ systemctl enable -q --now pyload.service 2>&1 | tee -a $log
 echo_progress_done
 
 echo_success "PyLoad installed"
-touch /install/.pyload.lock
+lock "pyload"

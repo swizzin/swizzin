@@ -90,5 +90,5 @@ fi
 _installautodl
 _autoconf
 _autoservice
-touch /install/.autodl.lock
+lock "autodl"
 echo_success "autodl installed"

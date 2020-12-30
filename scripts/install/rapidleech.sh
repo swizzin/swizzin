@@ -41,7 +41,7 @@ function _installRapidleech3() {
 }
 
 function _installRapidleech5() {
-    touch /install/.rapidleech.lock
+    lock "rapidleech"
     echo_success "Rapidleech installed"
 }
 

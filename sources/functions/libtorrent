@@ -355,5 +355,5 @@ function build_libtorrent_rasterbar() {
             mount -o remount,noexec /tmp
         fi
     fi
-    if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
+    if [[ ! -f /install/.libtorrent.lock ]]; then lock "libtorrent"; fi
 }

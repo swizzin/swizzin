@@ -82,4 +82,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "SickChill installed"
-touch /install/.sickchill.lock
+lock "sickchill"

@@ -58,4 +58,4 @@ echo_progress_done
 echo_success "Quassel installed"
 echo_info "Please install quassel-client on your personal computer and connect to the newly created core at ${IP}:4242 to set up your account"
 
-touch /install/.quassel.lock
+lock "quassel"

@@ -74,4 +74,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 echo_success "Headphones installed"
 
-touch /install/.headphones.lock
+lock "headphones"

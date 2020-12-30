@@ -264,8 +264,8 @@ DW
         echo_progress_done "nginx configured"
     fi
 
-    touch /install/.deluge.lock
-    touch /install/.delugeweb.lock
+    lock "deluge"
+    lock "delugeweb"
 }
 
 . /etc/swizzin/sources/functions/deluge

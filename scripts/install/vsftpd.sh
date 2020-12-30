@@ -58,4 +58,4 @@ systemctl restart vsftpd
 echo_progress_done "Configured vsftpd"
 
 echo_success "Vsftpd installed"
-touch /install/.vsftpd.lock
+lock "vsftpd"

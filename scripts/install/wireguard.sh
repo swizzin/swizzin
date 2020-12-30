@@ -81,7 +81,7 @@ Please consult the swizzin log for further info if required."
     echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
     sysctl -p > /dev/null 2>&1
     echo "$wgiface" > /install/.wireguard.lock
-    touch /install/.wireguard.lock
+    lock "wireguard"
 }
 
 function _mkconf_wg() {

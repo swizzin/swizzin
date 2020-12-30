@@ -14,4 +14,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Netdata installed"
-touch /install/.netdata.lock
+lock "netdata"

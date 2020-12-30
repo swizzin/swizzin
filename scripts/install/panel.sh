@@ -68,7 +68,7 @@ echo_progress_done
 
 echo_progress_start "Configuring panel"
 if [[ -f /install/.deluge.lock ]]; then
-    touch /install/.delugeweb.lock
+    lock "delugeweb"
 fi
 
 if [[ $master == $(id -nu 1000) ]]; then
@@ -120,4 +120,4 @@ systemctl enable -q --now panel >> ${log} 2>&1
 echo_progress_done "Panel started"
 
 echo_success "Panel installed"
-touch /install/.panel.lock
+lock "panel"

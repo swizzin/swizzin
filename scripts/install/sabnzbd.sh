@@ -101,4 +101,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Sabnzbd installed"
-touch /install/.sabnzbd.lock
+lock "sabnzbd"

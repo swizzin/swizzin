@@ -14,4 +14,4 @@ fi
 bash /usr/local/bin/swizzin/nginx/rutorrent.sh
 systemctl reload nginx
 echo_success "ruTorrent installed"
-touch /install/.rutorrent.lock
+lock "rutorrent"

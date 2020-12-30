@@ -27,7 +27,7 @@ function _installLibreSpeed1() {
 
 function _installLibreSpeed2() {
     echo_progress_start "Setting permissions"
-    touch /install/.librespeed.lock
+    lock "librespeed"
     find ${lspdpath}/ -type f -print0 | xargs -0 chmod 0640
     find ${lspdpath}/ -type d -print0 | xargs -0 chmod 0750
     chown -R ${htuser}:${htgroup} ${lspdpath}/

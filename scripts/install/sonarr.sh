@@ -69,7 +69,7 @@ function _installSonarr3() {
 
 function _installSonarr4() {
     apt_install nzbdrone
-    touch /install/.sonarr.lock
+    lock "sonarr"
 }
 
 function _installSonarr5() {

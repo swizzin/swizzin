@@ -144,7 +144,7 @@ fi
 . /etc/swizzin/sources/functions/utils
 organizr_install
 organizr_nginx
-touch /install/.organizr.lock
+lock "organizr"
 organizr_setup
 # Removing master because that's already done in the _setup
 # shellcheck disable=SC2034 #(while addusers is commented)

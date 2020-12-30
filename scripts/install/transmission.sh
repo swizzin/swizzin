@@ -250,4 +250,4 @@ done
 
 echo_success "Transmission installed"
 
-touch /install/.transmission.lock
+lock "transmission"

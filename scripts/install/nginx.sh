@@ -216,4 +216,4 @@ echo_progress_done "Nginx restared"
 restart_php_fpm
 
 echo_success "Nginx installed"
-touch /install/.nginx.lock
+lock "nginx"

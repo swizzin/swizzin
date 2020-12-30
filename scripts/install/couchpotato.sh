@@ -67,4 +67,4 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_done
 fi
 
-touch /install/.couchpotato.lock
+lock "couchpotato"

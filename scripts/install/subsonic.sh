@@ -49,7 +49,7 @@ dpkg -i subsonic.deb >> "${log}" 2>&1
 rm -rf /root/subsonic-tmp
 echo_progress_done "Subsonic installed"
 
-touch /install/.subsonic.lock
+lock "subsonic"
 
 echo_progress_start "Modifying Subsonic startup script"
 cat > /usr/share/subsonic/subsonic.sh << SUBS

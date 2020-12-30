@@ -78,4 +78,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Nzbhydra installed"
-touch /install/.nzbhydra.lock
+lock "nzbhydra"

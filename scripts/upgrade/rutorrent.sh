@@ -4,7 +4,7 @@
 # Does not update from git remote at this time...
 
 if [[ -d /srv/rutorrent ]] && [[ ! -f /install/.rutorrent.lock ]]; then
-    touch /install/.rutorrent.lock
+    lock "rutorrent"
 fi
 
 if [[ ! -f /install/.rutorrent.lock ]]; then

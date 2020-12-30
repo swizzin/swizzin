@@ -119,7 +119,7 @@ fi
 systemctl -q restart "jellyfin.service"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
-touch /install/.jellyfin.lock
+lock "jellyfin"
 #
 echo_success "Jellyfin installed"
 #

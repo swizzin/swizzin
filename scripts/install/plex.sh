@@ -56,6 +56,6 @@ fi
 
 systemctl restart plexmediaserver >> $log 2>&1
 
-touch /install/.plex.lock
+lock "plex"
 
 echo_success "Plex installed"

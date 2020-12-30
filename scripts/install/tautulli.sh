@@ -59,6 +59,6 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done
 fi
-touch /install/.tautulli.lock
+lock "tautulli"
 
 echo_success "Tautulli installed"

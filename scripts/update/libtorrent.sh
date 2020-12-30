@@ -5,6 +5,6 @@
 
 if [[ -f /install/.deluge.lock ]]; then
     if [[ ! -f /install/.libtorrent.lock ]]; then
-        touch /install/.libtorrent.lock
+        lock "libtorrent"
     fi
 fi

@@ -49,4 +49,4 @@ fi
 
 apt_install x2goserver x2goserver-xsession pulseaudio
 
-touch /install/.x2go.lock
+lock "x2go"

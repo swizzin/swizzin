@@ -68,4 +68,4 @@ for u in "${users[@]}"; do
     fi
 done
 echo_success "Flood installed"
-touch /install/.flood.lock
+lock "flood"

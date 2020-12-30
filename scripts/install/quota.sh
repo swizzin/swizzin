@@ -153,7 +153,7 @@ Cmnd_Alias   QUOTA = /usr/bin/quota
 www-data     ALL = (ALL) NOPASSWD: QUOTA
 EOSUD
 
-touch /install/.quota.lock
+lock "quota"
 echo "${primaryroot}" > /install/.quota.lock
 
 echo "Quotas have been installed. Use the command setdisk to set quotas per user."

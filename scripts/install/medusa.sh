@@ -78,4 +78,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Medua installed"
-touch /install/.medusa.lock
+lock "medusa"

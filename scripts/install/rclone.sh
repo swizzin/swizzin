@@ -67,6 +67,6 @@ WantedBy=multi-user.target
 EOF
 echo_progress_done
 
-touch /install/.rclone.lock
+lock "rclone"
 echo_success "Rclone installed"
 echo_info "Setup Rclone remote named \"gdrive\" And run sudo systemctl start rclone@username.service"

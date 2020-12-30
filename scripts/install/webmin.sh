@@ -24,4 +24,4 @@ fi
 echo_success "Webmin installed"
 echo_info "Please use any account with sudo permissions to log in"
 
-touch /install/.webmin.lock
+lock "webmin"

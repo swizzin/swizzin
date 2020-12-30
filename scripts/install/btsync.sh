@@ -60,7 +60,7 @@ RSCONF
 
 }
 function _installBTSync6() {
-    touch /install/.btsync.lock
+    lock "btsync"
     systemctl enable -q resilio-sync 2>&1 | tee -a $log
     systemctl start resilio-sync >> $log 2>&1
     systemctl restart resilio-sync >> $log 2>&1

@@ -393,4 +393,4 @@ _install
 _adduser
 
 echo_success "Lounge installed"
-touch /install/.lounge.lock
+lock "lounge"

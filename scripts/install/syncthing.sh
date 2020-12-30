@@ -56,5 +56,5 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_done
 fi
 
-touch /install/.syncthing.lock
+lock "syncthing"
 echo_success "Syncthing installed"

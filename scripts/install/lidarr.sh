@@ -71,4 +71,4 @@ systemctl enable -q --now lidarr 2>&1 | tee -a $log
 echo_progress_done "Lidarr started"
 
 echo_success "Lidarr installed"
-touch /install/.lidarr.lock
+lock "lidarr"

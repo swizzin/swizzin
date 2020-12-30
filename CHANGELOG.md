@@ -555,7 +555,7 @@ This is a **massive** release! Over 100 files have been touched and updated with
 - Logoff plugin for ruTorrent
 
 ### Changed
-- ruTorrent has been decoupled from the rTorrent installation. (run `box upgrade rutorrent` or `touch /install/.rutorrent.lock` if you already have ruTorrent installed.)
+- ruTorrent has been decoupled from the rTorrent installation. (run `box upgrade rutorrent` or `lock "rutorrent"` if you already have ruTorrent installed.)
   - If you need ruTorrent please be sure to check both nginx and ruTorrent during the initial installation. A web interface will *NOT* be installed by default.
 - rTorrent uninstall will now purge *ALL* related packages (ruTorrent and Flood). Be careful!
 - Quickbox Dashboard has been rebased with the latest changes

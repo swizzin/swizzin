@@ -24,7 +24,7 @@ _install_radarr() {
     tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
     echo_progress_done "Archive extracted"
 
-    touch /install/.radarr.lock
+    lock "radarr"
 
     echo_progress_start "Installing Systemd service"
     cat > /etc/systemd/system/radarr.service << EOF

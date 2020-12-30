@@ -90,4 +90,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Sickgear installed"
-touch /install/.sickgear.lock
+lock "sickgear"

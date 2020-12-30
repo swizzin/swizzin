@@ -129,4 +129,4 @@ fi
 
 echo_info "Please use your existing credentials when logging in.\nYou can access your files in $mangodir/library"
 
-touch /install/.mango.lock
+lock "mango"

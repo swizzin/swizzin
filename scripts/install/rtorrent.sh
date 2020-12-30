@@ -123,4 +123,4 @@ if [[ -n $noexec ]]; then
     mount -o remount,noexec /tmp
 fi
 echo_success "rTorrent installed"
-touch /install/.rtorrent.lock
+lock "rtorrent"

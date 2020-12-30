@@ -112,6 +112,6 @@ cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cook
 curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"' >> $log 2>&1
 echo_progress_done
 
-touch /install/.jackett.lock
+lock "jackett"
 
 echo_success "Jackett installed"

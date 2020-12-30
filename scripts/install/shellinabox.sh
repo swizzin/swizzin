@@ -43,4 +43,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 echo_success "Shellinabox installed"
-touch /install/.shellinabox.lock
+lock "shellinabox"

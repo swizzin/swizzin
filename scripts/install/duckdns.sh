@@ -86,5 +86,5 @@ else
     if [[ ! -f /install/.nginx.lock ]]; then
         echo_info "Install LetsEncrypt using the domain \"$subdomain.duckdns.org\" to get SSL encryption\nConsult https://swizzin.ltd/docs/guides/troubleshooting for help with port forwarding."
     fi
-    touch /install/.duckdns.lock
+    lock "duckdns"
 fi
