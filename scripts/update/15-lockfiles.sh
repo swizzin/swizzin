@@ -7,7 +7,8 @@ if [[ -d /install/ ]]; then
     readarray -t list_installed < <(find /install -type f -name ".*.lock" | awk -F. '{print $2}')
     echo_log_only "Moving ${list_installed[*]} to  "
     for app in "${list_installed[@]}"; do
-        lock "$app"
+        mkdir -p "$lockdir"
+        mv /install/."$app".lock "$lockdir"/"$app"
     done
     rm -rf /install/ # byyeeeee
 fi
