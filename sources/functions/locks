@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
 # The directory where locks are stored
-export lockdir="/var/locks/swizzin"
+export lockdir="/var/lock/swizzin"
 
 # Records and application as installed
 # \
 # $1 = app name
 lock() {
+    mkdir -p $lockdir
     touch $lockdir/"$1"
 }
 export -f lock
@@ -23,7 +24,7 @@ export -f unlock
 # \
 # $1 = app name
 islocked() {
-    [[ -e $lockdir/$1 ]]
+    [[ -e $lockdir/"$1" ]]
 }
 export -f islocked
 
