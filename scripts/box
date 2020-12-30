@@ -423,7 +423,7 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
-    if [[ -e /install/.deluge.lock ]]; then
+    if islocked "deluge"; then
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
@@ -435,7 +435,7 @@ function _chpasswd() {
         systemctl start deluged@${user} >> $log 2>&1
         systemctl start deluge-web@${user} >> $log 2>&1
     fi
-    if [[ -e /install/.transmission.lock ]]; then
+    if islocked "transmission"; then
         systemctl stop transmission@${user} >> $log 2>&1
         sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
         systemctl start transmission@${user} >> $log 2>&1

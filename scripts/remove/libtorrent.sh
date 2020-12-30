@@ -1,7 +1,7 @@
 #!/bin/bash
 #libtorrent remove script
 
-if islocked "deluge.lock ]] || [[ -f /install/.qbittorrent"; then
+if islocked "deluge" || islocked "qbittorrent"; then
     echo_error "It looks like Deluge or qBittorrent is still installed. Not proceeding."
     exit 1
 fi

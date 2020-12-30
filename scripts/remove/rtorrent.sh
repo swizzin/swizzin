@@ -1,7 +1,7 @@
 #!/bin/bash
 users=($(cut -d: -f1 < /etc/htpasswd))
 
-if islocked "rutorrent.lock || -f /install/.flood"; then
+if islocked "rutorrent" || islocked "flood"; then
     if ! ask "This will remove ruTorrent&/Flood. Continue?" Y; then
         exit 0
     fi
