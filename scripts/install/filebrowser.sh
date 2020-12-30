@@ -97,7 +97,7 @@ systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a $log
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
-touch "/install/.filebrowser.lock"
+lock "filebrowser"
 #
 # A helpful echo to the terminal.
 echo_success "FileBrowser installed"

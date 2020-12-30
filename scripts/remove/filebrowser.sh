@@ -19,7 +19,7 @@ function remove_filebrowser() {
         systemctl reload nginx
     fi
     #
-    rm -f "/install/.filebrowser.lock"
+    unlock "filebrowser"
 }
 
 remove_filebrowser
