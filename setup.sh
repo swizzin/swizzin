@@ -38,7 +38,7 @@ if [[ $dev = "true" ]]; then
 fi
 
 _os() {
-    if [ ! -d /install ]; then mkdir /install; fi
+    if [ ! -d "$lockdir" ]; then mkdir -p "$lockdir"; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
     export log=/root/logs/install.log
     # echo "Checking OS version and release ... "

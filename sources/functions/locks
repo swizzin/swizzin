@@ -7,8 +7,8 @@ export lockdir="/var/lock/swizzin"
 # \
 # $1 = app name
 lock() {
-    mkdir -p $lockdir
-    touch $lockdir/"$1"
+    mkdir -p "$lockdir"
+    touch "$lockdir"/"$1"
 }
 export -f lock
 
@@ -16,7 +16,7 @@ export -f lock
 # \
 # $1 = app name
 unlock() {
-    rm $lockdir/"$1"
+    rm "$lockdir"/"$1"
 }
 export -f unlock
 
@@ -24,12 +24,22 @@ export -f unlock
 # \
 # $1 = app name
 islocked() {
-    [[ -e $lockdir/"$1" ]]
+    [[ -e "$lockdir"/"$1" ]]
 }
 export -f islocked
 
 # Returns a newline separated list of installed applications
 locklist() {
-    find $lockdir -type f --maxdepth 1
+    find "$lockdir" -type f --maxdepth 1
 }
 export -f locklist
+
+# Appends text and overwrite into lockfile for app
+setlockinfo() {
+    cat >> "$lockdir"/"$1"
+}
+
+# Cats the info from locks
+getlockinfo() {
+    cat "$lockdir"/"$1"
+}
