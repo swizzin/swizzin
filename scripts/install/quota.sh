@@ -154,6 +154,6 @@ www-data     ALL = (ALL) NOPASSWD: QUOTA
 EOSUD
 
 lock "quota"
-echo "${primaryroot}" > /install/.quota.lock
+echo "${primaryroot}" | setlockinfo "quota"
 
 echo "Quotas have been installed. Use the command setdisk to set quotas per user."

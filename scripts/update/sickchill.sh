@@ -50,7 +50,8 @@ SRC
     if [[ $active == 'active' ]]; then
         systemctl start sickchill@$master
     fi
-    mv /install/.sickrage.lock /install/.sickchill.lock
+    getlockinfo "sickrage" | setlockinfo "sickchill"
+    unlock "sickrage" #This removes the lock
 fi
 
 if islocked "sickchill"; then
