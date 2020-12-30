@@ -16,7 +16,8 @@ export -f lock
 # \
 # $1 = app name
 unlock() {
-    rm "$lockdir"/"$1"
+    rm "$lockdir"/"$1" >> "$log" 2>&1
+    return $?
 }
 export -f unlock
 
@@ -25,12 +26,14 @@ export -f unlock
 # $1 = app name
 islocked() {
     [[ -e "$lockdir"/"$1" ]]
+    return $?
 }
 export -f islocked
 
 # Returns a newline separated list of installed applications
 locklist() {
     find "$lockdir" -type f --maxdepth 1
+    return $?
 }
 export -f locklist
 
@@ -39,7 +42,11 @@ setlockinfo() {
     cat >> "$lockdir"/"$1"
 }
 
-# Cats the info from locks
+# Cats the info from locks, or returns code 1 false if empty
 getlockinfo() {
-    cat "$lockdir"/"$1"
+    if [[ -s "$lockdir"/"$1" ]]; then
+        cat "$lockdir"/"$1"
+    else
+        return 1
+    fi
 }
