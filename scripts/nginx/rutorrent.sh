@@ -96,7 +96,7 @@ FMCONF
         chown -R www-data: logoff
     fi
 
-    if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
+    if islocked "quota" && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
         cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
 <?php
 #################################################################################

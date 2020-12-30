@@ -3,7 +3,7 @@
 # Author: liara
 # Does not update from git remote at this time...
 
-if [[ -d /srv/rutorrent ]] && [[ ! -f /install/.rutorrent.lock ]]; then
+if [[ -d /srv/rutorrent ]] && ! islocked "rutorrent"; then
     lock "rutorrent"
 fi
 
