@@ -8,7 +8,8 @@ if [[ -d /install/ ]]; then
     echo_log_only "Moving ${list_installed[*]} to  "
     for app in "${list_installed[@]}"; do
         mkdir -p "$lockdir"
-        mv /install/."$app".lock "$lockdir"/"$app"
+        # mv /install/."$app".lock "$lockdir"/"$app"
+        setlockinfo "$app" < /install/."$app".lock
     done
     rm -rf /install/ # byyeeeee
 fi
