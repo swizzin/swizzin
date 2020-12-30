@@ -73,7 +73,7 @@ if islocked "quota" && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/d
 #
 #################################################################################
   require_once( '../../php/util.php' );
-  if (isset($quotaUser) && file_exists('/install/.quota.lock')) {
+  if (isset($quotaUser) && file_exists('$lockdir/quota')) {
     $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
     $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
