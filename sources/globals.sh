@@ -26,3 +26,7 @@ export log="/root/logs/swizzin.log"
 # A script to standardise yes/no dialogues
 #shellcheck source=sources/functions/ask
 . /etc/swizzin/sources/functions/ask
+
+# Provides functions for dealing with lcokfiles
+#shellcheck source=sources/functions/locks
+. /etc/swizzin/sources/functions/locks

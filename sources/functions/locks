@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# The directory where locks are stored
+export lockdir="/var/locks/swizzin"
+
+# Records and application as installed
+# \
+# $1 = app name
+lock() {
+    touch $lockdir/"$1"
+}
+export -f lock
+
+# Removes an application from the list of locks
+# \
+# $1 = app name
+unlock() {
+    rm $lockdir/"$1"
+}
+export -f unlock
+
+# Returns exit code indicating if app is installed or not
+# \
+# $1 = app name
+islocked() {
+    [[ -e $lockdir/$1 ]]
+}
+export -f islocked
+
+# Returns a newline separated list of installed applications
+locklist() {
+    find $lockdir -type f --maxdepth 1
+}
+export -f locklist
