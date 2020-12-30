@@ -16,6 +16,7 @@ function _rar() {
 }
 
 # Returns a password for a user in case one exists.
+# \
 # If password is not found, returns with error code 1
 function _get_user_password() {
     user_to_get="$1"
@@ -43,7 +44,17 @@ function _get_user_password() {
 #     users=($(cut -d: -f1 < /etc/htpasswd))
 # }
 
-#Returns all users managed by swizzin as a newline separated list
+# Returns all users managed by swizzin as a newline separated list.
+# \
+# This will contain the master user only once
+# \
+# Output e.g.:
+# ```
+# user1
+# user2
+# master
+# user3
+# ```
 function _get_user_list() {
     output=""
     for file in $(find /root/ -maxdepth 1 -name '*.info' ! -name .master.info | sort); do
@@ -61,6 +72,9 @@ function _get_master_username() {
 }
 
 # Removes a file or a directory in case it exists
+#\
+# Parameters:
+# $1 = Full path of directory, fath or link to remove
 function rm_if_exists() {
     path="$1"
     if [[ -e "$path" ]]; then
@@ -68,12 +82,23 @@ function rm_if_exists() {
     fi
 }
 
+# Finds a random free port between a range
+# \
+# Parameters:
+# $1 = Lower bound
+# $2 = Upper bounf
+# \
+# Returns an integer
 function port() {
     LOW_BOUND=$1
     UPPER_BOUND=$2
     comm -23 <(seq ${LOW_BOUND} ${UPPER_BOUND} | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1
 }
 
+# Checks if there is enough RAM and Swap in total
+# \
+# Parameters:
+# $1 = The amount of total space to require
 function check_ram() {
     if [[ -z $1 ]]; then
         echo_error "Must specify a value to compare"
@@ -93,6 +118,9 @@ function check_ram() {
     fi
 }
 
+# Enables a temporary 2GB swap file
+# \
+# Exits if cannot continue
 function tmp_swap_on() {
     echo_progress_start "Setup is enabling the use of a temporary 2GB swap file"
     dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || {
@@ -104,6 +132,7 @@ function tmp_swap_on() {
     echo_progress_done 'Swap enabled'
 }
 
+# Disables the temporary swap file
 function tmp_swap_off() {
     swapoff /.swapfile > /dev/null 2>&1
     rm -f /.swapfile > /dev/null 2>&1
