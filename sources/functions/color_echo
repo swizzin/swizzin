@@ -40,12 +40,25 @@ export -f ring_the_bell
 # Unless otherwise specified, the following parameters apply:
 # $1    the message to print
 # $log  (optionally declared outside) the file to log to
+
+# Prints an echo styled as warning
+# Printing this message will ring the terminal bell.
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_warn() {
     ring_the_bell
     colorprint "${yellow}${bold}WARN" "$1"
 }
 export -f echo_warn
 
+# Prints an echo styled as error.
+# Printing this message will ring the terminal bell.
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_error() {
     ring_the_bell
     colorprint "${red}${bold}ERROR" "$1"
@@ -53,22 +66,42 @@ echo_error() {
 }
 export -f echo_error
 
+# Prints an echo styled as an information block
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_info() {
     colorprint "${bold}INFO" "$1"
 }
 export -f echo_info
 
+# Prints an echo which points to a link in the documentation
+# \
+# \
+# Parameters:
+# - `$1` = a URL suffix such as `applications/panel`
 echo_docs() {
     colorprint "${cyan}${bold}DOCS" "${nc}${cyan}${italic}Further reference: ${under}https://swizzin.ltd/$1"
 }
 export -f echo_docs
 
+# Prints the beginning of the progress "block"
+# The next echo **has** to be a `echo_progress_done`
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_progress_start() {
     colorprint "${dim}..." "$1"
 }
 export -f echo_progress_start
 
-# Prints the reply to echo_progess_start or "Done" if no params
+# Prints the end of the progress "block"
+# \
+# \
+# Parameters:
+# - `$1` = message (Optional, prints `Done!` by default)
 echo_progress_done() {
     if [[ -z $1 ]]; then
         message="Done"
@@ -79,11 +112,25 @@ echo_progress_done() {
 }
 export -f echo_progress_done
 
+# Prints an echo styled as a success.
+# Should be installed at the end of an action.
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_success() {
     colorprint "${green}${bold}SUCCESS" "$1"
 }
 export -f echo_success
 
+# Prints an echo styled as a query.
+# \
+# A `read` or some other stdin reading mechanism **has** to follow, as the second line does not contain a line break.
+# \
+# \
+# Parameters:
+# - `$1` = Query string
+# - `$2` = Default or hint printed in parentheses on the second line before the caret.
 echo_query() {
     colorprint "${blue}${bold}INPUT" "${italic}$1"
     if [[ -n $2 ]]; then
@@ -95,14 +142,21 @@ echo_query() {
 }
 export -f echo_query
 
-# Prints only into the logpath
+# Prints a message to the log, and to the log **only**
+# \
+# \
+# Parameters:
+# - `$1` = message
 echo_log_only() {
     colorprint "${cyan}LOG" "$1"
 }
 export -f echo_log_only
 
-# $1 = "Heading" (Include colours and other non-printing chars here)
-# $2 = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
+# Formats a string with colour flags
+# \
+# Parameters:
+# - `$1` = "Heading" (Include colours and other non-printing chars here)
+# - `$2` = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
 # $log = location of the file to log into
 function colorprint() {
     heading="$1\t"
@@ -146,6 +200,7 @@ function do_the_wrap() {
 }
 export -f do_the_wrap
 
+# Removes color exit codes from stdin
 function strip_ansi() {
     if [[ $strip_ansi_from_log == "true" ]]; then
         sed 's/\x1B\[[0-9;]\+[A-Za-z]//g'

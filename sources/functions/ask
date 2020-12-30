@@ -5,6 +5,10 @@
 # Last updated Jun 29 2020
 # https://djm.me/ask
 
+# Runs a Yes/No type query, handles user input fully, loops until valid input is received,
+# and returns either exit code 0 for when "Yes" was selected, or exit code 0 for when "No" was selected.
+# \
+# Please see the `ask` and `askif` snippet for example use.
 ask() {
     local prompt default reply
 
