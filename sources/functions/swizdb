@@ -2,7 +2,7 @@
 
 export dbdir="/var/lib/swizzin"
 export dbfilepath="$dbdir/db.txt"
-export separator="==>>=>=>"
+export separator=" ==>>=>=> "
 
 # Get a value from the database
 # \
@@ -11,8 +11,9 @@ export separator="==>>=>=>"
 # **Returns code 1 if not found**
 getswizdb() {
     key="$1"
-    if ret=$(grep -qE "^${key}${separator}" $dbfilepath); then
-        echo "$ret" | cut -d"${separator}" -f2
+    if line=$(grep -E "^${key}${separator}" $dbfilepath); then
+        echo_log_only "Found line $line"
+        echo "$line" | awk -F"$separator" '{print $2}'
         return 0
     else
         echo_log_only "Key \"$key\" not set"
