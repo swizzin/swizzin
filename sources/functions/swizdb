@@ -10,7 +10,7 @@ export dbdir="/var/lib/swizzin/db"
 getswizdb() {
     key="$1"
     if [ -e "$dbdir/$key" ]; then
-        echo_log_only "Found line $key"
+        echo_log_only "Found file for $key"
         cat "$dbdir/$key"
         return 0
     else
