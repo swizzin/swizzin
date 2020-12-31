@@ -80,7 +80,6 @@ Please consult the swizzin log for further info if required."
 
     echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
     sysctl -p > /dev/null 2>&1
-    unlock "wireguard" # This here removes the file
     echo "$wgiface" > "$(lockpath "wireguard")"
     lock "wireguard"
 }
