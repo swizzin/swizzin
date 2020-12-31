@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-export dbdir="/var/lib/swizzin"
-export dbfilepath="$dbdir/db.txt"
+export dbdir="/var/lib/swizzin/db"
 export separator=" ==>>=>=> "
 
 # Get a value from the database
@@ -11,9 +10,9 @@ export separator=" ==>>=>=> "
 # **Returns code 1 if not found**
 getswizdb() {
     key="$1"
-    if line=$(grep -E "^${key}${separator}" $dbfilepath); then
-        echo_log_only "Found line $line"
-        echo "$line" | awk -F"$separator" '{print $2}'
+    if [ -e "$dbdir/$key" ]; then
+        echo_log_only "Found line $key"
+        cat "$dbdir/$key"
         return 0
     else
         echo_log_only "Key \"$key\" not set"
@@ -24,7 +23,7 @@ export -f getswizdb
 
 _dropswizkey() {
     echo_log_only "Dropping key \"$1\""
-    sed -i "/^${1}${separator}/d" $dbfilepath
+    rm "$dbdir/$key"
 }
 export -f _dropswizkey
 
@@ -51,8 +50,7 @@ setswizdb() {
     mkdir -p $dbdir
     key="$1"
     value="$2"
-    clearswizdb "$key" # Does nothing if
     echo_log_only "Setting \"$key\" to \"$value\""
-    echo "${key}${separator}${value}" >> $dbfilepath
+    echo "${value}" > "$dbdir/$key"
 }
 export -f setswizdb
