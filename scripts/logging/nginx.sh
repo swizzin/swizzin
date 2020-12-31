@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+commands+=("jounralctl -u nginx")
 commands+=('nginx -T')
 commands+=('nginx -V')
 paths+=(/var/log/nginx/error.log)
