@@ -81,7 +81,7 @@ Please consult the swizzin log for further info if required."
     echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
     sysctl -p > /dev/null 2>&1
     unlock "wireguard" # This here removes the file
-    echo "$wgiface" | setlockinfo "wireguard"
+    echo "$wgiface" > "$(lockpath "wireguard")"
     lock "wireguard"
 }
 
@@ -167,7 +167,7 @@ distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if islocked "wireguard"; then
-    wgiface=$(getlockinfo "wireguard")
+    wgiface=$(cat "$(lockpath "wireguard")")
 fi
 if [[ -z $wgiface ]]; then
     defiface=$(route | grep '^default' | grep -o '[^ ]*$')
@@ -175,8 +175,7 @@ if [[ -z $wgiface ]]; then
     #MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
     _defiface_confirm
     if islocked "wireguard"; then
-        unlock wireguard # This removes the file
-        echo "$wgiface" | setlockinfo "wireguard"
+        echo "$wgiface" > "$(lockpath "wireguard")"
     fi
 fi
 

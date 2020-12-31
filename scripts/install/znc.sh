@@ -63,6 +63,6 @@ if islocked "nginx"; then
 fi
 
 systemctl start znc
-echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" | setlockinfo "znc"
-echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" | setlockinfo "znc"
+echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > "$(lockpath "znc")"
+echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> "$(lockpath "znc")"
 echo_success "ZNC installed"

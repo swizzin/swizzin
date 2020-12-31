@@ -105,6 +105,7 @@ function _installquota() {
     fi
 
     if [[ -d /srv/rutorrent ]]; then
+        quotalock="$(lockpath "quota")"
         cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
 <?php
 #################################################################################
@@ -119,7 +120,7 @@ function _installquota() {
 #
 #################################################################################
   require_once( '../../php/util.php' );
-  if (isset($quotaUser) && file_exists('/$lockdir/quota')) {
+  if (isset($quotaUser) && file_exists('$quotalock')) {
     $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
     $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
@@ -154,6 +155,6 @@ www-data     ALL = (ALL) NOPASSWD: QUOTA
 EOSUD
 
 lock "quota"
-echo "${primaryroot}" | setlockinfo "quota"
+echo "${primaryroot}" > "$(lockpath "quota")"
 
 echo "Quotas have been installed. Use the command setdisk to set quotas per user."

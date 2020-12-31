@@ -50,8 +50,7 @@ SRC
     if [[ $active == 'active' ]]; then
         systemctl start sickchill@$master
     fi
-    getlockinfo "sickrage" | setlockinfo "sickchill"
-    unlock "sickrage" #This removes the lock
+    mv "$(lockpath "sickrage")" "$(lockpath "sickchill")"
 fi
 
 if islocked "sickchill"; then

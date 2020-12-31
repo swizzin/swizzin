@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # The directory where locks are stored
+#\
+# **DO NOT USE THIS OUTSIDE OF MAYBE LIKE BOX AND THE UPDATE FUNCTION PERIOD**
 export lockdir="/var/lock/swizzin"
 
 # Records and application as installed
@@ -37,16 +39,10 @@ locklist() {
 }
 export -f locklist
 
-# Appends text and overwrite into lockfile for app
-setlockinfo() {
-    cat >> "$lockdir"/"$1"
-}
-
-# Cats the info from locks, or returns code 1 false if empty
-getlockinfo() {
-    if [[ -s "$lockdir"/"$1" ]]; then
-        cat "$lockdir"/"$1"
-    else
-        return 1
-    fi
+# Returns the full path of the **possible** lock file
+# \
+# **Returns code 1 if it does not exist yet**
+lockpath() {
+    echo "$lockdir/$1"
+    islocked "$1" || return 1
 }
