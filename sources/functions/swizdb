@@ -9,22 +9,9 @@ export dbdir="/var/lib/swizzin/db"
 # **Returns code 1 if not found**
 getswizdb() {
     key="$1"
-    if [ -e "$dbdir/$key" ]; then
-        echo_log_only "Found file for $key"
-        cat "$dbdir/$key"
-        return 0
-    else
-        echo_log_only "Key \"$key\" not set"
-        return 1
-    fi
+    cat "$(pathswizdb "$key")" >> "$log" 2>&1
 }
 export -f getswizdb
-
-_dropswizkey() {
-    echo_log_only "Dropping key \"$1\""
-    rm "$dbdir/$key"
-}
-export -f _dropswizkey
 
 #Clear a value in the "database"
 # \
@@ -33,11 +20,7 @@ export -f _dropswizkey
 # **Returns code 1 if not found**
 clearswizdb() {
     key="$1"
-    if getswizdb "$key" > /dev/null; then
-        _dropswizkey "$key"
-    else
-        return 1
-    fi
+    rm "$(pathswizdb "$key")" >> "$log" 2>&1
 }
 export -f clearswizdb
 
@@ -46,10 +29,27 @@ export -f clearswizdb
 # $1 = key
 # $2 = value
 setswizdb() {
-    mkdir -p $dbdir
+    mkdir -p $dbdir # Always ensure dir exists
     key="$1"
     value="$2"
     echo_log_only "Setting \"$key\" to \"$value\""
     echo "${value}" > "$dbdir/$key"
 }
 export -f setswizdb
+
+# Returns the path of a key file from db
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+pathswizdb() {
+    key="$1"
+    if [ -e "$dbdir/$key" ]; then
+        echo "$dbdir/$key"
+        return 0
+    else
+        echo_log_only "File for \"$key\" does not exist"
+        return 1
+    fi
+}
+export -f pathswizdb
