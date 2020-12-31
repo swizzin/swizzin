@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 export dbdir="/var/lib/swizzin/db"
-export separator=" ==>>=>=> "
 
 # Get a value from the database
 # \
