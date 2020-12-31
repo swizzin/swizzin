@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+dbdir="/var/lib/swizzin"
+dbfilepath="$dbdir/db.txt"
+separator="\=\=\>\>"
+
+# Get a value from the database
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+getswizdb() {
+    key="$1"
+    if ret=$(grep -qE "\$${key}${separator}"); then
+        echo "$ret" | cut -d"${separator}" -f2
+        return 0
+    else
+        echo_log_only "Key \"$key\" not set"
+        return 1
+    fi
+}
+
+_dropkey() {
+    echo_log_only "Dropping key \"$1\""
+    sed -i $dbfilepath "/\$${1}${separator}/d"
+}
+
+#Clear a value in the "database"
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+clearswizdb() {
+    key="$1"
+    if getswizdb "$key" > /dev/null; then
+        _dropkey "$key"
+    else
+        return 1
+    fi
+}
+
+# Set a value in the database
+# \
+# $1 = key
+# $2 = value
+setswizdb() {
+    mkdir -p $dbdir
+    key="$1"
+    value="$2"
+    clearswizdb "$key" # Does nothing if
+    echo_log_only "Setting \"$key\" to \"$value\""
+    echo "${key}${separator}${value}" >> $dbfilepath
+
+}
