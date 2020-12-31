@@ -15,13 +15,8 @@ echo_progress_start "Extracting release for each user"
 for u in "${users[@]}"; do
     echo_log_only "Extracting for user $u"
     irssipath="/home/${u}/.irssi/scripts/"
-    # cd "/home/${u}/.irssi/scripts/"
-    rm -rf "$irssipath"/AutodlIrssi
-    rm -f "$irssipath"/autodl-irssi.pl
-    rm -f "$irssipath"/autorun/autodl-irssi.pl
-    # cp /tmp/autodl-irssi.zip .
+    rm -rf "$irssipath"/{AutodlIrssi,autodl-irssi.pl,autorun/autodl-irssi.pl}
     unzip -o /tmp/autodl-irssi.zip -d "$irssipath" >> "${log}" 2>&1
-    # rm "$irssipath"/autodl-irssi.zip
     cp "$irssipath"/autodl-irssi.pl "$irssipath"/autorun/
     chown -R "$u": /home/"${u}"/.irssi/
 done
