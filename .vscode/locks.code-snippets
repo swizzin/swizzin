@@ -27,4 +27,12 @@
         ],
         "description": "Returns if an app is installed"
     },
+    "Get path of app lockfile": {
+        "scope": "shellcheck",
+        "prefix": "lockpath",
+        "body": [
+            "unlock \"${1:app}\"",
+        ],
+        "description": "Returns the full path of the app's lockfile"
+    },
 }
