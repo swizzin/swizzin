@@ -20,7 +20,7 @@ for u in "${users[@]}"; do
     rm -f "$irssipath"/autodl-irssi.pl
     rm -f "$irssipath"/autorun/autodl-irssi.pl
     # cp /tmp/autodl-irssi.zip .
-    unzip -o tmp/autodl-irssi.zip -d "$irssipath" >> "${log}" 2>&1
+    unzip -o /tmp/autodl-irssi.zip -d "$irssipath" >> "${log}" 2>&1
     # rm "$irssipath"/autodl-irssi.zip
     cp "$irssipath"/autodl-irssi.pl "$irssipath"/autorun/
     chown -R "$u": /home/"${u}"/.irssi/
