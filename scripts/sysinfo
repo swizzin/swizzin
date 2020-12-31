@@ -135,6 +135,11 @@ _make_app_choices() {
 _log_uploads() {
     echo_progress_start "Uploading logs to $pastetool"
     # TODO maybe ensure only last N bytes are being sent in order not to hit the limit?
+
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    master=$(_get_master_username)
+
     app_sensitive=()
     logs_install="$(cat /root/logs/install.log | _post_content)"
     logs_swizzin=$(cat /root/logs/swizzin.log | _post_content)

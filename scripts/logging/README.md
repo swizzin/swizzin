@@ -10,10 +10,13 @@ This usually happens when users are deling with some issues they want to get hel
 # What can I use
 Below are the variables that are on offer to you
 
-## `$loguser`
-This variable has already been set so please do not change it.
-This will hold the name of the username the logs are being collected for. Of course, this only makes sense to use in Multiuser apps
-You can use it within your script to specify paths or call things from the user's context
+## `$loguser` and `$master`
+These variables have already been set so please do not change them.
+
+`$master` will hold the expected value of the master user.
+
+`$loguser` will hold the name of the username the logs are being collected for. Of course, this only makes sense to use in Multiuser apps.
+You can use it within your script to specify paths or call things from the user's context.
 
 ## `app_sensitive=()`
 Tuples of sed patterns to redact from the output in the paths and logs. The entire file that gathers the logs will be ran through this. Usage is for e.g...
