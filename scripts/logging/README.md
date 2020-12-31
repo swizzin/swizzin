@@ -47,7 +47,7 @@ A string to append behind each application row. e.g.
 note="Installed from PPA"
 ```
 
-## `version=`
+## `version=""`
 A string of the application version if applicable. e.g.
 ```bash
 version="3.0, installed from PPA"
