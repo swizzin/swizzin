@@ -1,8 +1,10 @@
 #!/bin/bash
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+readarray -t users < <(_get_user_list)
 
-wget -q $(curl -sL http://git.io/vlcND | jq .assets[0].browser_download_url -r) -O /tmp/autodl-irssi.zip >> $log 2>&1 || {
+wget -q "$(curl -sL http://git.io/vlcND | jq .assets[0].browser_download_url -r)" -O /tmp/autodl-irssi.zip >> $log 2>&1 || {
     echo_error "Autodl download failed, please check the log"
     exit 1
 }
