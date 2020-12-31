@@ -28,6 +28,7 @@ Paths of files/logs to upload the content of e.g...
 ```bash
 paths+=(/var/log/file1.txt)
 paths+=(/etc/to/log/file2.txt)
+paths+=(/var/log/nginx/error.log*) #Notice the fact this is not surrounded in quotes, as that will kill the asterisk expansion, which is desired here
 ```
 
 ## `commands=()`
