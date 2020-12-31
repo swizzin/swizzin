@@ -28,6 +28,11 @@
     "Drop value from swiz value storage": {
         "scope": "shellscript",
         "prefix": "clearswizdb",
-        "body": "getswizdb \"{$1:key}\""
+        "body": "clearswizdb \"{$1:key}\""
+    },
+    "Get path of swizzin db file": {
+        "scope": "shellscript",
+        "prefix": "pathswizdb",
+        "body": "pathswizdb \"{$1:key}\""
     }
 }
