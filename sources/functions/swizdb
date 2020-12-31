@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-dbdir="/var/lib/swizzin"
-dbfilepath="$dbdir/db.txt"
-separator="\=\=\>\>"
+export dbdir="/var/lib/swizzin"
+export dbfilepath="$dbdir/db.txt"
+export separator="\=\=\>\>"
 
 # Get a value from the database
 # \
@@ -11,7 +11,7 @@ separator="\=\=\>\>"
 # **Returns code 1 if not found**
 getswizdb() {
     key="$1"
-    if ret=$(grep -qE "\$${key}${separator}"); then
+    if ret=$(grep -qE "^${key}${separator}" $dbfilepath); then
         echo "$ret" | cut -d"${separator}" -f2
         return 0
     else
@@ -19,11 +19,13 @@ getswizdb() {
         return 1
     fi
 }
+export -f getswizdb
 
-_dropkey() {
+_dropswizkey() {
     echo_log_only "Dropping key \"$1\""
-    sed -i $dbfilepath "/\$${1}${separator}/d"
+    sed -i "/^${1}${separator}/d" $dbfilepath
 }
+export -f _dropswizkey
 
 #Clear a value in the "database"
 # \
@@ -33,11 +35,12 @@ _dropkey() {
 clearswizdb() {
     key="$1"
     if getswizdb "$key" > /dev/null; then
-        _dropkey "$key"
+        _dropswizkey "$key"
     else
         return 1
     fi
 }
+export -f clearswizdb
 
 # Set a value in the database
 # \
@@ -52,3 +55,5 @@ setswizdb() {
     echo "${key}${separator}${value}" >> $dbfilepath
 
 }
+
+export -f setswizdb
