@@ -2,7 +2,7 @@
 
 export dbdir="/var/lib/swizzin"
 export dbfilepath="$dbdir/db.txt"
-export separator="\=\=\>\>"
+export separator="==>>=>=>"
 
 # Get a value from the database
 # \
@@ -53,7 +53,5 @@ setswizdb() {
     clearswizdb "$key" # Does nothing if
     echo_log_only "Setting \"$key\" to \"$value\""
     echo "${key}${separator}${value}" >> $dbfilepath
-
 }
-
 export -f setswizdb
