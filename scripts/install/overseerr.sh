@@ -10,7 +10,7 @@ _dependencies() {
     npm_install #Install node 12 LTS and npm if they're not present or outdated
 
     echo_progress_start "Installing yarn"
-    npm install -g yarn || {
+    npm install -g yarn >> "$log" 2>&1 || {
         echo_error "Yarn failed to install"
         exit 1
     }
@@ -28,7 +28,7 @@ EOF
 
 _service() {
     # Adapted from
-    cat > /etc/systemd/system/overseerr.conf << EOF
+    cat > /etc/systemd/system/overseerr.service << EOF
 [Unit]
 Description=Overseerr Service
 Wants=network-online.target
@@ -54,7 +54,8 @@ EOF
 _nginx() {
     if [ -f "/install/.nginx.lock" ]; then
         echo_progress_start "Configuring nginx"
-        : # TODO nginx
+        # TODO nginx
+        touch /etc/nginx/apps/overseerr.conf
         echo_progress_done "Nginx configured"
     fi
 
