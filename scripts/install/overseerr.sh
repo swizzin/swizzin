@@ -28,6 +28,9 @@ _install() {
     tar --strip-components=1 -C /opt/overseerr -xzvf /tmp/overseerr.tar.gz
     echo_progress_done "Code extracted"
 
+    # Changing baseurl before build
+    # export OVERSEERR_BASEURL='/baseurl'
+
     echo_progress_start "Installing via yarn"
     # Ensure sqlite can build right in case it needs to use python
     if ! which python > /dev/null; then #TODO make this a more specific check as this could interfere with other things possibly
@@ -43,9 +46,55 @@ _install() {
     }
     # yarn cache clean
     echo_progress_done "Dependencies installed"
+    cat > /opt/overseerr/env.conf << EOF
+# specify on which port to listen
+PORT=5055
+EOF
+}
+
+_user() {
+    useradd overseerr --system -d /opt/overseerr
+    chown -R overseerr: /opt/overseerr
+}
+
+_service() {
+
+    cat > /etc/systemd/system/overseerr.conf << EOF
+[Unit]
+Description=Overseerr Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=/opt/overseerr/env.conf
+Environment=NODE_ENV=production
+User=overseerr
+Group=overseerr
+Type=exec
+Restart=on-failure
+WorkingDirectory=/opt/overseerr
+ExecStart=/usr/bin/node dist/index.js
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl dameon-reload
+    systemctl enable --now -q overseerr
+}
+
+_nginx() {
+    if [ -f "/install/.nginx.lock" ]; then
+        echo_progress_start "Configuring nginx"
+        : # TODO nginx
+        echo_progress_done "Nginx configured"
+    fi
+
 }
 
 _dependencies
 _install
+_user
+_service
+_nginx
 
 touch /install/.overseerr.lock
