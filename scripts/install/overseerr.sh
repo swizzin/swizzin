@@ -47,7 +47,7 @@ ExecStart=/usr/bin/node dist/index.js
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl dameon-reload
+    systemctl daemon-reload
     systemctl enable --now -q overseerr
 }
 
