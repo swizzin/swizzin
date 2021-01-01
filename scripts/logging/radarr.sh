@@ -9,3 +9,6 @@ commands+=(journalctl -u radarr)
 #shellcheck source=sources/functions/radarr
 . /etc/swizzin/sources/functions/radarr
 version="$(_radarr_version)"
+
+apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${master}"/.config/Radarr/config.xml)
+app_sensitive+=("$apikey" "###-Radarr-api-key-###")
