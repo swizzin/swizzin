@@ -54,9 +54,11 @@ EOF
 _nginx() {
     if [ -f "/install/.nginx.lock" ]; then
         echo_progress_start "Configuring nginx"
-        # TODO nginx
-        touch /etc/nginx/apps/overseerr.conf
+        bash /etc/swizzin/scripts/nginx/overseerr.sh
+        systemctl reload nginx
         echo_progress_done "Nginx configured"
+    else
+        echo_info "Overseerr will be available on port 5055"
     fi
 
 }
