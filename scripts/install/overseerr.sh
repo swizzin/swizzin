@@ -27,16 +27,22 @@ tar --strip-components=1 -C /opt/overseerr -xzvf /tmp/overseerr.tar.gz
 echo_progress_done "Code extracted"
 
 echo_progress_start "Installing via yarn"
-npm install -g sqlite3 --build-from-source --sqlite=/usr/bin || {
-    echo_warn "Failed to install sqlite"
-    exit 1
-}
+# npm install -g sqlite3 --build-from-source --sqlite=/usr/bin || {
+#     echo_error "Failed to install sqlite"
+#     exit 1
+# }
+
+# Ensure sqlite can build right in case it needs to use python
+if ! which python > /dev/null; then #TODO make this a more specific check as this could interfere with other things possibly
+    npm config set python "$(which python3)"
+fi
+
 yarn install --cwd /opt/overseerr || {
-    echo_warn "Failed to install dependencies"
+    echo_error "Failed to install dependencies"
     exit 1
 }
 yarn --cwd /opt/overseerr build || {
-    echo_warn "Failed to build overseerr sqlite"
+    echo_error "Failed to build overseerr sqlite"
     exit 1
 }
 # yarn cache clean
