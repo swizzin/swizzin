@@ -17,48 +17,17 @@ _dependencies() {
     echo_progress_done "Yarn installed"
 }
 
-_install() {
-    echo_progress_start "Downloading and extracting source code"
-    dlurl="$(curl https://api.github.com/repos/sct/overseerr/releases/latest | jq .tarball_url -r)"
-    wget "$dlurl" -O /tmp/overseerr.tar.gz || {
-        echo_error "Download failed"
-        exit 1
-    }
-    mkdir -p /opt/overseerr
-    tar --strip-components=1 -C /opt/overseerr -xzvf /tmp/overseerr.tar.gz
-    echo_progress_done "Code extracted"
-
-    # Changing baseurl before build
-    # export OVERSEERR_BASEURL='/baseurl'
-
-    echo_progress_start "Installing via yarn"
-    # Ensure sqlite can build right in case it needs to use python
-    if ! which python > /dev/null; then #TODO make this a more specific check as this could interfere with other things possibly
-        npm config set python "$(which python3)"
-    fi
-    yarn install --cwd /opt/overseerr || {
-        echo_error "Failed to install dependencies"
-        exit 1
-    }
-    yarn --cwd /opt/overseerr build || {
-        echo_error "Failed to build overseerr sqlite"
-        exit 1
-    }
-    # yarn cache clean
-    echo_progress_done "Dependencies installed"
+_user() {
     cat > /opt/overseerr/env.conf << EOF
 # specify on which port to listen
 PORT=5055
 EOF
-}
-
-_user() {
     useradd overseerr --system -d /opt/overseerr
     chown -R overseerr: /opt/overseerr
 }
 
 _service() {
-
+    # Adapted from
     cat > /etc/systemd/system/overseerr.conf << EOF
 [Unit]
 Description=Overseerr Service
@@ -92,7 +61,9 @@ _nginx() {
 }
 
 _dependencies
-_install
+#shellcheck source=sources/functions/overseerr
+. /etc/swizzin/sources/functions/overseerr
+overseerr_install
 _user
 _service
 _nginx
