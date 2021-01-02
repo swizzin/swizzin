@@ -27,7 +27,7 @@ EOF
 }
 
 _service() {
-    # Adapted from
+    # Adapted from https://aur.archlinux.org/cgit/aur.git/tree/overseerr.service?h=overseerr
     cat > /etc/systemd/system/overseerr.service << EOF
 [Unit]
 Description=Overseerr Service
@@ -69,6 +69,6 @@ _dependencies
 overseerr_install
 _user
 _service
-_nginx
+# _nginx
 
 touch /install/.overseerr.lock
