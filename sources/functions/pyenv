@@ -1,4 +1,6 @@
 #!/bin/bash
+
+# Installs `pyenv` if not yet installed
 function pyenv_install() {
     if [[ ! -d /opt/pyenv ]]; then
         echo_progress_start "Setting up pyenv version manager"
@@ -20,10 +22,15 @@ function pyenv_install() {
     fi
 }
 
+# Updates system's `pyenv`
 function pyenv_update() {
     /opt/pyenv/bin/pyenv update >> "$log" 2>&1
 }
 
+# Install a specific version of python through `pyenv` if not yet available
+# \
+# Parameters:
+# - `$1` = The version necessary
 function pyenv_install_version() {
     version=$1
     versions=$(/opt/pyenv/bin/pyenv versions 2> "$log")
@@ -36,6 +43,11 @@ function pyenv_install_version() {
     fi
 }
 
+# Install venv of a specific version
+# \
+# Parameters:
+# - `$1` = The version necessary
+# - `$2` = Full path of the destination to create it in
 function pyenv_create_venv() {
     version=$1
     destination=$2
@@ -45,6 +57,7 @@ function pyenv_create_venv() {
     echo_progress_done "venv created"
 }
 
+# Install pip appropriately if not yet installed
 function python_getpip() {
     if ! command -v pip > /dev/null 2>&1; then
         echo_progress_start "Installing pip"
@@ -61,6 +74,12 @@ function python_getpip() {
     fi
 }
 
+# Creates a `venv` with `python2`, using the right system binary
+# \
+# Parameters:
+# - `$1` = The user to install the `venv` for
+# - `$2` = The name of the app to install it for
+#    - This will create `/opt/.venv/$2` and `chown $1:` the directory
 function python2_venv() {
     user=$1
     app=$2
@@ -77,6 +96,12 @@ function python2_venv() {
     echo_progress_done "Venv set up"
 }
 
+# Creates a `venv` with `python2`, using the right system binary inside of the user's home directory
+#\
+# Parameters:
+# - `$1` = The user to install the `venv` for
+# - `$2` = The name of the app to install it for
+#    - This will create `/opt/.venv/$2` and `chown $1:` the directory
 function python2_home_venv() {
     user=$1
     app=$2
@@ -92,7 +117,12 @@ function python2_home_venv() {
     chown -R ${user}: /home/${user}/.venv/${app}
     echo_progress_done "Venv set up"
 }
-
+# Creates a `venv` with `python3`, using the right system binary
+# \
+# Parameters:
+# - `$1` = The user to install the `venv` for
+# - `$2` = The name of the app to install it for
+#    - This will create `/opt/.venv/$2` and `chown $1:` the directory
 function python3_venv() {
     user=$1
     app=$2

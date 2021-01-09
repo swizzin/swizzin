@@ -44,5 +44,38 @@
             ". /etc/swizzin/sources/functions/${1:util}"
         ],
         "description": "Adds a source to a swizzin function.\nPrepends the appropriate shellcheck declaration"
-    }
+    },
+    "Get OS codename": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_codename",
+            "codename"
+        ],
+        "body": [
+            "_os_codename",
+        ],
+        "description": "Returns the codename of the OS"
+    },
+    "Get OS distro": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_distro",
+            "distro"
+        ],
+        "body": [
+            "_os_distro",
+        ],
+        "description": "Returns the distro of the OS"
+    },
+    "Get OS arch": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_arch",
+            "arch"
+        ],
+        "body": [
+            "_os_arch",
+        ],
+        "description": "Returns the arch of the OS"
+    },
 }

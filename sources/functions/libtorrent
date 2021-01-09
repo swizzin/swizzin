@@ -274,7 +274,7 @@ function build_libtorrent_rasterbar() {
                     ;;
             esac
         fi
-        cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9)
+        cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar-dev)
         for a in ${cleanup[@]}; do
             if dpkg -l | grep $a > /dev/null 2>&1; then
                 echo_info "Found package conflict: $a. Removing."
@@ -308,10 +308,10 @@ function build_libtorrent_rasterbar() {
         if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
             configure_args="-std=c++14"
             tag=" with c++14"
-            #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
-            sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
             #Temporarily pin libtorrent to 1.2.11 to prevent b2 python binding issues
             git checkout tags/v1.2.11 >> ${log} 2>&1
+            #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
+            sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
         fi
         ./autotool.sh >> "${log}" 2>&1
         ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >> "${log}" 2>&1
