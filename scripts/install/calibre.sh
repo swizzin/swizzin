@@ -22,6 +22,9 @@ _install() {
     echo_progress_done "Calibre installed"
 }
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
 if [ -z "$CALIBRE_LIBRARY_USER" ]; then
     CALIBRE_LIBRARY_USER=$(_get_master_username)
 fi
@@ -46,8 +49,6 @@ _library() {
     # Need to start a library with a book so might as well get some good ass literature here
     wget https://www.gutenberg.org/ebooks/59112.epub.images -O /tmp/rur.epub >> $log 2>&1
     wget https://www.gutenberg.org/ebooks/7849.epub.noimages -O /tmp/trial.epub >> $log 2>&1
-    #shellcheck source=sources/functions/utils
-    . /etc/swizzin/sources/functions/utils
 
     mkdir -p "$CALIBRE_LIBRARY_PATH"
     calibredb add /tmp/rur.epub /tmp/trial.epub --with-library "$CALIBRE_LIBRARY_PATH"/ >> $log
