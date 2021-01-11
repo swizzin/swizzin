@@ -22,11 +22,11 @@ _install() {
     echo_progress_done "Calibre installed"
 }
 
-if [ -n "$CALIBRE_LIBRARY_USER" ]; then
+if [ -z "$CALIBRE_LIBRARY_USER" ]; then
     CALIBRE_LIBRARY_USER=$(_get_master_username)
 fi
 
-if [ -n "$CALIBRE_LIBRARY_PATH" ]; then
+if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
     CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
 fi
 
@@ -51,8 +51,8 @@ _library() {
 
     mkdir -p "$CALIBRE_LIBRARY_PATH"
     calibredb add /tmp/rur.epub /tmp/trial.epub --with-library "$CALIBRE_LIBRARY_PATH"/ >> $log
-    chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH"/ -R
-    chmod 0770 -R "$CALIBRE_LIBRARY_PATH"/
+    chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH" -R
+    chmod 0770 -R "$CALIBRE_LIBRARY_PATH"
     echo_progress_done "Library installed to $CALIBRE_LIBRARY_PATH"
 }
 
