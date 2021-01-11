@@ -101,9 +101,9 @@ CALICS
     fi
 
     if [[ $CALIBRE_ENABLE_SERVER = "true" ]]; then
-        echo_progress_start "Enablging Calibre Content Server"
+        echo_progress_start "Enabling Calibre Content Server"
         systemctl enable --now -q calibre-cs
-        echo_progress_done "Enablging Calibre Content Server"
+        echo_progress_done "Calibre CS enabled"
     else
         echo_info "You can enable the content server later by running 'systemctl enable --now calibre-cs' "
         echo_docs "applications/calibre"
