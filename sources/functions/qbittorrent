@@ -123,7 +123,8 @@ function qbittorrent_user_config() {
         hashed=$(python3 ${local_packages}/qbittorrent.Userpass.py ${password})
         QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
     fi
-
+    git clone https://github.com/repslet/nightwalker.git /opt/nightwalker
+    chmod -R 777 /opt/nightwalker
     usermod -a -G ${user} www-data 2>> $log
     port=$(port 10000 11000)
     mkdir -p /home/${user}/.config/qBittorrent/
@@ -144,7 +145,7 @@ Bittorrent\MaxUploadsPerTorrent=-1
 Downloads\SavePath=/home/${user}/torrents/qbittorrent/
 Queueing\QueueingEnabled=false
 WebUI\Address=*
-WebUI\AlternativeUIEnabled=false
+WebUI\AlternativeUIEnabled=true
 WebUI\BanDuration=3600
 WebUI\CSRFProtection=true
 WebUI\ClickjackingProtection=true
@@ -152,7 +153,7 @@ WebUI\LocalHostAuth=true
 WebUI\MaxAuthenticationFailCount=5
 ${QBTWP}
 WebUI\Port=${port}
-WebUI\RootFolder=
+WebUI\RootFolder=/opt/nightwalker/
 WebUI\SecureCookie=true
 WebUI\ServerDomains=*
 WebUI\SessionTimeout=3600
