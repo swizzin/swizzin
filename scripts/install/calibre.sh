@@ -15,7 +15,7 @@ _install() {
             exit 1
         fi
     else
-        echo_info "Calibre needs to be built from source for $(_os_arch)\nWe are falling back onto apt for the time being"
+        echo_info "Calibre needs to be built from source for $(_os_arch). We are falling back onto apt for the time being\nRun box upgrade calibre to upgrade at a later stage"
         apt_install calibre
         # : #TODO build calibre from source
     fi
@@ -67,10 +67,11 @@ _content_server() {
     # TODO see what this does lmao
     echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
     echo_info "You will now be asked to create a user for the calibre content server."
+    echo_query "Press enter to continue" "enter"
     read
     ## TODO handle
-    # calibre-server --userdb /home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite --manage-users
-    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
+    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users
+    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
 
     chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config
 
