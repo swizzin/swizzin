@@ -10,13 +10,14 @@ if [[ ! -f /install/.calibre.lock ]]; then
     if ask "Install Calibre through swizzin now?" Y; then
         export CALIBRE_INSTALL_CSERV=false
         if ! bash /etc/swizzin/scripts/install/calibre.sh; then
-            # Handle any failure in previous installer
-            exit 1
+            ask "Calibre installer failed. Continue installing calibre-web?" N || {
+                exit 1
+            }
         fi
     else
-        if ! ask "Really continue installing calibre-web without calibre?" N; then
+        ask "Really continue installing calibre-web without calibre?" N || {
             exit 1
-        fi
+        }
     fi
 fi
 
