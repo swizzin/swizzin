@@ -8,7 +8,7 @@ _install() {
     # TODO make a whiptail to let user install from repo, binaries, or source, and modify that selection based on the arch
 
     echo_progress_start "Installing calibre"
-    if [[ $(_os_arch) = "x86_64" ]]; then
+    if [[ $(_os_arch) = "amd64" ]]; then
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
         if ! bash /tmp/calibre-installer.sh install_dir=/opt >> $log 2>&1; then
             echo_error "failed to install calibre"
