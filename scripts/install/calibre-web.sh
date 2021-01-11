@@ -31,7 +31,7 @@ function _install_calibreweb() {
     python3 -m venv /opt/.venv/calibre-web
     echo_progress_done "Venv created"
 
-    echo_progress_start "Downloading source code archive"
+    echo_progress_start "Downloading Calibre-web source code archive"
     dlurl=$(curl -s https://api.github.com/repos/janeczku/calibre-web/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
@@ -40,7 +40,7 @@ function _install_calibreweb() {
     fi
 
     if ! wget -q "${dlurl}" -O /tmp/calibreweb.zip >> $log 2>&1; then
-        echo_error "Failed to download binary"
+        echo_error "Failed to download source code"
         exit 1
     fi
     echo_progress_done
