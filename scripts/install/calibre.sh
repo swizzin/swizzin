@@ -22,36 +22,56 @@ _install() {
     echo_progress_done "Calibre installed"
 }
 
+if [ -n "$CALIBRE_LIBRARY_USER" ]; then
+    CALIBRE_LIBRARY_USER=$(_get_master_username)
+fi
+
+if [ -n "$CALIBRE_LIBRARY_PATH" ]; then
+    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+fi
+
 _library() {
+    if [ -e "$CALIBRE_LIBRARY_PATH" ]; then
+        echo_info "Calibre library already exists"
+        return
+    fi
+
+    if [ "$CALIBRE_LIBRARY_SKIP" = "true" ]; then
+        echo_info "Library creation skipped."
+        return
+    fi
+
     echo_progress_start "Creating library"
 
+    # Need to start a library with a book so might as well get some good ass literature here
     wget https://www.gutenberg.org/ebooks/59112.epub.images -O /tmp/rur.epub >> $log 2>&1
     wget https://www.gutenberg.org/ebooks/7849.epub.noimages -O /tmp/trial.epub >> $log 2>&1
-
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
-    clbDbUser=$(_get_master_username)
-    mkdir /home/"$clbDbUser"/calibre-library
-    calibredb add /tmp/*.epub --with-library /home/"$clbDbUser"/calibre-library/ >> $log
-    chown -R "$clbDbUser":"$clbDbUser" /home/"$clbDbUser"/calibre-library/ -R
-    chmod 0770 -R /home/"$clbDbUser"/calibre-library/
-    echo_progress_done
-    echo_info "Library installed to /home/$clbDbUser/calibre-library/"
+
+    mkdir -p "$CALIBRE_LIBRARY_PATH"
+    calibredb add /tmp/rur.epub /tmp/trial.epub --with-library "$CALIBRE_LIBRARY_PATH"/ >> $log
+    chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH"/ -R
+    chmod 0770 -R "$CALIBRE_LIBRARY_PATH"/
+    echo_progress_done "Library installed to $CALIBRE_LIBRARY_PATH"
 }
 
 _content_server() {
     echo_progress_start "Installing Calibre Content service"
 
-    mkdir -p /home/$clbDbUser/.config/calibre/
-    touch /home/$clbDbUser/.config/calibre/.calibre.log
-    pass=$(_get_user_password $master)
+    mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/
+    touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/.calibre.log
+    pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
 
     # TODO see what this does lmao
-    echo -e "1\n$master\n$pass\n$pass" > /tmp/csuservdinput.txt
-    calibre-server --userdb /home/$clbDbUser/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
+    echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
+    echo_info "You will now be asked to create a user for the calibre content server."
+    read
+    ## TODO handle
+    # calibre-server --userdb /home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite --manage-users
+    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
 
-    chown $clbDbUser: /home/$clbDbUser/.config
-    chown -R $clbDbUser: /home/$clbDbUser/.config/calibre
+    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config
 
     cat > /etc/systemd/system/calibre-cs.service << CALICS
 [Unit]
@@ -60,21 +80,27 @@ After=network.target
 
 [Service]
 Type=simple
-User=$clbDbUser
-Group=$clbDbUser
+User=$CALIBRE_LIBRARY_USER
+Group=$CALIBRE_LIBRARY_USER
 
-ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$clbDbUser/.config/calibre/.calibre.log" --enable-auth --userdb="/home/$clbDbUser/.config/calibre/server-users.sqlite" "/home/$clbDbUser/calibre-library/"
+ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" ${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
 [Install]
 WantedBy=multi-user.target
-
+    
 CALICS
+    echo_progress_done "Calibre content server installed"
+    if [[ "$CALIBRE_LIBRARY_SKIP" = "true" ]]; then
+        echo_info "Please modify /etc/systemd/system/calibre-cs.service to point to your library accordingly later."
+        return
+    fi
 
-    if [[ -z $CALIBRE_INSTALL_CSERV ]]; then
-        if ask "Would you like to enable the Calibre Content Server?"; then
-            CALIBRE_INSTALL_CSERV="true"
+    if [[ -z $CALIBRE_ENABLE_SERVER ]]; then
+        if ask "Would you like to enable and start the Calibre Content Server?"; then
+            CALIBRE_ENABLE_SERVER="true"
         fi
     fi
-    if [[ $CALIBRE_INSTALL_CSERV = "true" ]]; then
+
+    if [[ $CALIBRE_ENABLE_SERVER = "true" ]]; then
         echo_progress_start "Enablging Calibre Content Server"
         systemctl enable --now -q calibre-cs
         echo_progress_done "Enablging Calibre Content Server"
