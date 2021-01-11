@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+build_calibre_from_source() {
+    apt_install python3
+    cd /tmp
+    wget http://status.calibre-ebook.com/dist/src -O /tmp/calibresource.tar
+    mkdir
+    tar -C /tmp/calibre-src -xf /tmp/calibresource.tar --strip-components=1
+    chown root: -R /tmp/calibre-src/
+    mkdir -p /tmp/calibre-src/build/objects/{hunspell,hyphen,unicode_names,speedup,certgen,html_syntax_highlighter,tokenizer}
+    apt_install libpodofo-dev libhunspell-dev libhyphen-dev libusb-1.0-0-dev libmtp-dev
+    # pip3 install sip pyqtbuild PyQt-builder six unrardll lxml pychm html5-parser css-parser dateutil dbuspython dnspython mechanize feedparser markdown html2text
+    # PKG_CONFIG_PATH=/usr/bin
+    git clone https://github.com/kovidgoyal/bypy.git /tmp/bypy
+    export CALIBRE_DEVELOP_FROM=/tmp/calibre-src
+    export BYPY_LOCATION=/tmp/bypy
+    python3 setup.py linux
+    # python3 setup.py install
+}
