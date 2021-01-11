@@ -36,12 +36,12 @@ fi
 _library() {
     if [ -e "$CALIBRE_LIBRARY_PATH" ]; then
         echo_info "Calibre library already exists"
-        return
+        return 0
     fi
 
     if [ "$CALIBRE_LIBRARY_SKIP" = "true" ]; then
         echo_info "Library creation skipped."
-        return
+        return 0
     fi
 
     echo_progress_start "Creating library"
@@ -65,12 +65,17 @@ _content_server() {
     pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
 
     # TODO see what this does lmao
-    echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
+    # echo -e "1\n" > /tmp/csuservdinput.txt
+    # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
     echo_info "You will now be asked to create a user for the calibre content server."
     echo_query "Press enter to continue" "enter"
     read
     ## TODO handle
-    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users
+    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users | tee -a "$log" || {
+        rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite
+        echo_error "Failed to set up user for calibre-server"
+        exit 1
+    }
     # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
 
     chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config
@@ -84,8 +89,8 @@ After=network.target
 Type=simple
 User=$CALIBRE_LIBRARY_USER
 Group=$CALIBRE_LIBRARY_USER
+ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
 
-ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" ${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
 [Install]
 WantedBy=multi-user.target
     
