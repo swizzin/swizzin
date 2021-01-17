@@ -5,6 +5,17 @@
 calibrewebdir="/opt/calibre-web"
 clbWebUser="calibreweb" # or make this master user?
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
+if [[ -z $CALIBRE_LIBRARY_USER ]]; then
+    CALIBRE_LIBRARY_USER="$(_get_master_username)"
+fi
+
+if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
+    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+fi
+
 if [[ ! -f /install/.calibre.lock ]]; then
     echo_warn "Calibre not found (or installed without swizzin)"
     if ask "Install Calibre through swizzin now?" Y; then
@@ -57,10 +68,7 @@ function _install_calibreweb() {
     chown -R $clbWebUser:$clbWebUser $calibrewebdir
     chown -R ${clbWebUser}: /opt/.venv/calibre-web
     #This bit right here will ensure that the system user created will have access to the master user's folders where he might have the CalibreDB
-    if [[ -z $clbDbOwner ]]; then
-        clbDbOwner=$(cut -d: -f1 < /root/.master.info)
-    fi
-    usermod -a -G "${clbDbOwner}" $clbWebUser >> $log 2>&1
+    usermod -a -G "${CALIBRE_LIBRARY_USER}" $clbWebUser >> $log 2>&1
     echo_progress_done
 
     echo_progress_start "Installing python dependencies"
