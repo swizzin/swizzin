@@ -126,7 +126,9 @@ _post_libdir() {
         sleep 5
         curl -sk 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
             --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
-            --data-urlencode "submit=" >> "$log"
+            --data-urlencode "submit=" >> "$log" || {
+            echo_warn "Setting failed, please configure your calibre library path manually in the web interface"
+        }
         echo_progress_done "Library set"
     else
         echo_warn "Please configure your calibre library manually in the web interface"
