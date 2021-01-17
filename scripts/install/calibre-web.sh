@@ -121,10 +121,12 @@ EOF
 }
 
 _post_libdir() {
-    if [[ -e /home/$clbDbOwner/calibre-library ]]; then
+    if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
         echo_progress_start "Setting calibre library directory"
-        curl -sk 'http://127.0.0.1:8083/config' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
-            --data-raw "config_calibre_dir=%2Fhome%2F$clbDbOwner%2Fcalibre-library&submit=" >> "$log"
+        sleep 5
+        curl -sk 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
+            --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
+            --data-urlencode "submit=" >> "$log"
         echo_progress_done "Library set"
     fi
 }
