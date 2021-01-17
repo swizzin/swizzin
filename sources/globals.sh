@@ -26,3 +26,7 @@ export log="/root/logs/swizzin.log"
 # A script to standardise yes/no dialogues
 #shellcheck source=sources/functions/ask
 . /etc/swizzin/sources/functions/ask
+
+# Tool to manage key-value pairs on filesystem in persistent storage
+#shellcheck source=sources/functions/swizdb
+. /etc/swizzin/sources/functions/swizdb

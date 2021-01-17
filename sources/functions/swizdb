@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+export dbdir="/var/lib/swizzin/db"
+
+# Maniulate Swizzin db
+# ----
+# Arguments:
+# - $1 = DB method. (One of `set`, `get`, `clear` and `path`)
+# - $2 = Key
+# - $3 = Value (Only for `set` method)
+swizdb() {
+    method="$1"
+    key="$2"
+    value="$3"
+
+    case "$method" in
+        set)
+            _setswizdb "$key" "$value"
+            ;;
+        get)
+            _getswizdb "$key"
+            ;;
+        clear)
+            _clearswizdb "$key"
+            ;;
+        path)
+            _pathswizdb "$key"
+            ;;
+        *)
+            echo_error "Unsupported db method!"
+            return 1
+            ;;
+    esac
+}
+export -f swizdb
+
+# Get a value from the database
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+_getswizdb() {
+    key="$1"
+    path="$(_pathswizdb "$key")" || {
+        return 1
+    }
+    echo_log_only "Output of key \"$key\""
+    cat "$path" | tee -a "$log"
+}
+export -f _getswizdb
+
+#Clear a value in the "database"
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+_clearswizdb() {
+    key="$1"
+    path="$(_pathswizdb "$key")" || {
+        return 1
+    }
+    echo_log_only "Removing key \"$key\""
+    rm "$path" >> "$log" 2>&1
+}
+export -f _clearswizdb
+
+# Set a value in the database
+# \
+# $1 = key
+# $2 = value
+_setswizdb() {
+    mkdir -p $dbdir # Always ensure dir exists
+    key="$1"
+    value="$2"
+    echo_log_only "Setting key \"$key\" to \"$value\""
+    echo "${value}" > "$dbdir/$key"
+}
+export -f _setswizdb
+
+# Returns the path of a key file from db
+# \
+# $1 = key
+# \
+# **Returns code 1 if not found**
+_pathswizdb() {
+    key="$1"
+    if [ -e "$dbdir/$key" ]; then
+        echo_log_only "Path of file for key \"$key\" is  \"$dbdir/$key\""
+        echo "$dbdir/$key"
+        return 0
+    else
+        echo_log_only "File for key \"$key\" does not exist"
+        return 1
+    fi
+}
+export -f _pathswizdb
