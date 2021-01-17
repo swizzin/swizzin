@@ -95,7 +95,7 @@ _nginx_calibreweb() {
         systemctl reload nginx
         echo_progress_done
     else
-        echo_info "CalibreWeb will be accessible on port 8083"
+        echo_info "Calibre-web will be accessible on port 8083"
     fi
 }
 
@@ -128,7 +128,15 @@ _post_libdir() {
             --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
             --data-urlencode "submit=" >> "$log"
         echo_progress_done "Library set"
+    else
+        echo_warn "Please configure your calibre library manually in the web interface"
     fi
+}
+
+_post_changepass() {
+    : #This is where the admin password will be changed
+    echo_warn "Continue the configuration and installation of Calibre-web through the browser
+CHANGE THESE IMMEDIATELY --> user:admin password:admin123  <-- CHANGE THESE IMMEDIATELY"
 }
 
 _install_dependencies_calibreweb
@@ -137,9 +145,8 @@ _install_kepubify
 _systemd_calibreweb
 _nginx_calibreweb
 _post_libdir
+_post_changepass
 
 touch /install/.calibre-web.lock
 echo_success "Calibre-web installed"
-echo_warn "Continue the configuration and installation of Calibre-web through the browser
-CHANGE THESE IMMEDIATELY --> user:admin password:admin123  <-- CHANGE THESE IMMEDIATELY"\
 echo_docs "applications/calibre-web#post-install"
