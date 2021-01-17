@@ -33,7 +33,7 @@ function _install_calibreweb() {
     echo_progress_done "Venv created"
 
     echo_progress_start "Downloading Calibre-web source code archive"
-    dlurl=$(curl -s https://api.github.com/repos/janeczku/calibre-web/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+    dlurl=$(curl -s https://api.github.com/repos/janeczku/calibre-web/releases/latest | jq -r '.zipball_url')
     # shellcheck disable=SC2181
     if [[ $? != 0 ]]; then
         echo_error "Failed to query github"
