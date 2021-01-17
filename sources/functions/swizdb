@@ -41,7 +41,11 @@ export -f swizdb
 # **Returns code 1 if not found**
 _getswizdb() {
     key="$1"
-    cat "$(_pathswizdb "$key")" | tee -a "$log"
+    path="$(_pathswizdb "$key")" || {
+        return 1
+    }
+    echo_log_only "Output of key \"$key\""
+    cat "$path" | tee -a "$log"
 }
 export -f _getswizdb
 
@@ -52,7 +56,11 @@ export -f _getswizdb
 # **Returns code 1 if not found**
 _clearswizdb() {
     key="$1"
-    rm "$(_pathswizdb "$key")" >> "$log" 2>&1
+    path="$(_pathswizdb "$key")" || {
+        return 1
+    }
+    echo_log_only "Removing key \"$key\""
+    rm "$path" >> "$log" 2>&1
 }
 export -f _clearswizdb
 
@@ -64,7 +72,7 @@ _setswizdb() {
     mkdir -p $dbdir # Always ensure dir exists
     key="$1"
     value="$2"
-    echo_log_only "Setting \"$key\" to \"$value\""
+    echo_log_only "Setting key \"$key\" to \"$value\""
     echo "${value}" > "$dbdir/$key"
 }
 export -f _setswizdb
@@ -80,7 +88,7 @@ _pathswizdb() {
         echo "$dbdir/$key"
         return 0
     else
-        echo_log_only "File for \"$key\" does not exist"
+        echo_log_only "File for key \"$key\" does not exist"
         return 1
     fi
 }
