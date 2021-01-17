@@ -85,6 +85,7 @@ export -f _setswizdb
 _pathswizdb() {
     key="$1"
     if [ -e "$dbdir/$key" ]; then
+        echo_log_only "Path of file for key \"$key\" is  \"$dbdir/$key\""
         echo "$dbdir/$key"
         return 0
     else
