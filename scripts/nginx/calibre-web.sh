@@ -9,3 +9,7 @@ location /calibre {
         proxy_set_header        X-Script-Name   /calibre;  # IMPORTANT: path has NO trailing slash
 }
 EOF
+
+sed '/ExecStart=/ s/$/ -i 127.0.0.1/' -i /etc/systemd/system/calibre-web.service
+systemctl daemon-reload
+systemctl try-restart calibre-web
