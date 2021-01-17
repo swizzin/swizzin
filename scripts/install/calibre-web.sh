@@ -65,15 +65,9 @@ function _install_calibreweb() {
 
     echo_progress_start "Installing python dependencies"
     sudo -u ${clbWebUser} bash -c "/opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/requirements.txt" >> $log 2>&1
-    # /opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/requirements.txt >> $log 2>&1
     #fuck ldap. all my homies hate ldap
     sed '/ldap/Id' -i $calibrewebdir/optional-requirements.txt
-    if [[ $dlurl =~ 0\.6\.9 ]]; then
-        echo_log_only "Downgrading greenlet due to this bug https://github.com/janeczku/calibre-web/issues/1755"
-        sed 's/greenlet>=0.4.12,<0.5.0/greenlet>=0.4.12,<0.4.17/g' -i $calibrewebdir/optional-requirements.txt
-    fi
     sudo -u ${clbWebUser} bash -c "/opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/optional-requirements.txt" >> $log 2>&1
-    # /opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/optional-requirements.txt >> $log 2>&1
     echo_progress_done
 }
 
