@@ -41,7 +41,7 @@ export -f swizdb
 # **Returns code 1 if not found**
 _getswizdb() {
     key="$1"
-    cat "$(_pathswizdb "$key")" >> "$log" 2>&1
+    cat "$(_pathswizdb "$key")" | tee -a "$log"
 }
 export -f _getswizdb
 
