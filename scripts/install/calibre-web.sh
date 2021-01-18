@@ -19,13 +19,16 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
     fi
 fi
 
-if [[ ! -f /install/.calibre.lock ]]; then
-    echo_warn "Calibre not found (or installed without swizzin). Having a calibre is functionally required to use calibre-web, but the installer will not fail. You can create a calibre library at a later stage."
-    if ask "Install Calibre through swizzin now?" Y; then
-        bash /etc/swizzin/scripts/install/calibre.sh || {
-            echo_info "Installer failed, please try again"
-            exit 1
-        }
+if [[ ! -f /install/.calibre.lock ]]; then    # If it's not installed from swizzin
+    if [ ! -e "$CALIBRE_LIBRARY_PATH" ]; then # If the default location does not exist OR the variable is not set...
+        echo_warn "Calibre not installed, and no alternative library path is specified."
+        echo_info "While having a calibre library is functionally required to use calibre-web, but the installer will not fail. You can create a calibre library at a later stage."
+        if ask "Install Calibre through swizzin now?" Y; then
+            bash /etc/swizzin/scripts/install/calibre.sh || {
+                echo_info "Installer failed, please try again"
+                exit 1
+            }
+        fi
     fi
 fi
 
