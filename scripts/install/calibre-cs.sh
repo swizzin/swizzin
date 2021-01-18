@@ -72,9 +72,14 @@ _nginx() {
         return
     fi
 
-    echo_progress_start "Enabling Calibre Content Server"
-    systemctl enable --now -q calibre-cs
-    echo_progress_done "Calibre CS enabled"
 }
+
+_install
+_systemd
+_nginx
+
+echo_progress_start "Enabling Calibre Content Server"
+systemctl enable --now -q calibre-cs
+echo_progress_done "Calibre CS enabled"
 
 touch /install/.calibre-cs.lock
