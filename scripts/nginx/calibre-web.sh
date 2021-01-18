@@ -1,6 +1,6 @@
 #!/bin/bash
 cat > /etc/nginx/apps/calibre-web.conf << EOF
-location /calibre {
+location /calibre-web {
         proxy_bind              \$server_addr;
         proxy_pass              http://127.0.0.1:8083;
         proxy_set_header        Host            \$http_host;
