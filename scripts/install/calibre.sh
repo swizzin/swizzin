@@ -57,10 +57,10 @@ _library() {
 _content_server() {
     echo_progress_start "Installing Calibre Content service"
 
-    mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/
+    mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/
     chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
 
-    touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/.calibre.log
+    touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/.calibre.log
     pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
 
     echo_info "You will now be asked to create a user for the calibre content server."
@@ -68,14 +68,14 @@ _content_server() {
     read
     ## TODO handle programatically
     # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
-    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
-    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users | tee -a "$log" || {
-        rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite
+    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
+    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users | tee -a "$log" || {
+        rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite
         echo_error "Failed to set up user for calibre-server"
         exit 1
     }
 
-    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config/calibre
+    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs
 
     cat > /etc/systemd/system/calibre-cs.service << CALICS
 [Unit]
