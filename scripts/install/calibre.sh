@@ -93,6 +93,15 @@ WantedBy=multi-user.target
     
 CALICS
     echo_progress_done "Calibre content server installed"
+    echo_info "The Calibre content server will run on port 8089, please make not of this in case you want to use it in automation"
+
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        bash /etc/swizzin/scripts/nginx/calibre.sh
+        systemctl reload nginx
+        echo_progress_done "nginx configured"
+    fi
+
     if [[ "$CALIBRE_LIBRARY_SKIP" = "true" ]]; then
         echo_info "Please modify /etc/systemd/system/calibre-cs.service to point to your library accordingly later."
         return
