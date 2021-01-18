@@ -13,11 +13,14 @@ if [[ -z $CALIBRE_LIBRARY_USER ]]; then
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+    # If not specifically declared, try the default calibre lib in swizzin
+    if [ -e "/home/$CALIBRE_LIBRARY_USER/Calibre Library" ]; then
+        CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+    fi
 fi
 
 if [[ ! -f /install/.calibre.lock ]]; then
-    echo_warn "Calibre not found (or installed without swizzin)"
+    echo_warn "Calibre not found (or installed without swizzin). Having a calibre is functionally required to use calibre-web, but the installer will not fail. You can create a calibre library at a later stage."
     if ask "Install Calibre through swizzin now?" Y; then
         bash /etc/swizzin/scripts/install/calibre.sh || {
             echo_info "Installer failed, please try again"
@@ -116,8 +119,8 @@ EOF
 
 _post_libdir() {
     if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
-        echo_progress_start "Setting calibre library directory"
-        sleep 5
+        echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
+        sleep 5 # TODO replace with an actual timeout
         curl -sk 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
             --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
             --data-urlencode "submit=" >> "$log" || {
