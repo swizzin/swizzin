@@ -13,11 +13,8 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
 fi
 
 _install() {
-
     apt_install xdg-utils wget xz-utils libxcb-xinerama0 libfontconfig libgl1-mesa-glx
-
     # TODO make a whiptail to let user install from repo, binaries, or source, and modify that selection based on the arch
-
     echo_progress_start "Installing calibre"
     if [[ $(_os_arch) = "amd64" ]]; then
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
@@ -61,24 +58,24 @@ _content_server() {
     echo_progress_start "Installing Calibre Content service"
 
     mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/
+    chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
+
     touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/.calibre.log
     pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
 
-    # TODO see what this does lmao
-    # echo -e "1\n" > /tmp/csuservdinput.txt
-    # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
     echo_info "You will now be asked to create a user for the calibre content server."
     echo_query "Press enter to continue" "enter"
     read
-    ## TODO handle
+    ## TODO handle programatically
+    # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
+    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
     calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users | tee -a "$log" || {
         rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite
         echo_error "Failed to set up user for calibre-server"
         exit 1
     }
-    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
 
-    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config
+    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config/calibre
 
     cat > /etc/systemd/system/calibre-cs.service << CALICS
 [Unit]
