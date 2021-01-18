@@ -8,11 +8,6 @@ else
     apt_remove calibre
 fi
 
-systemctl disable --now -q calibre-cs
-rm /etc/systemd/system/calibre-cs.service
+bash /etc/swizzin/scripts/remove/calibre-cs.sh
 
-#shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
-master=$(_get_master_username)
-rm -rf "/home/$master/.config/calibre"
 rm /install/.calibre.lock
