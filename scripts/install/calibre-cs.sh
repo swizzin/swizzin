@@ -62,7 +62,7 @@ CALICS
 _nginx() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        bash /etc/swizzin/scripts/nginx/calibre.sh
+        bash /etc/swizzin/scripts/nginx/calibre-cs.sh
         systemctl reload nginx
         echo_progress_done "nginx configured"
     fi
@@ -81,5 +81,7 @@ _nginx
 echo_progress_start "Enabling Calibre Content Server"
 systemctl enable --now -q calibre-cs
 echo_progress_done "Calibre CS enabled"
+
+echo_success "Calibre content server installed"
 
 touch /install/.calibre-cs.lock
