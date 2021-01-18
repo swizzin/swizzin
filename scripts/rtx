@@ -2,7 +2,7 @@
 # ruTorrent e(x)tras management
 
 function _check_for_rutorrent() {
-    if [ -f "/install/.rutorrent.lock" ]; then
+    if [ ! -f "/install/.rutorrent.lock" ]; then
         echo_error "RuTorrent is not installed. Installing extensions into something that is not installed is slightly impossible ;)"
         exit 1
     fi
