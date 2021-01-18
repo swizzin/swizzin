@@ -19,14 +19,8 @@ fi
 if [[ ! -f /install/.calibre.lock ]]; then
     echo_warn "Calibre not found (or installed without swizzin)"
     if ask "Install Calibre through swizzin now?" Y; then
-        export CALIBRE_INSTALL_CSERV=false
-        if ! bash /etc/swizzin/scripts/install/calibre.sh; then
-            ask "Calibre installer failed. Continue installing calibre-web?" N || {
-                exit 1
-            }
-        fi
-    else
-        ask "Really continue installing calibre-web without calibre?" N || {
+        bash /etc/swizzin/scripts/install/calibre.sh || {
+            echo_info "Installer failed, please try again"
             exit 1
         }
     fi
