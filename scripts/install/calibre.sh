@@ -1,6 +1,17 @@
 #!/bin/bash
 # Calibre installer
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
+if [ -z "$CALIBRE_LIBRARY_USER" ]; then
+    CALIBRE_LIBRARY_USER=$(_get_master_username)
+fi
+
+if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
+    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+fi
+
 _install() {
 
     apt_install xdg-utils wget xz-utils libxcb-xinerama0 libfontconfig libgl1-mesa-glx
@@ -21,17 +32,6 @@ _install() {
     fi
     echo_progress_done "Calibre installed"
 }
-
-#shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
-
-if [ -z "$CALIBRE_LIBRARY_USER" ]; then
-    CALIBRE_LIBRARY_USER=$(_get_master_username)
-fi
-
-if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
-fi
 
 _library() {
     if [ -e "$CALIBRE_LIBRARY_PATH" ]; then
