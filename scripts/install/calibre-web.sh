@@ -128,7 +128,7 @@ _post_libdir() {
         }
         echo_progress_done "Library set"
     else
-        echo_warn "Please configure your calibre library manually in the web interface"
+        echo_warn "Calibre library path either not set, or path does not exist. Please configure your calibre library manually in the web interface"
     fi
 }
 
