@@ -143,7 +143,7 @@ _post_libdir() {
 
 _post_changepass() {
     pass="$(_get_user_password "$CALIBRE_LIBRARY_USER")"
-    /opt/.venv/calibre-web/bin/python3 /opt/calibre-web/cps.py -s admin:"${pass@Q}" >> "$log" 2>&1
+    /opt/.venv/calibre-web/bin/python3 /opt/calibre-web/cps.py -s admin:"${pass}" >> "$log" 2>&1
     echo_info "Please use the username \"admin\" and the password of $CALIBRE_LIBRARY_USER to log in to calibre-web"
 }
 
