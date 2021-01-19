@@ -120,24 +120,24 @@ EOF
 }
 
 _post_libdir() {
-    if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
-        echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
-
-        timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibre-web to come up..."; done' || {
-            echo_log_only "Timed out"
-            return 1
-        }
-
-        curl -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
-            --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
-            --data-urlencode "submit=" >> "$log" || {
-            echo_log_only "curl fucked"
-            return 1
-        }
-        echo_progress_done "Library set"
-    else
+    if [[ ! -e "$CALIBRE_LIBRARY_PATH" ]]; then
         echo_warn "Calibre library path either not set, or path does not exist. Please configure your calibre library manually in the web interface"
+        return 1
     fi
+
+    echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
+
+    timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibre-web to come up..."; done' || {
+        echo_log_only "Timed out"
+        return 1
+    }
+    curl -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
+        --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
+        --data-urlencode "submit=" >> "$log" || {
+        echo_log_only "curl fucked"
+        return 1
+    }
+    echo_progress_done "Library set"
 }
 
 _post_changepass() {
