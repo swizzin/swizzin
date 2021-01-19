@@ -124,7 +124,7 @@ _post_libdir() {
     if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
         echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
 
-        timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibre-web to come up..." done' || {
+        timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibre-web to come up..."; done' || {
             echo_log_only "Timed out"
             return 1
         }
