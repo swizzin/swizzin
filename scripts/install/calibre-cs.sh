@@ -16,28 +16,24 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
     CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
 fi
 
-_install() {
-
-    mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/
-    chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
-
-    touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/.calibre.log
-    pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
-
-    echo_info "You will now be asked to create a user for the calibre content server."
-    echo_query "Press enter to continue" "enter"
-    read
-    ## TODO handle programatically
-    # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
-    # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
-    calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users | tee -a "$log" || {
-        rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite
-        echo_error "Failed to set up user for calibre-server"
-        exit 1
-    }
-
-    chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs
-}
+# _install() {
+#     mkdir -p /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/
+#     chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
+#     touch /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/.calibre.log
+#     pass=$(_get_user_password "$CALIBRE_LIBRARY_USER")
+#     echo_info "You will now be asked to create a user for the calibre content server."
+#     echo_query "Press enter to continue" "enter"
+#     read
+#     ## TODO handle programatically
+#     # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
+#     # calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
+#     calibre-server --userdb /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite --manage-users | tee -a "$log" || {
+#         rm /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs/server-users.sqlite
+#         echo_error "Failed to set up user for calibre-server"
+#         exit 1
+#     }
+#     chown -R "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs
+# }
 
 _systemd() {
     cat > /etc/systemd/system/calibre-cs.service << CALICS
@@ -49,14 +45,14 @@ After=network.target
 Type=simple
 User=$CALIBRE_LIBRARY_USER
 Group=$CALIBRE_LIBRARY_USER
-ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre-cs/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
 
 [Install]
 WantedBy=multi-user.target
     
 CALICS
+    # ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre-cs/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
     echo_progress_done "Calibre content server installed"
-    echo_info "The Calibre content server will run on port 8089, please make not of this in case you want to use it in automation"
+    echo_info "The Calibre content server will run on port 8089, please make note of this in case you want to use it in automation"
 }
 
 _nginx() {
@@ -74,7 +70,7 @@ _nginx() {
 
 }
 
-_install
+# _install # Removed as we're going to just un-auth the thing and use nginx-based auth instead
 _systemd
 _nginx
 
