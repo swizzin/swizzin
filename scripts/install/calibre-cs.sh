@@ -45,16 +45,17 @@ _install() {
     chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
     touch "$clbServerPath"/.calibre.log
 
-    # readarray -t users < <(_get_user_list)
-    users=("$(_get_master_username)")
+    # TODO improve when the upstream cli options are in master and we can build from source
 
     echo_progress_start "Adding users to calibre content server"
+    # readarray -t users < <(_get_user_list)
+    users=("$(_get_master_username)")
     for user in "${users[@]}"; do
         _adduser "$user"
     done
+    echo_progress_done "Users added to calibre content server"
 
     chown -R "$CALIBRE_LIBRARY_USER": "$clbServerPath"
-    echo_progress_done "Users added to calibre content server"
 }
 
 _systemd() {
@@ -100,7 +101,7 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
-_install # Removed as we're going to just un-auth the thing and use nginx-based auth instead
+# _install # Removed as we're going to just un-auth the thing and use nginx-based auth instead
 _systemd
 _nginx
 
