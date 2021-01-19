@@ -17,7 +17,7 @@ rm /etc/systemd/system/calibre-cs.service
 rm -rf /home/$CALIBRE_LIBRARY_USER/.config/calibre-cs
 
 if [[ -f /install/.nginx.lock ]]; then
-    rm /etc/nginx/apps/calibre-cs.service
+    rm /etc/nginx/apps/calibre-cs.conf
     systemctl reload nginx
 fi
 rm /install/.calibre-cs.lock
