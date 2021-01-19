@@ -143,8 +143,9 @@ _post_libdir() {
 
 _post_changepass() {
     : #This is where the admin password will be changed
-    echo_warn "Continue the configuration and installation of Calibre-web through the browser
-CHANGE THESE IMMEDIATELY --> user:admin password:admin123  <-- CHANGE THESE IMMEDIATELY"
+    echo_warn "Please log into Calibre-web and IMMEDIATELY change the default credentials.
+\tUsername : admin
+\tPassword : admin123"
 }
 
 _install_dependencies_calibreweb
