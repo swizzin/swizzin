@@ -124,7 +124,7 @@ _post_libdir() {
     if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
         echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
         sleep 5 # TODO replace with an actual timeout
-        curl -sk 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
+        curl -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
             --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
             --data-urlencode "submit=" >> "$log" || {
             echo_warn "Setting failed, please configure your calibre library path manually in the web interface"
