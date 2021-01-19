@@ -123,11 +123,17 @@ EOF
 _post_libdir() {
     if [[ -e "$CALIBRE_LIBRARY_PATH" ]]; then
         echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
-        sleep 5 # TODO replace with an actual timeout
+
+        timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; done' || {
+            echo_log_only "Timed out"
+            return 1
+        }
+
         curl -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
             --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
             --data-urlencode "submit=" >> "$log" || {
-            echo_warn "Setting failed, please configure your calibre library path manually in the web interface"
+            echo_log_only "curl fucked"
+            return 1
         }
         echo_progress_done "Library set"
     else
@@ -146,7 +152,9 @@ _install_calibreweb
 _install_kepubify
 _systemd_calibreweb
 _nginx_calibreweb
-_post_libdir
+_post_libdir || {
+    echo_warn "Calibre-web did not start within time, please set Library path manually in web interface"
+}
 _post_changepass
 
 touch /install/.calibre-web.lock
