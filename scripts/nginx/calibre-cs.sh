@@ -14,7 +14,7 @@ location /calibre-cs {
 }
 EOF
 
-sed '/ExecStart=/ s/$/ --listen-on 127.0.0.1 --url-prefix \/calibre-cs/' -i /etc/systemd/system/calibre-cs.service
+sed '/ExecStart=/ s/$/ --listen-on 127.0.0.1 --url-prefix \/calibre-cs/ --trusted-ips 127.0.0.1' -i /etc/systemd/system/calibre-cs.service
 
 systemctl daemon-reload
 systemctl try-restart calibre-cs
