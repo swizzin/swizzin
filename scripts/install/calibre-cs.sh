@@ -16,7 +16,7 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
     CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
 fi
 
-clbServerPath=/home/"$CALIBRE_LIBRARY_USER"/.config/calibre-cs
+clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibre-cs"
 
 _adduser() {
     ## TODO handle programatically
@@ -34,7 +34,10 @@ _adduser() {
     echo_log_only "Adding user $user"
     user=$1
     pass=$(_get_user_password "$user")
-    echo -e "1\n$user\n$pass\n$pass" | calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users
+    echo -e "1\n$user\n$pass\n$pass" | calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users || {
+        echo_error "Something failed?"
+        exit 1
+    }
 }
 
 _install() {
@@ -43,7 +46,7 @@ _install() {
     touch "$clbServerPath"/.calibre.log
 
     # readarray -t users < <(_get_user_list)
-    users=("$(_get_master_user)")
+    users=("$(_get_master_username)")
 
     echo_progress_start "Adding users to calibre content server"
     for user in "${users[@]}"; do
