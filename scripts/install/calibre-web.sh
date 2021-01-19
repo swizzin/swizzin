@@ -142,10 +142,9 @@ _post_libdir() {
 }
 
 _post_changepass() {
-    : #This is where the admin password will be changed
-    echo_warn "Please log into Calibre-web and IMMEDIATELY change the default credentials.
-\tUsername : admin
-\tPassword : admin123"
+    pass="$(_get_user_password "$CALIBRE_LIBRARY_USER")"
+    /opt/.venv/calibre-web/bin/python3 /opt/calibre-web/cps.py -s admin:"${pass@Q}" >> "$log" 2>&1
+    echo_info "Please use the username \"admin\" and the password of $CALIBRE_LIBRARY_USER to log in to calibre-web"
 }
 
 _install_dependencies_calibreweb
