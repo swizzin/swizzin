@@ -45,6 +45,8 @@ After=network.target
 Type=simple
 User=$CALIBRE_LIBRARY_USER
 Group=$CALIBRE_LIBRARY_USER
+ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
+
 
 [Install]
 WantedBy=multi-user.target
