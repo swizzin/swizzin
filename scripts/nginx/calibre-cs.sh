@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-cat > /etc/nginx/apps/calibre.conf << EOF
+cat > /etc/nginx/apps/calibre-cs.conf << EOF
 proxy_set_header X-Forwarded-For \$remote_addr;
 location /calibre-cs/ {
     proxy_buffering         off;
