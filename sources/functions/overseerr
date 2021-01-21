@@ -30,5 +30,6 @@ overseerr_install() {
         echo_error "Failed to build overseerr sqlite"
         exit 1
     }
+    chown -R overseerr: /opt/overseerr
     echo_progress_done "Succesfully built"
 }
