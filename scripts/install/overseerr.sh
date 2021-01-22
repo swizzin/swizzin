@@ -18,10 +18,7 @@ _dependencies() {
 }
 
 _user() {
-    cat > /opt/overseerr/env.conf << EOF
-# specify on which port to listen
-PORT=5055
-EOF
+    mkdir /opt/overseerr
     useradd overseerr --system -d /opt/overseerr
     chown -R overseerr: /opt/overseerr
 }
@@ -47,6 +44,12 @@ ExecStart=/usr/bin/node dist/index.js
 [Install]
 WantedBy=multi-user.target
 EOF
+
+    cat > /opt/overseerr/env.conf << EOF
+# specify on which port to listen
+PORT=5055
+EOF
+
     systemctl daemon-reload
     systemctl enable --now -q overseerr
 }
@@ -60,14 +63,13 @@ _nginx() {
     else
         echo_info "Overseerr will be available on port 5055"
     fi
-
 }
 
 _dependencies
+_user
 #shellcheck source=sources/functions/overseerr
 . /etc/swizzin/sources/functions/overseerr
 overseerr_install
-_user
 _service
 # _nginx
 
