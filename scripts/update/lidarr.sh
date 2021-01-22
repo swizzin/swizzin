@@ -12,6 +12,7 @@ if [[ -f /install/.lidarr.lock ]]; then
         sudo chown -R $user:$user /opt/Lidarr
 
         sed -i "/ExecStart/c\ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser" /etc/systemd/system/lidarr.service
+        sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
         systemctl daemon-reload
 
         if [[ $wasActive = "active" ]]; then

@@ -18,7 +18,7 @@ version=$(lsb_release -cs)
 mono_repo_setup
 apt_install libmono-cil-dev libchromaprint-tools
 
-echo_progress_done "Fetching Lidarr source files"
+echo_progress_start "Fetching Lidarr source files"
 wget -O /tmp/lidarr.tar.gz "$(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)" >> $log 2>&1
 echo_progress_done "Source fetched"
 
@@ -52,7 +52,6 @@ User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
 ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser
-ExecStop=-/bin/kill -HUP
 WorkingDirectory=/home/${user}/
 Restart=on-failure
 
