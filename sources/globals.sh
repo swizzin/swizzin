@@ -30,3 +30,7 @@ export log="/root/logs/swizzin.log"
 # A script to offer user and password management functions
 #shellcheck source=sources/functions/users
 . /etc/swizzin/sources/functions/users
+
+# Tool to manage key-value pairs on filesystem in persistent storage
+#shellcheck source=sources/functions/swizdb
+. /etc/swizzin/sources/functions/swizdb

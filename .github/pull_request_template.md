@@ -1,37 +1,29 @@
 <!--Heya! Thanks for the PR. Please fill out this short little form below to help us review this faster-->
 
+## Description
+<!-- Any general story time goes here :) Feel free to add screenshots/recording of your change in action here-->
+
+<!-- This will create an expandable section. Feel free to delete this if you don't need it-->
+<details>
+<summary>Label of collapsible goes here</summary>
+<!-- This is where you can put pictures, huge logs, or anything.-->
+</details>
+
 ## Fixes issues: 
-- Issue #420
-- Issue #69
-- ...
+- Issue #nr...
+- Un-tracked issue...
 
 ## Proposed Changes:
-- Change 1
-- Change 2
-- ...
+- Changed xyz...
 
-## Categories
-<!-- Delete whichever don't apply -->
-- Bug fix (non-breaking change which fixes an issue)
-- New feature (non-breaking change which adds functionality)
-- Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- This change requires a documentation update
-- Some existing `functions` got changed (e.g. `utils`, `os`, `apt`, `ask`, etc.)
-- Changes structure of project (major rewrites, large directory changes, etc.)
-- Impacts the flow of how we contribute (IDE changes, `.github` dir, etc.)
-
-## Architectures
-<!-- In case it is impossible to handle due to some issues, please make sure to handle that case for the end-user's sexperience-->
-- `x86_64` is specifically handled as:
-    - [ ] Success
-    - [ ] Error
-    - Notes: 
-- `arm64` is specifically handled as:
-    - [ ] Success
-    - [ ] Error
-    - Notes: 
-- [ ] Changes are arch agnostic <!-- This means things like nginx/systemd/bash changes -->
-    - Notes: 
+## Change Categories
+<!-- DELETE WHICHEVER BULLET DOES NOT APPLY -->
+- Bug fix <!-- non-breaking change which fixes an issue -->
+- New feature <!-- non-breaking change which adds functionality -->
+- Breaking change <!-- fix or feature that would cause existing functionality to not work as expected -->
+- Change in `functions` <!-- e.g. `utils`, `os`, `apt`, `ask`, etc. -->
+- Project structure <!-- major rewrites, large directory changes, etc. -->
+- Contribution flow <!-- IDE changes, `.github` dir, etc. -->
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
@@ -44,15 +36,48 @@
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
 - [ ] I have commented my code, particularly in hard-to-understand areas
 
-## Testing done
-OS & Version:
+## Test scenarios
+<!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste the examples at the bottom of this section -->
 
-### How have you tested this
-<!-- Story time, please! -->
-Scenarios tested:
-- I ran this and it worked
-- I ran that and it didn't work
+### Architectures
+<!--
+Please use these emojis here to fill the table below. It will nicely auto-format with spacing, don't worry. Leave empty wherever you do not know / have not tested
+✅ = Works successfully
+❎ = Does not work BUT is handled gracefully
+🛠 = Still WIP
+❌ = Broken / not working
+-->
+|   			| `amd64` 	| `armhf` 	| `arm64` 	| Unspecified 	|
+|--------		|-------- 	|-------- 	|-------- 	|----------		|
+| Focal 		|			|			|			|				|
+| Bionic		|			|			|			|				|
+| Buster		|			|			|			|				|
+| Stretch		|			|			|			|				|
+| Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
 
-## Other remarks
+### ✅❎ Passed
 
+### 🛠🛠 TODO
+
+### ❌❌ Currently failing
+
+<!-- EXAMPLES :
+- Fresh app install without nginx
+    - With only one user
+    - With multiple users present
+- Fresh Install with nginx present nginx
+    - With only one user
+    - With multiple users present
+- Fresh install and nginx install afterwards
+    - With only one user
+    - With multiple users present
+- Update from version in master
+- Upgrade from version in master
+- Password gets changed from `box` in app
+- User removal from `box` acting on app
+- New user in `box` gets added to app
+- Sysinfo compatibility
+    - Info washed
+    - Content available
+-->
 

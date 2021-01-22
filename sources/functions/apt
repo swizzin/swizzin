@@ -209,7 +209,7 @@ get_candidate_version() {
 }
 export -f get_candidate_version
 
-# EXTERNAL ONLY Performing apt update and checking if it succeeded
+# Performing apt update and checking if it succeeded
 apt_update() {
     _apt_logcheck_mark
     _process_apt_args "$@"

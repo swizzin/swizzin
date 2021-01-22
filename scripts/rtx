@@ -1,6 +1,14 @@
 #!/bin/bash
 # ruTorrent e(x)tras management
 
+function _check_for_rutorrent() {
+    if [ ! -f "/install/.rutorrent.lock" ]; then
+        echo_error "RuTorrent is not installed. Installing extensions into something that is not installed is slightly impossible ;)"
+        exit 1
+    fi
+}
+_check_for_rutorrent
+
 function _intro() {
     whiptail --title "ruTorrent Extras Manager" --msgbox "Welcome to rtx! Using this script you can choose to install and remove the plugins and themes for ruTorrent. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
 }
