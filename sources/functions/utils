@@ -15,7 +15,6 @@ function _rar() {
     rm -rf /tmp/rar > /dev/null 2>&1
 }
 
-
 # Returns a password for a user in case one exists.
 # \
 # If password is not found, returns with error code 1
