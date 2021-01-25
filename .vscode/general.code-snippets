@@ -78,4 +78,30 @@
         ],
         "description": "Returns the arch of the OS"
     },
+    "Check and set environment variable": {
+        "scope": "shellscript",
+        "prefix": "envvar",
+        "body": [
+            "if [ -z \"$${1:VARIABLE_NAME}\" ]; then",
+            "\t${1:VARIABLE_NAME}=\"${2:default-value}\"",
+            "else",
+            "\techo_info \"Environment variable ${1:VARIABLE_NAME} set to $${1:VARIABLE_NAME}\"",
+            "fi"
+        ],
+        "description": "Checks whether a variable is set and echoes it out, otherwise it sets it to defaults"
+    },
+    "Install an nginx config": {
+        "scope": "shellscript",
+        "prefix": "nginxconf",
+        "body": [
+            "if [[ -f /install/.nginx.lock ]]; then",
+            "\techo_progress_start \"Configuring nginx\"",
+            "\tbash /etc/swizzin/scripts/nginx/${1:app}.sh",
+            "\tsystemctl reload nginx",
+            "\techo_progress_done \"nginx configured\"",
+            "else",
+            "\techo_info \"${1:app} will run on port ${2:port}\"",
+            "fi"
+        ],
+    }
 }
