@@ -316,6 +316,13 @@ function _check_results() {
     fi
 }
 
+function _prioritize_results() {
+    if grep -q nginx "$results"; then
+        sed -i '/nginx/d' /root/results
+        sed -i '1s/^/nginx\n/' /root/results
+    fi
+}
+
 function _install() {
     begin=$(date +"%s")
     if [[ -s /root/results ]]; then
@@ -389,6 +396,7 @@ _adduser
 #If setup is attended and there are no choices, go get some apps
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _check_results
+_prioritize_results
 _install
 _post
 _run_post
