@@ -243,6 +243,22 @@ function _choices() {
     done
     whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results || exit 1
     results=/root/results
+    if grep -q rtorrent "$results"; then
+        gui=(rutorrent flood)
+        for i in "${gui[@]}"; do
+            app=${i}
+            if [[ ! -f /install/.$app.lock ]]; then
+                guis+=("$i" '""')
+            fi
+        done
+        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
+        readarray guis < /root/guis
+        for g in "${guis[@]}"; do
+            g=$(echo $g)
+            sed -i "/rtorrent/a $g" /root/results
+        done
+        rm -f /root/guis
+    fi
     while IFS= read -r result; do
         touch /tmp/.$result.lock
     done < "$results"
@@ -269,20 +285,6 @@ function _check_results() {
         fi
     fi
     if grep -q rtorrent "$results"; then
-        gui=(rutorrent flood)
-        for i in "${gui[@]}"; do
-            app=${i}
-            if [[ ! -f /install/.$app.lock ]]; then
-                guis+=("$i" '""')
-            fi
-        done
-        whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
-        readarray guis < /root/guis
-        for g in "${guis[@]}"; do
-            g=$(echo $g)
-            sed -i "/rtorrent/a $g" /root/results
-        done
-        rm -f /root/guis
         . /etc/swizzin/sources/functions/rtorrent
         whiptail_rtorrent
     fi
