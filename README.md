@@ -38,6 +38,9 @@ sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
 ### Advanced setup
+
+_This feature is fresh AF! If you'd like to help us improve this, please chat with us in the Discord_
+
 There's a whole bunch of options for the setup.sh to achieve custom/unattended setups, which you can read all about [in this article](https://swizzin.ltd/guides/advanced-setup). Here are a couple of examples what you can do with it.
 
 Want to use your local swizzin clone instead of cloning upstream? Use the `--local` flag!
@@ -48,12 +51,12 @@ sudo bash swizzin/setup.sh --local
 
 Want to specify the user and their password? And the packages to have installed? Use the `--user` and `--pass` flags, and add packages as arguments!
 ```bash
-bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) qbittorrent nginx panel --user tester --pass test1234 
+bash <(curl -sL git.io/swizzin) --unattend qbittorrent nginx panel --user tester --pass test1234 
 ```
 
 Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file! (see the [unattended.example.env](unattended.example.env) file for an example)
 ```bash
-bash <(curl -s  https://raw.githubusercontent.com/liaralabs/swizzin/master/setup.sh) --env /path/to/your/env/file/here.env
+bash <(curl -sL git.io/swizzin) --env /path/to/your/env/file/here.env
 ```
 
 ### Supported Operating Systems
