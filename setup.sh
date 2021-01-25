@@ -243,7 +243,22 @@ function _choices() {
     done
     whiptail --title "Install Software" --checklist --noitem --separate-output "Choose your clients and core features." 15 26 7 "${packages[@]}" 2> /root/results || exit 1
     results=/root/results
+    while IFS= read -r result; do
+        touch /tmp/.$result.lock
+    done < "$results"
 
+    locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
+    for i in "${locksextra[@]}"; do
+        app=${i}
+        if [[ ! -f /tmp/.$app.lock ]]; then
+            extras+=("$i" '""')
+        fi
+    done
+    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2 || exit 1
+}
+
+function _check_results() {
+    results=/root/results
     if grep -q nginx "$results"; then
         if [[ -n $(pidof apache2) ]]; then
             if (whiptail --title "apache2 conflict" --yesno --yes-button "Purge it!" --no-button "Disable it" "WARNING: The installer has detected that apache2 is already installed. To continue, the installer must either purge apache2 or disable it." 8 78); then
@@ -299,19 +314,6 @@ function _choices() {
             sed -i '/rutorrent/d' /root/results
         fi
     fi
-
-    while IFS= read -r result; do
-        touch /tmp/.$result.lock
-    done < "$results"
-
-    locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))
-    for i in "${locksextra[@]}"; do
-        app=${i}
-        if [[ ! -f /tmp/.$app.lock ]]; then
-            extras+=("$i" '""')
-        fi
-    done
-    whiptail --title "Install Software" --checklist --noitem --separate-output "Make some more choices ^.^ Or don't. idgaf" 15 26 7 "${extras[@]}" 2> /root/results2 || exit 1
 }
 
 function _install() {
@@ -386,6 +388,7 @@ if [[ -n $rmgrsec ]] || [[ $unattend != "true" ]]; then _nukeovh; fi
 _adduser
 #If setup is attended and there are no choices, go get some apps
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
+_check_results
 _install
 _post
 _run_post
