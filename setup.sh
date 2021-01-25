@@ -380,7 +380,12 @@ _run_post() {
 _os
 _preparation
 ## If install is attended, do the nice intro
-if [[ $unattend != "true" ]]; then _intro; fi
+if [[ $unattend != "true" ]]; then
+    if [[ -z "$user" ]] && [[ -z "$pass" ]]; then # If password AND username are empty
+        _intro
+    fi
+fi
+
 ## If the user asked for rmgrsec or the install is not being attended, get into the kernel business
 if [[ -n $rmgrsec ]] || [[ $unattend != "true" ]]; then _nukeovh; fi
 _adduser
