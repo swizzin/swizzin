@@ -116,6 +116,11 @@ function _option_parse() {
             --unattend)
                 unattend=true
                 ;;
+            --post-command)
+                shift
+                postcommand="$1"
+                echo_info "Post-install command = \"$postcommand\""
+                ;;
             -*)
                 echo_error "Error: Invalid option: $1"
                 exit 1
@@ -364,6 +369,14 @@ _run_checks() {
     fi
 }
 
+_run_post() {
+    if [[ -z $postcommand ]]; then
+        echo_progress_start "Executing post-install commands"
+        $postcommand
+        echo_progress_done "Post-install commands finished"
+    fi
+}
+
 _os
 _preparation
 ## If install is attended, do the nice intro
@@ -375,4 +388,5 @@ _adduser
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _install
 _post
+_run_post
 _run_checks
