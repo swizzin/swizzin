@@ -188,7 +188,8 @@ function _preparation() {
     apt_upgrade
 
     if ! bash /etc/swizzin/scripts/update/10-dependencies.sh; then
-        echo_error "Dependencies failed to install"
+        echo_error "Dependencies failed to install\nPlease reveiw the log file and try again.\nFeel free to visit our Discord in case you need assistance."
+        exit 1
     fi
 
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
