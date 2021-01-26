@@ -66,10 +66,6 @@ function depends_rtorrent() {
         apt_install $APT
     fi
 
-    #shellcheck source=sources/functions/utils
-    . /etc/swizzin/sources/functions/utils
-    install_rar
-
     # mktorrent from source
     cd /tmp
     wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> $log 2>&1
