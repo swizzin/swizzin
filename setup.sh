@@ -184,6 +184,7 @@ _os() {
 
 function _preparation() {
     echo_info "Preparing system"
+    apt-get install uuid-runtime -yy >> $log 2>&1
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
 
     if [[ $distribution = "Ubuntu" ]]; then
