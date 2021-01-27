@@ -227,7 +227,7 @@ function _adduser() {
         exit 1
     fi
 
-    if [[ $(cut -d: -f1 < /root/.master.info) = "$user" ]] && [[ -z $SETUP_USER ]]; then
+    if [[ $(cut -d: -f1 < /root/.master.info 2> /dev/null) = "$user" ]] && [[ -z $SETUP_USER ]]; then
         echo_error "User already exists within swizzin"
         exit 1
     fi
