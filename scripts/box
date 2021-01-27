@@ -228,9 +228,11 @@ function _adduser() {
         exit 1
     fi
 
-    if [[ $(cut -d: -f1 < /root/.master.info 2> /dev/null) = "$user" ]] && [[ -z $SETUP_USER ]]; then
-        echo_error "User already exists within swizzin"
-        exit 1
+    if [[ -z $SETUP_USER ]]; then #If this is not coming from setup.sh...
+        if [[ "$(cut -d: -f1 < /root/.master.info 2> /dev/null)" = "$user" ]]; then
+            echo_error "User already exists within swizzin"
+            exit 1
+        fi
     fi
 
     if id -u "${user}" > /dev/null 2>&1; then
@@ -296,6 +298,7 @@ function _adduser() {
 
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
+
     if [[ -n $SETUP_USER ]]; then
         usermod -a -G sudo "$user"
         rm /root/"$user".info
