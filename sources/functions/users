@@ -176,4 +176,5 @@ function username_check() {
         badUsername=false
         username_check "$1"
     fi
+    echo_log_only "Username_check returned"
 }
