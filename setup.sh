@@ -219,13 +219,9 @@ function _intro() {
 
 function _adduser() {
     echo_info "Creating master user"
-    echo "$user:$pass" > /root/.master.info
-    userbak="$user"
     export SETUP_USER=true                                # This sets whiptail in box adduser
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
-    user="$userbak"
-    rm /root/"$user".info
-    unset $SETUP_USER
+    unset SETUP_USER
     pass=
     unset pass
     echo
