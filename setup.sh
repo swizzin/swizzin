@@ -29,6 +29,7 @@ touch $log
 #shellcheck disable=SC2120
 function _source_setup() {
     echo -e "...\tInstalling git"      # The one true dependency
+    apt update -q >> $log 2>&1         # Force update just in case sources were never pulled
     apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
     echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
 
