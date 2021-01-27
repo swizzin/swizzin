@@ -131,6 +131,7 @@ function _option_parse() {
         esac
         shift
     done
+
     if [ -n "$pass" ]; then
         if [ "$pass" == "" ]; then # Generate a password if it is specifically empty
             pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
@@ -220,8 +221,10 @@ function _intro() {
 function _adduser() {
     echo_info "Creating master user"
     echo "$user:$pass" > /root/.master.info
+    userbak="$user"
     export SETUP_USER=true                                # This sets whiptail in box adduser
     bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
+    user="$userbak"
     rm /root/"$user".info
     unset $SETUP_USER
 
