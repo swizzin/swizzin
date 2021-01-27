@@ -22,4 +22,3 @@ EOF
 sed '/ExecStart=/ s/$/ --baseuri=\/flood/' -i /etc/systemd/system/flood.service
 systemctl daemon-reload
 systemctl try-restart flood
-systemctl reload nginx
