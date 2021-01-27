@@ -10,22 +10,35 @@
 users=($(_get_user_list))
 qbtvold=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 
-detect_libtorrent_rasterbar_conflict qbittorrent
-whiptail_qbittorrent
-#check_client_compatibility
-install_fpm
-check_swap_on
-
-if ! skip_libtorrent_rasterbar; then
-    echo_progress_start "Building libtorrent-rasterbar"
-    build_libtorrent_qbittorrent
-    echo_progress_done
+if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
+    check_libtorrent_rasterbar_method
 fi
 
-echo_progress_start "Building qBittorrent"
-build_qbittorrent
-echo_progress_done
-check_swap_off
+case $LIBTORRENT_RASTERBAR_METHOD in
+    repo)
+        apt_install_libtorrent_rasterbar
+        apt_install_deluge
+        ;;
+    compile)
+        detect_libtorrent_rasterbar_conflict qbittorrent
+        whiptail_qbittorrent
+        #check_client_compatibility
+        install_fpm
+        check_swap_on
+
+        if ! skip_libtorrent_rasterbar; then
+            echo_progress_start "Building libtorrent-rasterbar"
+            build_libtorrent_qbittorrent
+            echo_progress_done
+        fi
+
+        echo_progress_start "Building qBittorrent"
+        build_qbittorrent
+        echo_progress_done
+        check_swap_off
+        ;;
+    *) ;;
+esac
 qbtvnew=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 
 for user in "${users[@]}"; do
