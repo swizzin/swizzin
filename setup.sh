@@ -147,18 +147,18 @@ function _option_parse() {
     fi
 
     if [[ ${#installArray[@]} -gt 0 ]]; then
-        echo_warn "Application install picker will be skipped"
+        echo_info "Application install picker will be skipped"
         #check Line 229 or something
         priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
         for i in "${installArray[@]}"; do
             #shellcheck disable=SC2199,SC2076
             if [[ " ${priority[@]} " =~ " ${i} " ]]; then
                 echo "$i" >> /root/results
-                echo_info "$i added to install queue 1"
+                echo_log_only "$i added to install queue 1"
                 touch /tmp/."$i".lock
             else
                 echo "$i" >> /root/results2
-                echo_warn "$i added to install queue 2"
+                echo_log_only "$i added to install queue 2"
             fi
         done
     fi
