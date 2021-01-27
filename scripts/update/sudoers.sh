@@ -8,6 +8,7 @@ if [[ ! -f /etc/sudoers.d/env_keep ]] && [[ $distribution = "Ubuntu" ]]; then
     echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 fi
 
+# TODO this should probably skip the master?
 for u in "${users[@]}"; do
     if [[ $u = "$master" ]]; then continue; fi
     USER=${u^^}
@@ -47,4 +48,9 @@ www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
 
 SUD
     fi
+fi
+
+if ! groups "$master" | grep -q sudo; then
+    usermod -a -G sudo "$master"
+    # TODO remove the sudoers file? what about if this runs again, and the master is present in the userlist?
 fi
