@@ -296,7 +296,7 @@ function _adduser() {
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     if [[ -n $SETUP_USER ]]; then
-        if ! grep -q -w "${user}" /etc/sudoers.d/swizzin; then # Don't add user to sudoers if file already exists in case of botched install
+        if ! grep -q -w "${user}" /etc/sudoers.d/swizzin 2> /dev/null; then # Don't add user to sudoers if file already exists in case of botched install
             echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
         fi
         echo "$user:$pass" > /root/.master.info
