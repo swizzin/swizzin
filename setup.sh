@@ -226,12 +226,6 @@ function _adduser() {
     user="$userbak"
     rm /root/"$user".info
     unset $SETUP_USER
-
-    # if grep -q -w "${user}" /etc/sudoers.d/swizzin; then # TODO why is this commented out? what did this do?
-    #     echo_log_only "No sudoers modification made"
-    # else
-    echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
-    # fi
     pass=
     unset pass
     echo
