@@ -159,6 +159,7 @@ function _upgrade() {
     done
 }
 
+#shellcheck disable=SC2059
 function _help() {
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
@@ -320,7 +321,7 @@ function _deluser() {
     user=$2
     if [[ ! -f /root/${user}.info ]]; then
         master=$(cut -d: -f1 < /root/.master.info)
-        if [[ $user == $master ]]; then
+        if [[ $user == "$master" ]]; then
             echo_warn "Master user deletion is not supported"
             exit 1
         fi
@@ -350,7 +351,7 @@ function _deluser() {
                 su mango -c "$mangodir/mango admin user delete ${user}"
             elif [[ $app = "wireguard" ]]; then
                 rm -rf /home/${user}/.wireguard
-                systemctl disable --now wg-quick@wg$(id -u "$user")
+                systemctl disable --now wg-quick@wg"$(id -u "$user")"
             elif [[ $app = "deluge" ]]; then
                 app="{deluged,deluge-web}"
                 rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -389,25 +390,25 @@ function _deluser() {
 }
 
 function _chpasswd() {
-    user=$2
+    user="$2"
     [[ -n $3 ]] && pass="$3"
     . /etc/swizzin/sources/functions/utils
     password_check
 
     master=$(cut -d: -f1 < /root/.master.info)
-    if [[ $user = $master ]]; then
+    if [[ $user = "$master" ]]; then
         echo "$user:$pass" > /root/.master.info
     fi
     echo "$user:$pass" > /root/${user}.info
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
-    htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+    htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
+    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
     if [[ -e /install/.deluge.lock ]]; then
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
         sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
         sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
         sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
@@ -433,7 +434,7 @@ function _chpasswd() {
     fi
     if [[ -f /install/.qbittorrent.lock ]]; then
         . /etc/swizzin/sources/functions/qbittorrent
-        qbittorrent_chpasswd ${user} ${pass}
+        qbittorrent_chpasswd "${user}" "${pass}"
     fi
     echo_success "Password for $user changed"
     pass=""

@@ -132,6 +132,7 @@ function _option_parse() {
         esac
         shift
     done
+
     if [[ -z $pass && "${pass+x}" ]]; then # Generate a password if it is specifically empty
         pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
         echo_info "Generating random password"
@@ -225,7 +226,7 @@ function _adduser() {
     unset SETUP_USER
     pass=
     unset pass
-    echo
+    echo_log_only "User initialised"
 }
 
 function _choices() {
@@ -335,12 +336,15 @@ function _install() {
     fi
     termin=$(date +"%s")
     difftimelps=$((termin - begin))
-    [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+    [[ $showTimer = true ]] && echo_info "Package installation took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 }
 
 function _post() {
     echo
     echo
+
+    user=$(_get_master_username)
+
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
     if ! grep -q -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc; then
         echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
