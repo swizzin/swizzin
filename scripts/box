@@ -17,7 +17,7 @@
 #shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
 echo_log_only ">>>> \`box $*\`"
-echo_log_only "git @ $(git log -1 --pretty=format:"(%h) %s %d")"
+echo_log_only "git @ $(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD) 2>&1"
 normal=$(tput sgr0)
 
 function _intro() {
@@ -237,7 +237,7 @@ function _adduser() {
 
     if id -u "${user}" > /dev/null 2>&1; then
         echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user.\nThe user will be added to swizzin."
-        ask "Continue setting up user?" N || exit 1
+        ask "Continue setting up user?" Y || exit 1
         existing=true
     fi
 
