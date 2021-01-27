@@ -80,7 +80,10 @@ function _option_parse() {
             --pass | --password)
                 shift
                 pass="$1" #TODO try ensure nothing gets expanded as soon as we can, otheriwse $$ expands to PID obviously
-                echo_info "Pass = $pass"
+                if [ "$pass" == "" ]; then
+                    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+                fi
+                echo -e "\tPass = $pass"
                 ;;
             --domain)
                 shift
