@@ -133,6 +133,7 @@ function _option_parse() {
     done
     if [[ -z $pass && "${pass+x}" ]]; then # Generate a password if it is specifically empty
         pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+        echo_info "Generating random password"
         echo -e "\tPass = $pass"
     fi
 
