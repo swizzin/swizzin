@@ -89,7 +89,7 @@ function _itplugs() {
             _getdir | _noty | _noty2 | _task | autotools | check_port | chunks | cookies | cpuload | create | data | datadir | diskspace | edit | erasedata | extratio | extsearch | feeds | filedrop | geoip | history | httprpc | ipad | loginmgr | lookat | mediainfo | ratio | retrackers | rpc | rss | rssurlrewrite | rutracker_check | scheduler | screenshots | seedingtime | show_peers_like_wtorrent | source | spectrogram | theme | throttle | tracklabels | trafic | unpack | uploadeta | xmpp)
                 if [[ $result = "ipad" ]]; then
                     if [[ -d /srv/rutorrent/plugins/mobile ]]; then
-                        echo "iPad plugin is not compatible with mobile"
+                        echo_warn "iPad plugin is not compatible with mobile"
                         continue
                     fi
                 fi
