@@ -357,9 +357,13 @@ function _post() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_info "Seedbox can be accessed at https://${user}@${ip}"
     fi
+
     if [[ -f /install/.deluge.lock ]]; then
-        echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)\nYour deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
+        delugewebport=$(grep port /home/"${user}"/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)
+        delugedaemonport=$(grep daemon_port /home/"${user}"/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
+        echo_info "Your deluge daemon port is $delugedaemonport\nYour deluge web port is $delugewebport"
     fi
+
     if [[ -f /var/run/reboot-required ]]; then
         echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
     else
