@@ -148,7 +148,7 @@ function _option_parse() {
 
     if [[ ${#installArray[@]} -gt 0 ]]; then
         echo_info "Application install picker will be skipped"
-        priority=(nginx rtorrent deluge qbittorrent autodl vsftpd ffmpeg quota)
+        priority=(nginx rtorrent deluge qbittorrent)
         for i in "${installArray[@]}"; do
             #shellcheck disable=SC2199,SC2076
             if [[ " ${priority[@]} " =~ " ${i} " ]]; then
