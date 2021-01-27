@@ -14,6 +14,8 @@
 #
 #################################################################################
 
+echo "Starting Swizzin installation"
+
 if [[ $EUID -ne 0 ]]; then
     echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
     exit 1
@@ -26,9 +28,9 @@ touch $log
 # Setting up /etc/swizzin
 #shellcheck disable=SC2120
 function _source_setup() {
-    echo "Installing git"              # The one true dependency
-    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
-    :                                  # All dependencies go to scripts/update/10-dependencies.sh
+    echo -e "...\tInstalling git"      # The one true dependency
+    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
+    echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
 
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
@@ -41,10 +43,11 @@ function _source_setup() {
         fi
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
-        echo "Cloning swizzin repo to localhost"
+        echo -e"...\tCloning swizzin repo to localhost"
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo -e "\tSwizzin cloned!"
     fi
+
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
     #shellcheck source=sources/globals.sh
