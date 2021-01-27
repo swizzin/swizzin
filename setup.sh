@@ -131,9 +131,10 @@ function _option_parse() {
         esac
         shift
     done
-
-    if [ "$pass" == "" ]; then # Generate a password if it is specifically empty
-        pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+    if [ -n "$pass" ]; then
+        if [ "$pass" == "" ]; then # Generate a password if it is specifically empty
+            pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+        fi
     fi
 
     if [[ $unattend = "true" ]]; then
