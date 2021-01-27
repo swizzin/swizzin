@@ -79,10 +79,7 @@ function _option_parse() {
                 ;;
             --pass | --password)
                 shift
-                pass="$1" #TODO try ensure nothing gets expanded as soon as we can, otheriwse $$ expands to PID obviously
-                if [ "$pass" == "" ]; then
-                    pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-                fi
+                pass="$1"
                 echo -e "\tPass = $pass"
                 ;;
             --domain)
@@ -134,6 +131,10 @@ function _option_parse() {
         esac
         shift
     done
+
+    if [ "$pass" == "" ]; then # Generate a password if it is specifically empty
+        pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+    fi
 
     if [[ $unattend = "true" ]]; then
         # hushes errors that happen when no package is being
