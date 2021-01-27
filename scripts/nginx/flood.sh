@@ -10,7 +10,7 @@ location /flood/api {
 }
 
 location /flood {
-    return 301 \$scheme://\$host/flood/;
+    return 302 \$scheme://\$host/flood/;
 }
 
 location /flood/ {
