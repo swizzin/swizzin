@@ -82,7 +82,11 @@ function _option_parse() {
             --pass | --password)
                 shift
                 pass="$1"
-                echo -e "\tPass = $pass"
+                echo -e "\tPass = $pass" #Not an echo_info as we don't want this to hit the logs
+                ;;
+            --skip-cracklib)
+                export SKIPCRACKLIB=true
+                echo_info "Cracklib will be skipped"
                 ;;
             --domain)
                 shift
