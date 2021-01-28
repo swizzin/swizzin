@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function whiptail_libtorrent_rasterbar() {
-    if [[ -z $libtorrent ]]; then
+    if [[ -z ${LIBTORRENT_VERSION} ]]; then
         repov=$(get_candidate_version libtorrent-rasterbar7)
         repov+=$(get_candidate_version libtorrent-rasterbar8)
         repov+=$(get_candidate_version libtorrent-rasterbar9)
@@ -12,7 +12,7 @@ function whiptail_libtorrent_rasterbar() {
         fi
         if [[ -n $DELUGE_VERSION ]] && [[ $DELUGE_VERSION == "repo" ]]; then
             delugeversion=$(get_candidate_version deluge)
-            case $DELUGE_VERSIONversion in
+            case $delugeversion in
                 1.3.*)
                     delugeversion=1.3-stable
                     ;;
@@ -23,7 +23,7 @@ function whiptail_libtorrent_rasterbar() {
         elif [[ -n $DELUGE_VERSION ]]; then
             delugeversion=$DELUGE_VERSION
         fi
-        if [[ ($DELUGE_VERSIONversion == "1.3-stable" && -n $qbittorrent) || ($DELUGE_VERSIONversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
+        if [[ ($delugeversion == "1.3-stable" && -n $qbittorrent) || ($delugeversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
             case $(lsb_release -cs) in
                 "xenial" | "focal")
                     function="1.1"
@@ -38,7 +38,7 @@ function whiptail_libtorrent_rasterbar() {
         elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbitversion ge 4.3.0; then
             function="1.2"
             echo_info "Defaulting to libtorrent branch RC_1_2 for compatibility"
-        elif [[ $DELUGE_VERSIONversion == master ]] || [[ -n $qbittorrent ]]; then
+        elif [[ $delugeversion == master ]] || [[ -n $qbittorrent ]]; then
             case $(lsb_release -cs) in
                 "xenial")
                     function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -77,8 +77,8 @@ function whiptail_libtorrent_rasterbar() {
         elif [[ $function == 1.2 ]]; then
             export libtorrent=RC_1_2
         fi
-        echo_log_only "Libtorrent = $libtorrent"
     fi
+    echo_log_only "Libtorrent = ${LIBTORRENT_VERSION}"
 }
 
 function whiptail_libtorrent_install_resolve_conflict() {
@@ -167,7 +167,7 @@ function skip_libtorrent_rasterbar() {
                     ;;
             esac
         fi
-        case $libtorrent_current in
+        case ${LIBTORRENT_VERSION}_current in
             1.2.*)
                 if ! dpkg -s libtorrent-rasterbar | grep -q c++14; then
                     false
@@ -211,7 +211,7 @@ function build_libtorrent_rasterbar() {
     release=$(lsb_release -cs)
     . /etc/swizzin/sources/functions/fpm
 
-    if [[ $libtorrent = "repo" ]]; then
+    if [[ ${LIBTORRENT_VERSION} = "repo" ]]; then
         cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
         for a in ${cleanup[@]}; do
             if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
@@ -281,7 +281,7 @@ function build_libtorrent_rasterbar() {
                 dpkg -r $a > /dev/null 2>&1
             fi
         done
-        LTRC=$libtorrent
+        LTRC=${LIBTORRENT_VERSION}
         if [[ -z $LIST ]]; then
             LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev libboost-tools-dev geoip-database ${pythonapt}"
         fi
