@@ -8,7 +8,7 @@ function whiptail_rtorrent() {
     if [[ -z $RTORRENT_VERSION ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
         if [[ ! ${codename} == "xenial" ]]; then
-            function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+            RTORRENT_VERSION=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
                 Repo "(${repov})" \
                 0.9.8 "" \
                 0.9.7 "" \
@@ -16,7 +16,7 @@ function whiptail_rtorrent() {
                 feature-bind "" 3>&1 1>&2 2>&3)
 
         else
-            function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+            RTORRENT_VERSION=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
                 Repo "(${repov})" \
                 0.9.8 "" \
                 0.9.7 "" \
@@ -25,30 +25,23 @@ function whiptail_rtorrent() {
                 0.9.3 "" \
                 feature-bind "" 3>&1 1>&2 2>&3)
         fi
-
-        if [[ $function == 0.9.8 ]]; then
-            export RTORRENT_VERSION='0.9.8'
-            export RT_LIBTORRENT_VERSION='0.13.8'
-        elif [[ $function == 0.9.7 ]]; then
-            export RTORRENT_VERSION='0.9.7'
-            export RT_LIBTORRENT_VERSION='0.13.7'
-        elif [[ $function == 0.9.6 ]]; then
-            export RTORRENT_VERSION='0.9.6'
-            export RT_LIBTORRENT_VERSION='0.13.6'
-        elif [[ $function == 0.9.4 ]]; then
-            export RTORRENT_VERSION='0.9.4'
-            export RT_LIBTORRENT_VERSION='0.13.4'
-        elif [[ $function == 0.9.3 ]]; then
-            export RTORRENT_VERSION='0.9.3'
-            export RT_LIBTORRENT_VERSION='0.13.3'
-        elif [[ $function == feature-bind ]]; then
-            export RTORRENT_VERSION='feature-bind'
-            export RT_LIBTORRENT_VERSION='feature-bind'
-        elif [[ $function == Repo ]]; then
-            export RTORRENT_VERSION='repo'
-            export RT_LIBTORRENT_VERSION='repo'
-        fi
     fi
+
+    case "$RTORRENT_VERSION" in
+        "repo") export RT_LIBTORRENT_VERSION='repo' ;;
+        "feature-bind") export RT_LIBTORRENT_VERSION='feature-bind' ;;
+        "0.9.3") export RT_LIBTORRENT_VERSION='0.13.3' ;;
+        "0.9.4") export RT_LIBTORRENT_VERSION='0.13.4' ;;
+        "0.9.6") export RT_LIBTORRENT_VERSION='0.13.6' ;;
+        "0.9.7") export RT_LIBTORRENT_VERSION='0.13.7' ;;
+        "0.9.8") export RT_LIBTORRENT_VERSION='0.13.8' ;;
+        *)
+            echo_error "Incorrect version of rtorrent: $RTORRENT_VERSION"
+            return 1
+            ;;
+    esac
+    export RTORRENT_VERSION
+
 }
 
 function depends_rtorrent() {
