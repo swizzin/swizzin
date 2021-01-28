@@ -21,6 +21,6 @@ Vagrant.configure("2") do |config|
   end
     config.vm.synced_folder "../../", "/etc/swizzin"
     config.vm.provision "shell",
-        inline: "bash /etc/swizzin/setup.sh --unattend --local --user test --pass 'Bu$$t3r'"
+        inline: "bash /etc/swizzin/setup.sh --unattend --local --user test --pass 'buster' --skip-cracklib"
 
 end
