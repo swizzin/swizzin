@@ -1,0 +1,26 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/debian10"
+  config.vm.define "buster"
+
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  # config.vm.network "private_network", ip: "192.168.33.10"
+  # config.vm.network "public_network"
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  config.vm.provider "hyperv" do |v|
+
+    v.vmname = "buster"
+    v.maxmemory = "2048"
+    v.cpus = "2"
+    #v.enable_virtualization_extensions = true
+    v.linked_clone = true
+  end
+    config.vm.synced_folder "../../", "/etc/swizzin"
+    config.vm.provision "shell",
+        inline: "bash /etc/swizzin/setup.sh --unattend --local --user test --pass 'Bu$$t3r'"
+
+end
