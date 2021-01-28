@@ -122,7 +122,7 @@ function _option_parse() {
                     readarray -td: installArray < <(printf '%s' "$packages")
                 fi
                 unattend=true
-                export SKIPCRACKLIB=TRUE
+                export SKIPCRACKLIB=true
                 ;;
             --unattend)
                 unattend=true
