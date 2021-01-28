@@ -1,0 +1,17 @@
+# SETUP.SH OPTIONS
+
+## master user setup
+user=test
+pass=test123
+
+## packages to install separated by colons.
+packages=rutorrent:nginx:panel:rtorrent:deluge:qbittorrent:transmission
+
+# PACKAGE SPECIFIC OPTIONS
+
+## transmission flags (https://docs.swizzin.ltd/applications/transmission#install-options)
+TRANSMISSION_VERSION="Repo"
+RTORRENT_VERSION=repo
+DELUGE_VERSION=repo
+QBITTORRENT_VERSION=repo
+LIBTORRENT_Version=repo
