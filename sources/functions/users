@@ -112,14 +112,15 @@ function password_check() {
         echo_progress_start "Checking password strength"
         result=$(cracklib-check <<< "$pass")
         if ! grep -q OK <<< "$result"; then
-            result=""
-            unset result
+            crackreason=$(echo "$result" | cut -d':' -f2)
             if [[ $ui = "whiptail" ]]; then
-                whiptail --title "Error" --msgbox "Password did not pass cracklib check." --ok-button="Try again" 10 50
+                whiptail --title "Error" --msgbox "Password did not pass cracklib check.\nReason: \"${crackreason/ /}\"" --ok-button="Try again" 10 50
             else
-                echo_warn "Password did not pass cracklib check. Press enter to try again"
+                echo_warn "Password did not pass cracklib check. Reason: \"${crackreason/ /}\". Press enter to try again"
                 read -n 1 -r
             fi
+            result=""
+            unset result
             pass=
             unset pass
             password_check "$1"
