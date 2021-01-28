@@ -5,7 +5,7 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent() {
-    if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
+    if [[ -z $RTORRENT_VERSION ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
         if [[ ! ${codename} == "xenial" ]]; then
             function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
@@ -27,32 +27,32 @@ function whiptail_rtorrent() {
         fi
 
         if [[ $function == 0.9.8 ]]; then
-            export rtorrentver='0.9.8'
-            export libtorrentver='0.13.8'
+            export RTORRENT_VERSION='0.9.8'
+            export RT_LIBTORRENT_VERSION='0.13.8'
         elif [[ $function == 0.9.7 ]]; then
-            export rtorrentver='0.9.7'
-            export libtorrentver='0.13.7'
+            export RTORRENT_VERSION='0.9.7'
+            export RT_LIBTORRENT_VERSION='0.13.7'
         elif [[ $function == 0.9.6 ]]; then
-            export rtorrentver='0.9.6'
-            export libtorrentver='0.13.6'
+            export RTORRENT_VERSION='0.9.6'
+            export RT_LIBTORRENT_VERSION='0.13.6'
         elif [[ $function == 0.9.4 ]]; then
-            export rtorrentver='0.9.4'
-            export libtorrentver='0.13.4'
+            export RTORRENT_VERSION='0.9.4'
+            export RT_LIBTORRENT_VERSION='0.13.4'
         elif [[ $function == 0.9.3 ]]; then
-            export rtorrentver='0.9.3'
-            export libtorrentver='0.13.3'
+            export RTORRENT_VERSION='0.9.3'
+            export RT_LIBTORRENT_VERSION='0.13.3'
         elif [[ $function == feature-bind ]]; then
-            export rtorrentver='feature-bind'
-            export libtorrentver='feature-bind'
+            export RTORRENT_VERSION='feature-bind'
+            export RT_LIBTORRENT_VERSION='feature-bind'
         elif [[ $function == Repo ]]; then
-            export rtorrentver='repo'
-            export libtorrentver='repo'
+            export RTORRENT_VERSION='repo'
+            export RT_LIBTORRENT_VERSION='repo'
         fi
     fi
 }
 
 function depends_rtorrent() {
-    if [[ ! $rtorrentver == repo ]]; then
+    if [[ ! $RTORRENT_VERSION == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
@@ -108,23 +108,23 @@ function build_xmlrpc-c() {
 }
 
 function build_libtorrent_rakshasa() {
-    libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
+    libtorrentloc="http://rtorrent.net/downloads/libtorrent-${RT_LIBTORRENT_VERSION}.tar.gz"
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
-    if [[ ${libtorrentver} == feature-bind ]]; then
-        git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >> $log 2>&1
+    if [[ ${RT_LIBTORRENT_VERSION} == feature-bind ]]; then
+        git clone -b ${RT_LIBTORRENT_VERSION} https://github.com/rakshasa/libtorrent.git libtorrent >> $log 2>&1
         cd libtorrent
         VERSION=$(git describe | sed 's/^.//g')
     else
         mkdir libtorrent
         wget -q ${libtorrentloc}
-        VERSION=$libtorrentver
-        tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
+        VERSION=$RT_LIBTORRENT_VERSION
+        tar -xvf libtorrent-${RT_LIBTORRENT_VERSION}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
         cd libtorrent >> $log 2>&1
-        if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} == "xenial" ]]; then
+        if [[ ${RT_LIBTORRENT_VERSION} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} == "xenial" ]]; then
             patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
-            if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
+            if pkg-config --atleast-version=1.14 cppunit && [[ ${RT_LIBTORRENT_VERSION} == 0.13.6 ]]; then
                 patch -p1 < /etc/swizzin/sources/cppunit.patch >> "$log" 2>&1
             fi
         fi
@@ -143,20 +143,20 @@ function build_libtorrent_rakshasa() {
 }
 
 function build_rtorrent() {
-    rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
+    rtorrentloc="http://rtorrent.net/downloads/rtorrent-${RTORRENT_VERSION}.tar.gz"
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/rtorrent*"
-    if [[ ${rtorrentver} == feature-bind ]]; then
-        git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >> $log 2>&1
+    if [[ ${RTORRENT_VERSION} == feature-bind ]]; then
+        git clone -b ${RTORRENT_VERSION} https://github.com/rakshasa/rtorrent.git rtorrent >> $log 2>&1
     else
         mkdir rtorrent
         wget -q ${rtorrentloc}
-        tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
-        VERSION=$rtorrentver
+        tar -xzvf rtorrent-${RTORRENT_VERSION}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
+        VERSION=$RTORRENT_VERSION
     fi
     cd rtorrent
-    if [[ ${rtorrentver} == feature-bind ]]; then
+    if [[ ${RTORRENT_VERSION} == feature-bind ]]; then
         ./autogen.sh >> $log 2>&1
         VERSION=$(git describe | sed 's/^.//g')
     fi
