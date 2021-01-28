@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function whiptail_deluge() {
-    echo_progress_start "Choosing Deluge versions"
     if [[ -z $DELUGE_VERSION ]]; then
+        echo_progress_start "Choosing Deluge versions"
         repov=$(get_candidate_version deluge)
         case $(lsb_release -cs) in
             *)
@@ -19,6 +19,7 @@ function whiptail_deluge() {
         elif [[ $function == "Deluge 2.0" ]]; then
             export DELUGE_VERSION=master
         fi
+        echo_progress_done "Version picked"
     fi
 }
 
