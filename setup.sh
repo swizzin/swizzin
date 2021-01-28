@@ -115,9 +115,14 @@ function _option_parse() {
                 fi
                 echo_info "Parsing env variables from $1\n--->"
                 #shellcheck disable=SC2046
-                export $(grep -v '^#' "$1" | xargs -t -d '\n')
-                if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
+                export $(grep -v '^#' "$1" | grep '^[A-Z]' | tr '\n' ' ') # anything which begins with a cap is exported
+                #shellcheck disable=SC2091
+                source <(grep -v '^#' "$1" | grep '^[a-z]') # | read -d $'\x04' name -
+                if [[ -n $packages ]]; then
+                    readarray -td: installArray < <(printf '%s' "$packages")
+                fi
                 unattend=true
+                export SKIPCRACKLIB=TRUE
                 ;;
             --unattend)
                 unattend=true
