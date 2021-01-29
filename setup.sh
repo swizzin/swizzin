@@ -86,7 +86,11 @@ function _option_parse() {
                 ;;
             --skip-cracklib)
                 export SKIPCRACKLIB=true
-                echo_info "Cracklib will be skipped"
+                if check_installed libpam-cracklib; then
+                    echo_warn "Can't skip password check as libpam-cracklib is installed"
+                else
+                    echo_info "Cracklib will be skipped"
+                fi
                 ;;
             --domain)
                 shift
