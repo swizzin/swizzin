@@ -51,6 +51,7 @@ SUD
 fi
 
 if ! groups "$master" | grep -q sudo; then
+    echo_log_only "Moving user to the sudo usergroup"
     usermod -a -G sudo "$master"
-    # TODO remove the sudoers file? what about if this runs again, and the master is present in the userlist?
+    # rm /etc/sudoers.d/swizzin
 fi
