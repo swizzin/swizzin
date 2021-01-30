@@ -85,10 +85,10 @@ function _option_parse() {
                 echo -e "\tPass = $pass" #Not an echo_info as we don't want this to hit the logs
                 ;;
             --skip-cracklib)
-                export SKIPCRACKLIB=true
                 if check_installed libpam-cracklib; then
                     echo_warn "Can't skip password check as libpam-cracklib is installed"
                 else
+                    export SKIPCRACKLIB=true
                     echo_info "Cracklib will be skipped"
                 fi
                 ;;
