@@ -17,7 +17,7 @@
 #shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
 echo_log_only ">>>> \`box $*\`"
-echo_log_only "git @ $(git log -1 --pretty=format:"(%h) %s %d")"
+echo_log_only "git @ $(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD) 2>&1"
 normal=$(tput sgr0)
 
 function _intro() {
@@ -159,6 +159,7 @@ function _upgrade() {
     done
 }
 
+#shellcheck disable=SC2059
 function _help() {
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
@@ -227,42 +228,44 @@ function _adduser() {
         exit 1
     fi
 
-    if [[ $(cut -d: -f1 < /root/.master.info 2> /dev/null) = "$user" ]] && [[ -z $SETUP_USER ]]; then
-        echo_error "User already exists within swizzin"
-        exit 1
+    if [[ -z $SETUP_USER ]]; then #If this is not coming from setup.sh...
+        if [[ "$(cut -d: -f1 < /root/.master.info 2> /dev/null)" = "$user" ]]; then
+            echo_error "User already exists within swizzin"
+            exit 1
+        fi
     fi
 
     if id -u "${user}" > /dev/null 2>&1; then
-        echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-        ask "Continue setting up user?" N || exit 1
+        echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user.\nThe user will be added to swizzin."
+        ask "Continue setting up user?" Y || exit 1
         existing=true
     fi
 
     password_check
 
-    echo "$user:$pass" > /root/${user}.info
+    echo "$user:$pass" > /root/"${user}".info
     if [[ $existing != "true" ]]; then
         useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
     fi
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
     if [[ -f /etc/htpasswd ]]; then
         echo_log_only "htpasswd file exists"
-        htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+        htpasswd -b /etc/htpasswd "$user" "$pass" >> $log 2>&1
     else
         echo_log_only "creating htpasswd file"
-        htpasswd -b -c /etc/htpasswd $user $pass >> $log 2>&1
+        htpasswd -b -c /etc/htpasswd "$user" "$pass" >> $log 2>&1
     fi
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
-    chmod 750 /home/${user}
+    htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
+    chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
         bash /etc/swizzin/scripts/setdisk "$user"
     fi
 
-    if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
-    echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
-    systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create >> $log 2>&1
+    if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
+    echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
+    systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
@@ -275,17 +278,17 @@ function _adduser() {
             if [[ $app = "flood" ]]; then
                 /usr/local/bin/swizzin/install/${app}.sh
             else
-                /usr/local/bin/swizzin/install/${app}.sh ${user}
+                /usr/local/bin/swizzin/install/${app}.sh "${user}"
                 if [[ $app = "deluge" ]]; then
                     app="{deluged,deluge-web}"
-                    eval systemctl enable -q ${app}@${user}
-                    eval systemctl start ${app}@${user}
+                    eval systemctl enable -q ${app}@"${user}"
+                    eval systemctl start ${app}@"${user}"
                 elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard") ]]; then
                     : #Multi-user app without user service files. wireguard interface is started in wg script
                 else
                     if [[ $app = "autodl" ]]; then app=irssi; fi
-                    systemctl enable -q ${app}@${user}
-                    systemctl start ${app}@${user}
+                    systemctl enable -q ${app}@"${user}"
+                    systemctl start ${app}@"${user}"
                 fi
             fi
         fi
@@ -295,12 +298,11 @@ function _adduser() {
 
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
+
     if [[ -n $SETUP_USER ]]; then
-        if ! grep -q -w "${user}" /etc/sudoers.d/swizzin 2> /dev/null; then # Don't add user to sudoers if file already exists in case of botched install
-            echo "${user}	ALL=(ALL:ALL) ALL" >> /etc/sudoers.d/swizzin
-        fi
-        echo "$user:$pass" > /root/.master.info
+        usermod -a -G sudo "$user"
         rm /root/"$user".info
+        echo "$user:$pass" > /root/.master.info
     elif [[ -z $SETUP_USER ]]; then # Only for non-master users, therefore only if this is not coming from setup.sh
         cat > /etc/sudoers.d/"${user}" << SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /bin/systemctl start qbittorrent@${user}, /bin/systemctl stop qbittorrent@${user}, /bin/systemctl restart qbittorrent@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
@@ -320,7 +322,7 @@ function _deluser() {
     user=$2
     if [[ ! -f /root/${user}.info ]]; then
         master=$(cut -d: -f1 < /root/.master.info)
-        if [[ $user == $master ]]; then
+        if [[ $user == "$master" ]]; then
             echo_warn "Master user deletion is not supported"
             exit 1
         fi
@@ -350,7 +352,7 @@ function _deluser() {
                 su mango -c "$mangodir/mango admin user delete ${user}"
             elif [[ $app = "wireguard" ]]; then
                 rm -rf /home/${user}/.wireguard
-                systemctl disable --now wg-quick@wg$(id -u "$user")
+                systemctl disable --now wg-quick@wg"$(id -u "$user")"
             elif [[ $app = "deluge" ]]; then
                 app="{deluged,deluge-web}"
                 rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -389,25 +391,25 @@ function _deluser() {
 }
 
 function _chpasswd() {
-    user=$2
+    user="$2"
     [[ -n $3 ]] && pass="$3"
     . /etc/swizzin/sources/functions/utils
     password_check
 
     master=$(cut -d: -f1 < /root/.master.info)
-    if [[ $user = $master ]]; then
+    if [[ $user = "$master" ]]; then
         echo "$user:$pass" > /root/.master.info
     fi
     echo "$user:$pass" > /root/${user}.info
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
-    htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+    htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
+    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
     if [[ -e /install/.deluge.lock ]]; then
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
         sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
         sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
         sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
@@ -433,7 +435,7 @@ function _chpasswd() {
     fi
     if [[ -f /install/.qbittorrent.lock ]]; then
         . /etc/swizzin/sources/functions/qbittorrent
-        qbittorrent_chpasswd ${user} ${pass}
+        qbittorrent_chpasswd "${user}" "${pass}"
     fi
     echo_success "Password for $user changed"
     pass=""

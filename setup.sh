@@ -14,6 +14,8 @@
 #
 #################################################################################
 
+echo "Starting Swizzin installation"
+
 if [[ $EUID -ne 0 ]]; then
     echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
     exit 1
@@ -26,9 +28,10 @@ touch $log
 # Setting up /etc/swizzin
 #shellcheck disable=SC2120
 function _source_setup() {
-    echo "Installing git"              # The one true dependency
-    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE DASS STUPIT
-    :                                  # All dependencies go to scripts/update/10-dependencies.sh
+    echo -e "...\tInstalling git"      # The one true dependency
+    apt update -q >> $log 2>&1         # Force update just in case sources were never pulled
+    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
+    echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
 
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
@@ -41,10 +44,11 @@ function _source_setup() {
         fi
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
-        echo "Cloning swizzin repo to localhost"
+        echo -e "...\tCloning swizzin repo to localhost"
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
         echo -e "\tSwizzin cloned!"
     fi
+
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     chmod -R 700 /etc/swizzin/scripts
     #shellcheck source=sources/globals.sh
@@ -57,11 +61,9 @@ function _arch_check() {
     if [[ ! $(uname -m) == "x86_64" ]]; then
         echo_warn "$(_os_arch) detected!"
         if [[ $(_os_arch) = "arm64" ]]; then
-            echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.
-As such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
+            echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.\nAs such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
         else
-            echo_warn "This is an unsupported architecture and THINGS WILL BREAK.
-DO NOT CREATE ISSUES ON GITHUB."
+            echo_warn "This is an unsupported architecture and THINGS WILL BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
         fi
         ask "Agree with the above and continue?" N || exit 1
         echo
@@ -80,7 +82,15 @@ function _option_parse() {
             --pass | --password)
                 shift
                 pass="$1"
-                echo -e "\tPass = $pass"
+                echo -e "\tPass = $pass" #Not an echo_info as we don't want this to hit the logs
+                ;;
+            --skip-cracklib)
+                if check_installed libpam-cracklib; then
+                    echo_warn "Can't skip password check as libpam-cracklib is installed"
+                else
+                    export SKIPCRACKLIB=true
+                    echo_info "Cracklib will be skipped"
+                fi
                 ;;
             --domain)
                 shift
@@ -109,9 +119,14 @@ function _option_parse() {
                 fi
                 echo_info "Parsing env variables from $1\n--->"
                 #shellcheck disable=SC2046
-                export $(grep -v '^#' "$1" | xargs -t -d '\n')
-                if [[ -n $packages ]]; then readarray -td: installArray < <(printf '%s' "$packages"); fi
+                export $(grep -v '^#' "$1" | grep '^[A-Z]' | tr '\n' ' ') # anything which begins with a cap is exported
+                #shellcheck disable=SC2091
+                source <(grep -v '^#' "$1" | grep '^[a-z]') # | read -d $'\x04' name -
+                if [[ -n $packages ]]; then
+                    readarray -td: installArray < <(printf '%s' "$packages")
+                fi
                 unattend=true
+                export SKIPCRACKLIB=true
                 ;;
             --unattend)
                 unattend=true
@@ -131,6 +146,7 @@ function _option_parse() {
         esac
         shift
     done
+
     if [[ -z $pass && "${pass+x}" ]]; then # Generate a password if it is specifically empty
         pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
         echo_info "Generating random password"
@@ -144,18 +160,17 @@ function _option_parse() {
     fi
 
     if [[ ${#installArray[@]} -gt 0 ]]; then
-        echo_warn "Application install picker will be skipped"
-        #check Line 229 or something
-        priority=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota)
+        echo_info "Application install picker will be skipped"
+        priority=(nginx rtorrent deluge qbittorrent)
         for i in "${installArray[@]}"; do
             #shellcheck disable=SC2199,SC2076
             if [[ " ${priority[@]} " =~ " ${i} " ]]; then
                 echo "$i" >> /root/results
-                echo_info "$i added to install queue 1"
+                echo_log_only "$i added to install queue 1"
                 touch /tmp/."$i".lock
             else
                 echo "$i" >> /root/results2
-                echo_warn "$i added to install queue 2"
+                echo_log_only "$i added to install queue 2"
             fi
         done
     fi
@@ -182,6 +197,7 @@ _os() {
 
 function _preparation() {
     echo_info "Preparing system"
+    apt-get install uuid-runtime -yy >> $log 2>&1
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
 
     if [[ $distribution = "Ubuntu" ]]; then
@@ -219,12 +235,15 @@ function _intro() {
 
 function _adduser() {
     echo_info "Creating master user"
-    export SETUP_USER=true                                # This sets whiptail in box adduser
-    bash /etc/swizzin/scripts/box adduser "$user" "$pass" # TODO make it so that the password does not hit the logs
+    export SETUP_USER=true                                     # This sets whiptail in box adduser
+    bash /etc/swizzin/scripts/box adduser "$user" "$pass" || { # TODO make it so that the password does not hit the logs
+        echo_error "Installation aborted!"
+        exit 1
+    }
     unset SETUP_USER
     pass=
     unset pass
-    echo
+    echo_log_only "User initialised"
 }
 
 function _choices() {
@@ -334,12 +353,15 @@ function _install() {
     fi
     termin=$(date +"%s")
     difftimelps=$((termin - begin))
-    [[ $showTimer = true ]] && echo_info "Package install took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
+    [[ $showTimer = true ]] && echo_info "Package installation took $((difftimelps / 60)) minutes and $((difftimelps % 60)) seconds"
 }
 
 function _post() {
     echo
     echo
+
+    user=$(_get_master_username)
+
     ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
     if ! grep -q -ow '^export PATH=$PATH:/usr/local/bin/swizzin$' ~/.bashrc; then
         echo "export PATH=\$PATH:/usr/local/bin/swizzin" >> /root/.bashrc
@@ -356,9 +378,13 @@ function _post() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_info "Seedbox can be accessed at https://${user}@${ip}"
     fi
+
     if [[ -f /install/.deluge.lock ]]; then
-        echo_info "Your deluge daemon port is$(grep daemon_port /home/${user}/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)\nYour deluge web port is$(grep port /home/${user}/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)"
+        delugewebport=$(grep port /home/"${user}"/.config/deluge/web.conf | cut -d: -f2 | cut -d"," -f1)
+        delugedaemonport=$(grep daemon_port /home/"${user}"/.config/deluge/core.conf | cut -d: -f2 | cut -d"," -f1)
+        echo_info "Your deluge daemon port is $delugedaemonport\nYour deluge web port is $delugewebport"
     fi
+
     if [[ -f /var/run/reboot-required ]]; then
         echo_warn "The server requires a reboot to finalise this installation. Please reboot now."
     else
