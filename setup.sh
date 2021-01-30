@@ -29,7 +29,7 @@ touch $log
 #shellcheck disable=SC2120
 function _source_setup() {
     echo -e "...\tInstalling git"      # The one true dependency
-    apt update -q >> $log 2>&1         # Force update just in case sources were never pulled
+    apt-get update -q >> $log 2>&1     # Force update just in case sources were never pulled
     apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
     echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
 
@@ -181,7 +181,8 @@ _os() {
     if [ ! -d /install ]; then mkdir /install; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
     if ! which lsb_release > /dev/null; then
-        apt_install lsb-release
+        echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
+        apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
     fi
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
