@@ -34,7 +34,17 @@ location /qbittorrent/ {
     auth_basic_user_file /etc/htpasswd;
     rewrite ^/qbittorrent/(.*) /$1 break;
 
+    # Timeouts
+    proxy_connect_timeout  2000ms;
+    proxy_send_timeout     2000ms;
+    proxy_read_timeout     2000ms;
 
+    # Change buffer sizes for better performance on large queues
+    client_max_body_size 24M;
+    client_body_buffer_size 128k;    
+    fastcgi_buffers 8 16k;
+    fastcgi_buffer_size 32k;
+    
     # The following directives effectively nullify Cross-site request forgery (CSRF)
     # protection mechanism in qBittorrent, only use them when you encountered connection problems.
     # You should consider disable "Enable Cross-site request forgery (CSRF) protection"
