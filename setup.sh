@@ -338,6 +338,7 @@ function _check_results() {
 function _prioritize_results() {
     if grep -q nginx "$results"; then
         sed -i '/nginx/d' /root/results
+        echo "" >> /root/results
         sed -i '1s/^/nginx\n/' /root/results
     fi
 }
