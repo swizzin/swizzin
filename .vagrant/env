@@ -3,9 +3,9 @@
 ## master user setup
 user=test
 pass=test123
-
+SKIPCRACKLIB=true
 ## packages to install separated by colons.
-packages=rutorrent:nginx:panel:rtorrent:deluge:qbittorrent:transmission
+packages=nginx:panel:sabnzbd
 
 # PACKAGE SPECIFIC OPTIONS
 
