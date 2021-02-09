@@ -47,11 +47,10 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
 
         echo_progress_done
     fi
-    cd /opt/
     echo_progress_start "Downloading latest source"
-    wget -q -O sabnzbd.tar.gz $latest
+    wget -q -O /opt/sabnzbd.tar.gz "$latest"
     rm -rf sabnzbd/*
-    sudo -u ${user} bash -c "tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
+    sudo -u ${user} bash -c "tar xzf /opt/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
     echo_progress_done
     if [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment to python3"
