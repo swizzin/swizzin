@@ -46,8 +46,8 @@ install_rar
 echo_progress_start "Downloading and extracting sabnzbd"
 cd /opt
 mkdir -p /opt/sabnzbd
-wget -O sabnzbd.tar.gz $latest >> $log 2>&1
-tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> ${log} 2>&1
+wget -O sabnzbd.tar.gz $latest >> "${log}" 2>&1
+tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${log}" 2>&1
 rm -rf sabnzbd.tar.gz
 echo_progress_done
 
@@ -86,7 +86,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 SABSD
 
-systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
+systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
 
 for ((n = 0; n < 5; n++)); do
     sleep 2
@@ -102,7 +102,7 @@ done
 echo_progress_done "SABnzbd started"
 
 echo_progress_start "Configuring SABnzbd"
-systemctl stop sabnzbd >> ${log} 2>&1
+systemctl stop sabnzbd >> "${log}" 2>&1
 cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
 [misc]
 host_whitelist = $(hostname -f), $(hostname)
@@ -120,7 +120,7 @@ password = "${password}"
 username = "${user}"
 SAB_INI
 
-systemctl restart sabnzbd >> ${log} 2>&1
+systemctl restart sabnzbd >> "${log}" 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
