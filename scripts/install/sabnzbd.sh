@@ -49,12 +49,12 @@ install_rar
 
 echo_progress_start "Downloading and extracting sabnzbd"
 mkdir -p /opt/sabnzbd
-wget -O /opt/sabnzbd.tar.gz "$latest" >> "${log}" 2>&1 || {
+wget -O /tmp/sabnzbd.tar.gz "$latest" >> "${log}" 2>&1 || {
     echo_error "Failed to download archive"
     exit 1
 }
-tar xzf /opt/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${log}" 2>&1
-rm -rf /opt/sabnzbd.tar.gz
+tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${log}" 2>&1
+rm -rf /tmp/sabnzbd.tar.gz
 echo_progress_done
 
 echo_progress_start "Installing pip requirements"
