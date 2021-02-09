@@ -20,6 +20,7 @@ latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest |
 latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
 systempy3_ver=$(get_candidate_version python3)
 
+#Version 3.2 is going to raise the min python version to 3.6 so we have to differentiate whether or not to build a pyenv
 if dpkg --compare-versions ${systempy3_ver} lt 3.6.0 && dpkg --compare-versions ${latestversion} ge 3.2.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV=True
@@ -86,21 +87,6 @@ Restart=on-failure
 WantedBy=multi-user.target
 SABSD
 
-systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
-
-for ((n = 0; n < 5; n++)); do
-    sleep 2
-    if [[ -f /home/${user}/.config/sabnzbd/sabnzbd.ini ]]; then
-        break
-    fi
-    if [[ $n == 4 ]]; then
-        echo_error "sabnzbd.ini does not seem to exist. Cleaning up and exiting."
-        bash /usr/local/bin/swizzin/scripts/remove/sabnzbd.sh
-        exit 1
-    fi
-done
-echo_progress_done "SABnzbd started"
-
 echo_progress_start "Configuring SABnzbd"
 systemctl stop sabnzbd >> "${log}" 2>&1
 cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
@@ -119,8 +105,10 @@ direct_unpack_threads = 1
 password = "${password}"
 username = "${user}"
 SAB_INI
+echo_progress_done
 
-systemctl restart sabnzbd >> "${log}" 2>&1
+echo_progress_start "Starting SABnzbd"
+systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
