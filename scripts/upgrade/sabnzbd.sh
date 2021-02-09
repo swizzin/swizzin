@@ -48,11 +48,14 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
         echo_progress_done
     fi
     echo_progress_start "Downloading latest source"
-    wget -q -O /opt/sabnzbd.tar.gz "$latest"
-    rm -rf sabnzbd/*
-    sudo -u ${user} bash -c "tar xzf /opt/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
+    wget -q -O /tmp/sabnzbd.tar.gz "$latest"
+    rm -rf /opt/sabnzbd/*
+    if [[ ! -d /opt/sabnzbd ]]; then
+        mkdir -p /opt/sabnzbd
+    fi
+    sudo -u ${user} bash -c "tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
     echo_progress_done
-    rm sabnzbd.tar.gz
+    rm /tmp/sabnzbd.tar.gz
 
     echo_progress_start "Checking pip requirements"
     if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
