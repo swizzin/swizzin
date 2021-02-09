@@ -93,7 +93,7 @@ WantedBy=multi-user.target
 SABSD
 
 echo_progress_start "Configuring SABnzbd"
-systemctl stop sabnzbd >> ${log} 2>&1
+systemctl stop sabnzbd >> "${log}" 2>&1
 cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
 [misc]
 host_whitelist = $(hostname -f), $(hostname)
