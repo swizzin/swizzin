@@ -50,7 +50,10 @@ install_rar
 echo_progress_start "Downloading and extracting sabnzbd"
 cd /opt
 mkdir -p /opt/sabnzbd
-wget -O sabnzbd.tar.gz $latest >> "${log}" 2>&1
+wget -O sabnzbd.tar.gz "$latest" >> "${log}" 2>&1 || {
+    echo_error "Failed to download archive"
+    exit 1
+}
 tar xzf sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${log}" 2>&1
 rm -rf sabnzbd.tar.gz
 echo_progress_done
