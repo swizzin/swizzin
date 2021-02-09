@@ -16,7 +16,10 @@
 user=$(_get_master_username)
 password=$(_get_user_password ${user})
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
-latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | grep -Po '(?<="browser_download_url":).*?[^\\].tar.gz"' | sed 's/"//g')
+latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("tar.gz"))') || {
+    echo_error "Failed to query GitHub for latest sabnzbd version"
+    exit 1
+}
 latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
 systempy3_ver=$(get_candidate_version python3)
 
