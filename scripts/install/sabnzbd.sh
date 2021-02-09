@@ -14,7 +14,7 @@
 . /etc/swizzin/sources/functions/utils
 
 user=$(_get_master_username)
-password=$(_get_user_password ${user})
+password="$(_get_user_password ${user})"
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
 latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("tar.gz"))') || {
     echo_error "Failed to query GitHub for latest sabnzbd version"
