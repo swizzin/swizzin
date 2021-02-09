@@ -49,10 +49,8 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     fi
     echo_progress_start "Downloading latest source"
     wget -q -O /tmp/sabnzbd.tar.gz "$latest"
-    rm -rf /opt/sabnzbd/*
-    if [[ ! -d /opt/sabnzbd ]]; then
-        mkdir -p /opt/sabnzbd
-    fi
+    rm -rf /opt/sabnzbd/
+    mkdir -p /opt/sabnzbd
     sudo -u ${user} bash -c "tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
     echo_progress_done
     rm /tmp/sabnzbd.tar.gz
