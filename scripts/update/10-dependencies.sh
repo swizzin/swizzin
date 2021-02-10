@@ -5,7 +5,7 @@ if ! which add-apt-repository > /dev/null; then
     apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
 fi
 
-if [[ $(_os_distro) = "Ubuntu" ]]; then
+if [[ $(_os_distro) == "ubuntu" ]]; then
     if ! grep -q 'universe' /etc/apt/sources.list; then
         echo_info "Enabling universe repo"
         add-apt-repository universe >> ${log} 2>&1
@@ -21,7 +21,7 @@ if [[ $(_os_distro) = "Ubuntu" ]]; then
         add-apt-repository restricted -u >> ${log} 2>&1
         trigger_apt_update=true
     fi
-elif [[ $(_os_distro) == "Debian" ]]; then
+elif [[ $(_os_distro) == "debian" ]]; then
     if ! grep -q contrib /etc/apt/sources.list; then
         echo_info "Enabling contrib repo"
         apt-add-repository contrib >> ${log} 2>&1
