@@ -18,7 +18,23 @@ else
     echo_log_only "No dependencies required to install"
 fi
 
-if [[ $(_os_distro) == "Debian" ]]; then
+if [[ $(_os_distro) = "Ubuntu" ]]; then
+    if ! grep -q 'universe' /etc/apt/sources.list; then
+        echo_info "Enabling universe repo"
+        add-apt-repository universe >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+    if ! grep -q 'universe' /etc/apt/sources.list; then
+        echo_info "Enabling multiverse repo"
+        add-apt-repository multiverse >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+    if ! grep -q 'restricted' /etc/apt/sources.list; then
+        echo_info "Enabling restricted repo"
+        add-apt-repository restricted -u >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+elif [[ $(_os_distro) == "Debian" ]]; then
     if ! grep -q contrib /etc/apt/sources.list; then
         echo_info "Enabling contrib repo"
         apt-add-repository contrib >> ${log} 2>&1
@@ -29,7 +45,7 @@ if [[ $(_os_distro) == "Debian" ]]; then
         apt-add-repository non-free >> ${log} 2>&1
         trigger_apt_update=true
     fi
-    if [[ $trigger_apt_update == "true" ]]; then
-        apt_update
-    fi
+fi
+if [[ $trigger_apt_update == "true" ]]; then
+    apt_update
 fi
