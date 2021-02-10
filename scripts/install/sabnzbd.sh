@@ -41,6 +41,8 @@ echo_progress_start "Installing pip requirements"
 if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
     sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
 fi
+
+/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel >> "${log}" 2>&1
 /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1
 echo_progress_done
 

@@ -29,6 +29,7 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
         if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
             sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
         fi
+        sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel" >> "${log}" 2>&1
         sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
         echo_progress_done
     fi
