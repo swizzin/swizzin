@@ -4,15 +4,12 @@
 function install_rar() {
     # Checking for unrar because that's what we really need. rar itself is quite problematic to install, but is installed whenever possible.
     if ! which unrar > /dev/null; then
-        case "$(_os_distro)-$(_os_arch)" in
-            "ubuntu-amd64")
+        case "$(_os_arch)" in
+            "amd64")
                 apt_install rar unrar
                 ;;
-            "ubuntu-arm64")
+            "arm64")
                 apt_install unrar
-                ;;
-            "debian-amd64")
-                dlurl="http://www.rarlab.com$(curl -s https://www.rarlab.com/download.htm | grep rarlinux-x64 | cut -f2 -d\")"
                 ;;
             *) # Default case if needs to be compiled from source, e.g. Debian-arm and Raspbian
                 srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
@@ -35,6 +32,7 @@ function install_rar() {
             fi
         fi
 
+        #Should not be required anymore, left for posterity
         if [ -n "$dlurl" ]; then
             # cd /tmp
             echo_progress_start "Downloading rar & unrar binaries for $(_os_distro)-$(_os_arch)"
@@ -48,6 +46,7 @@ function install_rar() {
             echo_progress_done "rar & unrar installed"
         fi
 
+        #Currently un-used as well
         if [ -n "$deburl" ]; then
             echo_progress_start "Installing unrar"
             wget -q "$deburl" -O /tmp/unrar.deb || {
