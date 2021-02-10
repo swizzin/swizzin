@@ -201,16 +201,19 @@ function _preparation() {
     apt-get install uuid-runtime -yy >> $log 2>&1
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
 
+    echo_progress_start "Enabling required repos"
+    if ! which add-apt-repository > /dev/null; then
+        apt_install software-properties-common
+    fi
     if [[ $distribution = "Ubuntu" ]]; then
-        echo_progress_start "Enabling required repos"
-        if ! which add-apt-repository > /dev/null; then
-            apt_install software-properties-common
-        fi
         add-apt-repository universe >> ${log} 2>&1
         add-apt-repository multiverse >> ${log} 2>&1
         add-apt-repository restricted -u >> ${log} 2>&1
-        echo_progress_done
+    elif [[ $distribution == "Debian" ]]; then
+        add-apt-repository contrib >> ${log} 2>&1
+        add-apt-repository non-free >> ${log} 2>&1
     fi
+    echo_progress_done
 
     apt_upgrade
 
