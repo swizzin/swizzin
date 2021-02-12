@@ -6,28 +6,29 @@ if ! which add-apt-repository > /dev/null; then
 fi
 
 if [[ $(_os_distro) == "ubuntu" ]]; then
-    if ! grep -q 'universe' /etc/apt/sources.list; then
+    #Ignore a found match if the line is commented out
+    if ! grep -q 'universe' /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling universe repo"
         add-apt-repository universe >> ${log} 2>&1
         trigger_apt_update=true
     fi
-    if ! grep -q 'multiverse' /etc/apt/sources.list; then
+    if ! grep -q 'multiverse' /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling multiverse repo"
         add-apt-repository multiverse >> ${log} 2>&1
         trigger_apt_update=true
     fi
-    if ! grep -q 'restricted' /etc/apt/sources.list; then
+    if ! grep -q 'restricted' /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling restricted repo"
         add-apt-repository restricted -u >> ${log} 2>&1
         trigger_apt_update=true
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
-    if ! grep -q contrib /etc/apt/sources.list; then
+    if ! grep -q contrib /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling contrib repo"
         apt-add-repository contrib >> ${log} 2>&1
         trigger_apt_update=true
     fi
-    if ! grep -q non-free /etc/apt/sources.list; then
+    if ! grep -q non-free /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling non-free repo"
         apt-add-repository non-free >> ${log} 2>&1
         trigger_apt_update=true
