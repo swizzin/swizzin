@@ -1,6 +1,43 @@
 #!/bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
 
+if ! which add-apt-repository > /dev/null; then
+    apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
+fi
+
+if [[ $(_os_distro) == "ubuntu" ]]; then
+    #Ignore a found match if the line is commented out
+    if ! grep -q 'universe' /etc/apt/sources.list | grep -v '^#'; then
+        echo_info "Enabling universe repo"
+        add-apt-repository universe >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+    if ! grep -q 'multiverse' /etc/apt/sources.list | grep -v '^#'; then
+        echo_info "Enabling multiverse repo"
+        add-apt-repository multiverse >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+    if ! grep -q 'restricted' /etc/apt/sources.list | grep -v '^#'; then
+        echo_info "Enabling restricted repo"
+        add-apt-repository restricted >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+elif [[ $(_os_distro) == "debian" ]]; then
+    if ! grep -q contrib /etc/apt/sources.list | grep -v '^#'; then
+        echo_info "Enabling contrib repo"
+        apt-add-repository contrib >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+    if ! grep -q non-free /etc/apt/sources.list | grep -v '^#'; then
+        echo_info "Enabling non-free repo"
+        apt-add-repository non-free >> ${log} 2>&1
+        trigger_apt_update=true
+    fi
+fi
+if [[ $trigger_apt_update == "true" ]]; then
+    apt_update
+fi
+
 #space-separated list of required GLOBAL SWIZZIN dependencies (NOT application specific ones)
 dependencies="whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools fortune gnupg2 cracklib-runtime"
 
