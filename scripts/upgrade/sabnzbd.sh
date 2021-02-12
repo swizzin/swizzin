@@ -58,9 +58,18 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     if [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment to python3"
         rm -rf /opt/.venv/sabnzbd
-        sudo -u ${user} bash -c "python3 -m venv /opt/.venv/sabnzbd/" >> "$log" 2>&1
-        if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
-            sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
+        systempy3_ver=$(get_candidate_version python3)
+        if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+            pyenv_install
+            pyenv_install_version 3.7.7
+            pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
+            chown -R ${user}: /opt/.venv/sabnzbd
+        else
+            python3_venv ${user} sabnzbd
+        fi
+        if grep -q python2 /etc/systemd/system/sabnzbd.service; then
+            sed -i 's/python2/python/g' /etc/systemd/system/sabnzbd.service
+            systemctl daemon-reload
         fi
         sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel" >> "${log}" 2>&1
         sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
