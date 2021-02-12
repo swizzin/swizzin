@@ -11,7 +11,7 @@ function install_rar() {
             "arm64")
                 apt_install unrar
                 ;;
-            *) # Default case if needs to be compiled from source, e.g. Debian-arm and Raspbian
+            *) # Default case if needs to be compiled from source
                 srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
                 ;;
         esac
