@@ -19,7 +19,7 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
     fi
     if ! grep -q 'restricted' /etc/apt/sources.list | grep -v '^#'; then
         echo_info "Enabling restricted repo"
-        add-apt-repository restricted -u >> ${log} 2>&1
+        add-apt-repository restricted >> ${log} 2>&1
         trigger_apt_update=true
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
