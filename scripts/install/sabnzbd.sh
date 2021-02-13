@@ -32,6 +32,7 @@ else
 fi
 
 apt_install $LIST
+install_rar
 
 case ${PYENV} in
     True)
@@ -44,8 +45,6 @@ case ${PYENV} in
         python3_venv ${user} sabnzbd
         ;;
 esac
-
-install_rar
 
 echo_progress_start "Downloading and extracting sabnzbd"
 mkdir -p /opt/sabnzbd
