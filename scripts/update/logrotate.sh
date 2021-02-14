@@ -4,5 +4,5 @@
 if [ ! -e "/etc/logrotate.d/swizzin" ]; then
     #shellcheck source=sources/functions/logrotate
     . /etc/swizzin/sources/functions/logrotate
-    install_logrotate
+    install_swiz_logrotate
 fi
