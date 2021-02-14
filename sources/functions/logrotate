@@ -9,10 +9,12 @@ install_swiz_logrotate() {
 
     cat > /etc/logrotate.d/swizzin << EOF
 /root/logs/swizzin.log {
+    rotate 10
     weekly
     missingok
     nocompress
     notifempty
+    create 0600 root root
 }
 EOF
 
