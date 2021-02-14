@@ -405,6 +405,7 @@ _run_post() {
 
 _os
 _preparation
+
 ## If install is attended, do the nice intro
 if [[ $unattend != "true" ]]; then
     if [[ -z "$user" ]] && [[ -z "$pass" ]]; then # If password AND username are empty
@@ -419,6 +420,9 @@ _adduser
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _check_results
 _prioritize_results
+#shellcheck source=sources/functions/logrotate
+. /etc/swizzin/sources/functions/logrotate
+install_swiz_logrotate
 _install
 _post
 _run_post
