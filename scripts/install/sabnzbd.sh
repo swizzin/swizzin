@@ -68,11 +68,6 @@ echo_progress_done
 chown -R ${user}: /opt/.venv/sabnzbd
 mkdir -p /home/${user}/.config/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
-chown -R ${user}: /opt/sabnzbd
-chown ${user}: /home/${user}/.config
-chown -R ${user}: /home/${user}/.config/sabnzbd
-chown ${user}: /home/${user}/Downloads
-chown ${user}: /home/${user}/Downloads/{complete,incomplete}
 
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/sabnzbd.service << SABSD
@@ -92,7 +87,6 @@ WantedBy=multi-user.target
 SABSD
 
 echo_progress_start "Configuring SABnzbd"
-systemctl stop sabnzbd >> "${log}" 2>&1
 cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
 [misc]
 host_whitelist = $(hostname -f), $(hostname)
@@ -109,6 +103,11 @@ direct_unpack_threads = 1
 password = "${password}"
 username = "${user}"
 SAB_INI
+chown -R ${user}: /opt/sabnzbd
+chown ${user}: /home/${user}/.config
+chown -R ${user}: /home/${user}/.config/sabnzbd
+chown ${user}: /home/${user}/Downloads
+chown ${user}: /home/${user}/Downloads/{complete,incomplete}
 echo_progress_done
 
 echo_progress_start "Starting SABnzbd"
