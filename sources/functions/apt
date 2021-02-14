@@ -7,7 +7,7 @@
 export _max_apt_age=3600
 
 #Log is required for checking for failures
-if [[ -z $log ]]; then export log="/root/logs/swizzin.log"; fi
+if [[ -z $log ]]; then export log="/var/log/swizzin/box.log"; fi
 
 ##############################################################################
 # INTERNAL FUNCTIONS

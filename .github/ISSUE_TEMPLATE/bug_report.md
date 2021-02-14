@@ -39,8 +39,8 @@ Steps to reproduce the behavior:
 (Add any other context about the problem here. Logs, terminal output, etc.)
 
 (Good sources for log output could be the following: (only if they have relevant information))
-- `cat /root/logs/install.log`
-- `cat /root/logs/swizzin.log`
+- `cat /var/log/swizzin/box.log`
+- `cat /var/log/swizzin/initialinstall.log`
 - `cat /var/logs/nginx/error.log`
 - `systemctl status <app>@<(user)>`
 - `journalctl -xe`

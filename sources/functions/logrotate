@@ -8,7 +8,7 @@ install_swiz_logrotate() {
     fi
 
     cat > /etc/logrotate.d/swizzin << EOF
-/root/logs/swizzin.log {
+/var/log/swizzin/box.log {
     rotate 10
     weekly
     missingok

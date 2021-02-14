@@ -21,8 +21,8 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-export log=/root/logs/swizzin.log
-mkdir -p /root/logs
+export log=/var/log/swizzin/initialinstall.log
+mkdir -p /var/log/swizzin
 touch $log
 
 # Setting up /etc/swizzin
@@ -181,7 +181,6 @@ _option_parse "$@"
 
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
-    if [ ! -d /root/logs ]; then mkdir /root/logs; fi
     if ! which lsb_release > /dev/null; then
         echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
         apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE

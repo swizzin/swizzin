@@ -38,7 +38,7 @@ These are just some super useful ones we really like that you should give a shot
 ## Directories and files
 - Please use `/opt` to install any new software. **Avoid using home directories to install application binaries/source**
 - When creating configuration for users, please add it to an appropriate folder under `~/.config/` when possible
-- Please make sure to put any necessary code output into the default log files for swizzin, (i.e. `swizzin.log` and `install.log` under `/root/logs`) *including* the `stderr`
+- Please make sure to put any necessary code output into the default log files for swizzin, (i.e. `box.log` and `initialinstall.log` under `/var/log/swizzin`) *including* the `stderr`
 - Make sure to create `.lock` files for your application under `/install/`
   - Record any application information that might need to be dynamically retrieved into the .lock file above.
 
