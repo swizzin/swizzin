@@ -21,7 +21,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-export log=/var/log/swizzin/initialinstall.log
+export log=/var/log/swizzin/setup.log
 mkdir -p /var/log/swizzin
 touch $log
 
