@@ -8,6 +8,8 @@ fi
 
 . /etc/swizzin/sources/functions/deluge
 . /etc/swizzin/sources/functions/libtorrent
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/fpm
 
 if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
     check_libtorrent_rasterbar_method

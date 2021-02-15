@@ -7,6 +7,7 @@
 . /etc/swizzin/sources/functions/libtorrent
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
+
 users=($(_get_user_list))
 qbtvold=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
 

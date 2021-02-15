@@ -16,6 +16,8 @@
 . /etc/swizzin/sources/functions/deluge
 . /etc/swizzin/sources/functions/libtorrent
 . /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/fpm
+
 local_packages=/usr/local/bin/swizzin
 users=($(_get_user_list))
 master=$(_get_master_username)
