@@ -4,7 +4,6 @@ function whiptail_qbittorrent() {
     if [[ -z $qbittorrent ]]; then
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
-        repov=$(get_candidate_version qbittorrent-nox)
         releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
@@ -104,7 +103,7 @@ function build_qbittorrent() {
         rm -rf release-${VERSION}.tar.gz
         cd qbittorrent
         tag=" ${stdcver} march=native"
-        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=c++17" >> ${log} 2>&1
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
         make -j$(nproc) >> $log 2>&1
         make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
         mkdir -p /root/dist
