@@ -15,7 +15,7 @@ function detect_libtorrent_rasterbar_conflict() {
         echo_warn "Deprecated libtorrent build method detected. It is recommended that you upgrade to the new method of static libtorrent libraries."
         if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch).
         You will be unable to make changes if you say no."; then
-            libtorrent_resolve_conflict
+            libtorrent_resolve_shared_conflict
         else
             echo_info "Install will now exit"
             exit 1
