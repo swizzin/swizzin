@@ -18,7 +18,7 @@ fi
 case $LIBTORRENT_RASTERBAR_METHOD in
     repo)
         apt_install_libtorrent_rasterbar
-        apt_install_deluge
+        apt_install qbittorrent-nox
         ;;
     compile)
         detect_libtorrent_rasterbar_conflict qbittorrent
