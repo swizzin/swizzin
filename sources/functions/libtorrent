@@ -174,7 +174,7 @@ function whiptail_skip_libtorrent_rasterbar() {
 }
 
 function check_libtorrent_rasterbar_method() {
-    if ! swizdb get "libtorrent_rasterbar_method"; then
+    if ! swizdb get "libtorrent_rasterbar_method" > /dev/null 2>&1; then
         whiptail_libtorrent_rasterbar_method
     fi
     LIBTORRENT_RASTERBAR_METHOD=$(swizdb get libtorrent_rasterbar_method)
