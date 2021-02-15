@@ -180,7 +180,7 @@ function check_libtorrent_rasterbar_method() {
     LIBTORRENT_RASTERBAR_METHOD=$(swizdb get libtorrent_method)
 }
 
-function whiptail_libtorrent_method() {
+function whiptail_libtorrent_rasterbar_method() {
     if (whiptail --title "Compile or Repo?" --yesno --yes-button "Repo" --no-button "Compile" "You must choose between repository or compiled method for Libtorrent (and Deluge/qBittorrent). Which do you want to choose? NOTE: This choice will affect the install method of all libtorrent-based applications. If you choose repo, then you will not be able to compile Deluge or qBittorrent yourself." 12 50); then
         swizdb set "libtorrent_rasterbar_method" repo
     else
