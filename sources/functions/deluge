@@ -100,6 +100,9 @@ function build_libtorrent_deluge() {
     cd /tmp
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
+    echo_log_only "Checking python bindings for libtorrent"
+    dpkg -r python-libtorrent >> ${log} 2>&1
+    dpkg -r python3-libtorrent >> ${log} 2>&1
     dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb >> ${log} 2>&1 || {
         echo_error "Libtorrent python binding could not be installed. Setup will not proceed"
         exit 1
