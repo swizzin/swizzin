@@ -53,11 +53,13 @@ function build_libtorrent_deluge() {
             libtorrent_branch=RC_1_1
             pythonver=python2.7
             pythonmajor=2.7
+            python=python
             ;;
         master)
             libtorrent_branch=RC_1_2
             pythonver=python3
             pythonmajor=$(get_candidate_version python3 | cut -d. -f1-2)
+            python=python3
             ;;
         *)
             echo_error "Deluge version should not be empty. Setup will not proceed."
