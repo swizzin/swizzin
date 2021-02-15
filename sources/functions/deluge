@@ -95,11 +95,11 @@ function build_libtorrent_deluge() {
     cd /tmp/libtorrent/bindings/python
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=openssl variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
     tag=" static with c++14 march=native"
+    mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version ${VERSION} --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> ${log} 2>&1
     cd /tmp
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
-    mkdir -p /root/dist
     dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb >> ${log} 2>&1 || {
         echo_error "Libtorrent python binding could not be installed. Setup will not proceed"
         exit 1
