@@ -127,7 +127,7 @@ function build_deluge() {
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
             ;;
         1.3-stable)
-            if [[ $release == "focal" ]]; then
+            if [[ $(_os_codename) == "focal" ]]; then
                 LIST='python2.7-dev intltool xdg-utils librsvg2-common'
                 PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
                 pythonver=python2.7
@@ -155,7 +155,7 @@ function build_deluge() {
     if [[ $pythonver == python3 ]]; then
         twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
         if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
-            case $release in
+            case $(_os_codename) in
                 "xenial")
                     echo_progress_start "Packaging up-to-date python3-twisted"
                     LIST='libffi-dev python3-pip'
