@@ -2,6 +2,11 @@
 # qBittorrent Installer for swizzin
 # Author: liara
 
+if [[ ! -f /install/.qbittorrent.lock ]]; then
+    echo_error "qBittorrent doesn't appear to be installed. What do you hope to accomplish by running this script?"
+    exit 1
+fi
+
 # Source the required functions
 . /etc/swizzin/sources/functions/qbittorrent
 . /etc/swizzin/sources/functions/libtorrent
