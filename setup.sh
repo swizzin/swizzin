@@ -294,6 +294,7 @@ function _check_results() {
         whiptail_rtorrent
     fi
     if grep -q deluge "$results"; then
+        . /etc/swizzin/sources/functions/libtorrent
         . /etc/swizzin/sources/functions/deluge
         check_libtorrent_rasterbar_method
         if [[ $LIBTORRENT_RASTERBAR_METHOD == "compile" ]]; then
@@ -301,6 +302,7 @@ function _check_results() {
         fi
     fi
     if grep -q qbittorrent "$results"; then
+        . /etc/swizzin/sources/functions/libtorrent
         . /etc/swizzin/sources/functions/qbittorrent
         check_libtorrent_rasterbar_method
         if [[ $LIBTORRENT_RASTERBAR_METHOD == "compile" ]]; then
@@ -312,12 +314,12 @@ function _check_results() {
         . /etc/swizzin/sources/functions/transmission
         whiptail_transmission_source
     fi
-    if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
-        . /etc/swizzin/sources/functions/libtorrent
-        check_client_compatibility setup
-        whiptail_libtorrent_rasterbar
-        export SKIP_LT=True
-    fi
+    #if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
+    #    . /etc/swizzin/sources/functions/libtorrent
+    #    check_client_compatibility setup
+    #    whiptail_libtorrent_rasterbar
+    #    export SKIP_LT=True
+    #fi
 
     if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then # Check nginx requirement for more than rutorrent
         if (whiptail --title "nginx conflict" --yesno --yes-button "Install nginx" --no-button "Remove ruTorrent" "WARNING: The installer has detected that ruTorrent is to be installed without nginx. To continue, the installer must either install nginx or remove ruTorrent from the packages to be installed." 8 78); then
