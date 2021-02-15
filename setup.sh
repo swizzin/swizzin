@@ -295,11 +295,17 @@ function _check_results() {
     fi
     if grep -q deluge "$results"; then
         . /etc/swizzin/sources/functions/deluge
-        whiptail_deluge
+        check_libtorrent_rasterbar_method
+        if [[ $LIBTORRENT_RASTERBAR_METHOD == "compile" ]]; then
+            whiptail_deluge
+        fi
     fi
     if grep -q qbittorrent "$results"; then
         . /etc/swizzin/sources/functions/qbittorrent
-        whiptail_qbittorrent
+        check_libtorrent_rasterbar_method
+        if [[ $LIBTORRENT_RASTERBAR_METHOD == "compile" ]]; then
+            whiptail_qbittorrent
+        fi
     fi
     if grep -q transmission "$results"; then
         #shellcheck source=sources/functions/transmission
