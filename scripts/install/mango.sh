@@ -9,21 +9,30 @@ mangousr="mango"
 # Downloading the latest binary
 function _install_mango() {
     echo_progress_start "Downloading binary"
-    dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
-        echo_error "Failed to query github"
-        exit 1
-    fi
+
+    case "$(_os_arch)" in
+        "arm64" | "arm32")
+            # TODO this needs the build process for amr
+            # dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | grep "$(_os_arch)" | cut -d\" -f 4)
+            echo_error "Currently unsupported but might be in the future. Please check back later!\nhttps://github.com/hkalexling/Mango/issues/131"
+            exit 1
+            ;;
+        "amd64")
+            dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+            ;;
+        *)
+            echo_error "Unsupported arch?"
+            exit 1
+            ;;
+    esac
+    echo_log_only "dlurl = $dlurl"
 
     mkdir -p "$mangodir"
     mkdir -p "$mangodir"/library
-    wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
+    wget "${dlurl}" -O $mangodir/mango >> "$log" 2>&1 || {
         echo_error "Failed to download binary"
         exit 1
-    fi
+    }
     echo_progress_done "Binary downloaded"
 
     chmod +x $mangodir/mango

@@ -68,6 +68,16 @@ fi
 ```
 In this example, the default (`else`) behaviour triggers for current releases, and only the old ones have the modified behaviour
 
+## Handling interactivity
+Please make sure your scripts are compatible with the custom/unattended installation options through environment variables. This means that there should be a scenario in your script, where no interaction is necessary if necessary variables are available before the script started.
+
+Please stick to the following:
+- Pre-fix your variables with the name of the application to prevent collisions, e.g. `$APPLICATION_VARIABLE`
+- Ensure your script is checking the existance of the variable before triggering anything interactive, so that the scripts can skip over things if they are supplied through options.
+  - e.g. `if [[ -z $APPLICATION_VARIABLE ]]; then read $APPLICATION_VARIABLE; fi`
+  - e.g. `while [[ -z $APPLICATION_VARIABLE ]]; do [...] APPLICATION_VARIABLE=$verified-value [...] ; done`
+- Appropriately document the varaibles in the docs repo
+
 ## APT handling
 We have developed our own internal set of functions for handling `apt` packages in a predictable and uniform way. In the event any of these functions encounter an error, they will (with default behaviour) ensure the rest of the script will not continue. Please use the following functions and see the available options. **Refrain from calling the raw apt equivalents of the functions below.** 
 

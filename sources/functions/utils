@@ -1,18 +1,71 @@
 #!/bin/bash
 
+# Handles rar installation for all distros and architectures
 function install_rar() {
-    if [[ -z $(which rar) ]]; then
-        apt_install rar unrar
-    fi
-}
+    # Checking for unrar because that's what we really need. rar itself is quite problematic to install, but is installed whenever possible.
+    if ! which unrar > /dev/null; then
+        case "$(_os_arch)" in
+            "amd64")
+                apt_install rar unrar
+                ;;
+            "arm64")
+                apt_install unrar
+                ;;
+            *) # Default case if needs to be compiled from source
+                srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
+                ;;
+        esac
 
-function _rar() {
-    cd /tmp
-    wget -q http://www.rarlab.com/rar/rarlinux-x64-5.5.0.tar.gz
-    tar -xzf rarlinux-x64-5.5.0.tar.gz > /dev/null 2>&1
-    cp rar/*rar /bin > /dev/null 2>&1
-    rm -rf rarlinux*.tar.gz > /dev/null 2>&1
-    rm -rf /tmp/rar > /dev/null 2>&1
+        if [ -n "$srcurl" ]; then
+            echo_progress_start "Compiling unrar from source"
+            wget -q "$srcurl" -O /tmp/unrarsrc.tar.gz || {
+                echo_error "Failed to download"
+                exit 1
+            }
+            tar -xzf /tmp/unrarsrc.tar.gz -C /tmp >> "$log" 2>&1
+            if ! make -C /tmp/unrar -f makefile >> $log 2>&1; then
+                echo_warn "Failed to compile unrar. Please investigate\nInstallation will continue"
+            else
+                install -v -m755 /tmp/unrar/unrar /usr/bin >> $log
+                rm -rf /tmp/unrar*
+                echo_progress_done "Unrar compiled and installed"
+            fi
+        fi
+
+        #Should not be required anymore, left for posterity
+        if [ -n "$dlurl" ]; then
+            # cd /tmp
+            echo_progress_start "Downloading rar & unrar binaries for $(_os_distro)-$(_os_arch)"
+            wget -q "$dlurl" -O /tmp/rarbins.tar.gz || {
+                echo_warn "Failed to download binaries. Please investigate\nInstallation will continue"
+            }
+            tar -xzf /tmp/rarbins.tar.gz -C /tmp >> "$log" 2>&1
+            cp /tmp/rar/*rar /bin >> "$log" 2>&1
+            rm -rf /tmp/rarbins.tar.gz
+            rm -rf /tmp/rar
+            echo_progress_done "rar & unrar installed"
+        fi
+
+        #Currently un-used as well
+        if [ -n "$deburl" ]; then
+            echo_progress_start "Installing unrar"
+            wget -q "$deburl" -O /tmp/unrar.deb || {
+                echo_warn "Failed to download unrar. Please investigate\nInstallation will continue"
+            }
+            if ! dpkg -i /tmp/unrar.deb >> "$log" 2>&1; then
+                echo_warn "Failed to install unrar. Please investigate\nInstallation will continue"
+            else
+                rm /tmp/unrar.deb
+                echo_progress_done "Unrar installed"
+            fi
+        fi
+
+        if ! which rar > /dev/null; then
+            echo_warn "Rar (for creating archives) is not supported on $(_os_distro)-$(_os_arch).\nInstallation will continue."
+        fi
+    else
+        echo_log_only "Rar seems to be installed"
+    fi
 }
 
 # Returns a password for a user in case one exists.
