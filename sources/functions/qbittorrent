@@ -40,7 +40,7 @@ function build_libtorrent_qbittorrent() {
     case $qbittorrent in
         4.1.*)
             libtorrent_branch=RC_1_1
-            stdcver="c++14"
+            stdcver="c++11"
             ;;
         4.2.*)
             libtorrent_branch=RC_1_2
