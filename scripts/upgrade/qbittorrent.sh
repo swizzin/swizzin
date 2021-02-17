@@ -14,7 +14,7 @@ fi
 . /etc/swizzin/sources/functions/fpm
 
 users=($(_get_user_list))
-qbtvold=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+qbtvold=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+' || echo '0.0.0.0')
 
 if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
     check_libtorrent_rasterbar_method
