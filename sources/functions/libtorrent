@@ -95,7 +95,7 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
     if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
         qbittorrent=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
     fi
-    if [[ -n $deluge && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
+    if [[ -n $deluge && ! ${called_by} == deluge ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         . /etc/swizzin/sources/functions/fpm
