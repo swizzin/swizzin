@@ -45,7 +45,7 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         ;;
     *) ;;
 esac
-qbtvnew=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+qbtvnew=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
 
 for user in "${users[@]}"; do
     if dpkg --compare-versions ${qbtvold} lt 4.2.0 && dpkg --compare-versions ${qbtvnew} ge 4.2.0; then

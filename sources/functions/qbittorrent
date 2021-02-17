@@ -203,7 +203,7 @@ function qbittorrent_chpasswd() {
     user=$1
     password=$2
     local_packages=/usr/local/bin/swizzin
-    qbtv=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+    qbtv=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+' || echo '0.0.0.0')
     active=$(systemctl is-active qbittorent@${user})
     if dpkg --compare-versions ${qbtv} lt 4.2.0; then
         hashed=$(echo -n "$password" | md5sum | awk '{print $1}')
