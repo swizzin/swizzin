@@ -18,6 +18,8 @@ fi
 case $LIBTORRENT_RASTERBAR_METHOD in
     repo)
         apt_install_libtorrent_rasterbar
+        resolve_libtorrent_rasterbar_repo_conflict deluge
+        apt_remove --purge ^deluge.*
         apt_install_deluge
         ;;
     compile)

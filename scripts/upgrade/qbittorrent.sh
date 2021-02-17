@@ -23,6 +23,8 @@ fi
 case $LIBTORRENT_RASTERBAR_METHOD in
     repo)
         apt_install_libtorrent_rasterbar
+        resolve_libtorrent_rasterbar_repo_conflict qbittorrent
+        apt_remove --purge qbittorrent-nox
         apt_install qbittorrent-nox
         ;;
     compile)
