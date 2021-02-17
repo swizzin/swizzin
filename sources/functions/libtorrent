@@ -76,6 +76,8 @@ function libtorrent_resolve_shared_conflict() {
         build_qbittorrent
         echo_progress_done
     fi
+    unset qbittorrent
+    unset deluge
 }
 
 function check_client_compatibility() {
