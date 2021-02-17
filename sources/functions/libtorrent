@@ -5,7 +5,7 @@ function detect_libtorrent_rasterbar_conflict() {
     libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar-dev)
     conflicting_libtorrent_packages=()
     for lib in "${libtorrent_libnames[@]}"; do
-        if dpkg -l | grep $lib > /dev/null 2>&1 && ! dpkg -l | grep $lib | grep static > /dev/null 2>&1; then
+        if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep static > /dev/null 2>&1; then
             echo_warn "$lib has been detected but is not a static library"
             staticconflict=true
             conflicting_libtorrent_packages+=($lib)
