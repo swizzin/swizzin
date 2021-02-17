@@ -58,9 +58,9 @@ function libtorrent_resolve_shared_conflict() {
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         . /etc/swizzin/sources/functions/fpm
-        echo_progress_start "Recompiling Deluge for compatibility before continuing"
-        whiptail_deluge
+        echo_info "Recompiling Deluge for compatibility before continuing"
         install_fpm
+        apt_remove --purge ^deluge.*
         build_libtorrent_deluge
         build_deluge
         echo_progress_done
@@ -69,9 +69,9 @@ function libtorrent_resolve_shared_conflict() {
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/deluge
-        echo_progress_start "Recompiling qBittorrent for compatibility before continuing"
+        echo_info "Recompiling qBittorrent for compatibility before continuing"
         install_fpm
-        whiptail_qbittorrent
+        apt_remove --purge qbittorrent-nox
         build_libtorrent_qbittorrent
         build_qbittorrent
         echo_progress_done
