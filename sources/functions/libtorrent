@@ -57,11 +57,16 @@ function libtorrent_resolve_shared_conflict() {
     if [[ -n $deluge && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
+        . /etc/swizzin/sources/functions/fpm
+        whiptail_deluge
+        install_fpm
         build_libtorrent_deluge
     fi
     if [[ -n $qbittorrent && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
+        . /etc/swizzin/sources/functions/deluge
+        install_fpm
         whiptail_qbittorrent
         build_libtorrent_qbittorrent
         build_qbittorrent
