@@ -58,20 +58,24 @@ function libtorrent_resolve_shared_conflict() {
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         . /etc/swizzin/sources/functions/fpm
+        echo_progress_start "Recompiling Deluge for compatibility before continuing"
         whiptail_deluge
         install_fpm
         build_libtorrent_deluge
+        build_deluge
+        echo_progress_done
     fi
     if [[ -n $qbittorrent && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/deluge
+        echo_progress_start "Recompiling qBittorrent for compatibility before continuing"
         install_fpm
         whiptail_qbittorrent
         build_libtorrent_qbittorrent
         build_qbittorrent
+        echo_progress_done
     fi
-    exit 0
 }
 
 function check_client_compatibility() {
