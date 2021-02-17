@@ -21,7 +21,11 @@ function whiptail_deluge() {
 
 function whiptail_deluge_downupgrade() {
     if [[ -n $(command -v deluged) ]]; then
-        dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
+        if echo $function | grep -q Deluge; then
+            dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
+        else
+            dverup=$(echo "$function" | cut -d. -f1)
+        fi
         dvercurmajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
         if [[ $dverup -lt $dvercurmajor ]]; then
             downupmessage="You have chosen to perform a major version DOWNGRADE to $function. Please be advised that this will downgrade your Deluge binaries to an older version which is not compatible with the new version state.\n\nIf you have never had $function installed, you will not have a backup to restore. NO TORRENTS WILL BE LOADED. This is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to continue.\n\nI hope you know what you're doing."
