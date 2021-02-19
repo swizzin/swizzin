@@ -73,7 +73,7 @@ function skip_libtorrent_qbittorrent() {
     if [[ -f /usr/local/lib/libtorrent.a ]]; then
         libtorrent_current_version=$(strings /usr/local/lib/libtorrent.a | grep libtorrent/ | cut -d/ -f2)
         if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version}; then
-            if dpkg -s libtorrent-rasterbar | grep ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
+            if dpkg -s libtorrent-rasterbar | grep -q ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
                 return
             fi
         fi
