@@ -167,10 +167,15 @@ function whiptail_skip_libtorrent_rasterbar() {
 }
 
 function check_libtorrent_rasterbar_method() {
+    if [[ -n $LIBTORRENT_RASTERBAR_METHOD ]] && [[ ! $(swizdb get "libtorrent_rasterbar_method") == "${LIBTORRENT_RASTERBAR_METHOD}" ]]; then
+        swizdb set "libtorrent_rasterbar_method" "${LIBTORRENT_RASTERBAR_METHOD}"
+    fi
     if ! swizdb get "libtorrent_rasterbar_method" > /dev/null 2>&1; then
         whiptail_libtorrent_rasterbar_method
     fi
-    LIBTORRENT_RASTERBAR_METHOD=$(swizdb get libtorrent_rasterbar_method)
+    if [[ -z ${LIBTORRENT_RASTERBAR_METHOD} ]]; then
+        LIBTORRENT_RASTERBAR_METHOD=$(swizdb get libtorrent_rasterbar_method)
+    fi
 }
 
 function whiptail_libtorrent_rasterbar_method() {

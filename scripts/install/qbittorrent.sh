@@ -22,9 +22,7 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
-if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
-    check_libtorrent_rasterbar_method
-fi
+check_libtorrent_rasterbar_method
 
 case $LIBTORRENT_RASTERBAR_METHOD in
     repo)

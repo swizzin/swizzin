@@ -11,9 +11,7 @@ fi
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
-    check_libtorrent_rasterbar_method
-fi
+check_libtorrent_rasterbar_method
 
 case $LIBTORRENT_RASTERBAR_METHOD in
     repo)
