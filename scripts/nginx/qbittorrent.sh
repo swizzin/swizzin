@@ -18,7 +18,7 @@ location /qbittorrent.downloads {
 DIN
 fi
 
-if [[ ! -f /etc/nginx/apps/qbittorrent.conf ]]; then
+if [[ ! -f /etc/nginx/apps/qbittorrent.conf ]] || ! grep -q "proxy_connect_timeout" /etc/nginx/apps/qbittorrent.conf; then
     cat > /etc/nginx/apps/qbittorrent.conf << 'QBTN'
 location /qbt {
     return 301 /qbittorrent/;
