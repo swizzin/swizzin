@@ -18,14 +18,13 @@ if [[ -f /install/.qbittorrent.lock ]]; then
         systemctl daemon-reload
         echo_info "qBittorrent systemd services have been updated. Please restart qBittorrent services at your convenience."
     fi
-    if [[ -f /etc/nginx/apps/qbittorrent.conf]]; then
-        if ! grep -q "proxy_connect_timeout"; then
-        echo_log_only "Adding timeouts and optimizations to qbit nginx conf"
-        cat > /etc/nginx/apps/qbittorrent.conf << EOF
+    if [[ -f /etc/nginx/apps/qbittorrent.conf ]]; then
+        if ! grep -q "proxy_connect_timeout" /etc/nginx/apps/qbittorrent.conf; then
+            echo_log_only "Adding timeouts and optimizations to qbit nginx conf"
+            cat > /etc/nginx/apps/qbittorrent.conf << EOF
 location /qbt {
     return 301 /qbittorrent/;
 }
-
 location /qbittorrent/ {
     proxy_pass              http://$remote_user.qbittorrent;
     proxy_http_version      1.1;
@@ -60,7 +59,9 @@ location /qbittorrent/ {
     # Not needed since qBittorrent v4.1.0
     #add_header              X-Frame-Options         "SAMEORIGIN";
 }
+
 EOF
-        systemctl nginx reload
+            systemctl nginx reload
+        fi
     fi
 fi
