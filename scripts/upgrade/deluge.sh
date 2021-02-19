@@ -27,6 +27,7 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         whiptail_deluge
         #check_client_compatibility
         whiptail_deluge_downupgrade
+        deluge_version_info
         dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
         if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
             echo_info "Major version upgrade detected. User-data will be backed-up."
@@ -44,7 +45,7 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         remove_ltcheckinstall
 
         install_fpm
-        if ! skip_libtorrent_rasterbar; then
+        if ! skip_libtorrent_deluge; then
             check_swap_on
             echo_progress_start "Rebuilding libtorrent"
             build_libtorrent_deluge

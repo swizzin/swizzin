@@ -30,11 +30,11 @@ case $LIBTORRENT_RASTERBAR_METHOD in
     compile)
         detect_libtorrent_rasterbar_conflict qbittorrent
         whiptail_qbittorrent
-        #check_client_compatibility
+        qbittorrent_version_info
         install_fpm
         check_swap_on
 
-        if ! skip_libtorrent_rasterbar; then
+        if ! skip_libtorrent_qbittorrent; then
             echo_progress_start "Building libtorrent-rasterbar"
             build_libtorrent_qbittorrent
             echo_progress_done

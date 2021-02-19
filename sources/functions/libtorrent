@@ -158,60 +158,6 @@ You can resolve this error with one of the following actions:
     fi
 }
 
-function skip_libtorrent_rasterbar() {
-    if [[ ! -f /install/.libtorrent.lock ]]; then
-        false
-        return
-    elif [[ -n $SKIP_LT ]]; then
-        return
-    else
-        libtorrent_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
-        if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
-        fi
-        if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
-            dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-            case $dver in
-                1.3.*)
-                    deluge=1.3-stable
-                    ;;
-                *)
-                    deluge=master
-                    ;;
-            esac
-        fi
-        case $libtorrent_current in
-            1.2.*)
-                if ! dpkg -s libtorrent-rasterbar | grep -q c++14; then
-                    false
-                    return
-                elif [[ ! $deluge == 1.3-stable ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-            1.1.*)
-                if [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
-                    false
-                    return
-                elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                elif [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-            1.0.*)
-                if [[ -z $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-        esac
-    fi
-    false
-    return
-}
-
 function whiptail_skip_libtorrent_rasterbar() {
     if (whiptail --title "Skip Libtorrent?" --yesno "Setup has determined that you can skip compiling/reinstalling libtorrent. Do you want to?" 12 50); then
         true

@@ -47,10 +47,11 @@ case $LIBTORRENT_RASTERBAR_METHOD in
     compile)
         detect_libtorrent_rasterbar_conflict deluge
         whiptail_deluge
+        deluge_version_info
         #check_client_compatibility
         install_fpm
 
-        if ! skip_libtorrent_rasterbar; then
+        if ! skip_libtorrent_deluge; then
             check_swap_on
             echo_progress_start "Building libtorrent-rasterbar"
             build_libtorrent_deluge
