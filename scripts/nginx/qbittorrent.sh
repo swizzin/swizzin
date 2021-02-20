@@ -18,8 +18,7 @@ location /qbittorrent.downloads {
 DIN
 fi
 
-if [[ ! -f /etc/nginx/apps/qbittorrent.conf ]] || ! grep -q "proxy_connect_timeout" /etc/nginx/apps/qbittorrent.conf; then
-    cat > /etc/nginx/apps/qbittorrent.conf << 'QBTN'
+cat > /etc/nginx/apps/qbittorrent.conf << 'QBTN'
 location /qbt {
     return 301 /qbittorrent/;
 }
@@ -59,7 +58,6 @@ location /qbittorrent/ {
     #add_header              X-Frame-Options         "SAMEORIGIN";
 }
 QBTN
-fi
 
 for user in ${users[@]}; do
     port=$(grep 'WebUI\\Port' /home/${user}/.config/qBittorrent/qBittorrent.conf | cut -d= -f2)
