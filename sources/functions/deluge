@@ -90,8 +90,11 @@ function build_libtorrent_deluge() {
     echo 'using gcc : : : <cflags>"-march=native -std=c++14" <cxxflags>"-march=native -std=c++14" ;' > /root/user-config.jam
     echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
     apt_install ${pythonver}-dev
-    cd /tmp
-    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent >> ${log} 2>&1
+    rm_if_exists /tmp/libtorrent
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
+        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
+        exit 1
+    }
     cd /tmp/libtorrent
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
 
@@ -111,7 +114,9 @@ function build_libtorrent_deluge() {
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
             #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
             ;;
+        *) ;;
     esac
+    cd -
     cd /tmp/libtorrent/bindings/python
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=openssl variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
     tag=" static with c++14 march=native"
@@ -120,7 +125,7 @@ function build_libtorrent_deluge() {
         echo_error "Error packaging ${python}-libtorrent. Setup will exit"
         exit 1
     }
-    cd /tmp
+    cd -
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     echo_log_only "Checking python bindings for libtorrent"
@@ -159,7 +164,10 @@ function build_deluge() {
                 distver=python2.7
                 args=
             fi
-
+            ;;
+        *)
+            echo_error "$deluge branch not recognized. Setup will now exit"
+            exit 1
             ;;
     esac
     apt_install $LIST
@@ -195,21 +203,23 @@ function build_deluge() {
                     LIST='python3-twisted'
                     apt_install $LIST
                     ;;
+                *) ;;
+
             esac
         fi
         if [[ -n $noexec ]]; then
             mount -o remount,noexec /tmp
         fi
     fi
-    cd /tmp
-    git clone -b ${deluge} git://deluge-torrent.org/deluge.git >> "${log}" 2>&1 || {
+    rm_if_exists /tmp/deluge
+    git clone -b ${deluge} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
         echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
         git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
-            echo_error "Cloning Deluge from github failed"
+            echo_error "Cloning Deluge from github failed. Setup will now exit"
             exit 1
         }
     }
-    cd deluge
+    cd /tmp/deluge
     VERSION=$(git describe | cut -d- -f2)
     sed -i 's/-dev//g' setup.cfg
     mkdir -p /root/dist
@@ -221,8 +231,8 @@ function build_deluge() {
         cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
         chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
     fi
-    cd /tmp
-    rm -rf deluge
+    cd -
+    rm -rf /tmp/deluge
     apt-mark hold deluge-common
     echo_progress_done "Deluge installed"
 }

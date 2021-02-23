@@ -83,11 +83,15 @@ function skip_libtorrent_qbittorrent() {
 }
 
 function build_libtorrent_qbittorrent() {
+    rm_if_exists /tmp/libtorrent
     booststrap
     echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
 
-    cd /tmp
-    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent >> ${log} 2>&1
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
+        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
+        exit 1
+    }
+
     cd /tmp/libtorrent
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
         patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
@@ -97,6 +101,7 @@ function build_libtorrent_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
+    cd -
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb >> ${log} 2>&1 || {
@@ -118,13 +123,16 @@ function build_qbittorrent() {
         LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
 
         apt_install --no-recommends $LIST
-        cd /tmp
         rm_if_exists "/tmp/qbittorrent"
-        wget https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1
-        mkdir qbittorrent
-        tar -xvf release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
-        rm -rf release-${VERSION}.tar.gz
-        cd qbittorrent
+        wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
+            echo_error "qBittorrent could not be downloaded. Setup will not proceed"
+            exit 1
+        }
+        mkdir -p /tmp/qbittorrent
+        tar -xvf /tmp/release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
+        rm -rf /tmp/release-${VERSION}.tar.gz
+
+        cd /tmp/qbittorrent
         tag=" ${stdcver} march=native"
         ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
         make -j$(nproc) >> $log 2>&1
@@ -135,8 +143,9 @@ function build_qbittorrent() {
             echo_error "qBittorrent could not be installed. Setup will not proceed"
             exit 1
         }
-        cd /tmp
-        rm -rf /tmp/qbittorrent
+        cd -
+        rm_if_exists /tmp/qbittorrent
+        rm_if_exists /root/dist
         if [[ -n $noexec ]]; then
             mount -o remount,noexec /tmp
         fi
