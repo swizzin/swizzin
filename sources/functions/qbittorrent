@@ -48,22 +48,22 @@ function qbittorrent_version_info() {
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.0
             stdcver="c++14"
-            cryptography_type=openssl
+            cryptography_type=built-in
             ;;
         4.3.*)
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.11
             stdcver="c++17"
-            cryptography_type=openssl
+            cryptography_type=built-in
             ;;
         4.4.*)
             libtorrent_branch=RC_2_0
             libtorrent_minimum_version=2.0
             stdcver="c++17"
-            cryptography_type=openssl
+            cryptography_type=built-in
             ;;
         *)
-            echo_error "qBittorrent version should not be empty. Setup will not proceed."
+            echo_error "qBittorrent version should be between 4.1.*.* and 4.3.*.* -- Setup will not proceed."
             exit 1
             ;;
     esac
