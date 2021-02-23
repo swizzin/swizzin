@@ -48,7 +48,10 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         echo_progress_done
         check_swap_off
         ;;
-    *) ;;
+    *)
+        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
+        exit 1
+        ;;
 
 esac
 

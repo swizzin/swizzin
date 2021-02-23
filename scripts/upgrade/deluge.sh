@@ -55,7 +55,10 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         build_deluge
         echo_progress_done
         ;;
-    *) ;;
+    *)
+        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
+        exit 1
+        ;;
 esac
 
 if [[ -f /install/.nginx.lock ]]; then
