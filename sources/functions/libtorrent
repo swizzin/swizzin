@@ -12,7 +12,7 @@ function detect_libtorrent_rasterbar_conflict() {
         fi
     done
     if [[ $staticconflict == true ]]; then
-        echo_warn "Deprecated libtorrent build method detected. It is recommended that you upgrade to the new method of static libtorrent libraries."
+        echo_warn "Shared library/Repository libtorrent build method detected. In order to continue, you must upgrade to the new method of static libtorrent libraries."
         if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch).
         You will be unable to make changes if you say no."; then
             libtorrent_resolve_shared_conflict
