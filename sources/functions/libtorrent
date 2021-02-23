@@ -19,21 +19,22 @@ function detect_libtorrent_rasterbar_conflict() {
         else
             echo_info "Install will now exit"
             exit 1
-            sharedlibtorrent=true
-            for lib in "${conflicting_libtorrent_packages[@]}"; do
-                case ${lib} in
-                    libtorrent-rasterbar)
-                        libtorrentsharedversion=$(strings /usr/local/lib/libtorrent-rasterbar.so | grep libtorrent/ | cut -d/ -f2)
-                        ;;
-                    libtorrent-rasterbar[789])
-                        libtorrentsharedversion=$(get_candidate_version ${lib})
-                        ;;
-                    *)
-                        echo_error "Libtorrent version could not be determined."
-                        exit 1
-                        ;;
-                esac
-            done
+            #Artifact code atm
+            #sharedlibtorrent=true
+            #for lib in "${conflicting_libtorrent_packages[@]}"; do
+            #    case ${lib} in
+            #        libtorrent-rasterbar)
+            #            libtorrentsharedversion=$(strings /usr/local/lib/libtorrent-rasterbar.so | grep libtorrent/ | cut -d/ -f2)
+            #            ;;
+            #       libtorrent-rasterbar[789])
+            #            libtorrentsharedversion=$(get_candidate_version ${lib})
+            #            ;;
+            #        *)
+            #            echo_error "Libtorrent version could not be determined."
+            #            exit 1
+            #            ;;
+            #    esac
+            #done
         fi
     fi
 }
