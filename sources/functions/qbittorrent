@@ -63,7 +63,7 @@ function qbittorrent_version_info() {
             cryptography_type=built-in
             ;;
         *)
-            echo_error "qBittorrent version should be between 4.1.*.* and 4.3.*.* -- Setup will not proceed."
+            echo_error "qBittorrent version should be between 4.1.*(.*) and 4.3.*(.*) -- Setup will not proceed."
             exit 1
             ;;
     esac
