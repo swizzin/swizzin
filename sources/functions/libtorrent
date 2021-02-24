@@ -61,7 +61,7 @@ function libtorrent_resolve_shared_conflict() {
         . /etc/swizzin/sources/functions/fpm
         echo_info "Recompiling Deluge for compatibility before continuing"
         install_fpm
-        apt_remove --purge ^deluge.*
+        apt_remove --purge '^deluge.*'
         build_libtorrent_deluge
         build_deluge
     fi
