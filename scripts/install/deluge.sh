@@ -21,7 +21,7 @@
 local_packages=/usr/local/bin/swizzin
 users=($(_get_user_list))
 master=$(_get_master_username)
-pass=$(cut -d: -f2 < /root/.master.info)
+pass=$(_get_user_password ${master})
 codename=$(lsb_release -cs)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 

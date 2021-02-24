@@ -30,7 +30,7 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
             echo_info "Major version upgrade detected. User-data will be backed-up."
         fi
-        users=($(cut -d: -f1 < /etc/htpasswd))
+        users=($(_get_user_list))
 
         for u in "${users[@]}"; do
             if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
