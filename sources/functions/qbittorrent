@@ -111,41 +111,40 @@ function build_libtorrent_qbittorrent() {
 }
 
 function build_qbittorrent() {
-        noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-        if [[ -n $noexec ]]; then
-            mount -o remount,exec /tmp
-            noexec=1
-        fi
-        VERSION=${QBITTORRENT_VERSION}
-        LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
+    fi
+    VERSION=${QBITTORRENT_VERSION}
+    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
 
-        apt_install --no-recommends $LIST
-        rm_if_exists "/tmp/qbittorrent"
-        wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
-            echo_error "qBittorrent could not be downloaded. Setup will not proceed"
-            exit 1
-        }
-        mkdir -p /tmp/qbittorrent
-        tar -xvf /tmp/release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
-        rm -rf /tmp/release-${VERSION}.tar.gz
+    apt_install --no-recommends $LIST
+    rm_if_exists "/tmp/qbittorrent"
+    wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
+        echo_error "qBittorrent could not be downloaded. Setup will not proceed"
+        exit 1
+    }
+    mkdir -p /tmp/qbittorrent
+    tar -xvf /tmp/release-${VERSION}.tar.gz -C /tmp/qbittorrent --strip-components=1 >> $log 2>&1
+    rm -rf /tmp/release-${VERSION}.tar.gz
 
-        cd /tmp/qbittorrent
-        tag=" ${stdcver} march=native"
-        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
-        make -j$(nproc) >> $log 2>&1
-        make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
-        mkdir -p /root/dist
-        fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin$tag" >> ${log} 2>&1
-        dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb >> ${log} 2>&1 || {
-            echo_error "qBittorrent could not be installed. Setup will not proceed"
-            exit 1
-        }
-        cd -
-        rm_if_exists /tmp/qbittorrent
-        rm_if_exists /root/dist
-        if [[ -n $noexec ]]; then
-            mount -o remount,noexec /tmp
-        fi
+    cd /tmp/qbittorrent
+    tag=" ${stdcver} march=native"
+    ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
+    make -j$(nproc) >> $log 2>&1
+    make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
+    mkdir -p /root/dist
+    fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin$tag" >> ${log} 2>&1
+    dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb >> ${log} 2>&1 || {
+        echo_error "qBittorrent could not be installed. Setup will not proceed"
+        exit 1
+    }
+    cd -
+    rm_if_exists /tmp/qbittorrent
+    rm_if_exists /root/dist
+    if [[ -n $noexec ]]; then
+        mount -o remount,noexec /tmp
     fi
 }
 
