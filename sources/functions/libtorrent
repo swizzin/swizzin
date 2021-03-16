@@ -44,18 +44,18 @@ function libtorrent_resolve_shared_conflict() {
         deluge_version=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
         case $deluge_version in
             1.3.*)
-                deluge=1.3-stable
+                DELUGE_VERSION=1.3-stable
                 ;;
             *)
-                deluge=master
+                DELUGE_VERSION=master
                 ;;
         esac
     fi
     if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-        qbittorrent=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
+        QBITTORRENT_VERSION=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
     fi
     apt_remove "${conflicting_libtorrent_packages[@]}"
-    if [[ -n $deluge && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
+    if [[ -n $DELUGE_VERSION && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         . /etc/swizzin/sources/functions/fpm
@@ -65,7 +65,7 @@ function libtorrent_resolve_shared_conflict() {
         build_libtorrent_deluge
         build_deluge
     fi
-    if [[ -n $qbittorrent && ! ${called_by} == qbittorrent ]]; then
+    if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/deluge
@@ -75,8 +75,8 @@ function libtorrent_resolve_shared_conflict() {
         build_libtorrent_qbittorrent
         build_qbittorrent
     fi
-    unset qbittorrent
-    unset deluge
+    unset QBITTORRENT_VERSION
+    unset DELUGE_VERSION
 }
 
 function resolve_libtorrent_rasterbar_repo_conflict() {
@@ -86,17 +86,17 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
         function=$deluge_version
         case $deluge_version in
             1.3.*)
-                deluge=1.3-stable
+                DELUGE_VERSION=1.3-stable
                 ;;
             *)
-                deluge=master
+                DELUGE_VERSION=master
                 ;;
         esac
     fi
-    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-        qbittorrent=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
+    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $QBITTORRENT_VERSION ]]; then
+        QBITTORRENT_VERSION=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
     fi
-    if [[ -n $deluge && ! ${called_by} == deluge ]]; then
+    if [[ -n $DELUGE_VERSION && ! ${called_by} == deluge ]]; then
         #shellcheck source=sources/functions/deluge
         . /etc/swizzin/sources/functions/deluge
         . /etc/swizzin/sources/functions/fpm
@@ -105,7 +105,7 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
         apt_remove --purge ^deluge.*
         apt_install_deluge
     fi
-    if [[ -n $qbittorrent && ! ${called_by} == qbittorrent ]]; then
+    if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/deluge
@@ -113,8 +113,8 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
         apt_remove --purge qbittorrent-nox
         apt_install qbittorrent-nox
     fi
-    unset qbittorrent
-    unset deluge
+    unset QBITTORRENT_VERSION
+    unset DELUGE_VERSION
 }
 
 function whiptail_skip_libtorrent_rasterbar() {
