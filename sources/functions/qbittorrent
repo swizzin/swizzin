@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function whiptail_qbittorrent() {
-    if [[ -z $qbittorrent ]]; then
+    if [[ -z $QBITTORRENT_VERSION ]]; then
         . /etc/swizzin/sources/functions/apt
         codename=$(lsb_release -cs)
         releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
@@ -25,19 +25,19 @@ function whiptail_qbittorrent() {
                 ;;
         esac
         if [[ $function == "4.1" ]]; then
-            export qbittorrent=${latestv41}
+            export QBITTORRENT_VERSION=${latestv41}
         elif [[ $function == "4.2" ]]; then
-            export qbittorrent=${latestv42}
+            export QBITTORRENT_VERSION=${latestv42}
         elif [[ $function == "4.3" ]]; then
-            export qbittorrent=${latestv43}
+            export QBITTORRENT_VERSION=${latestv43}
         #elif [[ $function == "Latest" ]]; then
-        #    export qbittorrent=${latestv}
+        #    export QBITTORRENT_VERSION=${latestv}
         fi
     fi
 }
 
 function qbittorrent_version_info() {
-    case $qbittorrent in
+    case $QBITTORRENT_VERSION in
         4.1.*)
             libtorrent_branch=RC_1_1
             libtorrent_minimum_version=1.1.0
@@ -111,15 +111,12 @@ function build_libtorrent_qbittorrent() {
 }
 
 function build_qbittorrent() {
-    if [[ $qbittorrent == repo ]]; then
-        apt_install qbittorrent-nox
-    else
         noexec=$(grep "/tmp" /etc/fstab | grep noexec)
         if [[ -n $noexec ]]; then
             mount -o remount,exec /tmp
             noexec=1
         fi
-        VERSION=${qbittorrent}
+        VERSION=${QBITTORRENT_VERSION}
         LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
 
         apt_install --no-recommends $LIST
