@@ -239,7 +239,7 @@ function build_deluge() {
     fi
     cd -
     rm -rf /tmp/deluge
-    apt-mark hold deluge-common
+    apt-mark hold deluge-common >> "${log}" 2>&1
     echo_progress_done "Deluge installed"
 }
 
