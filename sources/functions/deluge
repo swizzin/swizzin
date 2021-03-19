@@ -35,7 +35,7 @@ function whiptail_deluge_downupgrade() {
         elif [[ $dverup -gt $dvercurmajor ]]; then
             downupmessage="You have chosen to perform a major version UPGRADE to $function. Please be advised that this will upgrade your Deluge binaries to a newer version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch."
         fi
-        if [[ -n $message ]]; then
+        if [[ -n ${downupmessage} ]]; then
             if ! whiptail --yesno "${downupmessage}" --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING!!" --scrolltext 18 78; then
                 exit 1
             fi
