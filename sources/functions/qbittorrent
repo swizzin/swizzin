@@ -74,8 +74,8 @@ function qbittorrent_version_info() {
 }
 
 function skip_libtorrent_qbittorrent() {
-    if [[ -f /usr/local/lib/libtorrent.a ]]; then
-        libtorrent_current_version=$(strings /usr/local/lib/libtorrent.a | grep libtorrent/ | cut -d/ -f2)
+    if [[ -f /usr/local/lib/libtorrent-rasterbar.a ]]; then
+        libtorrent_current_version=$(strings /usr/local/lib/libtorrent-rasterbar.a | grep libtorrent/ | cut -d/ -f2)
         if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version}; then
             if dpkg -s libtorrent-rasterbar | grep -q ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
                 return
@@ -99,6 +99,10 @@ function build_libtorrent_qbittorrent() {
     cd /tmp/libtorrent
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
         patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
+    fi
+    if [[ ${libtorrent_branch} == "RC_1_1" ]]; then
+        #Dirty hack to ensure finished library uses `libtorrent-rasterbar` for its name in the deprecated 1.1 branch
+        sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
     fi
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
@@ -135,7 +139,7 @@ function build_qbittorrent() {
 
     cd /tmp/qbittorrent
     tag=" ${stdcver} march=native"
-    ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
+    ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
     make -j$(nproc) >> $log 2>&1
     make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
     mkdir -p /root/dist
