@@ -123,7 +123,6 @@ function build_libtorrent_deluge() {
             ;;
         *) ;;
     esac
-    cd -
     cd /tmp/libtorrent/bindings/python
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=openssl variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
     tag=" static with c++14 march=native"
@@ -132,7 +131,7 @@ function build_libtorrent_deluge() {
         echo_error "Error packaging ${python}-libtorrent. Setup will exit"
         exit 1
     }
-    cd -
+    cd /tmp
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     echo_log_only "Checking python bindings for libtorrent"

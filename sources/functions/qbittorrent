@@ -119,7 +119,7 @@ function build_libtorrent_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
-    cd -
+    cd /tmp
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb >> ${log} 2>&1 || {
@@ -158,7 +158,7 @@ function build_qbittorrent() {
         echo_error "qBittorrent could not be installed. Setup will not proceed"
         exit 1
     }
-    cd -
+    cd /tmp
     rm_if_exists /tmp/qbittorrent
     rm_if_exists /root/dist
     if [[ -n $noexec ]]; then
