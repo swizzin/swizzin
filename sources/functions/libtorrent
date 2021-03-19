@@ -67,6 +67,7 @@ function libtorrent_resolve_shared_conflict() {
         echo_info "Recompiling Deluge for compatibility before continuing"
         install_fpm
         apt_remove --purge '^deluge.*'
+        deluge_version_info
         build_libtorrent_deluge
         build_deluge
     fi
@@ -77,6 +78,7 @@ function libtorrent_resolve_shared_conflict() {
         echo_info "Recompiling qBittorrent for compatibility before continuing"
         install_fpm
         apt_remove --purge qbittorrent-nox
+        qbittorrent_version_info
         build_libtorrent_qbittorrent
         build_qbittorrent
     fi
