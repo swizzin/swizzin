@@ -34,13 +34,14 @@ function whiptail_qbittorrent() {
         #    export QBITTORRENT_VERSION=${latestv}
         fi
     fi
-    if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
-        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
-        QBITTORRENT_VERSION=${latestv43}
-    fi
 }
 
 function qbittorrent_version_info() {
+    if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
+        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
+        QBITTORRENT_VERSION=${latestv43}
+    fi
     case $QBITTORRENT_VERSION in
         4.1.*)
             libtorrent_branch=RC_1_1
