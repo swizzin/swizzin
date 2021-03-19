@@ -56,6 +56,7 @@ function deluge_version_info() {
         1.3-stable)
             libtorrent_branch=RC_1_1
             libtorrent_minimum_version=1.1.0
+            libtorrent_maximum_version=1.1.14
             pythonver=python2.7
             pythonmajor=2.7
             python=python
@@ -77,8 +78,14 @@ function deluge_version_info() {
 function skip_libtorrent_deluge() {
     if command -v deluged > /dev/null 2>&1; then
         libtorrent_current_version=$(deluged --version | grep libtorrent | grep -oP '\d+\.\d+\.\d+(\.\d+)?' || echo "0.0.0.0")
-        if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && whiptail_skip_libtorrent_rasterbar; then
-            return
+        if [[ -n $libtorrent_maximum_version ]]; then
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && dpkg --compare-versions ${libtorrent_current_version} le ${libtorrent_maximum_version} && whiptail_skip_libtorrent_rasterbar; then
+                return
+            fi
+        else
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && whiptail_skip_libtorrent_rasterbar; then
+                return
+            fi
         fi
     fi
     false

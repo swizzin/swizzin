@@ -46,6 +46,7 @@ function qbittorrent_version_info() {
         4.1.*)
             libtorrent_branch=RC_1_1
             libtorrent_minimum_version=1.1.0
+            libtorrent_maximum_version=1.1.14
             stdcver="c++14"
             cryptography_type=built-in
             ;;
@@ -77,9 +78,17 @@ function qbittorrent_version_info() {
 function skip_libtorrent_qbittorrent() {
     if [[ -f /usr/local/lib/libtorrent-rasterbar.a ]]; then
         libtorrent_current_version=$(strings /usr/local/lib/libtorrent-rasterbar.a | grep libtorrent/ | cut -d/ -f2)
-        if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version}; then
-            if dpkg -s libtorrent-rasterbar | grep -q ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
-                return
+        if [[ -n $libtorrent_maximum_version ]]; then
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && dpkg --compare-versions ${libtorrent_current_version} le ${libtorrent_maximum_version}; then
+                if dpkg -s libtorrent-rasterbar | grep -q ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                fi
+            fi
+        else
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version}; then
+                if dpkg -s libtorrent-rasterbar | grep -q ${stdcver} && whiptail_skip_libtorrent_rasterbar; then
+                    return
+                fi
             fi
         fi
     fi
