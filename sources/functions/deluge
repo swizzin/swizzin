@@ -43,7 +43,7 @@ function whiptail_deluge_downupgrade() {
 }
 
 function remove_ltcheckinstall() {
-    oldv=$(apt-cache show libtorrent | grep checkinstall)
+    oldv=$(apt-cache show libtorrent 2> /dev/null | grep checkinstall)
     if [[ -n $oldv ]]; then
         echo_progress_start "Removing checkinstall libtorrent"
         dpkg -r libtorrent
