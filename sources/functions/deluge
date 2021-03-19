@@ -21,7 +21,7 @@ function whiptail_deluge() {
 
 function whiptail_deluge_downupgrade() {
     if [[ -n $(command -v deluged) ]]; then
-        if [[ -z $LIBTORRENT_RASTERBAR_METHOD ]]; then
+        if [[ $LIBTORRENT_RASTERBAR_METHOD == "repo" ]]; then
             function=$(get_candidate_version deluge)
         fi
         if echo $function | grep -q Deluge; then
