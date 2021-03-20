@@ -11,9 +11,9 @@ location /requestrr {
   proxy_set_header X-Forwarded-Proto \$scheme;
   proxy_redirect off;
   # Basic Auth if Wanted
-  # auth_basic "What's the password?";
-  # auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
-  # This shouldn't be needed.
+  ### This shouldn't be needed
+  ### auth_basic "What's the password?";
+  ### auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
 }
 SRC
 fi

@@ -66,5 +66,5 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl -q reload nginx
     echo_progress_done "Nginx configured"
 else
-    echo_info "requestrr will be available on port 7878. Secure your installation manually through the web interface."
+    echo_info "requestrr will be available on port 4545. Secure your installation manually through the web interface."
 fi
