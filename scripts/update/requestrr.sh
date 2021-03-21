@@ -1,7 +1,5 @@
 #!/bin/bash
 . /etc/swizzin/sources/functions/os
-user=$(cut -d: -f1 < /root/.master.info)
-#
 if [[ -f /install/.requestrr.lock ]]; then
     systemctl stop requestrr
     echo_progress_start "Downloading source files"
