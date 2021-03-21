@@ -240,7 +240,7 @@ function build_deluge() {
         cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
         chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
     fi
-    cd -
+    cd /tmp
     rm -rf /tmp/deluge
     apt-mark hold deluge-common >> "${log}" 2>&1
     echo_progress_done "Deluge installed"
