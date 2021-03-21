@@ -27,6 +27,7 @@ echo_progress_done "Source downloaded"
 
 echo_progress_start "Extracting archive"
 unzip /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
+rm /tmp/requestrr.zip
 mv requestrr* requestrr
 echo_progress_done "Archive extracted"
 
