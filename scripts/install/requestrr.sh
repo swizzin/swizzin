@@ -33,11 +33,11 @@ echo_progress_done "Archive extracted"
 
 touch /install/.requestrr.lock
 
-echo_progress_start "Creating requestrr user"
+echo_progress_start "Creating requestrr user and setting permssions"
 useradd -M --shell=/bin/false requestrr
 chown -R requestrr:${user} /opt/requestrr
 chmod +x /opt/requestrr/Requestrr.WebApi
-echo_progress_done "Requestrr user created"
+echo_progress_done "Requestrr user has been created & permissions set."
 
 echo_progress_start "Applying Requestrr config..."
 cat > /opt/requestrr/SettingsTemplate.json << CFG
