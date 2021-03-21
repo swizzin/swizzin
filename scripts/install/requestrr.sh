@@ -23,7 +23,6 @@ case "$(_os_arch)" in
         exit 1
         ;;
 esac
-
 echo_progress_done "Source downloaded"
 
 echo_progress_start "Extracting archive"
@@ -160,11 +159,6 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-systemctl -q daemon-reload
-systemctl enable --now -q requestrr
-sleep 1
-echo_progress_done "Requestrr service installed and enabled"
-
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx configuration"
     #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
@@ -172,8 +166,12 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/requestrr.sh
     systemctl daemon-reload
     systemctl -q reload nginx
-    systemctl restart requestrr
     echo_progress_done "Nginx configured"
 else
     echo_info "Requestrr will be available on port 4545. Secure your installation manually through the web interface."
 fi
+
+systemctl -q daemon-reload
+systemctl enable --now -q requestrr
+sleep 1
+echo_progress_done "Requestrr service installed and enabled"
