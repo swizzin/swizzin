@@ -177,18 +177,3 @@ if [[ -f /install/.nginx.lock ]]; then
 else
     echo_info "Requestrr will be available on port 4545. Secure your installation manually through the web interface."
 fi
-
-if [[ -f /install/.ombi.lock ]]; then
-    echo_info "Please adjust your Ombi setup accordingly"
-fi
-
-if [[ -f /install/.overseerr.lock ]]; then
-    echo_info "Please adjust your Overseerr setup accordingly"
-fi
-
-if [[ -f /install/.sonarr.lock ]]; then
-    echo_info "Please adjust your Sonarr setup accordingly"
-fi
-if [[ -f /install/.radarr.lock ]]; then
-    echo_info "Please adjust your Radarr setup accordingly"
-fi
