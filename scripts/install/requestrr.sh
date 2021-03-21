@@ -11,18 +11,21 @@
 #shellcheck source="sources/functions/os"
 . /etc/swizzin/sources/functions/os
 
-user=$(cut -d: -f1 < /root/.master.info)
-
 echo_progress_start "Downloading source files"
 case "$(_os_arch)" in
-    "amd64") wget -qO "/tmp/requestrr.zip" "$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-x64(.*)zip')" >> ${log} 2>&1 ;;
-    "armhf") wget -qO "/tmp/requestrr.zip" "$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-arm(.*)zip')" >> ${log} 2>&1 ;;
-    "arm64") wget -qO "/tmp/requestrr.zip" "$(curl -sNL https://api.github.com/repos/darkalfx/requeAstrr/releases/latest | grep -Po 'ht(.*)linux-arm64(.*)zip')" >> ${log} 2>&1 ;;
+    "amd64") dlurl="$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-x64(.*)zip')" >> ${log} 2>&1 ;;
+    "armhf") dlurl="$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-arm(.*)zip')" >> ${log} 2>&1 ;;
+    "arm64") dlurl="$(curl -sNL https://api.github.com/repos/darkalfx/requeAstrr/releases/latest | grep -Po 'ht(.*)linux-arm64(.*)zip')" >> ${log} 2>&1 ;;
     *)
         echo_error "Arch not supported"
         exit 1
         ;;
 esac
+
+if ! curl "$dlurl" -L -o /tmp/requestrr.zip >> "$log" 2>&1; then
+    echo_error "Download failed, exiting"
+    exit 1
+fi
 echo_progress_done "Source downloaded"
 
 echo_progress_start "Extracting archive"
@@ -34,8 +37,7 @@ echo_progress_done "Archive extracted"
 touch /install/.requestrr.lock
 
 echo_progress_start "Creating requestrr user and setting permssions"
-useradd -M --shell=/bin/false requestrr
-chown -R requestrr:${user} /opt/requestrr
+useradd --system -d /opt/requestrr requestrr
 chmod +x /opt/requestrr/Requestrr.WebApi
 echo_progress_done "Requestrr user has been created & permissions set."
 
@@ -162,10 +164,7 @@ EOF
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx configuration"
-    #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-    sleep 10
     bash /usr/local/bin/swizzin/nginx/requestrr.sh
-    systemctl daemon-reload
     systemctl -q reload nginx
     echo_progress_done "Nginx configured"
 else
@@ -174,5 +173,5 @@ fi
 
 systemctl -q daemon-reload
 systemctl -q enable --now requestrr
-sleep 1
+
 echo_progress_done "Requestrr service installed and enabled"
