@@ -26,7 +26,7 @@ esac
 echo_progress_done "Source downloaded"
 
 echo_progress_start "Extracting archive"
-unzip /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
+unzip -q /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
 rm /tmp/requestrr.zip
 mv requestrr* requestrr
 echo_progress_done "Archive extracted"
@@ -173,6 +173,6 @@ else
 fi
 
 systemctl -q daemon-reload
-systemctl enable --now -q requestrr
+systemctl -q enable --now requestrr
 sleep 1
 echo_progress_done "Requestrr service installed and enabled"
