@@ -31,7 +31,7 @@ echo_progress_done "Source downloaded"
 echo_progress_start "Extracting archive"
 unzip -q /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
 rm /tmp/requestrr.zip
-mv requestrr* requestrr
+mv /opt/requestrr* /opt/requestrr
 echo_progress_done "Archive extracted"
 
 touch /install/.requestrr.lock
