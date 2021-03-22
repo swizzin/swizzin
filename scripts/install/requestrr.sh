@@ -39,7 +39,7 @@ echo_progress_done "Apps have been added and will be added to Requestrr config."
 cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
-    "Username": "${user}",
+    "Username": "",
     "Password": "",
     "PrivateKey": "[PRIVATEKEY]"
   },
