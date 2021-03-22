@@ -39,7 +39,7 @@ touch /install/.requestrr.lock
 echo_progress_start "Creating requestrr user and setting permssions"
 useradd --system -d /opt/requestrr/ requestrr
 chown -R requestrr:requestrr /opt/requestrr/
-chmod +x /opt/requestrr/Requestrr.WebApi
+chmod u+x /opt/requestrr/Requestrr.WebApi
 echo_progress_done "Requestrr user has been created & permissions set."
 
 echo_progress_start "Applying Requestrr config..."
