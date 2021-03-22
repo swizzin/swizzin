@@ -8,33 +8,16 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-#shellcheck source="sources/functions/os"
-. /etc/swizzin/sources/functions/os
+#shellcheck source=sources/functions/requestrr
+. /etc/swizzin/sources/functions/requestrr
 
-echo_progress_start "Downloading source files"
-case "$(_os_arch)" in
-    "amd64") dlurl=$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-x64(.*)zip') >> ${log} 2>&1 ;;
-    "armhf") dlurl=$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-arm(.*)zip') >> ${log} 2>&1 ;;
-    "arm64") dlurl=$(curl -sNL https://api.github.com/repos/darkalfx/requestrr/releases/latest | grep -Po 'ht(.*)linux-arm64(.*)zip') >> ${log} 2>&1 ;;
-    *)
-        echo_error "Arch not supported"
-        exit 1
-        ;;
-esac
-
-if ! curl "$dlurl" -L -o /tmp/requestrr.zip >> "$log" 2>&1; then
-    echo_error "Download failed, exiting"
-    exit 1
-fi
-echo_progress_done "Source downloaded"
+_requestrr_download
 
 echo_progress_start "Extracting archive"
 unzip -q /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
 rm /tmp/requestrr.zip
 mv /opt/requestrr* /opt/requestrr
 echo_progress_done "Archive extracted"
-
-touch /install/.requestrr.lock
 
 echo_progress_start "Creating requestrr user and setting permssions"
 useradd --system -d /opt/requestrr/ requestrr
@@ -174,5 +157,6 @@ fi
 
 systemctl -q daemon-reload
 systemctl -q enable --now requestrr
+touch /install/.requestrr.lock
 
 echo_progress_done "Requestrr service installed and enabled"
