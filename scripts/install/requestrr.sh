@@ -40,7 +40,7 @@ cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
     "Username": "${user}",
-    "Password": "",
+    "Password": "$(_get_user_password)",
     "PrivateKey": "[PRIVATEKEY]"
   },
   "ChatClients": {
