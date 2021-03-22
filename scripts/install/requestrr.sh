@@ -31,14 +31,11 @@ echo_progress_done "Requestrr user has been created & permissions set."
 
 echo_progress_start "Applying Requestrr config..."
 
-if ask "Would you like us to configure requestrr with your installed applications?"; then
-    : echo_progress_start "Grabbing list of apps and integrating with Requestrr"
-    _get_sonarr_vars
-    _get_radarr_vars
-    echo_progress_done "Apps have been added to the config."
-else
-    : echo_progress_done "Apps were not added to config."
-fi
+echo_progress_start "Grabbing list of apps and integrating with Requestrr"
+_get_sonarr_vars
+_get_radarr_vars
+echo_progress_done "Apps have been added and will be added to Requestrr config."
+
 cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
