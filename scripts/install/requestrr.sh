@@ -145,6 +145,16 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
+cat > /opt/requestrr/appsettings.json << SET
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "None"
+    }
+  },
+  "AllowedHosts": "*"
+}
+SET
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx configuration"

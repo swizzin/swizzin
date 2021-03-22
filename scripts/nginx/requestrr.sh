@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nginx Configuration for requestrr
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 
 if [[ ! -f /etc/nginx/apps/requestrr.conf ]]; then
     cat > /etc/nginx/apps/requestrr.conf << SRC
@@ -20,7 +20,7 @@ SRC
 {
   "Logging": {
     "LogLevel": {
-      "Default": "Warning"
+      "Default": "None"
     }
   },
   "AllowedHosts": "127.0.0.1"
