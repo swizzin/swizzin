@@ -13,10 +13,10 @@ if [[ -f /install/.requestrr.lock ]]; then
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o /tmp/requestrr.zip >> "$log" 2>&1; then
+    curl "$dlurl" -L -o /tmp/requestrr.zip >> "$log" 2>&1 || {
         echo_error "Download failed, exiting"
         exit 1
-    fi
+    }
     echo_progress_done "Source downloaded"
     echo_progress_start "Extracing and overwriting (no configs will be lost)"
 
