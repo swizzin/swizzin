@@ -42,7 +42,7 @@ fi
 cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
-    "Username": "$(_get_master_username)",
+    "Username": "",
     "Password": "",
     "PrivateKey": "[PRIVATEKEY]"
   },
@@ -84,7 +84,7 @@ cat > /opt/requestrr/SettingsTemplate.json << CFG
       "Hostname": "${r_address}",
       "Port": ${r_port},
       "ApiKey": "${r_key}",
-      "BaseUrl": "${r_base}",
+      "BaseUrl": "/${r_base}",
       "MovieProfileId": "1",
       "MovieRootFolder": "",
       "MovieMinimumAvailability": "",
@@ -102,7 +102,7 @@ cat > /opt/requestrr/SettingsTemplate.json << CFG
       "Hostname": "${s_address}",
       "Port": ${s_port},
       "ApiKey": "${s_key}",
-      "BaseUrl": "${s_base}",
+      "BaseUrl": "/${s_base}",
       "TvProfileId": "1",
       "TvRootFolder": "",
       "TvTags": [],
