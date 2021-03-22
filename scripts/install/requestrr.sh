@@ -12,8 +12,8 @@
 #shellcheck source=sources/functions/appconfigs
 . /etc/swizzin/sources/functions/requestrr
 . /etc/swizzin/sources/functions/appconfigs
-
-user=_get_master_username
+apt_install xmllint
+user=$(_get_master_username)
 _requestrr_download
 
 echo_progress_start "Extracting archive"
