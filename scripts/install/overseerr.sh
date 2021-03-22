@@ -71,6 +71,6 @@ _user
 . /etc/swizzin/sources/functions/overseerr
 overseerr_install
 _service
-# _nginx
+_nginx
 
 touch /install/.overseerr.lock
