@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nginx Configuration for requestrr
-master=$(_get_master_username)
+master=_get_master_username
 
 if [[ ! -f /etc/nginx/apps/requestrr.conf ]]; then
     cat > /etc/nginx/apps/requestrr.conf << SRC
