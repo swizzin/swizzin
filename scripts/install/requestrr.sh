@@ -42,7 +42,7 @@ fi
 cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
-    "Username": "",
+    "Username": "${user}",
     "Password": "",
     "PrivateKey": "[PRIVATEKEY]"
   },
