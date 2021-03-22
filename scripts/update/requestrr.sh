@@ -18,7 +18,7 @@ if [[ -f /install/.requestrr.lock ]]; then
         exit 1
     }
     echo_progress_done "Source downloaded"
-    echo_progress_start "Extracing and overwriting (no configs will be lost)"
+    echo_progress_start "Replacing source code"
 
     unzip -q /tmp/requestrr.zip -d /tmp/ >> "$log" 2>&1
     rm /tmp/requestrr.zip
