@@ -110,6 +110,7 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
         echo_info "Reinstalling Deluge from apt before continuing"
         whiptail_deluge_downupgrade
         apt_remove --purge ^deluge.*
+        apt_install_libtorrent_rasterbar
         apt_install_deluge
     fi
     if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
@@ -118,6 +119,7 @@ function resolve_libtorrent_rasterbar_repo_conflict() {
         . /etc/swizzin/sources/functions/deluge
         echo_info "Reinstalling qBittorrent from apt before continuing"
         apt_remove --purge qbittorrent-nox
+        apt_install_libtorrent_rasterbar
         apt_install qbittorrent-nox
     fi
     unset QBITTORRENT_VERSION
