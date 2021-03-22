@@ -2,7 +2,7 @@
 
 cat > /etc/nginx/apps/overseerr.conf << EOF
 location ^~ /overseerr {
-    set $app 'overseerr';
+    set \$app 'overseerr';
     # Remove /overseerr path to pass to the app
     rewrite ^/overseerr/?(.*)$ /\$1 break;
     proxy_pass http://127.0.0.1:5055;  # NO TRAILING SLASH
