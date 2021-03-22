@@ -11,6 +11,8 @@ function _get_sonarr_vars() {
         export s_base=$(xmllint --xpath "//Config/UrlBase/text()" /home/${user}/.config/sonarr/config.xml)
         export s_key=$(xmllint --xpath "//Config/ApiKey/text()" /home/${user}/.config/sonarr/config.xml)
         echo_progress_done "Grabbed Sonarr config."
+    else
+        export r_port="8989"
     fi
 }
 
@@ -23,5 +25,7 @@ function _get_radarr_vars() {
         export r_base=$(xmllint --xpath "//Config/UrlBase/text()" /home/${user}/.config/Radarr/config.xml)
         export r_key=$(xmllint --xpath "//Config/ApiKey/text()" /home/${user}/.config/Radarr/config.xml)
         echo_progress_done "Radarr config has been retrieved."
+    else
+        export r_port="7878"
     fi
 }
