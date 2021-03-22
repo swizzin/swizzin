@@ -1,6 +1,7 @@
 #!/bin/bash
 . /etc/swizzin/sources/functions/os
 if [[ -f /install/.requestrr.lock ]]; then
+    echo_info "Upgrading Requestrr"
     systemctl disable --now requestrr
     echo_progress_start "Downloading source files"
     case "$(_os_arch)" in
