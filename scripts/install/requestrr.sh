@@ -10,8 +10,10 @@
 #   under the GPL along with build & install instructions.
 #shellcheck source=sources/functions/requestrr
 #shellcheck source=sources/functions/appconfigs
+#shellcheck source=sources/functions/users
 . /etc/swizzin/sources/functions/requestrr
 . /etc/swizzin/sources/functions/appconfigs
+. /etc/swizzin/sources/functions/users
 user=$(_get_master_username)
 _requestrr_download
 
