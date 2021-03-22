@@ -88,7 +88,7 @@ function libtorrent_resolve_shared_conflict() {
 
 function resolve_libtorrent_rasterbar_repo_conflict() {
     called_by=$1
-    if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
+    if [[ -f /install/.deluge.lock ]] && [[ -z $DELUGE_VERSION ]]; then
         deluge_version=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
         function=$deluge_version
         case $deluge_version in
