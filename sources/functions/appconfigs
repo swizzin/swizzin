@@ -1,4 +1,7 @@
 #!/bin/bash
+
+apt_install libxml2-utils
+
 function _get_sonarr_vars() {
     if [[ -f /install/.sonarr.lock ]]; then
         echo_progress_start "Found Sonarr. Grabbing config."

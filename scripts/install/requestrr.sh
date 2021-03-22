@@ -12,7 +12,6 @@
 #shellcheck source=sources/functions/appconfigs
 . /etc/swizzin/sources/functions/requestrr
 . /etc/swizzin/sources/functions/appconfigs
-apt_install xmllint
 user=$(_get_master_username)
 _requestrr_download
 
