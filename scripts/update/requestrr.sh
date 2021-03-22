@@ -38,5 +38,6 @@ if [[ -f /install/.requestrr.lock ]]; then
     echo_progress_start "Restarting services"
     systemctl daemon-reload
     systemctl -q enable --now requestrr
-    echo_progress_done "Requestrr has been updated."
+    echo_progress_done "Services restarted."
+    echo_success "Requestrr upgraded"
 fi
