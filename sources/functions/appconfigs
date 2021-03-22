@@ -12,7 +12,7 @@ function _get_sonarr_vars() {
         export s_key=$(xmllint --xpath "//Config/ApiKey/text()" /home/${user}/.config/sonarr/config.xml)
         echo_progress_done "Grabbed Sonarr config."
     else
-        export r_port="8989"
+        export s_port="8989"
     fi
 }
 
