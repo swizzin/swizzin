@@ -20,6 +20,17 @@ echo_progress_start "Patching config"
 if [[ -f /install/.nginx.conf ]]; then
     bash /usr/local/bin/swizzin/nginx/requestrr.sh
     systemctl -q reload nginx
+else
+    cat > /opt/requestrr/appsettings.json << SET
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "None"
+    }
+  },
+  "AllowedHosts": "*"
+}
+SET
 fi
 echo_progress_done "Config patched"
 
