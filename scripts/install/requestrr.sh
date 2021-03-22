@@ -9,8 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #shellcheck source=sources/functions/requestrr
+#shellcheck source=sources/functions/appconfigs
 . /etc/swizzin/sources/functions/requestrr
+. /etc/swizzin/sources/functions/appconfigs
 
+user=_get_master_username
 _requestrr_download
 
 echo_progress_start "Extracting archive"
@@ -26,10 +29,19 @@ chmod u+x /opt/requestrr/Requestrr.WebApi
 echo_progress_done "Requestrr user has been created & permissions set."
 
 echo_progress_start "Applying Requestrr config..."
+
+if ask "Would you like us to configure requestrr with your installed applications?"; then
+    : echo_progress_start "Grabbing list of apps and integrating with Requestrr"
+    _get_sonarr_vars
+    _get_radarr_vars
+    echo_progress_done "Apps have been added to the config."
+else
+    : echo_progress_done "Apps were not added to config."
+fi
 cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
-    "Username": "",
+    "Username": "$(_get_master_username)",
     "Password": "",
     "PrivateKey": "[PRIVATEKEY]"
   },
@@ -68,10 +80,10 @@ cat > /opt/requestrr/SettingsTemplate.json << CFG
       "Version": "1"
     },
     "Radarr": {
-      "Hostname": "",
-      "Port": 7878,
-      "ApiKey": "",
-      "BaseUrl": "",
+      "Hostname": "${r_address}",
+      "Port": ${r_port},
+      "ApiKey": "${r_key}",
+      "BaseUrl": "${r_base}",
       "MovieProfileId": "1",
       "MovieRootFolder": "",
       "MovieMinimumAvailability": "",
@@ -86,10 +98,10 @@ cat > /opt/requestrr/SettingsTemplate.json << CFG
       "Version": "2"
     },
     "Sonarr": {
-      "Hostname": "",
-      "Port": 8989,
-      "ApiKey": "",
-      "BaseUrl": "",
+      "Hostname": "${s_address}",
+      "Port": ${s_port},
+      "ApiKey": "${s_key}",
+      "BaseUrl": "${s_base}",
       "TvProfileId": "1",
       "TvRootFolder": "",
       "TvTags": [],
@@ -145,7 +157,15 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-cat > /opt/requestrr/appsettings.json << SET
+
+if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Installing nginx configuration"
+    bash /usr/local/bin/swizzin/nginx/requestrr.sh
+    systemctl -q reload nginx
+    echo_progress_done "Nginx configured"
+else
+    echo_info "Requestrr will be available on port 4545. Secure your installation manually through the web interface."
+    cat > /opt/requestrr/appsettings.json << SET
 {
   "Logging": {
     "LogLevel": {
@@ -155,14 +175,6 @@ cat > /opt/requestrr/appsettings.json << SET
   "AllowedHosts": "*"
 }
 SET
-
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Installing nginx configuration"
-    bash /usr/local/bin/swizzin/nginx/requestrr.sh
-    systemctl -q reload nginx
-    echo_progress_done "Nginx configured"
-else
-    echo_info "Requestrr will be available on port 4545. Secure your installation manually through the web interface."
 fi
 
 systemctl -q daemon-reload

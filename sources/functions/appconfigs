@@ -1,0 +1,24 @@
+#!/bin/bash
+function _get_sonarr_vars() {
+    if [[ -f /install/.sonarr.lock ]]; then
+        echo_progress_start "Found Sonarr. Grabbing config."
+        # Grab config deets from xml
+        export s_address=$(xmllint --xpath "//Config/BindAddress/text()" /home/${user}/.config/sonarr/config.xml)
+        export s_port=$(xmllint --xpath "//Config/Port/text()" /home/${user}/.config/sonarr/config.xml)
+        export s_base=$(xmllint --xpath "//Config/UrlBase/text()" /home/${user}/.config/sonarr/config.xml)
+        export s_key=$(xmllint --xpath "//Config/ApiKey/text()" /home/${user}/.config/sonarr/config.xml)
+        echo_progress_done "Grabbed Sonarr config."
+    fi
+}
+
+function _get_radarr_vars() {
+    if [[ -f /install/.radarr.lock ]]; then
+        echo_progress_start "Found Radarr. Grabbing config."
+        # Grab config deets from xml
+        export r_address=$(xmllint --xpath "//Config/BindAddress/text()" /home/${user}/.config/Radarr/config.xml)
+        export r_port=$(xmllint --xpath "//Config/Port/text()" /home/${user}/.config/Radarr/config.xml)
+        export r_base=$(xmllint --xpath "//Config/UrlBase/text()" /home/${user}/.config/Radarr/config.xml)
+        export r_key=$(xmllint --xpath "//Config/ApiKey/text()" /home/${user}/.config/Radarr/config.xml)
+        echo_progress_done "Radarr config has been retrieved."
+    fi
+}
