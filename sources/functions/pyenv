@@ -67,7 +67,7 @@ function python_getpip() {
             python2bin=python2
         fi
         cd /tmp
-        curl https://bootstrap.pypa.io/2.7/get-pip.py -o get-pip.py >> $log 2>&1
+        curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py >> $log 2>&1
         ${python2bin} get-pip.py >> $log 2>&1
         pip install virtualenv >> "${log}" 2>&1
         echo_progress_done "Pip installed"

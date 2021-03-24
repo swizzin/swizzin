@@ -4,7 +4,7 @@ systemctl disable --now -q bazarr
 
 rm -rf /opt/bazarr
 rm -rf /opt/.venv/bazarr
-if [ -z "$(ls -A /home/$user/.venv)" ]; then
+if [ -z "$(ls -A /opt/.venv)" ]; then
     rm -rf /opt/.venv
 fi
 rm -rf /etc/nginx/apps/bazarr.conf
