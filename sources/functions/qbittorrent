@@ -14,7 +14,8 @@ function whiptail_qbittorrent() {
         case ${codename} in
             "xenial" | "stretch")
                 function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                    "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
+                    "4.1" "(${latestv41})" \
+                    "4.2" "(${latestv42})" 3>&1 1>&2 2>&3)
                 ;;
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 4 \
