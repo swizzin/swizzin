@@ -127,7 +127,7 @@ function build_qt() {
     QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep 5.15 | sort -r | grep -m1 -v -e "alpha" -e "beta" -e "rc")
     if ! skip_qt; then
         echo_progress_start "Compiling qtbase5-swizzin v${QT_VERSION}"
-        git clone -b ${QT_VERSION} --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> ${log} 2>&1 || {
+        git clone --depth 1 -b ${QT_VERSION} --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> ${log} 2>&1 || {
             echo_error "qtbase5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
@@ -147,7 +147,7 @@ function build_qt() {
         }
         echo_progress_done "qtbase5-swizzin installed"
         echo_progress_start "Compiling qttools5-swizzin v${QT_VERSION}"
-        git clone -b $QT_VERSION --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> ${log} 2>&1 || {
+        git clone --depth 1 -b $QT_VERSION --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> ${log} 2>&1 || {
             echo_error "qttools5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
