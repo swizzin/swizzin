@@ -9,7 +9,8 @@ function whiptail_qbittorrent() {
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
         latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
-        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
+        #latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
+        latestv43=4.3.3
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
 
         case ${codename} in
