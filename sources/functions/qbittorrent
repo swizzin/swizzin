@@ -202,7 +202,13 @@ function build_libtorrent_qbittorrent() {
 
     cd /tmp/libtorrent
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
-        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1 || {
+            echo _error "Something went wrong when patching libtorrent"
+            exit 1
+        }
+        echo_info "Libtorrent patch found and applied!"
+    else
+        echo_log_only "No libtorrent patch found at /root/libtorrent-${libtorrent_branch}.patch"
     fi
     if [[ ${libtorrent_branch} == "RC_1_1" ]]; then
         #Dirty hack to ensure finished library uses `libtorrent-rasterbar` for its name in the deprecated 1.1 branch

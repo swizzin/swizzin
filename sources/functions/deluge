@@ -109,8 +109,15 @@ function build_libtorrent_deluge() {
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
 
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
-        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1 || {
+            echo _error "Something went wrong when patching libtorrent"
+            exit 1
+        }
+        echo_info "Libtorrent patch found and applied!"
+    else
+        echo_log_only "No libtorrent patch found at /root/libtorrent-${libtorrent_branch}.patch"
     fi
+
     #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
     #If not enabled, Deluge may not properly reannounce on unregistered torrents.
     #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
