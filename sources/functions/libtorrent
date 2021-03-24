@@ -19,7 +19,7 @@ function detect_libtorrent_rasterbar_conflict() {
     if [[ $staticconflict == true ]]; then
         echo_warn "In order to continue, your server will compile static libtorrent libraries."
         if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch).
-        No changes will be made if you say no."; then
+No changes will be made if you say no."; then
             libtorrent_resolve_shared_conflict
         else
             echo_info "Install will now exit"
