@@ -84,6 +84,7 @@ function libtorrent_resolve_shared_conflict() {
         build_qbittorrent
         unset QBITTORRENT_VERSION
     fi
+    rm_if_exists /install/.libtorrent.lock
 }
 
 function resolve_libtorrent_rasterbar_repo_conflict() {
