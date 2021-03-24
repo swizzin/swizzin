@@ -48,24 +48,35 @@ function qbittorrent_version_info() {
             libtorrent_minimum_version=1.1.0
             libtorrent_maximum_version=1.1.14
             stdcver="c++14"
+            qt_minimum_version=5.5
             cryptography_type=built-in
             ;;
         4.2.*)
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.0
             stdcver="c++14"
+            qt_minimum_version=5.9
+            cryptography_type=built-in
+            ;;
+        4.3.[0123]*)
+            libtorrent_branch=RC_1_2
+            libtorrent_minimum_version=1.2.11
+            stdcver="c++17"
+            qt_minimum_version=5.9
             cryptography_type=built-in
             ;;
         4.3.*)
             libtorrent_branch=RC_1_2
-            libtorrent_minimum_version=1.2.11
+            libtorrent_minimum_version=1.2.12
             stdcver="c++17"
+            qt_minimum_version=5.12
             cryptography_type=built-in
             ;;
         4.4.*)
             libtorrent_branch=RC_2_0
             libtorrent_minimum_version=2.0
             stdcver="c++17"
+            qt_minimum_version=5.12
             cryptography_type=built-in
             ;;
         *)
@@ -94,6 +105,84 @@ function skip_libtorrent_qbittorrent() {
     fi
     false
     return
+}
+
+function install_qt() {
+    qt_repo_version=$(get_candidate_version qtbase5-dev)
+    if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
+        build_qt
+        QT_METHOD=swizzin
+    else
+        LIST='qtbase5-dev qttools5-dev-tools'
+        apt_install $LIST
+        QT_METHOD=repo
+    fi
+
+}
+
+function build_qt() {
+    cd /tmp
+    QT_PREFIX=/usr/local/qt
+    QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep 5.15 | sort -r | grep -m1 -v -e "alpha" -e "beta" -e "rc")
+    if ! skip_qt; then
+        echo_progress_start "Compiling qtbase5-swizzin v${QT_VERSION}"
+        git clone -b ${QT_VERSION} --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> ${log} 2>&1 || {
+            echo_error "qtbase5 could not be cloned from github. Setup will not proceed"
+            exit 1
+        }
+        cd /tmp/qtbase
+        apt_install libssl-dev
+        ./configure --prefix=${QT_PREFIX} -opensource -confirm-license -openssl-linked -c++std ${stdcver} -release -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples >> ${log} 2>&1
+        make -j$(nproc) >> ${log} 2>&1
+        make INSTALL_ROOT=/tmp/dist/qtbase install >> ${log} 2>&1
+        tag=" ${stdcver}"
+        fpm -f -C /tmp/dist/qtbase -p /root/dist/qtbase5-swizzin_VERSION.deb -s dir -t deb -n qtbase5-swizzin --version ${QT_VERSION} --description "qtbase5 compiled by swizzin$tag" >> ${log} 2>&1
+        cd /tmp
+        rm -rf /tmp/qtbase
+        rm -rf /tmp/dist/qtbase
+        dpkg -i /root/dist/qtbase5-swizzin_${QT_VERSION}.deb || {
+            echo_error "qtbase5-swizzin could not be installed. Setup will not proceed"
+            exit 1
+        }
+        echo_progress_done "qtbase5-swizzin installed"
+        echo_progress_start "Compiling qttools5-swizzin v${QT_VERSION}"
+        git clone -b $QT_VERSION --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> ${log} 2>&1 || {
+            echo_error "qttools5 could not be cloned from github. Setup will not proceed"
+            exit 1
+        }
+        cd /tmp/qttools
+        ${QT_PREFIX}/bin/qmake -set prefix ${QT_PREFIX} >> ${log} 2>&1
+        ${QT_PREFIX}/bin/qmake >> ${log} 2>&1
+        make -j$(nproc) >> ${log} 2>&1
+        make INSTALL_ROOT=/tmp/dist/qttools install >> ${log} 2>&1
+        fpm -f -C /tmp/dist/qttools -p /root/dist/qttools5-swizzin_VERSION.deb -s dir -t deb -n qttools5-swizzin --version ${QT_VERSION} --description "qttools5 compiled by swizzin$tag" >> ${log} 2>&1
+        cd /tmp
+        rm -rf /tmp/qttools
+        rm -rf /tmp/dist/qttools
+        dpkg -i /root/dist/qttools5-swizzin_${QT_VERSION}.deb || {
+            echo_error "qttools5-swizzin could not be installed. Setup will not proceed"
+            exit 1
+        }
+        echo_progress_done "qttools5-swizzin installed"
+    fi
+}
+
+function skip_qt() {
+    if dpkg -s qtbase5-swizzin 2> /dev/null | grep ${stdcver} && whiptail_skip_qt; then
+        true
+        return
+    fi
+    false
+    return
+
+}
+
+function whiptail_skip_qt() {
+    if (whiptail --title "Skip QT Compile?" --yesno "Setup has determined that you can save some time by skipping the compilation of QT dependencies as they are already sufficient. Do you want to?" 12 50); then
+        true
+    else
+        false
+    fi
 }
 
 function build_libtorrent_qbittorrent() {
@@ -135,7 +224,7 @@ function build_qbittorrent() {
         noexec=1
     fi
     VERSION=${QBITTORRENT_VERSION}
-    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 qtbase5-dev qttools5-dev-tools zlib1g-dev'
+    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 zlib1g-dev'
 
     apt_install --no-recommends $LIST
     rm_if_exists "/tmp/qbittorrent"
@@ -149,7 +238,11 @@ function build_qbittorrent() {
 
     cd /tmp/qbittorrent
     tag=" ${stdcver} march=native"
-    ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
+    if [[ $QT_METHOD == "swizzin" ]]; then
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" QT_QMAKE="${QT_PREFIX}/bin" >> ${log} 2>&1
+    elif [[ $QT_METHOD == "repo" ]]; then
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
+    fi
     make -j$(nproc) >> $log 2>&1
     make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
     mkdir -p /root/dist

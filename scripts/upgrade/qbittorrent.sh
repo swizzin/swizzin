@@ -37,7 +37,7 @@ case $LIBTORRENT_RASTERBAR_METHOD in
             build_libtorrent_qbittorrent
             echo_progress_done
         fi
-
+        install_qt
         echo_progress_start "Building qBittorrent"
         build_qbittorrent
         echo_progress_done
