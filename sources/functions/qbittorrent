@@ -140,7 +140,7 @@ function build_qt() {
         cd /tmp
         rm -rf /tmp/qtbase
         rm -rf /tmp/dist/qtbase
-        dpkg -i /root/dist/qtbase5-swizzin_${QT_VERSION}.deb || {
+        dpkg -i /root/dist/qtbase5-swizzin_${QT_VERSION}.deb >> ${log} 2>&1 || {
             echo_error "qtbase5-swizzin could not be installed. Setup will not proceed"
             exit 1
         }
@@ -159,7 +159,7 @@ function build_qt() {
         cd /tmp
         rm -rf /tmp/qttools
         rm -rf /tmp/dist/qttools
-        dpkg -i /root/dist/qttools5-swizzin_${QT_VERSION}.deb || {
+        dpkg -i /root/dist/qttools5-swizzin_${QT_VERSION}.deb >> ${log} 2>&1 || {
             echo_error "qttools5-swizzin could not be installed. Setup will not proceed"
             exit 1
         }
