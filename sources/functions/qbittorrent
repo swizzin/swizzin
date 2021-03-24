@@ -168,7 +168,7 @@ function build_qt() {
 }
 
 function skip_qt() {
-    if dpkg -s qtbase5-swizzin 2> /dev/null | grep ${stdcver}; then
+    if dpkg -s qtbase5-swizzin 2> /dev/null | grep -q ${stdcver}; then
         qt_local_version=$(dpkg -s qtbase5-swizzin | grep ^Version | grep ^Version | awk '{print $2}')
         if dpkg --compare-versions ${qt_local_version} ge ${QT_VERSION}; then
             return
