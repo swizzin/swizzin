@@ -168,9 +168,13 @@ function build_qt() {
 }
 
 function skip_qt() {
-    if dpkg -s qtbase5-swizzin 2> /dev/null | grep ${stdcver} && whiptail_skip_qt; then
-        true
-        return
+    if dpkg -s qtbase5-swizzin 2> /dev/null | grep ${stdcver}; then
+        qt_local_version=$(dpkg -s qtbase5-swizzin | grep ^Version | grep ^Version | awk '{print $2}')
+        if dpkg --compare-versions ${qt_local_version} ge ${QT_VERSION}; then
+            return
+        elif whiptail_skip_qt; then
+            return
+        fi
     fi
     false
     return
@@ -178,7 +182,7 @@ function skip_qt() {
 }
 
 function whiptail_skip_qt() {
-    if (whiptail --title "Skip QT Compile?" --yesno "Setup has determined that you can save some time by skipping the compilation of QT dependencies as they are already sufficient. Do you want to?" 12 50); then
+    if (whiptail --title "Skip QT Compile?" --yesno "Setup has determined that you can save some time by skipping the compilation of QT dependencies as they are already sufficient but out of date. Do you want to?" 12 50); then
         true
     else
         false
