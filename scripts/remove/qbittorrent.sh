@@ -11,10 +11,10 @@ rm /etc/nginx/conf.d/*.qbittorrent.conf
 rm /etc/systemd/system/qbittorrent@.service
 dpkg -r qbittorrent-nox > /dev/null 2>&1
 
-if dpkg -s qtbase5-swizzin 2> /dev/null; then
+if dpkg -s qtbase5-swizzin > /dev/null 2>&1; then
     dpkg -r qtbase5-swizzin > /dev/null 2>&1
 fi
-if dpkg -s qttools5-swizzin 2> /dev/null; then
+if dpkg -s qttools5-swizzin > /dev/null 2>&1; then
     dpkg -r qttools5-swizzin > /dev/null 2>&1
 fi
 
