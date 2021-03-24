@@ -17,6 +17,7 @@ dpkg -r libtorrent-rasterbar > /dev/null 2>&1
 
 if [[ ! -f /install/.deluge.lock ]]; then
     apt_remove --purge ^libtorrent-rasterbar* python-libtorrent python3-libtorrent
+    swizdb clear "libtorrent_rasterbar_method"
 fi
 
 if dpkg -s qtbase5-swizzin > /dev/null 2>&1; then

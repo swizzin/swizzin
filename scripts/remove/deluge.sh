@@ -28,6 +28,7 @@ dpkg -r deluge-common > /dev/null 2>&1
 
 if [[ ! -f /install/.qbittorrent.lock ]]; then
     apt_remove --purge ^libtorrent-rasterbar*
+    swizdb clear "libtorrent_rasterbar_method"
 fi
 
 rm -f /etc/nginx/apps/deluge.conf > /dev/null 2>&1
