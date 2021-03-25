@@ -16,7 +16,6 @@ whiptail_deluge
 
 case ${DELUGE_VERSION} in
     repo)
-        apt_remove --purge ^deluge.*
         check_shared_libtorrent_rasterbar deluge
         apt_install_deluge
         ;;

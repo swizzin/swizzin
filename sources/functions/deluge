@@ -278,7 +278,9 @@ function apt_install_deluge() {
                 cp -a /home/${user}/.config/deluge /home/${user}/.config/deluge.$$
             done
         fi
+        apt_remove --purge ^deluge.*
     fi
+
     apt_install deluged deluge-web deluge-console
     dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
     if [[ $dver =~ ^1\. ]]; then
