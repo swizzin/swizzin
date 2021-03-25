@@ -155,7 +155,8 @@ function build_qt() {
             qt_branch=5.12
             ;;
         *)
-            qt_branch=6.0
+            #6.0 requires CMake 3.18
+            qt_branch=5.15
             ;;
     esac
     QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep ${qt_branch} | sort -Vr | grep -m1 -v -e "alpha" -e "beta" -e "rc")
