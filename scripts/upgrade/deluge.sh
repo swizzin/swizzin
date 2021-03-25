@@ -11,7 +11,6 @@ fi
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-#check_libtorrent_rasterbar_method
 whiptail_deluge
 
 case ${DELUGE_VERSION} in

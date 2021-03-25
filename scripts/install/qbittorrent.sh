@@ -23,13 +23,12 @@ if [[ -n $1 ]]; then
 fi
 
 whiptail_qbittorrent
-#check_libtorrent_rasterbar_method
 
 case ${QBITTORRENT_VERSION} in
     repo)
         apt_install qbittorrent-nox
         ;;
-    compile)
+    *)
         detect_libtorrent_rasterbar_conflict qbittorrent
         qbittorrent_version_info
         #check_client_compatibility
@@ -47,11 +46,6 @@ case ${QBITTORRENT_VERSION} in
         echo_progress_done
         check_swap_off
         ;;
-    *)
-        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
-        exit 1
-        ;;
-
 esac
 
 qbittorrent_service
