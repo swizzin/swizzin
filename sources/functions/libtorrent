@@ -15,6 +15,15 @@ function detect_libtorrent_rasterbar_conflict() {
         fi
     else
         libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent)
+        if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox | grep swizzin | grep static > /dev/null 2>&1; then
+            for package in ${repo_libtorrents[@]}; do
+                dpkg -r $package > /dev/null 2>&1
+            done
+        elif [[ -n $QBITTORRENT_VERSION && ! $QBITTORRENT_VERSION == "repo" ]] && (dpkg -s python-libtorrent | grep swizzin > /dev/null 2>&1 || dpkg -s python3-libtorrent | grep swizzin > /dev/null 2>&1); then
+            for package in ${repo_libtorrents[@]}; do
+                dpkg -r $package > /dev/null 2>&1
+            done
+        fi
     fi
     if [[ -n $libtorrent_libnames ]]; then
         for lib in "${libtorrent_libnames[@]}"; do
@@ -88,14 +97,16 @@ function libtorrent_resolve_shared_conflict() {
 function check_shared_libtorrent_rasterbar() {
     called_by=$1
     if dpkg -l | grep libtorrent-rasterbar | grep -v static | grep swizzin > /dev/null 2>&1; then
-        echo_info "Found potentially conflicting $a. Removing."
+        echo_info "Found conflicting $a. Removing."
         if [[ $called_by == "deluge" && -f /install/.qbittorrent.lock ]]; then
             echo_warn "qBittorrent may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade qbittorent\` after this."
         fi
         if [[ $called_by == "qbittorrent" && -f /install/.deluge.lock ]]; then
             echo_warn "Deluge may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade deluge\` after this."
         fi
-        dpkg -r $a > /dev/null 2>&1
+        dpkg -r libtorrent-rasterbar > /dev/null 2>&1
+    elif dpkg -l | grep libtorrent-rasterbar | grep static | grep swizzin > /dev/null 2>&1 && [[ $called_by == "qbittorrent" ]]; then
+        dpkg -r libtorrent-rasterbar > /dev/null 2>&1
     fi
 }
 
