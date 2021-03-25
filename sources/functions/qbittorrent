@@ -288,7 +288,7 @@ function build_qbittorrent() {
     rm -rf /tmp/release-${VERSION}.tar.gz
 
     cd /tmp/qbittorrent
-    tag=" ${stdcver} march=native"
+    tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
     if [[ $QT_METHOD == "swizzin" ]]; then
