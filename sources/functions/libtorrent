@@ -17,7 +17,6 @@ function detect_libtorrent_rasterbar_conflict() {
                     dpkg -r ${lib} > ${log} 2>&1
                 fi
             done
-            return
         fi
         if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox 2> /dev/null | grep swizzin | grep static > /dev/null 2>&1; then
             for package in ${repo_libtorrents[@]}; do
