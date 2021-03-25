@@ -13,8 +13,6 @@ function detect_libtorrent_rasterbar_conflict() {
         if [[ $called_by == "deluge" ]]; then
             libtorrent_libnames=(python3-libtorrent python-libtorrent)
         fi
-    else
-        libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent)
         if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox | grep swizzin | grep static > /dev/null 2>&1; then
             for package in ${repo_libtorrents[@]}; do
                 dpkg -r $package > /dev/null 2>&1
@@ -24,6 +22,8 @@ function detect_libtorrent_rasterbar_conflict() {
                 dpkg -r $package > /dev/null 2>&1
             done
         fi
+    else
+        libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent)
     fi
     if [[ -n $libtorrent_libnames ]]; then
         for lib in "${libtorrent_libnames[@]}"; do
