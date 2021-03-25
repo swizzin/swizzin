@@ -46,6 +46,7 @@ case ${DELUGE_VERSION} in
         cleanup_deluge
         echo_progress_start "Upgrading Deluge. Please wait"
         build_deluge
+        cleanup_repo_libtorrent
         echo_progress_done
         ;;
 esac

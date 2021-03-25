@@ -55,6 +55,7 @@ case $DELUGE_VERSION in
         fi
 
         build_deluge
+        cleanup_repo_libtorrent
         ;;
 esac
 _dconf
