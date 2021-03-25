@@ -33,7 +33,7 @@ function detect_libtorrent_rasterbar_conflict() {
     if [[ ${#conflicting_libtorrent_packages[@]} -gt 0 ]]; then
         (
             IFS=$'\n'
-            echo_warn "The following conflicting packages have been detected but are not statically built or are provided by a repository:\n${conflicting_libtorrent_packages[*]}"
+            echo_warn "The following conflicting packages have been detected but are not statically built:\n${conflicting_libtorrent_packages[*]}"
         )
     fi
     if [[ $staticconflict == true ]]; then
