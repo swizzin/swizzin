@@ -174,19 +174,23 @@ function check_ram() {
 # Enables a temporary 2GB swap file
 # \
 # Exits if cannot continue
-function tmp_swap_on() {
-    echo_progress_start "Setup is enabling the use of a temporary 2GB swap file"
-    dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || {
-        echo_error "Cannot continue with install because swap file could not be created. Does device have 2GB of free space?"
-        exit 1
-    }
-    mkswap /.swapfile > /dev/null 2>&1
-    swapon /.swapfile > /dev/null 2>&1
-    echo_progress_done 'Swap enabled'
+function check_swap_on() {
+    if ! check_ram 2G; then
+        echo_progress_start "Setup is enabling the use of a temporary 2GB swap file"
+        dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || {
+            echo_error "Cannot continue with install because swap file could not be created. Does device have 2GB of free space?"
+            exit 1
+        }
+        mkswap /.swapfile > /dev/null 2>&1
+        swapon /.swapfile > /dev/null 2>&1
+        echo_progress_done 'Swap enabled'
+    fi
 }
 
 # Disables the temporary swap file
-function tmp_swap_off() {
-    swapoff /.swapfile > /dev/null 2>&1
-    rm -f /.swapfile > /dev/null 2>&1
+function check_swap_off() {
+    if [[ $swap == "true" ]]; then
+        swapoff /.swapfile > /dev/null 2>&1
+        rm -f /.swapfile > /dev/null 2>&1
+    fi
 }
