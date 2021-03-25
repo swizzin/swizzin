@@ -12,6 +12,12 @@ function detect_libtorrent_rasterbar_conflict() {
     if [[ ${repolibtorrent} == "true" ]]; then
         if [[ $called_by == "deluge" ]]; then
             libtorrent_libnames=(python3-libtorrent python-libtorrent)
+            for lib in "${libtorrent_libnames[@]}"; do
+                if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep swizzin > /dev/null 2>&1; then
+                    dpkg -r ${lib}
+                fi
+            done
+            return
         fi
         if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox | grep swizzin | grep static > /dev/null 2>&1; then
             for package in ${repo_libtorrents[@]}; do
@@ -36,7 +42,7 @@ function detect_libtorrent_rasterbar_conflict() {
     if [[ ${#conflicting_libtorrent_packages[@]} -gt 0 ]]; then
         (
             IFS=$'\n'
-            echo_warn "The following packages have been detected but are not statically built:\n${conflicting_libtorrent_packages[*]}"
+            echo_warn "The following conflicting packages have been detected but are not statically built or are provided by a repository:\n${conflicting_libtorrent_packages[*]}"
         )
     fi
     if [[ $staticconflict == true ]]; then
