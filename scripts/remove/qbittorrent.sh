@@ -7,8 +7,6 @@ for user in ${users[@]}; do
     systemctl disable --now -q qbittorrent@${user}
     rm -rf /home/${user}/.config/qbittorrent
 done
-rm -f /etc/nginx/apps/qbittorrent.conf
-rm -f /etc/nginx/conf.d/*.qbittorrent.conf
 rm -f /etc/systemd/system/qbittorrent@.service
 dpkg -r qbittorrent-nox > /dev/null 2>&1
 dpkg -r libtorrent-rasterbar > /dev/null 2>&1
@@ -26,5 +24,9 @@ if dpkg -s qttools5-swizzin > /dev/null 2>&1; then
     dpkg -r qttools5-swizzin > /dev/null 2>&1
 fi
 
-systemctl reload nginx
+if [[ -f /install/.nginx.lock ]]; then
+    systemctl reload nginx
+    rm -f /etc/nginx/apps/qbittorrent.conf
+    rm -f /etc/nginx/conf.d/*.qbittorrent.conf
+fi
 rm /install/.qbittorrent.lock
