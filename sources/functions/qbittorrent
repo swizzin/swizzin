@@ -277,7 +277,7 @@ function build_qbittorrent() {
     }
     cd /tmp
     rm_if_exists /tmp/qbittorrent
-    rm_if_exists /root/dist
+    rm_if_exists /tmp/dist
     if [[ -n $noexec ]]; then
         mount -o remount,noexec /tmp
     fi
