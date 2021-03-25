@@ -263,7 +263,7 @@ function apt_install_deluge() {
     cleanup=(python3-libtorrent python-libtorrent)
     for a in ${cleanup[@]}; do
         if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-            echo_info "Found potentially conflicting $a. Removing."
+            echo_info "Removing conflicting package: $a."
             dpkg -r $a > /dev/null 2>&1
         fi
     done

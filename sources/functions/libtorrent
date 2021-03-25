@@ -13,11 +13,15 @@ function detect_libtorrent_rasterbar_conflict() {
         if [[ $called_by == "deluge" ]]; then
             libtorrent_libnames=(python3-libtorrent python-libtorrent)
             for lib in "${libtorrent_libnames[@]}"; do
+                #If these are not "swizzin" packages they must be repo, so just remove them and get on with it
                 if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
-                    dpkg -r ${lib} > ${log} 2>&1
+                    dpkg --purge --force-all ${lib} >> ${log} 2>&1
+                    #Remove the removed package to prevent it from triggering static conflict
+                    libtorrent_libnames=("${libtorrent_libnames[@]/$lib/}")
                 fi
             done
         fi
+        #Clean up traces of repo libtorrents if no further repo clients are installed
         if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox 2> /dev/null | grep swizzin | grep static > /dev/null 2>&1; then
             for package in ${repo_libtorrents[@]}; do
                 dpkg -r $package > /dev/null 2>&1
