@@ -3,8 +3,8 @@
 function whiptail_qbittorrent() {
     if [[ -z $QBITTORRENT_VERSION ]]; then
         . /etc/swizzin/sources/functions/apt
-        codename=$(lsb_release -cs)
-        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+        codename=$(_os_codename)
+        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr)
 
         latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
         latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
@@ -39,7 +39,7 @@ function whiptail_qbittorrent() {
 
 function qbittorrent_version_info() {
     if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
-        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | sort -r)
+        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr)
         latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
         QBITTORRENT_VERSION=${latestv43}
     fi
@@ -124,7 +124,15 @@ function install_qt() {
 function build_qt() {
     cd /tmp
     QT_PREFIX=/usr/local/qt
-    QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep 5.15 | sort -r | grep -m1 -v -e "alpha" -e "beta" -e "rc")
+    case $(_os_codename) in
+        xenial | stretch)
+            qt_branch=5.12
+            ;;
+        *)
+            qt_branch=6.0
+            ;;
+    esac
+    QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep ${qt_branch} | sort -Vr | grep -m1 -v -e "alpha" -e "beta" -e "rc")
     if ! skip_qt; then
         echo_progress_start "Compiling qtbase5-swizzin v${QT_VERSION}"
         git clone --depth 1 -b ${QT_VERSION} --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> ${log} 2>&1 || {
