@@ -13,17 +13,17 @@ function detect_libtorrent_rasterbar_conflict() {
         if [[ $called_by == "deluge" ]]; then
             libtorrent_libnames=(python3-libtorrent python-libtorrent)
             for lib in "${libtorrent_libnames[@]}"; do
-                if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep swizzin > /dev/null 2>&1; then
-                    dpkg -r ${lib}
+                if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
+                    dpkg -r ${lib} > ${log} 2>&1
                 fi
             done
             return
         fi
-        if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox | grep swizzin | grep static > /dev/null 2>&1; then
+        if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox 2> /dev/null | grep swizzin | grep static > /dev/null 2>&1; then
             for package in ${repo_libtorrents[@]}; do
                 dpkg -r $package > /dev/null 2>&1
             done
-        elif [[ -n $QBITTORRENT_VERSION && ! $QBITTORRENT_VERSION == "repo" ]] && (dpkg -s python-libtorrent | grep swizzin > /dev/null 2>&1 || dpkg -s python3-libtorrent | grep swizzin > /dev/null 2>&1); then
+        elif [[ -n $QBITTORRENT_VERSION && ! $QBITTORRENT_VERSION == "repo" ]] && (dpkg -s python-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1 || dpkg -s python3-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1); then
             for package in ${repo_libtorrents[@]}; do
                 dpkg -r $package > /dev/null 2>&1
             done
