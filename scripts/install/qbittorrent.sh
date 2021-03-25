@@ -22,16 +22,15 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
-check_libtorrent_rasterbar_method
+whiptail_qbittorrent
+#check_libtorrent_rasterbar_method
 
-case $LIBTORRENT_RASTERBAR_METHOD in
+case ${QBITTORRENT_VERSION} in
     repo)
-        apt_install_libtorrent_rasterbar
         apt_install qbittorrent-nox
         ;;
     compile)
         detect_libtorrent_rasterbar_conflict qbittorrent
-        whiptail_qbittorrent
         qbittorrent_version_info
         #check_client_compatibility
         install_fpm

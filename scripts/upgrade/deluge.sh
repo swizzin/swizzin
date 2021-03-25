@@ -11,34 +11,29 @@ fi
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-check_libtorrent_rasterbar_method
+#check_libtorrent_rasterbar_method
+whiptail_deluge
 
-case $LIBTORRENT_RASTERBAR_METHOD in
+case ${DELUGE_VERSION} in
     repo)
-        apt_install_libtorrent_rasterbar
-        resolve_libtorrent_rasterbar_repo_conflict deluge
         apt_remove --purge ^deluge.*
+        check_shared_libtorrent_rasterbar deluge
         apt_install_deluge
         ;;
-    compile)
+    *)
         detect_libtorrent_rasterbar_conflict deluge
-        whiptail_deluge
-        #check_client_compatibility
         whiptail_deluge_downupgrade
         deluge_version_info
         dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+        users=($(_get_user_list))
         if [[ $dver == 1.3* ]] && [[ $DELUGE_VERSION == master ]]; then
             echo_info "Major version upgrade detected. User-data will be backed-up."
-        fi
-        users=($(_get_user_list))
-
-        for u in "${users[@]}"; do
-            if [[ $dver == 1.3* ]] && [[ $DELUGE_VERSION == master ]]; then
+            for u in "${users[@]}"; do
                 echo_info "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
                 cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
-            fi
-        done
 
+            done
+        fi
         echo_progress_start "Checking for outdated deluge install method."
         remove_ltcheckinstall
 
@@ -54,10 +49,6 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         echo_progress_start "Upgrading Deluge. Please wait"
         build_deluge
         echo_progress_done
-        ;;
-    *)
-        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
-        exit 1
         ;;
 esac
 

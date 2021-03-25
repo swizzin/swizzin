@@ -2,14 +2,28 @@
 
 function detect_libtorrent_rasterbar_conflict() {
     called_by=$1
-    libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar-dev)
+    repo_libtorrents=(libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10 libtorrent-rasterbar-dev)
     conflicting_libtorrent_packages=()
-    for lib in "${libtorrent_libnames[@]}"; do
-        if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep static > /dev/null 2>&1; then
-            staticconflict=true
-            conflicting_libtorrent_packages+=($lib)
+    for lib in "${repo_libtorrents[@]}"; do
+        if dpkg -s $lib > /dev/null 2>&1; then
+            repolibtorrent=true
         fi
     done
+    if [[ ${repolibtorrent} == "true" ]]; then
+        if [[ $called_by == "deluge" ]]; then
+            libtorrent_libnames=(python3-libtorrent python-libtorrent)
+        fi
+    else
+        libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent)
+    fi
+    if [[ -n $libtorrent_libnames ]]; then
+        for lib in "${libtorrent_libnames[@]}"; do
+            if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep static > /dev/null 2>&1; then
+                staticconflict=true
+                conflicting_libtorrent_packages+=($lib)
+            fi
+        done
+    fi
     if [[ ${#conflicting_libtorrent_packages[@]} -gt 0 ]]; then
         (
             IFS=$'\n'
@@ -24,22 +38,6 @@ No changes will be made if you say no."; then
         else
             echo_info "Install will now exit"
             exit 1
-            #Artifact code atm
-            #sharedlibtorrent=true
-            #for lib in "${conflicting_libtorrent_packages[@]}"; do
-            #    case ${lib} in
-            #        libtorrent-rasterbar)
-            #            libtorrentsharedversion=$(strings /usr/local/lib/libtorrent-rasterbar.so | grep libtorrent/ | cut -d/ -f2)
-            #            ;;
-            #       libtorrent-rasterbar[789])
-            #            libtorrentsharedversion=$(get_candidate_version ${lib})
-            #            ;;
-            #        *)
-            #            echo_error "Libtorrent version could not be determined."
-            #            exit 1
-            #            ;;
-            #    esac
-            #done
         fi
     fi
 }
@@ -75,7 +73,7 @@ function libtorrent_resolve_shared_conflict() {
     if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
         #shellcheck source=sources/functions/qbittorrent
         . /etc/swizzin/sources/functions/qbittorrent
-        . /etc/swizzin/sources/functions/deluge
+        . /etc/swizzin/sources/functions/fpm
         echo_info "Recompiling qBittorrent for compatibility before continuing"
         install_fpm
         apt_remove --purge qbittorrent-nox
@@ -87,44 +85,18 @@ function libtorrent_resolve_shared_conflict() {
     rm_if_exists /install/.libtorrent.lock
 }
 
-function resolve_libtorrent_rasterbar_repo_conflict() {
+function check_shared_libtorrent_rasterbar() {
     called_by=$1
-    if [[ -f /install/.deluge.lock ]] && [[ -z $DELUGE_VERSION ]]; then
-        deluge_version=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-        function=$deluge_version
-        case $deluge_version in
-            1.3.*)
-                DELUGE_VERSION=1.3-stable
-                ;;
-            *)
-                DELUGE_VERSION=master
-                ;;
-        esac
+    if dpkg -l | grep libtorrent-rasterbar | grep -v static | grep swizzin > /dev/null 2>&1; then
+        echo_info "Found potentially conflicting $a. Removing."
+        if [[ $called_by == "deluge" && -f /install/.qbittorrent.lock ]]; then
+            echo_warn "qBittorrent may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade qbittorent\` after this."
+        fi
+        if [[ $called_by == "qbittorrent" && -f /install/.deluge.lock ]]; then
+            echo_warn "Deluge may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade deluge\` after this."
+        fi
+        dpkg -r $a > /dev/null 2>&1
     fi
-    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $QBITTORRENT_VERSION ]]; then
-        QBITTORRENT_VERSION=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
-    fi
-    if [[ -n $DELUGE_VERSION && ! ${called_by} == deluge ]]; then
-        #shellcheck source=sources/functions/deluge
-        . /etc/swizzin/sources/functions/deluge
-        . /etc/swizzin/sources/functions/fpm
-        echo_info "Reinstalling Deluge from apt before continuing"
-        whiptail_deluge_downupgrade
-        apt_remove --purge ^deluge.*
-        apt_install_libtorrent_rasterbar
-        apt_install_deluge
-    fi
-    if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
-        #shellcheck source=sources/functions/qbittorrent
-        . /etc/swizzin/sources/functions/qbittorrent
-        . /etc/swizzin/sources/functions/deluge
-        echo_info "Reinstalling qBittorrent from apt before continuing"
-        apt_remove --purge qbittorrent-nox
-        apt_install_libtorrent_rasterbar
-        apt_install qbittorrent-nox
-    fi
-    unset QBITTORRENT_VERSION
-    unset DELUGE_VERSION
 }
 
 function whiptail_skip_libtorrent_rasterbar() {
@@ -133,49 +105,6 @@ function whiptail_skip_libtorrent_rasterbar() {
     else
         false
     fi
-}
-
-function check_libtorrent_rasterbar_method() {
-    if [[ -n $LIBTORRENT_RASTERBAR_METHOD ]] && [[ ! $(swizdb get "libtorrent_rasterbar_method") == "${LIBTORRENT_RASTERBAR_METHOD}" ]]; then
-        swizdb set "libtorrent_rasterbar_method" "${LIBTORRENT_RASTERBAR_METHOD}"
-    fi
-    if ! swizdb get "libtorrent_rasterbar_method" > /dev/null 2>&1; then
-        whiptail_libtorrent_rasterbar_method
-    fi
-    if [[ -z ${LIBTORRENT_RASTERBAR_METHOD} ]]; then
-        LIBTORRENT_RASTERBAR_METHOD=$(swizdb get libtorrent_rasterbar_method)
-    fi
-}
-
-function whiptail_libtorrent_rasterbar_method() {
-    if (whiptail --title "Compile or Repo?" --yesno --yes-button "Repo" --no-button "Compile" "You must choose between repository or compiled method for Libtorrent (and Deluge/qBittorrent). Which do you want to choose? NOTE: This choice will affect the install method of all libtorrent-based applications. If you choose repo, then you will not be able to compile Deluge or qBittorrent yourself. See docs for further info." 15 50); then
-        swizdb set "libtorrent_rasterbar_method" repo
-    else
-        swizdb set "libtorrent_rasterbar_method" compile
-    fi
-}
-
-function apt_install_libtorrent_rasterbar() {
-    release=$(lsb_release -cs)
-    cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
-    for a in ${cleanup[@]}; do
-        if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-            echo_info "Found $a. Removing."
-            dpkg -r $a > /dev/null 2>&1
-        fi
-    done
-    case $release in
-        "xenial")
-            apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
-            ;;
-        "stretch" | "buster" | "bionic")
-            apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
-            ;;
-        *)
-            apt_install libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
-            ;;
-
-    esac
 }
 
 function booststrap() {

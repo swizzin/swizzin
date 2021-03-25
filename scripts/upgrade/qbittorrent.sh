@@ -16,18 +16,17 @@ fi
 users=($(_get_user_list))
 qbtvold=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+' || echo '0.0.0.0')
 
-check_libtorrent_rasterbar_method
+#check_libtorrent_rasterbar_method
+whiptail_qbittorrent
 
-case $LIBTORRENT_RASTERBAR_METHOD in
+case ${QBITTORRENT_VERSION} in
     repo)
-        apt_install_libtorrent_rasterbar
-        resolve_libtorrent_rasterbar_repo_conflict qbittorrent
         apt_remove --purge qbittorrent-nox
+        check_shared_libtorrent_rasterbar qbittorrent
         apt_install qbittorrent-nox
         ;;
-    compile)
+    *)
         detect_libtorrent_rasterbar_conflict qbittorrent
-        whiptail_qbittorrent
         qbittorrent_version_info
         install_fpm
         check_swap_on
@@ -42,10 +41,6 @@ case $LIBTORRENT_RASTERBAR_METHOD in
         build_qbittorrent
         echo_progress_done
         check_swap_off
-        ;;
-    *)
-        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
-        exit 1
         ;;
 esac
 qbtvnew=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')

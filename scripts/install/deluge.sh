@@ -35,18 +35,15 @@ if [[ -n $1 ]]; then
     exit 0
 fi
 
-check_libtorrent_rasterbar_method
+whiptail_deluge
 
-case $LIBTORRENT_RASTERBAR_METHOD in
+case $DELUGE_VERSION in
     repo)
-        apt_install_libtorrent_rasterbar
         apt_install_deluge
         ;;
-    compile)
+    *)
         detect_libtorrent_rasterbar_conflict deluge
-        whiptail_deluge
         deluge_version_info
-        #check_client_compatibility
         install_fpm
 
         if ! skip_libtorrent_deluge; then
@@ -59,11 +56,6 @@ case $LIBTORRENT_RASTERBAR_METHOD in
 
         build_deluge
         ;;
-    *)
-        echo_error "LIBTORRENT_RASTERBAR_METHOD must be 'repo' or 'compile'"
-        exit 1
-        ;;
-
 esac
 _dconf
 _dservice
