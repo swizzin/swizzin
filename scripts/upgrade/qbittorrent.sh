@@ -19,7 +19,7 @@ qbtvold=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+' || e
 whiptail_qbittorrent
 
 case ${QBITTORRENT_VERSION} in
-    repo)
+    [Rr][Ee][Pp][Oo])
         apt_remove --purge qbittorrent-nox
         check_shared_libtorrent_rasterbar qbittorrent
         apt_install qbittorrent-nox

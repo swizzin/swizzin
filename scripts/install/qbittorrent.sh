@@ -25,7 +25,7 @@ fi
 whiptail_qbittorrent
 
 case ${QBITTORRENT_VERSION} in
-    repo)
+    [Rr][Ee][Pp][Oo])
         apt_install qbittorrent-nox
         ;;
     *)

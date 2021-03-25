@@ -38,7 +38,7 @@ fi
 whiptail_deluge
 
 case $DELUGE_VERSION in
-    repo)
+    [Rr][Ee][Pp][Oo])
         apt_install_deluge
         ;;
     *)
