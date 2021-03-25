@@ -181,7 +181,7 @@ function skip_qt() {
         qt_local_version=$(dpkg -s qtbase5-swizzin | grep ^Version | grep ^Version | awk '{print $2}')
         if dpkg --compare-versions ${qt_local_version} ge ${QT_VERSION}; then
             return
-        elif whiptail_skip_qt; then
+        elif dpkg --compare-versions ${qt_local_version} ge ${qt_minimum_version} && whiptail_skip_qt; then
             return
         fi
     fi
