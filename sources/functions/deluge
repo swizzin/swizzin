@@ -105,7 +105,7 @@ function build_libtorrent_deluge() {
     booststrap
     echo 'using gcc : : : <cflags>"-march=native -std=c++14" <cxxflags>"-march=native -std=c++14" ;' > /root/user-config.jam
     echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
-    apt_install ${pythonver}-dev
+    apt_install ${pythonver}-dev libssl-dev
     rm_if_exists /tmp/libtorrent
     git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
