@@ -236,6 +236,7 @@ function build_deluge() {
                         esac
                         fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} ${version} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
                         dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
+                        unset version
                     done
                     echo_progress_done "Packaging finished"
                     ;;
