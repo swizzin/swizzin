@@ -12,7 +12,14 @@ function whiptail_qbittorrent() {
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
-            "xenial" | "stretch")
+            "xenial")
+                function=$(
+                    whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
+                        "Repo" "${repov}" \
+                        "4.1" "(${latestv41})" 3>&1 1>&2 2>&3
+                )
+                ;;
+            "stretch")
                 #We can't go past 4.3.1 due to openssl and c++ requirements
                 function=$(
                     whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
@@ -78,35 +85,35 @@ function qbittorrent_version_info() {
             libtorrent_minimum_version=1.2.0
             stdcver="c++14"
             qt_minimum_version=5.9
-            cryptography_type=built-in
+            cryptography_type=openssl
             ;;
         4.3.[012]*)
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.11
             stdcver="c++14"
             qt_minimum_version=5.9
-            cryptography_type=built-in
+            cryptography_type=openssl
             ;;
         4.3.3)
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.11
             stdcver="c++17"
             qt_minimum_version=5.9
-            cryptography_type=built-in
+            cryptography_type=openssl
             ;;
         4.3.*)
             libtorrent_branch=RC_1_2
             libtorrent_minimum_version=1.2.12
             stdcver="c++17"
             qt_minimum_version=5.12
-            cryptography_type=built-in
+            cryptography_type=openssl
             ;;
         4.4.*)
             libtorrent_branch=RC_2_0
             libtorrent_minimum_version=2.0
             stdcver="c++17"
             qt_minimum_version=5.12
-            cryptography_type=built-in
+            cryptography_type=openssl
             ;;
         *)
             echo_error "qBittorrent version should be between 4.1.*(.*) and 4.3.*(.*) -- Setup will not proceed."
@@ -234,7 +241,7 @@ function build_libtorrent_qbittorrent() {
     rm_if_exists /tmp/libtorrent
     booststrap
     echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
-
+    apt_install libssl-dev
     git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
