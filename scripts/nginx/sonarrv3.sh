@@ -20,7 +20,7 @@ isactive=$(systemctl is-active sonarr)
 if [[ $isactive == "active" ]]; then
     systemctl stop sonarr
 fi
-user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
+user=$(grep User= /lib/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
 echo_log_only "Sonarr user detected as $user"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
