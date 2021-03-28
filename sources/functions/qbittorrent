@@ -299,9 +299,9 @@ function build_qbittorrent() {
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
     if [[ $QT_METHOD == "swizzin" ]]; then
-        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" QT_QMAKE="${QT_PREFIX}/bin" >> ${log} 2>&1
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" openssl_LIBS="-lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" QT_QMAKE="${QT_PREFIX}/bin" >> ${log} 2>&1
     elif [[ $QT_METHOD == "repo" ]]; then
-        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
+        ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a" openssl_LIBS="-lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" >> ${log} 2>&1
     fi
     make -j$(nproc) >> $log 2>&1
     make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
