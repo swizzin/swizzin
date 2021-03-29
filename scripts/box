@@ -137,7 +137,7 @@ function _upgrade() {
     for i in "${packages[@]}"; do
         app=${i}
         if [[ "${repo[*]}" =~ $i ]]; then
-            /usr/local/bin/swizzin/upgrade/"$i".sh # Running this through `bash path/to/script.sh` prevents exits to cascade all the way up
+            /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
             echo_warn "Upgrade script for $i does not exist"
         fi
