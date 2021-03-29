@@ -16,7 +16,9 @@
 
 #shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
-echo_log_only "$(/usr/games/fortune -s)"
+echo_log_only ">>>> \`box $*\`"
+echo_log_only "git @ $(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD) 2>&1"
+normal=$(tput sgr0)
 
 function _intro() {
     whiptail --title "Swizzin Package Manager" --msgbox "Welcome to the Box! Using this script you can choose to install and remove the packages contained within the package repository. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
@@ -141,6 +143,7 @@ function _upgrade() {
     done
 }
 
+#shellcheck disable=SC2059
 function _help() {
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
@@ -200,65 +203,53 @@ function _list() {
 
 function _adduser() {
     user=$2
-    if [[ $user =~ [A-Z] ]]; then
-        echo_warn "Usernames must not contain capital letters. Please try again."
-        exit 1
-    elif [[ $user =~ ("swizzin"|"admin"|"root") ]]; then
-        echo "$user is a reserved username -- please use something else."
-        exit 1
-    fi
+    [[ -n $3 ]] && pass=$3
+
+    username_check
 
     if [[ -f /root/${user}.info ]]; then
-        echo_warn "User already seems to exist"
+        echo_error "User already exists within swizzin"
         exit 1
     fi
 
-    id -u ${user} > /dev/null 2>&1
-    existing=$?
-
-    if [[ $existing == 0 ]]; then
-        echo_info "${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user"
-        read -rep 'Press enter to continue adding user, or CTRL+C to cancel'
-    fi
-
-    echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
-    read -s 'pass'
-    echo
-
-    if [[ -z "${pass}" ]]; then
-        pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-        echo_info "Password for ${user} has been set to ${pass}"
-    fi
-    if [[ -n $(which cracklib-check) ]]; then
-        echo_progress_start "Cracklib detected. Checking password strength."
-        sleep 1
-        str="$(cracklib-check <<< "$pass")"
-        check=$(grep OK <<< "$str")
-        if [[ -z $check ]]; then
-            read -n 1 -s -r -p "Password did not pass cracklib check. Press any key to enter a new password"
-            printf "\n"
-            _adduser "$@"
-        else
-            echo_progress_done "Password OK"
+    if [[ -z $SETUP_USER ]]; then #If this is not coming from setup.sh...
+        if [[ "$(cut -d: -f1 < /root/.master.info 2> /dev/null)" = "$user" ]]; then
+            echo_error "User already exists within swizzin"
+            exit 1
         fi
     fi
-    echo "$user:$pass" > /root/${user}.info
-    if [[ $existing == 1 ]]; then
+
+    if id -u "${user}" > /dev/null 2>&1; then
+        echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user.\nThe user will be added to swizzin."
+        ask "Continue setting up user?" Y || exit 1
+        existing=true
+    fi
+
+    password_check
+
+    echo "$user:$pass" > /root/"${user}".info
+    if [[ $existing != "true" ]]; then
         useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
     fi
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
-    htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+    if [[ -f /etc/htpasswd ]]; then
+        echo_log_only "htpasswd file exists"
+        htpasswd -b /etc/htpasswd "$user" "$pass" >> $log 2>&1
+    else
+        echo_log_only "creating htpasswd file"
+        htpasswd -b -c /etc/htpasswd "$user" "$pass" >> $log 2>&1
+    fi
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
-    chmod 750 /home/${user}
+    htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
+    chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
-        setdisk "$user"
+        bash /etc/swizzin/scripts/setdisk "$user"
     fi
 
-    if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/${user}; fi
-    echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/${user}.conf
-    systemd-tmpfiles /etc/tmpfiles.d/${user}.conf --create >> $log 2>&1
+    if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
+    echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
+    systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
@@ -271,43 +262,51 @@ function _adduser() {
             if [[ $app = "flood" ]]; then
                 /usr/local/bin/swizzin/install/${app}.sh
             else
-                /usr/local/bin/swizzin/install/${app}.sh ${user}
+                /usr/local/bin/swizzin/install/${app}.sh "${user}"
                 if [[ $app = "deluge" ]]; then
                     app="{deluged,deluge-web}"
-                    eval systemctl enable -q ${app}@${user}
-                    eval systemctl start ${app}@${user}
+                    eval systemctl enable -q ${app}@"${user}"
+                    eval systemctl start ${app}@"${user}"
                 elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard") ]]; then
                     : #Multi-user app without user service files. wireguard interface is started in wg script
                 else
                     if [[ $app = "autodl" ]]; then app=irssi; fi
-                    systemctl enable -q ${app}@${user}
-                    systemctl start ${app}@${user}
+                    systemctl enable -q ${app}@"${user}"
+                    systemctl start ${app}@"${user}"
                 fi
             fi
         fi
     done
 
     USER=${user^^}
-    cat > /etc/sudoers.d/${user} << SUD
+
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+
+    if [[ -n $SETUP_USER ]]; then
+        usermod -a -G sudo "$user"
+        rm /root/"$user".info
+        echo "$user:$pass" > /root/.master.info
+    elif [[ -z $SETUP_USER ]]; then # Only for non-master users, therefore only if this is not coming from setup.sh
+        cat > /etc/sudoers.d/"${user}" << SUD
 Cmnd_Alias   ${USER}CMDS = /bin/systemctl stop flood@${user}, /bin/systemctl restart flood@${user}, /bin/systemctl start flood@${user}, /bin/systemctl start rtorrent@${user}, /bin/systemctl stop rtorrent@${user}, /bin/systemctl restart rtorrent@${user}, /bin/systemctl start deluged@${user}, /bin/systemctl stop deluged@${user}, /bin/systemctl restart deluged@${user}, /bin/systemctl start deluge-web@${user}, /bin/systemctl stop deluge-web@${user}, /bin/systemctl restart deluge-web@${user}, /bin/systemctl start irssi@${user}, /bin/systemctl stop irssi@${user}, /bin/systemctl restart irssi@${user}, /bin/systemctl start qbittorrent@${user}, /bin/systemctl stop qbittorrent@${user}, /bin/systemctl restart qbittorrent@${user}, /usr/local/bin/swizzin/box chpasswd ${user}
 
 ${user}     ALL = (ALL) NOPASSWD: ${USER}CMDS
 SUD
+    fi
+
     if [[ -f /install/.nginx.lock ]]; then
         systemctl reload nginx
     fi
 
-    #echo "export PATH=$PATH:/usr/local/bin/swizzin" >> /home/$user/.profile
-    #chown $user: /home/$user/.profile
     echo_success "User $user created"
-
 }
 
 function _deluser() {
     user=$2
     if [[ ! -f /root/${user}.info ]]; then
         master=$(cut -d: -f1 < /root/.master.info)
-        if [[ $user == $master ]]; then
+        if [[ $user == "$master" ]]; then
             echo_warn "Master user deletion is not supported"
             exit 1
         fi
@@ -316,8 +315,7 @@ function _deluser() {
     fi
 
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
-    echo_query "Press enter to continue, or CTRL+C to cancel"
-    read -rep ''
+    ask "Are you sure you want to continue?" N || exit 1
 
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
@@ -338,7 +336,7 @@ function _deluser() {
                 su mango -c "$mangodir/mango admin user delete ${user}"
             elif [[ $app = "wireguard" ]]; then
                 rm -rf /home/${user}/.wireguard
-                systemctl disable --now wg-quick@wg$(id -u "$user")
+                systemctl disable --now wg-quick@wg"$(id -u "$user")"
             elif [[ $app = "deluge" ]]; then
                 app="{deluged,deluge-web}"
                 rm -rf /etc/nginx/conf.d/${user}.deluge.conf
@@ -346,7 +344,7 @@ function _deluser() {
                 eval systemctl stop ${app}@${user}
             elif [[ $app == "organizr" ]]; then
                 #TODO automate removal steps
-                echo "Remember to manually remove the organizr account!"
+                echo_info "Remember to manually remove the organizr account!"
             elif [[ $app == "autodl" ]]; then
                 systemctl disable --now irssi@${user}
             else
@@ -377,41 +375,25 @@ function _deluser() {
 }
 
 function _chpasswd() {
-    user=$2
-    echo_query "Enter new password for ${user}. Leave empty to generate a password" "hidden"
-    read -s 'pass'
-    echo
-    if [[ -z "${pass}" ]]; then
-        pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
-        echo_info "New password has been set to ${pass}"
-    fi
-    if [[ -n $(which cracklib-check) ]]; then
-        echo_progress_start "Cracklib detected. Checking password strength."
-        sleep 1
-        str="$(cracklib-check <<< "$pass")"
-        check=$(grep OK <<< "$str")
-        if [[ -z $check ]]; then
-            read -n 1 -s -r -p "Password did not pass cracklib check. Enter a new password"
-            printf "\n"
-            _chpasswd "$@"
-        else
-            echo_progress_done "Password OK"
-        fi
-    fi
+    user="$2"
+    [[ -n $3 ]] && pass="$3"
+    . /etc/swizzin/sources/functions/utils
+    password_check
+
     master=$(cut -d: -f1 < /root/.master.info)
-    if [[ $user = $master ]]; then
+    if [[ $user = "$master" ]]; then
         echo "$user:$pass" > /root/.master.info
     fi
     echo "$user:$pass" > /root/${user}.info
     chpasswd <<< "${user}:${pass}" >> $log 2>&1
-    htpasswd -b /etc/htpasswd $user $pass >> $log 2>&1
+    htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user $pass >> $log 2>&1
+    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
     if [[ -e /install/.deluge.lock ]]; then
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
         sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
         sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
         sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
@@ -437,53 +419,16 @@ function _chpasswd() {
     fi
     if [[ -f /install/.qbittorrent.lock ]]; then
         . /etc/swizzin/sources/functions/qbittorrent
-        qbittorrent_chpasswd ${user} ${pass}
+        qbittorrent_chpasswd "${user}" "${pass}"
     fi
     echo_success "Password for $user changed"
-
+    pass=""
+    unset pass
 }
 
 function _nukeovh() {
-    grsec=$(uname -a | grep -i grs)
-    if [[ -n $grsec ]]; then
-        echo
-        echo_info "Your server is currently running with kernel version: $(uname -r)\nWhile not it is not required to switch, kernels with grsec are not recommend due to conflicts in the panel and other packages."
-        echo_query "Would you like swizzin to install the distribution kernel?" "Y/n"
-        read input
-        case $input in
-            [yY] | [yY][Ee][Ss] | "")
-                kernel=yes
-                echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."
-                ;;
-            [nN] | [nN][Oo]) echo_warn "Why did you even run this function?" exit 1 ;;
-            *)
-                kernel=yes
-                echo_info "Your distribution's default kernel will be installed. You will need to reboot after these changes."
-                ;;
-        esac
-        if [[ $kernel == yes ]]; then
-            if [[ $DISTRO == Ubuntu ]]; then
-                apt_install linux-image-generic
-            elif [[ $DISTRO == Debian ]]; then
-                arch=$(uname -m)
-                if [[ $arch =~ ("i686"|"i386") ]]; then
-                    apt_install linux-image-686
-                elif [[ $arch == x86_64 ]]; then
-                    apt_install linux-image-amd64
-                fi
-            fi
-            mv /etc/grub.d/06_OVHkernel /etc/grub.d/25_OVHkernel
-            update-grub >> "${log}" 2>&1
-        fi
-    else
-        echo_warn "grsec not detected. Nothing to do."
-    fi
+    bash /etc/swizzin/scripts/nukeovh
 }
-
-# args=("$@")
-normal=$(tput sgr0)
-git_hash=$(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD)
-echo_log_only ">>>> \`box $*\`, \tGIT HEAD @ $git_hash"
 
 case "$1" in
     "")
@@ -512,12 +457,8 @@ case "$1" in
         exit 0
         ;;
     "adduser")
-        if [[ -z $2 ]]; then
-            echo_error "You must specify a user"
-            exit 1
-        fi
-        if [[ -n $3 ]]; then
-            echo_error "Too many arguments\nCorrect usage: box adduser <username>"
+        if [[ -n $4 ]]; then
+            echo_error "Too many arguments\nCorrect usage: box adduser <username> [<password>]"
             exit 1
         fi
         _adduser "$@"
@@ -536,8 +477,12 @@ case "$1" in
         exit 0
         ;;
     "chpasswd")
-        if [[ -n $3 ]]; then
-            echo_error "Too many arguments\nCorrect usage: box chpasswd <username>"
+        if [[ -z $2 ]]; then
+            echo_error "You must specify a username.\nCorrect usage: box chpasswd <username> [<password>]"
+            exit 1
+        fi
+        if [[ -n $4 ]]; then
+            echo_error "Too many arguments\nCorrect usage: box chpasswd <username> [<password>]"
             exit 1
         fi
         _chpasswd "$@"

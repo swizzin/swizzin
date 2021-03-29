@@ -1,4 +1,20 @@
 {
+    "Echo warn": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_warn",
+            "warn"
+        ],
+        "body": "echo_warn \"${1:message}\""
+    },
+    "Echo error": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_error",
+            "error"
+        ],
+        "body": "echo_error \"${1:message}\""
+    },
     "Echo Success": {
         "scope": "shellscript",
         "prefix": [
@@ -6,6 +22,14 @@
             "success"
         ],
         "body": "echo_success \"${1:message}\""
+    },
+    "Echo docs": {
+        "scope": "shellscript",
+        "prefix": [
+            "echo_docs",
+            "docs"
+        ],
+        "body": "echo_docs \"${1:basurl}\""
     },
     "Echo query": {
         "scope": "shellscript",

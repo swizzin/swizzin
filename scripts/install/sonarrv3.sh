@@ -155,10 +155,16 @@ _install_sonarrv3() {
         echo_progress_start "Sonarr is installing an internal upgrade..."
         # echo "You can track the update by running \`systemctl status sonarr\` in another shell."
         # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
-        while [[ -f $sonarrv3confdir/update_required ]]; do
+
+        #TODO fix the loop with a more reliable method. For now wait 30 seconds and remove the file manually
+        i=0
+        while [[ -f $sonarrv3confdir/update_required ]] && [[ $i -lt 30 ]]; do
             sleep 1
+            ((i++))
             # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
         done
+        rm_if_exists $sonarrv3confdir/update_required
+        unset i
         echo_progress_done "Internal upgrade finished"
     fi
 }

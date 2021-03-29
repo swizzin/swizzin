@@ -85,10 +85,6 @@ cat > /etc/jellyfin/system.xml <<- CONFIG
 	  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
 	  <IsPortAuthorized>true</IsPortAuthorized>
 	  <EnableRemoteAccess>true</EnableRemoteAccess>
-	  <BaseUrl />
-	  <LocalNetworkAddresses>
-		<string>0.0.0.0</string>
-	  </LocalNetworkAddresses>
 	  <RequireHttps>true</RequireHttps>
 	</ServerConfiguration>
 CONFIG
