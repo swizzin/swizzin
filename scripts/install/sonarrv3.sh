@@ -158,7 +158,7 @@ _install_sonarrv3() {
 
         #TODO fix the loop with a more reliable method. For now wait 30 seconds and remove the file manually
         i=0
-        while [[ -f $sonarrv3confdir/update_required ]] || [[ $i -le 30 ]]; do
+        while [[ -f $sonarrv3confdir/update_required ]] && [[ $i -lt 30 ]]; do
             sleep 1
             ((i++))
             # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
