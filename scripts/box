@@ -124,6 +124,7 @@ function _clr() {
 
 #shellcheck disable=SC2120
 function _update() {
+    bash /etc/swizzin/sources/repo.sh
     for f in /etc/swizzin/scripts/update/*; do
         bash "$f"
     done
