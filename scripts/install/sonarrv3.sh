@@ -151,22 +151,12 @@ _install_sonarrv3() {
         exit 1
     fi
 
-    if [[ -f $sonarrv3confdir/update_required ]]; then
-        echo_progress_start "Sonarr is installing an internal upgrade..."
-        # echo "You can track the update by running \`systemctl status sonarr\` in another shell."
-        # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
-
-        #TODO fix the loop with a more reliable method. For now wait 30 seconds and remove the file manually
-        i=0
-        while [[ -f $sonarrv3confdir/update_required ]] && [[ $i -lt 30 ]]; do
-            sleep 1
-            ((i++))
-            # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
-        done
-        rm_if_exists $sonarrv3confdir/update_required
-        unset i
-        echo_progress_done "Internal upgrade finished"
+    echo_progress_start "Sonarr is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The Sonarr web server has taken longer than 30 seconds to start."
+        exit 1
     fi
+    echo_progress_done "Internal upgrade finished"
 }
 
 # _add2usergroups_sonarrv3 () {
