@@ -151,12 +151,12 @@ _install_sonarrv3() {
         exit 1
     fi
 
-	echo_progress_start "Sonarr is installing an internal upgrade..."
-	if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
-		echo_error "The Sonarr web server has taken longer than 30 seconds to start."
-		exit 1
-	fi
-	echo_progress_done "Internal upgrade finished"
+    echo_progress_start "Sonarr is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The Sonarr web server has taken longer than 30 seconds to start."
+        exit 1
+    fi
+    echo_progress_done "Internal upgrade finished"
 }
 
 # _add2usergroups_sonarrv3 () {
