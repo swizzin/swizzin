@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Yo this is all seriously untested
+#shellcheck disable=SC2086
 
 #Migration utility
 
@@ -9,7 +10,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 #shellcheck source=sources/globals.sh
-. /etc/swizzin/sources/globals.sh
+. /etc/swizzin/sources/functions/users
 echo_log_only ">>>> \`box $*\`"
 echo_log_only "git @ $(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD) 2>&1"
 
@@ -24,8 +25,8 @@ ssh root@$target -c
 
 # Get list of apps
 apps=$(ssh root@$target -C "
-    . /etc/swizzin/sources/globals.sh
-    _get_user_list | grep -v $(_get_master_username)
+    
+    
 ")
 
 # Switch off all apps on target and prepare them
@@ -34,7 +35,7 @@ for a in "${apps[@]}"; do
         transmission | deluge | rtorrent | qbittorrent)
             #Multiuser apps
             ssh root@$target -C "
-                . /etc/swizzin/sources/globals.sh
+                . /etc/swizzin/sources/functions/users
                 readarray -t users < <(_get_user_list)
                 for user in \"\${users[@]}\"; do
                     systemctl disable --now $a@\"\$user\"
@@ -47,7 +48,7 @@ for a in "${apps[@]}"; do
         wireguard)
             : # do nothing, could be in use. move configs so that they don't conflict
             ssh root@$target -C "
-                . /etc/swizzin/sources/globals.sh
+                . /etc/swizzin/sources/functions/users
                 readarray -t users < <(_get_user_list)
                 for user in \"\${users[@]}\"; do
                     mv /home/\$user/.wireguard /home/\$user/.wireguard-old-server
@@ -72,7 +73,7 @@ done
 
 # Get list of users on target
 normal_users=$(ssh root@$target -C "
-    . /etc/swizzin/sources/globals.sh
+    . /etc/swizzin/sources/functions/users
     _get_user_list | grep -v $(_get_master_username)
 ")
 
@@ -93,8 +94,8 @@ migrate_user() {
     systemctl disable --now rtorrent@"$user"
     systemctl disable --now deluge@"$user"
     systemctl disable --now qbittorrent@"$user"
-    echo "Starting background sync for $user, resume services afterwards"
-    screen -S sync-"$user" -dm bash -c "rsync -ahH --stats -e \"ssh -p 22722\" root@ssg.land:/home/$user/ /home/$user --info=progress2 --usermap=$user:$user; read"
+    echo "Starting background sync for $user, resume services afterwards yourself"
+    screen -S swizzinmigration-"$user" -dm bash -c "rsync -ahH --stats -e \"ssh -p 22722\" root@ssg.land:/home/$user/ /home/$user --info=progress2 --usermap=$user:$user; read"
 }
 
 for u in "${normal_users[@]}"; do
