@@ -45,6 +45,7 @@ if [[ -f /install/.lounge.lock ]]; then
         ####### ONLY ADD NEW CHANGES BELOW THIS LINE, NOTHING ABOVE CAN BE CHANGED NO MO
         mv /home/lounge /opt/lounge
         usermod -d /opt/lounge lounge
+        chown -R lounge: /opt/lounge
 
         if [[ $active == "active" ]]; then
             systemctl start lounge
