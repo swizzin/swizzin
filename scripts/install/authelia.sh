@@ -41,13 +41,13 @@ port: 9091
 server:
   read_buffer_size: 4096
   write_buffer_size: 4096
-  path: "login"
+  path: "auth"
 
 theme: dark
 log_level: debug
 log_file_path: /etc/authelia/authelia.log
 jwt_secret: ${jwt_secret}
-default_redirection_url: https://${ex_ip}/
+default_redirection_url: /
 
 authentication_backend:
   disable_reset_password: false
@@ -66,12 +66,12 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
-    - domain: ${ex_ip}
+    - domain: 127.0.0.1
       resources:
         - "^/(sonarr|radarr|jackett)/api.*$"
       policy: bypass
 
-    - domain: ${ex_ip}
+    - domain: 127.0.0.1
       policy: one_factor
 
 session:
@@ -80,7 +80,7 @@ session:
   expiration: 1h
   inactivity: 5m
   remember_me_duration: 1M
-  domain: ${ex_ip}
+  domain: 127.0.0.1
 
 regulation:
   max_retries: 3
