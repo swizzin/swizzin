@@ -9,17 +9,15 @@ sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/ng
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
 location /auth {
-    set \$upstream_authelia http://127.0.0.1:9091;
-    proxy_pass \$upstream_authelia;
+    proxy_pass http://127.0.0.1:9091;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
 }
 
 # Virtual endpoint created by nginx to forward auth requests.
 location /authelia {
     internal;
-    set \$upstream_authelia http://127.0.0.1:9091/api/verify;
     proxy_pass_request_body off;
-    proxy_pass \$upstream_authelia;
+    proxy_pass http://127.0.0.1:9091/api/verify;
     proxy_set_header Content-Length "";
 
     # Timeout if the real server is dead
@@ -34,10 +32,11 @@ location /authelia {
     proxy_set_header Host \$host;
     proxy_set_header X-Original-URL \$scheme://\$http_host\$request_uri;
     proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$remote_addr;
+    proxy_set_header X-Forwarded-Method \$request_method;
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-Host \$http_host;
     proxy_set_header X-Forwarded-Uri \$request_uri;
+    proxy_set_header X-Forwarded-For \$remote_addr;
     proxy_set_header X-Forwarded-Ssl on;
     proxy_redirect  http://  \$scheme://;
     proxy_http_version 1.1;
@@ -68,12 +67,16 @@ auth_request_set \$target_url \$scheme://\$http_host\$request_uri;
 # proxy. In the future, it's gonna be safe to just use OAuth.
 auth_request_set \$user \$upstream_http_remote_user;
 auth_request_set \$groups \$upstream_http_remote_groups;
+auth_request_set \$name \$upstream_http_remote_name;
+auth_request_set \$email \$upstream_http_remote_email;
 proxy_set_header Remote-User \$user;
 proxy_set_header Remote-Groups \$groups;
+proxy_set_header Remote-Name \$name;
+proxy_set_header Remote-Email \$email;
 # If Authelia returns 401, then nginx redirects the user to the login portal.
 # If it returns 200, then the request pass through to the backend.
 # For other type of errors, nginx will handle them as usual.
-error_page 401 =302 https://${ex_ip}/?rd=\$target_url;
+error_page 401 =302 https://\$http_host/?rd=\$target_url;
 AUTHELIA_NGINX_2
 # Create the proxy settign conf
 cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_NGINX_3
@@ -84,7 +87,7 @@ proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
 
 # Advanced Proxy Config
 send_timeout 5m;
-# proxy_read_timeout 360;
+proxy_read_timeout 360;
 proxy_send_timeout 360;
 proxy_connect_timeout 360;
 
@@ -97,7 +100,7 @@ proxy_set_header X-Forwarded-Host \$http_host;
 proxy_set_header X-Forwarded-Uri \$request_uri;
 proxy_set_header X-Forwarded-Ssl on;
 proxy_redirect  http://  \$scheme://;
-# proxy_http_version 1.1;
+proxy_http_version 1.1;
 proxy_set_header Connection "";
 proxy_cache_bypass \$cookie_session;
 proxy_no_cache \$cookie_session;
@@ -105,7 +108,7 @@ proxy_buffers 64 256k;
 
 # If behind reverse proxy, forwards the correct IP
 set_real_ip_from 10.0.0.0/8;
-set_real_ip_from 172.0.0.0/8;
+set_real_ip_from 172.16.0.0/12;
 set_real_ip_from 192.168.0.0/16;
 set_real_ip_from fc00::/7;
 real_ip_header X-Forwarded-For;

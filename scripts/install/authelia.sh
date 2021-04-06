@@ -6,11 +6,22 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 . /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/os
 
 # Get the current version using a git ls-remote tag check
 authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 # Create the download url using the version provided by authelia_latestv
-authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-amd64.tar.gz"
+case "$(_os_arch)" in
+    "amd64") authelia_arch="amd64" ;;
+    "arm32") authelia_arch="arm32v7" ;;
+    "arm64") authelia_arch="arm64v8" ;;
+    *)
+        echo_error "Arch not supported"
+        exit 1
+        ;;
+esac
+
+authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
 # Create the loction for the stored binary
 mkdir -p "/opt/authelia"
 # Download the binary
@@ -66,12 +77,12 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
-    - domain: 127.0.0.1
+    - domain: ${ex_ip}
       resources:
         - "^/(sonarr|radarr|jackett)/api.*$"
       policy: bypass
 
-    - domain: 127.0.0.1
+    - domain: ${ex_ip}
       policy: one_factor
 
 session:
@@ -80,7 +91,7 @@ session:
   expiration: 1h
   inactivity: 5m
   remember_me_duration: 1M
-  domain: 127.0.0.1
+  domain: ${ex_ip}
 
 regulation:
   max_retries: 3
