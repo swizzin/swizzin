@@ -8,7 +8,7 @@ mkdir -p "/etc/nginx/apps/authelia"
 sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/nginx/sites-enabled/default
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
-location / {
+location /login {
     set \$upstream_authelia http://127.0.0.1:9091;
     proxy_pass \$upstream_authelia;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;

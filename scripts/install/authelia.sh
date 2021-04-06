@@ -4,8 +4,11 @@ if [[ ! -f /install/.nginx.lock ]]; then
     echo_warn "Nginx is required for this application"
     exit
 fi
-# Set the current version using a git ls-remote tag check
-authelia_latestv="$(git ls-remote -t --sort=-v:refname --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | head -n1)"
+
+. /etc/swizzin/sources/functions/utils
+
+# Get the current version using a git ls-remote tag check
+authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 # Create the download url using the version provided by authelia_latestv
 authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-amd64.tar.gz"
 # Create the loction for the stored binary
@@ -23,7 +26,8 @@ mkdir -p /etc/authelia
 # Get our external IP to set in the config.yml
 ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
 # Create a random secret for the config.yml
-secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+jwt_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+insecure_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 # Set our password for this example
 username="$(_get_master_username)"
 password="$(_get_user_password "${username}")"
@@ -37,12 +41,13 @@ port: 9091
 server:
   read_buffer_size: 4096
   write_buffer_size: 4096
-  path: ""
+  path: "login"
 
+theme: dark
 log_level: debug
 log_file_path: /etc/authelia/authelia.log
-jwt_secret: ${secret}
-default_redirection_url: https://${ex_ip}/login
+jwt_secret: ${jwt_secret}
+default_redirection_url: https://${ex_ip}/
 
 authentication_backend:
   disable_reset_password: false
@@ -62,11 +67,16 @@ access_control:
   default_policy: deny
   rules:
     - domain: ${ex_ip}
+      resources:
+        - "^/(sonarr|radarr|jackett)/api.*$"
+      policy: bypass
+
+    - domain: ${ex_ip}
       policy: one_factor
 
 session:
   name: authelia_session
-  secret: insecure_session_secret
+  secret: ${insecure_secret}
   expiration: 1h
   inactivity: 5m
   remember_me_duration: 1M
