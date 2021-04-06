@@ -96,10 +96,10 @@ location /rtorrent.downloads {
   include /etc/nginx/snippets/fancyindex.conf;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd;
-  
+
   location ~* \.php$ {
 
-  } 
+  }
 }
 EOR
         fi
@@ -118,7 +118,7 @@ location /deluge.downloads {
 
   location ~* \.php$ {
 
-  } 
+  }
 }
 DIN
         fi
@@ -137,6 +137,9 @@ DIN
     . /etc/swizzin/sources/functions/php
     restart_php_fpm
     systemctl reload nginx
+
+    # fix /etc/nginx/sites-enabled/default to not cause nginx to fail on reloading when there are subdirectories in /etc/nginx/apps like /etc/nginx/apps/authelia
+    sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/\*.conf;|g' -i /etc/nginx/sites-enabled/default
 }
 
 if [[ -f /install/.nginx.lock ]]; then update_nginx; fi
