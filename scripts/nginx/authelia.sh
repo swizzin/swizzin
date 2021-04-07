@@ -9,9 +9,11 @@ sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/ng
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
 set \$upstream_authelia http://127.0.0.1:9091;
+# set \$auth_type "/authelia/api/verify"; # normal auth
+set \$auth_type "/authelia/api/verify?auth=basic"; # basic auth
 
 location /authelia {
-    proxy_pass http://127.0.0.1:9091;
+    proxy_pass \$upstream_authelia;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
 }
 
@@ -19,7 +21,7 @@ location /authelia {
 location /authelia/api/verify {
     internal;
     proxy_pass_request_body off;
-    proxy_pass http://127.0.0.1:9091;
+    proxy_pass \$upstream_authelia\$auth_type;
     proxy_set_header Content-Length "";
 
     # Timeout if the real server is dead
