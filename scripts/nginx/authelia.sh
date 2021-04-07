@@ -7,7 +7,13 @@ mkdir -p "/etc/nginx/apps/authelia"
 # Fix nginx to not try to load a directory when using an include
 sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/nginx/sites-enabled/default
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
-cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
+
+cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_CONF_NGINX
+include /etc/nginx/apps/authelia/authelia_portal.conf;
+include /etc/nginx/apps/authelia/authelia_api.conf;
+AUTHELIA_CONF_NGINX
+
+cat > "/etc/nginx/apps/authelia/authelia_portal.conf" << AUTHELIA_PORTAL_NGINX
 set \$upstream_authelia http://127.0.0.1:9091;
 # set \$auth_type "/authelia/api/verify"; # normal auth
 set \$auth_type "/authelia/api/verify?auth=basic"; # basic auth
@@ -16,7 +22,9 @@ location /authelia {
     proxy_pass \$upstream_authelia;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
 }
+AUTHELIA_PORTAL_NGINX
 
+cat > "/etc/nginx/apps/authelia/authelia_api.conf" << AUTHELIA_API_NGINX
 # Virtual endpoint created by nginx to forward auth requests.
 location /authelia/api/verify {
     internal;
@@ -55,9 +63,9 @@ location /authelia/api/verify {
     proxy_send_timeout 240;
     proxy_connect_timeout 240;
 }
-AUTHELIA_NGINX_1
+AUTHELIA_API_NGINX
 # Create the auth redicrect conf
-cat > "/etc/nginx/apps/authelia/authelia_auth.conf" << AUTHELIA_NGINX_2
+cat > "/etc/nginx/apps/authelia/authelia_auth.conf" << AUTHELIA_AUTH_NGINX
 # Basic Authelia Config
 # Send a subsequent request to Authelia to verify if the user is authenticated
 # and has the right permissions to access the resource.
@@ -81,9 +89,9 @@ proxy_set_header Remote-Email \$email;
 # If it returns 200, then the request pass through to the backend.
 # For other type of errors, nginx will handle them as usual.
 error_page 401 =302 https://\$http_host/authelia?rd=\$target_url;
-AUTHELIA_NGINX_2
-# Create the proxy settign conf
-cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_NGINX_3
+AUTHELIA_AUTH_NGINX
+# Create the proxy settings conf
+cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_PROXY_NGINX
 client_body_buffer_size 128k;
 
 #Timeout if the real server is dead
@@ -117,4 +125,4 @@ set_real_ip_from 192.168.0.0/16;
 set_real_ip_from fc00::/7;
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
-AUTHELIA_NGINX_3
+AUTHELIA_PROXY_NGINX
