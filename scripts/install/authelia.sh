@@ -158,7 +158,7 @@ AUTHELIA_SERVICE
 #
 echo_progress_done
 #
-echo_progress_start "Congifuring the correct permissions"
+echo_progress_start "Configuring the correct permissions"
 #
 useradd --system authelia &>> "$log"
 chown -R authelia: /opt/authelia
