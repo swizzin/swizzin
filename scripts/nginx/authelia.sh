@@ -15,8 +15,6 @@ AUTHELIA_CONF_NGINX
 
 cat > "/etc/nginx/apps/authelia/authelia_portal.conf" << AUTHELIA_PORTAL_NGINX
 set \$upstream_authelia http://127.0.0.1:9091;
-# set \$auth_type "/authelia/api/verify"; # normal auth
-set \$auth_type "/authelia/api/verify?auth=basic"; # basic auth
 
 location /authelia {
     proxy_pass \$upstream_authelia;
@@ -25,6 +23,9 @@ location /authelia {
 AUTHELIA_PORTAL_NGINX
 
 cat > "/etc/nginx/apps/authelia/authelia_api.conf" << AUTHELIA_API_NGINX
+# set \$auth_type "/authelia/api/verify"; # normal auth
+set \$auth_type "/authelia/api/verify?auth=basic"; # basic auth
+
 # Virtual endpoint created by nginx to forward auth requests.
 location /authelia/api/verify {
     internal;
