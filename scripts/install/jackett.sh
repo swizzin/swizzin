@@ -29,7 +29,7 @@ jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_lat
 
 case "$(_os_arch)" in
     "amd64") jackett_arch="AMDx64" ;;
-    "arm32") jackett_arch="ARM32" ;;
+    "armhf") jackett_arch="ARM32" ;;
     "arm64") jackett_arch="ARM64" ;;
     *)
         echo_error "Arch not supported"
