@@ -40,7 +40,7 @@ esac
 jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
 
 echo_progress_start "Downloading and extracting jackett"
-wget "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" "$jackett_url" &>> "$log"
+wget -qO "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" "$jackett_url" &>> "$log"
 tar -xvzf "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" -C /opt &>> "$log"
 rm_if_exists "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
 chown -R "${username}:${username}" /opt/Jackett

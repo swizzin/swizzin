@@ -8,12 +8,17 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-MASTER=$(cut -d: -f1 < /root/.master.info)
-isactive=$(systemctl is-active jackett@$MASTER)
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+username=$(_get_master_username)
+isactive=$(systemctl is-active jackett)
+
 if [[ $isactive == "active" ]]; then
-    systemctl stop jackett@$MASTER
+    systemctl stop jackett
 fi
-systemctl stop jackett@$MASTER
+
+systemctl stop jackett
+
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
     cat > /etc/nginx/apps/jackett.conf << RAD
 location /jackett {
@@ -28,9 +33,8 @@ location /jackett/ {
 RAD
 fi
 
-#sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
-sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
+sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${username}/.config/Jackett/ServerConfig.json
 
 if [[ $isactive == "active" ]]; then
-    systemctl start jackett@$MASTER
+    systemctl start jackett
 fi
