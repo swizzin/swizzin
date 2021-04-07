@@ -54,8 +54,8 @@ After=network.target
 
 [Service]
 SyslogIdentifier=jackett
-Type=exec
-ExecStart=/bin/sh -c "/opt/Jackett/jackett_launcher.sh"
+User=${username}
+ExecStart=/bin/bash /opt/Jackett/jackett_launcher.sh
 Restart=always
 RestartSec=5
 TimeoutStopSec=30
