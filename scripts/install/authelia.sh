@@ -126,13 +126,14 @@ users:
       - dev
 AUTHELIA_USER
 # Generate the /etc/authelia/authelia.service
-cat > "/etc/authelia/authelia.service" << AUTHELIA_SERVICE
+cat > "/etc/systemd/system/authelia.service" << AUTHELIA_SERVICE
 [Unit]
 Description=Authelia
 After=network-online.target
 
 [Service]
 Type=exec
+user=www-data
 ExecStart= /opt/authelia/authelia --config /etc/authelia/config.yml
 Restart=always
 RestartSec=2
@@ -142,8 +143,7 @@ SyslogIdentifier=authelia
 [Install]
 WantedBy=default.target
 AUTHELIA_SERVICE
-# Symlink our service file from /etc/authelia/authelia.service to /etc/systemd/system/authelia.service
-ln -fsn /etc/authelia/authelia.service /etc/systemd/system/authelia.service
+
 # Install nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
@@ -151,8 +151,9 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
-# enabel the service
-systemctl enable -q --now authelia 2>&1 | tee -a $log
+chown -R www-data: /opt/authelia
+# enabele the service
+systemctl enable -q --now authelia |& tee -a $log
 # Create the lock file
 touch /install/.authelia.lock
 # echo we are done
