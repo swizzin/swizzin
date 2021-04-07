@@ -17,14 +17,13 @@ systemctl stop jackett@$MASTER
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
     cat > /etc/nginx/apps/jackett.conf << RAD
 location /jackett {
-  return 301 /jackett/;
+    return 301 /jackett/;
 }
 
 location /jackett/ {
-  include /etc/nginx/snippets/proxy.conf;
-  proxy_pass http://127.0.0.1:9117/jackett/;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_pass http://127.0.0.1:9117/jackett/;
+    include /etc/nginx/apps/authelia/authelia_auth.conf;
 }
 RAD
 fi

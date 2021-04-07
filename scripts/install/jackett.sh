@@ -17,17 +17,30 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-username=$(cut -d: -f1 < /root/.master.info)
-jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep AMDx64 | grep browser_download_url | cut -d \" -f4)
-#jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
-password=$(cut -d: -f2 < /root/.master.info)
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/os
+
+username=$(_get_master_username)
+
+jackett_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
+jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.LinuxAMDx64.tar.gz"
+
+case "$(_os_arch)" in
+    "amd64") jackett_arch="AMDx64" ;;
+    "arm32") jackett_arch="ARM32" ;;
+    "arm64") jackett_arch="ARM64" ;;
+    *)
+        echo_error "Arch not supported"
+        exit 1
+        ;;
+esac
+
+jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
 
 echo_progress_start "Downloading and extracting jackett"
-cd /home/$username
-wget $jackett >> "$log" 2>&1
-tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
+cd "/home/$username" || exit
+wget "$jackett_url" &>> "$log"
+tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz &>> "$log"
 rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
 chown ${username}.${username} -R Jackett
 echo_progress_done
@@ -106,11 +119,6 @@ fi
 systemctl enable -q --now jackett@${username} 2>&1 | tee -a $log
 
 sleep 10
-
-echo_progress_start "Setting admin password"
-cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cookie | awk '{printf $3}' | sed 's/;//g')
-curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '${cookie}'' --data-binary '"'${password}'"' >> $log 2>&1
-echo_progress_done
 
 touch /install/.jackett.lock
 
