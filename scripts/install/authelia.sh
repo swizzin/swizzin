@@ -56,7 +56,7 @@ server:
 
 theme: dark
 log_level: debug
-log_file_path: /var/log/authelia.log
+log_file_path: /var/log/authelia/authelia.log
 jwt_secret: ${jwt_secret}
 default_redirection_url: /
 
@@ -133,8 +133,9 @@ After=network-online.target
 
 [Service]
 Type=exec
-user=www-data
-ExecStart= /opt/authelia/authelia --config /etc/authelia/config.yml
+User=authelia
+Group=authelia
+ExecStart=/opt/authelia/authelia --config /etc/authelia/config.yml
 Restart=always
 RestartSec=2
 TimeoutStopSec=5
@@ -144,6 +145,12 @@ SyslogIdentifier=authelia
 WantedBy=default.target
 AUTHELIA_SERVICE
 
+useradd --system authelia &>> "$log"
+chown -R authelia: /opt/authelia
+chown -R authelia: /etc/authelia
+mkdir -p /var/log/authelia
+chown -R authelia: /var/log/authelia
+
 # Install nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
@@ -152,9 +159,6 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_done "Nginx config installed"
 fi
 
-useradd --system authelia &>> "$log"
-chown -R authelia: /opt/authelia
-chown -R authelia: /etc/authelia
 # enable the service
 systemctl enable -q --now authelia &>> "$log"
 # Create the lock file
