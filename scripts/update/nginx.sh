@@ -133,7 +133,7 @@ DIN
     if grep -q 'index.html' /etc/nginx/sites-enabled/default; then
         sed -i '/index.html/d' /etc/nginx/sites-enabled/default
     fi
-    
+
     # fix /etc/nginx/sites-enabled/default to not cause nginx to fail on reloading when there are subdirectories in /etc/nginx/apps like /etc/nginx/apps/authelia
     sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/\*.conf;|g' -i /etc/nginx/sites-enabled/default
 
