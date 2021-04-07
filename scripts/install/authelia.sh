@@ -151,9 +151,12 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
-chown -R www-data: /opt/authelia
-# enabele the service
-systemctl enable -q --now authelia |& tee -a $log
+
+useradd --system authelia &>> "$log"
+chown -R authelia: /opt/authelia
+chown -R authelia: /etc/authelia
+# enable the service
+systemctl enable -q --now authelia &>> "$log"
 # Create the lock file
 touch /install/.authelia.lock
 # echo we are done
