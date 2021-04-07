@@ -52,7 +52,7 @@ port: 9091
 server:
   read_buffer_size: 4096
   write_buffer_size: 4096
-  path: "auth"
+  path: "authelia"
 
 theme: dark
 log_level: debug

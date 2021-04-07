@@ -8,16 +8,18 @@ mkdir -p "/etc/nginx/apps/authelia"
 sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/nginx/sites-enabled/default
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_NGINX_1
-location /auth {
+set \$upstream_authelia http://127.0.0.1:9091;
+
+location /authelia {
     proxy_pass http://127.0.0.1:9091;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
 }
 
 # Virtual endpoint created by nginx to forward auth requests.
-location /authelia {
+location /authelia/api/verify {
     internal;
     proxy_pass_request_body off;
-    proxy_pass http://127.0.0.1:9091/api/verify;
+    proxy_pass http://127.0.0.1:9091;
     proxy_set_header Content-Length "";
 
     # Timeout if the real server is dead
@@ -57,7 +59,7 @@ cat > "/etc/nginx/apps/authelia/authelia_auth.conf" << AUTHELIA_NGINX_2
 # Basic Authelia Config
 # Send a subsequent request to Authelia to verify if the user is authenticated
 # and has the right permissions to access the resource.
-auth_request /authelia;
+auth_request /authelia/api/verify;
 # Set the \$(target_url) variable based on the request. It will be used to build the portal
 # URL with the correct redirection parameter.
 auth_request_set \$target_url \$scheme://\$http_host\$request_uri;
@@ -76,7 +78,7 @@ proxy_set_header Remote-Email \$email;
 # If Authelia returns 401, then nginx redirects the user to the login portal.
 # If it returns 200, then the request pass through to the backend.
 # For other type of errors, nginx will handle them as usual.
-error_page 401 =302 https://\$http_host/?rd=\$target_url;
+error_page 401 =302 https://\$http_host/authelia?rd=\$target_url;
 AUTHELIA_NGINX_2
 # Create the proxy settign conf
 cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_NGINX_3
