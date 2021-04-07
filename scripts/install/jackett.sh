@@ -17,7 +17,9 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/os
 . /etc/swizzin/sources/functions/os
 
 username=$(_get_master_username)
@@ -38,52 +40,49 @@ esac
 jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
 
 echo_progress_start "Downloading and extracting jackett"
-cd "/home/$username" || exit
-wget "$jackett_url" &>> "$log"
-tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz &>> "$log"
-rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
-chown ${username}.${username} -R Jackett
+wget "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" "$jackett_url" &>> "$log"
+tar -xvzf "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" -C /opt &>> "$log"
+rm_if_exists "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
+chown -R "${username}:${username}" /opt/Jackett
 echo_progress_done
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/jackett@.service << JAK
+cat > /etc/systemd/system/jackett.service << JAK
 [Unit]
-Description=jackett for %i
+Description=jackett
 After=network.target
 
 [Service]
-SyslogIdentifier=jackett.%i
-Type=simple
-User=%i
-WorkingDirectory=/home/%i/Jackett
-ExecStart=/bin/sh -c "/home/%i/Jackett/jackett_launcher.sh"
+SyslogIdentifier=jackett
+Type=exec
+ExecStart=/bin/sh -c "/opt/Jackett/jackett_launcher.sh"
 Restart=always
 RestartSec=5
-TimeoutStopSec=20
+TimeoutStopSec=30
 [Install]
 WantedBy=multi-user.target
 JAK
 
-if [[ ! -f /home/${username}/Jackett/jackett_launcher.sh ]]; then
-    cat > /home/${username}/Jackett/jackett_launcher.sh << 'JL'
+if [[ ! -f /opt/Jackett/jackett_launcher.sh ]]; then
+    cat > /opt/Jackett/jackett_launcher.sh << 'JL'
 #!/bin/bash
 user=$(whoami)
 
-/home/${user}/Jackett/jackett
+/opt/Jackett/jackett
 
 while pgrep -u ${user} JackettUpdater > /dev/null ; do
-     sleep 1
+    sleep 1
 done
 
 echo "Jackett update complete"
 JL
-    chmod +x /home/${username}/Jackett/jackett_launcher.sh
+    chmod +x /opt/Jackett/jackett_launcher.sh
 fi
 echo_progress_done "Service file installed"
 
 echo_progress_start "Configuring jackett"
-mkdir -p /home/${username}/.config/Jackett
-cat > /home/${username}/.config/Jackett/ServerConfig.json << JSC
+mkdir -p "/home/${username}/.config/Jackett"
+cat > "/home/${username}/.config/Jackett/ServerConfig.json" << JSC
 {
   "Port": 9117,
   "AllowExternal": true,
@@ -105,18 +104,18 @@ cat > /home/${username}/.config/Jackett/ServerConfig.json << JSC
 }
 JSC
 
-chown ${username}.${username} -R /home/${username}/.config
+chown -R "${username}:${username}" "/home/${username}/.config"
 
 echo_progress_done "Jackett configured"
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
     bash /usr/local/bin/swizzin/nginx/jackett.sh
-    systemctl reload nginx >> $log 2>&1
+    systemctl reload nginx &>> "$log"
     echo_progress_done "Nginx configured"
 fi
 
-systemctl enable -q --now jackett@${username} 2>&1 | tee -a $log
+systemctl enable -q --now jackett &>> "$log"
 
 sleep 10
 
