@@ -21,6 +21,8 @@ case "$(_os_arch)" in
         ;;
 esac
 #
+echo_progress_start "Downloading and extracting Authelia"
+#
 authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
 # Create the loction for the stored binary
 mkdir -p "/opt/authelia"
@@ -32,6 +34,11 @@ tar -xf "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" -C "/opt/authelia
 ln -fsn "/opt/authelia/authelia-linux-${authelia_arch}" "/opt/authelia/authelia"
 # Remove the archive we no longer need
 [[ -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" ]] && rm -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz"
+#
+echo_progress_done
+#
+echo_progress_start "Configuring Authelia"
+#
 # Make the configuration directory
 mkdir -p /etc/authelia
 # Get our external IP to set in the config.yml
@@ -125,6 +132,10 @@ users:
       - admins
       - dev
 AUTHELIA_USER
+#
+echo_progress_done
+#
+echo_progress_start "Installing systemd service"
 # Generate the /etc/authelia/authelia.service
 cat > "/etc/systemd/system/authelia.service" << AUTHELIA_SERVICE
 [Unit]
@@ -144,13 +155,19 @@ SyslogIdentifier=authelia
 [Install]
 WantedBy=default.target
 AUTHELIA_SERVICE
-
+#
+echo_progress_done
+#
+echo_progress_start "Congifuring the correct permissions"
+#
 useradd --system authelia &>> "$log"
 chown -R authelia: /opt/authelia
 chown -R authelia: /etc/authelia
 mkdir -p /var/log/authelia
 chown -R authelia: /var/log/authelia
-
+#
+echo_progress_done
+#
 # Install nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
@@ -158,7 +175,6 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
-
 # enable the service
 systemctl enable -q --now authelia &>> "$log"
 # Create the lock file
