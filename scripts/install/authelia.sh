@@ -57,7 +57,7 @@ port: ${app_proxy_port}
 server:
   read_buffer_size: 4096
   write_buffer_size: 4096
-  path: "authelia"
+  path: "login"
 
 theme: dark
 log_level: debug
