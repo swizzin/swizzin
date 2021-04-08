@@ -37,7 +37,7 @@ rm -f "/tmp/filebrowser.tar.gz" &>> "${log}"
 echo_progress_done
 #
 echo_progress_start "Setting correct permissions"
-chown -R "${username}.${username}" "/home/${username}/.config" &>> "${log}"
+chown -R "${username}:${username}" "/home/${username}/.config" &>> "${log}"
 chmod 700 "/opt/filebrowser/filebrowser" &>> "${log}"
 chown -R "${username}.${username}" "/opt/filebrowser" &>> "${log}"
 echo_progress_done
@@ -45,12 +45,12 @@ echo_progress_done
 # Update nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Updating nginx config"
-    bash "/usr/local/bin/swizzin/nginx/authelia.sh"
+    bash "/usr/local/bin/swizzin/nginx/authelia.sh" 'upgrade'
     systemctl reload nginx &>> "${log}"
     echo_progress_done "Nginx config updated"
 fi
 #
 # Start the service.
-if [[ "$(systemctl is-active filebrowser)" == "inactive" ]]; then
+if [[ "$(systemctl is-active filebrowser)" =~ (inactive|failed) ]]; then
     systemctl start filebrowser &>> "${log}"
 fi
