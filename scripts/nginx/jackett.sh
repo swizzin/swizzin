@@ -13,25 +13,27 @@
 username=$(_get_master_username)
 
 if [[ "$(systemctl is-active jackett)" == "active" ]]; then
-    systemctl stop jackett
+    systemctl stop jackett &>> "${log}"
 fi
 
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
-    cat > /etc/nginx/apps/jackett.conf << RAD
-location /jackett {
-    return 301 /jackett/;
-}
+    cat > /etc/nginx/apps/jackett.conf <<- JACKETT_NGINX
+    location /jackett {
+        return 301 /jackett/;
+    }
 
-location /jackett/ {
-    include /etc/nginx/snippets/proxy.conf;
-    proxy_pass http://127.0.0.1:9117/jackett/;
-    include /etc/nginx/apps/authelia/authelia_auth.conf;
-}
-RAD
+    location /jackett/ {
+        include /etc/nginx/snippets/proxy.conf;
+        proxy_pass http://127.0.0.1:9117/jackett/;
+        include /etc/nginx/apps/authelia/authelia_auth.conf;
+    }
+JACKETT_NGINX
 fi
 
 sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" "/home/${username}/.config/Jackett/ServerConfig.json"
 
 if [[ "$(systemctl is-active jackett)" == "inactive" ]]; then
-    systemctl start jackett
+    systemctl start jackett &>> "${log}"
+elif [[ "$(systemctl is-active jackett)" == "active" ]]; then # if it was active we did something wrong anyway
+    systemctl restart jackett &>> "${log}"
 fi
