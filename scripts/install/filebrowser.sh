@@ -12,29 +12,34 @@
 username="$(cut -d: -f1 < /root/.master.info)"
 password="$(cut -d: -f2 < /root/.master.info)"
 #
-# This will generate a random port for the script between the range 10001 to 32001 to use with applications.
-app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done
+# Set the applicationm port
+app_port="8080"
 #
-########
-######## Variables End
-########
-#
-########
-######## Application script starts.
-########
+# Get our external IP
+ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
 #
 # Create the required directories for this application.
-mkdir -p "/home/${username}/bin"
 mkdir -p "/home/${username}/.config/Filebrowser"
 #
-# Download and extract the files to the desired location.
-echo_progress_start "Downloading and extracting source code"
-wget -O "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> $log 2>&1
-tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> $log 2>&1
-echo_progress_done
+app_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/filebrowser/filebrowser.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
+case "$(_os_arch)" in
+    "amd64") app_arch="amd64" ;;
+    "armhf") app_arch="armv7" ;;
+    "arm64") app_arch="arm64" ;;
+    *)
+        echo_error "Arch not supported"
+        exit 1
+        ;;
+esac
+app_url="https://github.com/filebrowser/filebrowser/releases/download/v${app_latest_version}/linux-${app_arch}-filebrowser.tar.gz"
 #
-# Removes the archive as we no longer need it.
-rm -f "/home/${username}/filebrowser.tar.gz" >> "$log" 2>&1
+# Download and extract the files to the desired location.
+echo_progress_start "Downloading and extracting filebrowsr"
+wget -O "/tmp/filebrowser.tar.gz" "${app_url}" &>> "${log}"
+mkdir -p "/opt/filebrowser"
+tar -xvzf "/tmp/filebrowser.tar.gz" -C "/opt/filebrowser" filebrowser &>> "${log}"
+rm -f "/tmp/filebrowser.tar.gz" &>> "${log}"
+echo_progress_done
 #
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
 #
@@ -42,21 +47,20 @@ rm -f "/home/${username}/filebrowser.tar.gz" >> "$log" 2>&1
 #shellcheck source=sources/functions/ssl
 . /etc/swizzin/sources/functions/ssl
 create_self_ssl ${username}
-
 #
 # This command initialise our database.
 echo_progress_start "Initialising database and configuring Filebrowser"
-"/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/opt/filebrowser/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
 # These commands configure some options in the database.
-"/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/opt/filebrowser/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
+"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
+"/opt/filebrowser/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
 # Set the permissions after we are finsished configuring filebrowser.
-chown "${username}.${username}" -R "/home/${username}/bin" > /dev/null 2>&1
-chown "${username}.${username}" -R "/home/${username}/.config" > /dev/null 2>&1
-chmod 700 "/home/${username}/bin/filebrowser" > /dev/null 2>&1
+chown "${username}.${username}" -R "/home/${username}/.config" &>> "${log}"
+chown "${username}.${username}" -R "/opt/filebrowser" &>> "${log}"
+chmod 700 "/opt/filebrowser/filebrowser" &>> "${log}"
 echo_progress_done
 #
 # Create the service file that will start and stop filebrowser.
@@ -73,7 +77,7 @@ cat > "/etc/systemd/system/filebrowser.service" <<- SERVICE
 
 	Type=simple
 	WorkingDirectory=/home/${username}
-	ExecStart=/home/${username}/bin/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db
+	ExecStart=/opt/filebrowser/filebrowser -d /home/${username}/.config/Filebrowser/filebrowser.db
 	TimeoutStopSec=20
 	KillMode=process
 	Restart=always
@@ -86,7 +90,7 @@ SERVICE
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
-    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port}"
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
@@ -103,7 +107,7 @@ touch "/install/.filebrowser.lock"
 echo_success "FileBrowser installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"
+    echo_info "Filebrowser is available at: https://${ex_ip}:${app_port}"
 else
     echo_info "Filebrowser is now available in the panel"
 fi
