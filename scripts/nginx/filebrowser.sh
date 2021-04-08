@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 #
-username="$(cut -d: -f1 < /root/.master.info)"
+username=$(_get_master_username)
 #
 if [[ -n "$1" && ! -f /install/.filebrowser.lock ]]; then
     port="$1"
