@@ -89,7 +89,7 @@ proxy_set_header Remote-Email \$email;
 # If Authelia returns 401, then nginx redirects the user to the login portal.
 # If it returns 200, then the request pass through to the backend.
 # For other type of errors, nginx will handle them as usual.
-error_page 401 =302 https://\$http_host/authelia?rd=\$target_url;
+# error_page 401 =302 https://\$http_host/authelia?rd=\$target_url;
 AUTHELIA_AUTH_NGINX
 # Create the proxy settings conf
 cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_PROXY_NGINX
