@@ -87,6 +87,7 @@ access_control:
     - domain: ${ex_ip}
       resources:
         - "^/(sonarr|radarr|jackett)/api.*$"
+        - "^/filebrowser/share/(.*)$"
       policy: bypass
 
     - domain: ${ex_ip}
