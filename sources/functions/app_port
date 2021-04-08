@@ -3,13 +3,14 @@
 declare -A app_port
 #
 # List our ports here using the forman array_name[app_name]port
+app_port[authelia]=9091
 app_port[filebrowser]=9090
 app_port[jackett]=9117
 #
 # Use this function to get a port from the array using the command inside an install script app_port="$(_get_app_port "$(basename -- "$0")")"
 _get_app_port() {
     if [[ -n "${1}" ]]; then
-        if [[ ${app_port[$1]+$1} ]]; then
+        if [[ -n ${app_port[$1]+$1} ]]; then
             echo ${app_port[$1]}
         else
             echo "get_app_port ERROR app name does not exist "
