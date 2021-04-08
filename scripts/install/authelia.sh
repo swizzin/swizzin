@@ -175,6 +175,16 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
+
+if [[ -f /install/.panel.lock ]]; then
+    echo_progress_start "tmp qol panel changes"
+    #
+    sed 's|systemd = "jackett@"|systemd = "jackett"|g' -i /opt/swizzin/core/profiles.py
+    echo 'RATELIMIT_ENABLED = False' >> /opt/swizzin/swizzin.cfg
+    systemctl restart -q panel &>> "$log"
+    #
+    echo_progress_done "done"
+fi
 # enable the service
 systemctl enable -q --now authelia &>> "$log"
 # Create the lock file
