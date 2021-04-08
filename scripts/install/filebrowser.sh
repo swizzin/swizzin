@@ -4,6 +4,11 @@
 #
 # GNU General Public License v3.0 or later
 #
+if [[ ! -f /install/.nginx.lock ]]; then
+    echo_warn "Nginx is required for this application"
+    exit
+fi
+#
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/os
@@ -12,13 +17,12 @@
 . /etc/swizzin/sources/functions/app_port
 #shellcheck source=sources/functions/ip
 . /etc/swizzin/sources/functions/ip
-# Get our main user credentials to use when bootstrapping filebrowser.
-username="$(_get_master_username)"
-password="$(_get_master_password)"
-# Get our app port using the install script name as the app name
-app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
-# Get our external IP address
-external_ip="$(_external_ip)"
+#
+username="$(_get_master_username)"                           # Get our master username
+password="$(_get_user_password "${password}")"               # Get our master user's password
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get the application port from an array using the name of this script
+external_ip="$(_external_ip)"                                # Get our external IP address
+#
 # Create the required directories for this application.
 mkdir -p "/home/${username}/.config/Filebrowser"
 #
@@ -96,13 +100,8 @@ echo_progress_done "Systemd service installed"
 touch "/install/.filebrowser.lock"
 #
 # A helpful echo to the terminal.
-echo_success "FileBrowser installed"
+echo_success "FileBrowser installed and available in the panel"
 #
-if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Filebrowser is available at: https://${external_ip}:${app_proxy_port}"
-else
-    echo_info "Filebrowser is now available in the panel"
-fi
 echo_warn "Make sure to use your swizzin credentials when logging in"
 #
 exit

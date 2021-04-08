@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 #
+# authors: liara userdocs
+#
+# GNU General Public License v3.0 or later
+#
 if [[ ! -f /install/.nginx.lock ]]; then
     echo_warn "Nginx is required for this application"
     exit

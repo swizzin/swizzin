@@ -1,21 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# [Quick Box :: Install Jackett package]
+# authors: liara userdocs
 #
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | d2dyno
-# URL                :   https://quickbox.io
+# GNU General Public License v3.0 or later
 #
-# QuickBox Copyright (C) 2017 QuickBox.io
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
+if [[ ! -f /install/.nginx.lock ]]; then
+    echo_warn "Nginx is required for this application"
+    exit
+fi
 #
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
@@ -26,10 +18,11 @@
 #shellcheck source=sources/functions/ip
 . /etc/swizzin/sources/functions/ip
 #
-username="$(_get_master_username)"
-password="$(_get_user_password "${password}")"
-app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
-
+username="$(_get_master_username)"                           # Get our master username
+password="$(_get_user_password "${password}")"               # Get our master user's password
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get the application port from an array using the name of this script
+# external_ip="$(_external_ip)"                                # Get our external IP address
+#
 app_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
 case "$(_os_arch)" in
     "amd64") app_arch="AMDx64" ;;
