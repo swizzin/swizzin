@@ -1,7 +1,18 @@
+#!/usr/bin/env bash
+#
 declare -A app_ports
-
-# echo ${app_ports[filebrowser]}
-
+#
 app_ports[filebrowser]=9090
 app_ports[jackett]=9117
 
+get_app_port() {
+    if [[ -n "${1}" ]]; then
+        if [[ ${app_ports[$1]+$1} ]]; then
+            echo ${app_ports[$1]}
+        else
+            echo "get_app_port ERROR app name does not exist "
+        fi
+    else
+        echo "get_app_port ERROR no app name provided"
+    fi
+}
