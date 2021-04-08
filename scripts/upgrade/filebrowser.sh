@@ -45,7 +45,7 @@ echo_progress_done
 # Update nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Updating nginx config"
-    bash "/usr/local/bin/swizzin/nginx/authelia.sh" 'upgrade'
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" 'upgrade'
     systemctl reload nginx &>> "${log}"
     echo_progress_done "Nginx config updated"
 fi
