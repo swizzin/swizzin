@@ -43,19 +43,12 @@ echo_progress_done
 #
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
 #
-# Create a self signed cert in the config directory to use with filebrowser.
-#shellcheck source=sources/functions/ssl
-. /etc/swizzin/sources/functions/ssl
-create_self_ssl ${username}
-#
 # This command initialise our database.
 echo_progress_start "Initialising database and configuring Filebrowser"
 "/opt/filebrowser/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
 # These commands configure some options in the database.
-"/opt/filebrowser/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
-"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
-"/opt/filebrowser/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
+"/opt/filebrowser/filebrowser" config set --auth.method=noauth -a 0.0.0.0 -p "${app_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
 # Set the permissions after we are finsished configuring filebrowser.
 chown "${username}.${username}" -R "/home/${username}/.config" &>> "${log}"
