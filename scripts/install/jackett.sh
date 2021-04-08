@@ -27,7 +27,7 @@
 . /etc/swizzin/sources/functions/ip
 #
 username="$(_get_master_username)"
-password="$(_get_master_password)"
+password="$(_get_user_password "${password}")"
 app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
 
 app_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
