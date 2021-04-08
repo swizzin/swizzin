@@ -9,13 +9,12 @@ sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/ng
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_CONF_NGINX
-include /etc/nginx/apps/authelia/authelia_portal.conf;
-include /etc/nginx/apps/authelia/authelia_api.conf;
+set \$upstream_authelia http://127.0.0.1:9091; # set the resued upstream proxypass url
+include /etc/nginx/apps/authelia/authelia_portal.conf; # Include the portal conf
+include /etc/nginx/apps/authelia/authelia_api.conf; # Include the api conf
 AUTHELIA_CONF_NGINX
 
 cat > "/etc/nginx/apps/authelia/authelia_portal.conf" << AUTHELIA_PORTAL_NGINX
-set \$upstream_authelia http://127.0.0.1:9091;
-
 location /authelia {
     proxy_pass \$upstream_authelia;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
@@ -89,7 +88,7 @@ proxy_set_header Remote-Email \$email;
 # If Authelia returns 401, then nginx redirects the user to the login portal.
 # If it returns 200, then the request pass through to the backend.
 # For other type of errors, nginx will handle them as usual.
-# error_page 401 =302 https://\$http_host/authelia?rd=\$target_url;
+# error_page 401 =302 https://\$http_host; # redirect to / so panel can handle auth
 AUTHELIA_AUTH_NGINX
 # Create the proxy settings conf
 cat > "/etc/nginx/apps/authelia/authelia_proxy.conf" << AUTHELIA_PROXY_NGINX
