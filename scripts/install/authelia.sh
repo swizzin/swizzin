@@ -21,7 +21,6 @@ external_ip="$(_external_ip)"                           # Get our external IP
 #
 # Get the current version using a git ls-remote tag check
 authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
-# Create the download url using the version provided by authelia_latestv
 case "$(_os_arch)" in
     "amd64") authelia_arch="amd64" ;;
     "armhf") authelia_arch="arm32v7" ;;
@@ -31,9 +30,9 @@ case "$(_os_arch)" in
         exit 1
         ;;
 esac
+authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
 #
 echo_progress_start "Downloading and extracting Authelia"
-authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
 mkdir -p "/opt/authelia"
 wget -qO "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" "${authelia_url}"
 tar -xf "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" -C "/opt/authelia/" "authelia-linux-${authelia_arch}"

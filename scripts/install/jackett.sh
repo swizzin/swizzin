@@ -25,16 +25,12 @@
 . /etc/swizzin/sources/functions/app_port
 #shellcheck source=sources/functions/ip
 . /etc/swizzin/sources/functions/ip
-# Get our main user credentials to use when bootstrapping filebrowser.
-username="$(_get_master_username "${username}")"
+#
+username="$(_get_master_username)"
 password="$(_get_master_password)"
-# Get our app port using the install script name as the app name
 app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
 
-username=$(_get_master_username)
-
 app_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
-
 case "$(_os_arch)" in
     "amd64") app_arch="AMDx64" ;;
     "armhf") app_arch="ARM32" ;;
@@ -44,7 +40,6 @@ case "$(_os_arch)" in
         exit 1
         ;;
 esac
-
 app_url="https://github.com/Jackett/Jackett/releases/download/v${app_latest_version}/Jackett.Binaries.Linux${app_arch}.tar.gz"
 
 echo_progress_start "Downloading and extracting jackett"

@@ -1,17 +1,21 @@
-#!/bin/bash
-username=$(cut -d: -f1 < /root/.master.info)
+#!/usr/bin/env bash
+#
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+username="$(_get_master_username)"
 
-rm -r /home/$username/Jackett
-rm /install/.jackett.lock
-rm -r /home/${username}/.config/Jackett
+systemctl disable -q --now jackett &>> "$log"
 
-systemctl stop -q jackett@${username}
-systemctl disable -q jackett@${username}
-rm /etc/systemd/system/jackett@.service
-rm -f /etc/nginx/apps/jackett.conf
-systemctl reload nginx
+rm_if_exists "/home/${username}/Jackett"
+rm_if_exists "/install/.jackett.lock"
+rm_if_exists "/home/${username}/.config/Jackett"
+rm_if_exists /etc/systemd/system/jackett
+rm_if_exists /etc/nginx/apps/jackett.conf
+
+systemctl reload -q nginx &>> "$log"
+
 if [[ -f /etc/init.d/jackett ]]; then
-    rm /etc/init.d/jackett
+    rm_if_exists /etc/init.d/jackett
     update-rc.d -f jackett remove
-    systemctl stop -q jackett
+    systemctl stop -q jackett &>> "$log"
 fi
