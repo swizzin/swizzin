@@ -50,9 +50,8 @@ echo_progress_done
 echo_progress_start "Initialising database and configuring Filebrowser"
 "/opt/filebrowser/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 # These commands configure some options in the database.
-"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_proxy_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/opt/filebrowser/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_proxy_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
+"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_proxy_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "$log"
+"/opt/filebrowser/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "$log"
 # Set the permissions after we are finsished configuring filebrowser.
 chown "${username}.${username}" -R "/home/${username}/.config" &>> "${log}"
 chown "${username}.${username}" -R "/opt/filebrowser" &>> "${log}"
@@ -86,7 +85,7 @@ SERVICE
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
-    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_proxy_port}"
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh"
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
