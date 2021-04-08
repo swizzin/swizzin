@@ -1,7 +1,12 @@
 #!/bin/bash
 #
-# Get our externial IP
-ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
+#
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")" # Get our app port using the install script name as the app name
+#
 # Create an /etc/nginx/apps subdirectory we need
 mkdir -p "/etc/nginx/apps/authelia"
 # Fix nginx to not try to load a directory when using an include
@@ -9,7 +14,7 @@ sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/ng
 # Create the main reverse proxy - it contains 2 location driectoive for this example.
 
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_CONF_NGINX
-set \$upstream_authelia http://127.0.0.1:9091; # set the resued upstream proxypass url
+set \$upstream_authelia http://127.0.0.1:${app_proxy_port}; # set the resued upstream proxypass url
 # include /etc/nginx/apps/authelia/authelia_portal.conf; # Include the portal conf
 include /etc/nginx/apps/authelia/authelia_api.conf; # Include the api conf
 AUTHELIA_CONF_NGINX

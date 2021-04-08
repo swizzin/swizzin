@@ -4,10 +4,21 @@ if [[ ! -f /install/.nginx.lock ]]; then
     echo_warn "Nginx is required for this application"
     exit
 fi
-
+#
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/os
 . /etc/swizzin/sources/functions/os
-
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
+#shellcheck source=sources/functions/ip
+. /etc/swizzin/sources/functions/ip
+#
+username="$(_get_master_username "${username}")"        # Get our main user name to use when bootstrapping filebrowser.
+password="$(_get_master_password)"                      # Get our main password name to use when bootstrapping filebrowser.
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")" # Get our app port using the install script name as the app name
+external_ip="$(_external_ip)"                           # Get our external IP
+#
 # Get the current version using a git ls-remote tag check
 authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 # Create the download url using the version provided by authelia_latestv
@@ -22,39 +33,23 @@ case "$(_os_arch)" in
 esac
 #
 echo_progress_start "Downloading and extracting Authelia"
-#
 authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
-# Create the loction for the stored binary
 mkdir -p "/opt/authelia"
-# Download the binary
 wget -qO "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" "${authelia_url}"
-# Extract the specific file we need and nothing else.
 tar -xf "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" -C "/opt/authelia/" "authelia-linux-${authelia_arch}"
-# Symlink the extracted binary authelia-linux-${authelia_arch} to authelia
 ln -fsn "/opt/authelia/authelia-linux-${authelia_arch}" "/opt/authelia/authelia"
-# Remove the archive we no longer need
-[[ -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" ]] && rm -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz"
-#
+rm_if_exists "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz"
 echo_progress_done
 #
 echo_progress_start "Configuring Authelia"
-#
-# Make the configuration directory
 mkdir -p /etc/authelia
-# Get our external IP to set in the config.yml
-ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
-# Create a random secret for the config.yml
 jwt_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 insecure_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
-# Set our password for this example
-username="$(_get_master_username)"
-password="$(_get_user_password "${username}")"
-# Hash our password using authelia hash-password to use in the users_database.yml
 password_hash="$(/opt/authelia/authelia hash-password "${password}" | awk '{ print $3 }')"
 # generate the /etc/authelia/config.yml
 cat > "/etc/authelia/config.yml" << AUTHELIA_CONF
 host: 127.0.0.1
-port: 9091
+port: ${app_proxy_port}
 
 server:
   read_buffer_size: 4096
@@ -84,13 +79,13 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
-    - domain: ${ex_ip}
+    - domain: ${external_ip}
       resources:
         - "^/(sonarr|radarr|jackett)/api.*$"
         - "^/filebrowser/share/(.*)$"
       policy: bypass
 
-    - domain: ${ex_ip}
+    - domain: ${external_ip}
       policy: one_factor
 
 session:
@@ -99,7 +94,7 @@ session:
   expiration: 1h
   inactivity: 5m
   remember_me_duration: 1M
-  domain: ${ex_ip}
+  domain: ${external_ip}
 
 regulation:
   max_retries: 3
@@ -133,7 +128,6 @@ users:
       - admins
       - dev
 AUTHELIA_USER
-#
 echo_progress_done
 #
 echo_progress_start "Installing systemd service"
