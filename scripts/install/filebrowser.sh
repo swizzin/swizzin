@@ -16,7 +16,7 @@
 username="$(_get_master_username)"
 password="$(_get_master_password)"
 # Get our app port using the install script name as the app name
-app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 # Get our external IP address
 external_ip="$(_external_ip)"
 # Create the required directories for this application.

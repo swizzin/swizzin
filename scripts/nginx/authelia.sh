@@ -5,7 +5,7 @@
 #shellcheck source=sources/functions/app_port
 . /etc/swizzin/sources/functions/app_port
 #
-app_proxy_port="$(_get_app_port "$(basename -- "$0")")" # Get our app port using the install script name as the app name
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get our app port using the install script name as the app name
 #
 # Create an /etc/nginx/apps subdirectory we need
 mkdir -p "/etc/nginx/apps/authelia"

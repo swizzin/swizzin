@@ -6,7 +6,7 @@
 . /etc/swizzin/sources/functions/app_port
 #
 username=$(_get_master_username)
-app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 #
 if [[ -z "$1" && -f /install/.filebrowser.lock ]]; then
     if [[ "$(systemctl is-active filebrowser)" == "active" ]]; then

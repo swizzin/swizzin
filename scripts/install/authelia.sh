@@ -14,10 +14,10 @@ fi
 #shellcheck source=sources/functions/ip
 . /etc/swizzin/sources/functions/ip
 #
-username="$(_get_master_username)"                      # Get our main user name to use when bootstrapping filebrowser.
-password="$(_get_user_password "${password}")"          # Get our main password name to use when bootstrapping filebrowser.
-app_proxy_port="$(_get_app_port "$(basename -- "$0")")" # Get our app port using the install script name as the app name
-external_ip="$(_external_ip)"                           # Get our external IP
+username="$(_get_master_username)"                           # Get our main user name to use when bootstrapping filebrowser.
+password="$(_get_user_password "${password}")"               # Get our main password name to use when bootstrapping filebrowser.
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get our app port using the install script name as the app name
+external_ip="$(_external_ip)"                                # Get our external IP
 #
 # Get the current version using a git ls-remote tag check
 authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"

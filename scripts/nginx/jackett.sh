@@ -16,7 +16,7 @@
 # Get our main user credentials to use when bootstrapping filebrowser.
 username="$(_get_master_username)"
 # Get our app port using the install script name as the app name
-app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
+app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 
 if [[ "$(systemctl is-active jackett)" == "active" ]]; then
     systemctl stop jackett &>> "${log}"
