@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#
+_external_ip() {
+    ip -br a |& sed -n 2p |& awk '{ print $3 }' |& cut -f1 -d'/'
+}
