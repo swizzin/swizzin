@@ -7,11 +7,11 @@
 #
 app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get our app port using the install script name as the app name
 #
+if [[ "$(systemctl is-active authelia)" == "active" ]]; then
+    systemctl -q stop authelia &>> "${log}"
+fi
 # Create an /etc/nginx/apps subdirectory we need
 mkdir -p "/etc/nginx/apps/authelia"
-# Fix nginx to not try to load a directory when using an include
-sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/nginx/sites-enabled/default
-# Create the main reverse proxy - it contains 2 location driectoive for this example.
 
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_CONF_NGINX
 set \$upstream_authelia http://127.0.0.1:${app_proxy_port}; # set the resued upstream proxypass url
@@ -131,3 +131,7 @@ set_real_ip_from fc00::/7;
 real_ip_header X-Forwarded-For;
 real_ip_recursive on;
 AUTHELIA_PROXY_NGINX
+#
+if [[ ! "${1}" =~ (install|upgrade) ]]; then
+    systemctl -q start authelia &>> "${log}"
+fi

@@ -134,7 +134,6 @@ AUTHELIA_USER
 echo_progress_done
 #
 echo_progress_start "Installing systemd service"
-# Generate the /etc/authelia/authelia.service
 cat > "/etc/systemd/system/authelia.service" << AUTHELIA_SERVICE
 [Unit]
 Description=Authelia
@@ -153,23 +152,20 @@ SyslogIdentifier=authelia
 [Install]
 WantedBy=default.target
 AUTHELIA_SERVICE
-#
 echo_progress_done
-#
+
 echo_progress_start "Configuring the correct permissions"
-#
 useradd --system authelia &>> "$log"
 chown -R authelia: /opt/authelia
 chown -R authelia: /etc/authelia
 mkdir -p /var/log/authelia
 chown -R authelia: /var/log/authelia
-#
 echo_progress_done
 #
 # Install nginx stuff
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
-    bash "/usr/local/bin/swizzin/nginx/authelia.sh"
+    bash "/usr/local/bin/swizzin/nginx/authelia.sh" install
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi

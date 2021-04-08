@@ -9,13 +9,13 @@ username=$(_get_master_username)
 app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 #
 if [[ "$(systemctl is-active filebrowser)" == "active" ]]; then
-    systemctl stop -q filebrowser &>> "${log}"
+    systemctl -q stop filebrowser &>> "${log}"
 fi
 #
 "/opt/filebrowser/filebrowser" config set -a "127.0.0.1" -b "/filebrowser" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
-if [[ "${1}" =~ (install|upgrade) ]]; then
-    systemctl start -q filebrowser &>> "${log}"
+if [[ ! "${1}" =~ (install|upgrade) ]]; then
+    systemctl -q start filebrowser &>> "${log}"
 fi
 #
 cat > /etc/nginx/apps/filebrowser.conf <<- NGINGCONF

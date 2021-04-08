@@ -19,7 +19,7 @@ username="$(_get_master_username)"
 app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 
 if [[ "$(systemctl is-active jackett)" == "active" ]]; then
-    systemctl stop jackett &>> "${log}"
+    systemctl -q stop jackett &>> "${log}"
 fi
 
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
@@ -38,6 +38,6 @@ fi
 
 sed "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" -i "/home/${username}/.config/Jackett/ServerConfig.json"
 
-if [[ "$(systemctl is-active jackett)" =~ (inactive|failed) ]]; then
-    systemctl start jackett &>> "${log}"
+if [[ ! "${1}" =~ (install|upgrade) ]]; then
+    systemctl -q start jackett &>> "${log}"
 fi
