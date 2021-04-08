@@ -58,6 +58,14 @@ chown "${username}.${username}" -R "/opt/filebrowser" &>> "${log}"
 chmod 700 "/opt/filebrowser/filebrowser" &>> "${log}"
 echo_progress_done
 #
+# Configure the nginx proxypass using positional parameters.
+if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Installing nginx config"
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" install
+    systemctl -q reload nginx &>> "${log}"
+    echo_progress_done "Nginx config installed"
+fi
+#
 # Create the service file that will start and stop filebrowser.
 echo_progress_start "Installing systemd service"
 cat > "/etc/systemd/system/filebrowser.service" <<- SERVICE
@@ -82,23 +90,14 @@ cat > "/etc/systemd/system/filebrowser.service" <<- SERVICE
 	WantedBy=multi-user.target
 SERVICE
 #
-# Configure the nginx proxypass using positional parameters.
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Installing nginx config"
-    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh"
-    systemctl reload nginx
-    echo_progress_done "Nginx config installed"
-fi
-#
 # Start the filebrowser service.
-systemctl daemon-reload -q
-systemctl enable -q --now "filebrowser.service" &>> "${log}"
+systemctl -q daemon-reload &>> "${log}"
+systemctl -q enable --now "filebrowser.service" &>> "${log}"
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch "/install/.filebrowser.lock"
 #
-# A helpful echo to the terminal.
 echo_success "FileBrowser installed and available in the panel"
 #
 echo_warn "Make sure to use your swizzin credentials when logging in"

@@ -14,7 +14,7 @@ fi
 #
 "/opt/filebrowser/filebrowser" config set -a "127.0.0.1" -b "/filebrowser" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 #
-if [[ "${1}" != "upgrade" ]]; then
+if [[ "${1}" =~ (install|upgrade) ]]; then
     systemctl start -q filebrowser &>> "${log}"
 fi
 #
