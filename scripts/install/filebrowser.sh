@@ -19,7 +19,7 @@ fi
 . /etc/swizzin/sources/functions/ip
 #
 username="$(_get_master_username)"                           # Get our master username
-password="$(_get_user_password "${password}")"               # Get our master user's password
+password="$(_get_user_password "${username}")"               # Get our master user's password
 app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")" # Get the application port from an array using the name of this script
 external_ip="$(_external_ip)"                                # Get our external IP address
 #
