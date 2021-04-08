@@ -43,6 +43,6 @@ cat > /etc/nginx/apps/filebrowser.conf <<- NGINGCONF
 	    #
 	    proxy_redirect off;
 	    proxy_buffering off;
-	    include /etc/nginx/apps/authelia/authelia_auth.conf;
+        auth_basic off;
 	}
 NGINGCONF

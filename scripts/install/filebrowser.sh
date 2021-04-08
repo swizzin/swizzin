@@ -38,7 +38,7 @@ case "$(_os_arch)" in
 esac
 app_url="https://github.com/filebrowser/filebrowser/releases/download/v${app_latest_version}/linux-${app_arch}-filebrowser.tar.gz"
 # Download and extract the files to the desired location.
-echo_progress_start "Downloading and extracting filebrowsr"
+echo_progress_start "Downloading and extracting Filebrowser"
 wget -O "/tmp/filebrowser.tar.gz" "${app_url}" &>> "${log}"
 mkdir -p "/opt/filebrowser"
 tar -xvzf "/tmp/filebrowser.tar.gz" -C "/opt/filebrowser" filebrowser &>> "${log}"
