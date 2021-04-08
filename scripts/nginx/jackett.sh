@@ -11,13 +11,10 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 username=$(_get_master_username)
-isactive=$(systemctl is-active jackett)
 
-if [[ $isactive == "active" ]]; then
+if [[ "$(systemctl is-active jackett)" == "active" ]]; then
     systemctl stop jackett
 fi
-
-systemctl stop jackett
 
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
     cat > /etc/nginx/apps/jackett.conf << RAD
@@ -33,8 +30,8 @@ location /jackett/ {
 RAD
 fi
 
-sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${username}/.config/Jackett/ServerConfig.json
+sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" "/home/${username}/.config/Jackett/ServerConfig.json"
 
-if [[ $isactive == "active" ]]; then
+if [[ "$(systemctl is-active jackett)" == "inactive" ]]; then
     systemctl start jackett
 fi

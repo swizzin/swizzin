@@ -24,25 +24,24 @@
 
 username=$(_get_master_username)
 
-jackett_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
-jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.LinuxAMDx64.tar.gz"
+app_latest_version="$(git ls-remote -t --sort=-v:refname --refs https://github.com/Jackett/Jackett.git | awk '{sub("refs/tags/v", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
 
 case "$(_os_arch)" in
-    "amd64") jackett_arch="AMDx64" ;;
-    "armhf") jackett_arch="ARM32" ;;
-    "arm64") jackett_arch="ARM64" ;;
+    "amd64") app_arch="AMDx64" ;;
+    "armhf") app_arch="ARM32" ;;
+    "arm64") app_arch="ARM64" ;;
     *)
         echo_error "Arch not supported"
         exit 1
         ;;
 esac
 
-jackett_url="https://github.com/Jackett/Jackett/releases/download/v${jackett_latest_version}/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
+app_url="https://github.com/Jackett/Jackett/releases/download/v${app_latest_version}/Jackett.Binaries.Linux${app_arch}.tar.gz"
 
 echo_progress_start "Downloading and extracting jackett"
-wget -qO "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" "$jackett_url" &>> "$log"
-tar -xvzf "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz" -C /opt &>> "$log"
-rm_if_exists "/tmp/Jackett.Binaries.Linux${jackett_arch}.tar.gz"
+wget -qO "/tmp/Jackett.Binaries.Linux${app_arch}.tar.gz" "$app_url" &>> "$log"
+tar -xvzf "/tmp/Jackett.Binaries.Linux${app_arch}.tar.gz" -C /opt &>> "$log"
+rm_if_exists "/tmp/Jackett.Binaries.Linux${app_arch}.tar.gz"
 chown -R "${username}:${username}" /opt/Jackett
 echo_progress_done
 
