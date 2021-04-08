@@ -16,11 +16,20 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-
+#
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/os
 . /etc/swizzin/sources/functions/os
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
+#shellcheck source=sources/functions/ip
+. /etc/swizzin/sources/functions/ip
+# Get our main user credentials to use when bootstrapping filebrowser.
+username="$(_get_master_username "${username}")"
+password="$(_get_master_password)"
+# Get our app port using the install script name as the app name
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
 
 username=$(_get_master_username)
 
@@ -83,7 +92,7 @@ echo_progress_start "Configuring jackett"
 mkdir -p "/home/${username}/.config/Jackett"
 cat > "/home/${username}/.config/Jackett/ServerConfig.json" << JSC
 {
-  "Port": 9117,
+  "Port": ${app_proxy_port},
   "AllowExternal": true,
   "APIKey": "",
   "AdminPassword": "",
