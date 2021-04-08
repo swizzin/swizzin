@@ -4,20 +4,21 @@
 #
 # GNU General Public License v3.0 or later
 #
-########
-######## Variables Start
-########
-#
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/os
+. /etc/swizzin/sources/functions/os
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
+#shellcheck source=sources/functions/ip
+. /etc/swizzin/sources/functions/ip
 # Get our main user credentials to use when bootstrapping filebrowser.
-username="$(cut -d: -f1 < /root/.master.info)"
-password="$(cut -d: -f2 < /root/.master.info)"
-#
-# Set the applicationm port
-app_port="8080"
-#
-# Get our external IP
-ex_ip="$(ip -br a | sed -n 2p | awk '{ print $3 }' | cut -f1 -d'/')"
-#
+username="$(_get_master_username)"
+password="$(_get_master_password)"
+# Get our app port using the install script name as the app name
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
+# Get our external IP address
+external_ip="$(_external_ip)"
 # Create the required directories for this application.
 mkdir -p "/home/${username}/.config/Filebrowser"
 #
@@ -32,7 +33,6 @@ case "$(_os_arch)" in
         ;;
 esac
 app_url="https://github.com/filebrowser/filebrowser/releases/download/v${app_latest_version}/linux-${app_arch}-filebrowser.tar.gz"
-#
 # Download and extract the files to the desired location.
 echo_progress_start "Downloading and extracting filebrowsr"
 wget -O "/tmp/filebrowser.tar.gz" "${app_url}" &>> "${log}"
@@ -42,14 +42,13 @@ rm -f "/tmp/filebrowser.tar.gz" &>> "${log}"
 echo_progress_done
 #
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
-#
 # This command initialise our database.
 echo_progress_start "Initialising database and configuring Filebrowser"
 "/opt/filebrowser/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
-#
 # These commands configure some options in the database.
-"/opt/filebrowser/filebrowser" config set --auth.method=noauth -a 0.0.0.0 -p "${app_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
-#
+"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_proxy_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/opt/filebrowser/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/opt/filebrowser/filebrowser" config set -a 0.0.0.0 -p "${app_proxy_port}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
 # Set the permissions after we are finsished configuring filebrowser.
 chown "${username}.${username}" -R "/home/${username}/.config" &>> "${log}"
 chown "${username}.${username}" -R "/opt/filebrowser" &>> "${log}"
@@ -83,14 +82,14 @@ SERVICE
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
-    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port}"
+    bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_proxy_port}"
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
 fi
 #
 # Start the filebrowser service.
 systemctl daemon-reload -q
-systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a $log
+systemctl enable -q --now "filebrowser.service" &>> "${log}"
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
@@ -100,7 +99,7 @@ touch "/install/.filebrowser.lock"
 echo_success "FileBrowser installed"
 #
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Filebrowser is available at: https://${ex_ip}:${app_port}"
+    echo_info "Filebrowser is available at: https://${external_ip}:${app_proxy_port}"
 else
     echo_info "Filebrowser is now available in the panel"
 fi

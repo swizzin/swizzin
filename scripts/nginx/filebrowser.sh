@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
+#
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
 #
 username=$(_get_master_username)
-#
-if [[ -n "$1" && ! -f /install/.filebrowser.lock ]]; then
-    port="$1"
-    "/opt/filebrowser/filebrowser" config set -a "127.0.0.1" -b "/filebrowser" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
-fi
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
 #
 if [[ -z "$1" && -f /install/.filebrowser.lock ]]; then
     if [[ "$(systemctl is-active filebrowser)" == "active" ]]; then
         systemctl stop -q filebrowser &>> "${log}"
     fi
     #
-    port="$("/opt/filebrowser/filebrowser" config cat -d "/home/${username}/.config/Filebrowser/filebrowser.db" | grep 'Port:' | awk '{ print $2 }')"
-    "/opt/filebrowser/filebrowser" config set -a "127.0.0.1" -b "/filebrowser" -d "/home/${username}/.config/Filebrowser/filebrowser.db" &>> "${log}"
+    "/opt/filebrowser/filebrowser" config set -a "127.0.0.1" -b "/filebrowser" -d "/home/${username}/.config/Filebrowser/filebrowser.db"
     #
     if [[ "${1}" != "upgrade" ]]; then
         systemctl start -q filebrowser &>> "${log}"
@@ -24,7 +22,7 @@ fi
 #
 cat > /etc/nginx/apps/filebrowser.conf <<- NGINGCONF
 	location /filebrowser {
-	    proxy_pass http://127.0.0.1:${port}/filebrowser;
+	    proxy_pass http://127.0.0.1:${app_proxy_port}/filebrowser;
 	    #
 	    proxy_pass_request_headers on;
 	    #
