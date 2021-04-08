@@ -1,0 +1,7 @@
+declare -A app_ports
+
+# echo ${app_ports[filebrowser]}
+
+app_ports[filebrowser]=9090
+app_ports[jackett]=9117
+
