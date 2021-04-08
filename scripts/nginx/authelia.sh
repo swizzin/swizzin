@@ -10,23 +10,23 @@ sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/*.conf;|g' -i /etc/ng
 
 cat > "/etc/nginx/apps/authelia.conf" << AUTHELIA_CONF_NGINX
 set \$upstream_authelia http://127.0.0.1:9091; # set the resued upstream proxypass url
-include /etc/nginx/apps/authelia/authelia_portal.conf; # Include the portal conf
+# include /etc/nginx/apps/authelia/authelia_portal.conf; # Include the portal conf
 include /etc/nginx/apps/authelia/authelia_api.conf; # Include the api conf
 AUTHELIA_CONF_NGINX
 
 cat > "/etc/nginx/apps/authelia/authelia_portal.conf" << AUTHELIA_PORTAL_NGINX
-location /authelia {
+location /login {
     proxy_pass \$upstream_authelia;
     include /etc/nginx/apps/authelia/authelia_proxy.conf;
 }
 AUTHELIA_PORTAL_NGINX
 
 cat > "/etc/nginx/apps/authelia/authelia_api.conf" << AUTHELIA_API_NGINX
-# set \$auth_type "/authelia/api/verify"; # normal auth
-set \$auth_type "/authelia/api/verify?auth=basic"; # basic auth
+# set \$auth_type "/login/api/verify"; # normal auth
+set \$auth_type "/login/api/verify?auth=basic"; # basic auth
 
 # Virtual endpoint created by nginx to forward auth requests.
-location /authelia/api/verify {
+location /login/api/verify {
     internal;
     proxy_pass_request_body off;
     proxy_pass \$upstream_authelia\$auth_type;
@@ -69,7 +69,7 @@ cat > "/etc/nginx/apps/authelia/authelia_auth.conf" << AUTHELIA_AUTH_NGINX
 # Basic Authelia Config
 # Send a subsequent request to Authelia to verify if the user is authenticated
 # and has the right permissions to access the resource.
-auth_request /authelia/api/verify;
+auth_request /login/api/verify;
 # Set the \$(target_url) variable based on the request. It will be used to build the portal
 # URL with the correct redirection parameter.
 auth_request_set \$target_url \$scheme://\$http_host\$request_uri;
