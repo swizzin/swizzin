@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nginx configuration for Jackett
-# Author: liara
+# Author: liara userdocs
 # Copyright (C) 2017 Swizzin
 # Licensed under GNU General Public License v3.0 GPL-3 (in short)
 #
@@ -8,9 +8,15 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
+#
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-username=$(_get_master_username)
+#shellcheck source=sources/functions/app_port
+. /etc/swizzin/sources/functions/app_port
+# Get our main user credentials to use when bootstrapping filebrowser.
+username="$(_get_master_username)"
+# Get our app port using the install script name as the app name
+app_proxy_port="$(_get_app_port "$(basename -- "$0")")"
 
 if [[ "$(systemctl is-active jackett)" == "active" ]]; then
     systemctl stop jackett &>> "${log}"
@@ -24,16 +30,14 @@ if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
 
     location /jackett/ {
         include /etc/nginx/snippets/proxy.conf;
-        proxy_pass http://127.0.0.1:9117/jackett/;
+        proxy_pass http://127.0.0.1:${app_proxy_port}/jackett/;
         include /etc/nginx/apps/authelia/authelia_auth.conf;
     }
 JACKETT_NGINX
 fi
 
-sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" "/home/${username}/.config/Jackett/ServerConfig.json"
+sed "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" -i "/home/${username}/.config/Jackett/ServerConfig.json"
 
-if [[ "$(systemctl is-active jackett)" == "inactive" ]]; then
+if [[ "$(systemctl is-active jackett)" =~ (inactive|failed) ]]; then
     systemctl start jackett &>> "${log}"
-elif [[ "$(systemctl is-active jackett)" == "active" ]]; then # if it was active we did something wrong anyway
-    systemctl restart jackett &>> "${log}"
 fi

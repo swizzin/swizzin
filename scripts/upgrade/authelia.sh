@@ -1,13 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 if [[ ! -f /install/.authelia.lock ]]; then
     echo_warn "Authelia is not installed"
     exit 1
 else
-    echo_progress_start "Updating Authelia"
-    systemctl stop -q authelia |& tee -a $log
-    #
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    #shellcheck source=sources/functions/os
     . /etc/swizzin/sources/functions/os
+
+    echo_progress_start "Updating Authelia"
+    systemctl stop -q authelia &>> "${log}"
     # Get the current version using a git ls-remote tag check
     authelia_latestv="$(git ls-remote -t --refs https://github.com/authelia/authelia.git | awk '{sub("refs/tags/", "");sub("(.*)-alpha(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
     # Create the download url using the version provided by authelia_latestv
@@ -22,18 +25,12 @@ else
     esac
     #
     authelia_url="https://github.com/authelia/authelia/releases/download/${authelia_latestv}/authelia-linux-${authelia_arch}.tar.gz"
-    # Create the loction for the stored binary
     mkdir -p "/opt/authelia"
-    # Download the binary
     wget -qO "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" "${authelia_url}"
-    # Extract the specific file we need and nothing else.
     tar -xf "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" -C "/opt/authelia/" "authelia-linux-${authelia_arch}"
-    # Symlink the extracted binary authelia-linux-${authelia_arch} to authelia
     ln -fsn "/opt/authelia/authelia-linux-${authelia_arch}" "/opt/authelia/authelia"
-    # Remove the archive we no longer need
-    [[ -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz" ]] && rm -f "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz"
-    #
-    systemctl start -q authelia |& tee -a $log
+    rm_if_exists "/opt/authelia/authelia-linux-${authelia_arch}.tar.gz"
+    systemctl start -q authelia &>> "${log}"
     echo_progress_done "Authelia updated and restarted"
 
     if [[ -f /install/.nginx.lock ]]; then

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 if [[ ! -f /install/.nginx.lock ]]; then
     echo_warn "Nginx is required for this application"
@@ -14,7 +14,7 @@ fi
 #shellcheck source=sources/functions/ip
 . /etc/swizzin/sources/functions/ip
 #
-username="$(_get_master_username "${username}")"        # Get our main user name to use when bootstrapping filebrowser.
+username="$(_get_master_username)"                      # Get our main user name to use when bootstrapping filebrowser.
 password="$(_get_master_password)"                      # Get our main password name to use when bootstrapping filebrowser.
 app_proxy_port="$(_get_app_port "$(basename -- "$0")")" # Get our app port using the install script name as the app name
 external_ip="$(_external_ip)"                           # Get our external IP
@@ -43,8 +43,8 @@ echo_progress_done
 #
 echo_progress_start "Configuring Authelia"
 mkdir -p /etc/authelia
-jwt_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
-insecure_secret="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+jwt_secret="$(cat < /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
+insecure_secret="$(cat < /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)"
 password_hash="$(/opt/authelia/authelia hash-password "${password}" | awk '{ print $3 }')"
 # generate the /etc/authelia/config.yml
 cat > "/etc/authelia/config.yml" << AUTHELIA_CONF
