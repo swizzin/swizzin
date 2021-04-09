@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# authors: swizzin gang
+#
+# This function accepts positional parameters and will loads check the provided parameters and match it to files existing on /etc/swizzin/sources/functions/
+# If this file exists then it will be sourced into the script to use.
+#
+# Here is an example command to show how this command can and should be used.
+#
+# . "/etc/swizzin/sources/functions/sources" utils os ip
+
+for target in "${@}"; do
+    if [[ -f "/etc/swizzin/sources/functions/${target}" ]]; then
+        source "/etc/swizzin/sources/functions/${target}"
+    fi
+done
