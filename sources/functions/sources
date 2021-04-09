@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # authors: swizzin gang
-#
+# #shellcheck source=sources/functions/sources
 # . "/etc/swizzin/sources/functions/sources" utils os ip
 
 for target in "${@}"; do
