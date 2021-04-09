@@ -2,7 +2,7 @@
 #
 # authors: swizzin gang
 #
-# . "/etc/swizzin/sources/functions/onering"
+# . "/etc/swizzin/sources/functions/sources" utils os ip
 
 for target in "${@}"; do
     if [[ -f "/etc/swizzin/sources/functions/${target}" ]]; then
