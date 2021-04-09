@@ -7,7 +7,7 @@ app_port[authelia]=9091
 app_port[filebrowser]=9090
 app_port[jackett]=9117
 #
-# Use this function to get a port from the array using the command inside an install script app_port="$(_get_app_port "$(basename -- "$0")")"
+# Use this function to get a port from the array using the command inside an install script app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 _get_app_port() {
     if [[ -n "${1}" ]]; then
         if [[ -n ${app_port[$1]+$1} ]]; then
