@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#
+# authors: swizzin gang
+#
+# . "/etc/swizzin/sources/functions/onering"
+
+for target in "${@}"; do
+    if [[ -f "/etc/swizzin/sources/functions/${target}" ]]; then
+        source "/etc/swizzin/sources/functions/${target}"
+    fi
+done
