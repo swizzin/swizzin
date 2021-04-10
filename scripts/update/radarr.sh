@@ -11,19 +11,19 @@ if [[ -f /install/.radarr.lock ]]; then
         [[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
 
         if [[ $(_radarr_version) = "mono-v3" ]]; then
-            echo_progress_start "Downloading source files"
+            echo_progress_start "Downloading release files"
             if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
                 echo_error "Download failed, exiting"
                 exit 1
             fi
-            echo_progress_done "Source downloaded"
+            echo_progress_done "Release downloaded"
 
             isactive=$(systemctl is-active radarr)
             echo_log_only "Radarr was $isactive"
             [[ $isactive == "active" ]] && systemctl stop radarr -q
 
-            echo_progress_start "Extracting archive"
-            rm /opt/Radarr/Radarr.exe
+            echo_progress_start "Extracting archive and removing old binaries"
+            rm -rf /opt/Radarr/
             tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
             chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
             echo_progress_done "Archive extracted"
@@ -44,17 +44,17 @@ if [[ -f /install/.radarr.lock ]]; then
             fi
 
         elif [[ $(_radarr_version) = "mono-v2" ]]; then
-            echo_warn "Please upgrade your radarr to v3. It will be migrated to .Net core on the next \`box update\` run"
+            echo_warn "Radarr v0.2 is EOL and not supported. Please upgrade your radarr to v3. It will be migrated to .Net core on the next \`box update\` run"
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
     fi
     #Mandatory SSL Port change for Readarr
-    sslport=$(grep -oPm1 "(?<=<sslport>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
-    sslport=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
-    if $sslport=8787; then
-        sed sslport=9898 -i file
-        if $ssl=true; then
-            echo "port changed for ssl"
+    sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
+    sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
+    if $sslport '==' '8787'; then
+        sed s/\<SslPort\>port\=9898/\<SslPort\>port\=8787/ -i fil/home/"$radarrOwner"/.config/Radarr/config.xmle
+        if [ $sslenabled = true ]; then
+            echo "port changed for ssl due to possible future conflict with Readarr"
         fi
     fi
 fi
