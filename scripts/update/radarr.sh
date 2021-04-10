@@ -48,4 +48,13 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
     fi
+    #Mandatory SSL Port change for Readarr
+    sslport=$(grep -oPm1 "(?<=<sslport>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
+    sslport=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
+    if $sslport=8787; then
+        sed sslport=9898 -i file
+        if $ssl=true; then
+            echo "port changed for ssl"
+        fi
+    fi
 fi
