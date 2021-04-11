@@ -30,9 +30,10 @@ function check_ubuntu_updates() {
         #If ${codename} updates in our sources.list or sources.list.d/* and not commented out, do nothing
         :
     else
-        echo "Enabling Ubuntu ${codename} recommended updates repository"
+        echo_progress_start "Enabling Ubuntu ${codename} recommended updates repository"
         echo "deb http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
         echo "#deb-src http://archive.ubuntu.com/ubuntu ${codename}-updates main restricted universe multiverse" >> /etc/apt/sources.list
+        echo_progress_done "Repos enabled"
         apt_update
     fi
 }

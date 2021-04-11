@@ -1,17 +1,36 @@
 #!/bin/bash
 
+# Returns the distribution of the device as seen in `/etc/os-release`.
+# \
+# Output examples:
+# - `ubuntu`
+# - `debian`
+# - `raspbian`
 _os_distro() {
     source /etc/os-release
     printf "$ID"
 }
 export -f _os_distro
 
+# Returns the codename of the device as seen in `/etc/os-release`.
+# \
+# Output examples:
+# - `focal`
+# - `buster`
+# - `stretch`
+# - etc.
 _os_codename() {
     source /etc/os-release
     printf "$VERSION_CODENAME"
 }
 export -f _os_codename
 
+# Returns the architecture of the device as interpreted by `dpkg`.
+# \
+# Possible output is one of the following:
+# - `amd64` (x86_64 essentially)
+# - `arm64`
+# - `armhf`
 _os_arch() {
     dpkg --print-architecture
 }
