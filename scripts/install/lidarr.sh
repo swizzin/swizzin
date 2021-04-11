@@ -1,5 +1,5 @@
 #!/bin/bash
-#shellcheck disable=SC2129
+
 # Lidarr installer for swizzin
 # Author: liara
 # Copyright (C) 2019 Swizzin
@@ -11,9 +11,10 @@
 #   under the GPL along with build & install instructions.
 
 install() {
-    user=$(_get_master_username)
-    #shellcheck source=sources/functions/mono
-    apt_install curl mediainfo sqlite3 chromaprint
+    #shellcheck source=sources/functions/users
+    . /etc/swizzin/sources/functions/users
+    user="$(_get_master_username)"
+    apt_install mediainfo sqlite3 libchromaprint-tools
 
     echo_progress_start "Downloading source files"
 
@@ -35,7 +36,10 @@ install() {
     echo_progress_done "Source downloaded"
 
     echo_progress_start "Extracting source"
-    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
+    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
+        echo_error "Failed to extract"
+        exit 1
+    }
     rm -rf /tmp/lidarr.tar.gz
     chown -R "${user}": /opt/Lidarr
     echo_progress_done "Source extracted"
@@ -68,7 +72,7 @@ Type=simple
 User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/opt/Lidarr/Lidarr.exe -nobrowser
+ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/
 WorkingDirectory=/home/${user}/
 Restart=on-failure
 
