@@ -10,7 +10,7 @@ if [[ -f /install/.lidarr.lock ]]; then
 
         mv /home/"$user"/Lidarr /opt/Lidarr
 
-        echo_progress_start "Downloading source files"
+        echo_progress_start "Downloading netcore binaries"
         urlbase="https://lidarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore"
         case "$(_os_arch)" in
             "amd64") dlurl="${urlbase}&arch=x64" ;;
@@ -26,7 +26,7 @@ if [[ -f /install/.lidarr.lock ]]; then
             echo_error "Download failed, exiting"
             exit 1
         fi
-        echo_progress_done "Source downloaded"
+        echo_progress_done "Binaries downloaded"
 
         echo_progress_start "Extracting source"
         tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
@@ -43,11 +43,17 @@ if [[ -f /install/.lidarr.lock ]]; then
         sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
         systemctl daemon-reload
 
-        bash /etc/swizzin/scripts/nginx/lidarr.sh
+        if [[ -f /install/.nginx.lock ]]; then
+            echo_progress_start "Configuring nginx"
+            bash /etc/swizzin/scripts/nginx/lidarr.sh
+            systemctl reload nginx
+            echo_progress_done "nginx configured"
+        fi
 
         if [[ $wasActive = "active" ]]; then
             systemctl start lidarr
         fi
+        echo_success "Lidarr moved to opt on netcore"
 
     fi
 
