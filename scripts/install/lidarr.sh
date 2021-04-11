@@ -59,6 +59,8 @@ config() {
   <LaunchBrowser>False</LaunchBrowser>
 </Config>
 LID
+    mkdir /home/"${user}"/.tmp
+    chown -R "${user}": "/home/${user}/.tmp"
     chown -R "${user}": "/home/${user}/.config"
 }
 systemd() {

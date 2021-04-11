@@ -34,7 +34,10 @@ if [[ -f /install/.lidarr.lock ]]; then
         chown -R "${user}": /opt/Lidarr
         echo_progress_done "Source extracted"
 
-        sudo chown -R "$user":"$user" /opt/Lidarr
+        chown -R "$user":"$user" /opt/Lidarr
+
+        mkdir -p "/home/${user}/.tmp"
+        chown -R "${user}": "/home/${user}/.tmp"
 
         sed -i "/ExecStart/c\ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/" /etc/systemd/system/lidarr.service
         sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
