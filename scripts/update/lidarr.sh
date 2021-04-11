@@ -43,6 +43,8 @@ if [[ -f /install/.lidarr.lock ]]; then
         sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
         systemctl daemon-reload
 
+        bash /etc/swizzin/scripts/nginx/lidarr.sh
+
         if [[ $wasActive = "active" ]]; then
             systemctl start lidarr
         fi
