@@ -8,6 +8,7 @@ if [[ ! -f /etc/sudoers.d/env_keep ]] && [[ $distribution = "Ubuntu" ]]; then
     echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 fi
 
+# TODO this should probably skip the master?
 for u in "${users[@]}"; do
     if [[ $u = "$master" ]]; then continue; fi
     USER=${u^^}
@@ -47,4 +48,10 @@ www-data     ALL = (ALL) NOPASSWD: CLEANMEM, SYSCMNDS, GENERALCMNDS
 
 SUD
     fi
+fi
+
+if ! groups "$master" | grep -q sudo; then
+    echo_log_only "Moving user to the sudo usergroup"
+    usermod -a -G sudo "$master"
+    # rm /etc/sudoers.d/swizzin
 fi

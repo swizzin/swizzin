@@ -1,0 +1,34 @@
+{
+    "Set value in swiz value storage": {
+        "scope": "shellscript",
+        "prefix": [
+            "setswizdb",
+            "swizdb set"
+        ],
+        "body": "swizdb set \"{$1:key}\" \"${2:value}\""
+    },
+    "Get value from swiz value storage": {
+        "scope": "shellscript",
+        "prefix": [
+            "getswizdb",
+            "swizdb get"
+        ],
+        "body": "swizdb get \"{$1:key}\""
+    },
+    "Drop value from swiz value storage": {
+        "scope": "shellscript",
+        "prefix": [
+            "clearswizdb",
+            "swizdb clear"
+        ],
+        "body": "swizdb clear \"{$1:key}\""
+    },
+    "Get path of swizzin db file": {
+        "scope": "shellscript",
+        "prefix": [
+            "pathswizdb",
+            "swizdb path"
+        ],
+        "body": "swizdb path \"{$1:key}\""
+    }
+}

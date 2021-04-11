@@ -8,36 +8,48 @@ fi
 
 . /etc/swizzin/sources/functions/deluge
 . /etc/swizzin/sources/functions/libtorrent
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/fpm
 
 whiptail_deluge
-check_client_compatibility
-whiptail_deluge_downupgrade
-dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
-    echo_info "Major version upgrade detected. User-data will be backed-up."
-fi
-users=($(cut -d: -f1 < /etc/htpasswd))
 
-for u in "${users[@]}"; do
-    if [[ $dver == 1.3* ]] && [[ $deluge == master ]]; then
-        echo_info "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
-        cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
-    fi
-done
+case ${DELUGE_VERSION} in
+    [Rr][Ee][Pp][Oo])
+        check_shared_libtorrent_rasterbar deluge
+        apt_install_deluge
+        ;;
+    *)
+        detect_libtorrent_rasterbar_conflict deluge
+        whiptail_deluge_downupgrade
+        deluge_version_info
+        dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+        users=($(_get_user_list))
+        if [[ $dver == 1.3* ]] && [[ $DELUGE_VERSION == master ]]; then
+            echo_info "Major version upgrade detected. User-data will be backed-up."
+            for u in "${users[@]}"; do
+                echo_info "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
+                cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
 
-echo_progress_start "Checking for outdated deluge install method."
-remove_ltcheckinstall
+            done
+        fi
+        echo_progress_start "Checking for outdated deluge install method."
+        remove_ltcheckinstall
 
-if ! skip_libtorrent_rasterbar; then
-    whiptail_libtorrent_rasterbar
-    echo_progress_start "Rebuilding libtorrent"
-    build_libtorrent_rasterbar
-    echo_progress_done
-fi
-cleanup_deluge
-echo_progress_start "Upgrading Deluge. Please wait"
-build_deluge
-echo_progress_done
+        install_fpm
+        if ! skip_libtorrent_deluge; then
+            check_swap_on
+            echo_progress_start "Rebuilding libtorrent"
+            build_libtorrent_deluge
+            check_swap_off
+            echo_progress_done
+        fi
+        cleanup_deluge
+        echo_progress_start "Upgrading Deluge. Please wait"
+        build_deluge
+        cleanup_repo_libtorrent
+        echo_progress_done
+        ;;
+esac
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Reconfiguring deluge nginx configs"
