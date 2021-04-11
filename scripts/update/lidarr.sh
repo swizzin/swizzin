@@ -11,10 +11,11 @@ if [[ -f /install/.lidarr.lock ]]; then
         mv /home/"$user"/Lidarr /opt/Lidarr
 
         echo_progress_start "Downloading source files"
+        urlbase="https://lidarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore"
         case "$(_os_arch)" in
-            "amd64") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" ;;
-            "armhf") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
-            "arm64") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64" ;;
+            "amd64") dlurl="${urlbase}&arch=x64" ;;
+            "armhf") dlurl="${urlbase}&arch=arm" ;;
+            "arm64") dlurl="${urlbase}&arch=arm64" ;;
             *)
                 echo_error "Arch not supported"
                 exit 1
