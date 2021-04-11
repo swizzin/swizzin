@@ -109,6 +109,8 @@ chown jellyfin:adm /etc/jellyfin
 if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/jellyfin.sh
     systemctl -q restart nginx.service
+else
+    echo_info "Jellyfin will run on port 8920"
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect
