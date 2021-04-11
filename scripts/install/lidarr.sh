@@ -35,7 +35,7 @@ if ! curl "$dlurl" -L -o /tmp/lidarr.tar.gz >> "$log" 2>&1; then
     echo_error "Download failed, exiting"
     exit 1
 fi
-echo_progress_done "Source downloaded"echo_progress_done "Source fetched"
+echo_progress_done "Source downloaded"
 
 echo_progress_start "Extracting source"
 tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
@@ -58,7 +58,7 @@ LID
 chown -R "${user}": "/home/${user}/.config"
 cat > /etc/systemd/system/lidarr.service << LID
 [Unit]
-Description=lidarr for ${user}
+Description=Lidarr
 After=syslog.target network.target
 
 [Service]
@@ -66,7 +66,7 @@ Type=simple
 User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser
+ExecStart=/opt/Lidarr/Lidarr.exe -nobrowser
 WorkingDirectory=/home/${user}/
 Restart=on-failure
 
