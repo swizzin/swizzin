@@ -17,8 +17,9 @@ version=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/mono
 mono_repo_setup
 apt_install libmono-cil-dev libchromaprint-tools
+apt_install curl mediainfo sqlite3 chromaprint
 
-echo_progress_start "Fetching Lidarr source files"
+echo_progress_start "Fetching Lidarr"
 wget -O /tmp/lidarr.tar.gz "$(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)" >> $log 2>&1
 echo_progress_done "Source fetched"
 
