@@ -20,8 +20,22 @@ apt_install libmono-cil-dev libchromaprint-tools
 apt_install curl mediainfo sqlite3 chromaprint
 
 echo_progress_start "Fetching Lidarr"
-wget -O /tmp/lidarr.tar.gz "$(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)" >> $log 2>&1
-echo_progress_done "Source fetched"
+echo_progress_start "Downloading source files"
+case "$(_os_arch)" in
+    "amd64") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" ;;
+    "armhf") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
+    "arm64") dlurl="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64" ;;
+    *)
+        echo_error "Arch not supported"
+        exit 1
+        ;;
+esac
+
+if ! curl "$dlurl" -L -o /tmp/lidarr.tar.gz >> "$log" 2>&1; then
+    echo_error "Download failed, exiting"
+    exit 1
+fi
+echo_progress_done "Source downloaded"echo_progress_done "Source fetched"
 
 echo_progress_start "Extracting source"
 tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
