@@ -130,6 +130,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/subsonic.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Subsonic will run on port 4040"
 fi
 
 echo_success "Subsonic installed"

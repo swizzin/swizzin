@@ -18,7 +18,10 @@ _install_webmin
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /etc/swizzin/scripts/nginx/webmin.sh
+    systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Webmin will run on port 10000"
 fi
 
 echo_success "Webmin installed"
