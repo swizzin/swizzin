@@ -1,0 +1,34 @@
+#/usr/bin/env bash
+_command_complete() {
+	local cur prev
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD - 1]}
+	readarray -d ' ' apps_array < <(find "/etc/swizzin/scripts/install/" -maxdepth 1 -mindepth 1 -type f -printf "%f ")
+	readarray -d ' ' upgrade_array < <(find "/etc/swizzin/scripts/upgrade/" -maxdepth 1 -mindepth 1 -type f -printf "%f ")
+
+	case ${COMP_CWORD} in
+		1)
+			COMPREPLY=($(compgen -W "install remove adduser deluser chpasswd update upgrade panel list" -- ${cur}))
+			;;
+		2)
+			case ${prev} in
+				install)
+					COMPREPLY=($(compgen -W "$(echo ${apps_array[@]%.*})" -- ${cur}))
+					;;
+				remove)
+					COMPREPLY=($(compgen -W "$(echo ${apps_array[@]%.*})" -- ${cur}))
+					;;
+				upgrade)
+					COMPREPLY=($(compgen -W "$(echo ${upgrade_array[@]%.*})" -- ${cur}))
+					;;
+				panel)
+					COMPREPLY=($(compgen -W "fix" -- ${cur}))
+					;;
+			esac
+			;;
+		*)
+			COMPREPLY=()
+			;;
+	esac
+}
+complete -F _command_complete box
