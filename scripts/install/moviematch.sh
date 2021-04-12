@@ -25,14 +25,33 @@ mmatchDir="/opt/moviematch"
 
 _install_moviematch() {
 
-    echo_progress_start "Cloning moviematch"
-    git clone https://github.com/LukeChannings/moviematch.git $mmatchDir >> $log
-    echo_progress_done "Repo cloned"
+    useradd moviematch --system -md "$mmatchDir" >> $log 2>&1
 
-    chmod +x $mmatchDir
+    echo_progress_start "Downloading moviematch"
+    # git clone https://github.com/LukeChannings/moviematch.git $mmatchDir >> $log
+    case "$(_os_arch)" in
+        amd64 | arm64)
+            dlurl="https://github.com/LukeChannings/moviematch/releases/download/v2.0.0-alpha.7/linux-$(_os_arch).zip"
+            ;;
+        *)
+            echo "Arch not supported"
+            exit 1
+            ;;
+    esac
+
+    wget "$dlurl" -O /tmp/moviematch.zip -q || {
+        echo "Failed to download binary"
+        exit 1
+    }
+
+    unzip /tmp/moviematch.zip -d "$mmatchDir" >> $log 2>&1 || {
+        echo "failed to unzip archive"
+        exit 1
+    }
+
+    chmod +x $mmatchDir/moviematch
     chmod o+rx -R $mmatchDir
 
-    useradd moviematch --system -d "$mmatchDir" >> $log 2>&1
     sudo chown -R moviematch:moviematch $mmatchDir
 
     echo_progress_done "Binary downloaded and extracted"
@@ -43,6 +62,17 @@ servers:
   - url: http://$PLEX_SERVER
     token: $PLEX_TOKEN
 ENV
+}
+
+_nginx() {
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        bash /etc/swizzin/scripts/nginx/moviematch.sh
+        systemctl reload nginx
+        echo_progress_done "nginx configured"
+    else
+        echo_info "Moviematch is available on port 8420"
+    fi
 }
 
 _systemd() {
@@ -58,7 +88,7 @@ After=network.target
 Type=simple
 User=moviematch
 WorkingDirectory=${mmatchDir}
-ExecStart=/usr/local/bin/deno run --allow-net --allow-read --allow-env --unstable ${mmatchDir}/src/index.ts
+ExecStart=${mmatchDir}/moviematch
 Restart=on-failure
 
 [Install]
@@ -68,22 +98,10 @@ SYSTEMD
     systemctl enable --now -q moviematch
 }
 
-_nginx() {
-    if [[ -f /install/.nginx.lock ]]; then
-        # echo_info "Moviematch is available on port 8420\n(NGINX/baseurl support coming via box update when this issue gets resolved upstream https://github.com/LukeChannings/moviematch/issues/10)"
-        # TODO change baseurl config when issue above is fixed
-        bash /etc/swizzin/scripts/nginx/moviematch.sh
-        systemctl reload nginx
-    else
-        echo_info "Moviematch is available on port 8420"
-    fi
-}
-
 _queries
-_install_deno
 _install_moviematch
-_systemd
 _nginx
+_systemd
 
 touch /install/.moviematch.lock
 echo_success "Moviematch installed"
