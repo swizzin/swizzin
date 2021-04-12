@@ -10,4 +10,4 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx >> $log 2>&1
 fi
 
-rm /install/.sonarrv3.lock
+rm /install/.sonarr.lock

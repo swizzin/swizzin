@@ -32,7 +32,7 @@ function _removeSonarr() {
         sudo rm /etc/default/sonarr
         sudo rm /etc/init.d/sonarr
     fi
-    sudo rm /install/.sonarr.lock
+    sudo rm /install/.sonarrv2-old.lock
 
     if [[ -f /install/.nginx.lock ]]; then
         rm -f /etc/nginx/apps/sonarr.conf

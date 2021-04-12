@@ -143,7 +143,7 @@ _install_sonarrv3() {
     echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
     echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
     apt_install sonarr sqlite3
-    touch /install/.sonarrv3.lock
+    touch /install/.sonarr.lock
     sleep 1
 
     if [[ ! -d /usr/lib/sonarr ]]; then
@@ -193,7 +193,7 @@ _add_sonarr_repos
 _install_sonarrv3
 _nginx_sonarr
 
-touch /install/.sonarrv3.lock
+touch /install/.sonarr.lock
 
 if [[ -f /install/.ombi.lock ]]; then
     echo_info "Please adjust your Ombi setup accordingly"
