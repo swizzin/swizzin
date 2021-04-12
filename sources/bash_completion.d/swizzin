@@ -11,7 +11,7 @@ _command_complete() {
 
     case ${COMP_CWORD} in
         1)
-            mapfile -t COMPREPLY < <(compgen -W "install remove adduser deluser chpasswd update upgrade panel list" -- "${cur}")
+            mapfile -t COMPREPLY < <(compgen -W "install remove adduser deluser chpasswd update upgrade panel rtx rmgrsec list help" -- "${cur}")
             ;;
         2)
             case ${prev} in
