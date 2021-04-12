@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# ln -fs /etc/swizzin/sources/bash_completion.d/swizzin /etc/bash_completion.d/swizzin
+#
 _command_complete() {
     local cur prev
     cur=${COMP_WORDS[COMP_CWORD]}
