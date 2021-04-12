@@ -92,7 +92,7 @@ cat > /home/${username}/.config/Jackett/ServerConfig.json << JSC
 }
 JSC
 
-chown ${username}.${username} -R /home/${username}/.config/Jackett
+chown ${username}.${username} -R /home/${username}/.config
 
 echo_progress_done "Jackett configured"
 
@@ -101,6 +101,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/jackett.sh
     systemctl reload nginx >> $log 2>&1
     echo_progress_done "Nginx configured"
+else
+    echo_info "Jackett will run on port 9117"
 fi
 
 systemctl enable -q --now jackett@${username} 2>&1 | tee -a $log

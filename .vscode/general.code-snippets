@@ -1,0 +1,107 @@
+{
+    "Ask a yes/no question with if block": {
+        "scope": "shellscript",
+        "prefix": [
+            "askif"
+        ],
+        "body": [
+            "if ask \"${1:question}\" ${2| ,Y,N|}; then",
+            "\t: # yes condition",
+            "else",
+            "\t: # no condition",
+            "fi$0"
+        ],
+        "description": "Inserts an if block with an `ask` command"
+    },
+    "Ask a yes/no question": {
+        "scope": "shellscript",
+        "prefix": [
+            "ask"
+        ],
+        "body": [
+            "ask \"${1:question}\" ${2| ,Y,N|}",
+            "echo \"Return code = $?\" # 0 = Yes, # 1 = No"
+        ],
+        "description": "Inserts an if block with an `ask` command"
+    },
+    "Remove if exists": {
+        "scope": "shellscript",
+        "prefix": [
+            "rmif",
+            "rmifexists"
+        ],
+        "body": [
+            "rm_if_exists \"${1:path}\""
+        ]
+    },
+    "Source a swizzin util": {
+        "scope": "shellscript",
+        "prefix": [
+            "source"
+        ],
+        "body": [
+            "#shellcheck source=sources/functions/${1:util}",
+            ". /etc/swizzin/sources/functions/${1:util}"
+        ],
+        "description": "Adds a source to a swizzin function.\nPrepends the appropriate shellcheck declaration"
+    },
+    "Get OS codename": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_codename",
+            "codename"
+        ],
+        "body": [
+            "_os_codename",
+        ],
+        "description": "Returns the codename of the OS"
+    },
+    "Get OS distro": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_distro",
+            "distro"
+        ],
+        "body": [
+            "_os_distro",
+        ],
+        "description": "Returns the distro of the OS"
+    },
+    "Get OS arch": {
+        "scope": "shellscript",
+        "prefix": [
+            "_os_arch",
+            "arch"
+        ],
+        "body": [
+            "_os_arch",
+        ],
+        "description": "Returns the arch of the OS"
+    },
+    "Check and set environment variable": {
+        "scope": "shellscript",
+        "prefix": "envvar",
+        "body": [
+            "if [ -z \"$${1:VARIABLE_NAME}\" ]; then",
+            "\t${1:VARIABLE_NAME}=\"${2:default-value}\"",
+            "else",
+            "\techo_info \"Environment variable ${1:VARIABLE_NAME} set to $${1:VARIABLE_NAME}\"",
+            "fi"
+        ],
+        "description": "Checks whether a variable is set and echoes it out, otherwise it sets it to defaults"
+    },
+    "Install an nginx config": {
+        "scope": "shellscript",
+        "prefix": "nginxconf",
+        "body": [
+            "if [[ -f /install/.nginx.lock ]]; then",
+            "\techo_progress_start \"Configuring nginx\"",
+            "\tbash /etc/swizzin/scripts/nginx/${1:app}.sh",
+            "\tsystemctl reload nginx",
+            "\techo_progress_done \"nginx configured\"",
+            "else",
+            "\techo_info \"${1:app} will run on port ${2:port}\"",
+            "fi"
+        ],
+    }
+}

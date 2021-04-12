@@ -2,12 +2,21 @@
 Here are a couple things to take into account when contributing to swizzin.
 
 ## Editor plugins and tooling
+### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
 - `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
   - If you are not using VS Code with the plugin above, please make sure to catch **anything** that `shellcheck` does not like.
   - Wherever you deem appropriate, add `#shellcheck disable=...` _inline_ to suppress the warnings.
 - `shell-format` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format) (auto-installs binary) and [Binary](https://github.com/mvdan/sh)
   - If you are not using VS Code with the plugin above, please make sure to apply formatting with the flags mentioned in [`settings.json`](.vscode/settings.json)
+
+### Suggested
+These are just some super useful ones we really like that you should give a shot
+- `shellman` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=Remisa.shellman)
+    - It's just a collection of super useful snippets
+- `Bash IDE` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=mads-hartmann.bash-ide-vscode)
+    - Offers a lot of the Intellisense features that make VSCode worth using
+
 
 ## Directories and files
 - Please use `/opt` to install any new software. **Avoid using home directories to install application binaries/source**
@@ -17,17 +26,29 @@ Please make sure that you have the following plugins and tools installed and wor
   - Record any application information that might need to be dynamically retrieved into the .lock file above.
 
 ## Bash code styleguide
+
+### Formatting
+We are a 4-space gang. Please make sure to run your code through `shfmt` with the right flags specified. Check the first chapter here.
+
 ### Shellcheck
 Please use `shellcheck` and its IDE plugins and resolve any warnings for the code you have contributed.
 
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
+A list of the files that are included on a `box` or a `setup.sh` by default arte in `sources/globals.sh`
+
 Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
 # Retrieves all users that are managed by swizzin
 # Returns usernames separated by newline
 ```
+
+#### Snippets
+We have made a couple snippet definitions in the `.vscode` folder that should be getting loaded into your project whenever you open the workspace.
+
+These should cover most of the functions included in `globals.sh`, but feel free to add yours if you have any suggestions
+
 ### Return codes
 Please use `exit 1` or `return 1` when handling exiting due to some run-time errors
 
@@ -46,6 +67,16 @@ fi
 
 ```
 In this example, the default (`else`) behaviour triggers for current releases, and only the old ones have the modified behaviour
+
+## Handling interactivity
+Please make sure your scripts are compatible with the custom/unattended installation options through environment variables. This means that there should be a scenario in your script, where no interaction is necessary if necessary variables are available before the script started.
+
+Please stick to the following:
+- Pre-fix your variables with the name of the application to prevent collisions, e.g. `$APPLICATION_VARIABLE`
+- Ensure your script is checking the existance of the variable before triggering anything interactive, so that the scripts can skip over things if they are supplied through options.
+  - e.g. `if [[ -z $APPLICATION_VARIABLE ]]; then read $APPLICATION_VARIABLE; fi`
+  - e.g. `while [[ -z $APPLICATION_VARIABLE ]]; do [...] APPLICATION_VARIABLE=$verified-value [...] ; done`
+- Appropriately document the varaibles in the docs repo
 
 ## APT handling
 We have developed our own internal set of functions for handling `apt` packages in a predictable and uniform way. In the event any of these functions encounter an error, they will (with default behaviour) ensure the rest of the script will not continue. Please use the following functions and see the available options. **Refrain from calling the raw apt equivalents of the functions below.** 

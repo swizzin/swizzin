@@ -26,6 +26,10 @@ CONF
         if [[ $ombiwasactive = "true" ]]; then
             systemctl start ombi
         fi
+        if [[ -L /etc/systemd/system/multi-user.target.wants/ombi.service && ! -e /etc/systemd/system/multi-user.target.wants/ombi.service ]]; then
+            systemctl enable -q ombi >> $log 2>&1
+            echo_info "Fixing Ombi systemd symlinks"
+        fi
         echo_progress_done "Ombi reset back to stock service"
     fi
 fi
