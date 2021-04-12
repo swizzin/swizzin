@@ -179,6 +179,9 @@ function _help() {
     echo -e "The remove function requires at least one package name as an argument but will accept multiples" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
     echo -e "               Example: box remove quassel syncthing znc" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
     echo
+    printf "${sgformat}" "upgrade"
+    echo -e "Runs the associated upgrade script." | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "adduser"
     echo -e "The adduser function requires a single user to be specified, this user will be created" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
     echo -e "               Example: box adduser freeloadingfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
@@ -193,9 +196,6 @@ function _help() {
     echo
     printf "${sgformat}" "update"
     echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo
-    printf "${sgformat}" "upgrade"
-    echo -e "Runs the associated upgrade script." | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
     echo
     printf "${sgformat}" "list"
     echo -e "The list command will list packages available to be managed by box" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
