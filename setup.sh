@@ -375,6 +375,9 @@ function _post() {
         echo_info "You can now use the box command to manage swizzin features, e.g. \`box install nginx panel\`"
     fi
     echo_docs getting-started/box-basics
+    # Set the correct permissions for the completion file and then create a symlink to the bash completion file.
+    chmod 644 '/etc/bash_completion.d/swizzin'
+    ln -fs '/etc/swizzin/sources/bash_completion.d/swizzin' '/etc/bash_completion.d/swizzin'
 }
 
 _run_checks() {
