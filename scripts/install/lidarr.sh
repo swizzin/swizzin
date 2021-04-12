@@ -1,5 +1,5 @@
 #!/bin/bash
-#shellcheck disable=SC2129
+
 # Lidarr installer for swizzin
 # Author: liara
 # Copyright (C) 2019 Swizzin
@@ -10,27 +10,46 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-user=$(cut -d: -f1 < /root/.master.info)
-distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-#shellcheck source=sources/functions/mono
-. /etc/swizzin/sources/functions/mono
-mono_repo_setup
-apt_install libmono-cil-dev libchromaprint-tools
+install() {
+    #shellcheck source=sources/functions/users
+    . /etc/swizzin/sources/functions/users
+    user="$(_get_master_username)"
+    apt_install mediainfo sqlite3 libchromaprint-tools
 
-echo_progress_start "Fetching Lidarr source files"
-wget -O /tmp/lidarr.tar.gz "$(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)" >> $log 2>&1
-echo_progress_done "Source fetched"
+    echo_progress_start "Downloading source files"
 
-echo_progress_start "Extracting source"
-tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
-rm -rf /tmp/lidarr.tar.gz
-chown -R "${user}": /opt/Lidarr
-echo_progress_done "Source extracted"
+    urlbase="https://lidarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore"
+    case "$(_os_arch)" in
+        "amd64") dlurl="${urlbase}&arch=x64" ;;
+        "armhf") dlurl="${urlbase}&arch=arm" ;;
+        "arm64") dlurl="${urlbase}&arch=arm64" ;;
+        *)
+            echo_error "Arch not supported"
+            exit 1
+            ;;
+    esac
 
-echo_progress_start "Creating configuration and service files"
-if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
-cat > "/home/${user}/.config/Lidarr/config.xml" << LID
+    if ! curl "$dlurl" -L -o /tmp/lidarr.tar.gz >> "$log" 2>&1; then
+        echo_error "Download failed, exiting"
+        exit 1
+    fi
+    echo_progress_done "Source downloaded"
+
+    echo_progress_start "Extracting source"
+    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
+        echo_error "Failed to extract"
+        exit 1
+    }
+    rm -rf /tmp/lidarr.tar.gz
+    chown -R "${user}": /opt/Lidarr
+    echo_progress_done "Source extracted"
+}
+
+config() {
+
+    echo_progress_start "Creating configuration and service files"
+    if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
+    cat > "/home/${user}/.config/Lidarr/config.xml" << LID
 <Config>
   <Port>8686</Port>
   <UrlBase>lidarr</UrlBase>
@@ -40,10 +59,14 @@ cat > "/home/${user}/.config/Lidarr/config.xml" << LID
   <LaunchBrowser>False</LaunchBrowser>
 </Config>
 LID
-chown -R "${user}": "/home/${user}/.config"
-cat > /etc/systemd/system/lidarr.service << LID
+    mkdir -p /home/"${user}"/.tmp
+    chown -R "${user}": "/home/${user}/.tmp"
+    chown -R "${user}": "/home/${user}/.config"
+}
+systemd() {
+    cat > /etc/systemd/system/lidarr.service << LID
 [Unit]
-Description=lidarr for ${user}
+Description=Lidarr
 After=syslog.target network.target
 
 [Service]
@@ -51,24 +74,32 @@ Type=simple
 User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/usr/bin/mono /opt/Lidarr/Lidarr.exe -nobrowser
+ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/
 WorkingDirectory=/home/${user}/
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 LID
-echo_progress_done "Services configured"
+    echo_progress_done "Services configured"
+}
 
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring nginx"
-    sleep 10
-    bash /usr/local/bin/swizzin/nginx/lidarr.sh
-    systemctl reload nginx
-    echo_progress_done "Nginx configured"
-else
-    echo_info "Lidarr will run on port 8686"
-fi
+nginx() {
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        sleep 10
+        bash /usr/local/bin/swizzin/nginx/lidarr.sh
+        systemctl reload nginx
+        echo_progress_done "Nginx configured"
+    else
+        echo_info "Lidarr will run on port 8686"
+    fi
+}
+
+install
+config
+systemd
+nginx
 
 echo_progress_start "Enabling auto-start and executing Lidarr"
 systemctl enable -q --now lidarr
