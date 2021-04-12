@@ -1,23 +1,24 @@
 #!/bin/bash
 _queries() {
-    if [[ ! -f /install/.plex.lock ]]; then
-        echo_warn "Plex server not installed"
-        echo_query "Please enter your Plex Server's address (e.g. domain.ltd:32400)"
-        read -r plexaddress
+    if [ -z "$PLEX_SERVER" ]; then
+        if [[ ! -f /install/.plex.lock ]]; then
+            echo_warn "Plex server not installed"
+            echo_query "Please enter your Plex Server's address (e.g. domain.ltd:32400)"
+            read -r PLEX_SERVER
+        else
+            PLEX_SERVER="localhost:32400"
+        fi
     else
-        plexaddress="localhost:32400"
+        echo_info "Environment variable PLEX_SERVER set to $PLEX_SERVER"
     fi
 
-    echo_info "Moviematch needs to connect to Plex via a Token. You can hear how to retrieve one here:\nhttps://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/"
-    echo_query "Please enter your Plex Token"
-    read -r plextoken
-}
-
-_install_deno() {
-
-    #shellcheck source=sources/functions/deno
-    . /etc/swizzin/sources/functions/deno
-    install_deno
+    if [ -z "$PLEX_TOKEN" ]; then
+        echo_info "Moviematch needs to connect to Plex via a Token. You can hear how to retrieve one here:\nhttps://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/"
+        echo_query "Please enter your Plex Token"
+        read -r PLEX_TOKEN
+    else
+        echo_info "Environment variable PLEX_TOKEN set to $PLEX_TOKEN"
+    fi
 }
 
 mmatchDir="/opt/moviematch"
@@ -34,10 +35,13 @@ _install_moviematch() {
     useradd moviematch --system -d "$mmatchDir" >> $log 2>&1
     sudo chown -R moviematch:moviematch $mmatchDir
 
-    cat > $mmatchDir/.env << ENV
-PLEX_URL="http://$plexaddress"
-PLEX_TOKEN=$plextoken
-PORT=8420
+    echo_progress_done "Binary downloaded and extracted"
+
+    cat > $mmatchDir/config.yaml << ENV
+port: 8420
+servers:
+  - url: http://$PLEX_SERVER
+    token: $PLEX_TOKEN
 ENV
 }
 
