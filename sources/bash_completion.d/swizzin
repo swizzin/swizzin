@@ -34,4 +34,5 @@ _command_complete() {
             ;;
     esac
 }
-complete -o nosort -F _command_complete box
+# complete -o nosort -F _command_complete box
+complete -F _command_complete box
