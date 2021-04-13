@@ -375,11 +375,9 @@ function _post() {
         echo_info "You can now use the box command to manage swizzin features, e.g. \`box install nginx panel\`"
     fi
     echo_docs getting-started/box-basics
-    # Set the correct permissions for the completion file and then create a symlink to the bash completion file.
-    ln -fs '/etc/swizzin/sources/bash_completion.d/swizzin' '/etc/bash_completion.d/swizzin'
-    # Create our apps and upgrade lists for the arrays.
-    find "/etc/swizzin/scripts/install/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/bash_completion/completion.apps
-    find "/etc/swizzin/scripts/upgrade/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/bash_completion/completion.upgrade
+    #
+    # Source the bash_completion installer
+    . /etc/swizzin/sources/functions/bash_completion
 }
 
 _run_checks() {
