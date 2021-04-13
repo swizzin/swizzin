@@ -6,8 +6,9 @@ _command_complete() {
     local cur prev
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD - 1]}
-    readarray -d ' ' apps_array < <(find "/etc/swizzin/scripts/install/" -maxdepth 1 -mindepth 1 -type f -printf "%f ")
-    readarray -d ' ' upgrade_array < <(find "/etc/swizzin/scripts/upgrade/" -maxdepth 1 -mindepth 1 -type f -printf "%f ")
+
+    readarray -d ' ' apps_array < <(cat /etc/swizzin/sources/completion.apps)
+    readarray -d ' ' upgrade_array < <(cat /etc/swizzin/sources/completion.upgrade)
 
     case ${COMP_CWORD} in
         1)
@@ -33,4 +34,4 @@ _command_complete() {
             ;;
     esac
 }
-complete -F _command_complete box
+complete -o nosort -F _command_complete box
