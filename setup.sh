@@ -376,10 +376,10 @@ function _post() {
     fi
     echo_docs getting-started/box-basics
     # Set the correct permissions for the completion file and then create a symlink to the bash completion file.
-    chmod 644 '/etc/swizzin/sources/bash_completion.d/swizzin'
     ln -fs '/etc/swizzin/sources/bash_completion.d/swizzin' '/etc/bash_completion.d/swizzin'
-    find "/etc/swizzin/scripts/install/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/completion.apps
-    find "/etc/swizzin/scripts/upgrade/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/completion.upgrade
+    # Create our apps and upgrade lists for the arrays.
+    find "/etc/swizzin/scripts/install/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/bash_completion/completion.apps
+    find "/etc/swizzin/scripts/upgrade/" -type f -exec basename {} \; | sort | awk '{printf "%s ",$1 }' > /etc/swizzin/sources/bash_completion/completion.upgrade
 }
 
 _run_checks() {

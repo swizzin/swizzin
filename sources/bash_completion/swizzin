@@ -1,14 +1,14 @@
 #!/bin/bash
 #
-# ln -fs /etc/swizzin/sources/bash_completion.d/swizzin /etc/bash_completion.d/swizzin
+# ln -fs /etc/swizzin/sources/bash_completion/swizzin /etc/bash_completion.d/swizzin
 #
 _command_complete() {
     local cur prev
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD - 1]}
 
-    readarray -d ' ' apps_array < <(cat /etc/swizzin/sources/completion.apps)
-    readarray -d ' ' upgrade_array < <(cat /etc/swizzin/sources/completion.upgrade)
+    readarray -d ' ' apps_array < <(cat /etc/swizzin/sources/bash_completion/completion.apps)
+    readarray -d ' ' upgrade_array < <(cat /etc/swizzin/sources/bash_completion/completion.upgrade)
 
     case ${COMP_CWORD} in
         1)

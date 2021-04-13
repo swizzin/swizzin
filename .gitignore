@@ -1,1 +1,5 @@
 .dev.lock
+
+# Completion files generated cliet side.
+sources/bash_completion/completion.apps
+sources/bash_completion/completion.upgrade
