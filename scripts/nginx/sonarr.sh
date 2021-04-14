@@ -49,7 +49,6 @@ fi
 
 chown -R "$user":"$user" /home/"$user"/.config/sonarr
 
-# chown -R ${master}: /home/${master}/.config/NzbDrone/
 if [[ $isactive == "active" ]]; then
     systemctl start sonarr
 fi

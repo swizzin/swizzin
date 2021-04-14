@@ -133,7 +133,7 @@ _add_sonarr_repos() {
     fi
 }
 
-_install_sonarrv3() {
+_install_sonarr() {
     mkdir -p "$sonarrv3confdir"
     chown -R "$sonarrv3owner":"$sonarrv3owner" /home/"$sonarrv3owner"/.config
 
@@ -190,7 +190,7 @@ _nginx_sonarr() {
 
 _sonarrv2_flow
 _add_sonarr_repos
-_install_sonarrv3
+_install_sonarr
 _nginx_sonarr
 
 touch /install/.sonarr.lock
