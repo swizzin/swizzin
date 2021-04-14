@@ -48,7 +48,7 @@ Group=${radarrOwner}
 
 Type=simple
 
-# Change the path to Radarr or mono here if it is in a different location for you.
+# Change the path to Radarr here if it is in a different location for you.
 ExecStart=/opt/Radarr/Radarr -nobrowser
 TimeoutStopSec=20
 KillMode=process
