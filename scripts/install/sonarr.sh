@@ -107,8 +107,8 @@ _sonarrv2_flow() {
         fi
 
         echo_progress_start "Removing Sonarr v2"
-        # shellcheck source=scripts/remove/sonarr.sh
-        bash /etc/swizzin/scripts/remove/sonarr.sh
+        # shellcheck source=scripts/remove/sonarrv2-old.sh
+        bash /etc/swizzin/scripts/remove/sonarrv2-old.sh
         echo_progress_done
     fi
 }

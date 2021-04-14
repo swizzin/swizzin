@@ -19,7 +19,7 @@
 #
 username=$(cut -d: -f1 < /root/.master.info)
 
-function _removeSonarr() {
+function _removeSonarrv2() {
     systemctl stop -q sonarr@"${username}"
     systemctl -q disable sonarr@"${username}"
     rm -rf /etc/systemd/system/sonarr\@.service
@@ -40,4 +40,4 @@ function _removeSonarr() {
     fi
 }
 
-_removeSonarr
+_removeSonarrv2
