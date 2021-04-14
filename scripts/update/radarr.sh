@@ -22,8 +22,11 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_log_only "Radarr was $isactive"
             [[ $isactive == "active" ]] && systemctl stop radarr -q
 
-            echo_progress_start "Removing old binaries and extracting archive"
+            echo_progress_start "Removing old binaries"
             rm -rf /opt/Radarr/
+            echo_progress_done "Binaries removed"
+
+            echo_progress_start "Extracting archive"
             tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
             chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
             echo_progress_done "Archive extracted"
