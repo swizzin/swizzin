@@ -8,10 +8,6 @@ if [[ -f /install/.sonarr.lock ]] && [[ $v2present == "true" ]]; then
     rm /install/.sonarr.lock
     touch /install/.sonarrv2-old.lock
 fi
-if [[ -f /install/.sonarrv2-old.lock ]]; then
-    #upgrade sonarr v2 to v3
-    box install sonarrv3
-fi
 if [[ -f /install/.sonarrv3.lock ]]; then
     #upgrade sonarr v3 lock
     rm /install/.sonarrv3.lock
