@@ -5,4 +5,4 @@ if [[ ! -f /install/.sonarrv2-old.lock ]]; then
     exit 1
 fi
 
-box install sonarrv3
+box install sonarr
