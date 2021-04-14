@@ -180,7 +180,7 @@ _nginx_sonarr() {
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
         echo_progress_start "Installing nginx configuration"
         sleep 10
-        bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
+        bash /usr/local/bin/swizzin/nginx/sonarr.sh
         systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
     else
