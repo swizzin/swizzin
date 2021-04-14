@@ -29,7 +29,7 @@ user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
 echo_log_only "Radarr user detected as $user"
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
 echo_log_only "Apikey = $apikey" >> "$log"
-#TODO cahnge Branch whenever that becomes relevant
+
 cat > /home/"$user"/.config/Radarr/config.xml << RADARR
 <Config>
   <LogLevel>info</LogLevel>
