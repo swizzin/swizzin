@@ -3,7 +3,7 @@
 # Flying sausages 2020
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/sonarrv3.conf << SONARR
+cat > /etc/nginx/apps/sonarr.conf << SONARR
 location /sonarr {
   proxy_pass        http://127.0.0.1:8989/sonarr;
   proxy_set_header Host \$proxy_host;
