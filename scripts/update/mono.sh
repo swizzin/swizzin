@@ -17,7 +17,7 @@ if [[ -f /install/.sonarr.lock ]]; then
     done
 fi
 
-if [[ -f /install/.sonarr.lock ]]; then
+if [[ -f /install/.sonarr.lock ]] || [[ -f /install/.lidarr.lock ]]; then
     if ! apt-key adv --list-public-keys | grep A236C58F409091A18ACA53CBEBFF6B99D9B78493; then
         version=$(lsb_release -cs)
         distribution=$(lsb_release -is)
