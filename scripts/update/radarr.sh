@@ -22,7 +22,7 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_log_only "Radarr was $isactive"
             [[ $isactive == "active" ]] && systemctl stop radarr -q
 
-            echo_progress_start "Extracting archive and removing old binaries"
+            echo_progress_start "Removing old binaries and extracting archive"
             rm -rf /opt/Radarr/
             tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
             chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
@@ -44,17 +44,17 @@ if [[ -f /install/.radarr.lock ]]; then
             fi
 
         elif [[ $(_radarr_version) = "mono-v2" ]]; then
-            echo_warn "Radarr v0.2 is EOL and not supported. Please upgrade your radarr to v3. It will be migrated to .Net core on the next \`box update\` run"
+            echo_warn "Radarr v0.2 is EOL and not supported. Please upgrade your radarr to v3. An attempt will be made to migrate to .Net core on the next \`box update\` run"
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
     fi
     #Mandatory SSL Port change for Readarr
     sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
     sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
-    if $sslport '==' '8787'; then
-        sed s/\<SslPort\>port\=9898/\<SslPort\>port\=8787/ -i fil/home/"$radarrOwner"/.config/Radarr/config.xmle
-        if [ $sslenabled = true ]; then
-            echo "port changed for ssl due to possible future conflict with Readarr"
+    if [[ "$sslport" = "8787" ]]; then
+        sed -i "<SslPort\>port\=8787/|<SslPort\>port\=9898|g" /home/"$radarrOwner"/.config/Radarr/config.xml
+        if [[ "$sslenabled" = "true" ]]; then
+            echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
     fi
 fi
