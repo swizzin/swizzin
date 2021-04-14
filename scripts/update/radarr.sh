@@ -56,7 +56,7 @@ if [[ -f /install/.radarr.lock ]]; then
     sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
     if [[ "$sslport" = "8787" ]]; then
         sed -i "s|<SslPort\>port\=8787/|<SslPort\>port\=9898|g" /home/"$radarrOwner"/.config/Radarr/config.xml
-        if [[ "$sslenabled" = "true" ]]; then
+        if [[ "$sslenabled" = "True" ]]; then
             echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
     fi
