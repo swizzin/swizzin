@@ -49,6 +49,9 @@ if [[ -f /install/.radarr.lock ]]; then
         fi
     fi
     #Mandatory SSL Port change for Readarr
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    [[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
     sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
     sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
     if [[ "$sslport" = "8787" ]]; then
