@@ -16,7 +16,7 @@ sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
 #Handles existing v2 instances
 _sonarrv2_flow() {
     v2present=false
-    if [[ -f /install/.sonarr.lock ]]; then
+    if [[ -f /install/.sonarrv2-old.lock ]]; then
         v2present=true
     fi
     if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
@@ -118,8 +118,8 @@ _add_sonarr_repos() {
     codename=$(lsb_release -cs)
     distribution=$(lsb_release -is)
 
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> $log 2>&1
-    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> $log 2>&1
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> "$log" 2>&1
+    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> "$log" 2>&1
 
     #shellcheck source=sources/functions/mono
     . /etc/swizzin/sources/functions/mono
@@ -135,7 +135,7 @@ _add_sonarr_repos() {
 
 _install_sonarrv3() {
     mkdir -p "$sonarrv3confdir"
-    chown -R "$sonarrv3owner":"$sonarrv3owner" /home/$sonarrv3owner/.config
+    chown -R "$sonarrv3owner":"$sonarrv3owner" /home/"$sonarrv3owner"/.config
 
     echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
     # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
@@ -181,7 +181,7 @@ _nginx_sonarr() {
         echo_progress_start "Installing nginx configuration"
         sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
-        systemctl reload nginx >> $log 2>&1
+        systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
     else
         echo_info "Sonarr will run on port 8989"
