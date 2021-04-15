@@ -14,17 +14,15 @@ swizdb set bash_completion/upgrade.list "$(find "/etc/swizzin/scripts/upgrade/" 
 if [[ $(stat -c '%A' /etc/swizzin/sources/bash_completion) != '-rw-r--r--' ]]; then
     chmod 644 '/etc/swizzin/sources/bash_completion'
 fi
-
-# Check to make sure the directory /var/lib/swizzin/db/bash_completion is set to 755
-if [[ $(stat -c '%A' /var/lib/swizzin/db/bash_completion) != 'drwxr-xr-x' ]]; then
-    chmod 755 '/var/lib/swizzin/db/bash_completion'
+# Check to make sure the directory $(swizdb path bash_completion) is set to 755
+if [[ $(stat -c '%A' "$(swizdb path bash_completion)") != 'drwxr-xr-x' ]]; then
+    chmod 755 "$(swizdb path bash_completion)"
 fi
-
-# Add all files in /var/lib/swizzin/db/bash_completion to the bash_completion_perms array to process in our for below
-readarray -t bash_completion_perms < <(find "/var/lib/swizzin/db/bash_completion" -type f -exec basename {} \;)
-# Using a for and the bash_completion_perms array check through all files in the /var/lib/swizzin/db/bash_completion have 644 perms set otherwise do nothing
+# Add all files in $(swizdb list bash_completion) to the bash_completion_perms array to process in our for below
+readarray -t bash_completion_perms < <(swizdb list bash_completion)
+# Using a for and the bash_completion_perms array check through all files in the $(swizdb path bash_completion) have 644 perms set otherwise do nothing
 for file_names in "${bash_completion_perms[@]}"; do
-    if [[ "$(stat -c '%A' "/var/lib/swizzin/db/bash_completion/${file_names}")" != '-rw-r--r--' ]]; then
-        chmod 644 "/var/lib/swizzin/db/bash_completion/${file_names}"
+    if [[ "$(stat -c '%A' "$(swizdb path "${file_names}")")" != '-rw-r--r--' ]]; then
+        chmod 644 "$(swizdb path "${file_names}")"
     fi
 done
