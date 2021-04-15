@@ -36,7 +36,7 @@ Please use `shellcheck` and its IDE plugins and resolve any warnings for the cod
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
-A list of the files that are included on a `box` or a `setup.sh` by default arte in `sources/globals.sh`
+A list of the files that are included on a `box` or a `setup.sh` by default are in `sources/globals.sh`
 
 Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
