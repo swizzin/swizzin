@@ -1,6 +1,18 @@
 # Contributing guidelines
 Here are a couple things to take into account when contributing to swizzin.
 
+There is a large amount of further documentation and guidance available in our docs https://swizzin.ltd/dev/. You are expected to familiarise yourself with the documentation and the code.
+
+In case anything is not clear, we're always happy to explain and teach why/how these things are done; feel free to come talk to us in our Discord.
+
+## Requirements for consideration
+We expect the following criteria from a PR. You're more than welcome to ask us how to achieve any of these that you are not familiar with, and we'll be happy to help.
+- A completed checklist
+- No `shellcheck`/`shfmt` errors or warnings.
+- A proof of the changes being tested
+
+You are welcome to submit PRs that do not fit this spec, but they are required to be marked as Draft PRs and preferrably pre-pended with `WIP: ` at the beginning of the PR title. If that is the case, please mention what your outstanding TODOs for the PR are.
+
 ## Editor plugins and tooling
 ### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
