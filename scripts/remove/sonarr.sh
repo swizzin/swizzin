@@ -1,10 +1,12 @@
 #!/bin/bash
 
-apt_remove --purge sonarr
-
-rm -rf /var/lib/sonarr
-rm -rf /usr/lib/sonarr
-
+if ask "Would you like to purge the configuration?" Y; then
+    apt_remove --purge sonarr
+    rm -rf /var/lib/sonarr
+    rm -rf /usr/lib/sonarr
+else
+    apt_remove sonarr
+fi
 if [[ -f /install/.nginx.lock ]]; then
     rm /etc/nginx/apps/sonarr.conf
     systemctl reload nginx >> "$log" 2>&1
