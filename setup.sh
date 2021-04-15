@@ -377,10 +377,7 @@ function _post() {
     echo_docs getting-started/box-basics
     #
     # Run the bash_completion installer from the update folder
-    if ! bash /etc/swizzin/scripts/update/bash_completion.sh; then
-        echo_error "bash_completion update script failed."
-        exit 1
-    fi
+    bash /etc/swizzin/scripts/update/bash_completion.sh
 }
 
 _run_checks() {
