@@ -50,7 +50,7 @@ export -f _getswizdb
 _listswizdb() {
     key="$1"
     echo_log_only "List of keys stored under directory \"$key\""
-    find "$dbdir/$key" -type f -exec realpath --relative-to "$dbdir" {} \; || return $?
+    find "$dbdir/$key" -type f -exec realpath --relative-to "$dbdir" {} \; | sort || return $?
 }
 export -f _listswizdb
 #Clear a value in the "database"
