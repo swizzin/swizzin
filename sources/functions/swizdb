@@ -50,8 +50,12 @@ export -f _getswizdb
 _listswizdb() {
     key="$1"
     echo_log_only "List of keys stored under directory \"$key\""
-    pushd "$dbdir/$key" > /dev/null || return $? # Return error code of pushd, but stderr is not redirected on purpose.
-    find * -type f || return $?
+    pushd "$dbdir" > /dev/null || return $? # Return error code of pushd, but stderr is not redirected on purpose.
+    if [ "$key" = "" ]; then
+        find * -type f | sort || return $?
+    else
+        find "$key" -type f | sort || return $?
+    fi
     popd > /dev/null || return
 }
 
