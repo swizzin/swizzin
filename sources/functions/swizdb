@@ -58,7 +58,7 @@ _listswizdb() {
     fi
     popd > /dev/null || return
 }
-
+export -f _listswizdb
 #Clear a value in the "database"
 # \
 # $1 = key
