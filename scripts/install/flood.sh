@@ -62,6 +62,7 @@ for u in "${users[@]}"; do
         elif [[ -f /install/.nginx.lock ]]; then
             bash /usr/local/bin/swizzin/nginx/flood.sh $u
             systemctl start flood@$u
+            systemctl reload nginx
         fi
         systemctl enable -q flood@$u 2>&1 | tee -a $log
         echo_progress_done "Flood for $u configured"

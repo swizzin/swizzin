@@ -328,6 +328,8 @@ EOF
         bash /usr/local/bin/swizzin/nginx/lounge.sh
         systemctl reload nginx
         echo_progress_done
+    else
+        echo_info "Lounge will run on port 9000"
     fi
 
     echo_progress_start "Installing systemd service"

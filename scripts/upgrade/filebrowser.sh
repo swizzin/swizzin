@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ ! -f /install/.filebrowser.lock ]]; then
-    echo "Filebrowser does not appear to be installed!"
+    echo_error "Filebrowser does not appear to be installed!"
     exit 1
 fi
 

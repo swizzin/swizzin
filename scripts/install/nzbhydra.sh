@@ -75,6 +75,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/nzbhydra.sh
     systemctl reload nginx
     echo_progress_done "Nginx configured"
+else
+    echo_info "Nzbhydra will run on port 5076"
 fi
 
 echo_success "Nzbhydra installed"

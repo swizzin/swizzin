@@ -46,6 +46,10 @@ function rutorrent_install() {
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    install_rar
+
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
         cd /srv/rutorrent/plugins/theme/themes
         git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >> "$log" 2>&1
