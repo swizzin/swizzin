@@ -14,18 +14,11 @@ swizdb() {
     value="$3"
 
     case "$method" in
-        set)
-            _setswizdb "$key" "$value"
-            ;;
-        get)
-            _getswizdb "$key"
-            ;;
-        clear)
-            _clearswizdb "$key"
-            ;;
-        path)
-            _pathswizdb "$key"
-            ;;
+        set) _setswizdb "$key" "$value" ;;
+        get) _getswizdb "$key" ;;
+        clear) _clearswizdb "$key" ;;
+        path) _pathswizdb "$key" ;;
+        list) _listswizdb "$key" ;;
         *)
             echo_error "Unsupported db method!"
             return 1
@@ -48,6 +41,19 @@ _getswizdb() {
     cat "$path" | tee -a "$log"
 }
 export -f _getswizdb
+
+#Recursively lists keys
+# \
+# $1 = optional directory to refine
+# \
+# **Returns error code of the command that fails**
+_listswizdb() {
+    key="$1"
+    echo_log_only "List of keys stored under directory \"$key\""
+    pushd "$dbdir/$key" > /dev/null || return $? # Return error code of pushd, but stderr is not redirected on purpose.
+    find * -type f || return $?
+    popd > /dev/null || return
+}
 
 #Clear a value in the "database"
 # \
