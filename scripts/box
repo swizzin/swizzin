@@ -140,10 +140,6 @@ function _update() {
         echo_progress_done "Local repository updated"
     fi
 
-    # source globals again in case changes were made
-    #shellcheck source=sources/globals.sh
-    . /etc/swizzin/sources/globals.sh
-
     for f in /etc/swizzin/scripts/update/*; do
         bash "$f"
     done
