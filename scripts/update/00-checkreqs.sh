@@ -32,7 +32,7 @@ fi
 if ! swizdb list; then
     echo
     echo "Due to internal restructuring please restart \`box update\`. You should only have to do this once."
-    echo "Reason: swizdb licommand unavailable"
+    echo "Reason: swizdb list command unavailable"
     kill -13 $(ps --pid $$ -oppid=)
     exit 1
 fi
