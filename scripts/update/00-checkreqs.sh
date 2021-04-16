@@ -29,7 +29,7 @@ if [[ -z $log ]]; then
     exit 1
 fi
 
-if ! swizdb list; then
+if ! swizdb list > /dev/null; then
     echo
     echo "Due to internal restructuring please restart \`box update\`. You should only have to do this once."
     echo "Reason: swizdb list command unavailable"
