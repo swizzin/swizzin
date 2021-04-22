@@ -37,7 +37,7 @@ bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 
 If you did not log into your server with a root login, the method you use to escalate to root will directly influence the success of your installation. Certain distros and commands may not correctly provide you with a full root login shell when you use them, so please familiarize yourself with the following if they apply to you.
 
-##### `sudo` under Ubuntu
+#### `sudo` under Ubuntu
 If you are running Ubuntu and use `sudo` for the installation you should include the -H argument to ensure that your home directory is modified to /root. The installer will take care of this default for you in the future, and this should be the only time you need to specify sudo -H before running a swizzin command. For example:
 
 ```
@@ -51,7 +51,7 @@ or in a one-liner:
 sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
-##### The difference between `su` and `su -`
+#### The difference between `su` and `su -`
 Since the inclusion of mandatory cracklib checks, we've seen an uptick in users having an issue passing the cracklib check as the installer can't seem to find the `cracklib-check` binary despite it being installed. This is because `/sbin` and derivative paths have not been properly set due to your chosen method of escalation. If you have troubles passing cracklib, then there's a very good chance you escalted to root with `su` instead of `su -`. `su` simply changes you to root user while `su -` goes through the entire login process and correctly resets all environmental variables as if you had logged in directly as root. Please always use `su -` when interacting with swizzin if this is your chosen method of privilege escalation.
 
 More info [here](https://unix.stackexchange.com/questions/7013/why-do-we-use-su-and-not-just-su)
