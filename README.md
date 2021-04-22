@@ -33,7 +33,7 @@ Using `curl`:
 bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 ```
 
-#### Some notes on escalating to root user
+### Some notes on escalating to root user
 
 If you did not log into your server with a root login, the method you use to escalate to root will directly influence the success of your installation. Certain distros and commands may not correctly provide you with a full root login shell when you use them, so please familiarize yourself with the following if they apply to you.
 
