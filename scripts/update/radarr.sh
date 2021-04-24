@@ -12,7 +12,17 @@ if [[ -f /install/.radarr.lock ]]; then
 
         if [[ $(_radarr_version) = "mono-v3" ]]; then
             echo_progress_start "Downloading release files"
-            if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+            urlbase="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
+            case "$(_os_arch)" in
+                "amd64") dlurl="${urlbase}&arch=x64" ;;
+                "armhf") dlurl="${urlbase}&arch=arm" ;;
+                "arm64") dlurl="${urlbase}&arch=arm64" ;;
+                *)
+                    echo_error "Arch not supported"
+                    exit 1
+                    ;;
+            esac
+            if ! curl "$dlurl" -L -o /tmp/radarr.tar.gz >> "$log" 2>&1; then
                 echo_error "Download failed, exiting"
                 exit 1
             fi
