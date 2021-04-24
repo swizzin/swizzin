@@ -5,7 +5,7 @@
             "setswizdb",
             "swizdb set"
         ],
-        "body": "swizdb set \"{$1:key}\" \"${2:value}\""
+        "body": "swizdb set \"${1:key}\" \"${2:value}\""
     },
     "Get value from swiz value storage": {
         "scope": "shellscript",
@@ -13,7 +13,7 @@
             "getswizdb",
             "swizdb get"
         ],
-        "body": "swizdb get \"{$1:key}\""
+        "body": "swizdb get \"${1:key}\""
     },
     "Drop value from swiz value storage": {
         "scope": "shellscript",
@@ -21,7 +21,7 @@
             "clearswizdb",
             "swizdb clear"
         ],
-        "body": "swizdb clear \"{$1:key}\""
+        "body": "swizdb clear ${1:key}"
     },
     "Get path of swizzin db file": {
         "scope": "shellscript",
@@ -29,6 +29,6 @@
             "pathswizdb",
             "swizdb path"
         ],
-        "body": "swizdb path \"{$1:key}\""
+        "body": "swizdb path \"${1:key}\""
     }
 }
