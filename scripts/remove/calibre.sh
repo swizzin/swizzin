@@ -8,8 +8,8 @@ else
     apt_remove calibre
 fi
 
-if [ -f /install/.calibre-cs.lock ]; then
-    bash /etc/swizzin/scripts/remove/calibre-cs.sh
+if [ -f /install/.calibrecs.lock ]; then
+    bash /etc/swizzin/scripts/remove/calibrecs.sh
 fi
 
 rm /install/.calibre.lock

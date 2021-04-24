@@ -16,7 +16,7 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
     CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
 fi
 
-clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibre-cs"
+clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs"
 
 _adduser() {
     ## TODO handle programatically
@@ -59,7 +59,7 @@ _install() {
 }
 
 _systemd() {
-    cat > /etc/systemd/system/calibre-cs.service << CALICS
+    cat > /etc/systemd/system/calibrecs.service << CALICS
 [Unit]
 Description=calibre content server
 After=network.target
@@ -75,7 +75,7 @@ ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items
 WantedBy=multi-user.target
     
 CALICS
-    # ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibre-cs/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
+    # ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items=100 --port 8089 --log="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs/.calibre.log" --enable-auth --userdb="/home/$CALIBRE_LIBRARY_USER/.config/calibre/server-users.sqlite" "${CALIBRE_LIBRARY_PATH:=CALIBRE_LIBRARY_PATH_GOES_HERE}"
     echo_progress_done "Calibre content server installed"
     echo_info "The Calibre content server will run on port 8089, please make note of this in case you want to use it in automation"
 }
@@ -83,13 +83,13 @@ CALICS
 _nginx() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        bash /etc/swizzin/scripts/nginx/calibre-cs.sh
+        bash /etc/swizzin/scripts/nginx/calibrecs.sh
         systemctl reload nginx
         echo_progress_done "nginx configured"
     fi
 
     if [[ "$CALIBRE_LIBRARY_SKIP" = "true" ]]; then
-        echo_info "Please modify /etc/systemd/system/calibre-cs.service to point to your library accordingly later."
+        echo_info "Please modify /etc/systemd/system/calibrecs.service to point to your library accordingly later."
         return
     fi
 
@@ -106,9 +106,9 @@ _systemd
 _nginx
 
 echo_progress_start "Enabling Calibre Content Server"
-systemctl enable --now -q calibre-cs
+systemctl enable --now -q calibrecs
 echo_progress_done "Calibre CS enabled"
 
 echo_success "Calibre content server installed"
 
-touch /install/.calibre-cs.lock
+touch /install/.calibrecs.lock

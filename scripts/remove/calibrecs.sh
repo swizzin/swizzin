@@ -11,13 +11,13 @@ fi
 #     CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
 # fi
 
-systemctl disable --now -q calibre-cs
-rm /etc/systemd/system/calibre-cs.service
+systemctl disable --now -q calibrecs
+rm /etc/systemd/system/calibrecs.service
 
-rm -rf /home/$CALIBRE_LIBRARY_USER/.config/calibre-cs
+rm -rf /home/$CALIBRE_LIBRARY_USER/.config/calibrecs
 
 if [[ -f /install/.nginx.lock ]]; then
-    rm /etc/nginx/apps/calibre-cs.conf
+    rm /etc/nginx/apps/calibrecs.conf
     systemctl reload nginx
 fi
-rm /install/.calibre-cs.lock
+rm /install/.calibrecs.lock

@@ -57,9 +57,9 @@ _library() {
 _install
 _library
 # _content_server
-echo_info "You can install calibre-web or calibre-cs separately"
-echo_docs "application/calibre-web"
-echo_docs "application/calibre-cs"
+echo_info "You can install calibreweb or calibrecs separately"
+echo_docs "application/calibreweb"
+echo_docs "application/calibrecs"
 
 touch /install/.calibre.lock
 echo_success "Calibre installed"

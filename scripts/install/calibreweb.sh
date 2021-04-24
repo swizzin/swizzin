@@ -1,8 +1,8 @@
 #!/bin/bash
 # Flying Sausages 2020 for swizzin
-#Calibre-web installer
+#calibreweb installer
 
-calibrewebdir="/opt/calibre-web"
+calibrewebdir="/opt/calibreweb"
 clbWebUser="calibreweb" # or make this master user?
 
 #shellcheck source=sources/functions/utils
@@ -22,7 +22,7 @@ fi
 if [[ ! -f /install/.calibre.lock ]]; then    # If it's not installed from swizzin
     if [ ! -e "$CALIBRE_LIBRARY_PATH" ]; then # If the default location does not exist OR the variable is not set...
         echo_warn "Calibre not installed, and no alternative library path is specified."
-        echo_info "While having a calibre library is functionally required to use calibre-web, the calibre-web installer will not fail without it. You can create a calibre library at a later stage."
+        echo_info "While having a calibre library is functionally required to use calibreweb, the calibreweb installer will not fail without it. You can create a calibre library at a later stage."
         if ask "Install Calibre through swizzin now?" Y; then
             bash /etc/swizzin/scripts/install/calibre.sh || {
                 echo_info "Installer failed, please try again"
@@ -37,13 +37,13 @@ function _install_dependencies_calibreweb() {
 }
 
 function _install_calibreweb() {
-    echo_progress_start "Creating venv for calibre-web"
+    echo_progress_start "Creating venv for calibreweb"
     apt_install python3-pip python3-dev python3-venv
-    mkdir -p /opt/.venv/calibre-web
-    python3 -m venv /opt/.venv/calibre-web
+    mkdir -p /opt/.venv/calibreweb
+    python3 -m venv /opt/.venv/calibreweb
     echo_progress_done "Venv created"
 
-    echo_progress_start "Downloading Calibre-web source code archive"
+    echo_progress_start "Downloading calibreweb source code archive"
     dlurl=$(curl -s https://api.github.com/repos/janeczku/calibre-web/releases/latest | jq -r '.zipball_url') || {
         echo_error "Failed to query github"
         exit 1
@@ -65,16 +65,16 @@ function _install_calibreweb() {
     echo_progress_start "Creating users and setting permissions"
     useradd $clbWebUser --system -d "$calibrewebdir" >> $log 2>&1
     chown -R $clbWebUser:$clbWebUser $calibrewebdir
-    chown -R ${clbWebUser}: /opt/.venv/calibre-web
+    chown -R ${clbWebUser}: /opt/.venv/calibreweb
     #This bit right here will ensure that the system user created will have access to the master user's folders where he might have the CalibreDB
     usermod -a -G "${CALIBRE_LIBRARY_USER}" $clbWebUser >> $log 2>&1
     echo_progress_done
 
     echo_progress_start "Installing python dependencies"
-    sudo -u ${clbWebUser} bash -c "/opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/requirements.txt" >> $log 2>&1
+    sudo -u ${clbWebUser} bash -c "/opt/.venv/calibreweb/bin/pip3 install -r $calibrewebdir/requirements.txt" >> $log 2>&1
     #fuck ldap. all my homies hate ldap
     sed '/ldap/Id' -i $calibrewebdir/optional-requirements.txt
-    sudo -u ${clbWebUser} bash -c "/opt/.venv/calibre-web/bin/pip3 install -r $calibrewebdir/optional-requirements.txt" >> $log 2>&1
+    sudo -u ${clbWebUser} bash -c "/opt/.venv/calibreweb/bin/pip3 install -r $calibrewebdir/optional-requirements.txt" >> $log 2>&1
     echo_progress_done
 }
 
@@ -90,32 +90,32 @@ _install_kepubify() {
 _nginx_calibreweb() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Setting up nginx conf"
-        bash /etc/swizzin/scripts/nginx/calibre-web.sh
+        bash /etc/swizzin/scripts/nginx/calibreweb.sh
         systemctl reload nginx
         echo_progress_done
     else
-        echo_info "Calibre-web will be accessible on port 8083"
+        echo_info "calibreweb will be accessible on port 8083"
     fi
 }
 
 _systemd_calibreweb() {
     echo_progress_start "Creating and enabling systemd services"
-    cat > /etc/systemd/system/calibre-web.service << EOF
+    cat > /etc/systemd/system/calibreweb.service << EOF
 [Unit]
-Description=Calibre-Web
+Description=calibreweb
 
 [Service]
 User=$clbWebUser
 Type=simple
-ExecStart=/opt/.venv/calibre-web/bin/python3 $calibrewebdir/cps.py -f
+ExecStart=/opt/.venv/calibreweb/bin/python3 $calibrewebdir/cps.py -f
 WorkingDirectory=$calibrewebdir
-Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/.venv/calibre-web/bin
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/.venv/calibreweb/bin
 
 [Install]
 WantedBy=multi-user.target
 EOF
     systemctl daemon-reload -q 2>&1 | tee -a $log
-    systemctl enable -q --now calibre-web.service 2>&1 | tee -a $log
+    systemctl enable -q --now calibreweb.service 2>&1 | tee -a $log
     echo_progress_done
 }
 
@@ -127,7 +127,7 @@ _post_libdir() {
 
     echo_progress_start "Setting Library to $CALIBRE_LIBRARY_PATH"
 
-    timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibre-web to come up..."; done' || {
+    timeout 25 bash -c 'while [[ "$(curl -L --insecure -s -o /dev/null -w ''%{http_code}'' http://127.0.0.1:8083)" != "200" ]]; do sleep 1; echo_log_only "waiting on calibreweb to come up..."; done' || {
         echo_log_only "Timed out"
         return 1
     }
@@ -143,11 +143,11 @@ _post_libdir() {
 _post_changepass() {
     sleep 5
     pass="$(_get_user_password "$CALIBRE_LIBRARY_USER")"
-    /opt/.venv/calibre-web/bin/python3 /opt/calibre-web/cps.py -s admin:"${pass}" >> "$log" 2>&1 || {
+    /opt/.venv/calibreweb/bin/python3 /opt/calibreweb/cps.py -s admin:"${pass}" >> "$log" 2>&1 || {
         echo_info "Could not change password, please use admin:admin123 to log in and change credentials immediately."
         return 1
     }
-    echo_info "Please use the username \"admin\" and the password of $CALIBRE_LIBRARY_USER to log in to calibre-web"
+    echo_info "Please use the username \"admin\" and the password of $CALIBRE_LIBRARY_USER to log in to calibreweb"
 }
 
 _install_dependencies_calibreweb
@@ -156,10 +156,10 @@ _install_kepubify
 _systemd_calibreweb
 _nginx_calibreweb
 _post_libdir || {
-    echo_warn "Calibre-web did not start within time, please set Library path manually in web interface"
+    echo_warn "calibreweb did not start within time, please set Library path manually in web interface"
 }
 _post_changepass
 
-touch /install/.calibre-web.lock
-echo_success "Calibre-web installed"
-echo_docs "applications/calibre-web#post-install"
+touch /install/.calibreweb.lock
+echo_success "calibreweb installed"
+echo_docs "applications/calibreweb#post-install"
