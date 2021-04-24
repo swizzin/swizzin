@@ -8,7 +8,13 @@ if [[ -f /install/.lidarr.lock ]]; then
         wasActive=$(systemctl is-active lidarr)
         systemctl stop lidarr
 
-        mv /home/"$user"/Lidarr /opt/Lidarr
+        echo_progress_start "Moving ~/Lidarr to /root/swizzin/backups/lidarr-mono"
+        mkdir -p /root/swizzin/backups
+        mv /home/"$user"/Lidarr /root/swizzin/backups/lidarr-mono || {
+            echo_error "Move failed, please investigate. exiting."
+            exit 1
+        }
+        echo_progress_done "Directory moved"
 
         echo_progress_start "Downloading netcore binaries"
         urlbase="https://lidarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore"
@@ -29,7 +35,10 @@ if [[ -f /install/.lidarr.lock ]]; then
         echo_progress_done "Binaries downloaded"
 
         echo_progress_start "Extracting source"
-        tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1
+        tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
+            echo_error "Extraction failed. Please investigate. Exiting"
+            exit 1
+        }
         rm -rf /tmp/lidarr.tar.gz
         chown -R "${user}": /opt/Lidarr
         echo_progress_done "Source extracted"
