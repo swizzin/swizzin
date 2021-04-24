@@ -162,4 +162,4 @@ _post_changepass
 
 touch /install/.calibreweb.lock
 echo_success "calibreweb installed"
-echo_docs "applications/calibreweb#post-install"
+echo_docs "applications/calibre-web#post-install"
