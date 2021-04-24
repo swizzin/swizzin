@@ -5,11 +5,17 @@
 . /etc/swizzin/sources/functions/utils
 
 if [ -z "$CALIBRE_LIBRARY_USER" ]; then
-    CALIBRE_LIBRARY_USER=$(_get_master_username)
+    if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_user)"; then
+        CALIBRE_LIBRARY_USER=$(_get_master_username)
+        swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
+    fi
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+    if ! CALIBRE_LIBRARY_PATH="$(swizdb get calibre/library_path)"; then
+        CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+        swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
+    fi
 fi
 
 _install() {
@@ -23,7 +29,7 @@ _install() {
             exit 1
         fi
     else
-        echo_info "Calibre needs to be built from source for $(_os_arch). We are falling back onto apt for the time being\nRun box upgrade calibre to upgrade at a later stage"
+        echo_info ""
         apt_install calibre
         # : #TODO build calibre from source
     fi

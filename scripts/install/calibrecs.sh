@@ -9,11 +9,17 @@ fi
 . /etc/swizzin/sources/functions/utils
 
 if [ -z "$CALIBRE_LIBRARY_USER" ]; then
-    CALIBRE_LIBRARY_USER=$(_get_master_username)
+    if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_user)"; then
+        CALIBRE_LIBRARY_USER=$(_get_master_username)
+        swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
+    fi
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+    if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_path)"; then
+        CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+        swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_USER"
+    fi
 fi
 
 clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs"
