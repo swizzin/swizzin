@@ -18,7 +18,7 @@ install() {
 
     echo_progress_start "Downloading source files"
 
-    urlbase="https://lidarr.servarr.com/v1/update/develop/updatefile?os=linux&runtime=netcore"
+    urlbase="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
