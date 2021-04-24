@@ -6,7 +6,7 @@ fi
 if [[ -f /install/.sonarr.lock ]] && [[ $v2present == "true" ]]; then
     #update lock file
     rm /install/.sonarr.lock
-    touch /install/.sonarrv2-old.lock
+    touch /install/.sonarrv2old.lock
 fi
 if [[ -f /install/.sonarrv3.lock ]]; then
     #upgrade sonarr v3 lock

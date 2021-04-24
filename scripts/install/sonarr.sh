@@ -16,7 +16,7 @@ sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
 #Handles existing v2 instances
 _sonarrv2_flow() {
     v2present=false
-    if [[ -f /install/.sonarrv2-old.lock ]]; then
+    if [[ -f /install/.sonarrv2old.lock ]]; then
         v2present=true
     fi
     if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
@@ -107,8 +107,8 @@ _sonarrv2_flow() {
         fi
 
         echo_progress_start "Removing Sonarr v2"
-        # shellcheck source=scripts/remove/sonarrv2-old.sh
-        bash /etc/swizzin/scripts/remove/sonarrv2-old.sh
+        # shellcheck source=scripts/remove/sonarrv2old.sh
+        bash /etc/swizzin/scripts/remove/sonarrv2old.sh
         echo_progress_done
     fi
 }
