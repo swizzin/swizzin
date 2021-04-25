@@ -20,10 +20,13 @@ _choose_pastehost() {
         echo -e "\n\n###### Links from $(date)"
         pastetool="privatebin"
     else
-        echo_warn "Privatebin CLI tool not installed. Without it, logs will not be encrypted and can not be deleted."
+        echo_warn "Privatebin CLI tool not installed. Without it, logs will not be e2e encrypted and can not be deleted; termbin.com will be used."
         if ask "Install Privatebin CLI tool?"; then
             # TODO change permissions on this file to +x so I don't have ti use bash because of the NTFS perms translation
-            bash /etc/swizzin/scripts/install/privatebincli.sh
+            bash /etc/swizzin/scripts/install/privatebincli.sh || {
+                echo_error "Please attempt a reinstall with box install privatebin. Exiting."
+                exit 1
+            }
             pastetool="privatebin"
         else
             echo_info "Continuing with termbin.com"
