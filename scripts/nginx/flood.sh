@@ -71,4 +71,3 @@ RUC
     fi
 
 done
-systemctl reload nginx

@@ -30,33 +30,33 @@ function _get_next_port_from_json() {
     echo "$highestvalue"
 }
 
-function _getversion() {
-    if [[ -z $arg_transmissionsource ]]; then
+function whiptail_transmission_source() {
+    if [[ -z $TRANSMISSION_SOURCE ]]; then
         distribution=$(lsb_release -is)
         if [[ $distribution =~ "Ubuntu" ]]; then
-            version=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
+            TRANSMISSION_SOURCE=$(whiptail --title "Install Software" --menu "Choose which source to install Transmission from" --ok-button "Continue" --nocancel 10 50 2 \
                 PPA "(Directly from Transmission)" \
                 Repo "(Packaged and tested by Ubuntu)" \
                 3>&1 1>&2 2>&3)
         else
-            version="Repo"
+            TRANSMISSION_SOURCE="Repo"
         fi
-        echo_log_only "version = $version"
-        export version
+        echo_log_only "TRANSMISSION_SOURCE = $TRANSMISSION_SOURCE"
+        export TRANSMISSION_SOURCE
     fi
 
 }
 
 function _install_transmission() {
-    _getversion
+    whiptail_transmission_source
     distribution=$(lsb_release -is)
-    if [[ $version = "PPA" ]]; then
+    if [[ $TRANSMISSION_SOURCE = "PPA" ]]; then
         if [[ ! $distribution =~ 'Ubuntu' ]]; then
             echo_warn "PPA not available on this system, using normal repo."
             return 1
         else
             echo_progress_start "Adding Transmission PPA"
-            add-apt-repository ppa:transmissionbt/ppa -y >> $log 2>&1
+            add-apt-repository ppa:transmissionbt/ppa -y >> "$log" 2>&1
             echo_progress_done "PPA Added"
         fi
     fi

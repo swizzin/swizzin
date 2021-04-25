@@ -1,15 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+readarray -t users < <(_get_user_list)
 
+echo_progress_start "Downloading autodl-irssi latest release"
+wget -q "$(curl -sL http://git.io/vlcND | jq .assets[0].browser_download_url -r)" -O /tmp/autodl-irssi.zip >> $log 2>&1 || {
+    echo_error "Autodl download failed, please check the log"
+    exit 1
+}
+echo_progress_done "Release downloaded"
+
+echo_progress_start "Extracting release for each user"
 for u in "${users[@]}"; do
-    cd "/home/${u}/.irssi/scripts/"
-    rm -rf AutodlIrssi
-    rm -f autodl-irssi.pl
-    rm -f autorun/autodl-irssi.pl
-    curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url": ")(.*-v[\d.]+.zip)' | xargs wget --quiet -O autodl-irssi.zip
-    unzip -o autodl-irssi.zip >> "${log}" 2>&1
-    rm autodl-irssi.zip
-    cp autodl-irssi.pl autorun/
-    chown -R $u: /home/${u}/.irssi/
+    echo_log_only "Extracting for user $u"
+    irssipath="/home/${u}/.irssi/scripts"
+    rm -rf "$irssipath"/{AutodlIrssi,autodl-irssi.pl,autorun/autodl-irssi.pl}
+    unzip -o /tmp/autodl-irssi.zip -d "$irssipath" >> "${log}" 2>&1
+    cp "$irssipath"/autodl-irssi.pl "$irssipath"/autorun/
+    chown -R "$u": /home/"${u}"/.irssi/
 done
+echo_progress_done "Release installed for all users"
+
+rm /tmp/autodl-irssi.zip

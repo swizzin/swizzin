@@ -1,0 +1,100 @@
+diff --git a/bindings/python/Jamfile b/bindings/python/Jamfile
+index 202d15398..346801cf7 100644
+--- a/bindings/python/Jamfile
++++ b/bindings/python/Jamfile
+@@ -19,6 +19,14 @@ feature libtorrent-link : shared static : composite propagated ;
+ feature libtorrent-python-pic : off on : composite propagated link-incompatible ;
+ feature.compose <libtorrent-python-pic>on : <cflags>-fPIC ;
+ 
++# when invoking the install_module target, this feature can be specified to
++# install the python module to a specific directory
++feature python-install-path : : free path ;
++
++# when not specifying a custom install path, this controls whether to install
++# the python module in the system directory or user-specifc directory
++feature python-install-scope : user system : ;
++
+ # this is just to force boost build to pick the desired python target when using LIBTORRENT_PYTHON_INTERPRETER
+ feature libtorrent-python : on ;
+ 
+@@ -113,9 +121,10 @@ rule libtorrent_linking ( properties * )
+         ECHO "WARNING: you probably want to specify libtorrent-link=static rather than link=static" ;
+     }
+ 
+-    if <boost-link>static in $(properties) && <target-os>linux in $(properties)
++	local BOOST_VERSION_TAG = [ modules.peek boostcpp : BOOST_VERSION_TAG ] ;
++    if <boost-link>static in $(properties) && $(BOOST_VERSION_TAG) < 1_74 && <target-os>linux in $(properties)
+     {
+-        ECHO "WARNING: you cannot link statically against boost-python on linux, because it links against pthread statically in that case, which is not allowed" ;
++        ECHO "WARNING: you cannot link statically against boost-python on linux before version 1.74.0, because it links against pthread statically in that case, which is not allowed" ;
+     }
+ 
+ 	local boost_python_lib ;
+@@ -138,13 +147,13 @@ rule libtorrent_linking ( properties * )
+     # linux must link dynamically against boost python because it pulls
+     # in libpthread, which must be linked dynamically since we're building a .so
+     # (the static build of libpthread is not position independent)
+-    if <boost-link>shared in $(properties) || <target-os>linux in $(properties)
++    if <boost-link>shared in $(properties) || ( <target-os>linux in $(properties) && $(BOOST_VERSION_TAG) < 1_74 )
+     {
+-        result += <library>$(boost_python_lib)/<link>shared ;
++        result += <library>$(boost_python_lib)/<link>shared/<warnings>off ;
+     }
+     else
+     {
+-        result += <library>$(boost_python_lib)/<link>static ;
++        result += <library>$(boost_python_lib)/<link>static/<warnings>off ;
+     }
+ 
+     if <libtorrent-link>shared in $(properties)
+@@ -212,6 +221,50 @@ my-python-extension libtorrent
+   : # usage-requirements
+     <suppress-import-lib>false
+   ;
++  
++rule python-install-dir ( properties * )
++{
++	local install-dir = [ feature.get-values python-install-path : $(properties) ] ;
++	if ( $(install-dir) != "" )
++	{
++		# if the user has provided an install location, use that one
++		return <location>$(install-dir) ;
++	}
++
++	local python-interpreter = [ feature.get-values python.interpreter : $(properties) ] ;
++	if ( $(python-interpreter) = "" )
++	{
++		return <location>. ;
++	}
++
++	# sys.path are defined differently between python2 and python3
++
++	local python-path ;
++	if <python-install-scope>system in $(properties)
++	{
++		python-path = [ SHELL "$(python-interpreter) -c \"import distutils.sysconfig; import sys; sys.stdout.write(distutils.sysconfig.get_python_lib())\"" ] ;
++	}
++	else
++	{
++		python-path = [ SHELL "$(python-interpreter) -c \"import site; import sys; sys.stdout.write(site.USER_SITE)\"" ] ;
++	}
++
++	if $(python-path) = ""
++	{
++		return <location>. ;
++	}
++
++	ECHO "python install directory:" $(python-path) ;
++	return <location>$(python-path) ;
++}
++  
++install install_module
++	: libtorrent
++	: <conditional>@python-install-dir
++	<install-type>PYTHON_EXTENSION
++	;
++
++explicit install_module ;
+ 
+ install stage_module
+   : libtorrent
