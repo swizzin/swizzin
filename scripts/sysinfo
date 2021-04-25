@@ -42,7 +42,7 @@ _post_content() {
         cat | _wash_content > /tmp/"$tmpid"
         touch $privatebinlog
         echo "" >> $privatebinlog
-        cat /tmp/"$tmpid" | privatebin send -o text >> $privatebinlog
+        cat /tmp/"$tmpid" | privatebin send -o text --textformat markdown >> $privatebinlog
         # privatebin send -o text "$(cat /tmp/"$tmpid")" >> $privatebinlog
         rm /tmp/"$tmpid"
         tail -3 $privatebinlog | grep "pasteURL" | awk '{print $2}'
