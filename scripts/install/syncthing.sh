@@ -54,6 +54,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/syncthing.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Syncthing will run on port 8384"
 fi
 
 touch /install/.syncthing.lock

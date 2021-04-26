@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
+        "Raspbian",
+        "Sysinfo",
+        "armhf",
         "dpkg",
         "mcrypt",
         "shellcheck",
@@ -18,5 +21,11 @@
     "shellcheck.run": "onType",
     "editor.formatOnType": true,
     "diffEditor.codeLens": true,
-    "telemetry.enableTelemetry": false
+    "telemetry.enableTelemetry": false,
+    "githubIssues.ignoreCompletionTrigger": [
+        "python",
+        "makefile",
+        "shellscript",
+        "bash"
+    ]
 }

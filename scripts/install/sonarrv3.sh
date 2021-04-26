@@ -151,16 +151,12 @@ _install_sonarrv3() {
         exit 1
     fi
 
-    if [[ -f $sonarrv3confdir/update_required ]]; then
-        echo_progress_start "Sonarr is installing an internal upgrade..."
-        # echo "You can track the update by running \`systemctl status sonarr\` in another shell."
-        # echo "In case of errors, please press CTRL+C and run \`box remove sonarrv3\` in this shell and check in with us in the Discord"
-        while [[ -f $sonarrv3confdir/update_required ]]; do
-            sleep 1
-            # This completed in 4 seconds on a 1vcpu 1gb ram instance on an i3-5xxx so this should really not cause infinite loops.
-        done
-        echo_progress_done "Internal upgrade finished"
+    echo_progress_start "Sonarr is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The Sonarr web server has taken longer than 30 seconds to start."
+        exit 1
     fi
+    echo_progress_done "Internal upgrade finished"
 }
 
 # _add2usergroups_sonarrv3 () {
@@ -187,6 +183,8 @@ _nginx_sonarr() {
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
         echo_progress_done
+    else
+        echo_info "Sonarr will run on port 8989"
     fi
 }
 

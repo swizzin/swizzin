@@ -20,17 +20,17 @@ isactive=$(systemctl is-active sonarr)
 if [[ $isactive == "active" ]]; then
     systemctl stop sonarr
 fi
-user=$(grep User /lib/systemd/system/sonarr.service | cut -d= -f2)
+user=$(grep User= /lib/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
-echo "Sonarr user detected as $user" >> "$log"
+echo_log_only "Sonarr user detected as $user"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
-echo "API Key  = $apikey" >> "$log"
-#TODO cahnge Branch whenever that becomes relevant
+echo_log_only "API Key  = $apikey"
+
 cat > /home/"$user"/.config/sonarr/config.xml << SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
-  <Branch>phantom-develop</Branch>
+  <Branch>main</Branch>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>8989</Port>
   <SslPort>9898</SslPort>

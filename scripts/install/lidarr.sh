@@ -64,6 +64,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/lidarr.sh
     systemctl reload nginx
     echo_progress_done "Nginx configured"
+else
+    echo_info "Lidarr will run on port 8686"
 fi
 
 echo_progress_start "Enabling Lidarr"

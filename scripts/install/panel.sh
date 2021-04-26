@@ -78,12 +78,11 @@ else
 fi
 echo_progress_done
 
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring nginx"
-    bash /usr/local/bin/swizzin/nginx/panel.sh
-    systemctl reload nginx
-    echo_progress_done
-fi
+# Checking nginx existence is the first thing that happens in the script
+echo_progress_start "Configuring nginx"
+bash /usr/local/bin/swizzin/nginx/panel.sh
+systemctl reload nginx
+echo_progress_done
 
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/panel.service << EOS
