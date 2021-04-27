@@ -27,13 +27,13 @@ fi
 
 _install_radarr() {
     app_user="$RADARR_OWNER"
-    appconfigdir="/home/$app_user/.config/${app_name^}"
+    app_configdir="/home/$app_user/.config/${app_name^}"
     apt_install "${app_reqs[@]}"
 
-    if [ ! -d "$appconfigdir" ]; then
-        mkdir -p "$appconfigdir"
+    if [ ! -d "$app_configdir" ]; then
+        mkdir -p "$app_configdir"
     fi
-    chown -R "$app_user":"$app_user" "$appconfigdir"
+    chown -R "$app_user":"$app_user" "$app_configdir"
 
     echo_progress_start "Downloading release archive"
 
@@ -77,7 +77,7 @@ Group=${app_user}
 Type=simple
 
 # Change the path to ${app_name^} here if it is in a different location for you.
-ExecStart=$app_dir/$app_binary -nobrowser -data=$appconfigdir
+ExecStart=$app_dir/$app_binary -nobrowser -data=$app_configdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
