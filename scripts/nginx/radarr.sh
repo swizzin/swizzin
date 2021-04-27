@@ -39,7 +39,7 @@ if [[ $isactive == "active" ]]; then
     systemctl stop $app_name
 fi
 echo_log_only "${app_name^} user detected as $app_user"
-apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir")
+apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 echo_log_only "Apikey = $apikey" >> "$log"
 
 cat > "$app_configdir"/config.xml << RADARR
