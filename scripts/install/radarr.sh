@@ -49,7 +49,7 @@ Group=${radarrOwner}
 Type=simple
 
 # Change the path to Radarr here if it is in a different location for you.
-ExecStart=/opt/Radarr/Radarr -nobrowser -data=/home/${user}/.config/Radarr/
+ExecStart=/opt/Radarr/Radarr -nobrowser -data=/home/$radarrOwner/.config/Radarr/
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
