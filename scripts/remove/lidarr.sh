@@ -10,3 +10,5 @@ if [[ -f /install/.nginx.lock ]]; then
     rm -rf /etc/nginx/apps/lidarr.conf
     systemctl reload nginx
 fi
+
+swizdb clear "lidarr/owner"
