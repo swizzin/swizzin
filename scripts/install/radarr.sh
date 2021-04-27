@@ -8,8 +8,8 @@
 
 #ToDo this should all be wrote to SwizDB; Need to ensure swizdb is updated for existing installs
 app_name="radarr"
-app_dir="/opt/{$app_name^}"
-app_binary="{$app_name^}"
+app_dir="/opt/${app_name^}"
+app_binary="${app_name^}"
 app_port="7878"
 app_reqs=("curl" "mediainfo" "sqlite3")
 app_branch="master"
@@ -17,17 +17,17 @@ app_branch="master"
 if [ -z "$RADARR_OWNER" ]; then
     if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
         RADARR_OWNER=$(_get_master_username)
-        echo_info "Setting {$app_name^} owner = $RADARR_OWNER"
+        echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
         swizdb set "$app_name/owner" "$RADARR_OWNER"
     fi
 else
-    echo_info "Setting {$app_name^} owner = $RADARR_OWNER"
+    echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
     swizdb set "$app_name/owner" "$RADARR_OWNER"
 fi
 
 _install_radarr() {
     app_user="$RADARR_OWNER"
-    appconfigdir="/home/$app_user/.config/{$app_name^}"
+    appconfigdir="/home/$app_user/.config/${app_name^}"
     apt_install "${app_reqs[@]}"
 
     if [ ! -d "$appconfigdir" ]; then
@@ -66,7 +66,7 @@ _install_radarr() {
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_name.service" << EOF
 [Unit]
-Description={$app_name^} Daemon
+Description=${app_name^} Daemon
 After=syslog.target network.target
 
 [Service]
@@ -76,13 +76,13 @@ Group=${app_user}
 
 Type=simple
 
-# Change the path to {$app_name^} here if it is in a different location for you.
+# Change the path to ${app_name^} here if it is in a different location for you.
 ExecStart=$app_dir/$app_binary -nobrowser -data=$appconfigdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
 
-# These lines optionally isolate (sandbox) {$app_name^} from the rest of the system.
+# These lines optionally isolate (sandbox) ${app_name^} from the rest of the system.
 # Make sure to add any paths it might use to the list below (space-separated).
 #ReadWritePaths=$app_dir /path/to/movies/folder
 #ProtectSystem=strict
@@ -96,11 +96,11 @@ EOF
     systemctl -q daemon-reload
     systemctl enable --now -q "$app_name"
     sleep 1
-    echo_progress_done "{$app_name^} service installed and enabled"
+    echo_progress_done "${app_name^} service installed and enabled"
 
-    echo_progress_start "{$app_name^} is installing an internal upgrade..."
+    echo_progress_start "${app_name^} is installing an internal upgrade..."
     if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The {$app_name^} web server has taken longer than 30 seconds to start."
+        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi
     echo_progress_done "Internal upgrade finished"
@@ -115,7 +115,7 @@ _nginx_radarr() {
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
-        echo_info "{$app_name^} will run on port $app_port"
+        echo_info "${app_name^} will run on port $app_port"
     fi
 }
 
@@ -135,4 +135,4 @@ if [[ -f /install/.bazarr.lock ]]; then
 fi
 
 touch "/install/.$app_name.lock"
-echo_success "{$app_name^} installed"
+echo_success "${app_name^} installed"
