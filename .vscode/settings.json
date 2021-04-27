@@ -27,5 +27,6 @@
         "makefile",
         "shellscript",
         "bash"
-    ]
+    ],
+    "files.eol": "\n",
 }
