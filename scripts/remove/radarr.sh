@@ -12,12 +12,12 @@ if ! app_user="$(swizdb get $app_name/owner)"; then
     app_user=$(_get_master_username)
 fi
 
-appdatadir="/home/$app_user/.config/{$app_name^}/"
+app_datadir="/home/$app_user/.config/{$app_name^}/"
 # this must be set AFTER we get the app_user
 
 if ask "Would you like to purge the configuration?" Y; then
     purgeapp="True"
-    echo_info "Application Data Directory to delete & purge detected as $appdatadir"
+    echo_info "Application Data Directory to delete & purge detected as $app_datadir"
 else
     purgeapp="False"
 fi
@@ -35,7 +35,7 @@ rm -rf "$app_dir"
 echo_progress_done "Application files removed"
 
 if [[ "$purgeapp" = "True" ]]; then
-    rm -rf "$appdatadir"
+    rm -rf "$app_datadir"
     echo_info "Application data purged"
 fi
 
