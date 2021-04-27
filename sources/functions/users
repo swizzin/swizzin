@@ -46,7 +46,7 @@ export -f _get_user_list
 function _get_master_username() {
     cut -d: -f1 < /root/.master.info
 }
-export -f -_get_master_username
+export -f _get_master_username
 
 # Will recurse if $pass isn't set or isn't valid
 function password_check() {
