@@ -25,7 +25,7 @@ install() {
     user="$LIDARR_OWNER"
     apt_install mediainfo sqlite3 libchromaprint-tools
 
-    echo_progress_start "Downloading source files"
+    echo_progress_start "Downloading release archive"
 
     urlbase="https://lidarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
@@ -42,16 +42,16 @@ install() {
         echo_error "Download failed, exiting"
         exit 1
     fi
-    echo_progress_done "Source downloaded"
+    echo_progress_done "Archive downloaded"
 
-    echo_progress_start "Extracting source"
+    echo_progress_start "Extracting archive"
     tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
     rm -rf /tmp/lidarr.tar.gz
     chown -R "${user}": /opt/Lidarr
-    echo_progress_done "Source extracted"
+    echo_progress_done "Archive extracted"
 }
 
 config() {

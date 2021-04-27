@@ -45,14 +45,13 @@ if [[ -f /install/.lidarr.lock ]]; then
         fi
         echo_progress_done "Binaries downloaded"
 
-        echo_progress_start "Extracting source"
+        echo_progress_start "Extracting archive"
         tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
             echo_error "Extraction failed. Please investigate. Exiting"
             exit 1
         }
         rm -rf /tmp/lidarr.tar.gz
-        chown -R "${user}": /opt/Lidarr
-        echo_progress_done "Source extracted"
+        echo_progress_done "Archive extracted"
 
         chown -R "$user":"$user" /opt/Lidarr
 
