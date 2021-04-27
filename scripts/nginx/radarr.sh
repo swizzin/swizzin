@@ -7,6 +7,7 @@
 app_name="radarr"
 app_port="7878"
 app_apiversion="v3"
+app_nginxname=$app_name
 
 if ! app_user="$(swizdb get $app_name/owner)"; then
     app_user=$(_get_master_username)
@@ -16,8 +17,8 @@ app_configdir="/home/$app_user/.config/${app_name^}"
 
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/$app_name.conf << RADARR
-location /radarr {
+cat > /etc/nginx/apps/$app_nginxname.conf << RADARR
+location /$app_name {
   proxy_pass        http://127.0.0.1:$app_port/$app_name;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;

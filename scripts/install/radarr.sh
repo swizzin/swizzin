@@ -13,6 +13,7 @@ app_binary="${app_name^}"
 app_port="7878"
 app_reqs=("curl" "mediainfo" "sqlite3")
 app_branch="master"
+app_lockname=$app_name
 
 if [ -z "$RADARR_OWNER" ]; then
     if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
@@ -134,5 +135,5 @@ if [[ -f /install/.bazarr.lock ]]; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 
-touch "/install/.$app_name.lock"
+touch "/install/.$app_lockname.lock"
 echo_success "${app_name^} installed"
