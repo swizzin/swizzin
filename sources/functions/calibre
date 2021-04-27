@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+## Unused, left for another day
+
 build_calibre_from_source() {
     apt_install python3
     cd /tmp
@@ -16,4 +18,33 @@ build_calibre_from_source() {
     export BYPY_LOCATION=/tmp/bypy
     python3 setup.py linux
     # python3 setup.py install
+}
+# ref: https://archlinuxarm.org/packages/aarch64/calibre/files/PKGBUILD
+calibre_source_attempt() {
+
+    pipdeps=('pyqt5-sip' 'pyqt-builder' 'cchardet' 'py7zr' 'pychm' 'unicode' 'pyqtwebengine')
+    pip3 install "${pipdeps[@]}"
+
+    npm install rapydscript-ng -g
+
+    _py_deps=('apsw' 'bs4' 'cssselect' 'css-parser' 'dateutil' 'dbus' 'dnspython'
+        'feedparser' 'html2text' 'html5-parser' 'lxml' 'markdown' 'mechanize' 'msgpack'
+        'netifaces' 'unrardll' 'pillow' 'psutil' 'pygments' 'pyqt5'
+        'regex' 'zeroconf' 'sip')
+    makedepends=('libqt5x11extras5' 'xdg-utils')
+    depends=('qt5-default' 'libsqlite3-dev' 'libicu-dev' 'unicode' 'libhunspell-dev' 'libhyphen-dev' 'qt5-qmake' 'pkg-config' 'libjxr-dev' 'libmtp-dev' 'libusb-dev'
+        'libwmf-dev' 'libjs-mathjax' 'libmtdev-dev' 'optipng' 'libpodofo-dev'
+        "${_py_deps[@]/#/python3-}" 'qt5-image-formats-plugins' 'libqt5svg5-dev' 'fonts-liberation2' 'udisks2')
+    apt_install "${depends[@]}" "${makedepends[@]}"
+
+    build() {
+        cd "${pkgbase}-${pkgver}"
+
+        LANG='en_US.UTF-8' python3 setup.py build
+        LANG='en_US.UTF-8' python3 setup.py gui
+        python setup.py liberation_fonts --path-to-liberation_fonts /usr/share/fonts/liberation --system-liberation_fonts
+        LANG='en_US.UTF-8' python3 setup.py mathjax --path-to-mathjax /usr/share/mathjax --system-mathjax
+        LANG='en_US.UTF-8' python3 setup.py rapydscript
+    }
+
 }
