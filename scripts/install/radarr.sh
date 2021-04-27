@@ -8,11 +8,10 @@
 
 appname_lower="radarr"
 appname_camel="Radarr"
-appconfigdir="/home/$user/.config/$appname_camel"
 appdir="/opt/$appname_camel"
 appbinary="Radarr"
 appport="7878"
-appprereqs=(curl mediainfo sqlite3)
+appprereqs=("curl" "mediainfo" "sqlite3")
 appbranch="master"
 
 if [ -z "$RADARR_OWNER" ]; then
@@ -28,8 +27,8 @@ fi
 
 _install_radarr() {
     user="$RADARR_OWNER"
-
-    apt_install ${appprereqs[@]}
+    appconfigdir="/home/$user/.config/$appname_camel"
+    apt_install "${appprereqs[@]}"
 
     if [ ! -d "$appconfigdir" ]; then
         mkdir -p "$appconfigdir"
