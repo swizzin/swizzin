@@ -4,17 +4,16 @@
 servicename="radarr"
 nginxname="radarr"
 lockname="radarr"
-appname_lower="radarr"
-appname_camel="Radarr"
+appname="radarr"
 servicefile="/etc/systemd/system/$servicename.service"
 appdir="/opt/Radarr"
 
-if ! user="$(swizdb get $appname_lower/owner)"; then
-    user=$(_get_master_username)
+if ! app_user="$(swizdb get $appname/owner)"; then
+    app_user=$(_get_master_username)
 fi
 
-appdatadir="/home/$user/.config/Radarr/"
-# this must be set AFTER we get the user
+appdatadir="/home/$app_user/.config/{$appname^}/"
+# this must be set AFTER we get the app_user
 
 if ask "Would you like to purge the configuration?" Y; then
     purgeapp="True"
@@ -22,7 +21,7 @@ if ask "Would you like to purge the configuration?" Y; then
 else
     purgeapp="False"
 fi
-echo_progress_start "Removing $appname_camel..."
+echo_progress_start "Removing {$appname^}..."
 
 echo_progress_start "Disabling $servicename service and removing file"
 systemctl disable --now -q "$servicename"
@@ -48,4 +47,4 @@ if [[ -f /install/.nginx.lock ]]; then
 fi
 
 rm "/install/.$lockname.lock"
-echo_progress_done "$appname_camel removed sucessfully"
+echo_progress_done "{$appname^} removed sucessfully"
