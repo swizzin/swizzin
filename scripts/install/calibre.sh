@@ -29,7 +29,7 @@ _install() {
             exit 1
         fi
     else
-        echo_info ""
+        echo_info "Calibre installer does not support $(_os_arch), falling back to package manager"
         apt_install calibre
         # : #TODO build calibre from source
     fi

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 ## Unused, left for another day
+# https://github.com/kovidgoyal/bypy/issues/3
 
 build_calibre_from_source() {
     apt_install python3
