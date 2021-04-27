@@ -19,7 +19,7 @@ if [[ -f /install/.lidarr.lock ]]; then
         wasActive=$(systemctl is-active lidarr)
         systemctl stop lidarr
 
-        echo_progress_start "Moving ~/Lidarr to /root/swizzin/backups/lidarr-mono"
+        echo_progress_start "Moving /home/$user/Lidarr to /root/swizzin/backups/lidarr-mono"
         mkdir -p /root/swizzin/backups
         mv /home/"$user"/Lidarr /root/swizzin/backups/lidarr-mono || {
             echo_error "Move failed, please investigate. exiting."
