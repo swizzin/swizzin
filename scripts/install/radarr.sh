@@ -7,27 +7,27 @@
 . /etc/swizzin/sources/functions/utils
 
 #ToDo this should all be wrote to SwizDB; Need to ensure swizdb is updated for existing installs
-appname="radarr"
-appdir="/opt/{$appname^}"
-appbinary="Radarr"
-appport="7878"
+app_name="radarr"
+app_dir="/opt/{$app_name^}"
+app_binary="{$app_name^}"
+app_port="7878"
 app_reqs=("curl" "mediainfo" "sqlite3")
-appbranch="master"
+app_branch="master"
 
 if [ -z "$RADARR_OWNER" ]; then
-    if ! RADARR_OWNER="$(swizdb get $appname/owner)"; then
+    if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
         RADARR_OWNER=$(_get_master_username)
-        echo_info "Setting {$appname^} owner = $RADARR_OWNER"
-        swizdb set "$appname/owner" "$RADARR_OWNER"
+        echo_info "Setting {$app_name^} owner = $RADARR_OWNER"
+        swizdb set "$app_name/owner" "$RADARR_OWNER"
     fi
 else
-    echo_info "Setting {$appname^} owner = $RADARR_OWNER"
-    swizdb set "$appname/owner" "$RADARR_OWNER"
+    echo_info "Setting {$app_name^} owner = $RADARR_OWNER"
+    swizdb set "$app_name/owner" "$RADARR_OWNER"
 fi
 
 _install_radarr() {
     app_user="$RADARR_OWNER"
-    appconfigdir="/home/$app_user/.config/{$appname^}"
+    appconfigdir="/home/$app_user/.config/{$app_name^}"
     apt_install "${app_reqs[@]}"
 
     if [ ! -d "$appconfigdir" ]; then
@@ -37,7 +37,7 @@ _install_radarr() {
 
     echo_progress_start "Downloading release archive"
 
-    urlbase="https://$appname.servarr.com/v1/update/$appbranch/updatefile?os=linux&runtime=netcore"
+    urlbase="https://$app_name.servarr.com/v1/update/$app_branch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
@@ -48,25 +48,25 @@ _install_radarr() {
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o "/tmp/$appname.tar.gz" >> "$log" 2>&1; then
+    if ! curl "$dlurl" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar xfv "/tmp/$appname.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
+    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
-    rm -rf "/tmp/$appname.tar.gz"
-    chown -R "${app_user}": "$appdir"
+    rm -rf "/tmp/$app_name.tar.gz"
+    chown -R "${app_user}": "$app_dir"
     echo_progress_done "Archive extracted"
 
     echo_progress_start "Installing Systemd service"
-    cat > "/etc/systemd/system/$appname.service" << EOF
+    cat > "/etc/systemd/system/$app_name.service" << EOF
 [Unit]
-Description={$appname^} Daemon
+Description={$app_name^} Daemon
 After=syslog.target network.target
 
 [Service]
@@ -76,15 +76,15 @@ Group=${app_user}
 
 Type=simple
 
-# Change the path to {$appname^} here if it is in a different location for you.
-ExecStart=$appdir/$appbinary -nobrowser -data=$appconfigdir
+# Change the path to {$app_name^} here if it is in a different location for you.
+ExecStart=$app_dir/$app_binary -nobrowser -data=$appconfigdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
 
-# These lines optionally isolate (sandbox) {$appname^} from the rest of the system.
+# These lines optionally isolate (sandbox) {$app_name^} from the rest of the system.
 # Make sure to add any paths it might use to the list below (space-separated).
-#ReadWritePaths=$appdir /path/to/movies/folder
+#ReadWritePaths=$app_dir /path/to/movies/folder
 #ProtectSystem=strict
 #PrivateDevices=true
 #ProtectHome=true
@@ -94,13 +94,13 @@ WantedBy=multi-app_user.target
 EOF
 
     systemctl -q daemon-reload
-    systemctl enable --now -q "$appname"
+    systemctl enable --now -q "$app_name"
     sleep 1
-    echo_progress_done "{$appname^} service installed and enabled"
+    echo_progress_done "{$app_name^} service installed and enabled"
 
-    echo_progress_start "{$appname^} is installing an internal upgrade..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$appport >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The {$appname^} web server has taken longer than 30 seconds to start."
+    echo_progress_start "{$app_name^} is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The {$app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi
     echo_progress_done "Internal upgrade finished"
@@ -115,7 +115,7 @@ _nginx_radarr() {
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
-        echo_info "{$appname^} will run on port $appport"
+        echo_info "{$app_name^} will run on port $app_port"
     fi
 }
 
@@ -134,5 +134,5 @@ if [[ -f /install/.bazarr.lock ]]; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 
-touch "/install/.$appname.lock"
-echo_success "{$appname^} installed"
+touch "/install/.$app_name.lock"
+echo_success "{$app_name^} installed"
