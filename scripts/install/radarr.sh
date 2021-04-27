@@ -6,6 +6,7 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+#ToDo this should all be wrote to SwizDB; Need to ensure swizdb is updated for existing installs
 appname_lower="radarr"
 appname_camel="Radarr"
 appdir="/opt/$appname_camel"

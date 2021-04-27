@@ -1,10 +1,17 @@
 #!/bin/bash
 
+#ToDo this should all be grabbed from SwizDB; Need to ensure swizdb is updated for existing installs
 servicename="radarr"
 nginxname="radarr"
 lockname="radarr"
+appname_lower="radarr"
 servicefile="/etc/systemd/system/$servicename.service"
 appdir="/opt/Radarr"
+
+if ! user="$(swizdb get $appname_lower/owner)"; then
+    user=$(_get_master_username)
+fi
+
 appdatadir="/home/$user/.config/Radarr/"
 
 if ask "Would you like to purge the configuration?" Y; then
