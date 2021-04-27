@@ -20,21 +20,28 @@ function rutorrent_install() {
     if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
         apt_install python-pip
     else
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         python_getpip
     fi
 
-    pip install cloudscraper >> /dev/null 2>&1
+    echo_progress_start "Installing cloudscraper"
+    pip install cloudscraper >> "$log" 2>&1
+    echo_progress_done "Cloudscraper installed"
 
     cd /srv
     if [[ ! -d /srv/rutorrent ]]; then
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> /dev/null 2>&1
+        echo_progress_start "Cloning rutorrent"
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> "$log" 2>&1
         chown -R www-data:www-data rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
         rm -rf /srv/rutorrent/conf/config.php
+        echo_progress_done "RuTorrent cloned"
     fi
+
+    echo_progress_start "Cloning some essential themes and plugins"
     sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
@@ -45,13 +52,13 @@ function rutorrent_install() {
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
         cd /srv/rutorrent/plugins/theme/themes
-        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox > /dev/null 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >> "$log" 2>&1
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         cd /srv/rutorrent/plugins/
-        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> /dev/null 2>&1
+        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "$log" 2>&1
         chown -R www-data: /srv/rutorrent/plugins/filemanager
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
@@ -88,7 +95,7 @@ FMCONF
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
-        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> /dev/null 2>&1
+        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
     fi
 
@@ -99,6 +106,7 @@ FMCONF
         rm -rf logoff-1.3.tar.gz
         chown -R www-data: logoff
     fi
+    echo_progress_done "Plugins downloaded"
 
     if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
         cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
