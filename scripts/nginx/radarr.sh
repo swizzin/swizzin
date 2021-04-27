@@ -18,7 +18,7 @@ master=$(cut -d: -f1 < /root/.master.info)
 
 cat > /etc/nginx/apps/$app_name.conf << RADARR
 location /radarr {
-  proxy_pass        http://127.0.0.1:"$app_port"/"$app_name";
+  proxy_pass        http://127.0.0.1:$app_port/$app_name;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto \$scheme;
