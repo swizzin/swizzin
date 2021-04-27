@@ -1,5 +1,4 @@
 #!/bin/bash
-user=$(cut -d: -f1 < /root/.master.info)
 systemctl disable --now -q lidarr
 
 rm -rf /opt/Lidarr

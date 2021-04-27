@@ -1,8 +1,17 @@
 #!/bin/bash
 if [[ -f /install/.lidarr.lock ]]; then
 
+    if [ -z "$LIDARR_OWNER" ]; then
+        if ! LIDARR_OWNER="$(swizdb get lidarr/owner)"; then
+            LIDARR_OWNER=$(_get_master_username)
+            swizdb set "lidarr/owner" "$LIDARR_OWNER"
+        fi
+    else
+        swizdb set "lidarr/owner" "$LIDARR_OWNER"
+    fi
+
     #Move old homedirectory installations to opt and switch to netcore
-    user=$(cut -d: -f1 < /root/.master.info)
+    user="$LIDARR_OWNER"
     if [[ -d /home/$user/Lidarr ]]; then
         echo_info "Moving Lidarr instllation to opt and switching it to net-core"
         wasActive=$(systemctl is-active lidarr)

@@ -10,10 +10,19 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+if [ -z "$LIDARR_OWNER" ]; then
+    if ! LIDARR_OWNER="$(swizdb get lidarr/owner)"; then
+        LIDARR_OWNER=$(_get_master_username)
+        echo_info "Setting Lidarr owner = $LIDARR_OWNER"
+        swizdb set "lidarr/owner" "$LIDARR_OWNER"
+    fi
+else
+    echo_info "Setting Lidarr owner = $LIDARR_OWNER"
+    swizdb set "lidarr/owner" "$LIDARR_OWNER"
+fi
+
 install() {
-    #shellcheck source=sources/functions/users
-    . /etc/swizzin/sources/functions/users
-    user="$(_get_master_username)"
+    user="$LIDARR_OWNER"
     apt_install mediainfo sqlite3 libchromaprint-tools
 
     echo_progress_start "Downloading source files"
