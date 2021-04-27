@@ -6,24 +6,30 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+appname_lower="radarr"
+appname_camel="Radarr"
+appconfigdir="/home/$user/.config/$appname_camel"
+appdir="/opt/$appname_camel"
+appbinary="Radarr"
+appport="7878"
+appprereqs="curl mediainfo sqlite3"
+appbranch="master"
+
 if [ -z "$RADARR_OWNER" ]; then
-    if ! RADARR_OWNER="$(swizdb get radarr/owner)"; then
+    if ! RADARR_OWNER="$(swizdb get $appname_lower/owner)"; then
         RADARR_OWNER=$(_get_master_username)
-        echo_info "Setting Radarr owner = $RADARR_OWNER"
-        swizdb set "radarr/owner" "$RADARR_OWNER"
+        echo_info "Setting $appname_camel owner = $RADARR_OWNER"
+        swizdb set "$appname_lower/owner" "$RADARR_OWNER"
     fi
 else
-    echo_info "Setting Radarr owner = $RADARR_OWNER"
-    swizdb set "radarr/owner" "$RADARR_OWNER"
+    echo_info "Setting $appname_camel owner = $RADARR_OWNER"
+    swizdb set "$appname_lower/owner" "$RADARR_OWNER"
 fi
 
 _install_radarr() {
     user="$RADARR_OWNER"
-    appname_lower="radarr"
-    appname_camel="Radarr"
-    appconfigdir="/home/$user/.config/$appname_camel"
 
-    apt_install curl mediainfo sqlite3
+    apt_install "$appprereqs"
 
     if [ ! -d "$appconfigdir" ]; then
         mkdir -p "$appconfigdir"
@@ -32,7 +38,7 @@ _install_radarr() {
 
     echo_progress_start "Downloading release archive"
 
-    urlbase="https://$appname_lower.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
+    urlbase="https://$appname_lower.servarr.com/v1/update/$appbranch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
@@ -55,7 +61,6 @@ _install_radarr() {
         exit 1
     }
     rm -rf "/tmp/$appname_lower.tar.gz"
-    appdir="/opt/$appname_camel"
     chown -R "${user}": "$appdir"
     echo_progress_done "Archive extracted"
 
@@ -72,13 +77,13 @@ Group=${user}
 
 Type=simple
 
-# Change the path to Radarr here if it is in a different location for you.
-ExecStart=$appdir/Radarr -nobrowser -data=$appconfigdir
+# Change the path to $appname_camel here if it is in a different location for you.
+ExecStart=$appdir/$appbinary -nobrowser -data=$appconfigdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
 
-# These lines optionally isolate (sandbox) Radarr from the rest of the system.
+# These lines optionally isolate (sandbox) $appname_camel from the rest of the system.
 # Make sure to add any paths it might use to the list below (space-separated).
 #ReadWritePaths=$appdir /path/to/movies/folder
 #ProtectSystem=strict
@@ -95,7 +100,7 @@ EOF
     echo_progress_done "$appname_camel service installed and enabled"
 
     echo_progress_start "$appname_camel is installing an internal upgrade..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:7878 >> \"$log\" 2>&1; do sleep 2; done"; then
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$appport >> \"$log\" 2>&1; do sleep 2; done"; then
         echo_error "The $appname_camel web server has taken longer than 30 seconds to start."
         exit 1
     fi
@@ -111,7 +116,7 @@ _nginx_radarr() {
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
-        echo_info "$appname_camel will run on port 7878"
+        echo_info "$appname_camel will run on port $appport"
     fi
 }
 
