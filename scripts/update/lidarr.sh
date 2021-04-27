@@ -4,9 +4,11 @@ if [[ -f /install/.lidarr.lock ]]; then
     if [ -z "$LIDARR_OWNER" ]; then
         if ! LIDARR_OWNER="$(swizdb get lidarr/owner)"; then
             LIDARR_OWNER=$(_get_master_username)
+            echo_info "Setting Lidarr owner = $LIDARR_OWNER"
             swizdb set "lidarr/owner" "$LIDARR_OWNER"
         fi
     else
+        echo_info "Setting Lidarr owner = $LIDARR_OWNER"
         swizdb set "lidarr/owner" "$LIDARR_OWNER"
     fi
 
