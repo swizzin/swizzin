@@ -134,6 +134,9 @@ _mkservice_mango
 
 if [[ -f /install/.nginx.lock ]]; then
     bash /etc/swizzin/scripts/nginx/mango.sh
+    systemctl reload nginx
+else
+    echo_info "Mango will run on port 9003"
 fi
 
 echo_info "Please use your existing credentials when logging in.\nYou can access your files in $mangodir/library"

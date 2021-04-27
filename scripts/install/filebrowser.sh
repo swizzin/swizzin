@@ -89,6 +89,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
     systemctl reload nginx
     echo_progress_done "Nginx config installed"
+else
+    echo_info "FileBrowser will run on port ${app_port_http}"
 fi
 #
 # Start the filebrowser service.
@@ -101,12 +103,6 @@ touch "/install/.filebrowser.lock"
 #
 # A helpful echo to the terminal.
 echo_success "FileBrowser installed"
-#
-if [[ ! -f /install/.nginx.lock ]]; then
-    echo_info "Filebrowser is available at: https://$(curl -s4 icanhazip.com):${app_port_http}"
-else
-    echo_info "Filebrowser is now available in the panel"
-fi
 echo_warn "Make sure to use your swizzin credentials when logging in"
 #
 exit

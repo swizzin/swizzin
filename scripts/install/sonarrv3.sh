@@ -183,6 +183,8 @@ _nginx_sonarr() {
         bash /usr/local/bin/swizzin/nginx/sonarrv3.sh
         systemctl reload nginx >> $log 2>&1
         echo_progress_done
+    else
+        echo_info "Sonarr will run on port 8989"
     fi
 }
 

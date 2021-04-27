@@ -71,6 +71,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/headphones.sh
     systemctl reload nginx
     echo_info "Please note headphones access url is: https://$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')/headphones/home"
+else
+    echo_info "Headphones will run on port 8004"
 fi
 echo_success "Headphones installed"
 

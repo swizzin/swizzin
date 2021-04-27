@@ -375,6 +375,9 @@ function _post() {
         echo_info "You can now use the box command to manage swizzin features, e.g. \`box install nginx panel\`"
     fi
     echo_docs getting-started/box-basics
+    #
+    # Run the bash_completion installer from the update folder
+    bash /etc/swizzin/scripts/update/bash_completion.sh
 }
 
 _run_checks() {

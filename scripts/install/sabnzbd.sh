@@ -119,6 +119,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sabnzbd.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "SabNzbd will run on port 65080"
 fi
 
 echo_success "Sabnzbd installed"

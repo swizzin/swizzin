@@ -597,9 +597,7 @@ After=network.target
 [Service]
 Type=simple
 User=%i
-
 ExecStart=/usr/bin/deluged -d
-ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluged
 Restart=on-failure
 TimeoutStopSec=300
 
@@ -616,9 +614,7 @@ After=network.target
 [Service]
 Type=simple
 User=%i
-
 ExecStart=/usr/bin/deluge-web${args}
-ExecStop=/usr/bin/killall -w -s 9 /usr/bin/deluge-web
 TimeoutStopSec=300
 Restart=on-failure
 
