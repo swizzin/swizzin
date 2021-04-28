@@ -81,7 +81,7 @@ if [[ -f /install/.radarr.lock ]]; then
     app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
     if [[ $ownerToSetInDB = 'True' ]]; then
-        if [ -f "$app_configfile" ]; then
+        if [ -e "$app_configfile" ]; then
             echo_info "Setting radarr owner to $radarrOwner in SwizDB"
             swizdb set "$app_name/owner" "$radarrOwner"
         else
