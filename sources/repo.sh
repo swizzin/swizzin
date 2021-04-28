@@ -16,9 +16,9 @@ We URGE you to migrate to a supported release if/while you still have the chance
 esac
 
 if [[ -L /etc/swizzin ]]; then
-    echo_warn "Not updating from git as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+    echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
 elif [[ -e /etc/swizzin/.dev.lock ]]; then
-    echo_warn "Not updating from git as a dev lockfile is present."
+    echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
 elif [[ $1 == "--dev" ]]; then
     echo_warn "Not updating from git due to --dev flag"
 else
@@ -35,3 +35,7 @@ else
     echo_progress_done "Local repository updated from ${SWIZ_GIT_CHECKOUT:-master}"
     echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
 fi
+export SWIZ_REPO_SCRIPT_RAN=true
+# source globals again in case changes were made
+#shellcheck source=sources/globals.sh
+. /etc/swizzin/sources/globals.sh

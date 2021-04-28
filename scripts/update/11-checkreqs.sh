@@ -36,3 +36,11 @@ if ! swizdb list > /dev/null 2>&1; then
     kill -13 $(ps --pid $$ -oppid=)
     exit 1
 fi
+
+if [[ -z $SWIZ_REPO_SCRIPT_RAN ]]; then
+    echo
+    echo "Due to internal restructuring please run \`box update\` again. You should only have to do this once."
+    echo "Reason: Updating procedure restructured"
+    kill -13 $(ps --pid $$ -oppid=)
+    exit 1
+fi
