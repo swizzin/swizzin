@@ -8,6 +8,7 @@ app_name="radarr"
 app_port="7878"
 app_apiversion="v3"
 app_nginxname=$app_name
+app_urlbase=$app_name
 
 if ! app_user="$(swizdb get $app_name/owner)"; then
     app_user=$(_get_master_username)
@@ -54,7 +55,7 @@ cat > "$app_configdir"/config.xml << RADARR
   <LaunchBrowser>False</LaunchBrowser>
   <ApiKey>${apikey}</ApiKey>
   <AuthenticationMethod>None</AuthenticationMethod>
-  <UrlBase>radarr</UrlBase>
+  <UrlBase>$app_urlbase</UrlBase>
 </Config>
 RADARR
 
@@ -67,16 +68,20 @@ if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:$app_port/api/$a
     echo_error "${app_name^} API did not respond as expected. Please make sure ${app_name^} is running."
     exit 1
 else
-    urlbase="$(curl -sL "http://127.0.0.1:$app_port/api/$app_apiversion/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
-    echo_log_only "${app_name^} API tested and reachable"
+    app_urlbase_queried="$(curl -sL "http://127.0.0.1:$app_port/api/$app_apiversion/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
+    if [ "$app_urlbase_queried" = "$app_urlbase" ]; then
+        echo_log_only "${app_name^} API tested and reachable"
+    else
+        echo_error "${app_name^} API did not respond as expected. Queried urlbase $app_urlbase_queried did not match expected $app_urlbase"
+    fi
 fi
 
 payload=$(curl -sL "http://127.0.0.1:$app_port/api/$app_apiversion/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
 echo_log_only "Return from ${app_name^} after PUT ="
-curl -s "http://127.0.0.1:$app_port${urlbase}/api/$app_apiversion/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "$log"
+curl -s "http://127.0.0.1:$app_port${app_urlbase}/api/$app_apiversion/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "$log"
 
 # Switch $app_name back off if it was dead before
-if [[ $isactive != "active" ]]; then
-    systemctl stop $app_name
+if [[ "$isactive" != "active" ]]; then
+    systemctl stop "$app_name"
 fi
