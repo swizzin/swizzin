@@ -2,7 +2,7 @@
 *.fish text eol=lf
 *.sh text eol=lf
 
-sources/functions/* diff=bash
+sources/functions/* diff=bash eol=lf
 
 # To disable checking modes, run `git config core.fileMode false`
 
