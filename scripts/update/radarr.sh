@@ -69,28 +69,41 @@ if [[ -f /install/.radarr.lock ]]; then
         if ! radarrOwner="$(swizdb get $app_name/owner)"; then
             radarrOwner=$(_get_master_username)
             echo_info "Setting ${app_name^} owner = $radarrOwner"
-            swizdb set "$app_name/owner" "$radarrOwner"
+            # swizdb set "$app_name/owner" "$radarrOwner"
+            ownerToSetInDB=True
         fi
     else
         echo_info "Setting ${app_name^} owner = $radarrOwner"
-        swizdb set "$app_name/owner" "$radarrOwner"
+        # swizdb set "$app_name/owner" "$radarrOwner"
+        ownerToSetInDB=True
     fi
+
     app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
-    # Don't have grep complain if the user moved the file from the standard location
-    if [ -f "$app_configfile" ]; then
-        sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" "$app_configfile")
-        sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" "$app_configfile")
-        if [[ "$sslport" = "8787" ]]; then
-            echo_log_only "Changing radarr ssl port"
-            sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
-            systemctl try-restart -q radarr
-            if [[ "$sslenabled" = "True" ]]; then
-                echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
-            fi
+    if [ $ownerToSetInDB = 'True' ]; then
+        if [ -f "$app_configfile" ]; then
+            echo_info "Setting radarr owner to $radarrOwner in SwizDB"
+            swizdb set "$app_name/owner" "$radarrOwner"
+        else
+            echo_error "${app_name^} config file for radarr owner does not exist in expected location.
+We are checking for $app_configfile.
+If the user here is incorrect, please run \`radarrOwner=<user> box update\`.
+${app_name^} updater is exiting, please try again later."
+            exit 1
         fi
     else
-        echo_warn "Radarr Config file not found. Please ensure you do not have the SSL Port set to 8787 as this conflicts with Readarr if Radarr SSL is enabled."
-        exit
+        echo_log_only "Owner $radarrOwner apparently did not need an update"
     fi
+
+    sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" "$app_configfile")
+    sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" "$app_configfile")
+    if [[ "$sslport" = "8787" ]]; then
+        echo_log_only "Changing radarr ssl port in line with upstream"
+        sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
+        systemctl try-restart -q radarr
+        if [[ "$sslenabled" = "True" ]]; then
+            echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
+        fi
+    fi
+
 fi
