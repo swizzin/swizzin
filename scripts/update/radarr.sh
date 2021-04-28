@@ -65,14 +65,19 @@ if [[ -f /install/.radarr.lock ]]; then
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     [[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
-    sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
-    sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" /home/"$radarrOwner"/.config/Radarr/config.xml)
-    if [[ "$sslport" = "8787" ]]; then
-        echo_log_only "Changing radarr ssl port"
-        sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "/home/$radarrOwner/.config/Radarr/config.xml"
-        systemctl try-restart -q radarr
-        if [[ "$sslenabled" = "True" ]]; then
-            echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
+    app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
+
+    # Don't have grep complain if the user moved the file from the standard location
+    if [ -f "$app_configfile" ]; then
+        sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+")
+        sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" "$app_configfile")
+        if [[ "$sslport" = "8787" ]]; then
+            echo_log_only "Changing radarr ssl port"
+            sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
+            systemctl try-restart -q radarr
+            if [[ "$sslenabled" = "True" ]]; then
+                echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
+            fi
         fi
     fi
 fi
