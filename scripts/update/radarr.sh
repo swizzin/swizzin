@@ -64,12 +64,22 @@ if [[ -f /install/.radarr.lock ]]; then
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
-    [[ -z $radarrOwner ]] && radarrOwner=$(_get_master_username)
+    app_name="radarr"
+    if [ -z "$RADARR_OWNER" ]; then
+        if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
+            RADARR_OWNER=$(_get_master_username)
+            echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+            swizdb set "$app_name/owner" "$RADARR_OWNER"
+        fi
+    else
+        echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+        swizdb set "$app_name/owner" "$RADARR_OWNER"
+    fi
     app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
     # Don't have grep complain if the user moved the file from the standard location
     if [ -f "$app_configfile" ]; then
-        sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+")
+        sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" "$app_configfile")
         sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" "$app_configfile")
         if [[ "$sslport" = "8787" ]]; then
             echo_log_only "Changing radarr ssl port"
@@ -79,5 +89,8 @@ if [[ -f /install/.radarr.lock ]]; then
                 echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
             fi
         fi
+    else
+        echo_warn "Radarr Config file not found. Please ensure you do not have the SSL Port set to 8787 as this conflicts with Readarr if Radarr SSL is enabled."
+        exit
     fi
 fi
