@@ -95,14 +95,13 @@ ${app_name^} updater is exiting, please try again later."
         echo_log_only "Owner $radarrOwner apparently did not need an update"
     fi
 
-    sslport=$(grep -oPm1 "(?<=<SslPort>)[^<]+" "$app_configfile")
-    sslenabled=$(grep -oPm1 "(?<=<EnableSsl>)[^<]+" "$app_configfile")
-    if [[ "$sslport" = "8787" ]]; then
+    if grep -q "<SslPort>8787" "$app_configfile"; then
         echo_log_only "Changing radarr ssl port in line with upstream"
         sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
         systemctl try-restart -q radarr
-        if [[ "$sslenabled" = "True" ]]; then
-            echo "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
+
+        if grep -q "<EnableSsl>True" "$app_configfile"; then
+            echo_info "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
     fi
 
