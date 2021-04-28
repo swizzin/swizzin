@@ -65,17 +65,17 @@ if [[ -f /install/.radarr.lock ]]; then
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     app_name="radarr"
-    if [ -z "$RADARR_OWNER" ]; then
-        if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
-            RADARR_OWNER=$(_get_master_username)
-            echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
-            swizdb set "$app_name/owner" "$RADARR_OWNER"
+    if [ -z "$radarrOwner" ]; then
+        if ! radarrOwner="$(swizdb get $app_name/owner)"; then
+            radarrOwner=$(_get_master_username)
+            echo_info "Setting ${app_name^} owner = $radarrOwner"
+            swizdb set "$app_name/owner" "$radarrOwner"
         fi
     else
-        echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
-        swizdb set "$app_name/owner" "$RADARR_OWNER"
+        echo_info "Setting ${app_name^} owner = $radarrOwner"
+        swizdb set "$app_name/owner" "$radarrOwner"
     fi
-    app_configfile="/home/$RADARR_OWNER/.config/Radarr/config.xml"
+    app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
     # Don't have grep complain if the user moved the file from the standard location
     if [ -f "$app_configfile" ]; then
