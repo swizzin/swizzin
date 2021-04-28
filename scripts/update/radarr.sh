@@ -70,17 +70,17 @@ if [[ -f /install/.radarr.lock ]]; then
             radarrOwner=$(_get_master_username)
             echo_info "Setting ${app_name^} owner = $radarrOwner"
             # swizdb set "$app_name/owner" "$radarrOwner"
-            ownerToSetInDB=True
+            ownerToSetInDB='True'
         fi
     else
         echo_info "Setting ${app_name^} owner = $radarrOwner"
         # swizdb set "$app_name/owner" "$radarrOwner"
-        ownerToSetInDB=True
+        ownerToSetInDB='True'
     fi
 
     app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
-    if [ $ownerToSetInDB = 'True' ]; then
+    if [[ $ownerToSetInDB = 'True' ]]; then
         if [ -f "$app_configfile" ]; then
             echo_info "Setting radarr owner to $radarrOwner in SwizDB"
             swizdb set "$app_name/owner" "$radarrOwner"
