@@ -78,7 +78,7 @@ if [[ -f /install/.radarr.lock ]]; then
 
     if [[ $ownerToSetInDB = 'True' ]]; then
         if [ -e "$app_configfile" ]; then
-            echo_info "Setting ${app_name^} owner = $radarrOwner"
+            echo_info "Setting ${app_name^} owner = $radarrOwner in SwizDB"
             swizdb set "$app_name/owner" "$radarrOwner"
         else
             echo_error "${app_name^} config file for radarr owner does not exist in expected location.
