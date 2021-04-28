@@ -60,6 +60,8 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_warn "Radarr v0.2 is EOL and not supported. Please upgrade your radarr to v3. An attempt will be made to migrate to .Net core on the next \`box update\` run"
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
+    else
+        echo_log_only "Radarr's service is not pointing to mono"
     fi
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
@@ -88,7 +90,7 @@ ${app_name^} updater is exiting, please try again later."
             exit 1
         fi
     else
-        echo_log_only "Owner $radarrOwner apparently did not need an update"
+        echo_log_only "Radarr owner $radarrOwner apparently did not need an update"
     fi
 
     if grep -q "<SslPort>8787" "$app_configfile"; then
