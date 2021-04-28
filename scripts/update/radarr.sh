@@ -75,7 +75,7 @@ if [[ -f /install/.radarr.lock ]]; then
         echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
         swizdb set "$app_name/owner" "$RADARR_OWNER"
     fi
-    app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
+    app_configfile="/home/$RADARR_OWNER/.config/Radarr/config.xml"
 
     # Don't have grep complain if the user moved the file from the standard location
     if [ -f "$app_configfile" ]; then
