@@ -95,7 +95,6 @@ ${app_name^} updater is exiting, please try again later."
 
     if grep -q "<SslPort>8787" "$app_configfile"; then
         echo_progress_start "Changing Radarr's default SSL port"
-        echo_log_only "Changing radarr ssl port in line with upstream"
         sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
         systemctl try-restart -q radarr
 
