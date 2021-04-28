@@ -1,7 +1,7 @@
 #!/bin/bash
 
 case "$(_os_codename)" in
-    "bionic" | "focal" | "buster" | "stretch")
+    "xenial" | "bionic" | "focal" | "buster" | "stretch")
         echo_log_only "OS supported"
         # No need to do anything special
         ;;
