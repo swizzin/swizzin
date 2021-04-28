@@ -68,13 +68,9 @@ if [[ -f /install/.radarr.lock ]]; then
     if [ -z "$radarrOwner" ]; then
         if ! radarrOwner="$(swizdb get $app_name/owner)"; then
             radarrOwner=$(_get_master_username)
-            echo_info "Setting ${app_name^} owner = $radarrOwner"
-            # swizdb set "$app_name/owner" "$radarrOwner"
             ownerToSetInDB='True'
         fi
     else
-        echo_info "Setting ${app_name^} owner = $radarrOwner"
-        # swizdb set "$app_name/owner" "$radarrOwner"
         ownerToSetInDB='True'
     fi
 
@@ -82,7 +78,7 @@ if [[ -f /install/.radarr.lock ]]; then
 
     if [[ $ownerToSetInDB = 'True' ]]; then
         if [ -e "$app_configfile" ]; then
-            echo_info "Setting radarr owner to $radarrOwner in SwizDB"
+            echo_info "Setting ${app_name^} owner = $radarrOwner"
             swizdb set "$app_name/owner" "$radarrOwner"
         else
             echo_error "${app_name^} config file for radarr owner does not exist in expected location.
