@@ -85,6 +85,7 @@ else
 ip = 0.0.0.0
 base_url = /
 BAZC
+    echo_info "Bazarr will run on port 6767"
 fi
 
 if [[ -f /install/.sonarr.lock ]]; then
@@ -128,3 +129,5 @@ systemctl enable -q --now bazarr 2>&1 | tee -a $log
 #curl 'http://127.0.0.1:6767/bazarr/save_wizard' --data 'settings_general_ip=127.0.0.1&settings_general_port=6767&settings_general_baseurl=%2Fbazarr%2F&settings_general_sourcepath=&settings_general_destpath=&settings_general_sourcepath=&settings_general_destpath=&settings_general_sourcepath=&settings_general_destpath=&settings_general_sourcepath=&settings_general_destpath=&settings_general_sourcepath=&settings_general_destpath=&settings_general_sourcepath_movie=&settings_general_destpath_movie=&settings_general_sourcepath_movie=&settings_general_destpath_movie=&settings_general_sourcepath_movie=&settings_general_destpath_movie=&settings_general_sourcepath_movie=&settings_general_destpath_movie=&settings_general_sourcepath_movie=&settings_general_destpath_movie=&settings_subfolder=current&settings_subfolder_custom=&settings_addic7ed_username=&settings_addic7ed_password=&settings_addic7ed_random_agents=on&settings_assrt_token=&settings_betaseries_token=&settings_legendastv_username=&settings_legendastv_password=&settings_napisy24_username=&settings_napisy24_password=&settings_opensubtitles_username=&settings_opensubtitles_password=&settings_subscene_username=&settings_subscene_password=&settings_xsubs_username=&settings_xsubs_password=&settings_subliminal_providers=&settings_subliminal_languages=en&settings_serie_default_forced=False&settings_movie_default_forced=False&settings_sonarr_ip=127.0.0.1&settings_sonarr_port=8989&settings_sonarr_baseurl=%2Fsonarr&settings_sonarr_apikey=${sonarrapi}&settings_radarr_ip=127.0.0.1&settings_radarr_port=7878&settings_radarr_baseurl=%2Fradarr&settings_radarr_apikey=${radarrapi}'
 
 touch /install/.bazarr.lock
+
+echo_success "Bazarr installed"

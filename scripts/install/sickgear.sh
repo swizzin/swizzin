@@ -87,6 +87,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sickgear.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "SickGear will run on port 8081"
 fi
 
 echo_success "Sickgear installed"

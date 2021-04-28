@@ -32,5 +32,3 @@ sockets=
 EOF
 
 systemctl reload webmin
-
-systemctl reload nginx

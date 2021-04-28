@@ -25,12 +25,12 @@ user=$(grep User= /lib/systemd/system/sonarr.service | cut -d= -f2)
 echo_log_only "Sonarr user detected as $user"
 apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
 echo_log_only "API Key  = $apikey"
-#TODO cahnge Branch whenever that becomes relevant
+
 cat > /home/"$user"/.config/sonarr/config.xml << SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
-  <Branch>phantom-develop</Branch>
+  <Branch>main</Branch>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>8989</Port>
   <SslPort>9898</SslPort>

@@ -149,36 +149,42 @@ function _help() {
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
 
-    echo -e "Usage: $(basename $0) [ install | remove | upgrade ] ${bold}pkg1 pkg2 [...]${normal}\n"
-    echo -e "       $(basename $0) [ adduser | deluser | chpasswd ] ${bold}username${normal}\n"
-    echo -e "       $(basename $0) [ list | update ]\n"
-    echo -e "       $(basename $0) panel fix-disk [ root | home ]\n"
-    echo -e "       $(basename $0)\n"
+    echo -e "Usage:\t$(basename $0)"
+    echo -e "\t$(basename $0) [ install | remove | upgrade ] ${bold}pkg1${normal} [ pkg2 ... ]"
+    echo -e "\t$(basename $0) [ adduser | deluser | chpasswd ] ${bold}username${normal} [ password ]"
+    echo -e "\t$(basename $0) [ list | update ]"
+    echo
     echo -e "Note: Only install and remove functions accept package arguments. List and update must be run without modifiers\n" | fmt --goal=66 --tagged-paragraph
-    echo -e "\n"
+    echo
     printf "${sgformat}" "install"
-    echo -e "The install function requires at least one package name as an argument but will accept multiples\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box install quassel syncthing znc\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The install function requires at least one package name as an argument but will accept multiples" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box install quassel syncthing znc" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "remove"
-    echo -e "The remove function requires at least one package name as an argument but will accept multiples\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box remove quassel syncthing znc\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "adduser"
-    echo -e "The adduser function requires a single user to be specified, this user will be created\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box adduser freeloadingfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "deluser"
-    echo -e "The deluser function requires a single user to be specified, this user will be removed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box deluser exgirlfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "chpasswd"
-    echo -e "The chpasswd function requires a single user to be specified, their password will be changed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box chpasswd forgetfulfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "update"
-    echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The remove function requires at least one package name as an argument but will accept multiples" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box remove quassel syncthing znc" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "upgrade"
-    echo -e "Runs the associated upgrade script.\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "panel fix-disk"
-    echo -e "The panel fix-disk command change the disk widget in the web panel to root or home\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "Runs the associated upgrade script." | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box upgrade plex curl" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "adduser"
+    echo -e "The adduser function requires a single user to be specified, this user will be created" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box adduser freeloadingfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "deluser"
+    echo -e "The deluser function requires a single user to be specified, this user will be removed" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box deluser exgirlfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "chpasswd"
+    echo -e "The chpasswd function requires a single user to be specified, their password will be changed" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box chpasswd forgetfulfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "update"
+    echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "list"
-    echo -e "The list command will list packages available to be managed by box\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The list command will list packages available to be managed by box" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
 }
 
 function _list() {

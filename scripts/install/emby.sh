@@ -56,6 +56,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/emby.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Emby will run on port 8096"
 fi
 
 echo_progress_start "Starting Emby"
