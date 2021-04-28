@@ -10,8 +10,8 @@ case "$(_os_codename)" in
         echo_warn "${name^} is no longer a supported by swizzin.
 You will not be receiving any new updates past the last supported commit. Swizzin will continue to run as-is.
 We URGE you to migrate to a supported release if/while you still have the chance."
-        SWIZ_GIT_CHECKOUT="eol-$(_os_codename)"
-        export SWIZ_GIT_CHECKOUT
+        SWIZ_GIT_REF="tags/eol-$(_os_codename)"
+        export SWIZ_GIT_REF
         ;;
 esac
 
@@ -26,13 +26,12 @@ else
     {
         #shellcheck disable=SC2129
         git fetch --all --tags --prune -C /etc/swizzin >> $log 2>&1
-        git fetch origin "${SWIZ_GIT_CHECKOUT:-master}" -C /etc/swizzin >> $log 2>&1
-        git reset --hard origin/"${SWIZ_GIT_CHECKOUT:-master}" -C /etc/swizzin >> $log 2>&1
+        git reset --hard "${SWIZ_GIT_REF:-origin/master}" -C /etc/swizzin >> $log 2>&1
     } || {
         echo_error "Failed to update from git"
         exit 1
     }
-    echo_progress_done "Local repository updated from ${SWIZ_GIT_CHECKOUT:-master}"
+    echo_progress_done "Local repository updated from ${SWIZ_GIT_REF:-master}"
     echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
 fi
 export SWIZ_REPO_SCRIPT_RAN=true
