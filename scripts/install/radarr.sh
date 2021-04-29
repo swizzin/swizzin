@@ -8,17 +8,17 @@
 
 # This is also mantained in the updater; ensure they match
 app_name="radarr"
+app_branch="master"
+app_port="7878"
+app_reqs=("curl" "mediainfo" "sqlite3")
+swizdb set "$app_name/reqs" "${app_reqs[@]}"
+swizdb set "$app_name/port" "$app_port"
+swizdb set "$app_name/branch" "$app_branch"
 swizdb set "$app_name/name" "$app_name"
 app_dir="/opt/${app_name^}"
 swizdb set "$app_name/dir" "/opt/${app_dir}"
 app_binary="${app_name^}"
 swizdb set "$app_name/binary" "${app_binary}"
-app_port="7878"
-swizdb set "$app_name/port" "$app_port"
-app_reqs=("curl" "mediainfo" "sqlite3")
-swizdb set "$app_name/reqs" "${app_reqs[@]}"
-app_branch="master"
-swizdb set "$app_name/branch" "$app_branch"
 app_lockname=$app_name
 swizdb set "$app_name/lockname" "$app_lockname"
 app_group="$app_name"

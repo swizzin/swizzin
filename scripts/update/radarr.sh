@@ -70,23 +70,23 @@ if [[ -f /install/.radarr.lock ]]; then
     else
         app_name=swizdb get "$app_name/name"
     fi
-    if ! "$(swizdb get $app_name/dir)"; then
-        app_dir="/opt/${app_name^}"
-        swizdb set "$app_name/dir" "${app_dir^}"
+    if ! "$(swizdb get $app_name/app_group)"; then
+        app_group="radarr"
+        swizdb set "$app_name/app_group" "$app_group"
     else
-        app_dir=swizdb get "$app_name/dir"
-    fi
-    if ! "$(swizdb get $app_name/binary)"; then
-        app_binary="${app_name^}"
-        swizdb set "$app_name/binary" "${app_binary^}"
-    else
-        app_binary=swizdb get "$app_name/binary"
+        app_group="$(swizdb get "$app_name/group")"
     fi
     if ! "$(swizdb get $app_name/port)"; then
         app_port="7878"
         swizdb set "$app_name/port" "$app_port"
     else
         app_port=swizdb get "$app_name/port"
+    fi
+    if ! "$(swizdb get $app_name/app_apiversion)"; then
+        app_apiversion="v3"
+        swizdb set "$app_name/app_apiversion" "$app_apiversion"
+    else
+        app_apiversion="$(swizdb get "$app_name/apiversion")"
     fi
     if ! "$(swizdb get $app_name/reqs)"; then
         app_reqs=("curl" "mediainfo" "sqlite3")
@@ -99,6 +99,18 @@ if [[ -f /install/.radarr.lock ]]; then
         swizdb set "$app_name/branch" "$app_branch"
     else
         app_branch=swizdb get "$app_name/branch"
+    fi
+    if ! "$(swizdb get $app_name/dir)"; then
+        app_dir="/opt/${app_name^}"
+        swizdb set "$app_name/dir" "${app_dir^}"
+    else
+        app_dir=swizdb get "$app_name/dir"
+    fi
+    if ! "$(swizdb get $app_name/binary)"; then
+        app_binary="${app_name^}"
+        swizdb set "$app_name/binary" "${app_binary^}"
+    else
+        app_binary=swizdb get "$app_name/binary"
     fi
     if ! "$(swizdb get $app_name/lockname)"; then
         app_lockname=$app_name
@@ -120,19 +132,19 @@ if [[ -f /install/.radarr.lock ]]; then
         app_configdir="$(swizdb get "$app_name/configdir")"
     fi
     if ! "$(swizdb get $app_name/servicename)"; then
-        app_servicename="/home/$app_user/.config/${app_servicename}"
+        app_servicename="${app_name}"
         swizdb set "$app_name/servicename" "$app_servicename"
     else
         app_servicename="$(swizdb get "$app_name/servicename")"
     fi
     if ! "$(swizdb get $app_name/servicefile)"; then
-        app_configdir="/home/$app_user/.config/${app_name^}"
+        app_servicefile="$app_servicename".service
         swizdb set "$app_name/servicefile" "$app_servicefile"
     else
         app_servicefile="$(swizdb get "$app_name/servicefile")"
     fi
     if ! "$(swizdb get $app_name/nginxname)"; then
-        app_nginxname="/home/$app_user/.config/${app_name^}"
+        app_nginxname="${app_name}"
         swizdb set "$app_name/nginxname" "$app_nginxname"
     else
         app_nginxname="$(swizdb get "$app_name/nginxname")"
@@ -143,18 +155,7 @@ if [[ -f /install/.radarr.lock ]]; then
     else
         app_urlbase="$(swizdb get "$app_name/urlbase")"
     fi
-    if ! "$(swizdb get $app_name/app_apiversion)"; then
-        app_apiversion="v3"
-        swizdb set "$app_name/app_apiversion" "$app_apiversion"
-    else
-        app_apiversion="$(swizdb get "$app_name/apiversion")"
-    fi
-    if ! "$(swizdb get $app_name/app_group)"; then
-        app_group="radarr"
-        swizdb set "$app_name/app_group" "$app_group"
-    else
-        app_group="$(swizdb get "$app_name/group")"
-    fi
+
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
