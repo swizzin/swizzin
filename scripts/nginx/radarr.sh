@@ -5,17 +5,12 @@
 
 #ToDo this should all be wrote to SwizDB; Need to ensure swizdb is updated for existing installs
 app_name="radarr"
-app_port="7878"
-app_apiversion="v3"
-app_nginxname=$app_name
-app_urlbase=$app_name
-
-if ! app_user="$(swizdb get $app_name/owner)"; then
-    app_user=$(_get_master_username)
-fi
-
-app_configdir="/home/$app_user/.config/${app_name^}"
-
+app_port="$(swizdb get "$app_name/port")"
+app_apiversion="$(swizdb get "$app_name/apiversion")"
+app_nginxname="$(swizdb get "$app_name/nginxname")"
+app_urlbase="$(swizdb get "$app_name/urlbase")"
+app_user="$(swizdb get $app_name/owner)"
+app_configdir="$(swizdb get $app_name/configdir)"
 master=$(cut -d: -f1 < /root/.master.info)
 
 cat > /etc/nginx/apps/$app_nginxname.conf << RADARR
