@@ -65,91 +65,91 @@ if [[ -f /install/.radarr.lock ]]; then
     ### Populate swizdb values to defaults if empty; these must be kept in sync with install
     #ToDo: Fix this if logic; we want to check if the DB has something; if so, do nothing.. if not. populate DB with defaults
     app_name="radarr"
-    if ! "$(swizdb get $app_name/app_name)"; then
+    if [ 1 = "$(swizdb get $app_name/app_name)" ]; then
         swizdb set "$app_name/name" "$app_name"
     else
         app_name=swizdb get "$app_name/name"
     fi
-    if ! "$(swizdb get $app_name/app_group)"; then
+    if [ 1 = "$(swizdb get $app_name/app_group)" ]; then
         app_group="radarr"
         swizdb set "$app_name/app_group" "$app_group"
     else
         app_group="$(swizdb get "$app_name/group")"
     fi
-    if ! "$(swizdb get $app_name/port)"; then
+    if [ 1 = "$(swizdb get $app_name/port)" ]; then
         app_port="7878"
         swizdb set "$app_name/port" "$app_port"
     else
         app_port=swizdb get "$app_name/port"
     fi
-    if ! "$(swizdb get $app_name/app_apiversion)"; then
+    if [ 1 = "$(swizdb get $app_name/app_apiversion)" ]; then
         app_apiversion="v3"
         swizdb set "$app_name/app_apiversion" "$app_apiversion"
     else
         app_apiversion="$(swizdb get "$app_name/apiversion")"
     fi
-    if ! "$(swizdb get $app_name/reqs)"; then
+    if [ 1 = "$(swizdb get $app_name/reqs)" ]; then
         app_reqs=("curl" "mediainfo" "sqlite3")
         swizdb set "$app_name/reqs" "${app_reqs[@]}"
     else
         app_req=swizdb get "$app_name/req"
     fi
-    if ! "$(swizdb get $app_name/branch)"; then
+    if [ 1 = "$(swizdb get $app_name/branch)" ]; then
         app_branch="master"
         swizdb set "$app_name/branch" "$app_branch"
     else
         app_branch=swizdb get "$app_name/branch"
     fi
-    if ! "$(swizdb get $app_name/dir)"; then
+    if [ 1 = "$(swizdb get $app_name/dir)" ]; then
         app_dir="/opt/${app_name^}"
         swizdb set "$app_name/dir" "${app_dir^}"
     else
         app_dir=swizdb get "$app_name/dir"
     fi
-    if ! "$(swizdb get $app_name/binary)"; then
+    if [ 1 = "$(swizdb get $app_name/binary)" ]; then
         app_binary="${app_name^}"
         swizdb set "$app_name/binary" "${app_binary^}"
     else
         app_binary=swizdb get "$app_name/binary"
     fi
-    if ! "$(swizdb get $app_name/lockname)"; then
+    if [ 1 = "$(swizdb get $app_name/lockname)" ]; then
         app_lockname=$app_name
         swizdb set "$app_name/lockname" "$app_lockname"
     else
         app_lockname=swizdb get "$app_name/lockname"
     fi
-    if ! "$(swizdb get $app_name/user)"; then
+    if [ 1 = "$(swizdb get $app_name/user)" ]; then
         app_user="$RADARR_OWNER"
         swizdb set "$app_name/user" "$app_user"
     else
         app_user="$(swizdb get "$app_name/user")"
     fi
 
-    if ! "$(swizdb get $app_name/configdir)"; then
+    if [ 1 = "$(swizdb get $app_name/configdir)" ]; then
         app_configdir="/home/$app_user/.config/${app_name^}"
         swizdb set "$app_name/configdir" "$app_configdir"
     else
         app_configdir="$(swizdb get "$app_name/configdir")"
     fi
-    if ! "$(swizdb get $app_name/servicename)"; then
+    if [ 1 = "$(swizdb get $app_name/servicename)" ]; then
         app_servicename="${app_name}"
         swizdb set "$app_name/servicename" "$app_servicename"
     else
         app_servicename="$(swizdb get "$app_name/servicename")"
     fi
-    if ! "$(swizdb get $app_name/servicefile)"; then
+    if [ 1 = "$(swizdb get $app_name/servicefile)" ]; then
         app_servicefile="$app_servicename".service
         swizdb set "$app_name/servicefile" "$app_servicefile"
     else
         app_servicefile="$(swizdb get "$app_name/servicefile")"
     fi
-    if ! "$(swizdb get $app_name/nginxname)"; then
+    if [ 1 = "$(swizdb get $app_name/nginxname)" ]; then
         app_nginxname="${app_name}"
         swizdb set "$app_name/nginxname" "$app_nginxname"
     else
         app_nginxname="$(swizdb get "$app_name/nginxname")"
     fi
-    if ! "$(swizdb get $app_name/urlbase)"; then
+    if [ 1 = "$(swizdb get $app_name/urlbase)" ]; then
         app_urlbase="${app_name}"
         swizdb set "$app_name/urlbase" "$app_urlbase"
     else
