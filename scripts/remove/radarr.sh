@@ -1,19 +1,12 @@
 #!/bin/bash
 
-#ToDo this should all be grabbed from SwizDB; Need to ensure swizdb is updated for existing installs
-app_servicename="radarr"
-app_nginxname="radarr"
-app_lockname="radarr"
 app_name="radarr"
-app_servicefile="/etc/systemd/system/$app_servicename.service"
-app_dir="/opt/${app_name^}"
-
-if ! app_user="$(swizdb get $app_name/owner)"; then
-    app_user=$(_get_master_username)
-fi
-
-app_datadir="/home/$app_user/.config/${app_name^}/"
-# this must be set AFTER we get the app_user
+app_servicename="$(swizdb get "$app_name/servicename")"
+app_servicefile="$(swizdb get "$app_name/servicefile")"
+app_nginxname="$(swizdb get "$app_name/nginxname")"
+app_lockname="$(swizdb get "$app_name/lockname")"
+app_dir="$(swizdb get "$app_name/dir")"
+app_datadir="$(swizdb get $app_name/datadir)"
 
 if ask "Would you like to purge the configuration?" Y; then
     purgeapp="True"

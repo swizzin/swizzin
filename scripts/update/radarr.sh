@@ -119,6 +119,25 @@ if [[ -f /install/.radarr.lock ]]; then
     else
         app_configdir="$(swizdb get "$app_name/configdir")"
     fi
+    if ! "$(swizdb get $app_name/servicename)"; then
+        app_servicename="/home/$app_user/.config/${app_servicename}"
+        swizdb set "$app_name/servicename" "$app_servicename"
+    else
+        app_servicename="$(swizdb get "$app_name/servicename")"
+    fi
+    if ! "$(swizdb get $app_name/servicefile)"; then
+        app_configdir="/home/$app_user/.config/${app_name^}"
+        swizdb set "$app_name/servicefile" "$app_servicefile"
+    else
+        app_servicefile="$(swizdb get "$app_name/servicefile")"
+    fi
+    if ! "$(swizdb get $app_name/nginxname)"; then
+        app_nginxname="/home/$app_user/.config/${app_name^}"
+        swizdb set "$app_name/nginxname" "$app_nginxname"
+    else
+        app_nginxname="$(swizdb get "$app_name/nginxname")"
+    fi
+
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
