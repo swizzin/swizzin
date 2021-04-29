@@ -143,7 +143,7 @@ function _upgrade() {
     for i in "${packages[@]}"; do
         app=${i}
         if [[ "${repo[*]}" =~ $i ]]; then
-            /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
+            bash /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
             echo_warn "Upgrade script for $i does not exist"
         fi
