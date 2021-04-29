@@ -86,7 +86,7 @@ Description=${app_name^} Daemon
 After=syslog.target network.target
 
 [Service]
-# Change the app_user and group variables here.
+# Change the user and group variables here.
 User=${app_user}
 Group=${app_group}
 
@@ -106,7 +106,7 @@ Restart=on-failure
 #ProtectHome=true
 
 [Install]
-WantedBy=multi-app_user.target
+WantedBy=multi-user.target
 EOF
 
     systemctl -q daemon-reload
