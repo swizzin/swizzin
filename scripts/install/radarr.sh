@@ -15,6 +15,10 @@ swizdb set "$app_name/reqs" "${app_reqs[@]}"
 swizdb set "$app_name/port" "$app_port"
 swizdb set "$app_name/branch" "$app_branch"
 swizdb set "$app_name/name" "$app_name"
+app_servicename="${app_name}"
+swizdb set "$app_name/servicename" "$app_servicename"
+app_servicefile="$app_servicename".service
+swizdb set "$app_name/servicefile" "$app_servicefile"
 app_dir="/opt/${app_name^}"
 swizdb set "$app_name/dir" "/opt/${app_dir}"
 app_binary="${app_name^}"
@@ -76,7 +80,7 @@ _install_radarr() {
     echo_progress_done "Archive extracted"
 
     echo_progress_start "Installing Systemd service"
-    cat > "/etc/systemd/system/$app_name.service" << EOF
+    cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
 Description=${app_name^} Daemon
 After=syslog.target network.target
@@ -123,7 +127,7 @@ _nginx_radarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
         sleep 10
-        bash /usr/local/bin/swizzin/nginx/radarr.sh
+        bash /usr/local/bin/swizzin/nginx/${app_name}.sh
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
