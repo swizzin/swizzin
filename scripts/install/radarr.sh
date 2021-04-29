@@ -6,14 +6,21 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-#ToDo this should all be wrote to SwizDB; Need to ensure swizdb is updated for existing installs
+# This is also mantained in the updater; ensure they match
 app_name="radarr"
+swizdb set "$app_name/name" "$app_name"
 app_dir="/opt/${app_name^}"
+swizdb set "$app_name/dir" "/opt/${app_dir}"
 app_binary="${app_name^}"
+swizdb set "$app_name/binary" "${app_binary}"
 app_port="7878"
+swizdb set "$app_name/port" "$app_port"
 app_reqs=("curl" "mediainfo" "sqlite3")
+swizdb set "$app_name/reqs" "${app_reqs[@]}"
 app_branch="master"
+swizdb set "$app_name/branch" "$app_branch"
 app_lockname=$app_name
+swizdb set "$app_name/lockname" "$app_lockname"
 
 if [ -z "$RADARR_OWNER" ]; then
     if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
@@ -28,7 +35,9 @@ fi
 
 _install_radarr() {
     app_user="$RADARR_OWNER"
+    swizdb set "$app_name/user" "$app_user"
     app_configdir="/home/$app_user/.config/${app_name^}"
+    swizdb set "$app_name/configdir" "$app_configdir"
     apt_install "${app_reqs[@]}"
 
     if [ ! -d "$app_configdir" ]; then

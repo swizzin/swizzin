@@ -102,3 +102,42 @@ ${app_name^} updater is exiting, please try again later."
     fi
 
 fi
+
+### Populate swizdb values to defaults if empty; these must be kept in sync with install
+#ToDo: Fix this if logic; we want to check if the DB has something; if so, do nothing.. if not. populate DB with defaults
+app_name="radarr"
+if ! "$(swizdb get $app_name/app_name)"; then
+    swizdb set "$app_name/name" "$app_name"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_dir="/opt/${app_name^}"
+    swizdb set "$app_name/dir" "${app_dir^}"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_binary="${app_name^}"
+    swizdb set "$app_name/binary" "${app_binary^}"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_port="7878"
+    swizdb set "$app_name/port" "$app_port"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_reqs=("curl" "mediainfo" "sqlite3")
+    swizdb set "$app_name/reqs" "${app_reqs[@]}"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_branch="master"
+    swizdb set "$app_name/branch" "$app_branch"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_lockname=$app_name
+    swizdb set "$app_name/lockname" "$app_lockname"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_user="$RADARR_OWNER"
+    swizdb set "$app_name/user" "$app_user"
+fi
+if ! "$(swizdb get $app_name/app_name)"; then
+    app_configdir="/home/$app_user/.config/${app_name^}"
+    swizdb set "$app_name/configdir" "$app_configdir"
+fi
