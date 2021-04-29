@@ -35,6 +35,3 @@ else
     echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
 fi
 export SWIZ_REPO_SCRIPT_RAN=true
-# source globals again in case changes were made
-#shellcheck source=sources/globals.sh
-. /etc/swizzin/sources/globals.sh
