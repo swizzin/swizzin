@@ -13,9 +13,9 @@ app_user="$(swizdb get $app_name/owner)"
 app_configdir="$(swizdb get $app_name/configdir)"
 master=$(cut -d: -f1 < /root/.master.info)
 
-cat > /etc/nginx/apps/$app_nginxname.conf << RADARR
+cat > /etc/nginx/apps/"$app_nginxname".conf << RADARR
 location /$app_name {
-  proxy_pass        http://127.0.0.1:$app_port/$app_name;
+  proxy_pass        http://127.0.0.1:$app_port/$app_urlbase;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto \$scheme;

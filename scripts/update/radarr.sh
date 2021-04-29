@@ -151,7 +151,7 @@ if [[ -f /install/.radarr.lock ]]; then
     fi
     if ! "$(swizdb get $app_name/app_apiversion)"; then
         app_apiversion="v3"
-        swizdb set "$app_name/app_apiversion" "$app_napp_apiversion"
+        swizdb set "$app_name/app_apiversion" "$app_app_apiversion"
     else
         app_nginxname="$(swizdb get "$app_name/nginxname")"
     fi
