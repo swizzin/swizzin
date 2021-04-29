@@ -61,20 +61,67 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
     fi
+
+    ### Populate swizdb values to defaults if empty; these must be kept in sync with install
+    #ToDo: Fix this if logic; we want to check if the DB has something; if so, do nothing.. if not. populate DB with defaults
+    app_name="radarr"
+    if ! "$(swizdb get $app_name/app_name)"; then
+        swizdb set "$app_name/name" "$app_name"
+    else
+        app_name=swizdb get "$app_name/name"
+    fi
+    if ! "$(swizdb get $app_name/dir)"; then
+        app_dir="/opt/${app_name^}"
+        swizdb set "$app_name/dir" "${app_dir^}"
+    else
+        app_dir=swizdb get "$app_name/dir"
+    fi
+    if ! "$(swizdb get $app_name/binary)"; then
+        app_binary="${app_name^}"
+        swizdb set "$app_name/binary" "${app_binary^}"
+    else
+        app_binary=swizdb get "$app_name/binary"
+    fi
+    if ! "$(swizdb get $app_name/port)"; then
+        app_port="7878"
+        swizdb set "$app_name/port" "$app_port"
+    else
+        app_port=swizdb get "$app_name/port"
+    fi
+    if ! "$(swizdb get $app_name/reqs)"; then
+        app_reqs=("curl" "mediainfo" "sqlite3")
+        swizdb set "$app_name/reqs" "${app_reqs[@]}"
+    else
+        app_req=swizdb get "$app_name/req"
+    fi
+    if ! "$(swizdb get $app_name/branch)"; then
+        app_branch="master"
+        swizdb set "$app_name/branch" "$app_branch"
+    else
+        app_branch=swizdb get "$app_name/branch"
+    fi
+    if ! "$(swizdb get $app_name/lockname)"; then
+        app_lockname=$app_name
+        swizdb set "$app_name/lockname" "$app_lockname"
+    else
+        app_lockname=swizdb get "$app_name/lockname"
+    fi
+    if ! "$(swizdb get $app_name/user)"; then
+        app_user="$RADARR_OWNER"
+        swizdb set "$app_name/user" "$app_user"
+    else
+        app_user="$(swizdb get "$app_name/user")"
+    fi
+
+    if ! "$(swizdb get $app_name/configdir)"; then
+        app_configdir="/home/$app_user/.config/${app_name^}"
+        swizdb set "$app_name/configdir" "$app_configdir"
+    else
+        app_configdir="$(swizdb get "$app_name/configdir")"
+    fi
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
-    app_name="radarr"
-    if [ -z "$radarrOwner" ]; then
-        if ! radarrOwner="$(swizdb get $app_name/owner)"; then
-            radarrOwner=$(_get_master_username)
-            ownerToSetInDB='True'
-        fi
-    else
-        ownerToSetInDB='True'
-    fi
-
-    app_configfile="/home/$radarrOwner/.config/Radarr/config.xml"
 
     if [[ $ownerToSetInDB = 'True' ]]; then
         if [ -e "$app_configfile" ]; then
@@ -100,44 +147,4 @@ ${app_name^} updater is exiting, please try again later."
             echo_info "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
     fi
-
-fi
-
-### Populate swizdb values to defaults if empty; these must be kept in sync with install
-#ToDo: Fix this if logic; we want to check if the DB has something; if so, do nothing.. if not. populate DB with defaults
-app_name="radarr"
-if ! "$(swizdb get $app_name/app_name)"; then
-    swizdb set "$app_name/name" "$app_name"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_dir="/opt/${app_name^}"
-    swizdb set "$app_name/dir" "${app_dir^}"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_binary="${app_name^}"
-    swizdb set "$app_name/binary" "${app_binary^}"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_port="7878"
-    swizdb set "$app_name/port" "$app_port"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_reqs=("curl" "mediainfo" "sqlite3")
-    swizdb set "$app_name/reqs" "${app_reqs[@]}"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_branch="master"
-    swizdb set "$app_name/branch" "$app_branch"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_lockname=$app_name
-    swizdb set "$app_name/lockname" "$app_lockname"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_user="$RADARR_OWNER"
-    swizdb set "$app_name/user" "$app_user"
-fi
-if ! "$(swizdb get $app_name/app_name)"; then
-    app_configdir="/home/$app_user/.config/${app_name^}"
-    swizdb set "$app_name/configdir" "$app_configdir"
 fi
