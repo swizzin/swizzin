@@ -25,8 +25,8 @@ else
     echo_progress_start "Updating swizzin local repository"
     {
         #shellcheck disable=SC2129
-        git fetch --all --tags --prune -C /etc/swizzin >> $log 2>&1
-        git reset --hard "${SWIZ_GIT_REF:-origin/master}" -C /etc/swizzin >> $log 2>&1
+        git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+        git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
     } || {
         echo_error "Failed to update from git"
         exit 1
