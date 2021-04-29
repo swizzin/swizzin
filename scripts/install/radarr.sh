@@ -21,6 +21,8 @@ app_branch="master"
 swizdb set "$app_name/branch" "$app_branch"
 app_lockname=$app_name
 swizdb set "$app_name/lockname" "$app_lockname"
+app_group="$app_name"
+swizdb set "$app_name/group" "$app_group"
 
 if [ -z "$RADARR_OWNER" ]; then
     if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
@@ -82,7 +84,7 @@ After=syslog.target network.target
 [Service]
 # Change the app_user and group variables here.
 User=${app_user}
-Group=${app_user}
+Group=${app_group}
 
 Type=simple
 

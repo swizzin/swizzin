@@ -137,12 +137,6 @@ if [[ -f /install/.radarr.lock ]]; then
     else
         app_nginxname="$(swizdb get "$app_name/nginxname")"
     fi
-    if ! "$(swizdb get $app_name/nginxname)"; then
-        app_nginxname="/home/$app_user/.config/${app_name^}"
-        swizdb set "$app_name/nginxname" "$app_nginxname"
-    else
-        app_nginxname="$(swizdb get "$app_name/nginxname")"
-    fi
     if ! "$(swizdb get $app_name/urlbase)"; then
         app_urlbase="${app_name}"
         swizdb set "$app_name/urlbase" "$app_urlbase"
@@ -151,11 +145,16 @@ if [[ -f /install/.radarr.lock ]]; then
     fi
     if ! "$(swizdb get $app_name/app_apiversion)"; then
         app_apiversion="v3"
-        swizdb set "$app_name/app_apiversion" "$app_app_apiversion"
+        swizdb set "$app_name/app_apiversion" "$app_apiversion"
     else
-        app_nginxname="$(swizdb get "$app_name/nginxname")"
+        app_apiversion="$(swizdb get "$app_name/apiversion")"
     fi
-
+    if ! "$(swizdb get $app_name/app_group)"; then
+        app_group="radarr"
+        swizdb set "$app_name/app_group" "$app_group"
+    else
+        app_group="$(swizdb get "$app_name/group")"
+    fi
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
