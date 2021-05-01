@@ -52,6 +52,6 @@ echo_progress_done "Nginx config applied"
 fi
 
 
-touch /install/.komga.lock   >> $log 2>&1
+touch /install/.komga.lock
 systemctl restart panel   >> $log 2>&1
 echo_success "Komga installed"
