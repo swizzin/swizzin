@@ -7,8 +7,8 @@ install() {
     echo_progress_start "Making data directory and owning it to ${user}"
     mkdir -p "/opt/komga"
     chown -R "$user":"$user" /opt/komga
-    cd "/opt/komga" || exit
-    wget "https://github.com/gotson/komga/releases/download/untagged-6ed960e7d43ebfe31fe8/komga-0.90.0.jar" >> $log 2>&1
+    dlurl="$(curl -sNL https://api.github.com/repos/gotson/komga/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("jar"))')"
+    wget "$dlurl" -o /opt/komga/komga.jar
     echo_progress_done "Data Directory created and owned."
 }
 
@@ -20,7 +20,7 @@ Description=Komga server
 
 [Service]
 WorkingDirectory=/opt/komga/
-ExecStart=/usr/bin/java -jar -Xmx4g komga-0.90.0.jar --server.servlet.context-path="/komga/" --server.port="6800"
+ExecStart=/usr/bin/java -jar -Xmx4g /opt/komga/komga.jar --server.servlet.context-path="/komga/" --server.port="6800"
 User=${user}
 Type=simple
 Restart=on-failure
