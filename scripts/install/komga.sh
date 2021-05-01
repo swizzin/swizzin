@@ -10,7 +10,10 @@ install() {
 
     echo_progress_start "Downloading Komga binary"
     dlurl="$(curl -sNL https://api.github.com/repos/gotson/komga/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("jar"))')"
-    wget "$dlurl" -o /opt/komga/komga.jar
+    wget "$dlurl" -o /opt/komga/komga.jar || {
+        echo_error "Download failed"
+        exit 1
+    }
     chown -R "$user":"$user" /opt/komga
     echo_progress_done "Binary downloaded"
 }
