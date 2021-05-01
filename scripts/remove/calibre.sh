@@ -13,3 +13,6 @@ if [ -f /install/.calibrecs.lock ]; then
 fi
 
 rm /install/.calibre.lock
+
+swizdb clear "calibre/library_path"
+swizdb clear "calibre/library_user"
