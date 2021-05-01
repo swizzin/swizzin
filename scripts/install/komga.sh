@@ -1,14 +1,8 @@
 #!/bin/bash
-. /etc/swizzin/sources/globals.sh
-. /etc/swizzin/sources/functions/utils
 
 # Script by @ComputerByte 
 # For Komga Installs
 
-# Log to Swizzin.log
-export log=/root/logs/swizzin.log
-touch $log
-# Set variables
 user=$(_get_master_username)
 
 echo_progress_start "Making data directory and owning it to ${user}"
@@ -48,6 +42,7 @@ location /komga {
 NGX
 # Reload nginx
 systemctl reload nginx
+else echo_info "Komga will be available on port 8080. Secure your installation manually through the web interface."
 echo_progress_done "Nginx config applied"
 fi
 
