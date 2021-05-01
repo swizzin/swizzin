@@ -19,7 +19,7 @@ Description=Komga server
 
 [Service]
 WorkingDirectory=/opt/komga/
-ExecStart=/usr/bin/java -jar -Xmx4g komga-0.90.0.jar --server.servlet.context-path="/komga/"
+ExecStart=/usr/bin/java -jar -Xmx4g komga-0.90.0.jar --server.servlet.context-path="/komga/" --server.port="6800"
 User=${user}
 Type=simple
 Restart=on-failure
@@ -37,13 +37,13 @@ if [[ -f /install/.nginx.lock ]]; then
     cat >/etc/nginx/apps/komga.conf <<-NGX
 location /komga {
   include /etc/nginx/snippets/proxy.conf;
-  proxy_pass        http://127.0.0.1:8080/komga;
+  proxy_pass        http://127.0.0.1:6800/komga;
 }
 NGX
     # Reload nginx
     systemctl reload nginx
 else
-    echo_info "Komga will be available on port 8080. Secure your installation manually through the web interface."
+    echo_info "Komga will be available on port 6800. Secure your installation manually through the web interface."
     echo_progress_done "Nginx config applied"
 fi
 
