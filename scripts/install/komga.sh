@@ -30,6 +30,7 @@ StandardError=syslog
 [Install]
 WantedBy=multi-user.target
 SERV
+    systemctl enable --now komga -q
     echo_progress_done "Komga service installed"
 }
 
