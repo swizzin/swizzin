@@ -131,7 +131,7 @@ _post_libdir() {
         echo_log_only "Timed out"
         return 1
     }
-    curl -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
+    curl -s -k 'http://127.0.0.1:8083/basicconfig' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' --compressed -H 'Content-Type: application/x-www-form-urlencoded' -H 'Connection: keep-alive' \
         --data-urlencode "config_calibre_dir=$CALIBRE_LIBRARY_PATH" \
         --data-urlencode "submit=" >> "$log" || {
         echo_log_only "curl fucked"
