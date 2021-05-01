@@ -6,10 +6,13 @@ install() {
     user=$(_get_master_username)
     echo_progress_start "Making data directory and owning it to ${user}"
     mkdir -p "/opt/komga"
-    chown -R "$user":"$user" /opt/komga
+    echo_progress_done "Data Directory created and owned."
+
+    echo_progress_start "Downloading Komga binary"
     dlurl="$(curl -sNL https://api.github.com/repos/gotson/komga/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("jar"))')"
     wget "$dlurl" -o /opt/komga/komga.jar
-    echo_progress_done "Data Directory created and owned."
+    chown -R "$user":"$user" /opt/komga
+    echo_progress_done "Binary downloaded"
 }
 
 systemd() {
