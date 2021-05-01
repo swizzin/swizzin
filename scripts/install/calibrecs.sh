@@ -16,9 +16,9 @@ if [ -z "$CALIBRE_LIBRARY_USER" ]; then
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_path)"; then
+    if ! CALIBRE_LIBRARY_PATH="$(swizdb get calibre/library_path)"; then
         CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
-        swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_USER"
+        swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
     fi
 fi
 
