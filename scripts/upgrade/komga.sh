@@ -12,7 +12,7 @@ if [[ $(systemctl is-active komga) == "active" ]]; then
 fi
 echo_progress_start "Downloading komga binary"
 dlurl="$(curl -sNL https://api.github.com/repos/gotson/komga/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("jar"))')"
-wget "$dlurl" -O /opt/komga/komga.jar || {
+wget "$dlurl" -O /opt/komga/komga.jar >> "${log}" 2>&1 || {
     echo_error "Download failed"
     exit 1
 }
