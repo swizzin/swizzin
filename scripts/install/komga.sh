@@ -18,7 +18,7 @@ install() {
 systemd() {
     echo_progress_start "Installing systemd service file"
     cat > /etc/systemd/system/komga.service <<- SERV
-[[Unit]
+[Unit]
 Description=Komga server
 
 [Service]
