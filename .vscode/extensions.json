@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "mads-hartmann.bash-ide-vscode",
+        "foxundermoon.shell-format",
+        "timonwong.shellcheck",
+        "remisa.shellman",
+        "me-dutour-mathieu.vscode-github-actions"
+    ]
+}
