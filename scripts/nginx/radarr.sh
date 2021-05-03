@@ -28,6 +28,10 @@ location /$app_name {
   proxy_http_version 1.1;
   proxy_set_header Upgrade \$http_upgrade;
   proxy_set_header Connection \$http_connection;
+  # Allow the ${app_name^} API
+  location /$app_baseurl/api { auth_request off;
+        proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
+  }
 }
 RADARR
 
@@ -38,7 +42,7 @@ if [[ $isactive == "active" ]]; then
     systemctl stop $app_servicename
 fi
 user=$(grep User /etc/systemd/system/$app_servicename.service | cut -d= -f2)
-echo_log_only "Radarr user detected as $user"
+echo_log_only "${app_name^} user detected as $user"
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir")
 echo_log_only "Apikey = $apikey" >> "$log"
 
@@ -77,5 +81,5 @@ curl -s "http://127.0.0.1:$app_port/$urlbase/api/v3/config/host?apikey=${apikey}
 
 # Switch app back off if it was dead before
 if [[ $isactive != "active" ]]; then
-    systemctl stop app_servicename
+    systemctl stop $app_servicename
 fi
