@@ -35,7 +35,7 @@ function _removeSonarrv2() {
     sudo rm /install/.sonarrold.lock
 
     if [[ -f /install/.nginx.lock ]]; then
-        rm -f /etc/nginx/apps/sonarr.conf
+        rm -f /etc/nginx/apps/sonarrold.conf
         systemctl reload nginx
     fi
 }
