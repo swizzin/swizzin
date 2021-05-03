@@ -43,7 +43,7 @@ if [[ $isactive == "active" ]]; then
 fi
 user=$(grep User /etc/systemd/system/$app_servicename.service | cut -d= -f2)
 echo_log_only "${app_name^} user detected as $user"
-apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir")
+apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 echo_log_only "Apikey = $apikey" >> "$log"
 
 cat > "$app_configdir"/config.xml << RADARR
