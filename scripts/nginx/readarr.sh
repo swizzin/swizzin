@@ -64,8 +64,6 @@ READARR
 
 chown -R "$user":"$user" "$app_configdir"
 
-#shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
 systemctl start $app_servicename -q # Switch app on regardless whether it was off before or not as we need to have it online to trigger this cahnge
 if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:$app_port/api/v1/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
     echo_error "${app_name^} API did not respond as expected. Please make sure ${app_name^} is up to date and running."
