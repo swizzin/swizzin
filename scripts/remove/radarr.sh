@@ -1,12 +1,37 @@
 #!/bin/bash
-systemctl disable --now -q radarr
-rm /etc/systemd/system/radarr.service
-systemctl daemon-reload -q
-rm -rf /opt/Radarr
 
-if [[ -f /install/.nginx.lock ]]; then
-    rm /etc/nginx/apps/radarr.conf
-    systemctl reload nginx
+app_name="radarr"
+
+if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
+    RADARR_OWNER=$(_get_master_username)
 fi
 
-rm /install/.radarr.lock
+user="$RADARR_OWNER"
+app_configdir="/home/$user/.config/${app_name^}"
+app_servicename="${app_name}"
+app_servicefile="$app_servicename".service
+app_dir="/opt/${app_name^}"
+app_lockname=$app_name
+
+if ask "Would you like to purge the configuration?" Y; then
+    purgeapp="True"
+else
+    purgeapp="False"
+fi
+
+systemctl disable --now -q "$app_servicename"
+rm "$app_servicefile"
+systemctl daemon-reload -q
+rm -rf "$app_dir"
+
+if [[ "$purgeapp" = "True" ]]; then
+    rm -rf "$app_configdir"
+fi
+
+if [[ -f /install/.nginx.lock ]]; then
+    rm "/etc/nginx/apps/$app_name.conf"
+    systemctl reload nginx >> "$log" 2>&1
+fi
+
+swizdb clear "$app_name/owner"
+rm "/install/.$app_lockname.lock"
