@@ -20,7 +20,7 @@ else
 fi
 
 systemctl disable --now -q "$app_servicename"
-rm "$app_servicefile"
+rm "/etc/systemd/system/$app_servicefile"
 systemctl daemon-reload -q
 rm -rf "$app_dir"
 
