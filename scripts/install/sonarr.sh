@@ -5,7 +5,7 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-[[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
+[[ -z $sonarrv2oldowner ]] && sonarrv2oldowner=$(_get_master_username)
 
 if [[ -z $sonarrv3owner ]]; then
     sonarrv3owner=$(_get_master_username)
@@ -14,9 +14,9 @@ fi
 sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
 
 #Handles existing v2 instances
-_sonarrv2_flow() {
+_sonarrv2old_flow() {
     v2present=false
-    if [[ -f /install/.sonarrv2.lock ]]; then
+    if [[ -f /install/.sonarrv2old.lock ]]; then
         v2present=true
     fi
     if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
@@ -24,7 +24,7 @@ _sonarrv2_flow() {
     fi
 
     if [[ $v2present == "true" ]]; then
-        echo_warn "Sonarr v2 is detected. Continuing will migrate your current v2 installation. This will stop and remove sonarr v2 You can read more about the migration at https://swizzin.ltd/applications/sonarrv3#migrating-from-v2. An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2.bak/"
+        echo_warn "Sonarr v2 is detected. Continuing will migrate your current v2 installation. This will stop and remove sonarr v2 You can read more about the migration at https://swizzin.ltd/applications/sonarrv3#migrating-from-v2. An additional copy of the backup will be made into /root/swizzin/backups/sonarrv2old.bak/"
         if ! ask "Do you want to continue?" N; then
             exit 0
         fi
@@ -37,13 +37,13 @@ _sonarrv2_flow() {
                 address="http://127.0.0.1:8989/api"
             fi
 
-            [[ -z $sonarrv2owner ]] && sonarrv2owner=$(_get_master_username)
-            if [[ ! -d /home/"${sonarrv2owner}"/.config/NzbDrone ]]; then
-                echo_error "No Sonarr config folder found for $sonarrv2owner. Exiting"
+            [[ -z $sonarrv2oldowner ]] && sonarrv2oldowner=$(_get_master_username)
+            if [[ ! -d /home/"${sonarrv2oldowner}"/.config/NzbDrone ]]; then
+                echo_error "No Sonarr config folder found for $sonarrv2oldowner. Exiting"
                 exit 1
             fi
 
-            apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarrv2owner}"/.config/NzbDrone/config.xml)
+            apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarrv2oldowner}"/.config/NzbDrone/config.xml)
             echo_log_only "apikey = $apikey"
 
             #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
@@ -82,21 +82,21 @@ _sonarrv2_flow() {
 
         mkdir -p /root/swizzin/backups/
         echo_progress_start "Copying files to a backup location"
-        cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2.bak
+        cp -R /home/"${sonarrv2oldowner}"/.config/NzbDrone /root/swizzin/backups/sonarrv2old.bak
         echo_progress_done "Backups copied"
 
         if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
             if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
                 rm -rf
-                cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+                cp -R /home/"${sonarrv2oldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
             else
                 echo_info "Leaving v3 dir as is, why did we do any of this..."
             fi
         else
-            cp -R /home/"${sonarrv2owner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+            cp -R /home/"${sonarrv2oldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
         fi
 
-        systemctl stop sonarr@"${sonarrv2owner}"
+        systemctl stop sonarr@"${sonarrv2oldowner}"
 
         # We don't have the debconf configuration yet so we can't migrate the data.
         # Instead we symlink so postinst knows where it's at.
@@ -107,8 +107,8 @@ _sonarrv2_flow() {
         fi
 
         echo_progress_start "Removing Sonarr v2"
-        # shellcheck source=scripts/remove/sonarrv2.sh
-        bash /etc/swizzin/scripts/remove/sonarrv2.sh
+        # shellcheck source=scripts/remove/sonarrv2old.sh
+        bash /etc/swizzin/scripts/remove/sonarrv2old.sh
         echo_progress_done
     fi
 }
@@ -188,7 +188,7 @@ _nginx_sonarr() {
     fi
 }
 
-_sonarrv2_flow
+_sonarrv2old_flow
 _add_sonarr_repos
 _install_sonarr
 _nginx_sonarr
