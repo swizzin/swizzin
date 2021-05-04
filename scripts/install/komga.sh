@@ -30,7 +30,7 @@ Description=Komga server
 
 [Service]
 WorkingDirectory=/opt/komga/
-ExecStart=/usr/bin/java -jar -Xmx4g /opt/komga/komga.jar --server.servlet.context-path="/komga/" --server.port="6800"
+ExecStart=/usr/bin/java -jar -Xmx1g /opt/komga/komga.jar --server.servlet.context-path="/komga/" --server.port="6800"
 User=${user}
 Type=simple
 Restart=on-failure
