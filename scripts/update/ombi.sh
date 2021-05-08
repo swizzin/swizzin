@@ -32,4 +32,13 @@ CONF
         fi
         echo_progress_done "Ombi reset back to stock service"
     fi
+
+    #Switching from roxedus' sources to ombi official ones
+    if grep -q roxedus.github.io /etc/apt/sources.list.d/ombi.list; then
+        echo_progress_start "Upgrading ombi apt sources to official ones"
+        curl -sSL https://apt.ombi.app/pub.key | apt-key add - >> "$log" 2>&1
+        echo "deb https://apt.ombi.app/master jessie main" > /etc/apt/sources.list.d/ombi.list
+        echo_progress_done "Sources changed"
+        apt_update
+    fi
 fi
