@@ -41,4 +41,10 @@ CONF
         echo_progress_done "Sources changed"
         apt_update
     fi
+
+    #nagging v3 users to upgrade
+    if grep -q turd /etc/apt/sources.list.d/ombi.list; then
+        echo_warn "Your ombi install (v3) has reached EOL. Please upgrade it with \`box upgrade ombi\` to v4"
+    fi
+
 fi
