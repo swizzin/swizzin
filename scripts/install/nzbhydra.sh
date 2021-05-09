@@ -9,6 +9,13 @@
 #   under the GPL along with build & install instructions.
 #
 
+if [[ "$(_os_arch)" != "amd64" ]]; then
+    echo_warn "Yeah so there are ways to run nzbhydra2 on non-x86-64 systems but we didn't really implement that yet.
+If you really want this, take a screenshot of this and ping @sausage in the discord and we'll look at it when that happens lol.
+The installer will now exit"
+    exit 1
+fi
+
 . /etc/swizzin/sources/functions/utils
 
 username=$(_get_master_username)
