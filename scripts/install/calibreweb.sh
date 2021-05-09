@@ -147,7 +147,7 @@ _post_changepass() {
         echo_info "Could not change password, please use admin:admin123 to log in and change credentials immediately."
         return 1
     }
-    echo_info "Please use the username \"admin\" and the password of $CALIBRE_LIBRARY_USER to log in to calibreweb"
+    echo_info "Please use the username \"admin\" (literally that, NOT your master username) and the password of $CALIBRE_LIBRARY_USER to log in to calibreweb"
 }
 
 _install_dependencies_calibreweb
