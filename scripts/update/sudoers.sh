@@ -16,7 +16,7 @@ for u in "${users[@]}"; do
 
     if grep -q ${USER}CMNDS /etc/sudoers.d/$u; then
         echo_info "Fixing sudo permissions for $u"
-        sed -i "s/${USER}CMNDS/${USERCMDS}CMDS/g" /etc/sudoers.d/$u
+        sed -i "s/${USER}CMNDS/${USERCMDS}/g" /etc/sudoers.d/$u
     fi
 done
 
