@@ -15,22 +15,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 function rutorrent_install() {
-    apt_install sox geoip-database python2.7-dev python-setuptools
-
-    if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-        apt_install python-pip
-    else
-        #shellcheck source=sources/functions/pyenv
-        . /etc/swizzin/sources/functions/pyenv
-        python_getpip
-    fi
-
-    echo_progress_start "Installing cloudscraper"
-    pip install cloudscraper >> "$log" 2>&1 || {
-        echo_error "Failed to install cloudscraper"
-        exit 1
-    }
-    echo_progress_done "Cloudscraper installed"
+    apt_install sox geoip-database
 
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
@@ -41,6 +26,7 @@ function rutorrent_install() {
         }
         chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
+        rm -rf /srv/rutorrent/plugins/_cloudflare
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
         rm -rf /srv/rutorrent/conf/config.php
