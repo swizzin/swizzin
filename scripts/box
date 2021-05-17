@@ -156,7 +156,7 @@ We URGE you to migrate to a supported release if/while you still have the chance
             exit 1
         }
         echo_progress_done "Local repository updated from ${SWIZ_GIT_REF:-master}"
-        echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
+        echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
     fi
     export SWIZ_REPO_SCRIPT_RAN=true
 
