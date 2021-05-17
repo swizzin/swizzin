@@ -29,15 +29,18 @@ if [ -f /install/.rutorrent.lock ]; then
         #Essentially, disabling the distro snippet and ignoring try_files
         if grep -q '/srv\$fastcgi_script_name' /etc/nginx/apps/rutorrent.conf; then
             sed -i 's|/srv$fastcgi_script_name|$request_filename|g' /etc/nginx/apps/rutorrent.conf
+            echo_log_only "rutorrent fastcgi_script_name triggers nginx reload"
             reloadnginx=1
         fi
         if grep -q 'alias' /etc/nginx/apps/rutorrent.conf; then
             sed -i '/alias/d' /etc/nginx/apps/rutorrent.conf
+            echo_log_only "rutorrent alias triggers nginx reload"
             reloadnginx=1
         fi
         if ! grep -q fastcgi_split_path_info /etc/nginx/apps/rutorrent.conf; then
             sed -i 's|include snippets/fastcgi-php.conf;|fastcgi_split_path_info ^(.+\\.php)(/.+)$;|g' /etc/nginx/apps/rutorrent.conf
             sed -i '/SCRIPT_FILENAME/a \ \ \ \ include fastcgi_params;\n    fastcgi_index index.php;' /etc/nginx/apps/rutorrent.conf
+            echo_log_only "rutorrent fastcgi_split_path_info triggers nginx reload"
             reloadnginx=1
         fi
     fi
@@ -60,10 +63,13 @@ RUC
     fi
 
     if [[ $reloadnginx == 1 ]]; then
+        echo_progress_start "Reloading nginx due to rutorrent config updates"
         systemctl reload nginx
+        echo_progress_done
     fi
 
     if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -c cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]]; }; then
+        echo_progress_start "Fixing quota rutorrent plugin"
         cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
 <?php
 #################################################################################
@@ -90,6 +96,7 @@ RUC
 DSKSP
         . /etc/swizzin/sources/functions/php
         restart_php_fpm
+        echo_progress_done
     fi
 
 fi
