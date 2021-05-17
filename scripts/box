@@ -148,7 +148,7 @@ We URGE you to migrate to a supported release if/while you still have the chance
         echo_progress_start "Updating swizzin local repository"
         {
             #shellcheck disable=SC2129
-            git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
+            git -C /etc/swizzin checkout "${SWIZ_GIT_REF:master}" >> $log 2>&1
             git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
             git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
         } || {
