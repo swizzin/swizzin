@@ -32,8 +32,8 @@ function rutorrent_install() {
     }
     echo_progress_done "Cloudscraper installed"
 
+    mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
-        mkdir -p /srv
         echo_progress_start "Cloning rutorrent"
         git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
             echo_error "Failed to clone rutorrent"
