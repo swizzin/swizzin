@@ -49,6 +49,7 @@ else
 fi
 
 apt_install $APT
+mkdir -p /srv
 
 cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)
