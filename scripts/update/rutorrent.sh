@@ -2,19 +2,23 @@
 
 #Update club-QuickBox with latest changes
 if [[ -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-    cd /srv/rutorrent/plugins/theme/themes/club-QuickBox
-    git fetch
+    echo_progress_start "Updating rutorrent QuickBox theme"
+    cqbdir="/srv/rutorrent/plugins/theme/themes/club-QuickBox"
+    git fetch -C "$cqbdir"
     if [[ ! $(git rev-parse HEAD) == $(git rev-parse @{u}) ]]; then
-        git reset HEAD --hard
-        git pull
+        git reset HEAD --hard -C "$cqbdir" >> $log 2>&1
+        git pull -C "$cqbdir" >> $log 2>&1
     fi
+    echo_progress_done
 fi
 
 if [[ -d /srv/rutorrent/plugins/theme/themes/DarkBetter ]]; then
     if [[ -z "$(ls -A /srv/rutorrent/plugins/theme/themes/DarkBetter/)" ]]; then
-        cd /srv/rutorrent
-        git submodule update --init --recursive > /dev/null 2>&1
+        echo_progress_start "Updating rutorrent submodules"
+        git submodule update --init --recursive -C /srv/rutorrent >> $log 2>&1
+        echo_progress_done
     fi
+
 fi
 
 reloadnginx=0
