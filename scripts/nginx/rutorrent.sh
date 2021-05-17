@@ -26,13 +26,19 @@ function rutorrent_install() {
     fi
 
     echo_progress_start "Installing cloudscraper"
-    pip install cloudscraper >> "$log" 2>&1
+    pip install cloudscraper >> "$log" 2>&1 || {
+        echo_error "Failed to install cloudscraper"
+        exit 1
+    }
     echo_progress_done "Cloudscraper installed"
 
     if [[ ! -d /srv/rutorrent ]]; then
         mkdir -p /srv
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+            echo_error "Failed to clone rutorrent"
+            exit 1
+        }
         chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
         rm -rf /srv/rutorrent/plugins/extratio
@@ -263,6 +269,7 @@ RUC
 
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 codename=$(lsb_release -cs)
