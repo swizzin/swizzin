@@ -5,10 +5,10 @@ if [ -f /install/.rutorrent.lock ]; then
     if [[ -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
         echo_progress_start "Updating rutorrent QuickBox theme"
         cqbdir="/srv/rutorrent/plugins/theme/themes/club-QuickBox"
-        git fetch -C "$cqbdir"
-        if [[ ! $(git rev-parse HEAD -C "$cqbdir") == $(git rev-parse @{u} -C "$cqbdir") ]]; then
-            git reset HEAD --hard -C "$cqbdir" >> $log 2>&1
-            git pull -C "$cqbdir" >> $log 2>&1
+        git -C "$cqbdir" fetch
+        if [[ ! $(git -C "$cqbdir" rev-parse HEAD) == $(git -C "$cqbdir" rev-parse @{u}) ]]; then
+            git -C "$cqbdir" reset HEAD --hard >> $log 2>&1
+            git -C "$cqbdir" pull >> $log 2>&1
         fi
         echo_progress_done
     fi
