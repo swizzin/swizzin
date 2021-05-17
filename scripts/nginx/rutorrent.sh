@@ -29,11 +29,11 @@ function rutorrent_install() {
     pip install cloudscraper >> "$log" 2>&1
     echo_progress_done "Cloudscraper installed"
 
-    cd /srv
     if [[ ! -d /srv/rutorrent ]]; then
+        mkdir -p /srv
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> "$log" 2>&1
-        chown -R www-data:www-data rutorrent
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1
+        chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
@@ -51,8 +51,7 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        cd /srv/rutorrent/plugins/theme/themes
-        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >> "$log" 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
