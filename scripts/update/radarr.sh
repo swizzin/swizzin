@@ -101,7 +101,7 @@ ${app_name^} updater is exiting, please try again later."
         if grep -q "<EnableSsl>True" "$app_configfile"; then
             echo_info "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
-        echo_progress_done "Radarr's efault ports changed"
+        echo_progress_done "Radarr's default SSL port changed"
     else
         echo_log_only "Radarr's ports are not on 8787"
     fi
