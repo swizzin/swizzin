@@ -115,4 +115,4 @@ if [[ -f /install/.bazarr.lock ]]; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 
-echo_success "Radarr v3 installed"
+echo_success "Radarr installed"

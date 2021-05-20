@@ -60,6 +60,8 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_warn "Radarr v0.2 is EOL and not supported. Please upgrade your radarr to v3. An attempt will be made to migrate to .Net core on the next \`box update\` run"
             echo_docs "applications/radarr#migrating-to-v3-on-net-core"
         fi
+    else
+        echo_log_only "Radarr's service is not pointing to mono"
     fi
     #Mandatory SSL Port change for Readarr
     #shellcheck source=sources/functions/utils
@@ -88,17 +90,20 @@ ${app_name^} updater is exiting, please try again later."
             exit 1
         fi
     else
-        echo_log_only "Owner $radarrOwner apparently did not need an update"
+        echo_log_only "Radarr owner $radarrOwner apparently did not need an update"
     fi
 
     if grep -q "<SslPort>8787" "$app_configfile"; then
-        echo_log_only "Changing radarr ssl port in line with upstream"
+        echo_progress_start "Changing Radarr's default SSL port"
         sed -i 's|<SslPort>8787</SslPort>|<SslPort>9898</SslPort>|g' "$app_configfile"
         systemctl try-restart -q radarr
 
         if grep -q "<EnableSsl>True" "$app_configfile"; then
             echo_info "Radarr SSL port changed from 8787 to 9898 due to Readarr conflicts; please ensure to adjust your dependent systems in case they were using this port"
         fi
+        echo_progress_done "Radarr's default SSL port changed"
+    else
+        echo_log_only "Radarr's ports are not on 8787"
     fi
 
 fi
