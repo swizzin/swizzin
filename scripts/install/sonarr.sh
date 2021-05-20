@@ -1,129 +1,210 @@
 #!/bin/bash
-#
-# [Quick Box :: Install Sonarr-NzbDrone package]
-#
-# GITHUB REPOS
-# GitHub _ packages  :   https://github.com/QuickBox/quickbox_packages
-# LOCAL REPOS
-# Local _ packages   :   /etc/QuickBox/packages
-# Author             :   QuickBox.IO | JMSolo
-# URL                :   https://quickbox.io
-#
-# QuickBox Copyright (C) 2016
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-#
-#################################################################################
+# Sonarr v3 installer
+# Flying sauasges for swizzin 2020
 
-function _check_for_sonarr3() {
-    if [[ -d /root/swizzin/backups/sonarrv2.bak ]]; then
-        echo_warn "Found backups from before Sonarr v3 migration."
-        echo_info "Follow these steps post-install https://github.com/Sonarr/Sonarr/wiki/Backup-and-Restore in case you're trying to go back."
-        #TODO implement restore procedure if user wants that to happen?
-        #TODO check if unit is still masked. Unmaks it if that's the case.
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+
+[[ -z $sonarroldowner ]] && sonarroldowner=$(_get_master_username)
+
+if [[ -z $sonarrv3owner ]]; then
+    sonarrv3owner=$(_get_master_username)
+fi
+
+sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+
+#Handles existing v2 instances
+_sonarrold_flow() {
+    v2present=false
+    if [[ -f /install/.sonarrold.lock ]]; then
+        v2present=true
+    fi
+    if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
+        v2present=true
     fi
 
-    if [[ -f /install/.sonarrv3.lock ]]; then
-        v3present=true
-    fi
+    if [[ $v2present == "true" ]]; then
+        echo_warn "Sonarr v2 is detected. Continuing will migrate your current v2 installation. This will stop and remove sonarr v2 You can read more about the migration at https://swizzin.ltd/applications/sonarrv3#migrating-from-v2. An additional copy of the backup will be made into /root/swizzin/backups/sonarrold.bak/"
+        if ! ask "Do you want to continue?" N; then
+            exit 0
+        fi
 
-    if dpkg -l | grep sonarr > /dev/null 2>&1; then
-        v3present=true
-    fi
+        if ask "Would you like to trigger a Sonarr-side backup?" Y; then
+            echo_progress_start "Backing up Sonarr v2"
+            if [[ -f /install/.nginx.lock ]]; then
+                address="http://127.0.0.1:8989/sonarr/api"
+            else
+                address="http://127.0.0.1:8989/api"
+            fi
 
-    if [[ $v3present == "true" ]]; then
-        echo_error "Sonarr v3 detected. If you want to proceed installing Sonarr v2, please remove Sonarr v3 first."
+            [[ -z $sonarroldowner ]] && sonarroldowner=$(_get_master_username)
+            if [[ ! -d /home/"${sonarroldowner}"/.config/NzbDrone ]]; then
+                echo_error "No Sonarr config folder found for $sonarroldowner. Exiting"
+                exit 1
+            fi
+
+            apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"${sonarroldowner}"/.config/NzbDrone/config.xml)
+            echo_log_only "apikey = $apikey"
+
+            #This starts a backup on the current Sonarr instance. The logic below waits until the query returns as "completed"
+            response=$(curl -sd '{name: "backup"}' -H "Content-Type: application/json" -X POST ${address}/command?apikey="${apikey}" --insecure)
+            echo_log_only "$response"
+            id=$(echo "$response" | jq '.id')
+            echo_log_only "id=$id"
+
+            if [[ -z $id ]]; then
+                echo_warn "Failure triggering backup (see logs). Current Sonarr config and previous weekly backups will be backed up up and copied for migration"
+                if ! ask "Continue without triggering internal Sonarr backup?" N; then
+                    exit 1
+                fi
+            else
+                echo_log_only "Sonarr backup Job ID = $id, waiting to finish"
+
+                status=""
+                counter=0
+                while [[ $status =~ ^(queued|started|)$ ]]; do
+                    sleep 0.2
+                    status=$(curl -s "${address}/command/$id?apikey=${apikey}" --insecure | jq -r '.status')
+                    ((counter += 1))
+                    if [[ $counter -gt 100 ]]; then
+                        echo_error "Sonarr backup timed out (20s), cancelling installation."
+                        exit 1
+                    fi
+                done
+                if [[ $status = "completed" ]]; then
+                    echo_progress_done "Backup complete"
+                else
+                    echo_error "Sonarr returned unexpected status ($status). Terminating. Please try again."
+                    exit 1
+                fi
+            fi
+        fi
+
+        mkdir -p /root/swizzin/backups/
+        echo_progress_start "Copying files to a backup location"
+        cp -R /home/"${sonarroldowner}"/.config/NzbDrone /root/swizzin/backups/sonarrold.bak
+        echo_progress_done "Backups copied"
+
+        if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
+            if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
+                rm -rf
+                cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+            else
+                echo_info "Leaving v3 dir as is, why did we do any of this..."
+            fi
+        else
+            cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+        fi
+
+        systemctl stop sonarr@"${sonarroldowner}"
+
+        # We don't have the debconf configuration yet so we can't migrate the data.
+        # Instead we symlink so postinst knows where it's at.
+        if [ -f "/usr/lib/sonarr/nzbdrone-appdata" ]; then
+            rm "/usr/lib/sonarr/nzbdrone-appdata"
+        else
+            mkdir -p "/usr/lib/sonarr"
+        fi
+
+        echo_progress_start "Removing Sonarr v2"
+        # shellcheck source=scripts/remove/sonarrold.sh
+        bash /etc/swizzin/scripts/remove/sonarrold.sh
+        echo_progress_done
+    fi
+}
+
+_add_sonarr_repos() {
+    echo_progress_start "Adding apt sources for Sonarr v3"
+    codename=$(lsb_release -cs)
+    distribution=$(lsb_release -is)
+
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> "$log" 2>&1
+    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> "$log" 2>&1
+
+    #shellcheck source=sources/functions/mono
+    . /etc/swizzin/sources/functions/mono
+    mono_repo_setup
+
+    apt_update
+
+    if ! apt-cache policy sonarr | grep -q apt.sonarr.tv; then
+        echo_error "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
+        exit 1
+    fi
+}
+
+_install_sonarr() {
+    mkdir -p "$sonarrv3confdir"
+    chown -R "$sonarrv3owner":"$sonarrv3owner" /home/"$sonarrv3owner"/.config
+
+    echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
+    # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
+    echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
+    echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
+    echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
+    apt_install sonarr sqlite3
+    touch /install/.sonarr.lock
+    sleep 1
+
+    if [[ ! -d /usr/lib/sonarr ]]; then
+        echo_error "The Sonarr v3 pacakge did not install correctly. Please try again. (Is sonarr repo reachable?)"
         exit 1
     fi
 
-}
-
-function _installSonarr1() {
-    mono_repo_setup
-}
-
-function _installSonarr2() {
-    apt_install apt-transport-https screen
-    if [[ $distribution == "Ubuntu" ]]; then
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
-    elif [[ $distribution == "Debian" ]]; then
-        #buster friendly
-        apt-key --keyring /etc/apt/trusted.gpg.d/nzbdrone.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >> ${log} 2>&1
-        #older style -- buster friendly should work on stretch
-        #gpg --keyserver http://keyserver.ubuntu.com --recv 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 >/dev/null 2>&1
-        #gpg --export 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /etc/apt/trusted.gpg.d/nzbdrone.gpg
+    echo_progress_start "Sonarr is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The Sonarr web server has taken longer than 30 seconds to start."
+        exit 1
     fi
-    echo "deb https://apt.sonarr.tv/ master main" | tee /etc/apt/sources.list.d/sonarr.list >> ${log} 2>&1
-    apt_update
+    echo_progress_done "Internal upgrade finished"
 }
 
-function _installSonarr3() {
-    if [[ $distribution == Debian ]]; then
-        apt_install mono-devel
-    fi
-}
+# _add2usergroups_sonarrv3 () {
+#         if [[ -z $sonarrv3grouplist ]]; then
+#             if ask "Do you want to let Sonarr access other users' home directories?" N; then
+#                 echo "Space separated list of users to give sonarr access to: (e.g. \"user1 user2\")"
+#                 read -r sonarrv3grouplist
+#             fi
+#         fi
+#         if [[ -n $sonarrv3grouplist ]]; then
+#             for u in $sonarrv3grouplist; do
+#                 echo "Adding ${sonarrv3owner} to $u's group"
+#                 usermod -a -G "$u" "$sonarrv3owner"
+#                 chmod g+rwx /home/"$u"
+#             done
+#         fi
+# }
 
-function _installSonarr4() {
-    apt_install nzbdrone
-    touch /install/.sonarr.lock
-}
-
-function _installSonarr5() {
-    chown -R "${username}":"${username}" /opt/NzbDrone
-}
-
-function _installSonarr6() {
-    echo_progress_start "Installing systemd service"
-    cat > /etc/systemd/system/sonarr@.service << SONARR
-[Unit]
-Description=nzbdrone
-After=syslog.target network.target
-
-[Service]
-Type=forking
-KillMode=process
-User=%i
-ExecStart=/usr/bin/screen -f -a -d -m -S nzbdrone mono /opt/NzbDrone/NzbDrone.exe
-ExecStop=-/bin/kill -HUP
-WorkingDirectory=/home/%i/
-
-[Install]
-WantedBy=multi-user.target
-SONARR
-    systemctl enable -q --now sonarr@${username} 2>&1 | tee -a $log
-    sleep 10
-    echo_progress_done "Sonarr started"
-
+_nginx_sonarr() {
     if [[ -f /install/.nginx.lock ]]; then
-        echo_progress_start "Configuring nginx"
+        #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
+        echo_progress_start "Installing nginx configuration"
         sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarr.sh
-        systemctl reload nginx
+        systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
     else
         echo_info "Sonarr will run on port 8989"
     fi
 }
 
-#shellcheck source=sources/functions/mono
-. /etc/swizzin/sources/functions/mono
-username=$(cut -d: -f1 < /root/.master.info)
-distribution=$(lsb_release -is)
+_sonarrold_flow
+_add_sonarr_repos
+_install_sonarr
+_nginx_sonarr
 
-_check_for_sonarr3
-_installSonarr1
-echo_progress_start "Adding source repositories for Sonarr-Nzbdrone ... "
-_installSonarr2
-echo_progress_done "Repositories added"
-echo_progress_start "Updating your system with new sources ... "
-_installSonarr3
-echo_progress_done
-_installSonarr4
-echo_progress_start "Setting permissions to ${username} ... "
-_installSonarr5
-echo_progress_done
-_installSonarr6
+touch /install/.sonarr.lock
+
+if [[ -f /install/.ombi.lock ]]; then
+    echo_info "Please adjust your Ombi setup accordingly"
+fi
+
+if [[ -f /install/.tautulli.lock ]]; then
+    echo_info "Please adjust your Tautulli setup accordingly"
+fi
+
+if [[ -f /install/.bazarr.lock ]]; then
+    echo_info "Please adjust your Bazarr setup accordingly"
+fi
+
+echo_success "Sonarr v3 installed"

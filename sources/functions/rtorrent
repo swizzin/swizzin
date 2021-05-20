@@ -8,22 +8,28 @@ function whiptail_rtorrent() {
     if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
         if [[ ! ${codename} == "xenial" ]]; then
-            function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+            function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
                 Repo "(${repov})" \
                 0.9.8 "" \
                 0.9.7 "" \
                 0.9.6 "" \
-                feature-bind "" 3>&1 1>&2 2>&3)
+                feature-bind "" 3>&1 1>&2 2>&3) || {
+                echo_error "rTorrent version choice aborted"
+                exit 1
+            }
 
         else
-            function=$(whiptail --title "Install Software" --menu "Choose an rTorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+            function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
                 Repo "(${repov})" \
                 0.9.8 "" \
                 0.9.7 "" \
                 0.9.6 "" \
                 0.9.4 "" \
                 0.9.3 "" \
-                feature-bind "" 3>&1 1>&2 2>&3)
+                feature-bind "" 3>&1 1>&2 2>&3) || {
+                echo_error "rTorrent version choice aborted"
+                exit 1
+            }
         fi
 
         if [[ $function == 0.9.8 ]]; then
