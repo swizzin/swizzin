@@ -1,76 +1,140 @@
 #!/bin/bash
-# Lidarr installer for swizzin
-# Author: liara
-# Copyright (C) 2019 Swizzin
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-user=$(cut -d: -f1 < /root/.master.info)
-ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
-#shellcheck source=sources/functions/mono
-. /etc/swizzin/sources/functions/mono
-mono_repo_setup
-apt_install libmono-cil-dev libchromaprint-tools
+# *Arr Installer for Lidarr
+# Refactored from existing files by FlyingSausages and others
+# Bakerboy448 2021 for Swizzin
 
-echo_progress_start "Downloading Lidarr release and extracting"
-cd /home/${user}/
-wget -O lidarr.tar.gz -q $(curl -s https://api.github.com/repos/Lidarr/Lidarr/releases | grep linux.tar.gz | grep browser_download_url | head -1 | cut -d \" -f 4)
-tar xf lidarr.tar.gz
-rm -rf lidarr.tar.gz
-chown -R ${user}: /home/${user}/Lidarr
-echo_progress_done "Lidarr downloaded and extracted"
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 
-echo_progress_start "Configuring Lidarr"
-if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p /home/${user}/.config/Lidarr/; fi
-cat > /home/${user}/.config/Lidarr/config.xml << LID
-<Config>
-  <Port>8686</Port>
-  <UrlBase>lidarr</UrlBase>
-  <BindAddress>*</BindAddress>
-  <EnableSsl>False</EnableSsl>
-  <LogLevel>Info</LogLevel>
-  <LaunchBrowser>False</LaunchBrowser>
-</Config>
-LID
-chown -R ${user}: /home/${user}/.config
-cat > /etc/systemd/system/lidarr.service << LID
+app_name="lidarr"
+if [ -z "$LIDARR_OWNER" ]; then
+    if ! LIDARR_OWNER="$(swizdb get $app_name/owner)"; then
+        LIDARR_OWNER=$(_get_master_username)
+        echo_info "Setting ${app_name^} owner = $LIDARR_OWNER"
+        swizdb set "$app_name/owner" "$LIDARR_OWNER"
+    fi
+else
+    echo_info "Setting ${app_name^} owner = $LIDARR_OWNER"
+    swizdb set "$app_name/owner" "$LIDARR_OWNER"
+fi
+
+_install_lidarr() {
+    user="$LIDARR_OWNER"
+    app_configdir="/home/$user/.config/${app_name^}"
+    app_port="8686"
+    app_reqs=("curl" "mediainfo" "sqlite3" "libchromaprint-tools")
+    app_servicename="${app_name}"
+    app_servicefile="$app_servicename".service
+    app_dir="/opt/${app_name^}"
+    app_binary="${app_name^}"
+    app_lockname=$app_name
+    app_group="$user"
+
+    apt_install "${app_reqs[@]}"
+
+    if [ ! -d "$app_configdir" ]; then
+        mkdir -p "$app_configdir"
+    fi
+    chown -R "$user":"$app_group" "$app_configdir"
+
+    echo_progress_start "Downloading release archive"
+
+    urlbase="https://$app_name.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
+    case "$(_os_arch)" in
+        "amd64") dlurl="${urlbase}&arch=x64" ;;
+        "armhf") dlurl="${urlbase}&arch=arm" ;;
+        "arm64") dlurl="${urlbase}&arch=arm64" ;;
+        *)
+            echo_error "Arch not supported"
+            exit 1
+            ;;
+    esac
+
+    if ! curl "$dlurl" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
+        echo_error "Download failed, exiting"
+        exit 1
+    fi
+    echo_progress_done "Archive downloaded"
+
+    echo_progress_start "Extracting archive"
+    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
+        echo_error "Failed to extract"
+        exit 1
+    }
+    rm -rf "/tmp/$app_name.tar.gz"
+    chown -R "${user}": "$app_dir"
+    echo_progress_done "Archive extracted"
+
+    echo_progress_start "Installing Systemd service"
+    cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
-Description=lidarr for ${user}
+Description=${app_name^} Daemon
 After=syslog.target network.target
 
 [Service]
-Type=simple
+# Change the user and group variables here.
 User=${user}
-Group=${user}
-Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/usr/bin/mono /home/${user}/Lidarr/Lidarr.exe -nobrowser
-ExecStop=-/bin/kill -HUP
-WorkingDirectory=/home/${user}/
+Group=${app_group}
+
+Type=simple
+
+# Change the path to ${app_name^} here if it is in a different location for you.
+ExecStart=$app_dir/$app_binary -nobrowser -data=$app_configdir
+TimeoutStopSec=20
+KillMode=process
 Restart=on-failure
+
+# These lines optionally isolate (sandbox) ${app_name^} from the rest of the system.
+# Make sure to add any paths it might use to the list below (space-separated).
+#ReadWritePaths=$app_dir /path/to/media/folder
+#ProtectSystem=strict
+#PrivateDevices=true
+#ProtectHome=true
 
 [Install]
 WantedBy=multi-user.target
-LID
-echo_progress_done "Lidarr configured"
+EOF
 
-if [[ -f /install/.nginx.lock ]]; then
-    echo_progress_start "Configuring nginx"
-    sleep 10
-    bash /usr/local/bin/swizzin/nginx/lidarr.sh
-    systemctl reload nginx
-    echo_progress_done "Nginx configured"
-else
-    echo_info "Lidarr will run on port 8686"
+    systemctl -q daemon-reload
+    systemctl enable --now -q "$app_name"
+    sleep 1
+    echo_progress_done "${app_name^} service installed and enabled"
+
+    echo_progress_start "${app_name^} is installing an internal upgrade..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
+        exit 1
+    fi
+    echo_progress_done "Internal upgrade finished"
+
+}
+
+_nginx_lidarr() {
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        sleep 10
+        bash /usr/local/bin/swizzin/nginx/"$app_name".sh
+        systemctl reload nginx
+        echo_progress_done "Nginx configured"
+    else
+        echo_info "$app_name will run on port $app_port"
+    fi
+}
+
+_install_lidarr
+_nginx_lidarr
+
+if [[ -f /install/.ombi.lock ]]; then
+    echo_info "Please adjust your Ombi setup accordingly"
 fi
 
-echo_progress_start "Enabling Lidarr"
-systemctl enable -q --now lidarr 2>&1 | tee -a $log
-echo_progress_done "Lidarr started"
+if [[ -f /install/.tautulli.lock ]]; then
+    echo_info "Please adjust your Tautulli setup accordingly"
+fi
 
-echo_success "Lidarr installed"
-touch /install/.lidarr.lock
+if [[ -f /install/.bazarr.lock ]]; then
+    echo_info "Please adjust your Bazarr setup accordingly"
+fi
+
+touch "/install/.$app_lockname.lock"
+echo_success "${app_name^} installed"
