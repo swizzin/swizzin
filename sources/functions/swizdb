@@ -88,6 +88,7 @@ export -f _setswizdb
 # $1 = key
 # \
 # **Returns code 1 if not found**
+# **Returns code 2 if found, but a directory**
 _pathswizdb() {
     key="$1"
     if [ -f "$dbdir/$key" ] || [ -L "$dbdir/$key" ]; then
