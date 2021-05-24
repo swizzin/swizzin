@@ -95,7 +95,7 @@ _pathswizdb() {
         echo "$dbdir/$key"
         return 0
     elif [ -d "$dbdir/$key" ]; then
-        echo "$dbdir/$key"
+        echo "$dbdir/$key/"
         return 2
     else
         echo_log_only "File/symlink for key \"$key\" does not exist"
