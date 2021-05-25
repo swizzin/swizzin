@@ -64,7 +64,9 @@ _install_radarr() {
     rm -rf "/tmp/$app_name.tar.gz"
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
-
+}
+_install_radarr
+_service_radarr() {
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
@@ -96,7 +98,7 @@ WantedBy=multi-user.target
 EOF
 
     systemctl -q daemon-reload
-    systemctl enable --now -q "$app_name"
+    systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
 
@@ -108,7 +110,7 @@ EOF
     echo_progress_done "Internal upgrade finished"
 
 }
-
+_service_radarr
 _nginx_radarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
@@ -120,8 +122,6 @@ _nginx_radarr() {
         echo_info "$app_name will run on port $app_port"
     fi
 }
-
-_install_radarr
 _nginx_radarr
 
 if [[ -f /install/.ombi.lock ]]; then

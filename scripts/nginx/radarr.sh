@@ -16,7 +16,7 @@ app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl=$app_name
 
 cat > /etc/nginx/apps/$app_name.conf << RADARR
-location /$app_name {
+location /$app_baseurl {
   proxy_pass        http://127.0.0.1:$app_port/$app_baseurl;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -32,7 +32,7 @@ location /$app_name {
   location /$app_baseurl/api { auth_request off;
         proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
   }
-    # Allow the ${app_name^} API
+    # Allow the ${app_name^} Content
   location /$app_baseurl/Content { auth_request off;
         proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
@@ -80,8 +80,6 @@ fi
 
 payload=$(curl -sL "http://127.0.0.1:${app_port}/api/v3/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
-echo_log_only "Return from ${app_name^} after PUT ="
-curl -s "http://127.0.0.1:$app_port/$urlbase/api/v3/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "$log"
 
 # Switch app back off if it was dead before
 if [[ $isactive != "active" ]]; then
