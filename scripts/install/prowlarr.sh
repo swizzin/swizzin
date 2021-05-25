@@ -65,6 +65,9 @@ _install_prowlarr() {
     rm -rf "/tmp/$app_name.tar.gz"
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
+}
+_install_prowlarr
+_systemd_prowlarr() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
@@ -97,7 +100,7 @@ WantedBy=multi-user.target
 EOF
 
     systemctl -q daemon-reload
-    systemctl enable --now -q "$app_name"
+    systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
 
@@ -109,11 +112,11 @@ EOF
     echo_progress_done "Internal upgrade finished"
 
 }
+_systemd_prowlarr
 
 _nginx_prowlarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        sleep 10
         bash /usr/local/bin/swizzin/nginx/"$app_name".sh
         systemctl reload nginx
         echo_progress_done "Nginx configured"
@@ -121,8 +124,6 @@ _nginx_prowlarr() {
         echo_info "$app_name will run on port $app_port"
     fi
 }
-
-_install_prowlarr
 _nginx_prowlarr
 
 touch "/install/.$app_lockname.lock"
