@@ -16,7 +16,7 @@ app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl=$app_name
 
 cat > /etc/nginx/apps/$app_name.conf << PROWLARR
-location /$app_name {
+location /$app_baseurl {
   proxy_pass        http://127.0.0.1:$app_port/;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -37,8 +37,8 @@ location /$app_name {
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
   # Allow Indexers
-  location ~ /prowlarr/[0-9]+/api { auth_request off
-  proxy_pass       http://127.0.0.1:9696/prowlarr/$1/api;
+  location ~ /$app_baseurl/[0-9]+/api { auth_request off
+  proxy_pass       http://127.0.0.1:9696/$app_baseurl/$1/api;
 }
 
 }
