@@ -1,5 +1,5 @@
 #!/bin/bash
-# Nginx conf for Radarr v3
+# Nginx conf for *arr
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
 master=$(cut -d: -f1 < /root/.master.info)
@@ -31,6 +31,10 @@ location /$app_name {
   # Allow the ${app_name^} API
   location /$app_baseurl/api { auth_request off;
         proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
+  }
+    # Allow the ${app_name^} API
+  location /$app_baseurl/Content { auth_request off;
+        proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
 }
 RADARR
