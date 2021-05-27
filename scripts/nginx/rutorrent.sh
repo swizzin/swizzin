@@ -15,26 +15,25 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 function rutorrent_install() {
-    apt_install sox geoip-database python2.7-dev python-setuptools
+    apt_install sox geoip-database
 
-    if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-        apt_install python-pip
-    else
-        . /etc/swizzin/sources/functions/pyenv
-        python_getpip
-    fi
-
-    pip install cloudscraper >> /dev/null 2>&1
-
-    cd /srv
+    mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> /dev/null 2>&1
-        chown -R www-data:www-data rutorrent
+        echo_progress_start "Cloning rutorrent"
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+            echo_error "Failed to clone rutorrent"
+            exit 1
+        }
+        chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
+        rm -rf /srv/rutorrent/plugins/_cloudflare
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
         rm -rf /srv/rutorrent/conf/config.php
+        echo_progress_done "RuTorrent cloned"
     fi
+
+    echo_progress_start "Cloning some essential themes and plugins"
     sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
@@ -44,14 +43,13 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        cd /srv/rutorrent/plugins/theme/themes
-        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox > /dev/null 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         cd /srv/rutorrent/plugins/
-        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> /dev/null 2>&1
+        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "$log" 2>&1
         chown -R www-data: /srv/rutorrent/plugins/filemanager
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
@@ -67,20 +65,11 @@ function rutorrent_install() {
 \$pathToExternals['unzip'] = '$(which unzip)';
 \$pathToExternals['tar'] = '$(which tar)';
 
-
 // archive mangling, see archiver man page before editing
-
 \$fm['archive']['types'] = array('rar', 'zip', 'tar', 'gzip', 'bzip2');
-
-
-
-
 \$fm['archive']['compress'][0] = range(0, 5);
 \$fm['archive']['compress'][1] = array('-0', '-1', '-9');
 \$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
-
-
-
 
 ?>
 FMCONF
@@ -88,7 +77,7 @@ FMCONF
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
-        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> /dev/null 2>&1
+        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
     fi
 
@@ -99,6 +88,7 @@ FMCONF
         rm -rf logoff-1.3.tar.gz
         chown -R www-data: logoff
     fi
+    echo_progress_done "Plugins downloaded"
 
     if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
         cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
@@ -256,6 +246,7 @@ RUC
 
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 codename=$(lsb_release -cs)
