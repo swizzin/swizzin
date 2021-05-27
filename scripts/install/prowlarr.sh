@@ -34,7 +34,7 @@ app_branch="nightly"
 if [ ! -d "$swiz_configdir" ]; then
     mkdir -p "$swiz_configdir"
 fi
-chown -R "$user":"$user" "$swiz_configdir"
+chown "$user":"$user" "$swiz_configdir"
 
 _install_prowlarr() {
     if [ ! -d "$app_configdir" ]; then
