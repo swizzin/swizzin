@@ -18,7 +18,8 @@ else
     swizdb set "$app_name/owner" "$PROWLARR_OWNER"
 fi
 user="$PROWLARR_OWNER"
-app_configdir="/home/$user/.config/${app_name^}"
+swiz_configdir="/home/$user/.config"
+app_configdir="$swiz_configdir/${app_name^}"
 app_group="$user"
 app_port="9696"
 app_reqs=("curl" "sqlite3")
@@ -30,14 +31,18 @@ app_lockname="${app_name//-/}"
 app_branch="nightly"
 #ToDo: Update branch
 
+if [ ! -d "$swiz_configdir" ]; then
+    mkdir -p "$swiz_configdir"
+fi
+chown -R "$user":"$user" "$swiz_configdir"
+
 _install_prowlarr() {
-
-    apt_install "${app_reqs[@]}"
-
     if [ ! -d "$app_configdir" ]; then
         mkdir -p "$app_configdir"
     fi
-    chown -R "$user":"$app_group" "$app_configdir"
+    chown -R "$user":"$user" "$app_configdir"
+
+    apt_install "${app_reqs[@]}"
 
     echo_progress_start "Downloading release archive"
 
