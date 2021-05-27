@@ -6,8 +6,7 @@ function install_rar() {
     if ! which unrar > /dev/null; then
         case "$(_os_arch)" in
             "amd64")
-                apt_install rar unrar || {
-                    exit 1
+                apt_install rar unrar
                 }
                 ;;
             "arm64")
