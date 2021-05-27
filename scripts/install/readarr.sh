@@ -17,30 +17,36 @@ else
     echo_info "Setting ${app_name^} owner = $READARR_OWNER"
     swizdb set "$app_name/owner" "$READARR_OWNER"
 fi
+user="$READARR_OWNER"
+swiz_configdir="/home/$user/.config"
+app_configdir="$swiz_configdir/${app_name^}"
+app_group="$user"
+app_port="8787"
+app_reqs=("curl" "sqlite3")
+app_servicefile="$app_name.service"
+app_dir="/opt/${app_name^}"
+app_binary="${app_name^}"
+#Remove any dashes in appname per FS
+app_lockname="${app_name//-/}"
+app_branch="nightly"
+#ToDo: Update branch
+
+if [ ! -d "$swiz_configdir" ]; then
+    mkdir -p "$swiz_configdir"
+fi
+chown "$user":"$user" "$swiz_configdir"
 
 _install_readarr() {
-    user="$READARR_OWNER"
-    app_configdir="/home/$user/.config/${app_name^}"
-    app_port="8787"
-    app_reqs=("curl" "sqlite3")
-    app_servicename="${app_name}"
-    app_servicefile="$app_servicename".service
-    app_dir="/opt/${app_name^}"
-    app_binary="${app_name^}"
-    app_lockname=$app_name
-    app_group="$user"
-
-    apt_install "${app_reqs[@]}"
-
     if [ ! -d "$app_configdir" ]; then
         mkdir -p "$app_configdir"
     fi
-    chown -R "$user":"$app_group" "$app_configdir"
+    chown -R "$user":"$user" "$app_configdir"
+
+    apt_install "${app_reqs[@]}"
 
     echo_progress_start "Downloading release archive"
 
-    #ToDo: Update branch
-    urlbase="https://$app_name.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore"
+    urlbase="https://$app_name.servarr.com/v1/update/$app_branch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
@@ -65,6 +71,8 @@ _install_readarr() {
     rm -rf "/tmp/$app_name.tar.gz"
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
+}
+_systemd_readarr() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
@@ -97,23 +105,23 @@ WantedBy=multi-user.target
 EOF
 
     systemctl -q daemon-reload
-    systemctl enable --now -q "$app_name"
+    systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
 
-    echo_progress_start "${app_name^} is installing an internal upgrade..."
+    # In theory there should be no updating needed, so let's generalize this
+    echo_progress_start "${app_name^} is loading..."
     if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
         echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi
-    echo_progress_done "Internal upgrade finished"
+    echo_progress_done "Loading finished"
 
 }
 
 _nginx_readarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        sleep 10
         bash /usr/local/bin/swizzin/nginx/"$app_name".sh
         systemctl reload nginx
         echo_progress_done "Nginx configured"
@@ -121,22 +129,8 @@ _nginx_readarr() {
         echo_info "$app_name will run on port $app_port"
     fi
 }
-
-_calibre_cs_readarr() {
-    if [[ -f /install/.calibre.lock ]]; then
-        if ! systemctl -q is-active $app_servicename; then
-            if ask "Enable Calibre's Content Server for Readarr integration?" Y; then
-                systemctl enable --now -q $app_servicename
-            else
-                return 0
-            fi
-        fi
-        # We should set up the library here actually
-        # We know the location, ports, the user and password, so I see no reason not to
-    fi
-}
-_calibre_cs_readarr
 _install_readarr
+_systemd_readarr
 _nginx_readarr
 
 touch "/install/.$app_lockname.lock"
