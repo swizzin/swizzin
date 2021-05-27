@@ -40,7 +40,7 @@ location /$app_baseurl {
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
   # Allow Indexers  $1 matches the regex
-  location ~ /$app_baseurl/[0-9]+/api { auth_request off
+  location ~ /$app_baseurl/[0-9]+/api { auth_request off;
     proxy_pass       http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
 }
 
