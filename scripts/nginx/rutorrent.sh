@@ -15,26 +15,18 @@ if [[ ! -f /install/.nginx.lock ]]; then
 fi
 
 function rutorrent_install() {
-    apt_install sox geoip-database python2.7-dev python-setuptools
+    apt_install sox geoip-database
 
-    if [[ $codename =~ ("stretch"|"buster"|"xenial"|"bionic") ]]; then
-        apt_install python-pip
-    else
-        #shellcheck source=sources/functions/pyenv
-        . /etc/swizzin/sources/functions/pyenv
-        python_getpip
-    fi
-
-    echo_progress_start "Installing cloudscraper"
-    pip install cloudscraper >> "$log" 2>&1
-    echo_progress_done "Cloudscraper installed"
-
-    cd /srv
+    mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git rutorrent >> "$log" 2>&1
-        chown -R www-data:www-data rutorrent
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+            echo_error "Failed to clone rutorrent"
+            exit 1
+        }
+        chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
+        rm -rf /srv/rutorrent/plugins/_cloudflare
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
         rm -rf /srv/rutorrent/conf/config.php
@@ -51,8 +43,7 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        cd /srv/rutorrent/plugins/theme/themes
-        git clone https://github.com/QuickBox/club-QuickBox club-QuickBox >> "$log" 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
@@ -74,20 +65,11 @@ function rutorrent_install() {
 \$pathToExternals['unzip'] = '$(which unzip)';
 \$pathToExternals['tar'] = '$(which tar)';
 
-
 // archive mangling, see archiver man page before editing
-
 \$fm['archive']['types'] = array('rar', 'zip', 'tar', 'gzip', 'bzip2');
-
-
-
-
 \$fm['archive']['compress'][0] = range(0, 5);
 \$fm['archive']['compress'][1] = array('-0', '-1', '-9');
 \$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
-
-
-
 
 ?>
 FMCONF
@@ -264,6 +246,7 @@ RUC
 
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 codename=$(lsb_release -cs)
