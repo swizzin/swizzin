@@ -1,0 +1,20 @@
+name: Create PR from master to develop
+on:
+  push:
+    branches:
+      - master
+jobs:
+  productionPromotion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: develop
+      - name: Reset promotion branch
+        run: |
+          git fetch origin master:master
+          git merge master
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: production-promotion
