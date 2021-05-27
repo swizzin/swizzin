@@ -75,21 +75,9 @@ PROWLARR
 
 chown -R "$user":"$user" "$app_configdir"
 
-#shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
-systemctl start "$app_servicefile" -q # Switch app on regardless whether it was off before or not as we need to have it online to trigger this cahnge
-if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:$app_port/api/$app_apiversion/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
-    echo_error "${app_name^} API did not respond as expected. Please make sure ${app_name^} is up to date and running."
-    exit 1
-else
-    "$(curl -sL "http://127.0.0.1:${app_port}/api/$app_apiversion/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
-    echo_log_only "${app_name^} API tested and reachable"
-fi
-
-payload=$(curl -sL "http://127.0.0.1:${app_port}/api/$app_apiversion/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
-echo_log_only "Payload = \n${payload}"
-
-# Switch app back off if it was dead before
+# Switch app back off if it was dead before; otherwise start it
 if [[ $isactive != "active" ]]; then
     systemctl stop "$app_servicefile" -q
+else
+    systemctl start "$app_servicefile" -q
 fi
