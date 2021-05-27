@@ -8,10 +8,9 @@ fi
 
 user="$RADARR_OWNER"
 app_configdir="/home/$user/.config/${app_name^}"
-app_servicename="${app_name}"
-app_servicefile="$app_servicename".service
+app_servicefile="${app_name}.service"
 app_dir="/opt/${app_name^}"
-app_lockname=$app_name
+app_lockname="$app_name"
 
 if ask "Would you like to purge the configuration?" Y; then
     purgeapp="True"
@@ -19,8 +18,8 @@ else
     purgeapp="False"
 fi
 
-systemctl disable --now -q "$app_servicename"
-rm "/etc/systemd/system/$app_servicefile"
+systemctl disable --now -q "$app_servicefile"
+rm /etc/systemd/system/"$app_servicefile"
 systemctl daemon-reload -q
 rm -rf "$app_dir"
 

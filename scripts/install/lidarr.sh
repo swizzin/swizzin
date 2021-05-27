@@ -8,8 +8,8 @@
 
 app_name="lidarr"
 if [ -z "$LIDARR_OWNER" ]; then
-    if ! LIDARR_OWNER="$(swizdb get $app_name/owner)"; then
-        LIDARR_OWNER=$(_get_master_username)
+    if ! LIDARR_OWNER="$(swizdb get "$app_name/owner")"; then
+        LIDARR_OWNER="$(_get_master_username)"
         echo_info "Setting ${app_name^} owner = $LIDARR_OWNER"
         swizdb set "$app_name/owner" "$LIDARR_OWNER"
     fi
@@ -17,29 +17,35 @@ else
     echo_info "Setting ${app_name^} owner = $LIDARR_OWNER"
     swizdb set "$app_name/owner" "$LIDARR_OWNER"
 fi
+user="$LIDARR_OWNER"
+swiz_configdir="/home/$user/.config"
+app_configdir="$swiz_configdir/${app_name^}"
+app_group="$user"
+app_port="8686"
+app_reqs=("curl" "mediainfo" "sqlite3" "libchromaprint-tools")
+app_servicefile="$app_name.service"
+app_dir="/opt/${app_name^}"
+app_binary="${app_name^}"
+#Remove any dashes in appname per FS
+app_lockname="${app_name//-/}"
+app_branch="master"
+
+if [ ! -d "$swiz_configdir" ]; then
+    mkdir -p "$swiz_configdir"
+fi
+chown "$user":"$user" "$swiz_configdir"
 
 _install_lidarr() {
-    user="$LIDARR_OWNER"
-    app_configdir="/home/$user/.config/${app_name^}"
-    app_port="8686"
-    app_reqs=("curl" "mediainfo" "sqlite3" "libchromaprint-tools")
-    app_servicename="${app_name}"
-    app_servicefile="$app_servicename".service
-    app_dir="/opt/${app_name^}"
-    app_binary="${app_name^}"
-    app_lockname=$app_name
-    app_group="$user"
-
-    apt_install "${app_reqs[@]}"
-
     if [ ! -d "$app_configdir" ]; then
         mkdir -p "$app_configdir"
     fi
-    chown -R "$user":"$app_group" "$app_configdir"
+    chown -R "$user":"$user" "$app_configdir"
+
+    apt_install "${app_reqs[@]}"
 
     echo_progress_start "Downloading release archive"
 
-    urlbase="https://$app_name.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore"
+    urlbase="https://$app_name.servarr.com/v1/update/$app_branch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
@@ -64,6 +70,8 @@ _install_lidarr() {
     rm -rf "/tmp/$app_name.tar.gz"
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
+}
+_systemd_lidarr() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
@@ -96,23 +104,23 @@ WantedBy=multi-user.target
 EOF
 
     systemctl -q daemon-reload
-    systemctl enable --now -q "$app_name"
+    systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
 
-    echo_progress_start "${app_name^} is installing an internal upgrade..."
+    # In theory there should be no updating needed, so let's generalize this
+    echo_progress_start "${app_name^} is loading..."
     if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
         echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi
-    echo_progress_done "Internal upgrade finished"
+    echo_progress_done "Loading finished"
 
 }
 
 _nginx_lidarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        sleep 10
         bash /usr/local/bin/swizzin/nginx/"$app_name".sh
         systemctl reload nginx
         echo_progress_done "Nginx configured"
@@ -120,21 +128,9 @@ _nginx_lidarr() {
         echo_info "$app_name will run on port $app_port"
     fi
 }
-
 _install_lidarr
+_systemd_lidarr
 _nginx_lidarr
-
-if [[ -f /install/.ombi.lock ]]; then
-    echo_info "Please adjust your Ombi setup accordingly"
-fi
-
-if [[ -f /install/.tautulli.lock ]]; then
-    echo_info "Please adjust your Tautulli setup accordingly"
-fi
-
-if [[ -f /install/.bazarr.lock ]]; then
-    echo_info "Please adjust your Bazarr setup accordingly"
-fi
 
 touch "/install/.$app_lockname.lock"
 echo_success "${app_name^} installed"
