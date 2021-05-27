@@ -88,12 +88,16 @@ export -f _setswizdb
 # $1 = key
 # \
 # **Returns code 1 if not found**
+# **Returns code 2 if found, but a directory**
 _pathswizdb() {
     key="$1"
     if [ -f "$dbdir/$key" ] || [ -L "$dbdir/$key" ]; then
         echo_log_only "Path of file for key \"$key\" is  \"$dbdir/$key\""
         echo "$dbdir/$key"
         return 0
+    elif [ -d "$dbdir/$key" ]; then
+        echo "$dbdir/$key/"
+        return 2
     else
         echo_log_only "File/symlink for key \"$key\" does not exist"
         return 1
