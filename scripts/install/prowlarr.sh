@@ -17,17 +17,17 @@ else
     echo_info "Setting ${app_name^} owner = $PROWLARR_OWNER"
     swizdb set "$app_name/owner" "$PROWLARR_OWNER"
 fi
+user="$PROWLARR_OWNER"
+app_configdir="/home/$user/.config/${app_name^}"
+app_group="$user"
+app_port="9696"
+app_reqs=("curl" "sqlite3")
+app_servicefile="$app_name".service
+app_dir="/opt/${app_name^}"
+app_binary="${app_name^}"
+app_lockname="$app_name"
 
 _install_prowlarr() {
-    user="$PROWLARR_OWNER"
-    app_configdir="/home/$user/.config/${app_name^}"
-    app_port="9696"
-    app_reqs=("curl" "sqlite3")
-    app_servicefile="$app_name".service
-    app_dir="/opt/${app_name^}"
-    app_binary="${app_name^}"
-    app_lockname="$app_name"
-    app_group="$user"
 
     apt_install "${app_reqs[@]}"
 
