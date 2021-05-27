@@ -7,12 +7,9 @@ function install_rar() {
         case "$(_os_arch)" in
             "amd64")
                 apt_install rar unrar
-                }
                 ;;
             "arm64")
-                apt_install unrar || {
-                    exit 1
-                }
+                apt_install unrar
                 ;;
             *) # Default case if needs to be compiled from source
                 srcurl="http://www.rarlab.com/rar/unrarsrc-6.0.3.tar.gz"
