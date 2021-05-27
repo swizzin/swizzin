@@ -16,11 +16,10 @@ app_servicefile="${app_name}.service"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_branch="nightly"
-app_apiversion="v1"
 
 cat > /etc/nginx/apps/$app_name.conf << PROWLARR
 location /$app_baseurl {
-  proxy_pass        http://127.0.0.1:$app_port/;
+  proxy_pass        http://127.0.0.1:$app_port/$app_baseurl;
   proxy_set_header Host \$proxy_host;
   proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
   proxy_set_header X-Forwarded-Proto \$scheme;
@@ -31,6 +30,7 @@ location /$app_baseurl {
   proxy_http_version 1.1;
   proxy_set_header Upgrade \$http_upgrade;
   proxy_set_header Connection \$http_connection;
+  }
   # Allow the App API
   location /$app_baseurl/api { auth_request off;
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
@@ -42,9 +42,8 @@ location /$app_baseurl {
   # Allow Indexers  $1 matches the regex
   location ~ /$app_baseurl/[0-9]+/api { auth_request off;
     proxy_pass       http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
-}
+  }
 
-}
 PROWLARR
 
 isactive=$(systemctl is-active $app_servicefile)
