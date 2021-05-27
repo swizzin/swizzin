@@ -66,7 +66,6 @@ _install_prowlarr() {
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
 }
-_install_prowlarr
 _systemd_prowlarr() {
 
     echo_progress_start "Installing Systemd service"
@@ -112,7 +111,6 @@ EOF
     echo_progress_done "Internal upgrade finished"
 
 }
-_systemd_prowlarr
 
 _nginx_prowlarr() {
     if [[ -f /install/.nginx.lock ]]; then
@@ -124,6 +122,8 @@ _nginx_prowlarr() {
         echo_info "$app_name will run on port $app_port"
     fi
 }
+_install_prowlarr
+_systemd_prowlarr
 _nginx_prowlarr
 
 touch "/install/.$app_lockname.lock"
