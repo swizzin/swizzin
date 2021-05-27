@@ -68,6 +68,7 @@ airsonic_start
 
 echo_success "Airsonic installed"
 echo_warn "Wait for Airsonic to start up (max 5 mins) and continue the set up in the browser.\nYou can use \`journalctl -fu airsonic\` to follow the progress."
+echo_warn "The default credentials are admin/admin\nChange it asap, or someone else will!"
 
 if [[ -f /install/.subsonic.lock ]]; then
     echo_info "If you would like to migrate from Subsonic, please see see the following article"
