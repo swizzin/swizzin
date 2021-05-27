@@ -12,9 +12,11 @@ fi
 app_port="9696"
 app_sslport="6969"
 user="$PROWLARR_OWNER"
-app_servicefile="${app_name}".service
+app_servicefile="${app_name}.service"
 app_configdir="/home/$user/.config/${app_name^}"
-app_baseurl=$app_name
+app_baseurl="$app_name"
+app_branch="nightly"
+app_apiversion="v1"
 
 cat > /etc/nginx/apps/$app_name.conf << PROWLARR
 location /$app_baseurl {
@@ -37,9 +39,9 @@ location /$app_baseurl {
   location /$app_baseurl/Content { auth_request off;
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
-  # Allow Indexers
+  # Allow Indexers  $1 matches the regex
   location ~ /$app_baseurl/[0-9]+/api { auth_request off
-    proxy_pass       http://127.0.0.1:9696/$app_baseurl/$1/api;
+    proxy_pass       http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
 }
 
 }
@@ -48,13 +50,10 @@ PROWLARR
 isactive=$(systemctl is-active $app_servicefile)
 
 if [[ $isactive == "active" ]]; then
-    echo_log_only "Stopping $app_servicefile"
+    echo_log_only "Stopping $app_name"
     systemctl stop "$app_servicefile"
 fi
-user=$(grep User /etc/systemd/system/"$app_servicefile" | cut -d= -f2)
-echo_log_only "${app_name^} user detected as $user"
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
-echo_log_only "Apikey = $apikey" >> "$log"
 
 # Set to Debug as this is alpha software
 # ToDo: Logs back to Info
@@ -70,6 +69,7 @@ cat > "$app_configdir"/config.xml << PROWLARR
   <ApiKey>${apikey}</ApiKey>
   <AuthenticationMethod>None</AuthenticationMethod>
   <UrlBase>$app_baseurl</UrlBase>
+  <Branch>$app_branch</Branch>
 </Config>
 PROWLARR
 
@@ -78,15 +78,15 @@ chown -R "$user":"$user" "$app_configdir"
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 systemctl start "$app_servicefile" -q # Switch app on regardless whether it was off before or not as we need to have it online to trigger this cahnge
-if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:$app_port/api/v1/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
+if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:$app_port/api/$app_apiversion/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
     echo_error "${app_name^} API did not respond as expected. Please make sure ${app_name^} is up to date and running."
     exit 1
 else
-    "$(curl -sL "http://127.0.0.1:${app_port}/api/v1/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
+    "$(curl -sL "http://127.0.0.1:${app_port}/api/$app_apiversion/config/host?apikey=${apikey}" | jq '.urlBase' | cut -d '"' -f 2)"
     echo_log_only "${app_name^} API tested and reachable"
 fi
 
-payload=$(curl -sL "http://127.0.0.1:${app_port}/api/v1/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
+payload=$(curl -sL "http://127.0.0.1:${app_port}/api/$app_apiversion/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
 
 # Switch app back off if it was dead before

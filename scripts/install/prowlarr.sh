@@ -22,10 +22,13 @@ app_configdir="/home/$user/.config/${app_name^}"
 app_group="$user"
 app_port="9696"
 app_reqs=("curl" "sqlite3")
-app_servicefile="$app_name".service
+app_servicefile="$app_name.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
-app_lockname="$app_name"
+#Remove any dashes in appname per FS
+app_lockname="${app_name//-/}"
+app_branch="nightly"
+#ToDo: Update branch
 
 _install_prowlarr() {
 
@@ -38,8 +41,7 @@ _install_prowlarr() {
 
     echo_progress_start "Downloading release archive"
 
-    #ToDo: Update branch
-    urlbase="https://$app_name.servarr.com/v1/update/nightly/updatefile?os=linux&runtime=netcore"
+    urlbase="https://$app_name.servarr.com/v1/update/$app_branch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
@@ -102,12 +104,13 @@ EOF
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
 
-    echo_progress_start "${app_name^} is installing an internal upgrade..."
+    # In theory there should be no updating needed, so let's generalize this
+    echo_progress_start "${app_name^} is loading..."
     if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
         echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi
-    echo_progress_done "Internal upgrade finished"
+    echo_progress_done "Loading finished"
 
 }
 
