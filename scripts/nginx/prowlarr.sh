@@ -33,13 +33,13 @@ location /$app_baseurl {
   location /$app_baseurl/api { auth_request off;
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
   }
-    # Allow Content
+  # Allow Content
   location /$app_baseurl/Content { auth_request off;
     proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
   }
   # Allow Indexers
   location ~ /$app_baseurl/[0-9]+/api { auth_request off
-  proxy_pass       http://127.0.0.1:9696/$app_baseurl/$1/api;
+    proxy_pass       http://127.0.0.1:9696/$app_baseurl/$1/api;
 }
 
 }
