@@ -84,7 +84,6 @@ User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
 ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/
-WorkingDirectory=/home/${user}/
 Restart=on-failure
 
 [Install]

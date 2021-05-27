@@ -60,6 +60,7 @@ if [[ -f /install/.lidarr.lock ]]; then
 
         sed -i "/ExecStart/c\ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/" /etc/systemd/system/lidarr.service
         sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
+        sed -i "/WorkingDirectory/d" /etc/systemd/system/lidarr.service
         systemctl daemon-reload
 
         if [[ -f /install/.nginx.lock ]]; then
