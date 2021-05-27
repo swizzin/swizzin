@@ -15,8 +15,8 @@ install_java8
 airsonic_dl() {
     echo_progress_start "Downloading Airsonic binary"
     mkdir $airsonicdir -p
-    # TODO make dynamic
-    dlurl=$(curl -s https://api.github.com/repos/airsonic/airsonic/releases/latest | grep "browser_download_url" | grep "airsonic.war" | head -1 | cut -d\" -f 4)
+    latest_version=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/airsonic/airsonic/releases/latest | grep -oP '([^\/]+$)')
+    dlurl=https://github.com/airsonic/airsonic/releases/download/${latest_version}/airsonic.war
     echo_log_only "dlurl = $dlurl"
     if ! wget "$dlurl" -O ${airsonicdir}/airsonic.war >> "$log" 2>&1; then
         echo_error "Download failed!"
