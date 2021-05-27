@@ -23,11 +23,10 @@ _install_prowlarr() {
     app_configdir="/home/$user/.config/${app_name^}"
     app_port="9696"
     app_reqs=("curl" "sqlite3")
-    app_servicename="${app_name}"
-    app_servicefile="$app_servicename".service
+    app_servicefile="$app_name".service
     app_dir="/opt/${app_name^}"
     app_binary="${app_name^}"
-    app_lockname=$app_name
+    app_lockname="$app_name"
     app_group="$user"
 
     apt_install "${app_reqs[@]}"

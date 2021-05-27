@@ -10,7 +10,7 @@ user="$PROWLARR_OWNER"
 app_configdir="/home/$user/.config/${app_name^}"
 app_servicefile="${app_name}".service
 app_dir="/opt/${app_name^}"
-app_lockname=$app_name
+app_lockname="$app_name"
 
 if ask "Would you like to purge the configuration?" Y; then
     purgeapp="True"
