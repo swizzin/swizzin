@@ -10,6 +10,7 @@ else
     PROWLARR_OWNER="$(swizdb get $app_name/owner)"
 fi
 app_port="9696"
+app_sslport="6969"
 user="$PROWLARR_OWNER"
 app_servicefile="${app_name}".service
 app_configdir="/home/$user/.config/${app_name^}"
@@ -56,13 +57,14 @@ apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 echo_log_only "Apikey = $apikey" >> "$log"
 
 # Set to Debug as this is alpha software
+# ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << PROWLARR
 <Config>
   <LogLevel>debug</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>$app_port</Port>
-  <SslPort>9897</SslPort>
+  <SslPort>$app_sslport</SslPort>
   <EnableSsl>False</EnableSsl>
   <LaunchBrowser>False</LaunchBrowser>
   <ApiKey>${apikey}</ApiKey>
