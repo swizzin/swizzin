@@ -6,4 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Check all sh scrips has 755
-        run: ./check-permissions.sh
+        run: ./.github/scripts/check-permissions.sh
