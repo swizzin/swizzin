@@ -1,9 +1,9 @@
 name: check-permissions
 on: [push, pull_request]
 jobs:
-  sh-checker:
+  check-permissions:
     runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v1
-        - name: Check all sh scrips has 755
-          run: ./check-permissions.sh
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check all sh scrips has 755
+        run: ./check-permissions.sh
