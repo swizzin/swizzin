@@ -38,6 +38,19 @@ bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
+### Switching to `develop` branch
+
+Swizzin's `master` branch is intended to be rock-solid, which means we intentionally delay new commits until we're sure that no bugs popped up from the last ones.
+
+We therefore first push **all our new features to our `develop` branch** (as per the definition of `git flow`) after a double-verification of them working, and eventually those come down to `master`. Hotfixes hit both branches, of course.
+
+You can get the latest apps and swizzin updates by running the following commands
+
+```bash
+box switchbranch develop
+box update
+```
+
 ### Advanced setup
 
 _This feature is fresh AF! If you'd like to help us improve this, please chat with us in the Discord_
