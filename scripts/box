@@ -148,7 +148,7 @@ We URGE you to migrate to a supported release if/while you still have the chance
         echo_log_only "devcommit is present, $commit"
         git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
         commit="$(swizdb get devcommit)"
-        if git -C /etc/swizzin branch master --contains "$commit" >> $log 2>&1; then
+        if git -C /etc/swizzin branch origin/master --contains "$commit" >> $log 2>&1; then
             echo_info "Master contains the last present development commit, switching branch from develop."
             git -C /etc/swizzin checkout master >> $log 2>&1
             swizdb clear devcommit
