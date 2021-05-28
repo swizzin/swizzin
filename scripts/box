@@ -144,6 +144,18 @@ We URGE you to migrate to a supported release if/while you still have the chance
         echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
     elif [[ $1 == "--dev" ]]; then
         echo_warn "Not updating from git due to --dev flag"
+    elif swizdb path devcommit > /dev/null; then
+        echo_log_only "devcommit is present, $commit"
+        git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+        commit="$(swizdb get devcommit)"
+        if git -C /etc/swizzin branch master --contains "$commit" >> $log 2>&1; then
+            echo_info "Master contains the last present development commit, switching branch from develop."
+            git -C /etc/swizzin checkout master >> $log 2>&1
+            swizdb clear devcommit
+        else
+            echo_info "The last commit you were on in the develop branch is not yet in master, please run \`box update\` again soon to check again."
+            echo_docs "dev/pre-release"
+        fi
     else
         echo_progress_start "Updating swizzin local repository"
 
