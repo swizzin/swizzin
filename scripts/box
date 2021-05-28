@@ -492,6 +492,28 @@ function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
 
+_switchbranch() {
+    target_branch="$1"
+    previous_branch="$(git -C /etc/swizzin/ symbolic-ref --short HEAD)"
+
+    if [[ $target_branch == "master" ]] && [[ $previous_branch == "develop" ]]; then
+        swizdb set devcommit "$(git -C /etc/swizzin/ rev-parse --short HEAD)"
+        echo_info "Scheduled switch to master when the previous commit is merged"
+    else
+        echo_progress_start "Checking out $target_branch"
+        {
+            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+            git -C /etc/swizzin checkout "${target_branch}" >> $log 2>&1
+        } || {
+            echo_error "Could not check out $target_branch"
+            exit 1
+        }
+        echo_progress_done "Repo now set to $target_branch"
+
+    fi
+    echo_info "Make sure to run a \`box update\` in order to verify you are on the latest commit"
+}
+
 case "$1" in
     "")
         _intro
@@ -579,17 +601,7 @@ case "$1" in
         exit 0
         ;;
     "switchbranch")
-        branch="$2"
-        echo_progress_start "Checking out $branch"
-        {
-            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
-            git -C /etc/swizzin checkout "${branch}" >> $log 2>&1
-        } || {
-            echo_error "Could not check out $branch"
-            exit 1
-        }
-        echo_progress_done "Repo now set to $branch"
-        echo_info "Make sure to run a \`box update\` in order to verify you are on the latest commit"
+        _switchbranch "$2"
         exit 0
         ;;
     *)
