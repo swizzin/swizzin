@@ -253,6 +253,9 @@ function _help() {
     echo
     printf "${sgformat}" "list"
     echo -e "The list command will list packages available to be managed by box" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "switchbranch"
+    echo -e "The switchbranch command allows you to switch your setup between our slower and faster release cycles" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
 }
 
 function _list() {
