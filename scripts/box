@@ -578,6 +578,20 @@ case "$1" in
         _list
         exit 0
         ;;
+    "switchbranch")
+        branch="$2"
+        echo_progress_start "Checking out $branch"
+        {
+            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+            git -C /etc/swizzin checkout "${branch}" >> $log 2>&1
+        } || {
+            echo_error "Could not check out $branch"
+            exit 1
+        }
+        echo_progress_done "Repo now set to $branch"
+        echo_info "Make sure to run a \`box update\` in order to verify you are on the latest commit"
+        exit 0
+        ;;
     *)
         echo_error "Invalid command: $1"
         exit 1
