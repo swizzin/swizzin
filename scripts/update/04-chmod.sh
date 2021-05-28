@@ -1,4 +1,10 @@
 #!/bin/bash
+# Ensures all scrips has permissions so that they are executable
 
-#shellcheck source=scripts/setpermissions
-. /etc/swizzin/scripts/setpermissions
+echo_progress_start "Checking permissions on swizzin files"
+
+chmod -R 700 /etc/swizzin/scripts                       # Set permissions of all scripts
+chmod -R 600 /etc/swizzin/sources                       # Sources are only `.` or `source`d and does not need to be executable
+find /etc/swizzin/sources -type d -exec chmod 700 {} \; # Best to keep X permission on the folder inside sources
+
+echo_progress_done "Permissions changed"

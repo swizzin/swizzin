@@ -50,8 +50,8 @@ function _source_setup() {
     fi
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-    #shellcheck source=scripts/setpermissions
-    . /etc/swizzin/scripts/setpermissions
+    # Set correct permissions on swizzin files
+    bash /etc/swizzin/scripts/update/04-chmod.sh
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
     echo
