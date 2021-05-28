@@ -51,7 +51,7 @@ function _source_setup() {
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     # Set correct permissions on swizzin files
-    bash /etc/swizzin/scripts/update/04-chmod.sh
+    bash /etc/swizzin/scripts/update/04-setpermissions.sh
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
     echo
