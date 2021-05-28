@@ -513,6 +513,10 @@ _switchbranch() {
         swizdb set devcommit "$(git -C /etc/swizzin/ rev-parse --short HEAD)"
         echo_info "Scheduled switch to master when the previous commit is merged"
     else
+        if swizdb path devcommit >> $log 2>&1; then
+            echo_info "Removed the scheduling to master merge"
+            swizdb clear devcommit
+        fi
         echo_progress_start "Checking out $target_branch"
         {
             git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
