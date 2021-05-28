@@ -155,6 +155,7 @@ We URGE you to migrate to a supported release if/while you still have the chance
         else
             echo_info "The last commit you were on in the develop branch is not yet in master, please run \`box update\` again soon to check again."
             echo_docs "dev/pre-release"
+            return 1
         fi
     else
         echo_progress_start "Updating swizzin local repository"
