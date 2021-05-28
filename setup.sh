@@ -50,10 +50,11 @@ function _source_setup() {
     fi
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-    # Set correct permissions on swizzin files
-    bash /etc/swizzin/scripts/update/04-setpermissions.sh
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
+
+    # Set correct permissions on swizzin files
+    bash /etc/swizzin/scripts/update/04-setpermissions.sh
     echo
 }
 _source_setup "$@"
