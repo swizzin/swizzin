@@ -162,6 +162,8 @@ We URGE you to migrate to a supported release if/while you still have the chance
         }
         echo_progress_done "Local repository updated from ${SWIZ_GIT_REF:-master}"
         echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
+        # Set permissions of all scripts
+        chmod -R 700 /etc/swizzin/scripts
     fi
     export SWIZ_REPO_SCRIPT_RAN=true
 
