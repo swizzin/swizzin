@@ -146,6 +146,16 @@ We URGE you to migrate to a supported release if/while you still have the chance
         echo_warn "Not updating from git due to --dev flag"
     else
         echo_progress_start "Updating swizzin local repository"
+
+        branch_name="$(git symbolic-ref HEAD 2> /dev/null)" || branch_name="(unnamed branch)" # detached HEAD
+        branch_name=${branch_name##refs/heads/}
+
+        if [ "$branch_name" == "develop" ]; then
+            SWIZ_GIT_REF="develop"
+            export SWIZ_GIT_REF
+            echo_info "Just FYI, you're on the develop branch! Remember that you need to mention this when asking for any sort of support."
+        fi
+
         git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
             {
                 echo_warn "Unclean repo detected, resetting current branch."
