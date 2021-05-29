@@ -503,7 +503,7 @@ _run_tests() {
         fi
     done
 
-    if [ $bad == "true" ]; then
+    if [ "$bad" == "true" ]; then
         exit 1
     fi
 
