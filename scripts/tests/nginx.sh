@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#shellcheck source=scripts/tests/basetest.sh
-. /etc/swizzin/scripts/tests/basetest.sh
+#shellcheck source=sources/functions/tests
+. /etc/swizzin/sources/functions/tests
 
 echo_progress_start "Checking nginx config"
 nginx -t || {

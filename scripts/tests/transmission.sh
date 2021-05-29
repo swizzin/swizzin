@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-#shellcheck source=scripts/tests/basetest.sh
-. /etc/swizzin/scripts/tests/basetest.sh
+#shellcheck source=sources/functions/tests
+. /etc/swizzin/sources/functions/tests
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
