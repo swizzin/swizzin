@@ -161,7 +161,10 @@ function install_qt() {
 }
 
 function build_qt() {
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     QT_PREFIX=/usr/local/qt
     case $(_os_codename) in
         xenial | stretch)
@@ -179,14 +182,20 @@ function build_qt() {
             echo_error "qtbase5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
-        cd /tmp/qtbase
+        cd /tmp/qtbase || {
+            echo_error "Could not cd to /tmp/qtbase"
+            exit 1
+        }
         apt_install libssl-dev
         ./configure --prefix=${QT_PREFIX} -opensource -confirm-license -openssl-linked -c++std ${stdcver} -release -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples >> "${LOG}" 2>&1
         make -j$(nproc) >> "${LOG}" 2>&1
         make INSTALL_ROOT=/tmp/dist/qtbase install >> "${LOG}" 2>&1
         tag=" ${stdcver}"
         fpm -f -C /tmp/dist/qtbase -p /root/dist/qtbase5-swizzin_VERSION.deb -s dir -t deb -n qtbase5-swizzin --version "${QT_VERSION}" --description "qtbase5 compiled by swizzin$tag" >> "${LOG}" 2>&1
-        cd /tmp
+        cd /tmp || {
+            echo_error "Could not cd to /tmp"
+            exit 1
+        }
         rm -rf /tmp/qtbase
         rm -rf /tmp/dist/qtbase
         dpkg -i /root/dist/qtbase5-swizzin_"${QT_VERSION}".deb >> "${LOG}" 2>&1 || {
@@ -199,13 +208,19 @@ function build_qt() {
             echo_error "qttools5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
-        cd /tmp/qttools
+        cd /tmp/qttools || {
+            echo_error "Could not cd to /tmp/qttools"
+            exit 1
+        }
         ${QT_PREFIX}/bin/qmake -set prefix ${QT_PREFIX} >> "${LOG}" 2>&1
         ${QT_PREFIX}/bin/qmake >> "${LOG}" 2>&1
         make -j$(nproc) >> "${LOG}" 2>&1
         make INSTALL_ROOT=/tmp/dist/qttools install >> "${LOG}" 2>&1
         fpm -f -C /tmp/dist/qttools -p /root/dist/qttools5-swizzin_VERSION.deb -s dir -t deb -n qttools5-swizzin --version "${QT_VERSION}" --description "qttools5 compiled by swizzin$tag" >> "${LOG}" 2>&1
-        cd /tmp
+        cd /tmp || {
+            echo_error "Could not cd to /tmp"
+            exit 1
+        }
         rm -rf /tmp/qttools
         rm -rf /tmp/dist/qttools
         dpkg -i /root/dist/qttools5-swizzin_"${QT_VERSION}".deb >> "${LOG}" 2>&1 || {
@@ -248,7 +263,10 @@ function build_libtorrent_qbittorrent() {
         exit 1
     }
 
-    cd /tmp/libtorrent
+    cd /tmp/libtorrent || {
+        echo_error "Could not cd to /tmp/libtorrent"
+        exit 1
+    }
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
         patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> "${LOG}" 2>&1 || {
             echo _error "Something went wrong when patching libtorrent"
@@ -267,7 +285,10 @@ function build_libtorrent_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version "${VERSION}" --description "Libtorrent rasterbar compiled by swizzin$tag" >> "${LOG}" 2>&1
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     dpkg -i /root/dist/libtorrent-rasterbar_"${VERSION}".deb >> "${LOG}" 2>&1 || {
@@ -295,7 +316,10 @@ function build_qbittorrent() {
     tar -xvf /tmp/release-"${VERSION}".tar.gz -C /tmp/qbittorrent --strip-components=1 >> "${LOG}" 2>&1
     rm -rf /tmp/release-"${VERSION}".tar.gz
 
-    cd /tmp/qbittorrent
+    cd /tmp/qbittorrent || {
+        echo_error "Could not cd to /tmp/qbittorrent"
+        exit 1
+    }
     tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
@@ -308,7 +332,10 @@ function build_qbittorrent() {
         echo_error "qBittorrent could not be installed. Setup will not proceed"
         exit 1
     }
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm_if_exists /tmp/qbittorrent
     rm_if_exists /tmp/dist
     if [[ -n $noexec ]]; then

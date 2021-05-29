@@ -26,9 +26,15 @@ apt_install "$LIST"
 echo_progress_start "Installing NZBHydra ${latestversion}"
 latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | head -1 | cut -d\" -f 4)
 latestversion=$(echo "$latest" | grep -oP 'v\d+\.\d+\.\d+')
-cd /opt
+cd /opt || {
+    echo_error "Could not cd to /opt"
+    exit 1
+}
 mkdir nzbhydra2
-cd nzbhydra2
+cd nzbhydra2 || {
+    echo_error "Could not cd to nzbhydra2"
+    exit 1
+}
 wget -O nzbhydra2.zip "${latest}" >> "${LOG}" 2>&1
 unzip nzbhydra2.zip >> "${LOG}" 2>&1
 rm -f nzbhydra2.zip

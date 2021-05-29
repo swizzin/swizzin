@@ -18,7 +18,10 @@ user=$(cut -d: -f1 < /root/.master.info)
 
 apt_install python3
 
-cd /opt
+cd /opt || {
+    echo_error "Could not cd to /opt"
+    exit 1
+}
 echo_progress_start "Cloning latest Tautulli repo"
 git clone https://github.com/Tautulli/Tautulli.git tautulli >> "${LOG}" 2>&1
 echo_progress_done

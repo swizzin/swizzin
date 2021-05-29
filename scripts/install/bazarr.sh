@@ -26,13 +26,19 @@ else
     chown -R "${user}": /opt/.venv/bazarr
 fi
 
-cd /opt
+cd /opt || {
+    echo_error "Could not cd to /opt"
+    exit 1
+}
 
 echo_progress_start "Cloning into '/opt/bazarr'"
 git clone https://github.com/morpheus65535/bazarr.git >> "${LOG}" 2>&1
 chown -R "${user}": bazarr
 echo_progress_done "cloned"
-cd bazarr
+cd bazarr || {
+    echo_error "Could not cd to bazarr"
+    exit 1
+}
 echo_progress_start "Checking python depends"
 sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" >> "${LOG}" 2>&1
 mkdir -p /opt/bazarr/data/config/

@@ -1,23 +1,35 @@
 #!/bin/bash
 # Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
 
-cd /tmp
+cd /tmp || {
+    echo_error "Could not cd to /tmp"
+    exit 1
+}
 version=$(curl -sNL https://curl.haxx.se/metalink.cgi?curl=zip | grep \<version\> | cut -d\< -f2 | cut -d\> -f2)
 wget -O curl.zip https://curl.haxx.se/download/curl-"${version}".zip >> "${LOG}" 2>&1
 
 unzip curl.zip >> "${LOG}" 2>&1
 rm curl.zip
 
-cd curl-"${version}"
+cd curl-"${version}" || {
+    echo_error "Could not cd to curl-${version}"
+    exit 1
+}
 ./configure --enable-versioned-symbols >> "${LOG}" 2>&1 || {
     echo_error "There was an error configuring curl! Please check the log for more info"
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf curl*
     exit 1
 }
 make -j$(nproc) >> "${LOG}" 2>&1 || {
     echo_error "There was an error compiling curl! Please check the log for more info"
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf curl*
     exit 1
 }

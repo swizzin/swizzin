@@ -89,10 +89,16 @@ function _mkconf_wg() {
 
     mkdir -p /home/"$u"/.wireguard/{server,client}
 
-    cd /home/"$u"/.wireguard/server
+    cd /home/"$u"/.wireguard/server || {
+        echo_error "Could not cd to /home/$u/.wireguard/server"
+        exit 1
+    }
     wg genkey | tee wg$(id -u "$u").key | wg pubkey > wg$(id -u "$u").pub
 
-    cd /home/"$u"/.wireguard/client
+    cd /home/"$u"/.wireguard/client || {
+        echo_error "Could not cd to /home/$u/.wireguard/client"
+        exit 1
+    }
     wg genkey | tee "$u".key | wg pubkey > "$u".pub
 
     chown "$u": /home/"$u"/.wireguard

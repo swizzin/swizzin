@@ -41,12 +41,18 @@ fi
 
 apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl-dev libhwloc-dev
 
-cd /tmp
+cd /tmp || {
+    echo_error "Could not cd to /tmp"
+    exit 1
+}
 echo_progress_start "Cloning xmrig"
 git clone --depth 1 --single-branch --branch v"${latest}" https://github.com/xmrig/xmrig.git >> "${LOG}" 2>&1
 echo_progress_done
 
-cd xmrig
+cd xmrig || {
+    echo_error "Could not cd to xmrig"
+    exit 1
+}
 sed -i "s/donate.ssl.xmrig.com/diglett.swizzin.ltd/g" src/net/strategies/DonateStrategy.cpp
 sed -i "s/donate.v2.xmrig.com/diglett.swizzin.ltd/g" src/net/strategies/DonateStrategy.cpp
 sed -i "s/kDefaultDonateLevel = 5/kDefaultDonateLevel = $fee/g" src/donate.h
@@ -57,7 +63,10 @@ if [[ -n $noexec ]]; then
 fi
 echo_progress_start "Building xmrig"
 mkdir build
-cd build
+cd build || {
+    echo_error "Could not cd to build"
+    exit 1
+}
 cmake .. >> "${LOG}" 2>&1
 make -j$(nproc) >> "${LOG}" 2>&1
 mv xmrig /usr/local/bin/
@@ -73,7 +82,10 @@ sed -i 's/"nicehash":.*/"nicehash": true,/g' /home/"${user}"/.xmrig/config.json
 sed -i "s/donate.v2.xmrig.com:3333/${address}/g" /home/"${user}"/.xmrig/config.json
 sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/"${user}"/.xmrig/config.json
 sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/"${user}"/.xmrig/config.json
-cd /tmp
+cd /tmp || {
+    echo_error "Could not cd to /tmp"
+    exit 1
+}
 rm -rf xmrig
 
 if [[ -n $noexec ]]; then

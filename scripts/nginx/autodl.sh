@@ -10,7 +10,10 @@
 #   under the GPL along with build & install instructions.
 users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -f /install/.rutorrent.lock ]]; then
-    cd /srv/rutorrent/plugins/
+    cd /srv/rutorrent/plugins/ || {
+        echo_error "Could not cd to /srv/rutorrent/plugins/"
+        exit 1
+    }
     if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
         git clone https://github.com/autodl-community/autodl-rutorrent.git autodl-irssi > /dev/null 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         chown -R www-data:www-data autodl-irssi/

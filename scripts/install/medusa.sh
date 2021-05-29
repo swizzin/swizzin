@@ -42,7 +42,10 @@ echo_progress_done
 install_rar
 
 echo_progress_start "Cloning medusa source code"
-cd /opt/
+cd /opt/ || {
+    echo_error "Could not cd to /opt/"
+    exit 1
+}
 git clone https://github.com/pymedusa/Medusa.git medusa >> "${LOG}" 2>&1
 chown -R "${user}":"${user}" medusa
 echo_progress_done

@@ -48,7 +48,10 @@ function rutorrent_install() {
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-        cd /srv/rutorrent/plugins/
+        cd /srv/rutorrent/plugins/ || {
+            echo_error "Could not cd to /srv/rutorrent/plugins/"
+            exit 1
+        }
         svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "${LOG}" 2>&1
         chown -R www-data: /srv/rutorrent/plugins/filemanager
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
@@ -76,13 +79,19 @@ FMCONF
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
-        cd /srv/rutorrent/plugins
+        cd /srv/rutorrent/plugins || {
+            echo_error "Could not cd to /srv/rutorrent/plugins"
+            exit 1
+        }
         svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "${LOG}" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
-        cd /srv/rutorrent/plugins
+        cd /srv/rutorrent/plugins || {
+            echo_error "Could not cd to /srv/rutorrent/plugins"
+            exit 1
+        }
         wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
         tar xf logoff-1.3.tar.gz
         rm -rf logoff-1.3.tar.gz

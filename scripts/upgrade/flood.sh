@@ -15,7 +15,10 @@ for u in "${users[@]}"; do
         active=yes
         systemctl stop flood@"$u"
     fi
-    cd /home/"$u"/.flood
+    cd /home/"$u"/.flood || {
+        echo_error "Could not cd to /home/$u/.flood"
+        exit 1
+    }
     sudo -u "$u" git pull || {
         sudo -u "$u" git reset HEAD --hard
         sudo -u "$u" git pull

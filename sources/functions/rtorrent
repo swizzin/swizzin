@@ -73,26 +73,41 @@ function depends_rtorrent() {
     fi
 
     # mktorrent from source
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> "${LOG}" 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
     unzip -d mktorrent -j mktorrent.zip >> "${LOG}" 2>&1
-    cd mktorrent
+    cd mktorrent || {
+        echo_error "Could not cd to mktorrent"
+        exit 1
+    }
     make >> "${LOG}" 2>&1
     make install PREFIX=/usr >> "${LOG}" 2>&1
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf mktorrent*
 }
 
 function build_xmlrpc-c() {
-    cd "/tmp"
+    cd "/tmp" || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/xmlrpc-c"
     rm_if_exists "/tmp/dist/xmlrpc-c "
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV xmlrpc-c >> "${LOG}" 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV xmlrpc-c >> "${LOG}" 2>&1; }
-    cd xmlrpc-c
+    cd xmlrpc-c || {
+        echo_error "Could not cd to xmlrpc-c"
+        exit 1
+    }
     ./configure --prefix=/usr --disable-cplusplus >> "${LOG}" 2>&1
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
@@ -101,26 +116,38 @@ function build_xmlrpc-c() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/xmlrpc-c -p /root/dist/xmlrpc-c_VERSION.deb -s dir -t deb -n xmlrpc-c --version "${VERSION}" --description "xmlrpc-c compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/xmlrpc-c_"${VERSION}".deb
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf xmlrpc-c
     rm -rf /tmp/dist/xmlrpc-c
 }
 
 function build_libtorrent_rakshasa() {
     libtorrentloc="http://rtorrent.net/downloads/libtorrent-${libtorrentver}.tar.gz"
-    cd "/tmp"
+    cd "/tmp" || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
     if [[ ${libtorrentver} == feature-bind ]]; then
         git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >> "${LOG}" 2>&1
-        cd libtorrent
+        cd libtorrent || {
+            echo_error "Could not cd to libtorrent"
+            exit 1
+        }
         VERSION=$(git describe | sed 's/^.//g')
     else
         mkdir libtorrent
         wget -q ${libtorrentloc}
         VERSION=$libtorrentver
         tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> "${LOG}" 2>&1
-        cd libtorrent >> "${LOG}" 2>&1
+        cd libtorrent >> "${LOG}" 2>&1 || {
+            echo_error "Could not cd to libtorrent"
+            exit 1
+        }
         if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} == "xenial" ]]; then
             patch -p1 < /etc/swizzin/sources/openssl.patch >> "${LOG}" 2>&1
             if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
@@ -136,14 +163,20 @@ function build_libtorrent_rakshasa() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf /tmp/dist/libtorrent-rakshasa
     rm -rf libtorrent*
 }
 
 function build_rtorrent() {
     rtorrentloc="http://rtorrent.net/downloads/rtorrent-${rtorrentver}.tar.gz"
-    cd "/tmp"
+    cd "/tmp" || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/rtorrent*"
     if [[ ${rtorrentver} == feature-bind ]]; then
@@ -154,7 +187,10 @@ function build_rtorrent() {
         tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> "${LOG}" 2>&1
         VERSION=$rtorrentver
     fi
-    cd rtorrent
+    cd rtorrent || {
+        echo_error "Could not cd to rtorrent"
+        exit 1
+    }
     if [[ ${rtorrentver} == feature-bind ]]; then
         ./autogen.sh >> "${LOG}" 2>&1
         VERSION=$(git describe | sed 's/^.//g')
@@ -166,7 +202,10 @@ function build_rtorrent() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version "${VERSION}" --description "rtorrent compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/rtorrent_"${VERSION}".deb
-    cd "/tmp"
+    cd "/tmp" || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     ldconfig >> "${LOG}" 2>&1
     rm -rf rtorrent* >> "${LOG}" 2>&1
     rm -rf /tmp/dist/rtorrent
@@ -191,12 +230,21 @@ function remove_rtorrent() {
 
 function remove_rtorrent_legacy() {
     rm -rf /usr/bin/rtorrent
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     git clone https://github.com/rakshasa/libtorrent.git libtorrent >> /dev/null 2>&1
-    cd libtorrent
+    cd libtorrent || {
+        echo_error "Could not cd to libtorrent"
+        exit 1
+    }
     ./autogen.sh >> "${LOG}" 2>&1
     ./configure --prefix=/usr >> "${LOG}" 2>&1
     make uninstall >> "${LOG}" 2>&1
-    cd -
+    cd - || {
+        echo_error "Could not cd to previous directory"
+        exit 1
+    }
     rm -rf /tmp/libtorrent
 }

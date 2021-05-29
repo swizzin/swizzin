@@ -3,7 +3,10 @@
 if [[ -f /install/.tautulli.lock ]]; then
     if [[ ! -d /opt/tautulli/.git ]]; then
         systemctl stop tautulli
-        cd /opt/tautulli
+        cd /opt/tautulli || {
+            echo_error "Could not cd to /opt/tautulli"
+            exit 1
+        }
         git init
         git remote add origin https://github.com/Tautulli/Tautulli.git
         git fetch origin
@@ -13,7 +16,10 @@ if [[ -f /install/.tautulli.lock ]]; then
 
     if ! grep -q python3 /etc/systemd/system/tautulli.service; then
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli|g' /etc/systemd/system/tautulli.service
-        cd /opt/tautulli
+        cd /opt/tautulli || {
+            echo_error "Could not cd to /opt/tautulli"
+            exit 1
+        }
         git pull
         chown -R tautulli:nogroup /opt/tautulli
         systemctl daemon-reload

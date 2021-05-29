@@ -38,12 +38,18 @@ for u in "${users[@]}"; do
         echo_progress_start "Configuring flood for $u"
         salt=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
         port=$(shuf -i 3501-4500 -n 1)
-        cd /home/"$u"
+        cd /home/"$u" || {
+            echo_error "Could not cd to /home/$u"
+            exit 1
+        }
         echo_progress_start "Cloning source code"
         git clone https://github.com/jfurrow/flood.git .flood >> "${LOG}" 2>&1
         echo_progress_done "Source cloned"
         chown -R "$u": .flood
-        cd .flood
+        cd .flood || {
+            echo_error "Could not cd to .flood"
+            exit 1
+        }
         cp -a config.template.js config.js
         sed -i "s/floodServerPort: 3000/floodServerPort: $port/g" config.js
         sed -i "s/socket: false/socket: true/g" config.js

@@ -35,7 +35,10 @@ function update_nginx() {
         apt_install "${missing[@]}"
     fi
 
-    cd /etc/php
+    cd /etc/php || {
+        echo_error "Could not cd to /etc/php"
+        exit 1
+    }
     phpv=$(ls -d */ | cut -d/ -f1)
     if [[ $phpv =~ 7\\.1 ]]; then
         if [[ $phpv =~ 7\\.0 ]]; then

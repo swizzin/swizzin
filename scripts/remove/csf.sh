@@ -19,7 +19,10 @@
 #
 
 function _removeCSF() {
-    cd /etc/csf
+    cd /etc/csf || {
+        echo_error "Could not cd to /etc/csf"
+        exit 1
+    }
     sh uninstall.sh >> "${LOG}" 2>&1
     rm /install/.csf.lock
 }

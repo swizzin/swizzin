@@ -8,7 +8,10 @@ if [[ -f /install/.sickrage.lock ]]; then
     if [[ $active == 'active' ]]; then
         systemctl disable -q --now sickrage@"$user"
     fi
-    cd /home/"$user"
+    cd /home/"$user" || {
+        echo_error "Could not cd to /home/$user"
+        exit 1
+    }
     git clone https://github.com/SickChill/SickChill.git .sickchill
     chown -R "$user": .sickchill
     cp -a .sickrage/config.ini .sickchill

@@ -60,9 +60,15 @@ fi
 
 if [[ $migrate == True ]]; then
     version="2.10.2"
-    cd /opt
+    cd /opt || {
+        echo_error "Could not cd to /opt"
+        exit 1
+    }
     mkdir nzbhydra2
-    cd nzbhydra2
+    cd nzbhydra2 || {
+        echo_error "Could not cd to nzbhydra2"
+        exit 1
+    }
     wget -O nzbhydra2.zip https://github.com/theotherp/nzbhydra2/releases/download/v${version}/nzbhydra2-${version}-linux.zip >> "${LOG}" 2>&1
     unzip nzbhydra2.zip >> "${LOG}" 2>&1
     chmod +x nzbhydra2
@@ -95,7 +101,10 @@ if [[ $migrate == True ]]; then
     else
         echo_error "Something appears to have gone wrong during the migration. Upgrader will now exit.
 Error: $errors"
-        cd /opt
+        cd /opt || {
+            echo_error "Could not cd to /opt"
+            exit 1
+        }
         rm -rf nzbhydra2
         rm -rf /home/"${username}"/.config/nzbhydra2
         killall nzbhydra2 >> "${LOG}" 2>&1
@@ -151,10 +160,16 @@ latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/lates
 latestversion=$(echo "$latest" | grep -oP 'v\d+\.\d+\.\d+')
 if [[ -z $localversion ]] || dpkg --compare-versions "${localversion#v}" lt "${latestversion#v}"; then
     echo_progress_start "Upgrading NZBHydra to ${latestversion}"
-    cd /opt
+    cd /opt || {
+        echo_error "Could not cd to /opt"
+        exit 1
+    }
     rm_if_exists /opt/nzbhydra2
     mkdir nzbhydra2
-    cd nzbhydra2
+    cd nzbhydra2 || {
+        echo_error "Could not cd to nzbhydra2"
+        exit 1
+    }
     wget -O nzbhydra2.zip "${latest}" >> "${LOG}" 2>&1
     unzip nzbhydra2.zip >> "${LOG}" 2>&1
     rm -f nzbhydra2.zip

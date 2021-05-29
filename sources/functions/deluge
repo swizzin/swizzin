@@ -119,7 +119,10 @@ function build_libtorrent_deluge() {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
     }
-    cd /tmp/libtorrent
+    cd /tmp/libtorrent || {
+        echo_error "Could not cd to /tmp/libtorrent"
+        exit 1
+    }
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
 
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
@@ -147,7 +150,10 @@ function build_libtorrent_deluge() {
             ;;
         *) ;;
     esac
-    cd /tmp/libtorrent/bindings/python
+    cd /tmp/libtorrent/bindings/python || {
+        echo_error "Could not cd to /tmp/libtorrent/bindings/python"
+        exit 1
+    }
     /opt/boost_"${BOOST_VERSION}"/b2 -j$(nproc) python="${pythonmajor}" crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python"${pythonmajor}"/dist-packages >> "${LOG}" 2>&1
     tag=" static with c++14 march=native"
     mkdir -p /root/dist
@@ -155,7 +161,10 @@ function build_libtorrent_deluge() {
         echo_error "Error packaging ${python}-libtorrent. Setup will exit"
         exit 1
     }
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     echo_log_only "Checking python bindings for libtorrent"
@@ -263,7 +272,10 @@ function build_deluge() {
             exit 1
         }
     }
-    cd /tmp/deluge
+    cd /tmp/deluge || {
+        echo_error "Could not cd to /tmp/deluge"
+        exit 1
+    }
     VERSION=$(git describe | cut -d- -f2)
     sed -i 's/-dev//g' setup.cfg
     mkdir -p /root/dist
@@ -275,7 +287,10 @@ function build_deluge() {
         cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
         chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
     fi
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf /tmp/deluge
     apt-mark hold deluge-common >> "${LOG}" 2>&1
     echo_progress_done "Deluge installed"
@@ -377,12 +392,18 @@ function ltconfig() {
             ;;
     esac
     if [[ ! -f /etc/skel/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg ]]; then
-        cd /etc/skel/.config/deluge/plugins/
+        cd /etc/skel/.config/deluge/plugins/ || {
+            echo_error "Could not cd to /etc/skel/.config/deluge/plugins/"
+            exit 1
+        }
         wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v${ltcver}/ltConfig-${ltcver}"${py}".egg
     fi
     mkdir -p /home/"${u}"/.config/deluge/plugins
     if [[ ! -f /home/${u}/.config/deluge/plugins/ltConfig-${ltcver}${py}.egg ]]; then
-        cd /home/"${u}"/.config/deluge/plugins/
+        cd /home/"${u}"/.config/deluge/plugins/ || {
+            echo_error "Could not cd to /home/${u}/.config/deluge/plugins/"
+            exit 1
+        }
         wget -q https://github.com/ratanakvlun/deluge-ltconfig/releases/download/v${ltcver}/ltConfig-${ltcver}"${py}".egg
         chown "$u": /home/"${u}"/.config/deluge/plugins/ltConfig-${ltcver}"${py}".egg
     fi

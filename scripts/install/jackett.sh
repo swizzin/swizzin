@@ -39,7 +39,10 @@ jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest |
 password=$(cut -d: -f2 < /root/.master.info)
 
 echo_progress_start "Downloading and extracting jackett"
-cd /home/"$username"
+cd /home/"$username" || {
+    echo_error "Could not cd to /home/$username"
+    exit 1
+}
 wget "$jackett" >> "${LOG}" 2>&1
 tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.*.tar.gz

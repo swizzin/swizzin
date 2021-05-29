@@ -9,7 +9,10 @@ if [[ -f /install/.panel.lock ]]; then
         echo_progress_done
     fi
 
-    cd /opt/swizzin
+    cd /opt/swizzin || {
+        echo_error "Could not cd to /opt/swizzin"
+        exit 1
+    }
     #git reset HEAD --hard
     echo_progress_start "Pulling new commits"
     git pull >> "${LOG}" 2>&1 || { PANELRESET=1; }

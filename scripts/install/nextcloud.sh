@@ -51,7 +51,10 @@ else
     #Depends
     apt_install unzip php-mysql libxml2-dev php-common php-gd php-json php-curl php-zip php-xml php-mbstring
     #a2enmod rewrite > /dev/null 2>&1
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
 
     #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9/Xenial
     #Nextcloud 21 no longer supports php7.2 so 20 is the latest supported release for Bionic

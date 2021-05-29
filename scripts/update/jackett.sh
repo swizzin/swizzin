@@ -13,7 +13,10 @@ if [[ -f /install/.jackett.lock ]]; then
             systemctl stop jackett@"$username"
         fi
         rm -rf /home/"$username"/Jackett
-        cd /home/"$username"
+        cd /home/"$username" || {
+            echo_error "Could not cd to /home/$username"
+            exit 1
+        }
         wget -q https://github.com/Jackett/Jackett/releases/download/"$jackettver"/Jackett.Binaries.LinuxAMDx64.tar.gz
         tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
         rm -f Jackett.Binaries.LinuxAMDx64.tar.gz

@@ -66,7 +66,10 @@ function python_getpip() {
         else
             python2bin=python2
         fi
-        cd /tmp
+        cd /tmp || {
+            echo_error "Could not cd to /tmp"
+            exit 1
+        }
         curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py >> "${LOG}" 2>&1
         ${python2bin} get-pip.py >> "${LOG}" 2>&1
         pip install virtualenv >> "${LOG}" 2>&1

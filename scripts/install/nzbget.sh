@@ -13,7 +13,10 @@
 
 function _download() {
     echo_progress_start "Downloading install script"
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> "${LOG}" 2>&1
     echo_progress_done
 }
@@ -42,7 +45,10 @@ NZBGD
 }
 
 function _install() {
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     for u in "${users[@]}"; do
         echo_progress_start "Installing nzbget for $u"
         sh nzbget-latest-bin-linux.run --destdir /home/"$u"/nzbget >> "${LOG}" 2>&1
@@ -88,7 +94,10 @@ function _install() {
 }
 
 function _cleanup() {
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     rm -rf nzbget-latest-bin-linux.run
 }
 

@@ -1,7 +1,10 @@
 #!/bin/bash
 # FIxes the removal of the skel that was done back in the past
 if [[ ! -f /etc/skel/.bashrc ]]; then
-    cd /tmp
+    cd /tmp || {
+        echo_error "Could not cd to /tmp"
+        exit 1
+    }
     apt-get download bash -q
     dpkg-deb -x bash* bash
     cp /tmp/bash/etc/skel -R /etc/

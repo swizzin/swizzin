@@ -51,7 +51,10 @@ fi
 apt_install "$APT"
 mkdir -p /srv
 
-cd /etc/php
+cd /etc/php || {
+    echo_error "Could not cd to /etc/php"
+    exit 1
+}
 phpv=$(ls -d */ | cut -d/ -f1)
 echo_progress_start "Making adjustments to PHP"
 for version in $phpv; do
@@ -129,7 +132,10 @@ mkdir -p /etc/nginx/apps/
 
 chmod 700 /etc/nginx/ssl
 
-cd /etc/nginx/ssl
+cd /etc/nginx/ssl || {
+    echo_error "Could not cd to /etc/nginx/ssl"
+    exit 1
+}
 openssl dhparam -out dhparam.pem 2048 >> "${LOG}" 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
