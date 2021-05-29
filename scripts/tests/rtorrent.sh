@@ -3,8 +3,9 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_service "rtorrent@$(_get_master_username)" || bad=true
-# check_port "panel" || bad=true
-# check_nginx "" || bad=true
+readarray -t users < <(_get_user_list)
+for user in "${users[@]}"; do
+    check_service "rtorrent@$user" || bad=true
+done
 
 evaluate_bad
