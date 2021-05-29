@@ -8,7 +8,10 @@ check_nginx "transmission" || bad=true
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
-    check_service "transmission@$user" || bad=true
+    check_service "transmission@$user" || {
+        bad=true
+        continue
+    }
 
     extra_params="--user $user:$(_get_user_password "$user")"
     port=$(jq -r ".[\"rpc-port\"]" < "/home/$user/.config/transmission-daemon/settings.json")
