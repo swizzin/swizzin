@@ -53,13 +53,13 @@ qbittorrent_service
 for user in ${users[@]}; do
     echo_progress_start "Enabling qbittorrent for $user"
     qbittorrent_user_config "${user}"
-    systemctl enable -q --now qbittorrent@"${user}" 2>&1 | tee -a "$log"
+    systemctl enable -q --now qbittorrent@"${user}" 2>&1 | tee -a "${LOG}"
     echo_progress_done "Started qbt for $user"
 done
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /etc/swizzin/scripts/nginx/qbittorrent.sh
-    systemctl reload nginx >> "$log" 2>&1
+    systemctl reload nginx >> "${LOG}" 2>&1
     echo_progress_done
 fi
 

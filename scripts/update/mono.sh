@@ -18,7 +18,7 @@ if [[ -f /install/.sonarr.lock ]]; then
 fi
 
 if [[ -f /install/.sonarr.lock ]]; then
-    if ! apt-key adv --list-public-keys 2> /dev/null | grep -q A236C58F409091A18ACA53CBEBFF6B99D9B78493 >> "$log" 2>&1; then
+    if ! apt-key adv --list-public-keys 2> /dev/null | grep -q A236C58F409091A18ACA53CBEBFF6B99D9B78493 >> "${LOG}" 2>&1; then
         version=$(lsb_release -cs)
         distribution=$(lsb_release -is)
         if [[ $distribution == "Ubuntu" ]]; then

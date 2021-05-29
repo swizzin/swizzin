@@ -22,7 +22,7 @@ if [[ -f /install/.radarr.lock ]]; then
                     exit 1
                     ;;
             esac
-            if ! curl "$dlurl" -L -o /tmp/radarr.tar.gz >> "$log" 2>&1; then
+            if ! curl "$dlurl" -L -o /tmp/radarr.tar.gz >> "${LOG}" 2>&1; then
                 echo_error "Download failed, exiting"
                 exit 1
             fi
@@ -37,7 +37,7 @@ if [[ -f /install/.radarr.lock ]]; then
             echo_progress_done "Binaries removed"
 
             echo_progress_start "Extracting archive"
-            tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
+            tar -xvf /tmp/Radarr.tar.gz -C /opt >> "${LOG}" 2>&1
             chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
             echo_progress_done "Archive extracted"
 

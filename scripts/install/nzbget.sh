@@ -14,7 +14,7 @@
 function _download() {
     echo_progress_start "Downloading install script"
     cd /tmp
-    wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> "$log" 2>&1
+    wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> "${LOG}" 2>&1
     echo_progress_done
 }
 
@@ -45,7 +45,7 @@ function _install() {
     cd /tmp
     for u in "${users[@]}"; do
         echo_progress_start "Installing nzbget for $u"
-        sh nzbget-latest-bin-linux.run --destdir /home/"$u"/nzbget >> "$log" 2>&1
+        sh nzbget-latest-bin-linux.run --destdir /home/"$u"/nzbget >> "${LOG}" 2>&1
         chown -R "$u":"$u" /home/"$u"/nzbget
         if [[ $u == $master ]]; then
             :
@@ -81,7 +81,7 @@ function _install() {
 
     echo_progress_start "Enabling nzbget for all users"
     for u in "${users[@]}"; do
-        systemctl enable -q nzbget@"$u" 2>&1 | tee -a "$log"
+        systemctl enable -q nzbget@"$u" 2>&1 | tee -a "${LOG}"
         systemctl start nzbget@"$u"
     done
     echo_progress_done

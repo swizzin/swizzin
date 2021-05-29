@@ -29,7 +29,7 @@ function _install_mango() {
 
     mkdir -p "$mangodir"
     mkdir -p "$mangodir"/library
-    wget "${dlurl}" -O $mangodir/mango >> "$log" 2>&1 || {
+    wget "${dlurl}" -O $mangodir/mango >> "${LOG}" 2>&1 || {
         echo_error "Failed to download binary"
         exit 1
     }
@@ -38,7 +38,7 @@ function _install_mango() {
     chmod +x $mangodir/mango
     chmod o+rx -R $mangodir $mangodir/library
 
-    useradd $mangousr --system -d "$mangodir" >> "$log" 2>&1
+    useradd $mangousr --system -d "$mangodir" >> "${LOG}" 2>&1
     sudo chown -R $mangousr:$mangousr $mangodir
 
 }
@@ -90,7 +90,7 @@ TimeoutSec=20
 WantedBy=multi-user.target
 SYSD
     systemctl daemon-reload -q
-    systemctl enable -q --now mango 2>&1 | tee -a "$log"
+    systemctl enable -q --now mango 2>&1 | tee -a "${LOG}"
     echo_progress_done "Mango started"
 }
 

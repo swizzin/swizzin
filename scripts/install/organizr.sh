@@ -24,7 +24,7 @@ function organizr_install() {
 
     if [[ ! -d $organizr_dir ]]; then
         echo_progress_start "Cloning the Organizr Repo"
-        git clone -b v2-master https://github.com/causefx/Organizr $organizr_dir --depth 1 >> "$log" 2>&1
+        git clone -b v2-master https://github.com/causefx/Organizr $organizr_dir --depth 1 >> "${LOG}" 2>&1
         chown -R www-data:www-data $organizr_dir
         chmod 0700 -R $organizr_dir
         echo_progress_done "Organizr cloned"
@@ -84,7 +84,7 @@ EOF
             --data-urlencode "dbName=orgdb" \
             --data-urlencode "dbPath=${organizr_dir}_db" \
             --data-urlencode "formKey=${form_key}_db" \
-            -sk >> "$log" 2>&1
+            -sk >> "${LOG}" 2>&1
 
         # sleep 10
         curl -k https://127.0.0.1/organizr/api/functions.php
@@ -113,7 +113,7 @@ logpath = /srv/organizr_db/organizrLoginLog.json
 ignoreip = 127.0.0.1/24
 EOF
 
-    fail2ban-client reload >> "$log" 2>&1
+    fail2ban-client reload >> "${LOG}" 2>&1
     echo_progress_done "Fail2Ban configured"
 }
 

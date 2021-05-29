@@ -39,7 +39,7 @@ _getswizdb() {
         return 1
     }
     echo_log_only "Output of key \"$key\""
-    cat "$path" | tee -a "$log"
+    cat "$path" | tee -a "${LOG}"
     return "${PIPESTATUS[0]}"
 }
 export -f _getswizdb
@@ -66,7 +66,7 @@ _clearswizdb() {
         return 1
     }
     echo_log_only "Removing key \"$key\""
-    rm "$path" >> "$log" 2>&1
+    rm "$path" >> "${LOG}" 2>&1
 }
 export -f _clearswizdb
 

@@ -5,12 +5,12 @@
 function _install() {
 
     useradd lounge -m -s /bin/bash
-    passwd lounge -l >> "${log}" 2>&1
+    passwd lounge -l >> "${LOG}" 2>&1
 
     npm -g config set user root
     echo_progress_start "Installing lounge from npm"
-    npm install -g thelounge >> "$log" 2>&1
-    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> "$log" 2>&1
+    npm install -g thelounge >> "${LOG}" 2>&1
+    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> "${LOG}" 2>&1
     echo_progress_done
 
     mkdir -p /home/lounge/.thelounge/
@@ -352,7 +352,7 @@ StartLimitBurst=3
 WantedBy=multi-user.target
 EOSD
 
-    systemctl enable -q --now lounge 2>&1 | tee -a "$log"
+    systemctl enable -q --now lounge 2>&1 | tee -a "${LOG}"
 
     sleep 3
     echo_progress_done "Lounge started"

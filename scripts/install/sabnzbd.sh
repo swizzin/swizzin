@@ -48,11 +48,11 @@ esac
 
 echo_progress_start "Downloading and extracting sabnzbd"
 mkdir -p /opt/sabnzbd
-wget -O /tmp/sabnzbd.tar.gz "$latest" >> "${log}" 2>&1 || {
+wget -O /tmp/sabnzbd.tar.gz "$latest" >> "${LOG}" 2>&1 || {
     echo_error "Failed to download archive"
     exit 1
 }
-tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${log}" 2>&1
+tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd >> "${LOG}" 2>&1
 rm -rf /tmp/sabnzbd.tar.gz
 echo_progress_done
 
@@ -61,8 +61,8 @@ if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
     sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
 fi
 
-/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel >> "${log}" 2>&1
-/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1
+/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel >> "${LOG}" 2>&1
+/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${LOG}" 2>&1
 echo_progress_done
 
 chown -R "${user}": /opt/.venv/sabnzbd
@@ -111,7 +111,7 @@ chown "${user}": /home/"${user}"/Downloads/{complete,incomplete}
 echo_progress_done
 
 echo_progress_start "Starting SABnzbd"
-systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
+systemctl enable -q --now sabnzbd 2>&1 | tee -a "${LOG}"
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then

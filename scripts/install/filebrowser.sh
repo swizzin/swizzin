@@ -29,12 +29,12 @@ mkdir -p "/home/${username}/.config/Filebrowser"
 #
 # Download and extract the files to the desired location.
 echo_progress_start "Downloading and extracting source code"
-wget -O "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "$log" 2>&1
-tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> "$log" 2>&1
+wget -O "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "${LOG}" 2>&1
+tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> "${LOG}" 2>&1
 echo_progress_done
 #
 # Removes the archive as we no longer need it.
-rm -f "/home/${username}/filebrowser.tar.gz" >> "$log" 2>&1
+rm -f "/home/${username}/filebrowser.tar.gz" >> "${LOG}" 2>&1
 #
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
 #
@@ -46,12 +46,12 @@ create_self_ssl "${username}"
 #
 # This command initialise our database.
 echo_progress_start "Initialising database and configuring Filebrowser"
-"/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "${LOG}" 2>&1
 #
 # These commands configure some options in the database.
-"/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-"/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+"/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "${LOG}" 2>&1
+"/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "${LOG}" 2>&1
+"/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "${LOG}" 2>&1
 #
 # Set the permissions after we are finsished configuring filebrowser.
 chown "${username}.${username}" -R "/home/${username}/bin" > /dev/null 2>&1
@@ -95,7 +95,7 @@ fi
 #
 # Start the filebrowser service.
 systemctl daemon-reload -q
-systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a "$log"
+systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a "${LOG}"
 echo_progress_done "Systemd service installed"
 #
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.

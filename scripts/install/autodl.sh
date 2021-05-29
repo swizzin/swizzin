@@ -34,10 +34,10 @@ function _autoconf() {
         IRSSI_PASS=$(_string)
         IRSSI_PORT=$(shuf -i 20000-61000 -n 1)
         newdir="/home/${u}/.irssi/scripts/autorun/"
-        mkdir -p "$newdir" >> "${log}" 2>&1
-        unzip -o /tmp/autodl-irssi.zip -d /home/"${u}"/.irssi/scripts/ >> "${log}" 2>&1
+        mkdir -p "$newdir" >> "${LOG}" 2>&1
+        unzip -o /tmp/autodl-irssi.zip -d /home/"${u}"/.irssi/scripts/ >> "${LOG}" 2>&1
         cp /home/"${u}"/.irssi/scripts/autodl-irssi.pl "$newdir"
-        mkdir -p "/home/${u}/.autodl" >> "${log}" 2>&1
+        mkdir -p "/home/${u}/.autodl" >> "${LOG}" 2>&1
         touch "/home/${u}/.autodl/autodl.cfg"
         cat > "/home/${u}/.autodl/autodl.cfg" << ADC
 [options]
@@ -74,7 +74,7 @@ WantedBy=multi-user.target
 ADC
 
     for u in "${users[@]}"; do
-        systemctl enable -q --now irssi@"${u}" 2>&1 | tee -a "$log"
+        systemctl enable -q --now irssi@"${u}" 2>&1 | tee -a "${LOG}"
     done
     echo_progress_done
 }

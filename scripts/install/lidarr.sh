@@ -38,14 +38,14 @@ install() {
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o /tmp/lidarr.tar.gz >> "$log" 2>&1; then
+    if ! curl "$dlurl" -L -o /tmp/lidarr.tar.gz >> "${LOG}" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> "$log" 2>&1 || {
+    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> "${LOG}" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }

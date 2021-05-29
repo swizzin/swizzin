@@ -57,14 +57,14 @@ _install_prowlarr() {
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
+    if ! curl "$dlurl" -L -o "/tmp/$app_name.tar.gz" >> "${LOG}" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
+    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "${LOG}" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
@@ -111,7 +111,7 @@ EOF
 
     # In theory there should be no updating needed, so let's generalize this
     echo_progress_start "${app_name^} is loading..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"${LOG}\" 2>&1; do sleep 2; done"; then
         echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
         exit 1
     fi

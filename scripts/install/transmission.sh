@@ -30,7 +30,7 @@ EOF
 _start_transmission() {
     #This always needs to be done only after the configs have been made, otherwise transmission will overwrite them.
     echo_progress_start "Starting transmission instance for ${bold}$user"
-    systemctl enable -q transmission@"${user}" 2>> "$log"
+    systemctl enable -q transmission@"${user}" 2>> "${LOG}"
     service transmission@"${user}" start
     echo_progress_done "Instance started"
 }

@@ -6,8 +6,8 @@
 _install_webmin() {
     echo_progress_start "Installing Webmin repo"
     echo "deb https://download.webmin.com/download/repository sarge contrib" > /etc/apt/sources.list.d/webmin.list
-    wget http://www.webmin.com/jcameron-key.asc >> "$log" 2>&1
-    apt-key add jcameron-key.asc >> "$log" 2>&1
+    wget http://www.webmin.com/jcameron-key.asc >> "${LOG}" 2>&1
+    apt-key add jcameron-key.asc >> "${LOG}" 2>&1
     rm jcameron-key.asc
     echo_progress_done "Repo added"
     apt_update

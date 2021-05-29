@@ -38,12 +38,12 @@ python2_venv "${user}" pyload
 
 echo_progress_start "Installing python dependencies"
 PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-/opt/.venv/pyload/bin/pip install "$PIP" >> "${log}" 2>&1
+/opt/.venv/pyload/bin/pip install "$PIP" >> "${LOG}" 2>&1
 chown -R "${user}": /opt/.venv/pyload
 echo_progress_done
 
 echo_progress_start "Cloning pyLoad"
-git clone --branch "stable" https://github.com/pyload/pyload.git /opt/pyload >> "${log}" 2>&1
+git clone --branch "stable" https://github.com/pyload/pyload.git /opt/pyload >> "${LOG}" 2>&1
 echo_progress_done
 
 echo_progress_start "Configuring pyLoad"
@@ -180,7 +180,7 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_done
 fi
 echo_progress_start "Enabling and starting pyLoad services"
-systemctl enable -q --now pyload.service 2>&1 | tee -a "$log"
+systemctl enable -q --now pyload.service 2>&1 | tee -a "${LOG}"
 echo_progress_done
 
 echo_success "PyLoad installed"

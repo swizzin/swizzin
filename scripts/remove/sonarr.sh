@@ -9,7 +9,7 @@ else
 fi
 if [[ -f /install/.nginx.lock ]]; then
     rm /etc/nginx/apps/sonarr.conf
-    systemctl reload nginx >> "$log" 2>&1
+    systemctl reload nginx >> "${LOG}" 2>&1
 fi
 
 rm /install/.sonarr.lock

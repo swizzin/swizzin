@@ -7,8 +7,8 @@ if [ -f /install/.rutorrent.lock ]; then
         git -C "$cqbdir" fetch
         if [[ ! $(git -C "$cqbdir" rev-parse HEAD) == $(git -C "$cqbdir" rev-parse @{u}) ]]; then
             echo_progress_start "Updating rutorrent theme"
-            git -C "$cqbdir" reset HEAD --hard >> "$log" 2>&1
-            git -C "$cqbdir" pull >> "$log" 2>&1
+            git -C "$cqbdir" reset HEAD --hard >> "${LOG}" 2>&1
+            git -C "$cqbdir" pull >> "${LOG}" 2>&1
             echo_progress_done
         fi
     fi
@@ -16,7 +16,7 @@ if [ -f /install/.rutorrent.lock ]; then
     if [[ -d /srv/rutorrent/plugins/theme/themes/DarkBetter ]]; then
         if [[ -z "$(ls -A /srv/rutorrent/plugins/theme/themes/DarkBetter/)" ]]; then
             echo_progress_start "Updating rutorrent submodules"
-            git submodule update --init --recursive -C /srv/rutorrent >> "$log" 2>&1
+            git submodule update --init --recursive -C /srv/rutorrent >> "${LOG}" 2>&1
             echo_progress_done
         fi
 

@@ -24,7 +24,7 @@ if [[ $distribution == Ubuntu ]]; then
     if [[ $codename =~ ("xenial"|"bionic") ]]; then
         echo_progress_start "Installing Quassel PPA"
         apt_install software-properties-common
-        apt-add-repository ppa:mamarley/quassel -y >> "$log" 2>&1
+        apt-add-repository ppa:mamarley/quassel -y >> "${LOG}" 2>&1
         apt_update
         echo_progress_done
     fi
@@ -41,18 +41,18 @@ else
         apt_install quassel-core
     else
         echo_info "Using latest backport"
-        wget -r -l1 --no-parent --no-directories -A "quassel-core*.deb" https://iskrembilen.com/quassel-packages-debian/ >> "$log" 2>&1
+        wget -r -l1 --no-parent --no-directories -A "quassel-core*.deb" https://iskrembilen.com/quassel-packages-debian/ >> "${LOG}" 2>&1
         echo_progress_start "Installing quassel dpkg"
-        dpkg -i quassel-core* >> "$log" 2>&1
+        dpkg -i quassel-core* >> "${LOG}" 2>&1
         echo_progress_done "Quassel installed"
         rm quassel-core*
         #Note: this is here due to the dependencies not being installed for the dpkg-installed package
-        apt-get install -f -y -q >> "$log" 2>&1
+        apt-get install -f -y -q >> "${LOG}" 2>&1
     fi
 fi
 echo_progress_start "Starting quassel"
 mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
-systemctl enable -q --now quasselcore 2>&1 | tee -a "$log"
+systemctl enable -q --now quasselcore 2>&1 | tee -a "${LOG}"
 echo_progress_done
 
 echo_success "Quassel installed"

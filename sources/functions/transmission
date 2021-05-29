@@ -56,12 +56,12 @@ function _install_transmission() {
             return 1
         else
             echo_progress_start "Adding Transmission PPA"
-            add-apt-repository ppa:transmissionbt/ppa -y >> "$log" 2>&1
+            add-apt-repository ppa:transmissionbt/ppa -y >> "${LOG}" 2>&1
             echo_progress_done "PPA Added"
         fi
     fi
     apt_install transmission-cli transmission-common transmission-daemon
     echo_progress_start "Disabling default non-multiuser service"
-    systemctl disable -q --now transmission-daemon >> "$log" 2>&1
+    systemctl disable -q --now transmission-daemon >> "${LOG}" 2>&1
     echo_progress_done
 }

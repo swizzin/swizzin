@@ -23,14 +23,14 @@ _install_radarr() {
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+    if ! curl "$dlurl" -L -o /tmp/Radarr.tar.gz >> "${LOG}" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
+    tar -xvf /tmp/Radarr.tar.gz -C /opt >> "${LOG}" 2>&1
     echo_progress_done "Archive extracted"
 
     touch /install/.radarr.lock

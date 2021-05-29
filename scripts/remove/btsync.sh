@@ -22,8 +22,8 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 function _removeBTSync() {
     systemctl stop -q resilio-sync
     apt_remove --purge resilio-sync*
-    deluser rslsync >> "${log}" 2>&1
-    delgroup rslsync >> "${log}" 2>&1
+    deluser rslsync >> "${LOG}" 2>&1
+    delgroup rslsync >> "${LOG}" 2>&1
     if [[ -d /home/rslsync ]]; then
         rm -rf /home/rslsync
     fi

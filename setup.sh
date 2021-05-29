@@ -21,17 +21,17 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-export log=/root/logs/swizzin.log
+export LOG=/root/logs/swizzin.log
 mkdir -p /root/logs
-touch $log
+touch ${LOG}
 
 # Setting up /etc/swizzin
 #shellcheck disable=SC2120
 function _source_setup() {
-    echo -e "...\tInstalling git"      # The one true dependency
-    apt-get update -q >> $log 2>&1     # Force update just in case sources were never pulled
-    apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
-    echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
+    echo -e "...\tInstalling git"        # The one true dependency
+    apt-get update -q >> ${LOG} 2>&1     # Force update just in case sources were never pulled
+    apt-get install git -y -qq >> ${LOG} # DO NOT PUT MORE DEPENDENCIES HERE
+    echo -e "\tGit Installed"            # All dependencies go to scripts/update/10-dependencies.sh
 
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
@@ -45,7 +45,7 @@ function _source_setup() {
         echo "Best of luck and please follow the contribution guidelines cheerio"
     else
         echo -e "...\tCloning swizzin repo to localhost"
-        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
+        git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${LOG} 2>&1
         echo -e "\tSwizzin cloned!"
     fi
 
@@ -183,8 +183,8 @@ _os() {
     if [ ! -d /install ]; then mkdir /install; fi
     if [ ! -d /root/logs ]; then mkdir /root/logs; fi
     if ! which lsb_release > /dev/null; then
-        echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
-        apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
+        echo -e "...\tInstalling lsb-release"        # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
+        apt-get install lsb-release -y -qq >> ${LOG} # DO NOT PUT MORE DEPENDENCIES HERE
     fi
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
@@ -200,7 +200,7 @@ _os() {
 
 function _preparation() {
     echo_info "Preparing system"
-    apt-get install uuid-runtime -yy >> $log 2>&1
+    apt-get install uuid-runtime -yy >> ${LOG} 2>&1
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
     apt_upgrade
 

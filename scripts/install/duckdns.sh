@@ -69,13 +69,13 @@ if [ "$checkCron" -eq 0 ]; then
     crontab -l | {
         cat
         echo "*/5 * * * * bash $duckScript"
-    } | crontab - >> "$log" 2>&1
+    } | crontab - >> "${LOG}" 2>&1
 fi
 echo_progress_done
 
 ## Running script
 echo_progress_start "Registering domain with Duck DNS"
-bash $duckScript >> "$log" 2>&1
+bash $duckScript >> "${LOG}" 2>&1
 response=$(cat $duckLog)
 if [ "$response" != "OK" ]; then
     echo_error "Duck DNS did not update correctly. Please check your settings or run the setup again."

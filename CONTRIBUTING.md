@@ -137,7 +137,7 @@ Please use the functions exported from `sources/functions/color_echo` that are a
 
 ### Logging
 * The `echo_...` calls mentioned below will automatically make a copy of the messages.
-* Please make sure that your `$log` variable is only used to refer to the path of the log (imported from either `setup.sh` or `box`)
+* Please make sure that your `${LOG}` variable is only used to refer to the path of the log (imported from either `setup.sh` or `box`)
 * Any application return/verbose(-ish) print should go into the log file
   * Please make sure your `apt` calls are not `-q/--quiet` when forwarding to the log file, for example
 
@@ -176,9 +176,9 @@ There is a wide choice of "styles" to choose from, please use them appropriately
 
 
 ## Logging
-As mentioned above, please ensure any relevant information/print that is generated during the script is corretly forwarded to the destination of the `$log` file.
+As mentioned above, please ensure any relevant information/print that is generated during the script is corretly forwarded to the destination of the `${LOG}` file.
 
-If necessary, please append the `$log` forward with `2>&1` to redirect all `stderr` to `stdout`, and therefore into the log as well. If you expect these possibilities to happen, please make sure to catch this within your script and error out too, you know.
+If necessary, please append the `${LOG}` forward with `2>&1` to redirect all `stderr` to `stdout`, and therefore into the log as well. If you expect these possibilities to happen, please make sure to catch this within your script and error out too, you know.
 
 ## Python applications
 As a principle, please avoid installing Python2 applications. 

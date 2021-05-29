@@ -38,7 +38,7 @@ function claimPlex() {
                 -H 'X-Plex-Device-Name: PlexMediaServer' \
                 -H 'X-Plex-Device: Linux' \
                 "https://plex.tv/api/claim/exchange?token=${claimtoken}")"
-            token="$(echo "$loginInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
+            token="$(echo "${LOG}inInfo" | sed -n 's/.*<authentication-token>\(.*\)<\/authentication-token>.*/\1/p')"
 
             if [ "$token" ]; then
                 setPref "PlexOnlineToken" "${token}"

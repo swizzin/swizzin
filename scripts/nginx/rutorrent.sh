@@ -20,7 +20,7 @@ function rutorrent_install() {
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "${LOG}" 2>&1 || {
             echo_error "Failed to clone rutorrent"
             exit 1
         }
@@ -43,13 +43,13 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "${LOG}" 2>&1
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         cd /srv/rutorrent/plugins/
-        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "$log" 2>&1
+        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "${LOG}" 2>&1
         chown -R www-data: /srv/rutorrent/plugins/filemanager
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
 
@@ -77,7 +77,7 @@ FMCONF
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
-        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
+        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "${LOG}" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
     fi
 
@@ -137,7 +137,7 @@ DSKSP
 @define('PHP_GZIP_LEVEL', 2, true);
 
 \$do_diagnostic = true;
-\$log_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
+\${LOG}_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
 
 \$saveUploadedTorrents = true; // Save uploaded torrents to profile/torrents directory or not
 \$overwriteUploadedTorrents = false; // Overwrite existing uploaded torrents in profile/torrents directory or make unique name
@@ -261,6 +261,6 @@ rutorrent_user_config
 restart_php_fpm
 chown -R www-data.www-data /srv/rutorrent
 echo_progress_start "Reloading nginx"
-systemctl reload nginx >> "$log" 2>&1
+systemctl reload nginx >> "${LOG}" 2>&1
 echo_progress_done
 touch /install/.rutorrent.lock

@@ -63,7 +63,7 @@ function _install_wg() {
     chown -R root:root /etc/wireguard/
     chmod -R 700 /etc/wireguard
 
-    if ! modprobe wireguard >> "$log" 2>&1; then
+    if ! modprobe wireguard >> "${LOG}" 2>&1; then
         echo_error "Could not modprobe Wireguard, script will now terminate."
         echo_info "Please ensure a kernel headers package is installed that matches the currently running kernel.
 Currently running kernel:
@@ -150,7 +150,7 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-    systemctl enable -q --now wg-quick@wg$(id -u "$u") 2>&1 | tee -a "$log"
+    systemctl enable -q --now wg-quick@wg$(id -u "$u") 2>&1 | tee -a "${LOG}"
     if [[ $? == 0 ]]; then
         echo_progress_done "Enabled for $u (wg$(id -u "$u")). Config stored in /home/$u/.wireguard/$u.conf"
     else

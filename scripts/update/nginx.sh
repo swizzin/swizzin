@@ -31,7 +31,7 @@ function update_nginx() {
     done
 
     if [[ ${missing[1]} != "" ]]; then
-        # echo_inf "Installing the following dependencies: ${missing[*]}" | tee -a $log
+        # echo_inf "Installing the following dependencies: ${missing[*]}" | tee -a ${LOG}
         apt_install "${missing[@]}"
     fi
 

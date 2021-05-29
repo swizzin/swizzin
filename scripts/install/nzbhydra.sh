@@ -29,8 +29,8 @@ latestversion=$(echo "$latest" | grep -oP 'v\d+\.\d+\.\d+')
 cd /opt
 mkdir nzbhydra2
 cd nzbhydra2
-wget -O nzbhydra2.zip "${latest}" >> "${log}" 2>&1
-unzip nzbhydra2.zip >> "${log}" 2>&1
+wget -O nzbhydra2.zip "${latest}" >> "${LOG}" 2>&1
+unzip nzbhydra2.zip >> "${LOG}" 2>&1
 rm -f nzbhydra2.zip
 
 chmod +x nzbhydra2
@@ -73,7 +73,7 @@ Restart=always
 WantedBy=multi-user.target
 EOH2
 
-systemctl enable -q --now nzbhydra 2>&1 | tee -a "$log"
+systemctl enable -q --now nzbhydra 2>&1 | tee -a "${LOG}"
 echo_progress_done "Service installed and nzbhydra started"
 
 if [[ -f /install/.nginx.lock ]]; then

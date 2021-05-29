@@ -7,7 +7,7 @@ fi
 if ! grep -q apt.ombi.app /etc/apt/sources.list.d/ombi.list; then
 
     echo_info "Upgrading ombi apt sources"
-    curl -sSL https://apt.ombi.app/pub.key | apt-key add - >> "$log" 2>&1
+    curl -sSL https://apt.ombi.app/pub.key | apt-key add - >> "${LOG}" 2>&1
     echo "deb https://apt.ombi.app/master jessie main" > /etc/apt/sources.list.d/ombi.list
 
     echo_progress_start "Backing up old Ombi config and database"

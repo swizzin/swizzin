@@ -45,12 +45,12 @@ EOF
 }
 
 function _makedirs() {
-    mkdir -p /home/"${user}"/torrents/rtorrent 2>> "$log"
+    mkdir -p /home/"${user}"/torrents/rtorrent 2>> "${LOG}"
     mkdir -p /home/"${user}"/.sessions
     mkdir -p /home/"${user}"/rwatch
-    chown -R "${user}"."${user}" /home/"${user}"/{torrents,.sessions,rwatch} 2>> "$log"
-    usermod -a -G www-data "${user}" 2>> "$log"
-    usermod -a -G "${user}" www-data 2>> "$log"
+    chown -R "${user}"."${user}" /home/"${user}"/{torrents,.sessions,rwatch} 2>> "${LOG}"
+    usermod -a -G www-data "${user}" 2>> "${LOG}"
+    usermod -a -G "${user}" www-data 2>> "${LOG}"
 }
 
 _systemd() {
@@ -71,7 +71,7 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl enable -q --now rtorrent@"${user}" 2>> "$log"
+    systemctl enable -q --now rtorrent@"${user}" 2>> "${LOG}"
 }
 
 export DEBIAN_FRONTEND=noninteractive

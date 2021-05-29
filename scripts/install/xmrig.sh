@@ -43,7 +43,7 @@ apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl
 
 cd /tmp
 echo_progress_start "Cloning xmrig"
-git clone --depth 1 --single-branch --branch v"${latest}" https://github.com/xmrig/xmrig.git >> "$log" 2>&1
+git clone --depth 1 --single-branch --branch v"${latest}" https://github.com/xmrig/xmrig.git >> "${LOG}" 2>&1
 echo_progress_done
 
 cd xmrig
@@ -58,8 +58,8 @@ fi
 echo_progress_start "Building xmrig"
 mkdir build
 cd build
-cmake .. >> "$log" 2>&1
-make -j$(nproc) >> "$log" 2>&1
+cmake .. >> "${LOG}" 2>&1
+make -j$(nproc) >> "${LOG}" 2>&1
 mv xmrig /usr/local/bin/
 echo_progress_done
 
@@ -105,7 +105,7 @@ XMR
 echo_progress_done
 
 echo_progress_start
-systemctl enable -q --now xmrig 2>&1 | tee -a "$log"
+systemctl enable -q --now xmrig 2>&1 | tee -a "${LOG}"
 echo_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"

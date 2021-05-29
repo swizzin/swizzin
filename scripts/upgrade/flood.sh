@@ -5,7 +5,7 @@
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 if [[ ! $(which node-gyp) ]]; then
-    npm install -g node-gyp >> "$log" 2>&1
+    npm install -g node-gyp >> "${LOG}" 2>&1
 fi
 
 for u in "${users[@]}"; do

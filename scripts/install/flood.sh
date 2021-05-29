@@ -12,7 +12,7 @@ npm_install
 
 if [[ ! $(which node-gyp) ]]; then
     echo_progress_start "Installing node-gyp"
-    npm install -g node-gyp >> "$log" 2>&1
+    npm install -g node-gyp >> "${LOG}" 2>&1
     echo_progress_done
 fi
 
@@ -40,7 +40,7 @@ for u in "${users[@]}"; do
         port=$(shuf -i 3501-4500 -n 1)
         cd /home/"$u"
         echo_progress_start "Cloning source code"
-        git clone https://github.com/jfurrow/flood.git .flood >> "$log" 2>&1
+        git clone https://github.com/jfurrow/flood.git .flood >> "${LOG}" 2>&1
         echo_progress_done "Source cloned"
         chown -R "$u": .flood
         cd .flood
@@ -53,10 +53,10 @@ for u in "${users[@]}"; do
             sed -i "s/floodServerHost: '127.0.0.1'/floodServerHost: '0.0.0.0'/g" config.js
         fi
         echo_progress_start "Building Flood for $u. This might take some time..."
-        su - "$u" -c "cd /home/$u/.flood; npm install" >> "$log" 2>&1
+        su - "$u" -c "cd /home/$u/.flood; npm install" >> "${LOG}" 2>&1
         echo_progress_done "Flood built for $u"
         if [[ ! -f /install/.nginx.lock ]]; then
-            su - "$u" -c "cd /home/$u/.flood; npm run build" >> "$log" 2>&1
+            su - "$u" -c "cd /home/$u/.flood; npm run build" >> "${LOG}" 2>&1
             systemctl start flood@"$u"
             echo_info "Flood port for $u is $port"
         elif [[ -f /install/.nginx.lock ]]; then
@@ -64,7 +64,7 @@ for u in "${users[@]}"; do
             systemctl start flood@"$u"
             systemctl reload nginx
         fi
-        systemctl enable -q flood@"$u" 2>&1 | tee -a "$log"
+        systemctl enable -q flood@"$u" 2>&1 | tee -a "${LOG}"
         echo_progress_done "Flood for $u configured"
     fi
 done

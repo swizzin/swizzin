@@ -20,7 +20,7 @@ if ! command -v echo_error > /dev/null 2>&1; then
     killage "Echo functions unavailable"
 fi
 
-if [[ -z $log ]]; then
+if [[ -z ${LOG} ]]; then
     killage "Log variable not set"
 fi
 

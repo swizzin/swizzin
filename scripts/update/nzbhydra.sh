@@ -7,7 +7,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         active=$(systemctl is-active nzbhydra@"${user}")
         . /etc/swizzin/sources/functions/pyenv
         if [[ $active == "active" ]]; then
-            systemctl disable -q --now nzbhydra@"${user}" >> "${log}" 2>&1
+            systemctl disable -q --now nzbhydra@"${user}" >> "${LOG}" 2>&1
         fi
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -54,7 +54,7 @@ NZBH
         systemctl daemon-reload
         rm /etc/systemd/system/nzbhydra@.service
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now nzbhydra 2>&1 | tee -a "$log"
+            systemctl enable -q --now nzbhydra 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

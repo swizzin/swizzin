@@ -17,5 +17,5 @@ organizr_adduser() {
         --data-urlencode "email=$2" \
         --data-urlencode "password=$3" \
         --data-urlencode "formKey=${formKey}" \
-        -sk >> "$log" 2>&1
+        -sk >> "${LOG}" 2>&1
 }

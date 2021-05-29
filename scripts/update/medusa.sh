@@ -39,7 +39,7 @@ MSD
         systemctl daemon-reload
         rm -rf /etc/systemd/system/medusa@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now medusa 2>&1 | tee -a "$log"
+            systemctl enable -q --now medusa 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

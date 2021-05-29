@@ -12,7 +12,7 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
     echo_progress_done
 fi
 
-if ! npm update -g thelounge >> "$log"; then
+if ! npm update -g thelounge >> "${LOG}"; then
     echo_error "Lounge failed to update, please investigate the logs"
 fi
 

@@ -66,7 +66,7 @@ if [[ -f /install/.sickchill.lock ]]; then
             unit=sickchill
         fi
         codename=$(lsb_release -cs)
-        systemctl disable -q --now ${unit} >> "${log}" 2>&1
+        systemctl disable -q --now ${unit} >> "${LOG}" 2>&1
         rm_if_exists /opt/.venv/sickchill
         if [[ $codename =~ ("xenial"|"stretch") ]]; then
             pyenv_install
@@ -83,9 +83,9 @@ if [[ -f /install/.sickchill.lock ]]; then
         if [[ -d /home/${user}/.sickchill ]]; then
             mv /home/"${user}"/.sickchill /opt/sickchill
         fi
-        sudo -u "${user}" bash -c "cd /opt/sickchill; git pull" >> "$log" 2>&1
+        sudo -u "${user}" bash -c "cd /opt/sickchill; git pull" >> "${LOG}" 2>&1
         # echo "Installing requirements.txt with pip ..."
-        sudo -u "${user}" bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> "$log" 2>&1
+        sudo -u "${user}" bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> "${LOG}" 2>&1
 
         cat > /etc/systemd/system/sickchill.service << SCSD
 [Unit]
@@ -106,7 +106,7 @@ SCSD
         rm_if_exists /etc/systemd/system/sickchill@.service
         echo_progress_done
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now sickchill 2>&1 | tee -a "$log"
+            systemctl enable -q --now sickchill 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

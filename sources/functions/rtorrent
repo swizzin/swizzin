@@ -74,13 +74,13 @@ function depends_rtorrent() {
 
     # mktorrent from source
     cd /tmp
-    wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> "$log" 2>&1
+    wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> "${LOG}" 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
-    unzip -d mktorrent -j mktorrent.zip >> "$log" 2>&1
+    unzip -d mktorrent -j mktorrent.zip >> "${LOG}" 2>&1
     cd mktorrent
-    make >> "$log" 2>&1
-    make install PREFIX=/usr >> "$log" 2>&1
+    make >> "${LOG}" 2>&1
+    make install PREFIX=/usr >> "${LOG}" 2>&1
     cd /tmp
     rm -rf mktorrent*
 }
@@ -91,13 +91,13 @@ function build_xmlrpc-c() {
     rm_if_exists "/tmp/xmlrpc-c"
     rm_if_exists "/tmp/dist/xmlrpc-c "
     XMLRPC_REV=2954
-    svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV xmlrpc-c >> "$log" 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV xmlrpc-c >> "$log" 2>&1; }
+    svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV xmlrpc-c >> "${LOG}" 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV xmlrpc-c >> "${LOG}" 2>&1; }
     cd xmlrpc-c
-    ./configure --prefix=/usr --disable-cplusplus >> "$log" 2>&1
+    ./configure --prefix=/usr --disable-cplusplus >> "${LOG}" 2>&1
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) >> "$log" 2>&1
-    make DESTDIR=/tmp/dist/xmlrpc-c install >> "$log" 2>&1
+    make -j$(nproc) >> "${LOG}" 2>&1
+    make DESTDIR=/tmp/dist/xmlrpc-c install >> "${LOG}" 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/xmlrpc-c -p /root/dist/xmlrpc-c_VERSION.deb -s dir -t deb -n xmlrpc-c --version "${VERSION}" --description "xmlrpc-c compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/xmlrpc-c_"${VERSION}".deb
@@ -112,27 +112,27 @@ function build_libtorrent_rakshasa() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
     if [[ ${libtorrentver} == feature-bind ]]; then
-        git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >> "$log" 2>&1
+        git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git libtorrent >> "${LOG}" 2>&1
         cd libtorrent
         VERSION=$(git describe | sed 's/^.//g')
     else
         mkdir libtorrent
         wget -q ${libtorrentloc}
         VERSION=$libtorrentver
-        tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> "$log" 2>&1
-        cd libtorrent >> "$log" 2>&1
+        tar -xvf libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> "${LOG}" 2>&1
+        cd libtorrent >> "${LOG}" 2>&1
         if [[ ${libtorrentver} =~ ("0.13.6"|"0.13.7") ]] && [[ ! ${codename} == "xenial" ]]; then
-            patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
+            patch -p1 < /etc/swizzin/sources/openssl.patch >> "${LOG}" 2>&1
             if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
-                patch -p1 < /etc/swizzin/sources/cppunit.patch >> "$log" 2>&1
+                patch -p1 < /etc/swizzin/sources/cppunit.patch >> "${LOG}" 2>&1
             fi
         fi
     fi
-    ./autogen.sh >> "$log" 2>&1
-    ./configure --prefix=/usr >> "$log" 2>&1
-    make -j$(nproc) >> "$log" 2>&1
+    ./autogen.sh >> "${LOG}" 2>&1
+    ./configure --prefix=/usr >> "${LOG}" 2>&1
+    make -j$(nproc) >> "${LOG}" 2>&1
     rm_if_exists "/tmp/dist/libtorrent-rakshasa"
-    make DESTDIR=/tmp/dist/libtorrent-rakshasa install >> "$log" 2>&1
+    make DESTDIR=/tmp/dist/libtorrent-rakshasa install >> "${LOG}" 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb
@@ -147,28 +147,28 @@ function build_rtorrent() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/rtorrent*"
     if [[ ${rtorrentver} == feature-bind ]]; then
-        git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >> "$log" 2>&1
+        git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git rtorrent >> "${LOG}" 2>&1
     else
         mkdir rtorrent
         wget -q ${rtorrentloc}
-        tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> "$log" 2>&1
+        tar -xzvf rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> "${LOG}" 2>&1
         VERSION=$rtorrentver
     fi
     cd rtorrent
     if [[ ${rtorrentver} == feature-bind ]]; then
-        ./autogen.sh >> "$log" 2>&1
+        ./autogen.sh >> "${LOG}" 2>&1
         VERSION=$(git describe | sed 's/^.//g')
     fi
-    ./configure --prefix=/usr --with-xmlrpc-c >> "$log" 2>&1
-    make -j$(nproc) >> "$log" 2>&1
+    ./configure --prefix=/usr --with-xmlrpc-c >> "${LOG}" 2>&1
+    make -j$(nproc) >> "${LOG}" 2>&1
     rm_if_exists "/tmp/dist/rtorrent"
-    make DESTDIR=/tmp/dist/rtorrent install >> "$log" 2>&1
+    make DESTDIR=/tmp/dist/rtorrent install >> "${LOG}" 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version "${VERSION}" --description "rtorrent compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/rtorrent_"${VERSION}".deb
     cd "/tmp"
-    ldconfig >> "$log" 2>&1
-    rm -rf rtorrent* >> "$log" 2>&1
+    ldconfig >> "${LOG}" 2>&1
+    rm -rf rtorrent* >> "${LOG}" 2>&1
     rm -rf /tmp/dist/rtorrent
     apt-mark hold rtorrent
 }
@@ -185,7 +185,7 @@ function remove_rtorrent() {
     fi
     for c in ${toclean[@]}; do
         # TODO add option to pass extra flags
-        apt-get remove -y -q --allow-change-held-packages "$c" >> "$log" 2>&1
+        apt-get remove -y -q --allow-change-held-packages "$c" >> "${LOG}" 2>&1
     done
 }
 
@@ -194,9 +194,9 @@ function remove_rtorrent_legacy() {
     cd /tmp
     git clone https://github.com/rakshasa/libtorrent.git libtorrent >> /dev/null 2>&1
     cd libtorrent
-    ./autogen.sh >> "$log" 2>&1
-    ./configure --prefix=/usr >> "$log" 2>&1
-    make uninstall >> "$log" 2>&1
+    ./autogen.sh >> "${LOG}" 2>&1
+    ./configure --prefix=/usr >> "${LOG}" 2>&1
+    make uninstall >> "${LOG}" 2>&1
     cd -
     rm -rf /tmp/libtorrent
 }

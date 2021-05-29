@@ -25,7 +25,7 @@ if [[ -f /install/.sickgear.lock ]]; then
             pyenv_create_venv 3.7.7 /opt/.venv/sickgear
         fi
 
-        /opt/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> "$log" 2>&1
+        /opt/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> "${LOG}" 2>&1
         chown -R "${user}": /opt/.venv/sickgear
 
         mv /home/"${user}"/.sickgear /opt/sickgear
@@ -48,7 +48,7 @@ MSD
         systemctl daemon-reload
         rm /etc/systemd/system/sickchill@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now sickgear 2>&1 | tee -a "$log"
+            systemctl enable -q --now sickgear 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

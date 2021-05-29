@@ -39,7 +39,7 @@ export -f ring_the_bell
 ############ FUNCTIONS
 # Unless otherwise specified, the following parameters apply:
 # $1    the message to print
-# $log  (optionally declared outside) the file to log to
+# ${LOG}  (optionally declared outside) the file to log to
 
 # Prints an echo styled as warning
 # Printing this message will ring the terminal bell.
@@ -62,7 +62,7 @@ export -f echo_warn
 echo_error() {
     ring_the_bell
     colorprint "${red}${bold}ERROR" "$1"
-    colorprint "${red}${italic}" "Please consult the above and/or check the log (less -R +G $log)"
+    colorprint "${red}${italic}" "Please consult the above and/or check the log (less -R +G ${LOG})"
 }
 export -f echo_error
 
@@ -157,23 +157,23 @@ export -f echo_log_only
 # Parameters:
 # - `$1` = "Heading" (Include colours and other non-printing chars here)
 # - `$2` = "Body" (Message, can contain non-printing chars but they will be counted into the fold)
-# $log = location of the file to log into
+# ${LOG} = location of the file to log into
 function colorprint() {
     heading="$1\t"
     body="$2"
     # If the optional logfile was specified...
-    if [[ -n $log ]]; then
-        printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "$log"
+    if [[ -n ${LOG} ]]; then
+        printf '%b' "${dim}[$(LANG=en_US date +"%a %b %d %T")]${nc} " | strip_ansi >> "${LOG}"
         # ...and if function called was `echo_log_only`, do not print to stdout ad forward straight to file
         # echo "${FUNCNAME[ 1 ]}"
         if [[ ${FUNCNAME[1]} == "echo_log_only" ]]; then
-            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "${LOG}"
         else # otherwise append it
             #Wrapped for the user
             printf '%b' "${heading}"
             printf '%b\n' "${body}${nc}" | do_the_wrap
             #Unwrapped for the log
-            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "$log"
+            printf '%b\n' "${heading}${body}${nc}" | strip_ansi >> "${LOG}"
         fi
     else # If log was not specified...
         printf '%b' "${heading}"
@@ -250,15 +250,15 @@ function echo_test_wrap() {
 }
 
 function echo_test_log() {
-    echo "And this is what happens when you set the \$log variable. (check source)"
+    echo "And this is what happens when you set the \${LOG} variable. (check source)"
     echo "What the screen sees:"
-    log="/tmp/dumblog.txt"
-    if [[ -f $log ]]; then rm $log; fi
+    LOG="/tmp/dumblog.txt"
+    if [[ -f ${LOG} ]]; then rm ${LOG}; fi
     echo_info "${lipsum}"
     echo_log_only "${lipsum}"
     echo
     echo "The contents of the log:"
-    cat $log
-    rm $log
-    log=""
+    cat ${LOG}
+    rm ${LOG}
+    LOG=""
 }

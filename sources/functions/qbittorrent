@@ -175,40 +175,40 @@ function build_qt() {
     QT_VERSION=$(git ls-remote -t --refs https://github.com/qt/qtbase | awk '{sub("refs/tags/v", ""); print $2}' | grep ${qt_branch} | sort -Vr | grep -m1 -v -e "alpha" -e "beta" -e "rc")
     if ! skip_qt; then
         echo_progress_start "Compiling qtbase5-swizzin v${QT_VERSION}"
-        git clone --depth 1 -b v"${QT_VERSION}" --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> "${log}" 2>&1 || {
+        git clone --depth 1 -b v"${QT_VERSION}" --recurse-submodules https://github.com/qt/qtbase /tmp/qtbase >> "${LOG}" 2>&1 || {
             echo_error "qtbase5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
         cd /tmp/qtbase
         apt_install libssl-dev
-        ./configure --prefix=${QT_PREFIX} -opensource -confirm-license -openssl-linked -c++std ${stdcver} -release -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples >> "${log}" 2>&1
-        make -j$(nproc) >> "${log}" 2>&1
-        make INSTALL_ROOT=/tmp/dist/qtbase install >> "${log}" 2>&1
+        ./configure --prefix=${QT_PREFIX} -opensource -confirm-license -openssl-linked -c++std ${stdcver} -release -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples >> "${LOG}" 2>&1
+        make -j$(nproc) >> "${LOG}" 2>&1
+        make INSTALL_ROOT=/tmp/dist/qtbase install >> "${LOG}" 2>&1
         tag=" ${stdcver}"
-        fpm -f -C /tmp/dist/qtbase -p /root/dist/qtbase5-swizzin_VERSION.deb -s dir -t deb -n qtbase5-swizzin --version "${QT_VERSION}" --description "qtbase5 compiled by swizzin$tag" >> "${log}" 2>&1
+        fpm -f -C /tmp/dist/qtbase -p /root/dist/qtbase5-swizzin_VERSION.deb -s dir -t deb -n qtbase5-swizzin --version "${QT_VERSION}" --description "qtbase5 compiled by swizzin$tag" >> "${LOG}" 2>&1
         cd /tmp
         rm -rf /tmp/qtbase
         rm -rf /tmp/dist/qtbase
-        dpkg -i /root/dist/qtbase5-swizzin_"${QT_VERSION}".deb >> "${log}" 2>&1 || {
+        dpkg -i /root/dist/qtbase5-swizzin_"${QT_VERSION}".deb >> "${LOG}" 2>&1 || {
             echo_error "qtbase5-swizzin could not be installed. Setup will not proceed"
             exit 1
         }
         echo_progress_done "qtbase5-swizzin installed"
         echo_progress_start "Compiling qttools5-swizzin v${QT_VERSION}"
-        git clone --depth 1 -b "$QT_VERSION" --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> "${log}" 2>&1 || {
+        git clone --depth 1 -b "$QT_VERSION" --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> "${LOG}" 2>&1 || {
             echo_error "qttools5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
         cd /tmp/qttools
-        ${QT_PREFIX}/bin/qmake -set prefix ${QT_PREFIX} >> "${log}" 2>&1
-        ${QT_PREFIX}/bin/qmake >> "${log}" 2>&1
-        make -j$(nproc) >> "${log}" 2>&1
-        make INSTALL_ROOT=/tmp/dist/qttools install >> "${log}" 2>&1
-        fpm -f -C /tmp/dist/qttools -p /root/dist/qttools5-swizzin_VERSION.deb -s dir -t deb -n qttools5-swizzin --version "${QT_VERSION}" --description "qttools5 compiled by swizzin$tag" >> "${log}" 2>&1
+        ${QT_PREFIX}/bin/qmake -set prefix ${QT_PREFIX} >> "${LOG}" 2>&1
+        ${QT_PREFIX}/bin/qmake >> "${LOG}" 2>&1
+        make -j$(nproc) >> "${LOG}" 2>&1
+        make INSTALL_ROOT=/tmp/dist/qttools install >> "${LOG}" 2>&1
+        fpm -f -C /tmp/dist/qttools -p /root/dist/qttools5-swizzin_VERSION.deb -s dir -t deb -n qttools5-swizzin --version "${QT_VERSION}" --description "qttools5 compiled by swizzin$tag" >> "${LOG}" 2>&1
         cd /tmp
         rm -rf /tmp/qttools
         rm -rf /tmp/dist/qttools
-        dpkg -i /root/dist/qttools5-swizzin_"${QT_VERSION}".deb >> "${log}" 2>&1 || {
+        dpkg -i /root/dist/qttools5-swizzin_"${QT_VERSION}".deb >> "${LOG}" 2>&1 || {
             echo_error "qttools5-swizzin could not be installed. Setup will not proceed"
             exit 1
         }
@@ -243,14 +243,14 @@ function build_libtorrent_qbittorrent() {
     booststrap
     echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
     apt_install libssl-dev
-    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> "${log}" 2>&1 || {
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> "${LOG}" 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
     }
 
     cd /tmp/libtorrent
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
-        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> "${log}" 2>&1 || {
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> "${LOG}" 2>&1 || {
             echo _error "Something went wrong when patching libtorrent"
             exit 1
         }
@@ -263,14 +263,14 @@ function build_libtorrent_qbittorrent() {
         sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
     fi
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
-    /opt/boost_"${BOOST_VERSION}"/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> "${log}" 2>&1
+    /opt/boost_"${BOOST_VERSION}"/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> "${LOG}" 2>&1
     tag=" static with ${stdcver} march=native"
     mkdir -p /root/dist
-    fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version "${VERSION}" --description "Libtorrent rasterbar compiled by swizzin$tag" >> "${log}" 2>&1
+    fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version "${VERSION}" --description "Libtorrent rasterbar compiled by swizzin$tag" >> "${LOG}" 2>&1
     cd /tmp
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
-    dpkg -i /root/dist/libtorrent-rasterbar_"${VERSION}".deb >> "${log}" 2>&1 || {
+    dpkg -i /root/dist/libtorrent-rasterbar_"${VERSION}".deb >> "${LOG}" 2>&1 || {
         echo_error "Libtorrent could not be installed. Setup will not proceed"
         exit 1
     }
@@ -287,24 +287,24 @@ function build_qbittorrent() {
 
     apt_install --no-recommends "$LIST"
     rm_if_exists "/tmp/qbittorrent"
-    wget -O /tmp/release-"${VERSION}".tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-"${VERSION}".tar.gz >> "${log}" 2>&1 || {
+    wget -O /tmp/release-"${VERSION}".tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-"${VERSION}".tar.gz >> "${LOG}" 2>&1 || {
         echo_error "qBittorrent could not be downloaded. Setup will not proceed"
         exit 1
     }
     mkdir -p /tmp/qbittorrent
-    tar -xvf /tmp/release-"${VERSION}".tar.gz -C /tmp/qbittorrent --strip-components=1 >> "$log" 2>&1
+    tar -xvf /tmp/release-"${VERSION}".tar.gz -C /tmp/qbittorrent --strip-components=1 >> "${LOG}" 2>&1
     rm -rf /tmp/release-"${VERSION}".tar.gz
 
     cd /tmp/qbittorrent
     tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
-    ./configure --prefix=/usr --disable-gui --with-boost="${BOOST_ROOT}" --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" "${QT_SWIZZIN}" >> "${log}" 2>&1
-    make -j$(nproc) >> "$log" 2>&1
-    make INSTALL_ROOT=/tmp/dist/qbittorrent install >> "${log}" 2>&1
+    ./configure --prefix=/usr --disable-gui --with-boost="${BOOST_ROOT}" --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" "${QT_SWIZZIN}" >> "${LOG}" 2>&1
+    make -j$(nproc) >> "${LOG}" 2>&1
+    make INSTALL_ROOT=/tmp/dist/qbittorrent install >> "${LOG}" 2>&1
     mkdir -p /root/dist
-    fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version "${VERSION}" --description "qbittorrent-nox compiled by swizzin$tag" >> "${log}" 2>&1
-    dpkg -i /root/dist/qbittorrent-nox_"${VERSION}".deb >> "${log}" 2>&1 || {
+    fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version "${VERSION}" --description "qbittorrent-nox compiled by swizzin$tag" >> "${LOG}" 2>&1
+    dpkg -i /root/dist/qbittorrent-nox_"${VERSION}".deb >> "${LOG}" 2>&1 || {
         echo_error "qBittorrent could not be installed. Setup will not proceed"
         exit 1
     }
@@ -354,7 +354,7 @@ function qbittorrent_user_config() {
         QBTWP="WebUI\Password_PBKDF2=\"@ByteArray($hashed)\""
     fi
 
-    usermod -a -G "${user}" www-data 2>> "$log"
+    usermod -a -G "${user}" www-data 2>> "${LOG}"
     port=$(port 10000 11000)
     mkdir -p /home/"${user}"/.config/qBittorrent/
     mkdir -p /home/"${user}"/torrents/qbittorrent

@@ -115,7 +115,7 @@ function build_libtorrent_deluge() {
     echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
     apt_install ${pythonver}-dev libssl-dev
     rm_if_exists /tmp/libtorrent
-    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> "${log}" 2>&1 || {
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> "${LOG}" 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
     }
@@ -123,7 +123,7 @@ function build_libtorrent_deluge() {
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
 
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
-        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> "${log}" 2>&1 || {
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> "${LOG}" 2>&1 || {
             echo _error "Something went wrong when patching libtorrent"
             exit 1
         }
@@ -139,7 +139,7 @@ function build_libtorrent_deluge() {
         RC_1_1)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
             #Patch the Jamfile to allow 1.1 to use stage_module
-            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch >> "${log}" 2>&1
+            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch >> "${LOG}" 2>&1
             ;;
         RC_1_2)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
@@ -148,10 +148,10 @@ function build_libtorrent_deluge() {
         *) ;;
     esac
     cd /tmp/libtorrent/bindings/python
-    /opt/boost_"${BOOST_VERSION}"/b2 -j$(nproc) python="${pythonmajor}" crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python"${pythonmajor}"/dist-packages >> "${log}" 2>&1
+    /opt/boost_"${BOOST_VERSION}"/b2 -j$(nproc) python="${pythonmajor}" crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python"${pythonmajor}"/dist-packages >> "${LOG}" 2>&1
     tag=" static with c++14 march=native"
     mkdir -p /root/dist
-    fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version "${VERSION}" --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> "${log}" 2>&1 || {
+    fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version "${VERSION}" --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> "${LOG}" 2>&1 || {
         echo_error "Error packaging ${python}-libtorrent. Setup will exit"
         exit 1
     }
@@ -159,9 +159,9 @@ function build_libtorrent_deluge() {
     rm_if_exists /tmp/libtorrent
     rm_if_exists /tmp/dist
     echo_log_only "Checking python bindings for libtorrent"
-    dpkg -r python-libtorrent >> "${log}" 2>&1
-    dpkg -r python3-libtorrent >> "${log}" 2>&1
-    dpkg -i /root/dist/${python}-libtorrent_"${VERSION}".deb >> "${log}" 2>&1 || {
+    dpkg -r python-libtorrent >> "${LOG}" 2>&1
+    dpkg -r python3-libtorrent >> "${LOG}" 2>&1
+    dpkg -i /root/dist/${python}-libtorrent_"${VERSION}".deb >> "${LOG}" 2>&1 || {
         echo_error "Libtorrent python binding could not be installed. Setup will not proceed"
         exit 1
     }
@@ -206,7 +206,7 @@ function build_deluge() {
         . /etc/swizzin/sources/functions/pyenv
         python_getpip
         for p in $PIP; do
-            pip install "$p" >> "$log" 2>&1
+            pip install "$p" >> "${LOG}" 2>&1
         done
     fi
 
@@ -234,8 +234,8 @@ function build_deluge() {
                             *) ;;
 
                         esac
-                        fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} "${version}" -f -p /root/dist/python3/python3-"$d".deb "$d" >> "${log}" 2>&1
-                        dpkg -i /root/dist/python3/python3-"$d".deb >> "${log}" 2>&1
+                        fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} "${version}" -f -p /root/dist/python3/python3-"$d".deb "$d" >> "${LOG}" 2>&1
+                        dpkg -i /root/dist/python3/python3-"$d".deb >> "${LOG}" 2>&1
                         unset version
                     done
                     echo_progress_done "Packaging finished"
@@ -256,9 +256,9 @@ function build_deluge() {
         fi
     fi
     rm_if_exists /tmp/deluge
-    git clone -b ${DELUGE_VERSION} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
+    git clone -b ${DELUGE_VERSION} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${LOG}" 2>&1 || {
         echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
-        git clone -b ${DELUGE_VERSION} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
+        git clone -b ${DELUGE_VERSION} https://github.com/deluge-torrent/deluge/ >> "${LOG}" 2>&1 || {
             echo_error "Cloning Deluge from github failed. Setup will now exit"
             exit 1
         }
@@ -267,8 +267,8 @@ function build_deluge() {
     VERSION=$(git describe | cut -d- -f2)
     sed -i 's/-dev//g' setup.cfg
     mkdir -p /root/dist
-    fpm "${args}" --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py >> "${log}" 2>&1
-    dpkg -i /root/dist/deluge-common_"${VERSION}".deb >> "${log}" 2>&1
+    fpm "${args}" --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py >> "${LOG}" 2>&1
+    dpkg -i /root/dist/deluge-common_"${VERSION}".deb >> "${LOG}" 2>&1
     chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
     if [[ ${DELUGE_VERSION} == 1.3-stable ]]; then
         #update-tracker is built into v2 (update_tracker)
@@ -277,7 +277,7 @@ function build_deluge() {
     fi
     cd /tmp
     rm -rf /tmp/deluge
-    apt-mark hold deluge-common >> "${log}" 2>&1
+    apt-mark hold deluge-common >> "${LOG}" 2>&1
     echo_progress_done "Deluge installed"
 }
 
@@ -579,7 +579,7 @@ DHL
         mkdir -p /home/"${u}"/torrents/deluge
         chown "${u}": /home/"${u}"/torrents
         chown "${u}": /home/"${u}"/torrents/deluge
-        usermod -a -G "${u}" www-data 2>> "$log"
+        usermod -a -G "${u}" www-data 2>> "${LOG}"
         echo_progress_done "Configured for $u"
     done
 }
@@ -623,8 +623,8 @@ WantedBy=multi-user.target
 DW
     fi
     for u in "${users[@]}"; do
-        systemctl enable -q deluged@"${u}" 2>&1 | tee -a "$log"
-        systemctl enable -q deluge-web@"${u}" 2>&1 | tee -a "$log"
+        systemctl enable -q deluged@"${u}" 2>&1 | tee -a "${LOG}"
+        systemctl enable -q deluge-web@"${u}" 2>&1 | tee -a "${LOG}"
         systemctl start deluged@"${u}"
         systemctl start deluge-web@"${u}"
     done

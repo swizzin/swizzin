@@ -6,7 +6,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         codename=$(_os_codename)
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@"${user}")
-        systemctl disable -q --now sabnzbd@"${user}" >> "${log}" 2>&1
+        systemctl disable -q --now sabnzbd@"${user}" >> "${LOG}" 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else
@@ -21,7 +21,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         python2_venv "${user}" sabnzbd
 
         PIP='wheel setuptools dbus-python configobj feedparser pgi lxml utidylib yenc sabyenc cheetah pyOpenSSL'
-        /opt/.venv/sabnzbd/bin/pip install "$PIP" >> "${log}" 2>&1
+        /opt/.venv/sabnzbd/bin/pip install "$PIP" >> "${LOG}" 2>&1
         chown -R "${user}": /opt/.venv/sabnzbd
 
         mkdir /home/"${user}"/.config > /dev/null 2>&1
@@ -50,7 +50,7 @@ SABSD
         rm /etc/systemd/system/sabnzbd@.service
 
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
+            systemctl enable -q --now sabnzbd 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

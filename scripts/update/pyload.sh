@@ -19,7 +19,7 @@ if [[ -f /install/.pyload.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@"${user}")
         . /etc/swizzin/sources/functions/pyenv
-        systemctl disable -q --now pyload@"${user}" >> "${log}" 2>&1
+        systemctl disable -q --now pyload@"${user}" >> "${LOG}" 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
@@ -34,7 +34,7 @@ if [[ -f /install/.pyload.lock ]]; then
         python2_venv "${user}" pyload
 
         PIP='wheel setuptools pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-        /opt/.venv/pyload/bin/pip install "$PIP" >> "${log}" 2>&1
+        /opt/.venv/pyload/bin/pip install "$PIP" >> "${LOG}" 2>&1
         chown -R "${user}": /opt/.venv/pyload
 
         mv /home/"${user}"/.pyload /opt/pyload
@@ -56,7 +56,7 @@ PYSD
         systemctl daemon-reload
         rm /etc/systemd/system/pyload@.service
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now pyload 2>&1 | tee -a "$log"
+            systemctl enable -q --now pyload 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

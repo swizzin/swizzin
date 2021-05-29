@@ -39,11 +39,11 @@ jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest |
 password=$(cut -d: -f2 < /root/.master.info)
 
 echo_progress_start "Downloading and extracting jackett"
-cd /home/$username
-wget $jackett >> "$log" 2>&1
+cd /home/"$username"
+wget "$jackett" >> "${LOG}" 2>&1
 tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.*.tar.gz
-chown ${username}.${username} -R Jackett
+chown "${username}"."${username}" -R Jackett
 echo_progress_done
 
 echo_progress_start "Installing systemd service"
@@ -113,19 +113,19 @@ echo_progress_done "Jackett configured"
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Installing nginx config"
     bash /usr/local/bin/swizzin/nginx/jackett.sh
-    systemctl reload nginx >> "$log" 2>&1
+    systemctl reload nginx >> "${LOG}" 2>&1
     echo_progress_done "Nginx configured"
 else
     echo_info "Jackett will run on port 9117"
 fi
 
-systemctl enable -q --now jackett@"${username}" 2>&1 | tee -a "$log"
+systemctl enable -q --now jackett@"${username}" 2>&1 | tee -a "${LOG}"
 
 sleep 10
 
 echo_progress_start "Setting admin password"
 cookie=$(curl -v 127.0.0.1:9117/jackett/UI/Dashboard -L 2>&1 | grep -m1 Set-Cookie | awk '{printf $3}' | sed 's/;//g')
-curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '"${cookie}"'' --data-binary '"'"${password}"'"' >> "$log" 2>&1
+curl http://127.0.0.1:9117/jackett/api/v2.0/server/adminpassword -H 'Content-Type: application/json' -H 'Cookie: '"${cookie}"'' --data-binary '"'"${password}"'"' >> "${LOG}" 2>&1
 echo_progress_done
 
 touch /install/.jackett.lock

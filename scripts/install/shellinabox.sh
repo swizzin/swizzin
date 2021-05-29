@@ -10,7 +10,7 @@
 apt_install shellinabox
 
 echo_progress_start "Configuring shellinabox"
-systemctl stop shellinabox >> "$log" 2>&1
+systemctl stop shellinabox >> "${LOG}" 2>&1
 rm -rf /etc/init.d/shellinabox
 
 cat > /etc/systemd/system/shellinabox.service << SIAB
@@ -32,8 +32,8 @@ WantedBy=multi-user.target
 SIAB
 
 systemctl daemon-reload -q
-systemctl enable -q shellinabox 2>&1 | tee -a "$log"
-systemctl start shellinabox >> "$log" 2>&1
+systemctl enable -q shellinabox 2>&1 | tee -a "${LOG}"
+systemctl start shellinabox >> "${LOG}" 2>&1
 echo_progress_done "Configured and restarted"
 
 if [[ -f /install/.nginx.lock ]]; then

@@ -19,7 +19,7 @@ CODENAME=$(lsb_release -cs)
 
 echo_progress_start "Creating system user for znc"
 useradd znc -m -s /bin/bash
-passwd znc -l >> "${log}" 2>&1
+passwd znc -l >> "${LOG}" 2>&1
 echo_progress_done
 
 if [[ $DISTRO == Debian ]]; then
@@ -29,7 +29,7 @@ if [[ $DISTRO == Debian ]]; then
     set_packages_to_backports znc
     apt_update
 elif [[ $CODENAME =~ ("xenial"|"bionic") ]]; then
-    add-apt-repository --yes ppa:teward/znc >> "${log}" 2>&1
+    add-apt-repository --yes ppa:teward/znc >> "${LOG}" 2>&1
     apt_update
 fi
 apt_install znc

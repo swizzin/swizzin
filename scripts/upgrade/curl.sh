@@ -3,25 +3,25 @@
 
 cd /tmp
 version=$(curl -sNL https://curl.haxx.se/metalink.cgi?curl=zip | grep \<version\> | cut -d\< -f2 | cut -d\> -f2)
-wget -O curl.zip https://curl.haxx.se/download/curl-"${version}".zip >> "${log}" 2>&1
+wget -O curl.zip https://curl.haxx.se/download/curl-"${version}".zip >> "${LOG}" 2>&1
 
-unzip curl.zip >> "$log" 2>&1
+unzip curl.zip >> "${LOG}" 2>&1
 rm curl.zip
 
 cd curl-"${version}"
-./configure --enable-versioned-symbols >> "${log}" 2>&1 || {
+./configure --enable-versioned-symbols >> "${LOG}" 2>&1 || {
     echo_error "There was an error configuring curl! Please check the log for more info"
     cd /tmp
     rm -rf curl*
     exit 1
 }
-make -j$(nproc) >> "${log}" 2>&1 || {
+make -j$(nproc) >> "${LOG}" 2>&1 || {
     echo_error "There was an error compiling curl! Please check the log for more info"
     cd /tmp
     rm -rf curl*
     exit 1
 }
-make install >> "${log}" 2>&1
+make install >> "${LOG}" 2>&1
 
 echo "/usr/local/bin" >> /etc/ld.so.conf
 ldconfig

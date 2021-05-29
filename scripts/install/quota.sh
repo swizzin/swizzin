@@ -91,17 +91,17 @@ function _installquota() {
     if [[ $DISTRO == Ubuntu ]]; then
         sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
         apt_install linux-image-extra-virtual quota
-        mount -o remount "${loc}" >> "${log}" 2>&1
-        quotacheck -auMF vfsv1 >> "${log}" 2>&1
-        quotaon -uv / >> "${log}" 2>&1
-        systemctl start quota >> "${log}" 2>&1
+        mount -o remount "${loc}" >> "${LOG}" 2>&1
+        quotacheck -auMF vfsv1 >> "${LOG}" 2>&1
+        quotaon -uv / >> "${LOG}" 2>&1
+        systemctl start quota >> "${LOG}" 2>&1
     elif [[ $DISTRO == Debian ]]; then
         sed -ie '/\'"${loc}"'/ s/'${hook}'/'${hook}',usrjquota=aquota.user,jqfmt=vfsv1/' /etc/fstab
         apt_install quota
-        mount -o remount "${loc}" >> "${log}" 2>&1
-        quotacheck -auMF vfsv1 >> "${log}" 2>&1
-        quotaon -uv / >> "${log}" 2>&1
-        systemctl start quota >> "${log}" 2>&1
+        mount -o remount "${loc}" >> "${LOG}" 2>&1
+        quotacheck -auMF vfsv1 >> "${LOG}" 2>&1
+        quotaon -uv / >> "${LOG}" 2>&1
+        systemctl start quota >> "${LOG}" 2>&1
     fi
 
     if [[ -d /srv/rutorrent ]]; then

@@ -33,7 +33,7 @@ if [[ -n $active ]]; then
     fi
     if [[ $disable == "yes" ]]; then
         echo_progress_start "Disabling service"
-        systemctl disable -q --now ${active} >> "${log}" 2>&1
+        systemctl disable -q --now ${active} >> "${LOG}" 2>&1
         echo_progress_done
     else
         exit 1
@@ -90,7 +90,7 @@ cat > /etc/jellyfin/system.xml <<- CONFIG
 CONFIG
 #
 # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
+wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${LOG}" 2>&1
 echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
 #
 # install jellyfin and jellyfin-ffmepg using apt functions.

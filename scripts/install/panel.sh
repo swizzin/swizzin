@@ -53,11 +53,11 @@ case ${PYENV} in
 esac
 
 echo_progress_start "Cloning panel"
-git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin >> "${log}" 2>&1
+git clone https://github.com/liaralabs/swizzin_dashboard.git /opt/swizzin >> "${LOG}" 2>&1
 echo_progress_done "Panel cloned"
 
 echo_progress_start "Installing python dependencies"
-/opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> "${log}" 2>&1
+/opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> "${LOG}" 2>&1
 echo_progress_done
 
 echo_progress_start "Setting permissions"
@@ -115,7 +115,7 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
 
-systemctl enable -q --now panel >> "${log}" 2>&1
+systemctl enable -q --now panel >> "${LOG}" 2>&1
 echo_progress_done "Panel started"
 
 echo_success "Panel installed"

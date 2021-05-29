@@ -146,16 +146,16 @@ We URGE you to migrate to a supported release if/while you still have the chance
         echo_warn "Not updating from git due to --dev flag"
     else
         echo_progress_start "Updating swizzin local repository"
-        git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
+        git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> ${LOG} 2>&1 ||
             {
                 echo_warn "Unclean repo detected, resetting current branch."
-                git -C /etc/swizzin reset --hard >> $log 2>&1
-                git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1
+                git -C /etc/swizzin reset --hard >> ${LOG} 2>&1
+                git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> ${LOG} 2>&1
             }
         {
             #shellcheck disable=SC2129
-            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
-            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
+            git -C /etc/swizzin fetch --all --tags --prune >> ${LOG} 2>&1
+            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> ${LOG} 2>&1
         } || {
             echo_error "Failed to update from git"
             exit 1
@@ -281,18 +281,18 @@ function _adduser() {
 
     echo "$user:$pass" > /root/"${user}".info
     if [[ $existing != "true" ]]; then
-        useradd "${user}" -m -G www-data -s /bin/bash >> $log 2>&1
+        useradd "${user}" -m -G www-data -s /bin/bash >> ${LOG} 2>&1
     fi
-    chpasswd <<< "${user}:${pass}" >> $log 2>&1
+    chpasswd <<< "${user}:${pass}" >> ${LOG} 2>&1
     if [[ -f /etc/htpasswd ]]; then
         echo_log_only "htpasswd file exists"
-        htpasswd -b /etc/htpasswd "$user" "$pass" >> $log 2>&1
+        htpasswd -b /etc/htpasswd "$user" "$pass" >> ${LOG} 2>&1
     else
         echo_log_only "creating htpasswd file"
-        htpasswd -b -c /etc/htpasswd "$user" "$pass" >> $log 2>&1
+        htpasswd -b -c /etc/htpasswd "$user" "$pass" >> ${LOG} 2>&1
     fi
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
+    htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> ${LOG} 2>&1
     chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
@@ -301,7 +301,7 @@ function _adduser() {
 
     if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
-    systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
+    systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> ${LOG} 2>&1
 
     for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
@@ -411,10 +411,10 @@ function _deluser() {
     fi
 
     lsof -t /home/${user} | xargs -I % kill -9 %
-    deluser --force --remove-home ${user} >> $log 2>&1
-    groupdel ${user} >> $log 2>&1
+    deluser --force --remove-home ${user} >> ${LOG} 2>&1
+    groupdel ${user} >> ${LOG} 2>&1
     rm -f /etc/htpasswd.d/htpasswd.${user}
-    htpasswd -D /etc/htpasswd ${user} >> $log 2>&1
+    htpasswd -D /etc/htpasswd ${user} >> ${LOG} 2>&1
     rm -f /etc/tmpfiles.d/${user}.conf
     rm -f /etc/nginx/conf.d/${user}*
     rm -f /etc/sudoers.d/${user}
@@ -437,33 +437,33 @@ function _chpasswd() {
         echo "$user:$pass" > /root/.master.info
     fi
     echo "$user:$pass" > /root/${user}.info
-    chpasswd <<< "${user}:${pass}" >> $log 2>&1
-    htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
+    chpasswd <<< "${user}:${pass}" >> ${LOG} 2>&1
+    htpasswd -b /etc/htpasswd $user "$pass" >> ${LOG} 2>&1
     mkdir -p /etc/htpasswd.d/
-    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
+    htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> ${LOG} 2>&1
     if [[ -e /install/.deluge.lock ]]; then
-        systemctl stop deluged@${user} >> $log 2>&1
-        systemctl stop deluge-web@${user} >> $log 2>&1
+        systemctl stop deluged@${user} >> ${LOG} 2>&1
+        systemctl stop deluge-web@${user} >> ${LOG} 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
         DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
         sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
         sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
         sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
         sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
-        systemctl start deluged@${user} >> $log 2>&1
-        systemctl start deluge-web@${user} >> $log 2>&1
+        systemctl start deluged@${user} >> ${LOG} 2>&1
+        systemctl start deluge-web@${user} >> ${LOG} 2>&1
     fi
     if [[ -e /install/.transmission.lock ]]; then
-        systemctl stop transmission@${user} >> $log 2>&1
+        systemctl stop transmission@${user} >> ${LOG} 2>&1
         sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
-        systemctl start transmission@${user} >> $log 2>&1
+        systemctl start transmission@${user} >> ${LOG} 2>&1
     fi
     if [[ -f /install/.lounge.lock ]]; then
-        su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
+        su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> ${LOG} 2>&1
     fi
     if [[ -f /install/.mango.lock ]]; then
         if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-        su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
+        su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> ${LOG} 2>&1
     fi
     if [[ -f /install/.organizr.lock ]]; then
         #TODO fix when API allows to

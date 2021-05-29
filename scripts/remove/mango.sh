@@ -11,6 +11,6 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
 fi
 
-userdel mango -f -r >> "$log" 2>&1
+userdel mango -f -r >> "${LOG}" 2>&1
 
 rm /install/.mango.lock

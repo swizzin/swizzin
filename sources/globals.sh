@@ -5,13 +5,13 @@
 # If you're planning to test single scripts outside of either `box` or `setup.sh` context, source this very file in your
 # shell, and the functions and variables will be available until it is terminated.
 
-export log="/root/logs/swizzin.log"
+export LOG="/root/logs/swizzin.log"
 
 ############################################
 # FUNCTIONS
 ############################################
 
-# Provides the functions like `echo_info` and others. All of these will automatically log to $log
+# Provides the functions like `echo_info` and others. All of these will automatically log to ${LOG}
 # shellcheck source=sources/functions/color_echo
 . /etc/swizzin/sources/functions/color_echo
 

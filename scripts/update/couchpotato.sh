@@ -6,7 +6,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@"${user}")
         . /etc/swizzin/sources/functions/pyenv
-        systemctl disable -q --now couchpotato@"${user}" >> "${log}" 2>&1
+        systemctl disable -q --now couchpotato@"${user}" >> "${LOG}" 2>&1
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             LIST='git python2.7-dev python-virtualenv virtualenv'
         else
@@ -18,7 +18,7 @@ if [[ -f /install/.couchpotato.lock ]]; then
             python_getpip
         fi
         python2_venv "${user}" couchpotato
-        /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >> "${log}" 2>&1
+        /opt/.venv/couchpotato/bin/pip install pyOpenSSL lxml >> "${LOG}" 2>&1
         chown -R "${user}": /opt/.venv/couchpotato
 
         mv /home/"${user}"/.couchpotato /opt/couchpotato
@@ -45,7 +45,7 @@ CPSD
         systemctl daemon-reload
 
         if [[ $isactive == "active" ]]; then
-            systemctl enable -q --now couchpotato 2>&1 | tee -a "$log"
+            systemctl enable -q --now couchpotato 2>&1 | tee -a "${LOG}"
         fi
     fi
 fi

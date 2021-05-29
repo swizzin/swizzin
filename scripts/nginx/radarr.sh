@@ -28,7 +28,7 @@ fi
 user=$(grep User /etc/systemd/system/radarr.service | cut -d= -f2)
 echo_log_only "Radarr user detected as $user"
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
-echo_log_only "Apikey = $apikey" >> "$log"
+echo_log_only "Apikey = $apikey" >> "${LOG}"
 
 cat > /home/"$user"/.config/Radarr/config.xml << RADARR
 <Config>
@@ -50,7 +50,7 @@ chown -R "$user":"$user" /home/"$user"/.config/Radarr
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 systemctl start radarr -q # Switch radarr on regardless whether it was off before or not as we need to have it online to trigger this cahnge
-if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"$log\" 2>&1; do sleep 5; done"; then
+if ! timeout 15 bash -c -- "while ! curl -fL \"http://127.0.0.1:7878/api/v3/system/status?apiKey=${apikey}\" >> \"${LOG}\" 2>&1; do sleep 5; done"; then
     echo_error "Radarr API did not respond as expected. Please make sure Radarr is on v3 and running."
     exit 1
 else
@@ -61,7 +61,7 @@ fi
 payload=$(curl -sL "http://127.0.0.1:7878/api/v3/config/host?apikey=${apikey}" | jq ".certificateValidation = \"disabledForLocalAddresses\"")
 echo_log_only "Payload = \n${payload}"
 echo_log_only "Return from radarr after PUT ="
-curl -s "http://127.0.0.1:7878${urlbase}/api/v3/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "$log"
+curl -s "http://127.0.0.1:7878${urlbase}/api/v3/config/host?apikey=${apikey}" -X PUT -H 'Accept: application/json, text/javascript, */*; q=0.01' --compressed -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' --data-raw "${payload}" >> "${LOG}"
 
 # Switch radarr back off if it was dead before
 if [[ $isactive != "active" ]]; then

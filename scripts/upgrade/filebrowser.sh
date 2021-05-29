@@ -9,8 +9,8 @@ fi
 username=$(_get_master_username)
 
 mv /home/"${username}"/bin/filebrowser /home/"${username}"/bin/filebrowser.bak
-wget -qO "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "${log}" 2>&1
-tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> "${log}" 2>&1
+wget -qO "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> "${LOG}" 2>&1
+tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> "${LOG}" 2>&1
 rm -f "/home/${username}/filebrowser.tar.gz"
 chown "$username": "/home/${username}/bin/filebrowser"
 chmod 700 "/home/${username}/bin/filebrowser"

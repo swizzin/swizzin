@@ -29,7 +29,7 @@ fi
 
 if [[ -f /install/.nginx.lock ]]; then
     rm "/etc/nginx/apps/$app_name.conf"
-    systemctl reload nginx >> "$log" 2>&1
+    systemctl reload nginx >> "${LOG}" 2>&1
 fi
 
 swizdb clear "$app_name/owner"

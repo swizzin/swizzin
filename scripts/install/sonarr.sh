@@ -118,8 +118,8 @@ _add_sonarr_repos() {
     codename=$(lsb_release -cs)
     distribution=$(lsb_release -is)
 
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> "$log" 2>&1
-    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> "$log" 2>&1
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> "${LOG}" 2>&1
+    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> "${LOG}" 2>&1
 
     #shellcheck source=sources/functions/mono
     . /etc/swizzin/sources/functions/mono
@@ -152,7 +152,7 @@ _install_sonarr() {
     fi
 
     echo_progress_start "Sonarr is installing an internal upgrade..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"${LOG}\" 2>&1; do sleep 2; done"; then
         echo_error "The Sonarr web server has taken longer than 30 seconds to start."
         exit 1
     fi
@@ -181,7 +181,7 @@ _nginx_sonarr() {
         echo_progress_start "Installing nginx configuration"
         sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarr.sh
-        systemctl reload nginx >> "$log" 2>&1
+        systemctl reload nginx >> "${LOG}" 2>&1
         echo_progress_done
     else
         echo_info "Sonarr will run on port 8989"

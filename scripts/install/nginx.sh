@@ -130,7 +130,7 @@ mkdir -p /etc/nginx/apps/
 chmod 700 /etc/nginx/ssl
 
 cd /etc/nginx/ssl
-openssl dhparam -out dhparam.pem 2048 >> "$log" 2>&1
+openssl dhparam -out dhparam.pem 2048 >> "${LOG}" 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
@@ -183,7 +183,7 @@ PROX
 echo_progress_done "Config installed"
 
 echo_progress_start "Installing fancyindex"
-svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> "$log" 2>&1
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> "${LOG}" 2>&1
 cat > /etc/nginx/snippets/fancyindex.conf << FIC
 fancyindex on;
 fancyindex_localtime on;
