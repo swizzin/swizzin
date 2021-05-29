@@ -44,7 +44,7 @@ check_port() {
     extra_params="$2"
 
     curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null || {
-        echo_warn "Querying https://127.0.0.1:$port failed"
+        echo_warn "Querying http://127.0.0.1:$port failed"
         echo
         return 1
     }
