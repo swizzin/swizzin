@@ -24,7 +24,7 @@ mv /opt/requestrr* /opt/requestrr
 echo_progress_done "Archive extracted"
 
 echo_progress_start "Creating requestrr user and setting permssions"
-useradd --system -d /opt/requestrr/ requestrr
+useradd --system -dm /opt/requestrr/ requestrr
 chown -R requestrr:requestrr /opt/requestrr/
 chmod u+x /opt/requestrr/Requestrr.WebApi
 echo_progress_done "Requestrr user has been created & permissions set."
