@@ -1,7 +1,5 @@
 #!/bin/bash
 # Nginx Configuration for requestrr
-#shellcheck source=sources/functions/users
-. /etc/swizzin/sources/functions/users
 master=$(_get_master_username)
 
 if [[ ! -f /etc/nginx/apps/requestrr.conf ]]; then
