@@ -103,5 +103,12 @@
             "\techo_info \"${1:app} will run on port ${2:port}\"",
             "fi"
         ],
+    },
+    "Redirect all output to log": {
+        "scope": "shellscript",
+        "prefix": "$log",
+        "body": [
+            ">> \"\\${LOG\\}\" 2>&1"
+        ],
     }
 }
