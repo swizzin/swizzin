@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-export SHELLCHECK_CODES="SC2086"
-echo -e "---\tChecking all .sh files"
-find . -type f -name \*.sh -exec bash -c 'shellcheck "$1" -i $SHELLCHECK_CODES --format=diff | patch "$1"' none {} \;
+echo -e "---\tListing all shellcheck warning"
+find . -type f -name \*.sh -exec bash -c 'shellcheck "$1" -S warning' none {} \;
 
-echo -e "---\tChecking all sources/functions files"
-find sources/functions -type f -exec bash -c 'shellcheck "$1" -i $SHELLCHECK_CODES --format=diff | patch "$1"' none {} \;
+export EXPLICIT_SHCK_CODES="SC2086,SC1091"
+echo -e "---\tAutofixing all .sh files"
+find . -type f -name \*.sh -exec bash -c 'shellcheck "$1" -i $EXPLICIT_SHCK_CODES --format=diff | patch "$1"' none {} \;
+
+echo -e "---\tAutofixing all sources/functions files"
+find sources/functions -type f -exec bash -c 'shellcheck "$1" -i $EXPLICIT_SHCK_CODES --format=diff | patch "$1"' none {} \;
