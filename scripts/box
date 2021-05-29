@@ -482,6 +482,26 @@ function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
 
+_run_tests() {
+    if [[ -n $1 ]]; then
+        list=("$@")
+    else
+        : # readarray -t list < <(ls /install/)
+    fi
+
+    echo_info "Running the following tests: ${list//${IFS:0:1}/,}"
+
+    for item in "${list[@]}"; do
+        if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
+            bash /etc/swizzin/scripts/tests/"$item".sh
+        else
+            bash /etc/swizzin/scripts/tests/basetest.sh "$item"
+        fi
+
+    done
+
+}
+
 case "$1" in
     "")
         _intro
@@ -567,6 +587,9 @@ case "$1" in
     "list")
         _list
         exit 0
+        ;;
+    "test")
+        _run_tests "$@"
         ;;
     *)
         echo_error "Invalid command: $1"
