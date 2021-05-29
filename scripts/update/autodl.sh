@@ -9,8 +9,8 @@ for u in "${users[@]}"; do
         mv "/home/${u}/.autodl/autodl2.cfg" "/home/${u}/.autodl/autodl.cfg"
         cat "/home/${u}/.autodl/autodl.bak" >> "/home/${u}/.autodl/autodl.cfg"
         rm "/home/${u}/.autodl/autodl.bak"
-        chown -R $u: /home/${u}/.autodl/
-        chown -R $u: /home/${u}/.irssi/
+        chown -R "$u": /home/"${u}"/.autodl/
+        chown -R "$u": /home/"${u}"/.irssi/
     fi
 done
 

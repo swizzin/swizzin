@@ -46,7 +46,7 @@ Group=nogroup
 WantedBy=multi-user.target
 PPY
 
-systemctl enable -q --now tautulli 2>&1 | tee -a $log
+systemctl enable -q --now tautulli 2>&1 | tee -a "$log"
 
 echo_progress_done "Tautulli started"
 

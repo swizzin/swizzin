@@ -35,28 +35,28 @@ RIN
 fi
 
 for u in "${users[@]}"; do
-    isactive=$(systemctl is-active flood@$u)
+    isactive=$(systemctl is-active flood@"$u")
     if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
-        port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
-        cat > /etc/nginx/conf.d/$u.flood.conf << FLUP
+        port=$(grep floodServerPort /home/"$u"/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
+        cat > /etc/nginx/conf.d/"$u".flood.conf << FLUP
 upstream $u.flood {
   server 127.0.0.1:$port;
 }
 FLUP
     fi
 
-    sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
-    base=$(grep baseURI /home/$u/.flood/config.js | cut -d"'" -f2)
-    sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
+    sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/"$u"/.flood/config.js
+    base=$(grep baseURI /home/"$u"/.flood/config.js | cut -d"'" -f2)
+    sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/"$u"/.flood/config.js
 
     if [[ ! -d /home/$u/.flood/server/assets ]]; then
-        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+        su - "$u" -c "cd /home/$u/.flood; npm run build" >> "$log" 2>&1
     elif [[ -d /home/$u/.flood/server/assets ]] && [[ $base == "/" ]]; then
-        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
+        su - "$u" -c "cd /home/$u/.flood; npm run build" >> "$log" 2>&1
     fi
 
     if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-        cat > /etc/nginx/apps/${u}.scgi.conf << RUC
+        cat > /etc/nginx/apps/"${u}".scgi.conf << RUC
 location /${u} {
 include scgi_params;
 scgi_pass unix:/var/run/${u}/.rtorrent.sock;
@@ -67,7 +67,7 @@ RUC
     fi
 
     if [[ $isactive == "active" ]]; then
-        systemctl restart flood@$u
+        systemctl restart flood@"$u"
     fi
 
 done

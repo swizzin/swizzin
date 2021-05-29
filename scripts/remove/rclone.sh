@@ -3,7 +3,7 @@
 . /etc/swizzin/sources/functions/utils
 active=$(systemctl status rclone@* | grep -m1 .service | awk '{print $2}')
 if [[ -n $active ]]; then
-    systemctl disable --now $active
+    systemctl disable --now "$active"
 fi
 rm_if_exists /usr/bin/rclone
 rm_if_exists /usr/sbin/rclone

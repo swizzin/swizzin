@@ -9,7 +9,7 @@ fi
 
 if [[ ! -f /opt/plexupdate/plexupdate.sh ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
-    sudo -H -u $user bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
+    sudo -H -u "$user" bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
 else
     /opt/plexupdate/plexupdate.sh
 fi

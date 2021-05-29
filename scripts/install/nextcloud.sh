@@ -34,7 +34,7 @@ else
             read -s 'pass1'
             echo_query "Re-enter password to verify" "hidden"
             read -s 'pass2'
-            if [ $pass1 = $pass2 ]; then
+            if [ "$pass1" = "$pass2" ]; then
                 password=$pass1
             else
                 echo_warn "Passwords do not match"
@@ -45,7 +45,7 @@ else
         if [[ $(systemctl is-active mysql) != "active" ]]; then
             systemctl start mysql
         fi
-        mysqladmin -u root password ${password}
+        mysqladmin -u root password "${password}"
         echo_progress_done "Database installed"
     fi
     #Depends

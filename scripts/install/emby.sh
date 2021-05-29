@@ -23,7 +23,7 @@ if [[ -n $active ]]; then
     fi
     if [[ $disable == "yes" ]]; then
         echo_progress_start "Disabling service"
-        systemctl disable -q --now ${active} >> ${log} 2>&1
+        systemctl disable -q --now ${active} >> "${log}" 2>&1
         echo_progress_done
     else
         exit 1
@@ -34,14 +34,14 @@ username=$(cut -d: -f1 < /root/.master.info)
 
 echo_progress_start "Downloading emby installer"
 current=$(curl -L -s -H 'Accept: application/json' https://github.com/MediaBrowser/Emby.Releases/releases/latest | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-wget -O /tmp/emby.dpkg https://github.com/MediaBrowser/Emby.Releases/releases/download/${current}/emby-server-deb_${current}_$(_os_arch).deb >> $log 2>&1 || {
+wget -O /tmp/emby.dpkg https://github.com/MediaBrowser/Emby.Releases/releases/download/"${current}"/emby-server-deb_"${current}"_$(_os_arch).deb >> "$log" 2>&1 || {
     echo_error "Failed to download"
     exit 1
 }
 echo_progress_done "Installer downloaded"
 
 echo_progress_start "Installing emby package"
-dpkg -i /tmp/emby.dpkg >> $log 2>&1 || {
+dpkg -i /tmp/emby.dpkg >> "$log" 2>&1 || {
     echo_error "Failed to install package"
     exit 1
 }
@@ -49,7 +49,7 @@ rm /tmp/emby.dpkg
 echo_progress_done "Emby package installed"
 
 if [[ -f /etc/emby-server.conf ]]; then
-    printf "\nEMBY_USER="${username}"\nEMBY_GROUP="${username}"\n" >> /etc/emby-server.conf
+    printf "\nEMBY_USER=""${username}""\nEMBY_GROUP=""${username}""\n" >> /etc/emby-server.conf
 fi
 
 if [[ -f /install/.nginx.lock ]]; then
@@ -62,7 +62,7 @@ else
 fi
 
 echo_progress_start "Starting Emby"
-usermod -a -G ${username} emby
+usermod -a -G "${username}" emby
 systemctl restart emby-server > /dev/null 2>&1
 echo_progress_done
 touch /install/.emby.lock

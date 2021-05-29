@@ -5,12 +5,12 @@
 function _install() {
 
     useradd lounge -m -s /bin/bash
-    passwd lounge -l >> ${log} 2>&1
+    passwd lounge -l >> "${log}" 2>&1
 
     npm -g config set user root
     echo_progress_start "Installing lounge from npm"
-    npm install -g thelounge >> $log 2>&1
-    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
+    npm install -g thelounge >> "$log" 2>&1
+    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> "$log" 2>&1
     echo_progress_done
 
     mkdir -p /home/lounge/.thelounge/
@@ -352,7 +352,7 @@ StartLimitBurst=3
 WantedBy=multi-user.target
 EOSD
 
-    systemctl enable -q --now lounge 2>&1 | tee -a $log
+    systemctl enable -q --now lounge 2>&1 | tee -a "$log"
 
     sleep 3
     echo_progress_done "Lounge started"
@@ -365,10 +365,10 @@ function _adduser() {
         if [[ $u = "$master" ]]; then
             password=$(cut -d: -f2 < /root/.master.info)
         else
-            password=$(cut -d: -f2 < /root/$u.info)
+            password=$(cut -d: -f2 < /root/"$u".info)
         fi
         crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
-        cat > /home/lounge/.thelounge/users/$u.json << EOU
+        cat > /home/lounge/.thelounge/users/"$u".json << EOU
 {
 	"password": "${crypt}",
 	"log": true,

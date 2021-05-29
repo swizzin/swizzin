@@ -43,7 +43,7 @@ apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl
 
 cd /tmp
 echo_progress_start "Cloning xmrig"
-git clone --depth 1 --single-branch --branch v${latest} https://github.com/xmrig/xmrig.git >> $log 2>&1
+git clone --depth 1 --single-branch --branch v"${latest}" https://github.com/xmrig/xmrig.git >> "$log" 2>&1
 echo_progress_done
 
 cd xmrig
@@ -58,21 +58,21 @@ fi
 echo_progress_start "Building xmrig"
 mkdir build
 cd build
-cmake .. >> $log 2>&1
-make -j$(nproc) >> $log 2>&1
+cmake .. >> "$log" 2>&1
+make -j$(nproc) >> "$log" 2>&1
 mv xmrig /usr/local/bin/
 echo_progress_done
 
 echo_progress_start "Configuring xmrig"
-mkdir -p /home/${user}/.xmrig
-cp ../src/config.json /home/${user}/.xmrig
-chown -R ${user}: /home/${user}/.xmrig
+mkdir -p /home/"${user}"/.xmrig
+cp ../src/config.json /home/"${user}"/.xmrig
+chown -R "${user}": /home/"${user}"/.xmrig
 
-sed -i 's/"coin":.*/"coin": "monero",/g' /home/${user}/.xmrig/config.json
-sed -i 's/"nicehash":.*/"nicehash": true,/g' /home/${user}/.xmrig/config.json
-sed -i "s/donate.v2.xmrig.com:3333/${address}/g" /home/${user}/.xmrig/config.json
-sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/${user}/.xmrig/config.json
-sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/${user}/.xmrig/config.json
+sed -i 's/"coin":.*/"coin": "monero",/g' /home/"${user}"/.xmrig/config.json
+sed -i 's/"nicehash":.*/"nicehash": true,/g' /home/"${user}"/.xmrig/config.json
+sed -i "s/donate.v2.xmrig.com:3333/${address}/g" /home/"${user}"/.xmrig/config.json
+sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/"${user}"/.xmrig/config.json
+sed -i "s/YOUR_WALLET_ADDRESS/${wallet}/g" /home/"${user}"/.xmrig/config.json
 cd /tmp
 rm -rf xmrig
 
@@ -105,7 +105,7 @@ XMR
 echo_progress_done
 
 echo_progress_start
-systemctl enable -q --now xmrig 2>&1 | tee -a $log
+systemctl enable -q --now xmrig 2>&1 | tee -a "$log"
 echo_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"

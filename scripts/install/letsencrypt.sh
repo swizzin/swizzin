@@ -126,28 +126,28 @@ apt_install socat
 
 if [[ ! -f /root/.acme.sh/acme.sh ]]; then
     echo_progress_start "Installing ACME script"
-    curl https://get.acme.sh | sh >> $log 2>&1
+    curl https://get.acme.sh | sh >> "$log" 2>&1
     echo_progress_done
 fi
 
-mkdir -p /etc/nginx/ssl/${hostname}
+mkdir -p /etc/nginx/ssl/"${hostname}"
 chmod 700 /etc/nginx/ssl
 
 echo_progress_start "Registering certificates"
 if [[ ${cf} == yes ]]; then
-    /root/.acme.sh/acme.sh --force --issue --dns dns_cf -d ${hostname} >> $log 2>&1 || {
+    /root/.acme.sh/acme.sh --force --issue --dns dns_cf -d "${hostname}" >> "$log" 2>&1 || {
         echo_error "Certificate could not be issued."
         exit 1
     }
 else
     if [[ $main = yes ]]; then
-        /root/.acme.sh/acme.sh --force --issue --nginx -d ${hostname} >> $log 2>&1 || {
+        /root/.acme.sh/acme.sh --force --issue --nginx -d "${hostname}" >> "$log" 2>&1 || {
             echo_error "Certificate could not be issued."
             exit 1
         }
     else
         systemctl stop nginx
-        /root/.acme.sh/acme.sh --force --issue --standalone -d ${hostname} --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" >> $log 2>&1 || {
+        /root/.acme.sh/acme.sh --force --issue --standalone -d "${hostname}" --pre-hook "systemctl stop nginx" --post-hook "systemctl start nginx" >> "$log" 2>&1 || {
             echo_error "Certificate could not be issued. Please check your info and try again"
             exit 1
         }
@@ -158,7 +158,7 @@ fi
 echo_progress_done "Certificate acquired"
 
 echo_progress_start "Installing certificate"
-/root/.acme.sh/acme.sh --force --install-cert -d ${hostname} --key-file /etc/nginx/ssl/${hostname}/key.pem --fullchain-file /etc/nginx/ssl/${hostname}/fullchain.pem --ca-file /etc/nginx/ssl/${hostname}/chain.pem --reloadcmd "systemctl reload nginx"
+/root/.acme.sh/acme.sh --force --install-cert -d "${hostname}" --key-file /etc/nginx/ssl/"${hostname}"/key.pem --fullchain-file /etc/nginx/ssl/"${hostname}"/fullchain.pem --ca-file /etc/nginx/ssl/"${hostname}"/chain.pem --reloadcmd "systemctl reload nginx"
 if [[ $main == yes ]]; then
     sed -i "s/ssl_certificate .*/ssl_certificate \/etc\/nginx\/ssl\/${hostname}\/fullchain.pem;/g" /etc/nginx/sites-enabled/default
     sed -i "s/ssl_certificate_key .*/ssl_certificate_key \/etc\/nginx\/ssl\/${hostname}\/key.pem;/g" /etc/nginx/sites-enabled/default

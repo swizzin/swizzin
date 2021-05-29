@@ -5,7 +5,7 @@ function detect_libtorrent_rasterbar_conflict() {
     repo_libtorrents=(libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10 libtorrent-rasterbar-dev)
     conflicting_libtorrent_packages=()
     for lib in "${repo_libtorrents[@]}"; do
-        if dpkg -s $lib > /dev/null 2>&1; then
+        if dpkg -s "$lib" > /dev/null 2>&1; then
             repolibtorrent=true
         fi
     done
@@ -14,7 +14,7 @@ function detect_libtorrent_rasterbar_conflict() {
             libtorrent_libnames=(python3-libtorrent python-libtorrent)
             for lib in "${libtorrent_libnames[@]}"; do
                 #If these are not "swizzin" packages they must be repo, so avoid triggering the staticconflict
-                if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
+                if dpkg -s "$lib" > /dev/null 2>&1 && ! dpkg -s "$lib" 2> /dev/null | grep swizzin > /dev/null 2>&1; then
                     libtorrent_libnames=("${libtorrent_libnames[@]/$lib/}")
                 fi
             done
@@ -24,7 +24,7 @@ function detect_libtorrent_rasterbar_conflict() {
     fi
     if [[ -n $libtorrent_libnames ]]; then
         for lib in "${libtorrent_libnames[@]}"; do
-            if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep static > /dev/null 2>&1; then
+            if dpkg -s "$lib" > /dev/null 2>&1 && ! dpkg -s "$lib" | grep static > /dev/null 2>&1; then
                 staticconflict=true
                 conflicting_libtorrent_packages+=($lib)
             fi
@@ -121,8 +121,8 @@ function cleanup_repo_libtorrent() {
         for lib in "${libtorrent_libnames[@]}"; do
             #If these are not "swizzin" packages they must be repo, so just remove them and get on with it
             #Since deluge called the conflict function which only triggers when compiled, we can assume these packages are no longer required no matter what
-            if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
-                dpkg -r ${lib} > /dev/null 2>&1
+            if dpkg -s "$lib" > /dev/null 2>&1 && ! dpkg -s "$lib" 2> /dev/null | grep swizzin > /dev/null 2>&1; then
+                dpkg -r "${lib}" > /dev/null 2>&1
             fi
         done
     fi
@@ -130,12 +130,12 @@ function cleanup_repo_libtorrent() {
     #repo_libtorrents is defined in detect_libtorrent_rasterbar_conflict()
     if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox 2> /dev/null | grep swizzin | grep static > /dev/null 2>&1; then
         for package in ${repo_libtorrents[@]}; do
-            dpkg -r $package > /dev/null 2>&1
+            dpkg -r "$package" > /dev/null 2>&1
         done
     fi
     if [[ -n $QBITTORRENT_VERSION && ! $QBITTORRENT_VERSION == "repo" ]] && (dpkg -s python-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1 || dpkg -s python3-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1); then
         for package in ${repo_libtorrents[@]}; do
-            dpkg -r $package > /dev/null 2>&1
+            dpkg -r "$package" > /dev/null 2>&1
         done
     fi
 }
@@ -148,17 +148,17 @@ function booststrap() {
     if [[ ! -d ${BOOST_ROOT} ]]; then
         echo_progress_start "Installing boost"
         cd /opt
-        wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+        wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> "${log}" 2>&1 || {
             echo_warn "Could not download boost from main mirror, attempting fallback."
-            wget https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+            wget https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> "${log}" 2>&1 || {
                 echo_error "Boost could not be downloaded. Setup will exit."
                 exit 1
             }
         }
-        tar xvf boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
+        tar xvf boost_${BOOST_VERSION}.tar.gz >> "${log}" 2>&1
         rm -f boost_${BOOST_VERSION}.tar.gz
         cd ${BOOST_ROOT}
-        /opt/boost_${BOOST_VERSION}/bootstrap.sh --with-libraries=system >> ${log} 2>&1
+        /opt/boost_${BOOST_VERSION}/bootstrap.sh --with-libraries=system >> "${log}" 2>&1
         echo_progress_done "Boost installed!"
     fi
 }

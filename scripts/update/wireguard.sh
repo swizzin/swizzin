@@ -14,7 +14,7 @@ if [[ -f /install/.wireguard.lock ]]; then
                 apt_update
                 # echo "Ensuring correct wireguard packages are installed"
                 #This apt command must be called directly because we are overriding the currently installed unstable package to buster-backports
-                apt-get -y --allow-downgrades install wireguard/buster-backports wireguard-tools/buster-backports wireguard-dkms/buster-backports >> ${log} 2>&1
+                apt-get -y --allow-downgrades install wireguard/buster-backports wireguard-tools/buster-backports wireguard-dkms/buster-backports >> "${log}" 2>&1
             else
                 echo_info "Adjusting unstable pin-priority to avoid unwanted packages"
                 printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable

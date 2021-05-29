@@ -31,9 +31,9 @@ location /lidarr {
 }
 LIDN
 
-if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p /home/${user}/.config/Lidarr/; fi
+if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p /home/"${user}"/.config/Lidarr/; fi
 
-cat > /home/${user}/.config/Lidarr/config.xml << LID
+cat > /home/"${user}"/.config/Lidarr/config.xml << LID
 <Config>
   <Port>8686</Port>
   <UrlBase>lidarr</UrlBase>
@@ -44,7 +44,7 @@ cat > /home/${user}/.config/Lidarr/config.xml << LID
 </Config>
 LID
 
-chown -R ${user}: /home/${user}/.config
+chown -R "${user}": /home/"${user}"/.config
 
 if [[ $isactive == "active" ]]; then
     systemctl start lidarr

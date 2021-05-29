@@ -48,7 +48,7 @@ else
     APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 fi
 
-apt_install $APT
+apt_install "$APT"
 mkdir -p /srv
 
 cd /etc/php
@@ -63,8 +63,8 @@ for version in $phpv; do
         -e "s/;opcache.enable=0/opcache.enable=1/" \
         -e "s/;opcache.memory_consumption=64/opcache.memory_consumption=128/" \
         -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
-        -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
-    phpenmod -v $version opcache
+        -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/"$version"/fpm/php.ini
+    phpenmod -v "$version" opcache
 done
 echo_progress_done "PHP config modified"
 
@@ -130,7 +130,7 @@ mkdir -p /etc/nginx/apps/
 chmod 700 /etc/nginx/ssl
 
 cd /etc/nginx/ssl
-openssl dhparam -out dhparam.pem 2048 >> $log 2>&1
+openssl dhparam -out dhparam.pem 2048 >> "$log" 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
 ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
@@ -183,7 +183,7 @@ PROX
 echo_progress_done "Config installed"
 
 echo_progress_start "Installing fancyindex"
-svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
+svn export https://github.com/Naereen/Nginx-Fancyindex-Theme/trunk/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> "$log" 2>&1
 cat > /etc/nginx/snippets/fancyindex.conf << FIC
 fancyindex on;
 fancyindex_localtime on;
@@ -203,7 +203,7 @@ for i in "${locks[@]}"; do
     app=${i}
     if [[ -f /install/.$app.lock ]]; then
         echo_progress_start "Installing nginx config for $app"
-        bash /usr/local/bin/swizzin/nginx/$app.sh
+        bash /usr/local/bin/swizzin/nginx/"$app".sh
         echo_progress_done "Nginx config for $app installed"
     fi
 done

@@ -45,16 +45,16 @@ perm=$(stat -c '%U' /var/lib/plexmediaserver/)
 if [[ ! $perm == plex ]]; then
     chown -R plex:plex /var/lib/plexmediaserver
 fi
-usermod -a -G ${master} plex
+usermod -a -G "${master}" plex
 
 if [[ -n $claim ]]; then
     sleep 5
     #shellcheck source=sources/functions/plex
     . /etc/swizzin/sources/functions/plex
-    claimPlex ${claim}
+    claimPlex "${claim}"
 fi
 
-systemctl restart plexmediaserver >> $log 2>&1
+systemctl restart plexmediaserver >> "$log" 2>&1
 
 touch /install/.plex.lock
 

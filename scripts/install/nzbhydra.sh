@@ -21,20 +21,20 @@ fi
 username=$(_get_master_username)
 
 LIST='default-jre-headless unzip'
-apt_install $LIST
+apt_install "$LIST"
 
 echo_progress_start "Installing NZBHydra ${latestversion}"
 latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | head -1 | cut -d\" -f 4)
-latestversion=$(echo $latest | grep -oP 'v\d+\.\d+\.\d+')
+latestversion=$(echo "$latest" | grep -oP 'v\d+\.\d+\.\d+')
 cd /opt
 mkdir nzbhydra2
 cd nzbhydra2
-wget -O nzbhydra2.zip ${latest} >> ${log} 2>&1
-unzip nzbhydra2.zip >> ${log} 2>&1
+wget -O nzbhydra2.zip "${latest}" >> "${log}" 2>&1
+unzip nzbhydra2.zip >> "${log}" 2>&1
 rm -f nzbhydra2.zip
 
 chmod +x nzbhydra2
-chown -R ${username}: /opt/nzbhydra2
+chown -R "${username}": /opt/nzbhydra2
 echo_progress_done
 
 if [[ $active == "active" ]]; then
@@ -43,10 +43,10 @@ if [[ $active == "active" ]]; then
     echo_progress_done
 fi
 
-mkdir -p /home/${user}/.config/nzbhydra2
+mkdir -p /home/"${user}"/.config/nzbhydra2
 
-chown ${user}: /home/${user}/.config
-chown ${user}: /home/${user}/.config/nzbhydra2
+chown "${user}": /home/"${user}"/.config
+chown "${user}": /home/"${user}"/.config/nzbhydra2
 
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/nzbhydra.service << EOH2
@@ -73,7 +73,7 @@ Restart=always
 WantedBy=multi-user.target
 EOH2
 
-systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
+systemctl enable -q --now nzbhydra 2>&1 | tee -a "$log"
 echo_progress_done "Service installed and nzbhydra started"
 
 if [[ -f /install/.nginx.lock ]]; then

@@ -8,9 +8,9 @@ function _get_user_password() {
 
     for file in $(find /root/ -maxdepth 1 -name '*.info' | sort); do
         if [[ -f $file ]]; then
-            user_in_file=$(cat $file | cut -d: -f1)
+            user_in_file=$(cat "$file" | cut -d: -f1)
             if [ "$user_in_file" = "$user_to_get" ]; then
-                password="$(cat $file | cut -d: -f2)"
+                password="$(cat "$file" | cut -d: -f2)"
                 break
             fi
         fi

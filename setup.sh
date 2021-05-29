@@ -261,13 +261,13 @@ function _choices() {
         whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
         readarray guis < /root/guis
         for g in "${guis[@]}"; do
-            g=$(echo $g)
+            g=$(echo "$g")
             sed -i "/rtorrent/a $g" /root/results
         done
         rm -f /root/guis
     fi
     while IFS= read -r result; do
-        touch /tmp/.$result.lock
+        touch /tmp/."$result".lock
     done < "$results"
 
     locksextra=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1 | sort -d))

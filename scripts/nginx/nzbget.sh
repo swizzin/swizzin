@@ -21,15 +21,15 @@ NRP
 fi
 
 for u in "${users[@]}"; do
-    isactive=$(systemctl is-active nzbget@$u)
-    sed -i "s/SecureControl=yes/SecureControl=no/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlIP=0.0.0.0/ControlIP=127.0.0.1/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlUsername=nzbget/ControlUsername=/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlPassword=tegbzn6789/ControlPassword=/g" /home/$u/nzbget/nzbget.conf
+    isactive=$(systemctl is-active nzbget@"$u")
+    sed -i "s/SecureControl=yes/SecureControl=no/g" /home/"$u"/nzbget/nzbget.conf
+    sed -i "s/ControlIP=0.0.0.0/ControlIP=127.0.0.1/g" /home/"$u"/nzbget/nzbget.conf
+    sed -i "s/ControlUsername=nzbget/ControlUsername=/g" /home/"$u"/nzbget/nzbget.conf
+    sed -i "s/ControlPassword=tegbzn6789/ControlPassword=/g" /home/"$u"/nzbget/nzbget.conf
 
     if [[ ! -f /etc/nginx/conf.d/${u}.nzbget.conf ]]; then
-        NZBPORT=$(grep ControlPort /home/$u/nzbget/nzbget.conf | cut -d= -f2)
-        cat > /etc/nginx/conf.d/${u}.nzbget.conf << NZBUPS
+        NZBPORT=$(grep ControlPort /home/"$u"/nzbget/nzbget.conf | cut -d= -f2)
+        cat > /etc/nginx/conf.d/"${u}".nzbget.conf << NZBUPS
 upstream $u.nzbget {
   server 127.0.0.1:$NZBPORT;
 }
@@ -37,6 +37,6 @@ NZBUPS
     fi
 
     if [[ $isactive == "active" ]]; then
-        systemctl restart nzbget@$u
+        systemctl restart nzbget@"$u"
     fi
 done

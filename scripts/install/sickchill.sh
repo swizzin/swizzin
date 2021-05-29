@@ -35,20 +35,20 @@ if [[ $codename =~ ("xenial"|"stretch") ]]; then
     pyenv_create_venv 3.7.7 /opt/.venv/sickchill
 else
     LIST='git python3-dev python3-venv python3-pip'
-    apt_install $LIST
+    apt_install "$LIST"
     echo_progress_start "Installing venv for sickchill"
-    python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
+    python3 -m venv /opt/.venv/sickchill >> "${log}" 2>&1
     echo_progress_done
 fi
 
-chown -R ${user}: /opt/.venv/sickchill
+chown -R "${user}": /opt/.venv/sickchill
 echo_progress_start "Cloning SickChill"
-git clone https://github.com/SickChill/SickChill.git /opt/sickchill >> ${log} 2>&1
-chown -R $user: /opt/sickchill
+git clone https://github.com/SickChill/SickChill.git /opt/sickchill >> "${log}" 2>&1
+chown -R "$user": /opt/sickchill
 echo_progress_done
 
 echo_progress_start "Installing requirements.txt with pip"
-sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
+sudo -u "${user}" bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> "$log" 2>&1
 echo_progress_done
 
 install_rar
@@ -71,7 +71,7 @@ ExecStart=/opt/.venv/sickchill/bin/python3 /opt/sickchill/SickChill.py -q --daem
 WantedBy=multi-user.target
 SCSD
 
-systemctl enable -q --now sickchill 2>&1 | tee -a $log
+systemctl enable -q --now sickchill 2>&1 | tee -a "$log"
 echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then

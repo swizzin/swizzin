@@ -6,7 +6,7 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"
 
-usermod -a -G ${MASTER} www-data
+usermod -a -G "${MASTER}" www-data
 
 if [[ ! -f /etc/nginx/apps/rapidleech.conf ]]; then
     cat > /etc/nginx/apps/rapidleech.conf << RAP

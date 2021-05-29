@@ -44,8 +44,8 @@ function _autoconf() {
 gui-server-port = ${IRSSI_PORT}
 gui-server-password = ${IRSSI_PASS}
 ADC
-        chown -R $u: /home/${u}/.autodl/
-        chown -R $u: /home/${u}/.irssi/
+        chown -R "$u": /home/"${u}"/.autodl/
+        chown -R "$u": /home/"${u}"/.irssi/
         echo_progress_done "Autodl for $u configured"
     done
     rm /tmp/autodl-irssi.zip
@@ -74,7 +74,7 @@ WantedBy=multi-user.target
 ADC
 
     for u in "${users[@]}"; do
-        systemctl enable -q --now irssi@${u} 2>&1 | tee -a $log
+        systemctl enable -q --now irssi@"${u}" 2>&1 | tee -a "$log"
     done
     echo_progress_done
 }

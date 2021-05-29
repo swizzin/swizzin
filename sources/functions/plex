@@ -2,7 +2,7 @@
 
 function getPref() {
     local key="$1"
-    grep -oP ''$key'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
+    grep -oP ''"$key"'="\K[^"]+' "/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Preferences.xml"
 }
 
 function setPref() {
@@ -29,7 +29,7 @@ function claimPlex() {
         if [ ! -z "${claimtoken}" ] && [ -z "${token}" ]; then
             echo_log_only "Attempting to obtain server token from claim token"
             loginInfo="$(curl -s -X POST \
-                -H 'X-Plex-Client-Identifier: '${clientId} \
+                -H 'X-Plex-Client-Identifier: '"${clientId}" \
                 -H 'X-Plex-Product: Plex Media Server' \
                 -H 'X-Plex-Version: 1.1' \
                 -H 'X-Plex-Provides: server' \

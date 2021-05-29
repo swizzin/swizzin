@@ -45,7 +45,7 @@ install() {
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
+    tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }

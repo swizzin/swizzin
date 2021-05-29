@@ -31,7 +31,7 @@ if [[ -f /install/.panel.lock ]]; then
         pyminver=3.6.0
         pyenv_version=$(/opt/.venv/swizzin/bin/python3 --version | awk '{print $2}')
 
-        if dpkg --compare-versions ${pyenv_version} lt ${pyminver}; then
+        if dpkg --compare-versions "${pyenv_version}" lt ${pyminver}; then
             rm_if_exists "/opt/.venv/swizzin"
             pyenv_install
             pyenv_install_version 3.8.6

@@ -33,7 +33,7 @@ if [[ -n $active ]]; then
     fi
     if [[ $disable == "yes" ]]; then
         echo_progress_start "Disabling service"
-        systemctl disable -q --now ${active} >> ${log} 2>&1
+        systemctl disable -q --now ${active} >> "${log}" 2>&1
         echo_progress_done
     else
         exit 1

@@ -9,11 +9,11 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 MASTER=$(cut -d: -f1 < /root/.master.info)
-isactive=$(systemctl is-active jackett@$MASTER)
+isactive=$(systemctl is-active jackett@"$MASTER")
 if [[ $isactive == "active" ]]; then
-    systemctl stop jackett@$MASTER
+    systemctl stop jackett@"$MASTER"
 fi
-systemctl stop jackett@$MASTER
+systemctl stop jackett@"$MASTER"
 if [[ ! -f /etc/nginx/apps/jackett.conf ]]; then
     cat > /etc/nginx/apps/jackett.conf << RAD
 location /jackett {
@@ -30,8 +30,8 @@ RAD
 fi
 
 #sed -i "s/\"AllowExternal.*/\"AllowExternal\": false,/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
-sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/${MASTER}/.config/Jackett/ServerConfig.json
+sed -i "s/\"BasePathOverride.*/\"BasePathOverride\": \"\/jackett\",/g" /home/"${MASTER}"/.config/Jackett/ServerConfig.json
 
 if [[ $isactive == "active" ]]; then
-    systemctl start jackett@$MASTER
+    systemctl start jackett@"$MASTER"
 fi

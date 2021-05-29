@@ -69,7 +69,7 @@ if [ "$checkCron" -eq 0 ]; then
     crontab -l | {
         cat
         echo "*/5 * * * * bash $duckScript"
-    } | crontab - >> $log 2>&1
+    } | crontab - >> "$log" 2>&1
 fi
 echo_progress_done
 

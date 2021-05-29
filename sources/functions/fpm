@@ -6,7 +6,7 @@ function install_fpm() {
     if [[ ! $exit == '0' ]]; then
         apt_install ruby ruby-dev libffi-dev
         echo_progress_start "Installing fpm through ruby/gem"
-        gem install fpm >> $log 2>&1
+        gem install fpm >> "$log" 2>&1
         echo_progress_done
     fi
 }

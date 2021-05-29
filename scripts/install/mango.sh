@@ -38,7 +38,7 @@ function _install_mango() {
     chmod +x $mangodir/mango
     chmod o+rx -R $mangodir $mangodir/library
 
-    useradd $mangousr --system -d "$mangodir" >> $log 2>&1
+    useradd $mangousr --system -d "$mangodir" >> "$log" 2>&1
     sudo chown -R $mangousr:$mangousr $mangodir
 
 }
@@ -90,7 +90,7 @@ TimeoutSec=20
 WantedBy=multi-user.target
 SYSD
     systemctl daemon-reload -q
-    systemctl enable -q --now mango 2>&1 | tee -a $log
+    systemctl enable -q --now mango 2>&1 | tee -a "$log"
     echo_progress_done "Mango started"
 }
 

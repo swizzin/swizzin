@@ -23,10 +23,10 @@ function install_rar() {
                 exit 1
             }
             tar -xzf /tmp/unrarsrc.tar.gz -C /tmp >> "$log" 2>&1
-            if ! make -C /tmp/unrar -f makefile >> $log 2>&1; then
+            if ! make -C /tmp/unrar -f makefile >> "$log" 2>&1; then
                 echo_warn "Failed to compile unrar. Please investigate\nInstallation will continue"
             else
-                install -v -m755 /tmp/unrar/unrar /usr/bin >> $log
+                install -v -m755 /tmp/unrar/unrar /usr/bin >> "$log"
                 rm -rf /tmp/unrar*
                 echo_progress_done "Unrar compiled and installed"
             fi
@@ -89,7 +89,7 @@ function rm_if_exists() {
 function port() {
     LOW_BOUND=$1
     UPPER_BOUND=$2
-    comm -23 <(seq ${LOW_BOUND} ${UPPER_BOUND} | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1
+    comm -23 <(seq "${LOW_BOUND}" "${UPPER_BOUND}" | sort) <(ss -Htan | awk '{print $4}' | cut -d':' -f2 | sort -u) | shuf | head -n 1
 }
 
 # Checks if there is enough RAM and Swap in total
@@ -107,7 +107,7 @@ function check_ram() {
     ramtotal=$(grep MemTotal /proc/meminfo | awk '{print $2}')
     swaptotal=$(grep SwapTotal /proc/meminfo | awk '{print $2}')
     total=$(echo "$swaptotal + $ramtotal" | bc -l | numfmt --from-unit=1024)
-    needs=$(echo $1 | numfmt --from=iec)
+    needs=$(echo "$1" | numfmt --from=iec)
     if [[ $needs -gt $total ]]; then
         false
     else

@@ -57,8 +57,8 @@ function update_nginx() {
                 -e "s/;opcache.enable=0/opcache.enable=1/" \
                 -e "s/;opcache.memory_consumption=64/opcache.memory_consumption=128/" \
                 -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
-                -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
-            phpenmod -v $version opcache
+                -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/"$version"/fpm/php.ini
+            phpenmod -v "$version" opcache
         fi
     done
 
@@ -72,10 +72,10 @@ function update_nginx() {
     fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))
     err=()
     for f in ${fcgis[@]}; do
-        err+=($(grep -L "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" $f))
+        err+=($(grep -L "fastcgi_pass unix:/run/php/php${phpversion}-fpm.sock" "$f"))
     done
     for fix in ${err[@]}; do
-        sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" $fix
+        sed -i "s/fastcgi_pass .*/fastcgi_pass unix:\/run\/php\/php${phpversion}-fpm.sock;/g" "$fix"
     done
 
     if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then

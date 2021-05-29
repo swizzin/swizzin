@@ -17,7 +17,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
-SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
+SALTWORDHASH=$(echo -n "${SALTWORD}" | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
@@ -28,18 +28,18 @@ else
     LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
 fi
 
-apt_install $LIST
+apt_install "$LIST"
 
 if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
     python_getpip
 fi
 
-python2_venv ${user} pyload
+python2_venv "${user}" pyload
 
 echo_progress_start "Installing python dependencies"
 PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-/opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
-chown -R ${user}: /opt/.venv/pyload
+/opt/.venv/pyload/bin/pip install "$PIP" >> "${log}" 2>&1
+chown -R "${user}": /opt/.venv/pyload
 echo_progress_done
 
 echo_progress_start "Cloning pyLoad"
@@ -137,9 +137,9 @@ read < <(
 PID=$REPLY
 sleep 10
 #kill -9 $PID
-while kill -0 $PID > /dev/null 2>&1; do
+while kill -0 "$PID" > /dev/null 2>&1; do
     sleep 1
-    kill $PID > /dev/null 2>&1
+    kill "$PID" > /dev/null 2>&1
 done
 
 if [ -f "/opt/pyload/files.db" ]; then
@@ -153,9 +153,9 @@ else
     #TODO maybe exit then?
 fi
 
-chown -R ${user}: /opt/pyload
-mkdir -p /home/${user}/Downloads
-chown ${user}: /home/${user}/Downloads
+chown -R "${user}": /opt/pyload
+mkdir -p /home/"${user}"/Downloads
+chown "${user}": /home/"${user}"/Downloads
 
 echo_progress_start "Insatlling systemd service"
 cat > /etc/systemd/system/pyload.service << PYSD
@@ -180,7 +180,7 @@ if [[ -f /install/.nginx.lock ]]; then
     echo_progress_done
 fi
 echo_progress_start "Enabling and starting pyLoad services"
-systemctl enable -q --now pyload.service 2>&1 | tee -a $log
+systemctl enable -q --now pyload.service 2>&1 | tee -a "$log"
 echo_progress_done
 
 echo_success "PyLoad installed"

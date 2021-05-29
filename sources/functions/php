@@ -5,14 +5,14 @@ function restart_php_fpm() {
     version=$(php_service_version)
     serv="php${version}-fpm.service"
     echo_log_only "Restarting $serv"
-    systemctl restart $serv >> $log 2>&1
+    systemctl restart "$serv" >> "$log" 2>&1
 }
 
 function reload_php_fpm() {
     version=$(php_service_version)
     serv="php${version}-fpm.service"
     echo_log_only "Reloading $serv"
-    systemctl reload $serv >> $log 2>&1
+    systemctl reload "$serv" >> "$log" 2>&1
 }
 
 function reload_php_opcache() {

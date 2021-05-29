@@ -4,10 +4,10 @@ if [[ -f /install/.nzbhydra.lock ]]; then
     if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         codename=$(lsb_release -cs)
-        active=$(systemctl is-active nzbhydra@${user})
+        active=$(systemctl is-active nzbhydra@"${user}")
         . /etc/swizzin/sources/functions/pyenv
         if [[ $active == "active" ]]; then
-            systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
+            systemctl disable -q --now nzbhydra@"${user}" >> "${log}" 2>&1
         fi
 
         if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
@@ -16,21 +16,21 @@ if [[ -f /install/.nzbhydra.lock ]]; then
             LIST='git python2.7-dev'
         fi
 
-        apt_install $LIST
+        apt_install "$LIST"
 
         if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
 
-        python2_venv ${user} nzbhydra
+        python2_venv "${user}" nzbhydra
 
         if [[ ! -d /home/${user}/.config ]]; then
-            mkdir /home/${user}/.config
-            chown ${user}: /home/${user}/.config
+            mkdir /home/"${user}"/.config
+            chown "${user}": /home/"${user}"/.config
         fi
 
-        mv /home/${user}/.nzbhydra /home/${user}/.config/nzbhydra
-        mv /home/${user}/nzbhydra /opt
+        mv /home/"${user}"/.nzbhydra /home/"${user}"/.config/nzbhydra
+        mv /home/"${user}"/nzbhydra /opt
         cat > /etc/systemd/system/nzbhydra.service << NZBH
 [Unit]
 Description=NZBHydra
@@ -54,7 +54,7 @@ NZBH
         systemctl daemon-reload
         rm /etc/systemd/system/nzbhydra@.service
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
+            systemctl enable -q --now nzbhydra 2>&1 | tee -a "$log"
         fi
     fi
 fi

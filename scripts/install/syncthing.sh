@@ -20,7 +20,7 @@
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
 echo_progress_start "Adding Syncthing Repository"
-curl -s https://syncthing.net/release-key.txt | apt-key add - >> $log 2>&1
+curl -s https://syncthing.net/release-key.txt | apt-key add - >> "$log" 2>&1
 echo "deb http://apt.syncthing.net/ syncthing release" > /etc/apt/sources.list.d/syncthing.list
 echo_progress_done "Repo added"
 apt_update
@@ -45,8 +45,8 @@ RestartForceExitStatus=3 4
 [Install]
 WantedBy=multi-user.target
 SYNC
-systemctl enable -q syncthing@${MASTER} 2>&1 | tee -a $log
-systemctl start syncthing@${MASTER} >> $log 2>&1
+systemctl enable -q syncthing@"${MASTER}" 2>&1 | tee -a "$log"
+systemctl start syncthing@"${MASTER}" >> "$log" 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then

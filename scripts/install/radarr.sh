@@ -10,7 +10,7 @@ _install_radarr() {
 
     radarrConfDir="/home/$radarrOwner/.config/Radarr"
     mkdir -p "$radarrConfDir"
-    chown -R "$radarrOwner":"$radarrOwner" /home/$radarrOwner/.config
+    chown -R "$radarrOwner":"$radarrOwner" /home/"$radarrOwner"/.config
 
     echo_progress_start "Downloading release archive"
     case "$(_os_arch)" in

@@ -13,10 +13,10 @@ latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest |
     echo_error "Failed to query GitHub for latest sabnzbd version"
     exit 1
 }
-latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
+latestversion=$(echo "$latest" | awk -F "/" '{print $NF}' | cut -d- -f2)
 pyvenv_version=$(/opt/.venv/sabnzbd/bin/python --version | awk '{print $2}')
 
-if dpkg --compare-versions ${pyvenv_version} lt 3.6.0 && dpkg --compare-versions ${latestversion} ge 3.2.0; then
+if dpkg --compare-versions "${pyvenv_version}" lt 3.6.0 && dpkg --compare-versions "${latestversion}" ge 3.2.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV_REBUILD=True
 elif [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
@@ -25,20 +25,20 @@ elif [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
 else
     LIST='par2 p7zip-full python3-dev python3-setuptools python3-pip python3-venv libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
 fi
-apt_install $LIST
+apt_install "$LIST"
 
-if dpkg --compare-versions ${localversion} lt ${latestversion}; then
+if dpkg --compare-versions "${localversion}" lt "${latestversion}"; then
     if [[ $PYENV_REBUILD == True ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment"
         rm -rf /opt/.venv/sabnzbd
         systempy3_ver=$(get_candidate_version python3)
-        if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+        if dpkg --compare-versions "${systempy3_ver}" lt 3.6.0; then
             pyenv_install
             pyenv_install_version 3.7.7
             pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
-            chown -R ${user}: /opt/.venv/sabnzbd
+            chown -R "${user}": /opt/.venv/sabnzbd
         else
-            python3_venv ${user} sabnzbd
+            python3_venv "${user}" sabnzbd
         fi
         if grep -q python2 /etc/systemd/system/sabnzbd.service; then
             sed -i 's/python2/python/g' /etc/systemd/system/sabnzbd.service
@@ -53,26 +53,26 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     if [[ ! -d /opt/sabnzbd ]]; then
         mkdir -p /opt/sabnzbd
     fi
-    sudo -u ${user} bash -c "tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
+    sudo -u "${user}" bash -c "tar xzf /tmp/sabnzbd.tar.gz --strip-components=1 -C /opt/sabnzbd" >> "$log" 2>&1
     echo_progress_done
     if [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment to python3"
         rm -rf /opt/.venv/sabnzbd
         systempy3_ver=$(get_candidate_version python3)
-        if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+        if dpkg --compare-versions "${systempy3_ver}" lt 3.6.0; then
             pyenv_install
             pyenv_install_version 3.7.7
             pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
-            chown -R ${user}: /opt/.venv/sabnzbd
+            chown -R "${user}": /opt/.venv/sabnzbd
         else
-            python3_venv ${user} sabnzbd
+            python3_venv "${user}" sabnzbd
         fi
         if grep -q python2 /etc/systemd/system/sabnzbd.service; then
             sed -i 's/python2/python/g' /etc/systemd/system/sabnzbd.service
             systemctl daemon-reload
         fi
-        sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel" >> "${log}" 2>&1
-        sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
+        sudo -u "${user}" bash -c "/opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel" >> "${log}" 2>&1
+        sudo -u "${user}" bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
         echo_progress_done
     fi
     rm /tmp/sabnzbd.tar.gz
@@ -81,7 +81,7 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
     if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
         sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
     fi
-    sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
+    sudo -u "${user}" bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
     echo_progress_done
     systemctl try-restart sabnzbd
     echo_info "SABnzbd has been upgraded to version ${latestversion}!"

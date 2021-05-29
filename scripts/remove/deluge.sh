@@ -13,10 +13,10 @@
 #
 users=($(cut -d: -f1 < /etc/htpasswd))
 for u in ${users}; do
-    systemctl disable --now -q deluged@$u
-    systemctl disable --now -q deluge-web@$u
-    rm -rf /home/${u}/.config/deluge
-    rm -rf /home/${u}/dwatch
+    systemctl disable --now -q deluged@"$u"
+    systemctl disable --now -q deluge-web@"$u"
+    rm -rf /home/"${u}"/.config/deluge
+    rm -rf /home/"${u}"/dwatch
 done
 
 rm /etc/systemd/system/deluged@.service

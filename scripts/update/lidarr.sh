@@ -46,7 +46,7 @@ if [[ -f /install/.lidarr.lock ]]; then
         echo_progress_done "Binaries downloaded"
 
         echo_progress_start "Extracting archive"
-        tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> $log 2>&1 || {
+        tar xfv /tmp/lidarr.tar.gz --directory /opt/ >> "$log" 2>&1 || {
             echo_error "Extraction failed. Please investigate. Exiting"
             exit 1
         }

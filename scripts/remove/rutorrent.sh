@@ -10,7 +10,7 @@ rm -rf /etc/nginx/apps/rutorrent.conf
 if [[ ! -f /install/.flood.lock ]]; then
     rm -rf /etc/nginx/apps/rindex.conf
     for u in "${users[@]}"; do
-        rm -f /etc/nginx/apps/${u}.scgi.conf
+        rm -f /etc/nginx/apps/"${u}".scgi.conf
     done
 fi
 rm -rf /install/.rutorrent.lock

@@ -12,13 +12,13 @@ if [[ -f /install/.sonarr.lock ]]; then
             a=$a@$master
         fi
         if [[ -f /install/.$a.lock ]]; then
-            systemctl try-restart $a
+            systemctl try-restart "$a"
         fi
     done
 fi
 
 if [[ -f /install/.sonarr.lock ]]; then
-    if ! apt-key adv --list-public-keys 2> /dev/null | grep -q A236C58F409091A18ACA53CBEBFF6B99D9B78493 >> $log 2>&1; then
+    if ! apt-key adv --list-public-keys 2> /dev/null | grep -q A236C58F409091A18ACA53CBEBFF6B99D9B78493 >> "$log" 2>&1; then
         version=$(lsb_release -cs)
         distribution=$(lsb_release -is)
         if [[ $distribution == "Ubuntu" ]]; then

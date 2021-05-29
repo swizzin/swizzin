@@ -219,8 +219,8 @@ RIN
 function rutorrent_user_config() {
     for u in "${users[@]}"; do
         if [[ ! -f /srv/rutorrent/conf/users/${u}/config.php ]]; then
-            mkdir -p /srv/rutorrent/conf/users/${u}/
-            cat > /srv/rutorrent/conf/users/${u}/config.php << RUU
+            mkdir -p /srv/rutorrent/conf/users/"${u}"/
+            cat > /srv/rutorrent/conf/users/"${u}"/config.php << RUU
 <?php
 \$topDirectory = '/home/${u}';
 \$scgi_port = 0;
@@ -232,7 +232,7 @@ RUU
         fi
 
         if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-            cat > /etc/nginx/apps/${u}.scgi.conf << RUC
+            cat > /etc/nginx/apps/"${u}".scgi.conf << RUC
 location /${u} {
 include scgi_params;
 scgi_pass unix:/var/run/${u}/.rtorrent.sock;
@@ -261,6 +261,6 @@ rutorrent_user_config
 restart_php_fpm
 chown -R www-data.www-data /srv/rutorrent
 echo_progress_start "Reloading nginx"
-systemctl reload nginx >> $log 2>&1
+systemctl reload nginx >> "$log" 2>&1
 echo_progress_done
 touch /install/.rutorrent.lock

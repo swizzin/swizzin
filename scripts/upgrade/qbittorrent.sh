@@ -46,17 +46,17 @@ esac
 qbtvnew=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
 
 for user in "${users[@]}"; do
-    if dpkg --compare-versions ${qbtvold} lt 4.2.0 && dpkg --compare-versions ${qbtvnew} ge 4.2.0; then
+    if dpkg --compare-versions "${qbtvold}" lt 4.2.0 && dpkg --compare-versions "${qbtvnew}" ge 4.2.0; then
         #Reset user password to ensure login continues to work if doing a major upgrade (>4.2 to <4.2)
         #chpasswd function restarts qbittorrent, which we need to anyway. No need for a further restart.
-        password=$(_get_user_password ${user})
+        password=$(_get_user_password "${user}")
         qbittorrent_chpasswd "${user}" "${password}"
-    elif dpkg --compare-versions ${qbtvold} ge 4.2.0 && dpkg --compare-versions ${qbtvnew} lt 4.2.0; then
+    elif dpkg --compare-versions "${qbtvold}" ge 4.2.0 && dpkg --compare-versions "${qbtvnew}" lt 4.2.0; then
         #The inverse of above -- if downgrading from >4.2 to <4.2 change password hash for old version
-        password=$(_get_user_password ${user})
+        password=$(_get_user_password "${user}")
         qbittorrent_chpasswd "${user}" "${password}"
     else
         #Just restart qbittorrent if no changes to password are needed
-        systemctl try-restart qbittorrent@${user}
+        systemctl try-restart qbittorrent@"${user}"
     fi
 done

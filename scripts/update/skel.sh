@@ -11,11 +11,11 @@ if [[ ! -f /etc/skel/.bashrc ]]; then
     for d in /home/*/; do
         newbashrc="/etc/skel/.bashrc"
         if [[ ! -f $d.bashrc ]]; then
-            cp $newbashrc $d.bashrc
+            cp $newbashrc "$d".bashrc
             echo_warn "Installed $d.bashrc. Re-open your terminal or run \`exec \"\$SHELL\"\` to apply the changes."
         else
-            if [[ ! $(cmp --silent $d.bashrc $newbashrc) ]]; then
-                cp $newbashrc $d.bashrc-default
+            if [[ ! $(cmp --silent "$d".bashrc $newbashrc) ]]; then
+                cp $newbashrc "$d".bashrc-default
                 echo_warn "Previously, swizzin removed ${d}.bashrc. As the current one is different to the default one, a copy has been placed in your home directory. Please compare them and merge together as you desire."
             fi
         fi

@@ -28,7 +28,7 @@ case ${DELUGE_VERSION} in
             echo_info "Major version upgrade detected. User-data will be backed-up."
             for u in "${users[@]}"; do
                 echo_info "'/home/${u}/.config/deluge' -> '/home/$u/.config/deluge.$$'"
-                cp -a /home/${u}/.config/deluge /home/${u}/.config/deluge.$$
+                cp -a /home/"${u}"/.config/deluge /home/"${u}"/.config/deluge.$$
 
             done
         fi
@@ -66,6 +66,6 @@ for u in "${users[@]}"; do
     echo_progress_start "Running ltconfig check ..."
     ltconfig
     echo_progress_done
-    systemctl try-restart deluged@${u}
-    systemctl try-restart deluge-web@${u}
+    systemctl try-restart deluged@"${u}"
+    systemctl try-restart deluge-web@"${u}"
 done

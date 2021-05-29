@@ -24,7 +24,7 @@ function _installBTSync1() {
     #sudo sh -c 'echo "deb http://linux-packages.getsync.com/btsync/deb btsync non-free" > /etc/apt/sources.list.d/btsync.list'
     #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >> $log 2>&1
     sudo sh -c 'echo "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list'
-    wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | apt-key add - >> $log 2>&1
+    wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | apt-key add - >> "$log" 2>&1
     apt_update
 }
 
@@ -34,9 +34,9 @@ function _installBTSync3() {
 }
 function _installBTSync4() {
     cd && mkdir /home/"${MASTER}"/sync_folder
-    chown ${MASTER}: /home/${MASTER}/sync_folder
-    chmod 2775 /home/${MASTER}/sync_folder
-    chown ${MASTER}: -R /home/${MASTER}/.config/
+    chown "${MASTER}": /home/"${MASTER}"/sync_folder
+    chmod 2775 /home/"${MASTER}"/sync_folder
+    chown "${MASTER}": -R /home/"${MASTER}"/.config/
 }
 function _installBTSync5() {
     cat > /etc/resilio-sync/config.json << RSCONF
@@ -61,9 +61,9 @@ RSCONF
 }
 function _installBTSync6() {
     touch /install/.btsync.lock
-    systemctl enable -q resilio-sync 2>&1 | tee -a $log
-    systemctl start resilio-sync >> $log 2>&1
-    systemctl restart resilio-sync >> $log 2>&1
+    systemctl enable -q resilio-sync 2>&1 | tee -a "$log"
+    systemctl start resilio-sync >> "$log" 2>&1
+    systemctl restart resilio-sync >> "$log" 2>&1
 }
 
 echo_progress_start "Installing btsync keys and sources"
