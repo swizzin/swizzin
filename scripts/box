@@ -493,6 +493,7 @@ _run_tests() {
         echo_info "Tests to run: ${list[*]}"
     fi
 
+    export bell=false
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
             echo_info "Running test for $item"
