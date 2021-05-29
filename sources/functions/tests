@@ -4,7 +4,8 @@ check_service() {
     echo_progress_start "Checking $1 service is active"
     systemctl -q is-active "$1" || {
         systemctl status "$1"
-        echo_warn "$1.service not running!"
+        echo_warn "$1.service not active!"
+        echo
         return 1
     }
     echo_progress_done
@@ -17,6 +18,7 @@ check_nginx() {
     password="$(_get_user_password "$master")"
     curl --user "${master}:${password}" $extra_params -sSfLk https://127.0.0.1/"$1" -o /dev/null || {
         echo_warn "Querying https://127.0.0.1/$1 failed"
+        echo
         return 1
     }
     echo_progress_done
@@ -24,6 +26,7 @@ check_nginx() {
 
 # Checks a port or the port of an app suplied via $1
 check_port() {
+    echo_progress_start "Checking if port $port is reachable directly over HTTP"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
@@ -32,15 +35,17 @@ check_port() {
             port="$(grep "proxy_pass" "$installer" | sed 's/.*://; s/;.*//')"
         else
             echo_warn "Couldn't guess port"
+            echo
+            return 1
         fi
 
     fi
 
     extra_params="$2"
 
-    echo_progress_start "Checking if port $port is reachable directly over HTTP"
     curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null || {
         echo_warn "Querying https://127.0.0.1:$port failed"
+        echo
         return 1
     }
     echo_progress_done
