@@ -490,18 +490,21 @@ _run_tests() {
         : # readarray -t list < <(ls /install/)
     fi
 
-    echo_info "Tests to run: ${list//${IFS:0:1}/,}"
+    echo_info "Tests to run: ${list[*]}"
 
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
             echo_info "Running test for $item"
-            bash /etc/swizzin/scripts/tests/"$item".sh
+            bash /etc/swizzin/scripts/tests/"$item".sh || bad="true"
         else
             echo_info "Running default test for $1.\nThis test is likely to fail in case the item is not a standard service+nginx app"
-            bash /etc/swizzin/scripts/tests/basetest.sh "$item"
+            bash /etc/swizzin/scripts/tests/basetest.sh "$item" || bad="true"
         fi
-
     done
+
+    if [ $bad == "true" ]; then
+        exit 1
+    fi
 
 }
 
