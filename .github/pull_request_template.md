@@ -53,7 +53,11 @@ Please use these emojis here to fill the table below. It will nicely auto-format
 | Stretch		|			|			|			|				|
 | Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
 
-### `box test output`
+### ✅❎ Passed
+
+### 🛠🛠 TODO
+
+### ❌❌ Currently failing
 
 <!-- EXAMPLES :
 - Fresh app install without nginx
