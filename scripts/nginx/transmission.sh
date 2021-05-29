@@ -3,7 +3,7 @@
 # by liara for swizzin
 # copyright 2020 swizzin.ltd
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 if [[ ! -f /etc/nginx/apps/transmission.conf ]]; then
     cat > /etc/nginx/apps/transmission.conf << TCONF

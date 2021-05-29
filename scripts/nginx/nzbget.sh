@@ -2,7 +2,7 @@
 # Nginx Configurator for nzbget
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 if [[ ! -f /etc/nginx/apps/nzbget.conf ]]; then
     cat > /etc/nginx/apps/nzbget.conf << 'NRP'

@@ -8,7 +8,7 @@
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 
 if [[ -n $1 ]]; then
     user=$1

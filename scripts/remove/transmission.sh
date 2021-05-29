@@ -1,6 +1,6 @@
 #!/bin/bash
 echo_log_only "Removing Transmission"
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 for u in ${users[@]}; do
     echo_log_only "Shutting down transmission@$u"
     systemctl stop transmission@"$u" >> "${LOG}" 2>&1

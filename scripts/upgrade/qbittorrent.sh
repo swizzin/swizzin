@@ -13,7 +13,7 @@ fi
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/fpm
 
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 qbtvold=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+' || echo '0.0.0.0')
 
 whiptail_qbittorrent

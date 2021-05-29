@@ -2,7 +2,7 @@
 # Flood uninstaller
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 for u in "${users[@]}"; do
     systemctl disable -q flood@"$u"
     systemctl stop -q flood@"$u"
@@ -18,4 +18,4 @@ rm -rf /etc/systemd/system/flood@.service
 systemctl reload nginx
 rm -rf /install/.flood.lock
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)

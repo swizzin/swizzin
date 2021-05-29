@@ -46,7 +46,7 @@ if [ -f /install/.rutorrent.lock ]; then
     fi
 
     if [[ -f /install/.flood.lock ]]; then
-        users=($(cut -d: -f1 < /etc/htpasswd))
+        readarray -t users < <(_get_user_list)
         for u in ${users[@]}; do
             if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
                 reloadnginx=1

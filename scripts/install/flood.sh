@@ -32,7 +32,7 @@ ExecStart=/usr/bin/npm start --production /home/%i/.flood
 WantedBy=multi-user.target
 SYSDF
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 for u in "${users[@]}"; do
     if [[ ! -d /home/$u/.flood ]]; then
         echo_progress_start "Configuring flood for $u"

@@ -2,7 +2,7 @@
 # ruTorrent removal
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 rm -rf /srv/rutorrent
 rm -rf /etc/nginx/apps/rutorrent.conf

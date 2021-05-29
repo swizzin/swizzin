@@ -191,7 +191,7 @@ fi
 
 _install_wg
 
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 for u in ${users[@]}; do
     _mkconf_wg
 done

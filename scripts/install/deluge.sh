@@ -19,7 +19,7 @@
 . /etc/swizzin/sources/functions/fpm
 
 local_packages=/usr/local/bin/swizzin
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 master=$(_get_master_username)
 pass=$(_get_user_password "${master}")
 codename=$(lsb_release -cs)

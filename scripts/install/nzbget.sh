@@ -101,7 +101,7 @@ function _cleanup() {
     rm -rf nzbget-latest-bin-linux.run
 }
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 master=$(cut -d: -f1 < /root/.master.info)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 

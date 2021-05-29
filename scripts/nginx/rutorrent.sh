@@ -257,7 +257,7 @@ RUC
 . /etc/swizzin/sources/functions/php
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 codename=$(lsb_release -cs)
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"

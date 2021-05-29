@@ -1,5 +1,5 @@
 #!/bin/bash
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 for u in "${users[@]}"; do
     if [[ ! -f /etc/tmpfiles.d/${u}.conf ]]; then

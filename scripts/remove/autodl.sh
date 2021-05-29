@@ -1,7 +1,7 @@
 #!/bin/bash
 # Remove autodl from swizzin
 #
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 rm -rf /srv/rutorrent/plugins/autodl-irssi
 for u in "${users[@]}"; do
     systemctl disable --now -q irssi@"${u}"

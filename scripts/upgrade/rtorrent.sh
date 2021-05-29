@@ -15,7 +15,7 @@ whiptail_rtorrent
 
 user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 if [[ -n $noexec ]]; then
     mount -o remount,exec /tmp

@@ -2,7 +2,7 @@
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/libtorrent
 
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 for user in ${users[@]}; do
     systemctl disable --now -q qbittorrent@"${user}"
     rm -rf /home/"${user}"/.config/qbittorrent

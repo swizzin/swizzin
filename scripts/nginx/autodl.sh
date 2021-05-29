@@ -8,7 +8,7 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 if [[ -f /install/.rutorrent.lock ]]; then
     cd /srv/rutorrent/plugins/ || {
         echo_error "Could not cd to /srv/rutorrent/plugins/"

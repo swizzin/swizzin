@@ -11,7 +11,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 for u in ${users}; do
     systemctl disable --now -q deluged@"$u"
     systemctl disable --now -q deluge-web@"$u"

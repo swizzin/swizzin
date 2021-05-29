@@ -2,7 +2,7 @@
 # nginx configuration for flood
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 if [[ -n $1 ]]; then
     users=($1)
 fi

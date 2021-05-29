@@ -1,6 +1,6 @@
 #!/bin/bash
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 for u in "${users[@]}"; do
     #autodl2.cfg has been deprecated

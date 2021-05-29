@@ -1,5 +1,5 @@
 #!/bin/bash
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 if [[ -f /install/.rutorrent.lock || -f /install/.flood.lock ]]; then
     if ! ask "This will remove ruTorrent&/Flood. Continue?" Y; then

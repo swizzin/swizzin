@@ -203,7 +203,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 # Extra-user-only functions
 if [[ -n $1 ]]; then

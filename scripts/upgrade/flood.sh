@@ -2,7 +2,7 @@
 # Flood Upgrade Script
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 
 if [[ ! $(which node-gyp) ]]; then
     npm install -g node-gyp >> "${LOG}" 2>&1

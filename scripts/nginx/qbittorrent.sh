@@ -1,7 +1,7 @@
 #!/bin/bash
 # nginx setup for qbittorrent
 . /etc/swizzin/sources/functions/utils
-users=($(_get_user_list))
+readarray -t users < <(_get_user_list)
 
 if [[ ! -f /etc/nginx/apps/qbtindex.conf ]]; then
     cat > /etc/nginx/apps/qbtindex.conf << DIN

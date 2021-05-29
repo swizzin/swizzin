@@ -1,6 +1,6 @@
 #!/bin/bash
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+readarray -t users < <(_get_user_list)
 master=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 
