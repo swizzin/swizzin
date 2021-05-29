@@ -23,6 +23,15 @@ check_nginx() {
     echo_progress_done
 }
 
+evaluate_bad() {
+    if [[ $bad == "true" ]]; then
+        echo_error "Errors were encountered"
+        exit 1
+    else
+        echo_success "No errors were encountered"
+    fi
+}
+
 run_main() {
     if [[ -z $1 ]]; then
         echo_error "Need a parameter..."
@@ -37,12 +46,7 @@ run_main() {
     check_nginx "$1" || bad="true"
     echo
 
-    if [[ $bad == "true" ]]; then
-        echo_error "Errors were encountered"
-        exit 1
-    else
-        echo_success "No errors were encountered"
-    fi
+    evaluate_bad
 
 }
 
