@@ -498,9 +498,11 @@ _run_tests() {
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
             echo_info "Running test for $item"
             bash /etc/swizzin/scripts/tests/"$item".sh || bad="true"
+            echo
         else
             echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
             bash /etc/swizzin/scripts/tests/basetest.sh "$item" || bad="true"
+            echo
         fi
     done
 
