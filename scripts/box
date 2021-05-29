@@ -487,10 +487,11 @@ _run_tests() {
     if [[ -n $1 ]]; then
         list=("$@")
     else
-        : # readarray -t list < <(ls /install/)
+        #shellcheck source=sources/functions/utils
+        . /etc/swizzin/sources/functions/utils
+        readarray -t list < <(_get_installed_apps)
+        echo_info "Tests to run: ${list[*]}"
     fi
-
-    echo_info "Tests to run: ${list[*]}"
 
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
