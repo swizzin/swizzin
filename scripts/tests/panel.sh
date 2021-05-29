@@ -4,6 +4,7 @@
 . /etc/swizzin/scripts/tests/basetest.sh
 
 check_service "panel" || bad=true
+check_port "panel" || bad=true
 check_nginx "" || bad=true
 
 evaluate_bad
