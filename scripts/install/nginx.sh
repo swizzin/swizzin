@@ -36,17 +36,13 @@ if [[ -n $(pidof apache2) ]]; then
     fi
 fi
 
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename == "stretch" ]]; then
     mcrypt=php-mcrypt
 else
     mcrypt=
 fi
 
-if [[ $codename == "xenial" ]]; then
-    APT="nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-else
-    APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-fi
+APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 
 apt_install $APT
 mkdir -p /srv

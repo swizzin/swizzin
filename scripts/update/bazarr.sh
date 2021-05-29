@@ -5,7 +5,7 @@ if [[ -f /install/.bazarr.lock ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
     if ! grep -q .venv /etc/systemd/system/bazarr.service; then
         echo_info "Updating bazarr to python3 virtualenv"
-        if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
+        if [[ $codename =~ ("bionic"|"stretch") ]]; then
             . /etc/swizzin/sources/functions/pyenv
             pyenv_install
             pyenv_install_version 3.7.7

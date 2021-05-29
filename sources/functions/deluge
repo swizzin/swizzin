@@ -214,32 +214,6 @@ function build_deluge() {
         twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
         if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
             case $(_os_codename) in
-                "xenial")
-                    echo_progress_start "Packaging up-to-date python3-twisted"
-                    LIST='libffi-dev python3-pip'
-                    packages=(setuptools pycparser asn1crypto cffi constantly incremental attrs characteristic automat idna hyperlink pyhamcrest cryptography pyopenssl service_identity zope.interface twisted)
-                    mkdir -p /root/dist/python3
-                    apt_install $LIST
-                    for d in ${packages[@]}; do
-                        case $d in
-                            automat)
-                                version="-v 0.3"
-                                ;;
-                            cryptography)
-                                version="-v 3.2.1"
-                                ;;
-                            twisted)
-                                version="-v 17.1"
-                                ;;
-                            *) ;;
-
-                        esac
-                        fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} ${version} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
-                        dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
-                        unset version
-                    done
-                    echo_progress_done "Packaging finished"
-                    ;;
                 "stretch")
                     . /etc/swizzin/sources/functions/backports
                     check_debian_backports

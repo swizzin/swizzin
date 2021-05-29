@@ -12,13 +12,6 @@ function whiptail_qbittorrent() {
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
-            "xenial")
-                function=$(
-                    whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 3 \
-                        "Repo" "${repov}" \
-                        "4.1" "(${latestv41})" 3>&1 1>&2 2>&3
-                )
-                ;;
             "stretch")
                 #We can't go past 4.3.1 due to openssl and c++ requirements
                 function=$(
@@ -164,7 +157,7 @@ function build_qt() {
     cd /tmp
     QT_PREFIX=/usr/local/qt
     case $(_os_codename) in
-        xenial | stretch)
+        stretch)
             qt_branch=5.12
             ;;
         *)

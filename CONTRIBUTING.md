@@ -69,7 +69,7 @@ When making logic based on distribution codenames, please structure it in such a
 
 A practical example for this is handling packages that are no longer packaged for newer LTS releases. In such scenarios, please make it so that the "default" behaviour is for newer LTS releases, and the older LTS releases are treated as the outliers. e.g.:
 ```bash
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename =~ ("buster"|"stretch") ]]; then
   mcrypt=php-mcrypt
 else
   mcrypt=

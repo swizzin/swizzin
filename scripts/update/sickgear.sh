@@ -14,7 +14,7 @@ if [[ -f /install/.sickgear.lock ]]; then
             chown ${user}: /opt/.venv
         fi
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"bionic") ]]; then
+        if [[ ! $codename =~ ("stretch"|"bionic") ]]; then
             apt_install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv
             python3 -m venv /opt/.venv/sickgear
         else
