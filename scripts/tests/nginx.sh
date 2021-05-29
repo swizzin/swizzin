@@ -4,7 +4,8 @@
 . /etc/swizzin/sources/functions/tests
 
 echo_progress_start "Checking nginx config"
-nginx -t || {
+nginx -t > /dev/null 2>&1 || {
+    nginx -t
     echo_warn "nginx config is invalid"
     bad="true"
 }

@@ -27,7 +27,6 @@ check_port() {
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
-        echo_info "$1 is not a port number, guessing off nginx installers"
         installer="/etc/swizzin/scripts/nginx/$1.sh"
         if [ -f "$installer" ]; then
             port="$(grep "proxy_pass" "$installer" | sed 's/.*://; s/;.*//')"
