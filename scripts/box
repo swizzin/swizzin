@@ -483,6 +483,7 @@ function _nukeovh() {
 }
 
 _run_tests() {
+    shift
     if [[ -n $1 ]]; then
         list=("$@")
     else
