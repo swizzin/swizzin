@@ -389,7 +389,10 @@ _run_checks() {
         echo_progress_start "Checking all failed units"
         systemctl list-units --failed
         echo_progress_done "listed"
+
+        bash /etc/swizzin/scripts/box test
     fi
+
 }
 
 _run_post() {
