@@ -16,12 +16,12 @@ check_service() {
 }
 
 check_nginx() {
+    extra_params="$2"
     echo_progress_start "Checking if $1 is reachable via nginx"
     master="$(_get_master_username)"
     password="$(_get_user_password "$master")"
-    curl --user "${master}:${password}" -sfLk https://127.0.0.1/"$1" > /dev/null || {
+    curl $extra_params --user "${master}:${password}" -sSfLk https://127.0.0.1/"$1" -o /dev/null || {
         echo_warn "Querying https://127.0.0.1/$1 failed"
-        echo
         return 1
     }
     echo_progress_done
@@ -42,11 +42,11 @@ check_port() {
 
     fi
 
+    extra_params="$2"
+
     echo_progress_start "Checking if port $port is reachable directly over HTTP"
-    curl -sfLk http://127.0.0.1:"$port" > /dev/null || {
-        curl -sLk http://127.0.0.1:"$port"
+    curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null || {
         echo_warn "Querying https://127.0.0.1:$port failed"
-        echo
         return 1
     }
     echo_progress_done
