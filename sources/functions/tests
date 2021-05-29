@@ -26,7 +26,7 @@ check_nginx() {
 
 # Checks a port or the port of an app suplied via $1
 check_port() {
-    echo_progress_start "Checking if port $port is reachable directly over HTTP"
+    echo_progress_start "Checking if port $1 is reachable directly over HTTP"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
