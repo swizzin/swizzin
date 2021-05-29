@@ -118,7 +118,7 @@ _addusers_mango() {
 
 ########## MAIN
 
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 readarray -t users < <(_get_user_list)
 
 if [[ -n $1 ]]; then

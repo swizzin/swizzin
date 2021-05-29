@@ -17,7 +17,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 #
-username=$(cut -d: -f1 < /root/.master.info)
+username=$(_get_master_username)
 
 function _removeSonarrv2() {
     systemctl stop -q sonarr@"${username}"

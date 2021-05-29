@@ -16,7 +16,7 @@
 if [[ -f /install/.pyload.lock ]]; then
     if [[ -f /etc/systemd/system/pyload@.service ]]; then
         codename=$(lsb_release -cs)
-        user=$(cut -d: -f1 < /root/.master.info)
+        user=$(_get_master_username)
         isactive=$(systemctl is-active pyload@"${user}")
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now pyload@"${user}" >> "${LOG}" 2>&1

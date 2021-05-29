@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ -f /install/.headphones.lock ]]; then
-    user=$(cut -d: -f1 < /root/.master.info)
+    user=$(_get_master_username)
     if [[ -d /home/${user}/.headphones ]]; then
         active=$(systemctl is-active headphones)
         codename=$(lsb_release -cs)

@@ -13,7 +13,7 @@
 #   under the GPL along with build & install instructions.
 #
 codename=$(lsb_release -cs)
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 password=$(cut -d: -f2 < /root/.master.info)
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}

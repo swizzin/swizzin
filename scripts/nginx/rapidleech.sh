@@ -1,6 +1,6 @@
 #!/bin/bash
 # Nginx Configuration for RapidLeech
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)

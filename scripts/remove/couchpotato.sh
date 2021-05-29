@@ -1,7 +1,7 @@
 #!/bin/bash
 #Couchpotato Removal
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 systemctl disable --now -q couchpotato
 rm /etc/systemd/system/couchpotato.service
 rm -rf /opt/couchpotato

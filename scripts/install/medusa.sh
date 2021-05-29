@@ -2,7 +2,7 @@
 # Medusa installer for swizzin
 # Author: liara
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 

@@ -9,7 +9,7 @@
 ########
 #
 # Get our main user credentials to use when bootstrapping filebrowser.
-username="$(cut -d: -f1 < /root/.master.info)"
+username="$(_get_master_username)"
 password="$(cut -d: -f2 < /root/.master.info)"
 #
 # This will generate a random port for the script between the range 10001 to 32001 to use with applications.

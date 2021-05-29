@@ -30,7 +30,7 @@ if [[ -n $active ]]; then
     fi
 fi
 
-username=$(cut -d: -f1 < /root/.master.info)
+username=$(_get_master_username)
 
 echo_progress_start "Downloading emby installer"
 current=$(curl -L -s -H 'Accept: application/json' https://github.com/MediaBrowser/Emby.Releases/releases/latest | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')

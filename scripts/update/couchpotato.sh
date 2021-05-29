@@ -3,7 +3,7 @@
 if [[ -f /install/.couchpotato.lock ]]; then
     if [[ -f /etc/systemd/system/couchpotato@.service ]]; then
         codename=$(lsb_release -cs)
-        user=$(cut -d: -f1 < /root/.master.info)
+        user=$(_get_master_username)
         isactive=$(systemctl is-active couchpotato@"${user}")
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now couchpotato@"${user}" >> "${LOG}" 2>&1

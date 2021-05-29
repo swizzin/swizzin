@@ -1,7 +1,7 @@
 #!/bin/bash
 
 find /home -mindepth 1 -maxdepth 1 -type d -exec chmod 750 {} \;
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 if [[ -f /install/.plex.lock ]]; then
     if [[ -z $(groups plex | grep "${master}") ]]; then
         usermod -a -G "${master}" plex

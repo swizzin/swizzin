@@ -359,7 +359,7 @@ EOSD
 }
 
 function _adduser() {
-    master=$(cut -d: -f1 < /root/.master.info)
+    master=$(_get_master_username)
     for u in "${users[@]}"; do
         echo_progress_start "Adding $u to lounge"
         if [[ $u = "$master" ]]; then

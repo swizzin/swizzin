@@ -49,7 +49,7 @@ function organizr_setup() {
     chown -R www-data:www-data ${organizr_dir}_db
     chmod 0700 -R $organizr_dir
 
-    user=$(cut -d: -f1 < /root/.master.info)
+    user=$(_get_master_username)
     pass=$(cut -d: -f2 < /root/.master.info)
 
     #TODO check that passwords with weird characters will send right

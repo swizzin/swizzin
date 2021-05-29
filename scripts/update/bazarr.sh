@@ -2,7 +2,7 @@
 
 if [[ -f /install/.bazarr.lock ]]; then
     codename=$(lsb_release -cs)
-    user=$(cut -d: -f1 < /root/.master.info)
+    user=$(_get_master_username)
     if ! grep -q .venv /etc/systemd/system/bazarr.service; then
         echo_info "Updating bazarr to python3 virtualenv"
         if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then

@@ -11,7 +11,7 @@
 
 codename=$(lsb_release -cs)
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
     #shellcheck source=sources/functions/pyenv
     . /etc/swizzin/sources/functions/pyenv

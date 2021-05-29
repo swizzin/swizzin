@@ -19,7 +19,7 @@
 
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
-username=$(cut -d: -f1 < /root/.master.info)
+username=$(_get_master_username)
 case "$(_os_arch)" in
     amd64)
         arch='AMDx64'

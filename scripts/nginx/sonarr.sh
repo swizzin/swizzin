@@ -1,7 +1,7 @@
 #!/bin/bash
 # Nginx conf for Sonarr v3
 # Flying sausages 2020
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 
 cat > /etc/nginx/apps/sonarr.conf << SONARR
 location /sonarr {

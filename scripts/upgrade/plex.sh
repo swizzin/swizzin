@@ -8,7 +8,7 @@ if [[ ! -f /install/.plex.lock ]]; then
 fi
 
 if [[ ! -f /opt/plexupdate/plexupdate.sh ]]; then
-    user=$(cut -d: -f1 < /root/.master.info)
+    user=$(_get_master_username)
     sudo -H -u "$user" bash -c "$(wget -qO - https://raw.githubusercontent.com/mrworf/plexupdate/master/extras/installer.sh)"
 else
     /opt/plexupdate/plexupdate.sh

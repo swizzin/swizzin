@@ -1,7 +1,7 @@
 #!/bin/bash
 # xmrig installer
 # Author: liara
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 latest=$(curl -s https://github.com/xmrig/xmrig/releases/latest | grep -oP 'v\K\d+.\d+.\d+')
 

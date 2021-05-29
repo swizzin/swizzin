@@ -265,7 +265,7 @@ function _adduser() {
     fi
 
     if [[ -z $SETUP_USER ]]; then #If this is not coming from setup.sh...
-        if [[ "$(cut -d: -f1 < /root/.master.info 2> /dev/null)" = "$user" ]]; then
+        if [[ "$(_get_master_username 2> /dev/null)" = "$user" ]]; then
             echo_error "User already exists within swizzin"
             exit 1
         fi
@@ -357,7 +357,7 @@ SUD
 function _deluser() {
     user=$2
     if [[ ! -f /root/${user}.info ]]; then
-        master=$(cut -d: -f1 < /root/.master.info)
+        master=$(_get_master_username)
         if [[ $user == "$master" ]]; then
             echo_warn "Master user deletion is not supported"
             exit 1
@@ -432,7 +432,7 @@ function _chpasswd() {
     . /etc/swizzin/sources/functions/utils
     password_check
 
-    master=$(cut -d: -f1 < /root/.master.info)
+    master=$(_get_master_username)
     if [[ $user = "$master" ]]; then
         echo "$user:$pass" > /root/.master.info
     fi

@@ -4,7 +4,7 @@
 if [[ -f /install/.sonarr.lock ]]; then
     version=$(lsb_release -cs)
     distro=$(lsb_release -is)
-    master=$(cut -d: -f1 < /root/.master.info)
+    master=$(_get_master_username)
     . /etc/swizzin/sources/functions/mono
     mono_repo_update
     for a in sonarr radarr lidarr; do

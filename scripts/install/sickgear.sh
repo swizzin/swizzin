@@ -2,7 +2,7 @@
 # Sick Gear Installer for swizzin
 # Author: liara
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 codename=$(lsb_release -cs)
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils

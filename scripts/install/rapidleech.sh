@@ -22,7 +22,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
     echo_error "Web server not detected. Please install nginx and restart panel install."
     exit 1
 fi
-MASTER=$(cut -d: -f1 < /root/.master.info)
+MASTER=$(_get_master_username)
 
 function _installRapidleech1() {
     echo_progress_start "Cloning rapidleech"

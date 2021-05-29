@@ -2,7 +2,7 @@
 
 if [[ -f /install/.nzbhydra.lock ]]; then
     if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
+        user=$(_get_master_username)
         codename=$(lsb_release -cs)
         active=$(systemctl is-active nzbhydra@"${user}")
         . /etc/swizzin/sources/functions/pyenv

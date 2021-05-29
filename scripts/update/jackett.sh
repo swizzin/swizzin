@@ -2,7 +2,7 @@
 # Jackett updater script
 
 if [[ -f /install/.jackett.lock ]]; then
-    username=$(cut -d: -f1 < /root/.master.info)
+    username=$(_get_master_username)
     active=$(systemctl is-active jackett@"$username")
 
     if grep -q "ExecStart=/usr/bin/mono" /etc/systemd/system/jackett@.service; then

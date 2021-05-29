@@ -2,7 +2,7 @@
 
 if [[ -f /install/.sickgear.lock ]]; then
     if [[ -f /etc/systemd/system/sickgear@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
+        user=$(_get_master_username)
         isactive=$(systemctl is-active sickgear@"${user}")
         codename=$(lsb_release -cs)
 

@@ -14,7 +14,7 @@
 #   under the GPL along with build & install instructions.
 #
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 
 apt_install python3
 

@@ -2,7 +2,7 @@
 # SickChill installer for swizzin
 # Author: liara
 
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 codename=$(lsb_release -cs)
 . /etc/swizzin/sources/functions/pyenv
 . /etc/swizzin/sources/functions/utils

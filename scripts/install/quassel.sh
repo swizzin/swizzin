@@ -18,7 +18,7 @@
 distribution=$(lsb_release -is)
 codename=$(lsb_release -cs)
 IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 
 if [[ $distribution == Ubuntu ]]; then
     if [[ $codename =~ ("xenial"|"bionic") ]]; then

@@ -1,5 +1,5 @@
 #!/bin/bash
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 if [[ -d /home/${user}/.venv ]]; then
     mv /home/"${user}"/.venv /opt
     envs=($(ls /opt/.venv))

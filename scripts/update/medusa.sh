@@ -2,7 +2,7 @@
 
 if [[ -f /install/.medusa.lock ]]; then
     if [[ -f /etc/systemd/system/medusa@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
+        user=$(_get_master_username)
         isactive=$(systemctl is-active medusa@"${user}")
 
         if [[ $isactive == "active" ]]; then

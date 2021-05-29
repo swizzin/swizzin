@@ -1,5 +1,5 @@
 #!/bin/bash
-user=$(cut -d: -f1 < /root/.master.info)
+user=$(_get_master_username)
 
 systemctl disable --now -q sabnzbd
 rm -rf /opt/sabnzbd
