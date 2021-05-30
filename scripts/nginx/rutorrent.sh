@@ -146,7 +146,7 @@ DSKSP
 @define('PHP_GZIP_LEVEL', 2, true);
 
 \$do_diagnostic = true;
-\${LOG}_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
+\$log_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
 
 \$saveUploadedTorrents = true; // Save uploaded torrents to profile/torrents directory or not
 \$overwriteUploadedTorrents = false; // Overwrite existing uploaded torrents in profile/torrents directory or make unique name
