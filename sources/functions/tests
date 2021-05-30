@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+get_port() {
+    installer="/etc/swizzin/scripts/nginx/$1.sh"
+    if [ -f "$installer" ]; then
+        grep -w "proxy_pass" "$installer" | sed 's/.*://; s/[^0-9].*//'
+    else
+        return 1
+    fi
+}
+
 check_service() {
     echo_progress_start "Checking $1 service is active"
     systemctl -q is-active "$1" || {
@@ -25,22 +34,16 @@ check_nginx() {
 }
 
 # Checks a port or the port of an app suplied via $1
-check_port() {
-    echo_progress_start "Checking if port $1 is reachable directly over HTTP"
+check_port_curl() {
+    echo_progress_start "Checking if port $1 is reachable via curl"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
-        installer="/etc/swizzin/scripts/nginx/$1.sh"
-        if [ -f "$installer" ]; then
-            port="$(grep -w "proxy_pass " "$installer" | sed 's/.*://; s/;.*//')"
-        else
+        port=$(get_port "$1") || {
             echo_warn "Couldn't guess port"
-            echo
             return 1
-        fi
-
+        }
     fi
-
     extra_params="$2"
 
     curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null || {
@@ -48,6 +51,24 @@ check_port() {
         echo
         return 1
     }
+    echo_progress_done
+}
+
+check_port() {
+    echo_progress_start "Checking if port $1 is open and listened to"
+    if [ "$1" -eq "$1" ] 2> /dev/null; then
+        port=$1
+    else
+        port=$(get_port "$1") || {
+            echo_warn "Couldn't guess port"
+            return 1
+        }
+    fi
+
+    lsof "-i:$port" > /dev/null || {
+        echo_warn "Port $port does not seem to be open"
+    }
+
     echo_progress_done
 }
 
