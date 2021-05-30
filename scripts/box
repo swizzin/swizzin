@@ -494,6 +494,11 @@ _run_tests() {
     fi
 
     export bell=false
+    # log="/root/logs/logresults-$(date +%Y.%m.%d-%Hh%M).txt"
+    log='./test-results.txt'
+    export log
+    touch "$log"
+    export strip_ansi_from_log="true"
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
             echo_info "Running test for $item"
