@@ -495,7 +495,7 @@ _run_tests() {
 
     export bell=false
     oldlog="$log"
-    log="/root/logs/tests-$(+%Y.%m.%d-%H:%M:%S).txt"
+    log="/root/logs/tests-$(date +%Y.%m.%d-%H:%M:%S).txt"
     # log='./test-results.txt'
     export log
     touch "$log"
