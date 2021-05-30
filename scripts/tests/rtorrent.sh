@@ -5,6 +5,10 @@
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
+    systemctl -q is-enabled "rtorrent@$user" || {
+        echo_warn "rtorrent@$user is not enabled, skipping"
+        continue
+    }
     check_service "rtorrent@$user" || bad=true
 done
 

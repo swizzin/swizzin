@@ -8,6 +8,11 @@ check_nginx "qbittorrent" || bad=true
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
+    systemctl -q is-enabled "qbittorrent@$user" || {
+        echo_warn "qbittorrent@$user is not enabled, skipping"
+        continue
+    }
+
     check_service "qbittorrent@$user" || {
         bad=true
         continue

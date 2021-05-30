@@ -8,6 +8,11 @@ check_nginx "transmission" || bad=true
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
+    systemctl -q is-enabled "transmission@$user" || {
+        echo_warn "transmission@$user is not enabled, skipping"
+        continue
+    }
+
     check_service "transmission@$user" || {
         bad=true
         continue
