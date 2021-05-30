@@ -4,11 +4,14 @@
 
 # DO NOT SOURCE GLOBALS HERE, THAT DEFEATS THE WHOLE PURPOSE OF THIS CHECK
 # SOURCING GLOBALS HERE WILL MAKE THESE TESTS PASS BUT THE FUNCTIONS WON'T BE AVAILABLE IN THE SHELL ABOVE
+if [[ -z ${LOG} ]]; then
+    export LOG="/root/logs/swizzin.log"
+fi
 
 killage() {
     echo
-    echo "Due to internal restructuring please run \`box update\` again. You should only have to do this once."
-    echo "Reason: $1"
+    echo "Due to internal restructuring please run \`box update\` again. You should only have to do this once." >> "${LOG}" 2>&1
+    echo "Reason: $1" >> "${LOG}" 2>&1
     kill -13 $(ps --pid $$ -oppid=)
     exit 1
 }
@@ -18,10 +21,6 @@ fi
 
 if ! command -v echo_error > /dev/null 2>&1; then
     killage "Echo functions unavailable"
-fi
-
-if [[ -z ${LOG} ]]; then
-    killage "Log variable not set"
 fi
 
 if ! swizdb list > /dev/null 2>&1; then
