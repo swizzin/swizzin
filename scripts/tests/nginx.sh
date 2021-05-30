@@ -13,6 +13,6 @@ nginx -t > /dev/null 2>&1 || {
 echo_progress_done
 
 check_service "nginx" || bad="true"
-# check_nginx "" || bad="true"
+check_port "443"
 
 evaluate_bad
