@@ -494,8 +494,9 @@ _run_tests() {
     fi
 
     export bell=false
-    # log="/root/logs/logresults-$(date +%Y.%m.%d-%Hh%M).txt"
-    log='./test-results.txt'
+    oldlog="$log"
+    log="/root/logs/tests-$(+%Y.%m.%d-%H:%M:%S).txt"
+    # log='./test-results.txt'
     export log
     touch "$log"
     for item in "${list[@]}"; do
@@ -513,6 +514,8 @@ _run_tests() {
     if [ "$bad" == "true" ]; then
         exit 1
     fi
+    log="$oldlog"
+    export log
 
 }
 
