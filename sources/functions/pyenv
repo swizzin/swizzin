@@ -80,7 +80,7 @@ function python_getpip() {
         echo_log_only "pip is available"
     fi
 
-    if ! ${python2bin} -m virtualenv > /dev/null 2>&1; then
+    if ! ${python2bin} -m virtualenv -h > /dev/null 2>&1; then
         echo_progress_start "Installing virtualenv"
         ${python2bin} -m pip install virtualenv >> "${log}" 2>&1
         echo_progress_done
