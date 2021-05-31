@@ -21,6 +21,7 @@
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
+- [ ] Branch was made off the `develop` branch and the PR is targetting the `develop` branch
 - [ ] Docs have been made OR are not necessary
     - PR link: 
 - [ ] Changes to panel have been made OR are not necessary
