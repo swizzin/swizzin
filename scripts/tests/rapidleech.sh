@@ -3,6 +3,6 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_nginx "rapidleech" || bad="true"
+check_nginx "rapidleech" || BAD="true"
 
 evaluate_bad

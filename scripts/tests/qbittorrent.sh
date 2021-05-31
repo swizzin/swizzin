@@ -4,7 +4,7 @@
 . /etc/swizzin/sources/functions/tests
 
 #Check nginx only once beause if the config works for one, it will work for all
-check_nginx "qbittorrent" || bad=true
+check_nginx "qbittorrent" || BAD=true
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
@@ -14,14 +14,14 @@ for user in "${users[@]}"; do
     }
 
     check_service "qbittorrent@$user" || {
-        bad=true
+        BAD=true
         continue
     }
 
     extra_params="--user $user:$(_get_user_password "$user")"
     confpath="/home/${user}/.config/qBittorrent/qBittorrent.conf"
     port=$(grep 'WebUI\\Port' "$confpath" | cut -d= -f2)
-    check_port_curl "$port" "$extra_params" || bad=true
+    check_port_curl "$port" "$extra_params" || BAD=true
 done
 
 evaluate_bad

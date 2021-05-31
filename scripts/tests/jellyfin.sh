@@ -3,8 +3,8 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_service "jellyfin" || bad=true
-check_port "jellyfin" || bad=true
-check_nginx "jellyfin" || bad=true
+check_service "jellyfin" || BAD=true
+check_port "jellyfin" || BAD=true
+check_nginx "jellyfin" || BAD=true
 
 evaluate_bad

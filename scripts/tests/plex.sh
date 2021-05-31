@@ -3,7 +3,7 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_service "plexmediaserver" || bad=true
-check_port "32400" || bad=true
+check_service "plexmediaserver" || BAD=true
+check_port "32400" || BAD=true
 
 evaluate_bad

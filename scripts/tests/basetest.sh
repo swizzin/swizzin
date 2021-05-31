@@ -9,9 +9,9 @@ if [[ -z $1 ]]; then
 fi
 
 # run all functions, if one fails, mark as bad
-check_service "$1" || bad="true"
-check_port "$1" || bad="true"
-check_port_curl "$1" || bad="true"
-check_nginx "$1" || bad="true"
+check_service "$1" || BAD="true"
+check_port "$1" || BAD="true"
+check_port_curl "$1" || BAD="true"
+check_nginx "$1" || BAD="true"
 
 evaluate_bad

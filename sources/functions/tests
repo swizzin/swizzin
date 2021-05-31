@@ -88,9 +88,9 @@ check_port() {
     echo_progress_done
 }
 
-# based off the value of $bad, returns an appropriate message and kills the test with an appropriate exit code.
+# based off the value of $BAD, returns an appropriate message and kills the test with an appropriate exit code.
 evaluate_bad() {
-    if [[ $bad == "true" ]]; then
+    if [[ $BAD == "true" ]]; then
         echo_error "Errors were encountered"
         exit 1
     else

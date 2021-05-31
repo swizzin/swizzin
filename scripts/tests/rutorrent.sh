@@ -3,6 +3,6 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_nginx "rutorrent" || bad="true"
+check_nginx "rutorrent" || BAD="true"
 
 evaluate_bad

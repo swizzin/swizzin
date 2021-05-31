@@ -5,7 +5,7 @@
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
-    check_service "irssi@$user" || bad=true
+    check_service "irssi@$user" || BAD=true
 done
 
 evaluate_bad

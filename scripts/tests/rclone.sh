@@ -9,7 +9,7 @@ for user in "${users[@]}"; do
         echo_warn "rclone@$user is not enabled, skipping"
         continue
     }
-    check_service "rclone@$user" || bad=true
+    check_service "rclone@$user" || BAD=true
 done
 
 evaluate_bad

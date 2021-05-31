@@ -3,6 +3,6 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_nginx "librespeed" || bad="true"
+check_nginx "librespeed" || BAD="true"
 
 evaluate_bad

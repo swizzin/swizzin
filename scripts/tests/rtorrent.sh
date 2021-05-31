@@ -9,7 +9,7 @@ for user in "${users[@]}"; do
         echo_warn "rtorrent@$user is not enabled, skipping"
         continue
     }
-    check_service "rtorrent@$user" || bad=true
+    check_service "rtorrent@$user" || BAD=true
 done
 
 evaluate_bad

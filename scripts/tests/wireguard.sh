@@ -9,7 +9,7 @@ for user in "${users[@]}"; do
         echo_warn "wg-quick@wg$(id -u "$user") is not enabled, skipping"
         continue
     }
-    check_service "wg-quick@wg$(id -u "$user")" || bad=true
+    check_service "wg-quick@wg$(id -u "$user")" || BAD=true
 done
 
 evaluate_bad

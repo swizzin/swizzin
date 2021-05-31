@@ -3,8 +3,8 @@
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 
-check_service "panel" || bad=true
-check_port_curl "panel" || bad=true
-check_nginx "" || bad=true
+check_service "panel" || BAD=true
+check_port_curl "panel" || BAD=true
+check_nginx "" || BAD=true
 
 evaluate_bad
