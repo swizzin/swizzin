@@ -19,7 +19,7 @@ get_port() {
 check_service() {
     echo_progress_start "Checking $1 service is active"
     systemctl -q is-active "$1" || {
-        systemctl status "$1"
+        systemctl status "$1" | tee -a "$log"
         echo_warn "$1.service not active!"
         return 1
     }
