@@ -141,5 +141,5 @@ function check_swap_off() {
 
 # Returns a list of installed apps
 _get_installed_apps() {
-    find /install -type f -name .\*.lock | awk -F. '{print $2}'
+    find /install -type f -name .\*.lock | awk -F. '{print $2}' | sort
 }
