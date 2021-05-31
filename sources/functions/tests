@@ -82,6 +82,7 @@ check_port() {
 
     lsof "-i:$port" > /dev/null || {
         echo_warn "Port $port does not seem to be open"
+        return 1
     }
 
     echo_progress_done
