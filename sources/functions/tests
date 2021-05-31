@@ -80,7 +80,7 @@ check_port() {
         }
     fi
 
-    lsof "-i:$port" > /dev/null || {
+    lsof "-i:$port" >> $log 2>&1 || {
         echo_warn "Port $port does not seem to be open"
         return 1
     }
