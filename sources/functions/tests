@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
+# All tests here are reusable per application
+# Test HAS TO `return 1` in case it fails.
+# If a function returns without specifying an exit/return code, it is assumed the test passed.
+
+# Attempts to guess the port the application is running on using the nginx installers.
 get_port() {
     installer="/etc/swizzin/scripts/nginx/$1.sh"
     if [ -f "$installer" ]; then
         grep -w "proxy_pass" "$installer" | sed 's/.*://; s/[^0-9].*//'
     else
+        # No installer for application found
         return 1
     fi
 }
 
+# Attempts to verify that the service for an application specified by $1 is running.
 check_service() {
     echo_progress_start "Checking $1 service is active"
     systemctl -q is-active "$1" || {
@@ -20,6 +27,7 @@ check_service() {
     echo_progress_done
 }
 
+# Attempts to verify that the reverse proxy configuration for an application accessible at https://localhost/$1  is accessible.
 check_nginx() {
     if [ ! -f /install/.nginx.lock ]; then
         echo_warn "nginx not installed, cannot verify if $1 is reachable through it. Skipping."
@@ -38,7 +46,8 @@ check_nginx() {
     echo_progress_done
 }
 
-# Checks a port or the port of an app suplied via $1
+# Attempts to verify that an application accessible at http://localhost:$1  is accessible.
+# If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
 check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
@@ -59,6 +68,8 @@ check_port_curl() {
     echo_progress_done
 }
 
+# Attempts to verify that an application has opened and listens to the port $1 using `lsof`.
+# If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
 check_port() {
     echo_progress_start "Checking if port $1 is open and listened to"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
@@ -77,6 +88,7 @@ check_port() {
     echo_progress_done
 }
 
+# based off the value of $bad, returns an appropriate message and kills the test with an appropriate exit code.
 evaluate_bad() {
     if [[ $bad == "true" ]]; then
         echo_error "Errors were encountered"
