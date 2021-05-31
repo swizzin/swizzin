@@ -21,7 +21,6 @@ check_service() {
     systemctl -q is-active "$1" || {
         systemctl status "$1"
         echo_warn "$1.service not active!"
-        echo
         return 1
     }
     echo_progress_done
