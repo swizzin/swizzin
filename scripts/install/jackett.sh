@@ -20,15 +20,29 @@
 distribution=$(lsb_release -is)
 version=$(lsb_release -cs)
 username=$(cut -d: -f1 < /root/.master.info)
-jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep AMDx64 | grep browser_download_url | cut -d \" -f4)
-#jackettver=$(wget -q https://github.com/Jackett/Jackett/releases/latest -O - | grep -E \/tag\/ | grep -v repository | awk -F "[><]" '{print $3}')
+case "$(_os_arch)" in
+    amd64)
+        arch='AMDx64'
+        ;;
+    arm64)
+        arch="ARM64"
+        ;;
+    armhf)
+        arch="ARM32"
+        ;;
+    *)
+        echo_error "Arch not supported for jackett"
+        ;;
+esac
+
+jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep "$arch" | grep browser_download_url | cut -d \" -f4)
 password=$(cut -d: -f2 < /root/.master.info)
 
 echo_progress_start "Downloading and extracting jackett"
 cd /home/$username
 wget $jackett >> "$log" 2>&1
-tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
-rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
+tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
+rm -f Jackett.Binaries.*.tar.gz
 chown ${username}.${username} -R Jackett
 echo_progress_done
 
