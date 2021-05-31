@@ -10,6 +10,14 @@ for user in "${users[@]}"; do
         continue
     }
     check_service "wg-quick@wg$(id -u "$user")" || BAD=true
+
+    echo_progress_start "Checking if interface is up for wg$(id -u "$user")"
+    wg show wg"$(id -u "$user")" >> $log 2>&1 || {
+        BAD=true
+        echo_warn "Interface is down"
+    }
+    echo_progress_done
+
 done
 
 evaluate_bad
