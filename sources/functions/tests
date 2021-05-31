@@ -21,6 +21,11 @@ check_service() {
 }
 
 check_nginx() {
+    if [ ! -f /install/.nginx.lock ]; then
+        echo_warn "nginx not installed, cannot verify if $1 is reachable through it. Skipping."
+        return
+    fi
+
     extra_params="$2"
     echo_progress_start "Checking if $1 is reachable via nginx"
     master="$(_get_master_username)"
