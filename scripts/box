@@ -506,7 +506,7 @@ _run_tests() {
             echo
         else
             echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
-            bash /etc/swizzin/scripts/tests/basetest.sh "$item" || BAD="true"
+            bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
             echo
         fi
     done
