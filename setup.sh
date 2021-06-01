@@ -386,10 +386,13 @@ _run_checks() {
     if [[ $RUN_CHECKS = "true" ]]; then
         echo
         echo_info "Running post-install checks"
-        echo_progress_start "Checking all failed units"
-        systemctl list-units --failed
-        echo_progress_done "listed"
+        # echo_progress_start "Checking all failed units"
+        # systemctl list-units --failed
+        # echo_progress_done "listed"
+
+        bash /etc/swizzin/scripts/box test || return 1
     fi
+
 }
 
 _run_post() {
@@ -419,4 +422,10 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_checks
+_run_checks || {
+    BAD="true"
+}
+
+if [ "$BAD" == "true" ]; then
+    exit 1
+fi
