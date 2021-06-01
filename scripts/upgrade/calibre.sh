@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ ! -f /install/.calibre.lock ]; then
+    echo_error "Calibre is not installer"
+    exit 1
+fi
+
 case "$(os_arch)" in
     amd64)
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
