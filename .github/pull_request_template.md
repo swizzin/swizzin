@@ -31,7 +31,9 @@
 - [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
 - [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have functionally tested the changes being introduced
+- [ ] Testing was done
+   - [ ] Tests created or no new tests necessary
+   - [ ] Tests executed
 
 ## Test scenarios
 <!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste the examples at the bottom of this section -->

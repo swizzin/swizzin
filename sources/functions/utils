@@ -138,3 +138,8 @@ function check_swap_off() {
         rm -f /.swapfile > /dev/null 2>&1
     fi
 }
+
+# Returns a list of installed apps
+_get_installed_apps() {
+    find /install -type f -name .\*.lock | awk -F. '{print $2}' | sort
+}
