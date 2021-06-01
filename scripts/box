@@ -482,6 +482,43 @@ function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
 
+_run_tests() {
+    shift
+    if [[ -n $1 ]]; then
+        list=("$@")
+    else
+        #shellcheck source=sources/functions/utils
+        . /etc/swizzin/sources/functions/utils
+        readarray -t list < <(_get_installed_apps)
+        echo_info "Tests to run: ${list[*]}"
+    fi
+
+    export bell=false
+    oldlog="$log"
+    log="/root/logs/tests-$(date +%Y.%m.%d-%H:%M:%S).txt"
+    # log='./test-results.txt'
+    export log
+    touch "$log"
+    for item in "${list[@]}"; do
+        if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
+            echo_info "Running test for $item"
+            bash /etc/swizzin/scripts/tests/"$item".sh || BAD="true"
+            echo
+        else
+            echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
+            bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
+            echo
+        fi
+    done
+
+    if [ "$BAD" == "true" ]; then
+        exit 1
+    fi
+    log="$oldlog"
+    export log
+
+}
+
 case "$1" in
     "")
         _intro
@@ -567,6 +604,9 @@ case "$1" in
     "list")
         _list
         exit 0
+        ;;
+    "test")
+        _run_tests "$@"
         ;;
     *)
         echo_error "Invalid command: $1"
