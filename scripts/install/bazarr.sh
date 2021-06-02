@@ -39,7 +39,7 @@ mkdir -p /opt/bazarr/data/config/
 echo_progress_done "Dependencies installed"
 
 if [[ -f /install/.sonarr.lock ]]; then
-    sonarrConfigFile = /home/${user}/.config/sonarr/config.xml
+    sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
 
     if [[ -f ${sonarrConfigFile} ]]; then
         sonarrapi=$(grep -oP "ApiKey>\K[^<]+" ${sonarrConfigFile})
