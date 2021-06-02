@@ -39,9 +39,15 @@ mkdir -p /opt/bazarr/data/config/
 echo_progress_done "Dependencies installed"
 
 if [[ -f /install/.sonarr.lock ]]; then
-    sonarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
-    sonarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
-    sonarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
+    sonarrConfigFile = /home/${user}/.config/sonarr/config.xml
+
+    if [[ -f ${sonarrConfigFile} ]]; then
+        sonarrapi=$(grep -oP "ApiKey>\K[^<]+" ${sonarrConfigFile})
+        sonarrport=$(grep -oP "\<Port>\K[^<]+" ${sonarrConfigFile})
+        sonarrbase=$(grep -oP "UrlBase>\K[^<]+" ${sonarrConfigFile})
+    else
+        echo_warn "Sonarr configuration was not found in ${sonarrConfigFile}, configure api key, port and url base manually in bazarr"
+    fi
 
     cat >> /opt/bazarr/data/config/config.ini << SONC
 [sonarr]
