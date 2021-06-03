@@ -64,9 +64,17 @@ SONC
 fi
 
 if [[ -f /install/.radarr.lock ]]; then
-    radarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
-    radarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
-    radarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
+    echo_info "Configuring bazarr to work with radarr"
+
+    radarrConfigFile=/home/${user}/.config/Radarr/config.xml
+
+    if [[ -f ${radarrConfigFile} ]]; then
+        radarrapi=$(grep -oP "ApiKey>\K[^<]+" ${radarrConfigFile})
+        radarrport=$(grep -oP "\<Port>\K[^<]+" ${radarrConfigFile})
+        radarrbase=$(grep -oP "UrlBase>\K[^<]+" ${radarrConfigFile})
+    else
+        echo_warn "Radarr configuration was not found in ${radarrConfigFile}, configure api key, port and url base manually in bazarr"
+    fi
 
     cat >> /opt/bazarr/data/config/config.ini << RADC
 
