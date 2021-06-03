@@ -39,6 +39,8 @@ mkdir -p /opt/bazarr/data/config/
 echo_progress_done "Dependencies installed"
 
 if [[ -f /install/.sonarr.lock ]]; then
+    echo_info "Configuring bazarr to work with sonarr"
+
     sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
 
     if [[ -f ${sonarrConfigFile} ]]; then
