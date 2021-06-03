@@ -44,9 +44,9 @@ if [[ -f /install/.sonarr.lock ]]; then
     sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
 
     if [[ -f ${sonarrConfigFile} ]]; then
-        sonarrapi=$(grep -oP "ApiKey>\K[^<]+" ${sonarrConfigFile})
-        sonarrport=$(grep -oP "\<Port>\K[^<]+" ${sonarrConfigFile})
-        sonarrbase=$(grep -oP "UrlBase>\K[^<]+" ${sonarrConfigFile})
+        sonarrapi=$(grep -oP "ApiKey>\K[^<]+" "${sonarrConfigFile}")
+        sonarrport=$(grep -oP "\<Port>\K[^<]+" "${sonarrConfigFile}")
+        sonarrbase=$(grep -oP "UrlBase>\K[^<]+" "${sonarrConfigFile}")
     else
         echo_warn "Sonarr configuration was not found in ${sonarrConfigFile}, configure api key, port and url base manually in bazarr"
     fi
@@ -69,9 +69,9 @@ if [[ -f /install/.radarr.lock ]]; then
     radarrConfigFile=/home/${user}/.config/Radarr/config.xml
 
     if [[ -f ${radarrConfigFile} ]]; then
-        radarrapi=$(grep -oP "ApiKey>\K[^<]+" ${radarrConfigFile})
-        radarrport=$(grep -oP "\<Port>\K[^<]+" ${radarrConfigFile})
-        radarrbase=$(grep -oP "UrlBase>\K[^<]+" ${radarrConfigFile})
+        radarrapi=$(grep -oP "ApiKey>\K[^<]+" "${radarrConfigFile}")
+        radarrport=$(grep -oP "\<Port>\K[^<]+" "${radarrConfigFile}")
+        radarrbase=$(grep -oP "UrlBase>\K[^<]+" "${radarrConfigFile}")
     else
         echo_warn "Radarr configuration was not found in ${radarrConfigFile}, configure api key, port and url base manually in bazarr"
     fi
