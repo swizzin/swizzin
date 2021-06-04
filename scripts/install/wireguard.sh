@@ -48,7 +48,7 @@ function _install_wg() {
             echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
             printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
         fi
-    elif [[ $codename =~ ("bionic"|"xenial") ]]; then
+    elif [[ $codename == "bionic" ]]; then
         #This *should* be enabled by default but you know what they say about assumptions.
         check_ubuntu_updates
     fi
