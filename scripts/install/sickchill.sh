@@ -29,7 +29,7 @@ if [[ -n $active ]]; then
     fi
 fi
 
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename == "stretch" ]]; then
     pyenv_install
     pyenv_install_version 3.7.7
     pyenv_create_venv 3.7.7 /opt/.venv/sickchill

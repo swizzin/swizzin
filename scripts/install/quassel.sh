@@ -21,7 +21,7 @@ IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 user=$(cut -d: -f1 < /root/.master.info)
 
 if [[ $distribution == Ubuntu ]]; then
-    if [[ $codename =~ ("xenial"|"bionic") ]]; then
+    if [[ $codename == "bionic" ]]; then
         echo_progress_start "Installing Quassel PPA"
         apt_install software-properties-common
         apt-add-repository ppa:mamarley/quassel -y >> "$log" 2>&1
