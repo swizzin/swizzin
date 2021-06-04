@@ -150,7 +150,7 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
-    sudo chown -R "$u": /home/"$u"/.wireguard
+    chown -R "$u": /home/"$u"/.wireguard
 
     systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1 | tee -a $log
     if [[ $? == 0 ]]; then
