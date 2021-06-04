@@ -68,7 +68,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         codename=$(lsb_release -cs)
         systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
-        if [[ $codename =~ ("xenial"|"stretch") ]]; then
+        if [[ $codename == "stretch" ]]; then
             pyenv_install
             pyenv_install_version 3.7.7
             pyenv_create_venv 3.7.7 /opt/.venv/sickchill
