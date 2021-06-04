@@ -34,5 +34,22 @@ if [[ -f /install/.lounge.lock ]]; then
             _uplounge
         fi
     fi
+    if [ -e /home/lounge ]; then
+        active=$(systemctl is-active lounge)
+
+        if [[ $active == "active" ]]; then
+            systemctl stop lounge
+        fi
+
+        ####### after this change all configs will always be under the /opt/lounge dir, so make sure to target those only.
+        ####### ONLY ADD NEW CHANGES BELOW THIS LINE, NOTHING ABOVE CAN BE CHANGED NO MO
+        mv /home/lounge /opt/lounge
+        usermod -d /opt/lounge lounge
+        chown -R lounge: /opt/lounge
+
+        if [[ $active == "active" ]]; then
+            systemctl start lounge
+        fi
+    fi
 
 fi
