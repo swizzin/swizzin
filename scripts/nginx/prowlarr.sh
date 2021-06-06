@@ -2,13 +2,15 @@
 # Nginx conf for *Arr
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 app_name="prowlarr"
+
 if ! PROWLARR_OWNER="$(swizdb get $app_name/owner)"; then
     PROWLARR_OWNER=$(_get_master_username)
 else
     PROWLARR_OWNER="$(swizdb get $app_name/owner)"
 fi
+
 app_port="9696"
 app_sslport="6969"
 user="$PROWLARR_OWNER"
@@ -46,9 +48,9 @@ location /$app_baseurl {
 
 PROWLARR
 
-isactive=$(systemctl is-active $app_servicefile)
+wasActive=$(systemctl is-active $app_servicefile)
 
-if [[ $isactive == "active" ]]; then
+if [[ $wasActive == "active" ]]; then
     echo_log_only "Stopping $app_name"
     systemctl stop "$app_servicefile"
 fi
@@ -75,8 +77,6 @@ PROWLARR
 chown -R "$user":"$user" "$app_configdir"
 
 # Switch app back off if it was dead before; otherwise start it
-if [[ $isactive != "active" ]]; then
-    systemctl stop "$app_servicefile" -q
-else
+if [[ $wasActive == "active" ]]; then
     systemctl start "$app_servicefile" -q
 fi
