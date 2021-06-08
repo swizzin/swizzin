@@ -28,9 +28,9 @@ if [[ -f /install/.radarr.lock ]]; then
             fi
             echo_progress_done "Release downloaded"
 
-            isactive=$(systemctl is-active radarr)
-            echo_log_only "Radarr was $isactive"
-            [[ $isactive == "active" ]] && systemctl stop radarr -q
+            wasActive=$(systemctl is-active radarr)
+            echo_log_only "Radarr was $wasActive"
+            [[ $wasActive == "active" ]] && systemctl stop radarr -q
 
             echo_progress_start "Removing old binaries"
             rm -rf /opt/Radarr/
@@ -45,7 +45,7 @@ if [[ -f /install/.radarr.lock ]]; then
             # Watch out! If this sed runs, the updater will not trigger anymore. keep this at the bottom.
             sed -i "s|ExecStart=/usr/bin/mono /opt/Radarr/Radarr.exe|ExecStart=/opt/Radarr/Radarr|g" /etc/systemd/system/radarr.service
             systemctl daemon-reload
-            [[ $isactive == "active" ]] && systemctl start radarr -q
+            [[ $wasActive == "active" ]] && systemctl start radarr -q
             echo_progress_done "Service fixed and restarted"
             echo_success "Radarr upgraded to .Net"
 
