@@ -2,7 +2,7 @@
 # Nginx conf for *Arr
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
-master=$(cut -d: -f1 < /root/.master.info)
+master=$(_get_master_username)
 app_name="lidarr"
 if ! LIDARR_OWNER="$(swizdb get $app_name/owner)"; then
     LIDARR_OWNER=$(_get_master_username)
@@ -42,9 +42,9 @@ location /$app_baseurl {
 
 LIDARR
 
-isactive=$(systemctl is-active $app_servicefile)
+wasActive=$(systemctl is-active $app_servicefile)
 
-if [[ $isactive == "active" ]]; then
+if [[ $wasActive == "active" ]]; then
     echo_log_only "Stopping $app_name"
     systemctl stop "$app_servicefile"
 fi
@@ -69,7 +69,7 @@ LIDARR
 chown -R "$user":"$user" "$app_configdir"
 
 # Switch app back off if it was dead before; otherwise start it
-if [[ $isactive != "active" ]]; then
+if [[ $wasActive != "active" ]]; then
     systemctl stop "$app_servicefile" -q
 else
     systemctl start "$app_servicefile" -q
