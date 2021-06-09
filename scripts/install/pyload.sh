@@ -28,6 +28,10 @@ else
     LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
 fi
 
+if [[ $(_os_arch) =~ "arm" ]]; then
+    LIST+=' libffi-dev'
+fi
+
 apt_install $LIST
 
 if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
