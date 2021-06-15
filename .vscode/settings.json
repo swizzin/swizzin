@@ -27,5 +27,15 @@
         "makefile",
         "shellscript",
         "bash"
-    ]
+    ],
+    "conventionalCommits.scopes": [
+        "ide",
+        "box",
+        "setup",
+        "apt",
+        "echos",
+        "swizdb",
+        "shellcheck",
+    ],
+    "conventionalCommits.promptFooter": false
 }
