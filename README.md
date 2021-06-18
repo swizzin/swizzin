@@ -12,7 +12,7 @@ Please use Discord for all community functions, [feathub](https://feathub.com/li
 ## What is swizzin?
 Swizzin is a light, modular seedbox solution that can be installed on Debian 9/10 or Ubuntu 16.04/18.04/20.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
-Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional addon packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
+Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional add-on packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
 
 ## Installation
 You can either use the quick installation method (recommended) or you can wile out with installations options using the advanced setup.
@@ -35,7 +35,7 @@ bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 
 ### Some notes on escalating to root user
 
-If you did not log into your server with a root login, the method you use to escalate to root will directly influence the success of your installation. Certain distros and commands may not correctly provide you with a full root login shell when you use them, so please familiarize yourself with the following if they apply to you.
+If you did not log into your server with a root login, the method you use to escalate to root will directly influence the success of your installation. Certain distributions and commands may not correctly provide you with a full root login shell when you use them, so please familiarize yourself with the following if they apply to you.
 
 #### `sudo` under Ubuntu
 If you are running Ubuntu and use `sudo` for the installation you should include the -H argument to ensure that your home directory is modified to /root. The installer will take care of this default for you in the future, and this should be the only time you need to specify sudo -H before running a swizzin command. For example:
@@ -52,7 +52,7 @@ sudo -H su -c 'bash <(wget -qO - git.io/swizzin)'
 ```
 
 #### The difference between `su` and `su -`
-Since the inclusion of mandatory cracklib checks, we've seen an uptick in users having an issue passing the cracklib check as the installer can't seem to find the `cracklib-check` binary despite it being installed. This is because `/sbin` and derivative paths have not been properly set due to your chosen method of escalation. If you have troubles passing cracklib, then there's a very good chance you escalted to root with `su` instead of `su -`. `su` simply changes you to root user while `su -` goes through the entire login process and correctly resets all environmental variables as if you had logged in directly as root. Please always use `su -` when interacting with swizzin if this is your chosen method of privilege escalation.
+Since the inclusion of mandatory cracklib checks, we've seen an uptick in users having an issue passing the cracklib check as the installer can't seem to find the `cracklib-check` binary despite it being installed. This is because `/sbin` and derivative paths have not been properly set due to your chosen method of escalation. If you have troubles passing cracklib, then there's a very good chance you escalated to root with `su` instead of `su -`. `su` simply changes you to root user while `su -` goes through the entire login process and correctly resets all environmental variables as if you had logged in directly as root. Please always use `su -` when interacting with swizzin if this is your chosen method of privilege escalation.
 
 More info [here](https://unix.stackexchange.com/questions/7013/why-do-we-use-su-and-not-just-su)
 
@@ -125,7 +125,7 @@ You can request and vote on features at [feathub](https://feathub.com/liaralabs/
 [![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
 ## Contributing
-We welcome any bugfixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organised and keep your submissions supported properly.
+We welcome any bug fixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organized and keep your submissions supported properly.
 
 We're more than happy to talk about any changes to our codebase on the Discord server which you can find an invite link to on the top of this page. 
 
