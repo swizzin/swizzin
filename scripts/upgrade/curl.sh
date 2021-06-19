@@ -4,30 +4,34 @@
 cd /tmp
 version=$(basename $(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/curl/curl/releases/latest))
 
-wget -O curl.zip https://github.com/curl/curl/releases/download/${version}/${version//_/.}.zip >> ${log} 2>&1 || {
+wget -O /tmp/curl.zip https://github.com/curl/curl/releases/download/${version}/${version//_/.}.zip >> ${log} 2>&1 || {
     echo_error "There was an error downloading curl! Please check the log for more info"
-    cd /tmp
-    rm -rf curl*
+    rm /tmp/curl.zip >> $log 2>&1
     exit 1
 }
 
-unzip curl.zip >> $log 2>&1
-rm curl.zip
+unzip /tmp/curl.zip -d /tmp >> $log 2>&1
+rm /tmp/curl.zip
 
-cd curl-${version//_/.}
-./configure --enable-versioned-symbols >> ${log} 2>&1 || {
+apt_install libssl-dev
+
+cd /tmp/${version//_/.}
+./configure --enable-versioned-symbols --with-openssl >> ${log} 2>&1 || {
     echo_error "There was an error configuring curl! Please check the log for more info"
     cd /tmp
-    rm -rf curl*
+    rm -rf /tmp/curl-* >> $log 2>&1
     exit 1
 }
 make -j$(nproc) >> ${log} 2>&1 || {
     echo_error "There was an error compiling curl! Please check the log for more info"
     cd /tmp
-    rm -rf curl*
+    rm -rf /tmp/curl-*
     exit 1
 }
-make install >> ${log} 2>&1
+make install >> ${log} 2>&1 >> $log 2>&1
+
+cd /tmp
+rm -rf /tmp/curl-* >> $log 2>&1
 
 echo "/usr/local/bin" >> /etc/ld.so.conf
 ldconfig
