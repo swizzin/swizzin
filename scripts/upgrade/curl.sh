@@ -14,7 +14,7 @@ wget -O curl.zip https://github.com/curl/curl/releases/download/${version}/${ver
 unzip curl.zip >> $log 2>&1
 rm curl.zip
 
-cd curl-${version}
+cd curl-${version//_/.}
 ./configure --enable-versioned-symbols >> ${log} 2>&1 || {
     echo_error "There was an error configuring curl! Please check the log for more info"
     cd /tmp
