@@ -2,26 +2,36 @@
 # Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
 
 cd /tmp
-version=$(curl -sNL https://curl.haxx.se/metalink.cgi?curl=zip | grep \<version\> | cut -d\< -f2 | cut -d\> -f2)
-wget -O curl.zip https://curl.haxx.se/download/curl-${version}.zip >> ${log} 2>&1
+version=$(basename $(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/curl/curl/releases/latest))
 
-unzip curl.zip >> $log 2>&1
-rm curl.zip
+wget -O /tmp/curl.zip https://github.com/curl/curl/releases/download/${version}/${version//_/.}.zip >> ${log} 2>&1 || {
+    echo_error "There was an error downloading curl! Please check the log for more info"
+    rm /tmp/curl.zip >> $log 2>&1
+    exit 1
+}
 
-cd curl-${version}
-./configure --enable-versioned-symbols >> ${log} 2>&1 || {
+unzip /tmp/curl.zip -d /tmp >> $log 2>&1
+rm /tmp/curl.zip
+
+apt_install libssl-dev
+
+cd /tmp/${version//_/.}
+./configure --enable-versioned-symbols --with-openssl >> ${log} 2>&1 || {
     echo_error "There was an error configuring curl! Please check the log for more info"
     cd /tmp
-    rm -rf curl*
+    rm -rf /tmp/curl-* >> $log 2>&1
     exit 1
 }
 make -j$(nproc) >> ${log} 2>&1 || {
     echo_error "There was an error compiling curl! Please check the log for more info"
     cd /tmp
-    rm -rf curl*
+    rm -rf /tmp/curl-*
     exit 1
 }
-make install >> ${log} 2>&1
+make install >> ${log} 2>&1 >> $log 2>&1
+
+cd /tmp
+rm -rf /tmp/curl-* >> $log 2>&1
 
 echo "/usr/local/bin" >> /etc/ld.so.conf
 ldconfig
