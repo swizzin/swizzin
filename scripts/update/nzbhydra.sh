@@ -10,7 +10,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
             systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
         fi
 
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             LIST='git python2.7-dev virtualenv python-virtualenv'
         else
             LIST='git python2.7-dev'
@@ -18,7 +18,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
 
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
 

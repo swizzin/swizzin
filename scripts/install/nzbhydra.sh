@@ -9,6 +9,13 @@
 #   under the GPL along with build & install instructions.
 #
 
+if [[ "$(_os_arch)" != "amd64" ]]; then
+    echo_warn "You're on $(_os_arch) and we don't support this with nzbhydra yet.
+If you really want this, take a screenshot of this and ping @sausage in the discord and we'll look at it when that happens lol.
+The installer will now exit"
+    exit 1
+fi
+
 . /etc/swizzin/sources/functions/utils
 
 username=$(_get_master_username)

@@ -3,24 +3,20 @@
 function update_nginx() {
     codename=$(lsb_release -cs)
 
-    if [[ $codename =~ ("xenial"|"stretch") ]]; then
+    if [[ $codename == "stretch" ]]; then
         mcrypt=php-mcrypt
     else
         mcrypt=
     fi
-
     #Deprecate nginx-extras in favour of installing fancyindex alone
-    # (unless you use xenial)
-    if [[ ! $codename == "xenial" ]]; then
-        if dpkg -s nginx-extras > /dev/null 2>&1; then
-            apt_remove nginx-extras
-            apt_install nginx libnginx-mod-http-fancyindex
-            apt_autoremove
-            rm $(ls -d /etc/nginx/modules-enabled/*.removed)
-            systemctl reload nginx
-        fi
-    fi
 
+    if dpkg -s nginx-extras > /dev/null 2>&1; then
+        apt_remove nginx-extras
+        apt_install nginx libnginx-mod-http-fancyindex
+        apt_autoremove
+        rm $(ls -d /etc/nginx/modules-enabled/*.removed)
+        systemctl reload nginx
+    fi
     LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
 
     missing=()

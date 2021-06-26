@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#shellcheck disable=SC2002
 
 export dbdir="/var/lib/swizzin/db"
 
@@ -39,6 +40,7 @@ _getswizdb() {
     }
     echo_log_only "Output of key \"$key\""
     cat "$path" | tee -a "$log"
+    return "${PIPESTATUS[0]}"
 }
 export -f _getswizdb
 
@@ -86,14 +88,18 @@ export -f _setswizdb
 # $1 = key
 # \
 # **Returns code 1 if not found**
+# **Returns code 2 if found, but a directory**
 _pathswizdb() {
     key="$1"
-    if [ -e "$dbdir/$key" ]; then
+    if [ -f "$dbdir/$key" ] || [ -L "$dbdir/$key" ]; then
         echo_log_only "Path of file for key \"$key\" is  \"$dbdir/$key\""
         echo "$dbdir/$key"
         return 0
+    elif [ -d "$dbdir/$key" ]; then
+        echo "$dbdir/$key/"
+        return 2
     else
-        echo_log_only "File for key \"$key\" does not exist"
+        echo_log_only "File/symlink for key \"$key\" does not exist"
         return 1
     fi
 }

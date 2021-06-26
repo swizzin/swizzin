@@ -59,18 +59,31 @@ function pyenv_create_venv() {
 
 # Install pip appropriately if not yet installed
 function python_getpip() {
-    if ! command -v pip > /dev/null 2>&1; then
+    if command -v python2.7 > /dev/null 2>&1; then
+        python2bin=python2.7
+    elif command -v python2 > /dev/null 2>&1; then
+        python2bin=python2
+    else
+        echo_error "No python 2 installed"
+    fi
+
+    if ! ${python2bin} -m pip > /dev/null 2>&1; then
         echo_progress_start "Installing pip"
-        if command -v python2.7 > /dev/null 2>&1; then
-            python2bin=python2.7
-        else
-            python2bin=python2
-        fi
-        cd /tmp
+        cd /tmp || {
+            echo_error "Cannot cd to /tmp"
+            exit 1
+        }
         curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py >> $log 2>&1
         ${python2bin} get-pip.py >> $log 2>&1
-        pip install virtualenv >> "${log}" 2>&1
         echo_progress_done "Pip installed"
+    else
+        echo_log_only "pip is available"
+    fi
+
+    if ! ${python2bin} -m virtualenv -h > /dev/null 2>&1; then
+        echo_progress_start "Installing virtualenv"
+        ${python2bin} -m pip install virtualenv >> "${log}" 2>&1
+        echo_progress_done
     fi
 }
 
