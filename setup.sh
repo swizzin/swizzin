@@ -21,8 +21,8 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-export log=/root/logs/swizzin.log
-mkdir -p /root/logs
+export log=/var/log/swizzin/setup.log
+mkdir -p /var/log/swizzin
 touch $log
 
 # Setting up /etc/swizzin
@@ -181,7 +181,6 @@ _option_parse "$@"
 
 _os() {
     if [ ! -d /install ]; then mkdir /install; fi
-    if [ ! -d /root/logs ]; then mkdir /root/logs; fi
     if ! which lsb_release > /dev/null; then
         echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
         apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
@@ -405,6 +404,7 @@ _run_post() {
 
 _os
 _preparation
+
 ## If install is attended, do the nice intro
 if [[ $unattend != "true" ]]; then
     if [[ -z "$user" ]] && [[ -z "$pass" ]]; then # If password AND username are empty
@@ -419,6 +419,9 @@ _adduser
 if [[ $unattend != "true" ]] && [[ ${#installArray[@]} -eq 0 ]]; then _choices; fi
 _check_results
 _prioritize_results
+#shellcheck source=sources/functions/logrotate
+. /etc/swizzin/sources/functions/logrotate
+install_swiz_logrotate
 _install
 _post
 _run_post

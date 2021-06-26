@@ -16,6 +16,7 @@
 
 #shellcheck source=sources/globals.sh
 . /etc/swizzin/sources/globals.sh
+mkdir -p /var/log/swizzin
 echo_log_only ">>>> \`box $*\`"
 echo_log_only "git @ $(git --git-dir=/etc/swizzin/.git rev-parse --short HEAD) 2>&1"
 normal=$(tput sgr0)

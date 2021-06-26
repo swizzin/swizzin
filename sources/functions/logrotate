@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+install_swiz_logrotate() {
+    mkdir -p /etc/lorgotate.d
+    if ! grep -q "include /etc/logrotate.d" /etc/logrotate.conf; then
+        echo_log_only "Adding logrotate.d to conf"
+        echo "include /etc/logrotate.d" >> /etc/logrotate.conf
+    fi
+
+    cat > /etc/logrotate.d/swizzin << EOF
+/var/log/swizzin/box.log {
+    rotate 10
+    weekly
+    missingok
+    nocompress
+    notifempty
+    create 0600 root root
+}
+EOF
+
+}

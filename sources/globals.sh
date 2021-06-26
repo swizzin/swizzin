@@ -5,7 +5,7 @@
 # If you're planning to test single scripts outside of either `box` or `setup.sh` context, source this very file in your
 # shell, and the functions and variables will be available until it is terminated.
 
-export log="/root/logs/swizzin.log"
+export log="/var/log/swizzin/box.log"
 
 ############################################
 # FUNCTIONS

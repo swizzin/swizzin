@@ -16,7 +16,7 @@
 
 distribution=$(lsb_release -is)
 release=$(lsb_release -cs)
-echo_info "Please note that both xfce4 and x2go are VERY heavy packages to install and will take quite some time. If you're concerned whether the install is still running or not, please inspect the swizzin log through another session by running \`tail -f /root/logs/swizzin.log\`"
+echo_info "Please note that both xfce4 and x2go are VERY heavy packages to install and will take quite some time. If you're concerned whether the install is still running or not, please inspect the swizzin log through another session by running \`tail -f $log\`"
 
 apt_install xfce4
 #disable lightdm because it causes suspend issues on Ubuntu
