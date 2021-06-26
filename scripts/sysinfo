@@ -155,7 +155,7 @@ _log_uploads() {
         version=
         app_sensitive=()
 
-        logscript=/etc/swizzin/scripts/logging/$choice.sh
+        logscript=/etc/swizzin/scripts/info/$choice.sh
         if [ -e "$logscript" ]; then
             . "$logscript"
         else
