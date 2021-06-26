@@ -22,15 +22,19 @@ HASH=${SALT}${SALTWORDHASH}
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 
-if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
     LIST='tesseract-ocr gocr rhino python2.7-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
 else
     LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
 fi
 
+if [[ $(_os_arch) =~ "arm" ]]; then
+    LIST+=' libffi-dev'
+fi
+
 apt_install $LIST
 
-if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
     python_getpip
 fi
 

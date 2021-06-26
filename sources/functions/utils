@@ -158,3 +158,8 @@ function guess_domains() {
         echo "$ret"
     fi
 }
+
+# Returns a list of installed apps
+_get_installed_apps() {
+    find /install -type f -name .\*.lock | awk -F. '{print $2}' | sort
+}

@@ -7,14 +7,14 @@ if [[ -f /install/.couchpotato.lock ]]; then
         isactive=$(systemctl is-active couchpotato@${user})
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now couchpotato@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             LIST='git python2.7-dev python-virtualenv virtualenv'
         else
             LIST='git python2.7-dev'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
         python2_venv ${user} couchpotato

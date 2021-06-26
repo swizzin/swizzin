@@ -50,9 +50,11 @@ function _source_setup() {
     fi
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-    chmod -R 700 /etc/swizzin/scripts
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
+
+    # Set correct permissions on swizzin files
+    bash /etc/swizzin/scripts/update/04-setpermissions.sh
     echo
 }
 _source_setup "$@"
@@ -190,7 +192,7 @@ _os() {
         echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
         exit 1
     fi
-    if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
+    if [[ ! $codename =~ ("bionic"|"stretch"|"buster"|"focal") ]]; then
         echo_error "Your release ($codename) of $distribution is not supported."
         exit 1
     fi
@@ -384,10 +386,13 @@ _run_checks() {
     if [[ $RUN_CHECKS = "true" ]]; then
         echo
         echo_info "Running post-install checks"
-        echo_progress_start "Checking all failed units"
-        systemctl list-units --failed
-        echo_progress_done "listed"
+        # echo_progress_start "Checking all failed units"
+        # systemctl list-units --failed
+        # echo_progress_done "listed"
+
+        bash /etc/swizzin/scripts/box test || return 1
     fi
+
 }
 
 _run_post() {
@@ -417,4 +422,10 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_checks
+_run_checks || {
+    BAD="true"
+}
+
+if [ "$BAD" == "true" ]; then
+    exit 1
+fi

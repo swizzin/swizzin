@@ -57,7 +57,7 @@ else
     #Nextcloud 21 no longer supports php7.2 so 20 is the latest supported release for Bionic
     echo_progress_start "Downloading and extracting Nextcloud"
     codename=$(lsb_release -cs)
-    if [[ $codename =~ ("stretch"|"xenial") ]]; then
+    if [[ $codename == "stretch" ]]; then
         version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
     elif [[ $codename = "bionic" ]]; then
         version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest20"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"

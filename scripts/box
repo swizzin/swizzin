@@ -124,6 +124,20 @@ function _clr() {
 
 #shellcheck disable=SC2120
 function _update() {
+    case "$(_os_codename)" in
+        "bionic" | "focal" | "buster" | "stretch")
+            echo_log_only "OS supported"
+            ;;
+        *)
+            name=$(_os_codename)
+            echo_warn "${name^} is no longer a supported by swizzin.
+You will not be receiving any new updates past the last supported commit. Swizzin will continue to run as-is.
+We URGE you to migrate to a supported release if/while you still have the chance."
+            SWIZ_GIT_REF="tags/eol-$(_os_codename)"
+            export SWIZ_GIT_REF
+            ;;
+    esac
+
     if [[ -L /etc/swizzin ]]; then
         echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
     elif [[ -e /etc/swizzin/.dev.lock ]]; then
@@ -132,20 +146,32 @@ function _update() {
         echo_warn "Not updating from git due to --dev flag"
     else
         echo_progress_start "Updating swizzin local repository"
-        cd /etc/swizzin || exit
-        git checkout master
-        git fetch origin master
-        git reset --hard origin/master
-        echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
-        echo_progress_done "Local repository updated"
+        git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
+            {
+                echo_warn "Unclean repo detected, resetting current branch."
+                git -C /etc/swizzin reset --hard >> $log 2>&1
+                git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1
+            }
+        {
+            #shellcheck disable=SC2129
+            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
+        } || {
+            echo_error "Failed to update from git"
+            exit 1
+        }
+        echo_progress_done "Local repository updated from ${SWIZ_GIT_REF:-master}"
+        echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
     fi
+    export SWIZ_REPO_SCRIPT_RAN=true
 
+    echo_log_only "Re-sourcing globals.sh"
     # source globals again in case changes were made
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
 
     for f in /etc/swizzin/scripts/update/*; do
-        bash "$f"
+        bash "$f" || exit 1
     done
 }
 
@@ -156,7 +182,7 @@ function _upgrade() {
     for i in "${packages[@]}"; do
         app=${i}
         if [[ "${repo[*]}" =~ $i ]]; then
-            bash /usr/local/bin/swizzin/upgrade/$i.sh
+            bash /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
             echo_warn "Upgrade script for $i does not exist"
         fi
@@ -456,6 +482,43 @@ function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
 
+_run_tests() {
+    shift
+    if [[ -n $1 ]]; then
+        list=("$@")
+    else
+        #shellcheck source=sources/functions/utils
+        . /etc/swizzin/sources/functions/utils
+        readarray -t list < <(_get_installed_apps)
+        echo_info "Tests to run: ${list[*]}"
+    fi
+
+    export bell=false
+    oldlog="$log"
+    log="/root/logs/tests-$(date +%Y.%m.%d-%H:%M:%S).txt"
+    # log='./test-results.txt'
+    export log
+    touch "$log"
+    for item in "${list[@]}"; do
+        if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
+            echo_info "Running test for $item"
+            bash /etc/swizzin/scripts/tests/"$item".sh || BAD="true"
+            echo
+        else
+            echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
+            bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
+            echo
+        fi
+    done
+
+    if [ "$BAD" == "true" ]; then
+        exit 1
+    fi
+    log="$oldlog"
+    export log
+
+}
+
 case "$1" in
     "")
         _intro
@@ -544,6 +607,9 @@ case "$1" in
         ;;
     "sysinfo")
         bash /etc/swizzin/scripts/sysinfo
+        ;;
+    "test")
+        _run_tests "$@"
         ;;
     *)
         echo_error "Invalid command: $1"

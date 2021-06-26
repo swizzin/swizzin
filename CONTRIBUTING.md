@@ -5,6 +5,11 @@ There is a large amount of further documentation and guidance available in our d
 
 In case anything is not clear, we're always happy to explain and teach why/how these things are done; feel free to come talk to us in our Discord.
 
+## Merging against the `develop` branch
+As we use the git flow, please make sure to make your PRs from the `develop` branch, and target the `develop` branch for the PRs.
+
+Changes will make it to the master in releases.
+
 ## Requirements for consideration
 We expect the following criteria from a PR. You're more than welcome to ask us how to achieve any of these that you are not familiar with, and we'll be happy to help.
 - A completed checklist
@@ -69,7 +74,7 @@ When making logic based on distribution codenames, please structure it in such a
 
 A practical example for this is handling packages that are no longer packaged for newer LTS releases. In such scenarios, please make it so that the "default" behaviour is for newer LTS releases, and the older LTS releases are treated as the outliers. e.g.:
 ```bash
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename =~ ("buster"|"stretch") ]]; then
   mcrypt=php-mcrypt
 else
   mcrypt=

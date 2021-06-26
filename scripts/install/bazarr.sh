@@ -12,7 +12,7 @@
 codename=$(lsb_release -cs)
 
 user=$(cut -d: -f1 < /root/.master.info)
-if [[ $codename =~ ("bionic"|"stretch"|"xenial") ]]; then
+if [[ $codename =~ ("bionic"|"stretch") ]]; then
     #shellcheck source=sources/functions/pyenv
     . /etc/swizzin/sources/functions/pyenv
     pyenv_install
@@ -39,9 +39,17 @@ mkdir -p /opt/bazarr/data/config/
 echo_progress_done "Dependencies installed"
 
 if [[ -f /install/.sonarr.lock ]]; then
-    sonarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
-    sonarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
-    sonarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/NzbDrone/config.xml)
+    echo_info "Configuring bazarr to work with sonarr"
+
+    sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
+
+    if [[ -f ${sonarrConfigFile} ]]; then
+        sonarrapi=$(grep -oP "ApiKey>\K[^<]+" "${sonarrConfigFile}")
+        sonarrport=$(grep -oP "\<Port>\K[^<]+" "${sonarrConfigFile}")
+        sonarrbase=$(grep -oP "UrlBase>\K[^<]+" "${sonarrConfigFile}")
+    else
+        echo_warn "Sonarr configuration was not found in ${sonarrConfigFile}, configure api key, port and url base manually in bazarr"
+    fi
 
     cat >> /opt/bazarr/data/config/config.ini << SONC
 [sonarr]
@@ -56,9 +64,17 @@ SONC
 fi
 
 if [[ -f /install/.radarr.lock ]]; then
-    radarrapi=$(grep -oP "ApiKey>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
-    radarrport=$(grep -oP "\<Port>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
-    radarrbase=$(grep -oP "UrlBase>\K[^<]+" /home/${user}/.config/Radarr/config.xml)
+    echo_info "Configuring bazarr to work with radarr"
+
+    radarrConfigFile=/home/${user}/.config/Radarr/config.xml
+
+    if [[ -f ${radarrConfigFile} ]]; then
+        radarrapi=$(grep -oP "ApiKey>\K[^<]+" "${radarrConfigFile}")
+        radarrport=$(grep -oP "\<Port>\K[^<]+" "${radarrConfigFile}")
+        radarrbase=$(grep -oP "UrlBase>\K[^<]+" "${radarrConfigFile}")
+    else
+        echo_warn "Radarr configuration was not found in ${radarrConfigFile}, configure api key, port and url base manually in bazarr"
+    fi
 
     cat >> /opt/bazarr/data/config/config.ini << RADC
 
@@ -77,7 +93,7 @@ if [[ -f /install/.nginx.lock ]]; then
     sleep 10
     bash /usr/local/bin/swizzin/nginx/bazarr.sh
     systemctl reload nginx
-    echo_warn "Please ensure during bazarr wizard that baseurl is set to: /bazarr/"
+    echo_warn "If the bazarr wizard comes up, ensure that baseurl is set to: /bazarr/"
 else
     cat >> /opt/bazarr/data/config/config.ini << BAZC
 
