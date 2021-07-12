@@ -9,7 +9,7 @@ assignees: ''
 <!-- CHECK THE WIKI FIRST https://swizzin.ltd/docs/guides/troubleshooting -->
 <!-- ALWAYS run a `box update` and see if your issue was fixed FIRST -->
 
-## Bug description
+## Description
 <!-- A clear and concise description of what the bug is -->
 
 
