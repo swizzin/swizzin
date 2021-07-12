@@ -6,50 +6,36 @@ labels: ''
 assignees: ''
 
 ---
-<!-- Issues that do not follow the format will be automatically closed. Please make sure no headins are omitted or changed. -->
-<!-- Please first consukt the project's wiki and the troubleshooting steps. you can find thise here https://swizzin.ltd/docs/guides/troubleshooting -->
+<!-- CHECK THE WIKI FIRST https://swizzin.ltd/docs/guides/troubleshooting -->
+<!-- Always run a `box update` and see if your issue was fixed FIRST -->
 
 ## Bug description
-(A clear and concise description of what the bug is.)
+<!--A clear and concise description of what the bug is -->
 
 ## Reproduction steps
-Steps to reproduce the behavior:
 1. Install package '...'
 2. Go to '....'
 3. Error '...'
 
-## Installed applications through swizzin
-(e.g. Nginx, ffmpeg, panel)
 
 ## Expected behavior
-(A clear and concise description of what you expected to happen.)
+<!-- What should happen instead -->
 
-## Server Info
-**(please complete the following information):**
- - OS: (e.g. Debian 10, Ubuntu 20.04)
- - Arch: <!-- e.g. x86_64 / 64bit / arm64, etc. -->
- - Image Source: (e.g. "Vanilla download" or "Installscript from specific provider")
+## Context
+**Swizzin version:**
+<!-- Mention the commit hash you are seeing from `box update` -->
+<!-- (e.g. HEAD is now at d4d151b) -->
 
-## Is Swizzin up to date?
-(Please run `box update`, and report whether that was succesful. Please try to reproduce your issue) again. mention the commit hash you are seeing)
+**Server Info:**
+ - OS <!-- (e.g. Debian 10, Ubuntu 20.04)--> : 
+ - Arch: <!-- e.g. x86_64 / 64bit / arm64, etc. --> : 
+ - Image Source <!--e.g. "ISO from web" or "Installed by provider XYZ")--> :
 
-(e.g. HEAD is now at d4d151b)
+**Logs/Output**
+<!-- READ THIS FIRST https://swizzin.ltd/guides/troubleshooting#logs -->
 
-## Additional context
-(Add any other context about the problem here. Logs, terminal output, etc.)
+<!--- Paste your logs BETWEEN the lines with ``` below -->
 
-(Good sources for log output could be the following: (only if they have relevant information))
-- `cat /root/logs/install.log`
-- `cat /root/logs/swizzin.log`
-- `cat /var/logs/nginx/error.log`
-- `systemctl status <app>@<(user)>`
-- `journalctl -xe`
+```
 
-**(Please paste your code into code blocks using the codeblock format like below)**
-
-(For logs of 50+ lines, please rehost to a paste hoster like 0bin)
-
- ```
- ... logs ...
- ```
-
+```
