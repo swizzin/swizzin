@@ -12,6 +12,7 @@ assignees: ''
 ## Bug description
 <!-- A clear and concise description of what the bug is -->
 
+
 ## Symptoms
 **Reprduction steps**:
 1. Install package '...'
@@ -21,11 +22,11 @@ assignees: ''
 **Expected behavior**:
 <!-- What should happen instead -->
 
+
 ## Further info
 **Swizzin version**:
-- Hash: CHANGE ME
-<!-- Mention the commit hash you are seeing from `box update` -->
-<!-- e.g. HEAD is now at d4d151b -->
+<!-- Get this `box update`, e.g. "INFO    HEAD is now set to 001bd70"-->
+- Hash <!-- e.g. "001bd70" -->: CHANGE ME
 
 **Server Info**:
 - OS <!-- e.g. "Debian 10", "Ubuntu 20.04"-->: CHANGE ME
