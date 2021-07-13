@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report broken functionality of the swizzin toolset
-title: " "
+title: "[BUG] "
 labels: [bug]
 body:
   - type: markdown
