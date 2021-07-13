@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report broken functionality of the swizzin toolset
-title: ""
+title: " "
 labels: [bug]
 body:
   - type: markdown
@@ -30,10 +30,10 @@ body:
       label: What OS are you using?
       multiple: false
       options:
-        - label: Debian 10
-        - label: Ubuntu 20.04
-        - label: Debian 9
-        - label: Ubuntu 18.04
+        - Debian 10
+        - Ubuntu 20.04
+        - Debian 9
+        - Ubuntu 18.04
     validations:
       required: true
   - type: dropdown
