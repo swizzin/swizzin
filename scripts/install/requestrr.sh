@@ -65,4 +65,4 @@ fi
 
 touch /install/.requestrr.lock
 
-echo_progress_done "Requestrr service installed and enabled"
+echo_success "Requestrr installed"
