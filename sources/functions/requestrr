@@ -21,11 +21,11 @@ function _requestrr_download() {
 }
 
 function _requestrr_chpass() {
-    password=$(_get_user_password "$(_get_master_username)")
+    password="$(_get_user_password "$(_get_master_username)")"
     local_packages=/usr/local/bin/swizzin
-    declare hashpass=($(python3 ${local_packages}/requestrr.hashPass.py "${password}"))
-    export pass=${hashpass[0]}
-    export key=${hashpass[1]}
+    readarray -t hashpass < <(python3 ${local_packages}/requestrr.hashPass.py "${password}")
+    export requestrr_pass=${hashpass[0]}
+    export requestrr_key=${hashpass[1]}
 }
 
 function _requestrr_config() {
@@ -50,8 +50,8 @@ function _requestrr_config() {
 {
   "Authentication": {
     "Username": "$(_get_master_username)",
-    "Password": "${pass}",
-    "PrivateKey": "${key}"
+    "Password": "${requestrr_pass}",
+    "PrivateKey": "${requestrr_key}"
   },
   "ChatClients": {
     "Discord": {
