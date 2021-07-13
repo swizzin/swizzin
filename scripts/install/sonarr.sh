@@ -126,7 +126,8 @@ _install_sonarr() {
     . /etc/swizzin/sources/functions/mono
     mono_repo_setup
     mkdir -p "$sonarrv3confdir"
-    chown -R "$user":"$user" /home/"$user"/.config
+    chown "$user":"$user" /home/"$user"/.config
+    chown "$user":"$user" -R "$sonarrv3confdir"
 
     echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
     wget -O /tmp/sonarr.tar.gz "https://services.sonarr.tv/v1/download/main/latest?version=3&os=linux" >> ${log} 2>&1 || {
