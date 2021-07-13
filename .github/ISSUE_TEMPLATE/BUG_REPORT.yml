@@ -12,8 +12,15 @@ body:
     attributes:
       label: What happened?
       description: Also tell us, what did you expect to happen?
-      placeholder: Tell us what you see!
-      value: "A bug happened!"
+      value: |
+        Steps to reproduce:
+
+        1. Install package '...'
+        2. Go to '....'
+        3. Error '...'
+
+        Expected results:
+
     validations:
       required: true
   - type: input
