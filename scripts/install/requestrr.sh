@@ -17,8 +17,12 @@ user=$(_get_master_username)
 _requestrr_download
 
 # Extract and Put into Place
+apt_install unzip
 echo_progress_start "Extracting archive"
-unzip -q /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1
+unzip -q /tmp/requestrr.zip -d /opt/ >> "$log" 2>&1 || {
+    echo_error "Failed to extract archive"
+    exit 1
+}
 rm /tmp/requestrr.zip
 mv /opt/requestrr* /opt/requestrr
 echo_progress_done "Archive extracted"
