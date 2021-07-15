@@ -20,7 +20,6 @@ fi
 
 _install() {
     apt_install xdg-utils wget xz-utils libxcb-xinerama0 libfontconfig libgl1-mesa-glx
-    # TODO make a whiptail to let user install from repo, binaries, or source, and modify that selection based on the arch
     echo_progress_start "Installing calibre"
     if [[ $(_os_arch) = "amd64" ]]; then
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
@@ -31,7 +30,6 @@ _install() {
     else
         echo_info "Calibre installer does not support $(_os_arch), falling back to package manager"
         apt_install calibre
-        # : #TODO build calibre from source
     fi
     echo_progress_done "Calibre installed"
 }
@@ -62,7 +60,7 @@ _library() {
 
 _install
 _library
-# _content_server
+
 echo_info "You can install calibreweb or calibrecs separately"
 echo_docs "application/calibreweb"
 echo_docs "application/calibrecs"

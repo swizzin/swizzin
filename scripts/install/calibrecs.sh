@@ -25,39 +25,14 @@ fi
 clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs"
 
 _adduser() {
-    ## TODO handle programatically
-    # echo -e "1\n$CALIBRE_LIBRARY_USER\n$pass\n$pass" > /tmp/csuservdinput.txt
-    # calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users < /tmp/csuservdinput.txt
-    # echo_info "You will now be asked to create a user for the calibre content server."
-    # echo_query "Press enter to continue" "enter"
-    # read
-    # calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users | tee -a "$log" || {
-    #     rm "$clbServerPath"/server-users.sqlite
-    #     echo_error "Failed to set up user for calibre-server"
-    #     exit 1
-    # }
-
-    echo_log_only "Adding user $user"
-    user=$1
-    pass=$(_get_user_password "$user")
-    echo -e "1\n$user\n$pass\n$pass" | calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users || {
-        echo_error "Something failed?"
-        exit 1
-    }
-}
-
-_install() {
-    mkdir -p "$clbServerPath"/
-    chown "$CALIBRE_LIBRARY_USER": /home/"$CALIBRE_LIBRARY_USER"/.config # Just in case this is the first time .config is created
-    touch "$clbServerPath"/.calibre.log
-
-    # TODO improve when the upstream cli options are in master and we can build from source
-
     echo_progress_start "Adding users to calibre content server"
-    # readarray -t users < <(_get_user_list)
-    users=("$(_get_master_username)")
     for user in "${users[@]}"; do
-        _adduser "$user"
+        echo_log_only "Adding user $user"
+        pass=$(_get_user_password "$user")
+        echo -e "1\n$user\n$pass\n$pass" | calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users || {
+            echo_error "Something failed?"
+            exit 1
+        }
     done
     echo_progress_done "Users added to calibre content server"
 
@@ -101,13 +76,16 @@ _nginx() {
 
 }
 
-#Handling adding new users post-install
+# adduser function is disabled as currently not all arches support this.
+# When arm64 is built from source or it is handled in the installer, this should be revisited
 if [[ -n $1 ]]; then
-    _adduser "$1"
+    # users=("$1")
+    # _adduser
     exit 0
 fi
 
-# _install # Removed as we're going to just un-auth the thing and use nginx-based auth instead
+# readarray -t users < <(_get_user_list)
+# _adduser
 _systemd
 _nginx
 
