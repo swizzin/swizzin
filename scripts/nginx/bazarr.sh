@@ -35,7 +35,7 @@ location /bazarr/ {
     location /bazarr/api {
         auth_request off;
         proxy_pass http://127.0.0.1:6767/bazarr/api;
-
+    }
 }
 
 BAZN
