@@ -19,12 +19,12 @@ _install() {
         pyenv_install
         pyenv_install_version 3.7.7
         pyenv_create_venv 3.7.7 /opt/.venv/bazarr
-        chown -R ${user}: /opt/.venv/bazarr
+        chown -R "${user}": /opt/.venv/bazarr
     else
         apt_install python3-pip python3-dev python3-venv
         mkdir -p /opt/.venv/bazarr
         python3 -m venv /opt/.venv/bazarr
-        chown -R ${user}: /opt/.venv/bazarr
+        chown -R "${user}": /opt/.venv/bazarr
     fi
 
     if [[ $(_os_arch) =~ "arm" ]]; then
@@ -39,17 +39,22 @@ _install() {
     echo_progress_done "Souce downloaded"
 
     echo_progress_start "Extracting zip"
+    rm -rf /opt/bazarr
     mkdir /opt/bazarr
     unzip /tmp/bazarr.zip -d /opt/bazarr >> $log 2>&1 || {
         echo_error "Failed to extract zip"
         exit 1
     }
+    rm /tmp/bazarr.zip
     echo_progress_done "Zip extracted"
 
     chown -R "${user}": /opt/bazarr
 
     echo_progress_start "Checking python depends"
-    sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" >> $log 2>&1
+    sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r /opt/bazarr/requirements.txt" >> $log 2>&1 || {
+        echo_error "Dependencies failed to install"
+        exit 1
+    }
     mkdir -p /opt/bazarr/data/config/
     echo_progress_done "Dependencies installed"
 }
