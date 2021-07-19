@@ -32,7 +32,7 @@ _install() {
     fi
 
     echo_progress_start "Downloading bazarr source'"
-    wget https://github.com/morpheus65535/bazarr/releases/latest/download/bazarr.zip -O /tmp/bazarr.zip || {
+    wget https://github.com/morpheus65535/bazarr/releases/latest/download/bazarr.zip -O /tmp/bazarr.zip >> $log 2>&1 || {
         echo_error "Failed to download"
         exit 1
     }
@@ -55,9 +55,8 @@ _install() {
 }
 
 _config() {
-
     if [[ -f /install/.sonarr.lock ]]; then
-        echo_info "Configuring bazarr to work with sonarr"
+        echo_progress_start "Configuring bazarr to work with sonarr"
 
         sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
 
@@ -79,10 +78,15 @@ base_url = /${sonarrbase}
 ssl = False
 port = ${sonarrport}
 SONC
+
+        echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
+        echo_progress_done
+    else
+        echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
     fi
 
     if [[ -f /install/.radarr.lock ]]; then
-        echo_info "Configuring bazarr to work with radarr"
+        echo_progress_start "Configuring bazarr to work with radarr"
 
         radarrConfigFile=/home/${user}/.config/Radarr/config.xml
 
@@ -105,16 +109,8 @@ base_url = /${radarrbase}
 ssl = False
 port = ${radarrport}
 RADC
-    fi
-
-    if [[ -f /install/.sonarr.lock ]]; then
-        echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
-    else
-        echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
-    fi
-
-    if [[ -f /install/.radarr.lock ]]; then
         echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
+        echo_progress_done
     else
         echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini
     fi
@@ -123,13 +119,14 @@ RADC
 _nginx() {
 
     if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
         sleep 10
         bash /usr/local/bin/swizzin/nginx/bazarr.sh
         systemctl reload nginx
+        echo_progress_done "nginx configured"
         echo_warn "If the bazarr wizard comes up, ensure that baseurl is set to: /bazarr/"
     else
         cat >> /opt/bazarr/data/config/config.ini << BAZC
-
 [general]
 ip = 0.0.0.0
 base_url = /
@@ -139,7 +136,7 @@ BAZC
 }
 
 _systemd() {
-
+    echo_progress_start "Creating and starting service"
     cat > /etc/systemd/system/bazarr.service << BAZ
 [Unit]
 Description=Bazarr for ${user}
@@ -154,6 +151,7 @@ Restart=on-failure
 RestartSec=5
 Type=simple
 ExecStart=/opt/.venv/bazarr/bin/python3 /opt/bazarr/bazarr.py
+WorkingDirectory=/opt/bazarr
 KillSignal=SIGINT
 TimeoutStopSec=20
 SyslogIdentifier=bazarr.${user}
@@ -165,6 +163,7 @@ BAZ
     chown -R ${user}: /opt/bazarr
 
     systemctl enable -q --now bazarr 2>&1 | tee -a $log
+    echo_progress_done "Service started"
 }
 
 _install
