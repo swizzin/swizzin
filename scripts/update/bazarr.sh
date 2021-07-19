@@ -54,17 +54,16 @@ if [[ -f /install/.bazarr.lock ]]; then
         }
         rm /tmp/bazarr.zip
 
-        chown -R "${user}": /opt/bazarr
-
         sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r /opt/bazarr/requirements.txt" >> $log 2>&1 || {
             echo_error "Dependencies failed to install"
             exit 1
         }
 
         cp -R /tmp/bazarr_data /opt/bazarr/data
+        chown -R "${user}": /opt/bazarrgit
 
         if [[ $active == "active" ]]; then
-            systemctl stop bazarr
+            systemctl start bazarr
         fi
         echo_progress_done "Bazarr updated"
     fi
