@@ -27,15 +27,29 @@ _install() {
         chown -R ${user}: /opt/.venv/bazarr
     fi
 
-    cd /opt
+    if [[ $(_os_arch) =~ "arm" ]]; then
+        apt_install libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg libatlas-base-dev
+    fi
 
-    echo_progress_start "Cloning into '/opt/bazarr'"
-    git clone https://github.com/morpheus65535/bazarr.git >> $log 2>&1
-    chown -R ${user}: bazarr
-    echo_progress_done "cloned"
-    cd bazarr
+    echo_progress_start "Downloading bazarr source'"
+    wget https://github.com/morpheus65535/bazarr/releases/latest/download/bazarr.zip -O /tmp/bazarr.zip || {
+        echo_error "Failed to download"
+        exit 1
+    }
+    echo_progress_done "Souce downloaded"
+
+    echo_progress_start "Extracting zip"
+    mkdir /opt/bazarr
+    unzip /tmp/bazarr.zip -d /opt/bazarr >> $log 2>&1 || {
+        echo_error "Failed to extract zip"
+        exit 1
+    }
+    echo_progress_done "Zip extracted"
+
+    chown -R "${user}": /opt/bazarr
+
     echo_progress_start "Checking python depends"
-    sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" >> $log 2>&1
+    sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r requirements.txt" >> $log 2>&1
     mkdir -p /opt/bazarr/data/config/
     echo_progress_done "Dependencies installed"
 }
