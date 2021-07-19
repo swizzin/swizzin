@@ -50,7 +50,7 @@ _install() {
 
     chown -R "${user}": /opt/bazarr
 
-    echo_progress_start "Checking python depends"
+    echo_progress_start "Installing python dependencies"
     sudo -u "${user}" bash -c "/opt/.venv/bazarr/bin/pip3 install -r /opt/bazarr/requirements.txt" >> $log 2>&1 || {
         echo_error "Dependencies failed to install"
         exit 1
@@ -84,10 +84,7 @@ ssl = False
 port = ${sonarrport}
 SONC
 
-        echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
         echo_progress_done
-    else
-        echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
     fi
 
     if [[ -f /install/.radarr.lock ]]; then
@@ -114,10 +111,26 @@ base_url = /${radarrbase}
 ssl = False
 port = ${radarrport}
 RADC
-        echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
         echo_progress_done
+    fi
+
+    cat >> /opt/bazarr/data/config/config.ini << BAZC
+[general]
+ip = 0.0.0.0
+base_url = /
+BAZC
+
+    if [ -f /install/.sonarr.lock ]; then
+        echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
+    else
+        echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
+    fi
+
+    if [ -f /install/.radarr.lock ]; then
+        echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
     else
         echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini
+
     fi
 }
 
@@ -131,11 +144,6 @@ _nginx() {
         echo_progress_done "nginx configured"
         echo_warn "If the bazarr wizard comes up, ensure that baseurl is set to: /bazarr/"
     else
-        cat >> /opt/bazarr/data/config/config.ini << BAZC
-[general]
-ip = 0.0.0.0
-base_url = /
-BAZC
         echo_info "Bazarr will run on port 6767"
     fi
 }

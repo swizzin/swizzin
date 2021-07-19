@@ -40,14 +40,8 @@ location /bazarr/ {
 
 BAZN
 
-if ! grep -q "\[general\]" /opt/bazarr/data/config/config.ini > /dev/null 2>&1; then
-    cat >> /opt/bazarr/data/config/config.ini << BAZC
-
-[general]
-ip = 127.0.0.1
-base_url = /bazarr/
-BAZC
-fi
+sed 's|ip = 0.0.0.0|ip = 127.0.0.1|' -i /opt/bazarr/data/config/config.ini
+sed 's|base_url = /$|baseurl = /bazarr/|' -i /opt/bazarr/data/config/config.ini
 
 if [[ $isactive == "active" ]]; then
     systemctl start bazarr
