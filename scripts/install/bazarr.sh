@@ -31,7 +31,7 @@ _install() {
         apt_install libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg libatlas-base-dev
     fi
 
-    echo_progress_start "Downloading bazarr source'"
+    echo_progress_start "Downloading bazarr source"
     wget https://github.com/morpheus65535/bazarr/releases/latest/download/bazarr.zip -O /tmp/bazarr.zip >> $log 2>&1 || {
         echo_error "Failed to download"
         exit 1
@@ -63,6 +63,7 @@ _config() {
     if [[ -f /install/.sonarr.lock ]]; then
         echo_progress_start "Configuring bazarr to work with sonarr"
 
+        # TODO: Use owner when the updaters are merged
         sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
 
         if [[ -f ${sonarrConfigFile} ]]; then
@@ -71,6 +72,7 @@ _config() {
             sonarrbase=$(grep -oP "UrlBase>\K[^<]+" "${sonarrConfigFile}")
         else
             echo_warn "Sonarr configuration was not found in ${sonarrConfigFile}, configure api key, port and url base manually in bazarr"
+            badsonarr="true"
         fi
 
         cat >> /opt/bazarr/data/config/config.ini << SONC
@@ -90,6 +92,7 @@ SONC
     if [[ -f /install/.radarr.lock ]]; then
         echo_progress_start "Configuring bazarr to work with radarr"
 
+        # TODO: Use owner when the updaters are merged
         radarrConfigFile=/home/${user}/.config/Radarr/config.xml
 
         if [[ -f ${radarrConfigFile} ]]; then
@@ -98,6 +101,7 @@ SONC
             radarrbase=$(grep -oP "UrlBase>\K[^<]+" "${radarrConfigFile}")
         else
             echo_warn "Radarr configuration was not found in ${radarrConfigFile}, configure api key, port and url base manually in bazarr"
+            badradarr=true
         fi
 
         cat >> /opt/bazarr/data/config/config.ini << RADC
@@ -120,13 +124,13 @@ ip = 0.0.0.0
 base_url = /
 BAZC
 
-    if [ -f /install/.sonarr.lock ]; then
+    if [ -f /install/.sonarr.lock ] && [ $badsonarr != "true" ]; then
         echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
     else
         echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
     fi
 
-    if [ -f /install/.radarr.lock ]; then
+    if [ -f /install/.radarr.lock ] && [ $badradarr != "true" ]; then
         echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
     else
         echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini
