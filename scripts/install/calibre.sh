@@ -42,7 +42,8 @@ _install() {
 
 _library() {
     if [ -e "$CALIBRE_LIBRARY_PATH" ]; then
-        echo_info "Calibre library already exists"
+        # echo_info "Library "
+        echo_info "Skipping library creation of $CALIBRE_LIBRARY_PATH"
         return 0
     fi
 
