@@ -8,14 +8,17 @@ clbWebUser="calibreweb" # or make this master user?
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-if [[ -z $CALIBRE_LIBRARY_USER ]]; then
-    CALIBRE_LIBRARY_USER="$(_get_master_username)"
+if [ -z "$CALIBRE_LIBRARY_USER" ]; then
+    if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_user)"; then
+        CALIBRE_LIBRARY_USER=$(_get_master_username)
+        swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
+    fi
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
-    # If not specifically declared, try the default calibre lib in swizzin
-    if [ -e "/home/$CALIBRE_LIBRARY_USER/Calibre Library" ]; then
+    if ! CALIBRE_LIBRARY_PATH="$(swizdb get calibre/library_path)"; then
         CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
+        swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
     fi
 fi
 
