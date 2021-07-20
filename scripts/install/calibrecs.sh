@@ -13,6 +13,9 @@ if [ -z "$CALIBRE_LIBRARY_USER" ]; then
         CALIBRE_LIBRARY_USER=$(_get_master_username)
         swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
     fi
+else
+    echo_info "Setting calibre/library_user = $CALIBRE_LIBRARY_USER"
+    swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
 fi
 
 if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
@@ -20,6 +23,9 @@ if [ -z "$CALIBRE_LIBRARY_PATH" ]; then
         CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
         swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
     fi
+else
+    echo_info "Setting calibre/library_path = $CALIBRE_LIBRARY_PATH"
+    swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
 fi
 
 clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs"
