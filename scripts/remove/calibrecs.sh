@@ -6,7 +6,6 @@
 if [ -z "$CALIBRE_LIBRARY_USER" ]; then
     if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_user)"; then
         CALIBRE_LIBRARY_USER=$(_get_master_username)
-        swizdb set "calibre/library_user" "$CALIBRE_LIBRARY_USER"
     fi
 fi
 
