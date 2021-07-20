@@ -144,7 +144,7 @@ function install_qt() {
         QT_SWIZZIN=QT_QMAKE="${QT_PREFIX}/bin"
     else
         LIST='qtbase5-dev qttools5-dev'
-        apt_install $LIST
+        apt_install --no-recommends $LIST
         #If we're installing from repo then we can remove these (i.e. dist-upgrade or qbit downgrade)
         dpkg -r qtbase5-swizzin > /dev/null 2>&1
         dpkg -r qttools5-swizzin > /dev/null 2>&1
