@@ -36,7 +36,7 @@ _adduser() {
         echo_log_only "Adding user $user"
         pass=$(_get_user_password "$user")
         echo -e "1\n$user\n$pass\n$pass" | calibre-server --userdb "$clbServerPath"/server-users.sqlite --manage-users || {
-            echo_error "Something failed?"
+            echo_error "Adding $user to calibre server failed."
             exit 1
         }
     done
