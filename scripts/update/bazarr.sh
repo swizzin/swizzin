@@ -60,7 +60,7 @@ if [[ -f /install/.bazarr.lock ]]; then
         }
 
         cp -R /tmp/bazarr_data /opt/bazarr/data
-        chown -R "${user}": /opt/bazarrgit
+        chown -R "${user}": /opt/bazarr
 
         if [[ $active == "active" ]]; then
             systemctl start bazarr
