@@ -25,4 +25,11 @@ if [[ -f /install/.nginx.lock ]]; then
     rm /etc/nginx/apps/calibrecs.conf
     systemctl reload nginx
 fi
+
+if [ ! -f /install/.calibreweb.lock ] && [ ! -f /install/.calibre.lock ]; then
+    echo_log_only "Clearing calibre swizdb"
+    swizdb clear calibre/library_path
+    swizdb clear calibre/library_user
+fi
+
 rm /install/.calibrecs.lock

@@ -14,5 +14,8 @@ fi
 
 rm /install/.calibre.lock
 
-swizdb clear "calibre/library_path"
-swizdb clear "calibre/library_user"
+if [ ! -f /install/.calibreweb.lock ] && [ ! -f /install/.calibrecs.lock ]; then
+    echo_log_only "Clearing calibre swizdb"
+    swizdb clear calibre/library_path
+    swizdb clear calibre/library_user
+fi
