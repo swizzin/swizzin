@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ ! -f /install/.calibre.lock ]; then
-    echo_error "Calibre is not installer"
+    echo_error "Calibre is not installed"
     exit 1
 fi
 
