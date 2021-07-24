@@ -6,31 +6,33 @@
 # Liara already made a doc for installing JDownloader manually https://docs.swizzin.net/guides/jdownloader/
 
 # Get my.jdownloader info from end user
-# TODO: Not sure if the following echo_query statements require the second argument of "hidden"
 # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
-echo_query "You will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nEnter the e-mail used to access this account once you have created one:" "hidden"
+echo_query "You will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nIt is recommended to use a randomly generated password for your account since the password is save in plain text on the server.\nEnter the e-mail used to access this account once you have created one:"
 read 'myjd_email'
-echo_query "Please enter the password for your account." "hidden"
+echo_query "Please enter the password for your account."
 read 'myjd_password'
-echo_query "Please enter the device name you would like this installation to show up as." "hidden"
+echo_query "Please enter the device name you would like this installation to show up as."
 read 'myjd_devicename'
 
 # Install Java
 # TODO: use "java -version" to check if it even needs installation
 echo_progress_start "Downloading and installing a Java runtime environment."
-# TODO: This is going to echo a lot. Should disable that somehow probably. None of it is necessary afaik.
-sudo apt update
-sudo apt install default-jre -y
+apt_update
+apt_install default-jre
 # TODO: use "java -version" to verify installation
-echo_progress_start "Downloading and installing jdownloader"
-mkdir -p /home/$user/jd
-wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/$user/jd/JDownloader.jar
-# TODO: This is going to echo a lot. Should disable that somehow probably. None of it is necessary afaik.
-java -jar /home/$user/jd/JDownloader.jar -norestart
 
-# pass my.jdownloader information to /home/$user/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
+# Install JDownloader
+echo_progress_start "Downloading and installing jdownloader"
+mkdir -p /home/$1/jd
+wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/$1/jd/JDownloader.jar
+
+# Run JDownloader once to generate the majority of files and dirs.
+java -jar /home/$1/jd/JDownloader.jar -norestart >> ${log} 2>&1
+# TODO: Check if it ran correctly.
+
+# Pass my.jdownloader information to /home/$1/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
 echo_progress_start "Adding your my.jdownloader information to the installation."
-cat > /home/$user/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
+cat > /home/$1/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
 {
   "email" : "$myjd_email",
   "password" : "$myjd_password",
@@ -54,9 +56,9 @@ ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd/JDownloader.ja
 [Install]
 WantedBy=multi-user.target
 EOF
+systemctl enable -q --now jdownloader@$1
 
-systemctl enable -q --now jdownloader@$user
-
+# Finalize installation
 echo_progress_done
 touch /install/.jdownloader.lock
-echo_success "JDownloader installed for $user"
+echo_success "JDownloader installed"
