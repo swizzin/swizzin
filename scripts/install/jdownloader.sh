@@ -8,6 +8,8 @@
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 
+# TODO: Make this check for all swizzin users, and install JDownloader for each user.
+
 # Get my.jdownloader info from end user
 # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
 echo_query "You will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nIt is recommended to use a randomly generated password for your account since the password is save in plain text on the server.\nEnter the e-mail used to access this account once you have created one:"
@@ -31,7 +33,7 @@ if [[ "$STR" == *"$SUB"* ]]; then
     SUB='not found'
     if [[ "$STR" == *"$SUB"* ]]; then
         echo_info "Java was not installed correctly. Check the swizzin log for details. Exiting."
-        exit(1)
+        exit 1
     else
         echo_info "Java was installed successfully."
     fi
@@ -51,6 +53,7 @@ if [[ -e "/home/$1/jd/cfg" ]]; then
     echo_info "JDownloader's first run was likely successful."
 else
     echo_info "JDownloader's first run likely failed. Exiting."
+    exit 2
 fi
 
 # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
