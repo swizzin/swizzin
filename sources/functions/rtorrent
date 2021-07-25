@@ -111,7 +111,7 @@ function build_libtorrent_rakshasa() {
         if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
             patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
             if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
-                patch -p1 < /etc/swizzin/sources/cppunit.patch >> "$log" 2>&1
+                patch -p1 < /etc/swizzin/sources/cppunit-libtorrent.patch >> "$log" 2>&1
             fi
         fi
     fi
@@ -142,6 +142,10 @@ function build_rtorrent() {
         VERSION=$rtorrentver
     fi
     cd /tmp/rtorrent
+    #use pkgconfig for cppunit if 0.9.6
+    if [[ ${rtorrentver} == "0.9.6" ]]; then
+        patch -p1 < /etc/swizzin/sources/cppunit-rtorrent.patch >> "$log" 2>&1
+    fi
     ./autogen.sh >> $log 2>&1
     if [[ ${rtorrentver} == feature-bind ]]; then
         VERSION=$(git describe | sed 's/^.//g')
