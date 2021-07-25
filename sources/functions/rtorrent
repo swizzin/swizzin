@@ -144,7 +144,7 @@ function build_rtorrent() {
     cd /tmp/rtorrent
     #use pkgconfig for cppunit if 0.9.6
     if [[ ${rtorrentver} == "0.9.6" ]]; then
-        patch -p1 < /etc/swizzin/sources/cppunit-rtorrent.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/rtorrent-0.9.6.patch >> "$log" 2>&1
     fi
     ./autogen.sh >> $log 2>&1
     if [[ ${rtorrentver} == feature-bind ]]; then
