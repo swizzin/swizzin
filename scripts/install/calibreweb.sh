@@ -46,9 +46,9 @@ function _install_dependencies_calibreweb() {
 }
 
 function _install_calibreweb() {
-    echo_progress_start "Creating venv for calibreweb"
     apt_install python3-pip python3-dev python3-venv
     mkdir -p /opt/.venv/calibreweb
+    echo_progress_start "Creating venv for calibreweb"
     python3 -m venv /opt/.venv/calibreweb
     echo_progress_done "Venv created"
 
