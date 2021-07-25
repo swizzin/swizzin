@@ -125,7 +125,7 @@ function _clr() {
 #shellcheck disable=SC2120
 function _update() {
     case "$(_os_codename)" in
-        "bionic" | "focal" | "buster" | "stretch")
+        "bionic" | "focal" | "buster" | "stretch" | "bullseye")
             echo_log_only "OS supported"
             ;;
         *)
