@@ -1,4 +1,6 @@
 #!/bin/bash
+# JDownloader Installer for swizzin
+# Author: Aethaeran
 
 # References
 # https://swizzin.ltd/dev/structure/
@@ -8,17 +10,61 @@
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 
-# TODO: Make this check for all swizzin users, and install JDownloader for each user.
+# TODO: Figure out if these imports are even necessary
+. /etc/swizzin/sources/globals.sh
+. /etc/swizzin/sources/functions/users
 
-# Get my.jdownloader info from end user
-# TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
-echo_query "You will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nIt is recommended to use a randomly generated password for your account since the password is save in plain text on the server.\nEnter the e-mail used to access this account once you have created one:"
-read 'myjd_email'
-echo_query "Please enter the password for your account."
-read 'myjd_password'
-echo_query "Please enter the device name you would like this installation to show up as."
-read 'myjd_devicename'
+# Functions
+function install_jdownloader() {
 
+    # Get my.jdownloader info for user
+    # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
+    # TODO: swizzin likely has utils for this already
+    echo_query "The user will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nIt is recommended to use a randomly generated password for the account since the password is save in plain text in the program folder.\nEnter the e-mail used to access this account once one is created:"
+    read -r 'myjd_email'
+    echo_query "Please enter the password for the account."
+    read -r 'myjd_password'
+    echo_query "Please enter the device name they would like this JDownloader installation to show up as."
+    read -r 'myjd_devicename'
+
+    # Install JDownloader
+    echo_progress_start "Downloading and installing JDownloader for $user"
+    mkdir -p /home/"$user"/jd
+    wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/"$user"/jd/JDownloader.jar
+    # Run JDownloader once to generate the majority of files and dirs.
+    java -jar /home/"$user"/jd/JDownloader.jar -norestart >> ${log} 2>&1
+    # Check if JDownloader's first run was successful.
+    # TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
+    if [[ -e "/home/$user/jd/cfg" ]]; then
+        echo_info "JDownloader's first run was likely successful."
+    else
+        echo_info "JDownloader's first run likely failed. Exiting."
+        exit 2
+    fi
+
+    # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
+    echo_progress_start "Adding the users https://my.jdownloader.org/ information to their installation."
+    cat > /home/"$user"/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
+    {
+      "email" : "$myjd_email",
+      "password" : "$myjd_password",
+      "devicename" : "$myjd_devicename"
+    }
+EOF
+
+    systemctl enable -q --now jdownloader@"$user"
+}
+
+# If there was a variable passed to this script, it isn't the initial installation.
+# It is likely being called because a user is being added with "box adduser".
+# Install JDownloader for just this user, and exit.
+if [[ -n $1 ]]; then
+    user=$1
+    install_jdownloader "${user}"
+    exit 0
+fi
+
+# If we made it through the previous block. The script has likely been called from "box install".
 # Install Java
 # use "java -version" to check if it even needs installation
 STR=$(java --version)
@@ -41,33 +87,8 @@ else
     echo_info "Java was found. No need to install."
 fi
 
-# Install JDownloader
-echo_progress_start "Downloading and installing jdownloader"
-mkdir -p /home/$1/jd
-wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/$1/jd/JDownloader.jar
-# Run JDownloader once to generate the majority of files and dirs.
-java -jar /home/$1/jd/JDownloader.jar -norestart >> ${log} 2>&1
-# Check if JDownloader's first run was successful.
-# TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
-if [[ -e "/home/$1/jd/cfg" ]]; then
-    echo_info "JDownloader's first run was likely successful."
-else
-    echo_info "JDownloader's first run likely failed. Exiting."
-    exit 2
-fi
-
-# Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
-echo_progress_start "Adding your my.jdownloader information to the installation."
-cat > /home/$1/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
-{
-  "email" : "$myjd_email",
-  "password" : "$myjd_password",
-  "devicename" : "$myjd_devicename"
-}
-EOF
-
 # Create systemd service file, and enable
-echo_progress_start "Adding jdownloader multi-user service, and starting the service."
+echo_progress_start "Adding jdownloader@.service file..."
 cat > /etc/systemd/system/jdownloader@.service << EOF
 [Unit]
 Description=JDownloader Service
@@ -82,7 +103,13 @@ ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd/JDownloader.ja
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now jdownloader@$1
+
+# Check for all current swizzin users, and install JDownloader for each user.
+users=("$(_get_user_list)")
+
+for user in "${users[@]}"; do
+    install_jdownloader "${user}"
+done
 
 # Finalize installation
 echo_progress_done
