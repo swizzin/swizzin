@@ -48,6 +48,8 @@ _library() {
     fi
 
     if [ "$CALIBRE_LIBRARY_SKIP" = "true" ]; then
+        chmod 0770 -R "$CALIBRE_LIBRARY_PATH"
+        chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH"
         echo_info "Library creation skipped."
         return 0
     fi
@@ -60,7 +62,7 @@ _library() {
 
     mkdir -p "$CALIBRE_LIBRARY_PATH"
     calibredb add /tmp/rur.epub /tmp/trial.epub --with-library "$CALIBRE_LIBRARY_PATH"/ >> $log
-    chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH" -R
+    chown -R "$CALIBRE_LIBRARY_USER":"$CALIBRE_LIBRARY_USER" "$CALIBRE_LIBRARY_PATH"
     chmod 0770 -R "$CALIBRE_LIBRARY_PATH"
     echo_progress_done "Library installed to $CALIBRE_LIBRARY_PATH"
 }
