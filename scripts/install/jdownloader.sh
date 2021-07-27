@@ -25,7 +25,7 @@ function install_jdownloader() {
     read -r 'myjd_email'
     echo_query "Please enter the password for the account."
     read -r 'myjd_password'
-    echo_query "Please enter the device name they would like this JDownloader installation to show up as."
+    echo_query "Please enter the desired device name"
     read -r 'myjd_devicename'
 
     # Install JDownloader
