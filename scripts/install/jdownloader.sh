@@ -20,7 +20,7 @@ function install_jdownloader() {
     # Get my.jdownloader info for user
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
     # TODO: swizzin likely has utils for this already
-    echo_info "The user will require an account at https://my.jdownloader.org/ in order to access your JDownloader installation's web UI.\nIt is recommended to use a randomly generated password for the account since the password is save in plain text in the program folder."
+    echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text."
     echo_query "Enter the e-mail used to access this account once one is created:"
     read -r 'myjd_email'
     echo_query "Please enter the password for the account."
