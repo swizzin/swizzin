@@ -41,6 +41,7 @@ function install_jdownloader() {
         echo_info "JDownloader's first run likely failed. Exiting."
         exit 2
     fi
+    echo_progress_done
 
     # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
     echo_progress_start "Adding the users https://my.jdownloader.org/ information to their installation."
@@ -51,8 +52,11 @@ function install_jdownloader() {
       "devicename" : "$myjd_devicename"
     }
 EOF
+    echo_progress_done
+    echo_progress_start "Enabling service jdownloader@$user."
 
     systemctl enable -q --now jdownloader@"$user"
+    echo_progress_done
 }
 
 # If there was a variable passed to this script, it isn't the initial installation.
@@ -78,10 +82,12 @@ if [[ ! -e /usr/bin/java ]]; then
     else
         echo_info "Java was installed successfully."
     fi
+    echo_progress_done
 else
     echo_info "Java is already installed."
 fi
 
+# TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
 # If it doesn't already exist. Create the systemd service file.
 if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
     echo_progress_start "Creating jdownloader service file..."
@@ -99,6 +105,7 @@ if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
     [Install]
     WantedBy=multi-user.target
 EOF
+    echo_progress_done
 fi
 
 # Check for all current swizzin users, and install JDownloader for each user.
@@ -110,6 +117,8 @@ for user in ${users[@]}; do
 done
 
 # Finalize installation
-echo_progress_done
+
+echo_progress_start "Creating jdownloader lock file..."
 touch /install/.jdownloader.lock
-echo_success "JDownloader installed"
+echo_progress_done
+echo_success "JDownloader installed."
