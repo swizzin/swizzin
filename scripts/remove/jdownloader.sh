@@ -13,7 +13,7 @@ for user in ${users[@]}; do
     echo_progress_start "Removing JDownloader for $user..."
     systemctl disable -q --now jdownloader@"$user"
     # TODO: Do a check to see if they want to purge their JDownloader configurations.
-    rm_if_exists -r /home/"$user"/jd
+    rm_if_exists -r /home/"$user"/jd2
     echo_progress_done
 done
 echo_progress_start "Removing shared JDownloader files..."
