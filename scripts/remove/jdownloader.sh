@@ -2,6 +2,7 @@
 # JDownloader remover for swizzin
 # Author: Aethaeran
 
+# TODO: Not sure this import is necessary
 # Import swizzin utils
 . /etc/swizzin/sources/functions/utils
 
