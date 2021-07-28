@@ -10,10 +10,6 @@
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 
-# TODO: Figure out if these imports are even necessary
-. /etc/swizzin/sources/globals.sh
-. /etc/swizzin/sources/functions/users
-
 # Functions
 function install_jdownloader() {
 
