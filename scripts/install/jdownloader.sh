@@ -100,9 +100,10 @@ fi
 
 # Check for all current swizzin users, and install JDownloader for each user.
 users=("$(_get_user_list)")
-
-for user in "${users[@]}"; do
-    install_jdownloader "${user}"
+# The following line cannot follow SC2068 because it will cause the list to become a string.
+# shellcheck disable=SC2068
+for user in ${users[@]}; do
+    install_jdownloader
 done
 
 # Finalize installation
