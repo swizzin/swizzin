@@ -63,25 +63,20 @@ fi
 
 # If we made it through the previous block. The script has likely been called from "box install".
 # Install Java
-# use "java -version" to check if it even needs installation
-STR=$(java --version)
-SUB='not found'
-if [[ "$STR" == *"$SUB"* ]]; then
+if [[ ! -e /usr/bin/java ]]; then
     echo_info "Java was not found. swizzin will need to install it."
-    echo_progress_start "Downloading and installing a Java runtime environment."
+    echo_progress_start "Downloading and installing the default Java Runtime Environment for your distribution."
     apt_update
     apt_install default-jre
-    # use "java -version" to verify installation
-    STR=$(java --version)
-    SUB='not found'
-    if [[ "$STR" == *"$SUB"* ]]; then
-        echo_info "Java was not installed correctly. Check the swizzin log for details. Exiting."
+    # verify installation
+    if [[ ! -e /usr/bin/java ]]; then
+        echo_info "Java was not installed successfully. Exiting."
         exit 1
     else
         echo_info "Java was installed successfully."
     fi
 else
-    echo_info "Java was found. No need to install."
+    echo_info "Java is already installed."
 fi
 
 # Create systemd service file, and enable
