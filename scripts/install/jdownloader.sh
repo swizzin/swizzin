@@ -35,7 +35,7 @@ function install_jdownloader() {
     java -jar /home/"$user"/jd2/JDownloader.jar -norestart >> "${log}" 2>&1
     # Check if JDownloader's first run was successful.
     # TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
-    if [[ -e "/home/$user/jd/cfg" ]]; then
+    if [[ -e "/home/$user/jd2/cfg" ]]; then
         echo_info "JDownloader's first run was likely successful."
     else
         echo_info "JDownloader's first run likely failed. Exiting."
