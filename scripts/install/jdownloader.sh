@@ -55,9 +55,9 @@ EOF
 # If there was a variable passed to this script, it isn't the initial installation.
 # It is likely being called because a user is being added with "box adduser".
 # Install JDownloader for just this user, and exit.
-if [[ -n $1 ]]; then
-    user=$1
-    install_jdownloader "${user}"
+if [[ -n "$1" ]]; then
+    user="$1"
+    install_jdownloader
     exit 0
 fi
 
