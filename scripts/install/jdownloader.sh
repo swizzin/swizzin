@@ -79,22 +79,24 @@ else
     echo_info "Java is already installed."
 fi
 
-# Create systemd service file, and enable
-echo_progress_start "Adding jdownloader@.service file..."
-cat > /etc/systemd/system/jdownloader@.service << EOF
-[Unit]
-Description=JDownloader Service
-After=network.target
+# If it doesn't already exist. Create the systemd service file.
+if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
+    echo_progress_start "Creating jdownloader service file..."
+    cat > /etc/systemd/system/jdownloader@.service << EOF
+    [Unit]
+    Description=JDownloader Service
+    After=network.target
 
-[Service]
-User=%i
-Group=%i
-Environment=JD_HOME=/home/%i/jd
-ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd/JDownloader.jar
+    [Service]
+    User=%i
+    Group=%i
+    Environment=JD_HOME=/home/%i/jd
+    ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd/JDownloader.jar
 
-[Install]
-WantedBy=multi-user.target
+    [Install]
+    WantedBy=multi-user.target
 EOF
+fi
 
 # Check for all current swizzin users, and install JDownloader for each user.
 users=("$(_get_user_list)")
