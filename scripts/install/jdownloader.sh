@@ -6,6 +6,7 @@
 # https://swizzin.ltd/dev/structure/
 # https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-debian-10
 # https://support.jdownloader.org/Knowledgebase/Article/View/install-jdownloader-on-nas-and-embedded-devices
+# https://support.jdownloader.org/Knowledgebase/Article/View/headless-systemd-autostart-script
 # Liara already made a doc for installing JDownloader manually https://docs.swizzin.net/guides/jdownloader/
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
@@ -26,12 +27,12 @@ function install_jdownloader() {
 
     # Install JDownloader
     echo_progress_start "Downloading and installing JDownloader for $user"
-    mkdir -p /home/"$user"/jd
-    wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/"$user"/jd/JDownloader.jar
+    mkdir -p /home/"$user"/jd2
+    wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/"$user"/jd2/JDownloader.jar
     # Run JDownloader once to generate the majority of files and dirs.
     # The following SC2154 is disabled because log is included from box when this script is called from it.
     # shellcheck disable=SC2154
-    java -jar /home/"$user"/jd/JDownloader.jar -norestart >> "${log}" 2>&1
+    java -jar /home/"$user"/jd2/JDownloader.jar -norestart >> "${log}" 2>&1
     # Check if JDownloader's first run was successful.
     # TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
     if [[ -e "/home/$user/jd/cfg" ]]; then
@@ -43,7 +44,7 @@ function install_jdownloader() {
 
     # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
     echo_progress_start "Adding the users https://my.jdownloader.org/ information to their installation."
-    cat > /home/"$user"/jd/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
+    cat > /home/"$user"/jd2/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
     {
       "email" : "$myjd_email",
       "password" : "$myjd_password",
@@ -92,8 +93,8 @@ if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
     [Service]
     User=%i
     Group=%i
-    Environment=JD_HOME=/home/%i/jd
-    ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd/JDownloader.jar
+    Environment=JD_HOME=/home/%i/jd2
+    ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd2/JDownloader.jar
 
     [Install]
     WantedBy=multi-user.target
