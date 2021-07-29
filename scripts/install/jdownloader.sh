@@ -40,31 +40,30 @@ function install_jdownloader() {
 EOF
 
     # Install JDownloader
-    wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
-    # Run JDownloader until it generates the necessary files and directories.
-    while [ ! -e "$JD_HOME/build.json" ]
-    do
-    # The following SC2154 is disabled because log is included from box when this script is called from it.
-    # shellcheck disable=SC2154
-
-    command="java -jar '$JD_HOME/JDownloader.jar' -norestart >> '${log}' 2>&1"
+    JD_HOME="/home/$user/jd2"
+    echo "Make dir"
+    mkdir -p "$JD_HOME/cfg"
+    echo "get jar"
+    if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
+      wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
+    fi
+    command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' 2>&1"
     log="prog.log"
-    # JDownloader should say this on it's second run if we haven't inserted the information yet
-    match="Your 'My JDownloader' logins are not correct."
+    match="logins are not correct"
 
     $command > "$log" 2>&1 &
     pid=$!
-
-    while sleep 60
+    echo "Start while"
+    while [ ! -e "$JD_HOME/build.json" ]
     do
-        if fgrep --quiet "$match" "$log"
+        echo "Start do"
+        if fgrep "$match" "$log"
         then
             kill $pid
             exit 0
         fi
     done
 
-    done
 
     # Check if JDownloader's first run was successful.
     if [[ -e "$JD_HOME/build.json" ]]; then
