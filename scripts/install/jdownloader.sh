@@ -14,10 +14,10 @@
 # Functions
 function install_jdownloader() {
 
-    echo_progress_start "Downloading and installing JDownloader for the user: $user"
+    echo_progress_start "Configuring, downloading and installing JDownloader for this user: $user"
+
     # Get my.jdownloader info for user
-    # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
-    # TODO: swizzin likely has utils for this already
+    # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text."
     echo_query "Enter the e-mail used to access this account once one is created:"
     read -r 'myjd_email'
@@ -26,18 +26,30 @@ function install_jdownloader() {
     echo_query "Please enter the desired device name"
     read -r 'myjd_devicename'
 
+    # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
+    JD_HOME="/home/$user/jd2"
+    echo_info "Adding the users https://my.jdownloader.org/ information to their installation."
+    mkdir -p "$JD_HOME/cfg"
+    cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
+    {
+      "email" : "$myjd_email",
+      "password" : "$myjd_password",
+      "devicename" : "$myjd_devicename"
+    }
+EOF
+
     # Install JDownloader
-    mkdir -p /home/"$user"/jd2
-    wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/"$user"/jd2/JDownloader.jar
-    # Run JDownloader once to generate the majority of files and dirs.
+    wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
+    # Run JDownloader until it generates the necessary files and directories.
+    while [ ! -e "$JD_HOME/build.json" ]
+    do
     # The following SC2154 is disabled because log is included from box when this script is called from it.
     # shellcheck disable=SC2154
-    # TODO: This is failing when called from 'box install' for some reason.
-    JD_HOME=/home/"$user"/jd2/
-    java -jar /home/"$user"/jd2/JDownloader.jar -norestart >> "${log}" 2>&1
+    java -jar "$JD_HOME/JDownloader.jar" -norestart >> "${log}" 2>&1
+    done
+
     # Check if JDownloader's first run was successful.
-    # TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
-    if [[ -e "/home/$user/jd2/build.json" ]]; then
+    if [[ -e "$JD_HOME/build.json" ]]; then
         echo_info "JDownloader's first run was likely successful."
     else
         echo_info "JDownloader's first run likely failed. Exiting."
@@ -45,16 +57,6 @@ function install_jdownloader() {
     fi
     echo_progress_done
 
-    # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
-    echo_progress_start "Adding the users https://my.jdownloader.org/ information to their installation."
-    cat > /home/"$user"/jd2/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json << EOF
-    {
-      "email" : "$myjd_email",
-      "password" : "$myjd_password",
-      "devicename" : "$myjd_devicename"
-    }
-EOF
-    echo_progress_done
     echo_progress_start "Enabling service jdownloader@$user."
 
     systemctl enable -q --now jdownloader@"$user"
