@@ -10,6 +10,7 @@
 # Liara already made a doc for installing JDownloader manually https://docs.swizzin.net/guides/jdownloader/
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
+# https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
 
 # Functions
 function install_jdownloader() {
@@ -45,7 +46,24 @@ EOF
     do
     # The following SC2154 is disabled because log is included from box when this script is called from it.
     # shellcheck disable=SC2154
-    java -jar "$JD_HOME/JDownloader.jar" -norestart >> "${log}" 2>&1
+
+    command="java -jar '$JD_HOME/JDownloader.jar' -norestart >> '${log}' 2>&1"
+    log="prog.log"
+    # JDownloader should say this on it's second run if we haven't inserted the information yet
+    match="Your 'My JDownloader' logins are not correct."
+
+    $command > "$log" 2>&1 &
+    pid=$!
+
+    while sleep 60
+    do
+        if fgrep --quiet "$match" "$log"
+        then
+            kill $pid
+            exit 0
+        fi
+    done
+
     done
 
     # Check if JDownloader's first run was successful.
