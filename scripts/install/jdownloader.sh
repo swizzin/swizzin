@@ -33,6 +33,7 @@ function install_jdownloader() {
     # The following SC2154 is disabled because log is included from box when this script is called from it.
     # shellcheck disable=SC2154
     # TODO: This is failing when called from 'box install' for some reason.
+    JD_HOME=/home/"$user"/jd2/
     java -jar /home/"$user"/jd2/JDownloader.jar -norestart >> "${log}" 2>&1
     # Check if JDownloader's first run was successful.
     # TODO: Figure out if there is a better file or folder for this test, whichever file is generated last would be best.
