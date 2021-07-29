@@ -14,6 +14,7 @@
 # Functions
 function install_jdownloader() {
 
+    echo_progress_start "Downloading and installing JDownloader for the user: $user"
     # Get my.jdownloader info for user
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out.
     # TODO: swizzin likely has utils for this already
@@ -26,7 +27,6 @@ function install_jdownloader() {
     read -r 'myjd_devicename'
 
     # Install JDownloader
-    echo_progress_start "Downloading and installing JDownloader for $user"
     mkdir -p /home/"$user"/jd2
     wget -q http://installer.jdownloader.org/JDownloader.jar -O /home/"$user"/jd2/JDownloader.jar
     # Run JDownloader once to generate the majority of files and dirs.
