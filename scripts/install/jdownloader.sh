@@ -51,10 +51,11 @@ EOF
     command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' "
     # TODO: Don't know if this tmp log is really necessary. I just don't want it to be reading anything from previous runs.
     tmp_log="/tmp/jdownloader_install.log"
+    touch $tmp_log
 
     while [ ! -e "$JD_HOME/build.json" ]
     do
-    echo "Start while"
+    echo_info "$JD_HOME/build.json doesn't exist yet. Run JDownloader to generate files."
     $command > "$tmp_log" 2>&1 &
     pid=$!
     trap "kill $pid 2> /dev/null" EXIT
@@ -70,6 +71,7 @@ EOF
             rm $tmp_log
             # Disable the trap on a normal exit.
             trap - EXIT
+            echo_info "Killed JDownloader."
         fi
         sleep 1
     done
