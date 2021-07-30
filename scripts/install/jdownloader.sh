@@ -94,8 +94,10 @@ fi
 
 # If we made it through the previous block. The script has likely been called from "box install".
 # Install Java
+echo_progress_start "Make sure Java is installed, since JDownloader requires it."
 . /etc/swizzin/sources/functions/java
 install_java8
+echo_progress_done
 
 # TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
 # If it doesn't already exist. Create the systemd service file.
