@@ -27,10 +27,11 @@ function install_jdownloader() {
     echo_query "Please enter the desired device name"
     read -r 'myjd_devicename'
 
-    # Pass my.jdownloader.org information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
+    # Pass https://my.jdownloader.org/ account information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
     JD_HOME="/home/$user/jd2"
-    echo_info "Adding the users https://my.jdownloader.org/ information to their installation."
+    echo_info "Making the JDownloader directory."
     mkdir -p "$JD_HOME/cfg"
+    echo_info "Adding the users https://my.jdownloader.org/ information to their installation."
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
     {
       "email" : "$myjd_email",
@@ -40,10 +41,7 @@ function install_jdownloader() {
 EOF
 
     # Install JDownloader
-    JD_HOME="/home/$user/jd2"
-    echo_info "Making the JDownloader directory."
-    mkdir -p "$JD_HOME/cfg"
-    echo_info "Downloading JDownloader.jar to that directory."
+    echo_info "Downloading JDownloader.jar."
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
       wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
     fi
@@ -61,10 +59,10 @@ EOF
     trap "kill $pid 2> /dev/null" EXIT
     # While background command is still running...
     while kill -0 $pid 2> /dev/null; do
-        # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
-        # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
         # Pace out the fgrep by pausing for a second
         sleep 1
+        # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
+        # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
         # If any of specified strings are found in the log, kill the last called background command.
         if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Start HTTP Server" "$tmp_log"
         then
@@ -74,7 +72,7 @@ EOF
             rm $tmp_log
             # Disable the trap on a normal exit.
             trap - EXIT
-            echo_info "Killed JDownloader."
+            echo_info "JDownloader closed gracefully, or was at a point where it needed to be killed."
         fi
     done
     done
