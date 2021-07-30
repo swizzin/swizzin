@@ -47,23 +47,33 @@ EOF
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
       wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
     fi
-    command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' 2>&1"
-    log="prog.log"
-    match="logins are not correct"
+    # Run command until a certain file is created.
+    command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' "
+    # TODO: Don't know if this tmp log is really necessary. I just don't want it to be reading anything from previous runs.
+    tmp_log="/tmp/jdownloader_install.log"
 
-    $command > "$log" 2>&1 &
-    pid=$!
-    echo "Start while"
     while [ ! -e "$JD_HOME/build.json" ]
     do
-        echo "Start do"
-        if fgrep "$match" "$log"
+    echo "Start while"
+    $command > "$tmp_log" 2>&1 &
+    pid=$!
+    trap "kill $pid 2> /dev/null" EXIT
+    # While background command is running...
+    # If the text is found in the log, kill the last called background command
+    while kill -0 $pid 2> /dev/null; do
+        # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
+        if fgrep "No Console Available!" "$tmp_log" || fgrep "Shutdown Hooks Finished" "$tmp_log" || fgrep "Start HTTP Server" "$tmp_log"
         then
+            # Kill the background command
             kill $pid
-            exit 0
+            # Remove the tmp log
+            rm $tmp_log
+            # Disable the trap on a normal exit.
+            trap - EXIT
         fi
+        sleep 1
     done
-
+    done
 
     # Check if JDownloader's first run was successful.
     if [[ -e "$JD_HOME/build.json" ]]; then
