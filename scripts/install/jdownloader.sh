@@ -41,13 +41,13 @@ EOF
 
     # Install JDownloader
     JD_HOME="/home/$user/jd2"
-    echo "Make dir"
+    echo_info "Making the JDownloader directory."
     mkdir -p "$JD_HOME/cfg"
-    echo "get jar"
+    echo_info "Downloading JDownloader.jar to that directory."
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
       wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
     fi
-    # TODO: Would this make a good function in other instances?
+    # TODO: Would this make a good function in other instances? Could be prettier though.
     # Run command until a certain file is created.
     command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' "
     # TODO: Don't know if this tmp log is really necessary. I just don't want it to be reading anything from previous runs.
@@ -59,13 +59,13 @@ EOF
     $command > "$tmp_log" 2>&1 &
     pid=$!
     trap "kill $pid 2> /dev/null" EXIT
-    # While background command is running...
-    # If any of specified strings are found in the log, kill the last called background command.
+    # While background command is still running...
     while kill -0 $pid 2> /dev/null; do
         # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
         # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
         # Pace out the fgrep by pausing for a second
         sleep 1
+        # If any of specified strings are found in the log, kill the last called background command.
         if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Start HTTP Server" "$tmp_log"
         then
             # Kill the background command
