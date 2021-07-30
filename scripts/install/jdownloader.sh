@@ -94,22 +94,8 @@ fi
 
 # If we made it through the previous block. The script has likely been called from "box install".
 # Install Java
-if [[ ! -e /usr/bin/java ]]; then
-    echo_info "Java was not found. swizzin will need to install it."
-    echo_progress_start "Downloading and installing the default Java Runtime Environment for your distribution."
-    apt_update
-    apt_install default-jre
-    # verify installation
-    if [[ ! -e /usr/bin/java ]]; then
-        echo_info "Java was not installed successfully. Exiting."
-        exit 1
-    else
-        echo_info "Java was installed successfully."
-    fi
-    echo_progress_done
-else
-    echo_info "Java is already installed."
-fi
+. /etc/swizzin/sources/functions/java
+install_java8
 
 # TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
 # If it doesn't already exist. Create the systemd service file.
