@@ -47,12 +47,12 @@ EOF
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
       wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
     fi
+    # TODO: Would this make a good function in other instances?
     # Run command until a certain file is created.
     command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' "
     # TODO: Don't know if this tmp log is really necessary. I just don't want it to be reading anything from previous runs.
     tmp_log="/tmp/jdownloader_install.log"
     touch $tmp_log
-
     while [ ! -e "$JD_HOME/build.json" ]
     do
     echo_info "$JD_HOME/build.json doesn't exist yet. Run JDownloader to generate files."
@@ -60,9 +60,12 @@ EOF
     pid=$!
     trap "kill $pid 2> /dev/null" EXIT
     # While background command is running...
-    # If the text is found in the log, kill the last called background command
+    # If any of specified strings are found in the log, kill the last called background command.
     while kill -0 $pid 2> /dev/null; do
         # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
+        # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
+        # Pace out the fgrep by pausing for a second
+        sleep 1
         if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Start HTTP Server" "$tmp_log"
         then
             # Kill the background command
@@ -73,14 +76,11 @@ EOF
             trap - EXIT
             echo_info "Killed JDownloader."
         fi
-        sleep 1
     done
     done
-
     echo_progress_done
 
     echo_progress_start "Enabling service jdownloader@$user."
-
     systemctl enable -q --now jdownloader@"$user"
     echo_progress_done
 }
