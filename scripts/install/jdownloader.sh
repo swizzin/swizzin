@@ -62,7 +62,7 @@ EOF
     # If the text is found in the log, kill the last called background command
     while kill -0 $pid 2> /dev/null; do
         # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
-        if fgrep "No Console Available!" "$tmp_log" || fgrep "Shutdown Hooks Finished" "$tmp_log" || fgrep "Start HTTP Server" "$tmp_log"
+        if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Start HTTP Server" "$tmp_log"
         then
             # Kill the background command
             kill $pid
