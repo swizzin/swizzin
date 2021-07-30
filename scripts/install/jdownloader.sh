@@ -77,13 +77,6 @@ EOF
     done
     done
 
-    # Check if JDownloader's first run was successful.
-    if [[ -e "$JD_HOME/build.json" ]]; then
-        echo_info "JDownloader's first run was likely successful."
-    else
-        echo_info "JDownloader's first run likely failed. Exiting."
-        exit 2
-    fi
     echo_progress_done
 
     echo_progress_start "Enabling service jdownloader@$user."
