@@ -531,7 +531,10 @@ branch_name=${branch_name##refs/heads/}
 if [ "$branch_name" == "develop" ]; then
     SWIZ_GIT_REF="develop"
     export SWIZ_GIT_REF
-    echo_info "Just FYI, you're on the develop branch! Remember that you need to mention this when asking for any sort of support."
+fi
+
+if [[ ! $branch_name =~ ^(master|eol-.*)$ ]]; then
+    echo_info "Just FYI, you're not on the $branch_name branch! Remember that you need to mention this when asking for any sort of support."
     runtests="true"
 fi
 
