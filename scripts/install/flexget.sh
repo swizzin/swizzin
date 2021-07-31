@@ -45,21 +45,7 @@ SALTWORDHASH=$(echo -n "${SALTWORD}" | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
 app_name="flexget"
 
-# TODO: Do I need an apt install?
-if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
-    LIST='tesseract-ocr gocr rhino python2.7-dev python-pip python-virtualenv virtualenv libcurl4-openssl-dev sqlite3'
-else
-    LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
-fi
-
-if [[ $(_os_arch) =~ "arm" ]]; then
-    LIST+=' libffi-dev'
-fi
-
-#shellcheck disable=2086
-apt_install $LIST
-
-# TODO: I believe flexget uses Python3
+# Create virtualenv
 python3_venv "${user}" "$app_name"
 
 # TODO: Install python dependencies
