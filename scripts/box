@@ -178,13 +178,12 @@ We URGE you to migrate to a supported release if/while you still have the chance
 function _upgrade() {
     arg=("$@")
     if [[ "${arg[*]}" == *--all* ]]; then
-        echo_info "Upgrading all packages, EXCEPT torrent clients and packages with alternative upgrade methods (apt/built-in)"
         package_string="$(find /install -type f -name .*.lock | awk -F. '{print $2}')"
         blacklist=("rtorrent" "qbittorrent" "deluge" "libtorrent" "panel" "transmission" "curl" "nginx")
         for blocker in "${blacklist[@]}"; do
             package_string="$(echo "$package_string" | sed "/$blocker/d")"
         done
-        echo_info "Packages = '$package_string'"
+        echo_info "Upgrading all packages, EXCEPT torrent clients and packages with alternative upgrade methods (apt/built-in)\nAttempting packages: '${package_string/$'\n'/, }'"
         readarray -t packages < <(echo "$package_string")
     else
         packages=("${arg[@]:1}")
@@ -197,7 +196,7 @@ function _upgrade() {
             bash /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
             if [ -f /usr/local/bin/swizzin/install/"$i".sh ]; then
-                echo_error "Please upgrade $i via its suggested upgrade method."
+                echo_warn "Please upgrade $i via its suggested upgrade method."
                 echo_docs "applications/$i"
             else
                 echo_error "Upgrade script for $i does not exist"
