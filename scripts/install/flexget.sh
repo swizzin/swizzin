@@ -35,31 +35,19 @@
 . /etc/swizzin/sources/functions/pyenv
 
 # Set variables
-# TODO: Update these to use swizzin functions, and remove unnecessary ones.
-codename=$(lsb_release -cs)
-user=$(cut -d: -f1 < /root/.master.info)
-password=$(cut -d: -f2 < /root/.master.info)
-SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
-SALTWORD=${SALT}${password}
-SALTWORDHASH=$(echo -n "${SALTWORD}" | shasum -a 1 | awk '{print $1}')
-HASH=${SALT}${SALTWORDHASH}
+user=$(_get_master_username)
 app_name="flexget"
-app_dir="/opt/flexget"
 
 # Create virtualenv
 python3_venv "${user}" "$app_name"
+app_dir="/opt/.venv/$app_name"
 
 # Install FlexGet in the virtualenv
 echo_progress_start "Installing python dependencies"
 PIP='flexget'
 #shellcheck disable=SC2154 disable=SC2086
-/opt/.venv/"$app_name"/bin/pip install $PIP >> "${log}" 2>&1
+$app_dir/bin/pip install $PIP >> "${log}" 2>&1
 chown -R "${user}:" /opt/.venv/"$app_name"
-echo_progress_done
-
-# TODO: Do I need to git clone?
-echo_progress_start "Cloning $app_name"
-git clone --branch "stable" https://github.com/"$app_name"/"$app_name".git /opt/"$app_name" >> "${log}" 2>&1
 echo_progress_done
 
 # TODO: Set up a configuration for each swizzin user.
