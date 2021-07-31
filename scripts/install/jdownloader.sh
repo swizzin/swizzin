@@ -17,7 +17,8 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
 
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
-    echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text."
+
+    echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
     if [[ -z "${MYJD_EMAIL}" ]]; then
         echo_query "Please enter the e-mail used to access this account once created:"
         read -r 'MYJD_EMAIL'
@@ -26,7 +27,7 @@ function install_jdownloader() {
     fi
 
     if [[ -z "${MYJD_PASSWORD}" ]]; then
-        echo_query "Please enter the password for the account."
+        echo_query "Please enter the password for the account"
         read -r 'MYJD_PASSWORD'
     else
         echo_info "Using password = $MYJD_EMAIL"
@@ -50,7 +51,7 @@ function install_jdownloader() {
 }
 EOF
 
-    echo_progress_start "Downloading JDownloader.jar."
+    echo_progress_start "Downloading JDownloader.jar"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
         wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar" || {
             echo_error "Failed to download"
@@ -92,7 +93,7 @@ EOF
     chown -R "$user": "$JD_HOME"
     chmod 700 -R "$JD_HOME"
 
-    echo_progress_start "Enabling service jdownloader@$user."
+    echo_progress_start "Enabling service jdownloader@$user"
     systemctl enable -q --now jdownloader@"$user"
     echo_progress_done
 }
