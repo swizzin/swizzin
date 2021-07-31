@@ -31,9 +31,11 @@
 
 # TODO: Should we have the functionality of automatically integrating with other installed swizzin packages?
 
+# Import functions
 # TODO: Combine imports here.
 . /etc/swizzin/sources/functions/pyenv
 
+# Set variables
 # TODO: Update these to use swizzin functions, and remove unnecessary ones.
 codename=$(lsb_release -cs)
 user=$(cut -d: -f1 < /root/.master.info)
@@ -42,6 +44,7 @@ SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
+
 
 # TODO: Do I need an apt install?
 if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
@@ -55,11 +58,6 @@ if [[ $(_os_arch) =~ "arm" ]]; then
 fi
 
 apt_install $LIST
-
-# TODO: Do I need this for python3?
-if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
-    python_getpip
-fi
 
 # TODO: I believe flexget uses Python3
 python2_venv ${user} pyload
