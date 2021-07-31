@@ -49,9 +49,9 @@ app_dir="/opt/flexget"
 # Create virtualenv
 python3_venv "${user}" "$app_name"
 
-# TODO: Install python dependencies
+# Install FlexGet in the virtualenv
 echo_progress_start "Installing python dependencies"
-PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+PIP='flexget'
 #shellcheck disable=SC2154 disable=SC2086
 /opt/.venv/"$app_name"/bin/pip install $PIP >> "${log}" 2>&1
 chown -R "${user}:" /opt/.venv/"$app_name"
