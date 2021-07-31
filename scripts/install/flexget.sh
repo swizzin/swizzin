@@ -27,7 +27,6 @@
 # TODO: Create a service file. To run the flexget deamon.
 # TODO: Should we help the end user set up the scheduler, and other essential plugins?
 
-# TODO: Should I include the web UI or not?
 
 # TODO: Should we have the functionality of automatically integrating with other installed swizzin packages?
 
@@ -44,7 +43,7 @@ SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
-
+app_name="flexget"
 
 # TODO: Do I need an apt install?
 if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
@@ -60,25 +59,25 @@ fi
 apt_install $LIST
 
 # TODO: I believe flexget uses Python3
-python2_venv ${user} pyload
+python2_venv ${user} "$app_name"
 
 # TODO: Install python dependencies
 echo_progress_start "Installing python dependencies"
 PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
-/opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
-chown -R ${user}: /opt/.venv/pyload
+/opt/.venv/"$app_name"/bin/pip install $PIP >> "${log}" 2>&1
+chown -R ${user}: /opt/.venv/"$app_name"
 echo_progress_done
 
 # TODO: Do I need to git clone?
-echo_progress_start "Cloning pyLoad"
-git clone --branch "stable" https://github.com/pyload/pyload.git /opt/pyload >> "${log}" 2>&1
+echo_progress_start "Cloning "$app_name""
+git clone --branch "stable" https://github.com/"$app_name"/"$app_name".git /opt/"$app_name" >> "${log}" 2>&1
 echo_progress_done
 
 # TODO: Set up a configuration for each swizzin user.
-echo_progress_start "Configuring pyLoad"
-echo "/opt/pyload" > /opt/pyload/module/config/configdir
+echo_progress_start "Configuring "$app_name""
+echo "/opt/"$app_name"" > /opt/"$app_name"/module/config/configdir
 
-cat > /opt/pyload/pyload.conf << PYCONF
+cat > /opt/"$app_name"/"$app_name".conf << PYCONF
 version: 1
 
 download - "Download":
@@ -160,7 +159,7 @@ echo_progress_done
 
 echo_progress_start "Initalizing database"
 read < <(
-    /opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py > /dev/null 2>&1 &
+    /opt/.venv/"$app_name"/bin/python2 /opt/"$app_name"/pyLoadCore.py > /dev/null 2>&1 &
     echo $!
 )
 PID=$REPLY
@@ -171,8 +170,8 @@ while kill -0 $PID > /dev/null 2>&1; do
     kill $PID > /dev/null 2>&1
 done
 
-if [ -f "/opt/pyload/files.db" ]; then
-    sqlite3 /opt/pyload/files.db "\
+if [ -f "/opt/$app_name/files.db" ]; then
+    sqlite3 /opt/"$app_name"/files.db "\
     INSERT INTO users('name', 'password') \
       VALUES('${user}','${HASH}');\
       "
@@ -182,36 +181,37 @@ else
     #TODO maybe exit then?
 fi
 
-chown -R "${user}:" /opt/pyload
+chown -R "${user}:" /opt/"$app_name"
 mkdir -p "/home/${user}/Downloads"
 chown "${user}:" "/home/${user}/Downloads"
 
 # TODO: Create mutli-seat service file. Be sure to point to each user configuration separately.
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/pyload.service << PYSD
+cat > /etc/systemd/system/"$app_name".service << FGSD
 [Unit]
-Description=pyLoad
+Description="$app_name"
 After=network.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/pyload/bin/python2 /opt/pyload/pyLoadCore.py --config=/opt/pyload
-WorkingDirectory=/opt/pyload
+ExecStart=/opt/.venv/"$app_name"/bin/python2 /opt/"$app_name"/pyLoadCore.py --config=/opt/"$app_name"
+WorkingDirectory=/opt/"$app_name"
 
 [Install]
 WantedBy=multi-user.target
-PYSD
+FGSD
 echo_progress_done
 
+# TODO: Should I include the web UI or not? It is not recommended by themselves.
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
-    bash /usr/local/bin/swizzin/nginx/pyload.sh
+    bash /usr/local/bin/swizzin/nginx/"$app_name".sh
     systemctl reload nginx
     echo_progress_done
 fi
-echo_progress_start "Enabling and starting pyLoad services"
-systemctl enable -q --now pyload.service 2>&1 | tee -a "$log"
+echo_progress_start "Enabling and starting "$app_name" services"
+systemctl enable -q --now "$app_name".service 2>&1 | tee -a "$log"
 echo_progress_done
 
-echo_success "PyLoad installed"
-touch /install/.pyload.lock
+echo_success "$app_name installed"
+touch /install/."$app_name".lock
