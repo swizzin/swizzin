@@ -35,10 +35,10 @@
 . /etc/swizzin/sources/functions/pyenv
 
 # Set variables
-user=$(_get_master_username)
 app_name="flexget"
 
 # Create virtualenv
+user=$(_get_master_username)
 python3_venv "${user}" "$app_name"
 app_dir="/opt/.venv/$app_name"
 
@@ -53,7 +53,6 @@ echo_progress_done
 # TODO: Set up a configuration for each swizzin user.
 config_dir="/home/$user/.config/flexget"
 echo_progress_start "Configuring $app_name"
-echo "/opt/$app_name" > /opt/"$app_name"/module/config/configdir
 
 cat > /opt/"$app_name"/"$app_name".conf << PYCONF
 version: 1
