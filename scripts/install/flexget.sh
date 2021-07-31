@@ -24,7 +24,7 @@
 # https://flexget.com/Plugins/qbittorrent
 # https://flexget.com/Plugins/nzbget
 
-# TODO: Create a service file. To run the flexget deamon.
+# TODO: Create a service file. To run the flexget daemon.
 # TODO: Should we help the end user set up the scheduler, and other essential plugins?
 
 
@@ -41,7 +41,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 password=$(cut -d: -f2 < /root/.master.info)
 SALT=$(shuf -zr -n5 -i 0-9 | tr -d '\0')
 SALTWORD=${SALT}${password}
-SALTWORDHASH=$(echo -n ${SALTWORD} | shasum -a 1 | awk '{print $1}')
+SALTWORDHASH=$(echo -n "${SALTWORD}" | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
 app_name="flexget"
 
@@ -56,26 +56,28 @@ if [[ $(_os_arch) =~ "arm" ]]; then
     LIST+=' libffi-dev'
 fi
 
+#shellcheck disable=2086
 apt_install $LIST
 
 # TODO: I believe flexget uses Python3
-python2_venv ${user} "$app_name"
+python2_venv "${user}" "$app_name"
 
 # TODO: Install python dependencies
 echo_progress_start "Installing python dependencies"
 PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+#shellcheck disable=SC2154 disable=SC2086
 /opt/.venv/"$app_name"/bin/pip install $PIP >> "${log}" 2>&1
-chown -R ${user}: /opt/.venv/"$app_name"
+chown -R "${user}:" /opt/.venv/"$app_name"
 echo_progress_done
 
 # TODO: Do I need to git clone?
-echo_progress_start "Cloning "$app_name""
+echo_progress_start "Cloning $app_name"
 git clone --branch "stable" https://github.com/"$app_name"/"$app_name".git /opt/"$app_name" >> "${log}" 2>&1
 echo_progress_done
 
 # TODO: Set up a configuration for each swizzin user.
-echo_progress_start "Configuring "$app_name""
-echo "/opt/"$app_name"" > /opt/"$app_name"/module/config/configdir
+echo_progress_start "Configuring $app_name"
+echo "/opt/$app_name" > /opt/"$app_name"/module/config/configdir
 
 cat > /opt/"$app_name"/"$app_name".conf << PYCONF
 version: 1
@@ -157,17 +159,17 @@ PYCONF
 
 echo_progress_done
 
-echo_progress_start "Initalizing database"
+echo_progress_start "Initializing database"
 read < <(
     /opt/.venv/"$app_name"/bin/python2 /opt/"$app_name"/pyLoadCore.py > /dev/null 2>&1 &
     echo $!
-)
+) -r
 PID=$REPLY
 sleep 10
 #kill -9 $PID
-while kill -0 $PID > /dev/null 2>&1; do
+while kill -0 "$PID" > /dev/null 2>&1; do
     sleep 1
-    kill $PID > /dev/null 2>&1
+    kill "$PID" > /dev/null 2>&1
 done
 
 if [ -f "/opt/$app_name/files.db" ]; then
@@ -209,7 +211,7 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done
 fi
-echo_progress_start "Enabling and starting "$app_name" services"
+echo_progress_start "Enabling and starting $app_name services"
 systemctl enable -q --now "$app_name".service 2>&1 | tee -a "$log"
 echo_progress_done
 
