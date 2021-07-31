@@ -23,6 +23,7 @@
 # https://flexget.com/Cookbook/Jdownloader2
 # https://flexget.com/Plugins/qbittorrent
 # https://flexget.com/Plugins/nzbget
+# https://flexget.com/Web-UI
 
 # TODO: Create a service file. To run the flexget daemon.
 # TODO: Should we help the end user set up the scheduler, and other essential plugins?
@@ -162,7 +163,7 @@ WantedBy=multi-user.target
 FGSD
 echo_progress_done
 
-# TODO: Should I include the web UI or not? It is not recommended by themselves.
+# TODO: Should I include the web UI or not? "Web UI is currently experimental and is not recommended for new users!"
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/"$app_name".sh
