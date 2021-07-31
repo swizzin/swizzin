@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ ! -f /install/.autodl.lock ]]; then
+    echo_error "Autodl not installed"
+    exit 1
+fi
+
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 readarray -t users < <(_get_user_list)
