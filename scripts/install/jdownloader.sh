@@ -15,7 +15,7 @@
 # Functions
 function install_jdownloader() {
 
-    echo_progress_start "Configuring, downloading and installing JDownloader for this user: $user"
+    echo_progress_start "Configuring, downloading and installing JDownloader for $user"
 
     # Get my.jdownloader info for user
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
@@ -30,9 +30,9 @@ function install_jdownloader() {
 
     # Pass https://my.jdownloader.org/ account information to org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json
     JD_HOME="/home/$user/jd2"
-    echo_info "Making the JDownloader directory."
+    # echo_info "Making the JDownloader directory."
     mkdir -p "$JD_HOME/cfg"
-    echo_info "Adding the users https://my.jdownloader.org/ information to their installation."
+    # echo_info "Adding the users https://my.jdownloader.org/ information to their installation."
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
     {
       "email" : "$myjd_email",
@@ -42,42 +42,47 @@ function install_jdownloader() {
 EOF
 
     # Install JDownloader
-    echo_info "Downloading JDownloader.jar."
+    echo_progress_start "Downloading JDownloader.jar."
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
-      wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar"
+        wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar" || {
+            echo_error "Failed to download"
+            exit 1
+        }
     fi
+    echo_progress_done "Jar downloaded"
+
     # TODO: Would this make a good function in other instances? Could be prettier though.
     # Run command until a certain file is created.
-    command="java -jar $JD_HOME/JDownloader.jar -norestart >> '${log}' "
-    # TODO: Don't know if this tmp log is really necessary. I just don't want it to be reading anything from previous runs.
+    command="java -jar $JD_HOME/JDownloader.jar -norestart"
     tmp_log="/tmp/jdownloader_install.log"
     touch $tmp_log
-    while [ ! -e "$JD_HOME/build.json" ]
-    do
-    echo_info "$JD_HOME/build.json doesn't exist yet. Run JDownloader to generate files."
-    $command > "$tmp_log" 2>&1 &
-    pid=$!
-    trap "kill $pid 2> /dev/null" EXIT
-    # While background command is still running...
-    while kill -0 $pid 2> /dev/null; do
-        # Pace out the fgrep by pausing for a second
-        sleep 1
-        # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
-        # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
-        # If any of specified strings are found in the log, kill the last called background command.
-        if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Initialisation finished" "$tmp_log"
-        then
-            # Kill the background command
-            kill $pid
-            # Remove the tmp log
-            rm $tmp_log
-            # Disable the trap on a normal exit.
-            trap - EXIT
-            echo_info "JDownloader closed gracefully, or was at a point where it needed to be killed."
-        fi
+
+    while [ ! -e "$JD_HOME/build.json" ]; do
+        echo_progress_start "Executing jdownloader2 initialisation"
+        $command > "$tmp_log" 2>&1 &
+        pid=$!
+        trap "kill $pid 2> /dev/null" EXIT
+        # While background command is still running...
+        while kill -0 $pid 2> /dev/null; do
+            # Pace out the fgrep by pausing for a second
+            sleep 1
+            # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
+            # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
+            # If any of specified strings are found in the log, kill the last called background command.
+            if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Initialisation finished" "$tmp_log"; then
+                # Kill the background command
+                kill $pid
+                # Remove the tmp log
+                rm $tmp_log
+                # Disable the trap on a normal exit.
+                trap - EXIT
+                echo_progress_done "Initialisation concluded"
+            fi
+        done
     done
-    done
-    echo_progress_done
+
+    chown -R "$user": "$JD_HOME"
+    chmod 700 -R "$JD_HOME"
 
     echo_progress_start "Enabling service jdownloader@$user."
     systemctl enable -q --now jdownloader@"$user"
@@ -95,14 +100,13 @@ fi
 
 # If we made it through the previous block. The script has likely been called from "box install".
 # Install Java
-echo_progress_start "Make sure Java is installed, since JDownloader requires it."
+#shellcheck source=sources/functions/java
 . /etc/swizzin/sources/functions/java
 install_java8
-echo_progress_done
 
-# TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
-# If it doesn't already exist. Create the systemd service file.
-if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
+_systemd() {
+
+    # TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
     echo_progress_start "Creating jdownloader service file..."
     cat > /etc/systemd/system/jdownloader@.service << EOF
     [Unit]
@@ -119,7 +123,8 @@ if [[ ! -e /etc/systemd/system/jdownloader.@service ]]; then
     WantedBy=multi-user.target
 EOF
     echo_progress_done
-fi
+}
+_systemd
 
 # Check for all current swizzin users, and install JDownloader for each user.
 users=("$(_get_user_list)")
