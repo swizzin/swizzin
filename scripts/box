@@ -196,7 +196,12 @@ function _upgrade() {
         if [[ "${repo[*]}" =~ $i ]]; then
             bash /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
-            echo_warn "Upgrade script for $i does not exist"
+            if [ -f /usr/local/bin/swizzin/install/"$i".sh ]; then
+                echo_error "Please upgrade $i via its suggested upgrade method."
+                echo_docs "applications/$i"
+            else
+                echo_error "Upgrade script for $i does not exist"
+            fi
         fi
     done
 }
