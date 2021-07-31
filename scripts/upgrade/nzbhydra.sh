@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ ! -f /install/.nzbhydra.lock ]]; then
+    echo_error "nzbhydra not installed"
+    exit 1
+fi
+
 . /etc/swizzin/sources/functions/utils
 active=$(systemctl is-active nzbhydra)
 username=$(_get_master_username)

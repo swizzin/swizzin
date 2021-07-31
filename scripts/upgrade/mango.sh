@@ -3,7 +3,7 @@
 # flying_sausages for swizzin 2020
 
 if [[ ! -f /install/.mango.lock ]]; then
-    echo_error "Mango not installed "
+    echo_error "Mango not installed"
     exit 1
 fi
 
