@@ -19,8 +19,9 @@ function install_jdownloader() {
 
     # Get my.jdownloader info for user
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
+    # TODO: Add environment variable that will allow for this to be bypassed?
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text."
-    echo_query "Enter the e-mail used to access this account once one is created:"
+    echo_query "Please enter the e-mail used to access this account once created:"
     read -r 'myjd_email'
     echo_query "Please enter the password for the account."
     read -r 'myjd_password'
@@ -64,7 +65,7 @@ EOF
         # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
         # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
         # If any of specified strings are found in the log, kill the last called background command.
-        if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Start HTTP Server" "$tmp_log"
+        if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Initialisation finished" "$tmp_log"
         then
             # Kill the background command
             kill $pid
