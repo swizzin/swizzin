@@ -60,7 +60,7 @@ fi
 apt_install $LIST
 
 # TODO: I believe flexget uses Python3
-python2_venv "${user}" "$app_name"
+python3_venv "${user}" "$app_name"
 
 # TODO: Install python dependencies
 echo_progress_start "Installing python dependencies"
