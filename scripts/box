@@ -179,13 +179,13 @@ function _upgrade() {
     arg=("$@")
     if [[ "${arg[*]}" == *--all* ]]; then
         echo_info "All possible installed packages will be upgraded (except torrent clients)\nPackages that are installed via \`apt\` will not be upgraded, please attempt those manually"
-        packages=($(find /install -type f -name .*.lock | awk -F. '{print $2}'))
-        # readarray -t packages < <(find /install -type f -name '.*.lock' | awk -F. '{print $2}')
-        blacklist=("rtorrent" "qbittorrent" "deluge" "libtorrent" "panel")
+        package_string="$(find /install -type f -name .*.lock | awk -F. '{print $2}')"
+        blacklist=("rtorrent" "qbittorrent" "deluge" "libtorrent" "panel" "transmission" "curl" "nginx")
         for blocker in "${blacklist[@]}"; do
-            packages=("${packages[@]/$blocker/}")
+            package_string="$(echo "$package_string" | sed "/$blocker/d")"
         done
-        echo_info "Packages = '${packages[*]}'"
+        echo_info "Packages = '$package_string'"
+        readarray -t packages < <(echo "$package_string")
     else
         packages=("${arg[@]:1}")
     fi
