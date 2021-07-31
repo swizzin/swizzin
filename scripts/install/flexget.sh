@@ -25,7 +25,6 @@
 # https://flexget.com/Plugins/nzbget
 # https://flexget.com/Web-UI
 
-# TODO: Create a service file. To run the flexget daemon.
 # TODO: Should we help the end user set up the scheduler, and other essential plugins?
 
 
@@ -45,6 +44,7 @@ SALTWORD=${SALT}${password}
 SALTWORDHASH=$(echo -n "${SALTWORD}" | shasum -a 1 | awk '{print $1}')
 HASH=${SALT}${SALTWORDHASH}
 app_name="flexget"
+app_dir="/opt/flexget"
 
 # Create virtualenv
 python3_venv "${user}" "$app_name"
@@ -63,6 +63,7 @@ git clone --branch "stable" https://github.com/"$app_name"/"$app_name".git /opt/
 echo_progress_done
 
 # TODO: Set up a configuration for each swizzin user.
+config_dir="/home/$user/.config/flexget"
 echo_progress_start "Configuring $app_name"
 echo "/opt/$app_name" > /opt/"$app_name"/module/config/configdir
 
@@ -146,6 +147,7 @@ PYCONF
 
 echo_progress_done
 
+# TODO: Create a service file. To run the flexget daemon.
 # TODO: Create mutli-seat service file. Be sure to point to each user configuration separately.
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/"$app_name".service << FGSD
