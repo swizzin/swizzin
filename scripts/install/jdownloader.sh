@@ -15,7 +15,7 @@
 # Functions
 function install_jdownloader() {
 
-    echo_progress_start "Configuring, downloading and installing JDownloader for $user"
+    echo_info "Configuring, downloading and installing JDownloader for $user"
 
     # Get my.jdownloader info for user
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
@@ -54,11 +54,12 @@ EOF
     # TODO: Would this make a good function in other instances? Could be prettier though.
     # Run command until a certain file is created.
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
-    tmp_log="/tmp/jdownloader_install.log"
-    touch $tmp_log
+    tmp_log="/tmp/jdownloader_install-${user}.log"
 
+    echo_progress_start "Attempting jdownloader2 initialisation"
     while [ ! -e "$JD_HOME/build.json" ]; do
-        echo_progress_start "Executing jdownloader2 initialisation"
+        touch "$tmp_log"
+        echo_log_only "Oh shit here we go again"
         $command > "$tmp_log" 2>&1 &
         pid=$!
         trap "kill $pid 2> /dev/null" EXIT
@@ -69,17 +70,17 @@ EOF
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
             # If any of specified strings are found in the log, kill the last called background command.
-            if fgrep -q "No Console Available!" "$tmp_log" || fgrep -q "Shutdown Hooks Finished" "$tmp_log" || fgrep -q "Initialisation finished" "$tmp_log"; then
+            if grep -q "No Console Available!" -F "$tmp_log" || grep -q "Shutdown Hooks Finished" -F "$tmp_log" || grep -q -F "Initialisation finished" "$tmp_log"; then
                 # Kill the background command
                 kill $pid
                 # Remove the tmp log
                 rm $tmp_log
                 # Disable the trap on a normal exit.
                 trap - EXIT
-                echo_progress_done "Initialisation concluded"
             fi
         done
     done
+    echo_progress_done "Initialisation concluded"
 
     chown -R "$user": "$JD_HOME"
     chmod 700 -R "$JD_HOME"
