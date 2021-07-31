@@ -145,34 +145,6 @@ PYCONF
 
 echo_progress_done
 
-echo_progress_start "Initializing database"
-read < <(
-    /opt/.venv/"$app_name"/bin/python2 /opt/"$app_name"/pyLoadCore.py > /dev/null 2>&1 &
-    echo $!
-) -r
-PID=$REPLY
-sleep 10
-#kill -9 $PID
-while kill -0 "$PID" > /dev/null 2>&1; do
-    sleep 1
-    kill "$PID" > /dev/null 2>&1
-done
-
-if [ -f "/opt/$app_name/files.db" ]; then
-    sqlite3 /opt/"$app_name"/files.db "\
-    INSERT INTO users('name', 'password') \
-      VALUES('${user}','${HASH}');\
-      "
-    echo_progress_done
-else
-    echo_error "Something went wrong with user setup -- you will be unable to login"
-    #TODO maybe exit then?
-fi
-
-chown -R "${user}:" /opt/"$app_name"
-mkdir -p "/home/${user}/Downloads"
-chown "${user}:" "/home/${user}/Downloads"
-
 # TODO: Create mutli-seat service file. Be sure to point to each user configuration separately.
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/"$app_name".service << FGSD
