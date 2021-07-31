@@ -17,23 +17,36 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
 
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
-    # TODO: Add environment variable that will allow for this to be bypassed?
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text."
-    echo_query "Please enter the e-mail used to access this account once created:"
-    read -r 'myjd_email'
-    echo_query "Please enter the password for the account."
-    read -r 'myjd_password'
-    echo_query "Please enter the desired device name"
-    read -r 'myjd_devicename'
+    if [[ -z "${MYJD_EMAIL}" ]]; then
+        echo_query "Please enter the e-mail used to access this account once created:"
+        read -r 'MYJD_EMAIL'
+    else
+        echo_info "Using email = $MYJD_EMAIL"
+    fi
+
+    if [[ -z "${MYJD_PASSWORD}" ]]; then
+        echo_query "Please enter the password for the account."
+        read -r 'MYJD_PASSWORD'
+    else
+        echo_info "Using password = $MYJD_EMAIL"
+    fi
+
+    if [[ -z "${MYJD_DEVICENAME}" ]]; then
+        echo_query "Please enter the desired device name"
+        read -r 'MYJD_DEVICENAME'
+    else
+        echo_info "Using device name = $MYJD_DEVICENAME"
+    fi
 
     JD_HOME="/home/$user/jd2"
     mkdir -p "$JD_HOME/cfg"
 
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
 {
-    "email" : "$myjd_email",
-    "password" : "$myjd_password",
-    "devicename" : "$myjd_devicename"
+    "email" : "$MYJD_EMAIL",
+    "password" : "$MYJD_PASSWORD",
+    "devicename" : "$MYJD_DEVICENAME"
 }
 EOF
 
