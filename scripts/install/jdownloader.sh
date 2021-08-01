@@ -40,6 +40,10 @@ function get_myjd_info() {
     fi
 
     mkdir -p "$JD_HOME/cfg"
+
+    if [[ -e "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" ]]; then
+        rm "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json"
+
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
 {
     "email" : "$MYJD_EMAIL",
@@ -77,8 +81,9 @@ function install_jdownloader() {
         $command > "$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
-        trap "kill $pid 2> /dev/null" EXIT
-        while kill -0 $pid 2> /dev/null; do # While background command is still running...
+        trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
+        end_loop="false"
+        while [[ end_loop == "false" ]]; do # While background command is still running...
 
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
@@ -93,7 +98,6 @@ function install_jdownloader() {
                     if grep -q "No Console Available" -F "$tmp_log"; then # If yes, JDownloader retry getting details.
                         echo_error "https://my.jdownloader.org/ account details were incorrect. Please try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
-                        find "$JD_HOME" -type f -not -name 'JDownloader.jar' -print0 | xargs -0  -I {} rm {} # Remove anything that isn't JDownloader.jar
                         get_myjd_info # Get account info for this user. and insert it into this installation
                     fi
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
@@ -101,6 +105,7 @@ function install_jdownloader() {
                         kill $pid     # Kill the background command
                         rm "$tmp_log" # Remove the tmp log
                         trap - EXIT   # Disable the trap on a normal exit.
+                        end_loop="true"
                     fi
                 fi
             fi
