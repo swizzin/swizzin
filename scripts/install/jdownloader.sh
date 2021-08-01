@@ -67,6 +67,7 @@ function install_jdownloader() {
     fi
 
     echo_progress_start "Downloading JDownloader.jar"
+    mkdir -p "$JD_HOME"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
         wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar" || {
             echo_error "Failed to download"
