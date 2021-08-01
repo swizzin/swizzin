@@ -82,6 +82,8 @@ function install_jdownloader() {
     # TODO: This can probably use the most recent JDownloader log instead.
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
+    # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop.
+
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
@@ -168,12 +170,14 @@ WantedBy=multi-user.target
 EOF
     # Service starting is handled in per-user installer
 }
-_systemd
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user
     install_jdownloader
 done
+
+# Don't start services until after each user is installed.
+_systemd
 
 touch /install/.jdownloader.lock
 echo_success "JDownloader installed"
