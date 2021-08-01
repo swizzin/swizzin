@@ -12,9 +12,7 @@
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
 
-function install_jdownloader() {
-
-    echo_info "Setting up JDownloader for $user"
+function get_myjd_info() {
 
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
 
@@ -40,9 +38,7 @@ function install_jdownloader() {
         echo_info "Using device name = $MYJD_DEVICENAME"
     fi
 
-    JD_HOME="/home/$user/jd2"
     mkdir -p "$JD_HOME/cfg"
-
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
 {
     "email" : "$MYJD_EMAIL",
@@ -50,6 +46,17 @@ function install_jdownloader() {
     "devicename" : "$MYJD_DEVICENAME"
 }
 EOF
+}
+
+function install_jdownloader() {
+
+    echo_info "Setting up JDownloader for $user"
+    JD_HOME="/home/$user/jd2"
+
+    get_myjd_info() # Get account info for this user. and insert it into this installation
+
+
+    make_myjd_settings_json() # Insert myJD
 
     echo_progress_start "Downloading JDownloader.jar"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -64,9 +71,8 @@ EOF
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
-    echo_progress_start "Attempting jdownloader2 initialisation"
+    echo_progress_start "Attempting JDownloader2 initialisation"
     while [ ! -e "$JD_HOME/build.json" ]; do # Run command until a certain file is created.
-
         touch "$tmp_log"
         echo_log_only "Oh shit here we go again"
         $command > "$tmp_log" 2>&1 &
@@ -74,24 +80,32 @@ EOF
         trap "kill $pid 2> /dev/null" EXIT
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
 
-            sleep 1 # Pace out the fgrep by pausing for a second
-
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
 
             # If any of specified strings are found in the log, kill the last called background command.
-            if grep -q "No Console Available!" -F "$tmp_log" || grep -q "Shutdown Hooks Finished" -F "$tmp_log" || grep -q -F "Initialisation finished" "$tmp_log"; then
-                kill $pid     # Kill the background command
-                rm "$tmp_log" # Remove the tmp log
-                trap - EXIT   # Disable the trap on a normal exit.
-
-            fi
+            kill_me="false"
+            if [[ -e "$tmp_log" ]]; then # If the
+                if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
+                    kill_me="true"
+                    echo_info "JDownloader exited gracefully."
+                if grep -q "No Console Available!" -F "$tmp_log"; then # I believe this only happens when MyJD details are incorrect. If so, we can use this to verify the details were correct.
+                    kill_me="true"
+                    echo_info "Your my.jdownloader details were incorrect? Try again."
+                    get_myjd_info() # Get account info for this user. and insert it into this installation
+                if grep -q "Initialisation finished" -F "$tmp_log"; then #
+                    echo_info "JDownloader started successfully."
+                    kill $pid     # Kill the background command
+                    rm "$tmp_log" # Remove the tmp log
+                    trap - EXIT   # Disable the trap on a normal exit.
+                fi
+            sleep 1 # Pace out the grep by pausing for a second
         done
     done
     echo_progress_done "Initialisation concluded"
 
-    chown -R "$user": "$JD_HOME"
-    chmod 700 -R "$JD_HOME"
+    chown -R "$user": "$JD_HOME" # Set owner on JDownloader folder.
+    chmod 700 -R "$JD_HOME" # Set permissions on JDownloader folder.
 
     echo_progress_start "Enabling service jdownloader@$user"
     systemctl enable -q --now jdownloader@"$user"
