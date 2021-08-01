@@ -53,10 +53,7 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
-    get_myjd_info() # Get account info for this user. and insert it into this installation
-
-
-    make_myjd_settings_json() # Insert myJD
+    get_myjd_info # Get account info for this user. and insert it into this installation
 
     echo_progress_start "Downloading JDownloader.jar"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -84,21 +81,21 @@ function install_jdownloader() {
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
 
             # If any of specified strings are found in the log, kill the last called background command.
-            kill_me="false"
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
-                    kill_me="true"
                     echo_info "JDownloader exited gracefully."
+                fi
                 if grep -q "No Console Available!" -F "$tmp_log"; then # I believe this only happens when MyJD details are incorrect. If so, we can use this to verify the details were correct.
-                    kill_me="true"
                     echo_info "Your my.jdownloader details were incorrect? Try again."
-                    get_myjd_info() # Get account info for this user. and insert it into this installation
+                    get_myjd_info # Get account info for this user. and insert it into this installation
+                fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully."
                     kill $pid     # Kill the background command
                     rm "$tmp_log" # Remove the tmp log
                     trap - EXIT   # Disable the trap on a normal exit.
                 fi
+            fi
             sleep 1 # Pace out the grep by pausing for a second
         done
     done
