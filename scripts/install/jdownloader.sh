@@ -1,5 +1,4 @@
 #!/bin/bash
-# Testing Git Commit
 # JDownloader Installer for swizzin
 # Author: Aethaeran
 
@@ -82,7 +81,11 @@ function install_jdownloader() {
     # TODO: This can probably use the most recent JDownloader log instead.
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
-    # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop.
+    # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
+    readarray -t users < <(_get_user_list)
+    for user in "${users[@]}"; do # Install a separate instance for each user
+        systemctl disable --now "jdownloader@$user"
+    done
 
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
@@ -115,7 +118,7 @@ function install_jdownloader() {
                         fi
                         kill_process="true"
                     fi
-                    # TODO: This said verified regardless that new >.< Need a diffrenet string to verify with. "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:"
+                    # TODO: This said verified regardless that new >.< Need a different string to verify with. "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:"
                     # TODO: This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
@@ -138,7 +141,7 @@ function install_jdownloader() {
     chmod 700 -R "$JD_HOME" # Set permissions on JDownloader folder.
 
     echo_progress_start "Enabling service jdownloader@$user"
-    systemctl enable -q --now jdownloader@"$user"
+    systemctl enable -q --now jdownloader@"$user" --quiet
     echo_progress_done
 }
 
