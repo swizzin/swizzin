@@ -62,6 +62,7 @@ function install_jdownloader() {
 
     if ask "Do you want to inject MyJDownloader details for $user?" N; then
         inject="true"
+        echo_info "Injecting MyJDownloader details for $user"
         get_myjd_info # Get account info for this user. and insert it into this installation
     else
         inject="false"
@@ -102,14 +103,14 @@ function install_jdownloader() {
                     # TODO: Pretty sure I can do this without the long pause here... Somehow
                     sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
                     if grep -q "No Console Available" -F "$tmp_log"; then
-                        echo_warn "MyJDownloader account details were incorrect. Please try again."
+                        echo_warn "MyJDownloader account details were incorrect."
                         if [[ $inject == "true" ]]; then
-                            echo
+                            echo_info "Please enter the MyJDownloader details again."
                             get_myjd_info # Get account info for this user. and insert it into this installation
                         else
                             end_loop="true"
-                        kill_process="true"
                         fi
+                        kill_process="true"
                     fi
                     # TODO: This said verified regardless that new >.< Need a diffrenet string to verify with. "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:"
                     # TODO: This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
