@@ -57,8 +57,6 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
-    # TODO: Give the option to skip this, and have user do it manually later.
-
     if ask "Do you want to inject MyJDownloader details for $user?" N; then
         inject="true"
         get_myjd_info # Get account info for this user. and insert it into this installation
@@ -98,19 +96,21 @@ function install_jdownloader() {
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
                     echo_info "JDownloader started successfully."
-                    # TODO: Pretty sure I can do this without the long pause here. Just skip previous check, and combine the next two
+                    # TODO: Pretty sure I can do this without the long pause here... Somehow
                     sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
                     if grep -q "No Console Available" -F "$tmp_log"; then
+                        echo_warn "MyJDownloader account details were incorrect. Please try again."
                         if [[ $inject == "true" ]]; then
-                            echo_error "MyJDownloader account details were incorrect. Please try again."
-                            # TODO: Give the option to skip this, and have user do it manually later.
+                            echo
                             get_myjd_info # Get account info for this user. and insert it into this installation
                         else
                             end_loop="true"
                         kill_process="true"
                         fi
                     fi
-                    if grep -q "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:" -F "$tmp_log"; then
+                    # TODO: This said verified regardless that new >.< Need a diffrenet string to verify with. "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:"
+                    # TODO: This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
+                    if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
                         kill_process="true"
                         end_loop="true"
