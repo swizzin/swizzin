@@ -1,4 +1,5 @@
 #!/bin/bash
+# Testing Git Commit
 # JDownloader Installer for swizzin
 # Author: Aethaeran
 
