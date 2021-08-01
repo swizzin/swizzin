@@ -14,6 +14,7 @@
 
 function get_myjd_info() {
 
+    # TODO: Give the option to skip this, and have user do it manually later.
     # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
 
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
@@ -65,6 +66,7 @@ function install_jdownloader() {
     echo_progress_done "Jar downloaded"
 
     # TODO: Would this make a good function in other instances? Could be prettier though.
+
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
@@ -85,15 +87,21 @@ function install_jdownloader() {
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
                 fi
-                if grep -q "No Console Available!" -F "$tmp_log"; then # I believe this only happens when MyJD details are incorrect. If so, we can use this to verify the details were correct.
-                    echo_info "Your my.jdownloader details were incorrect? Try again."
-                    get_myjd_info # Get account info for this user. and insert it into this installation
-                fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully."
-                    kill $pid     # Kill the background command
-                    rm "$tmp_log" # Remove the tmp log
-                    trap - EXIT   # Disable the trap on a normal exit.
+                    if grep -q "No Console Available" -F "$tmp_log"; then # I believe this only happens when MyJD details are incorrect. If so, we can use this to verify the details were correct.
+                        echo_info "Your my.jdownloader details were incorrect? Try again."
+                        # TODO: Give the option to skip this, and have user do it manually later.
+                        get_myjd_info # Get account info for this user. and insert it into this installation
+                        kill $pid     # Kill the background command
+                        rm "$tmp_log" # Remove the tmp log
+                        trap - EXIT   # Disable the trap on a normal exit.
+                        rm "$JD_HOME/build.json" # Remove this so the loop will run again.
+                    else
+                        kill $pid     # Kill the background command
+                        rm "$tmp_log" # Remove the tmp log
+                        trap - EXIT   # Disable the trap on a normal exit.
+                    fi
                 fi
             fi
             sleep 1 # Pace out the grep by pausing for a second
