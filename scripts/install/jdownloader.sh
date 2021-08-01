@@ -79,6 +79,7 @@ function install_jdownloader() {
     echo_progress_done "Jar downloaded"
 
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
+    # TODO: This can probably use the most recent JDownloader log instead.
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
     echo_progress_start "Attempting JDownloader2 initialisation"
