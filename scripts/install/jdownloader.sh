@@ -95,7 +95,7 @@ function install_jdownloader() {
                         echo_error "https://my.jdownloader.org/ account details were incorrect. Try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
                         kill_me="true"
-                        find "$JD_HOME" -type f -not -name 'JDownloader.jar' -print0 | xargs -0  -I {} rm -v {} # Remove anything that isn't JDownloader.jar
+                        find "$JD_HOME" -type f -not -name 'JDownloader.jar' -print0 | xargs -0  -I {} rm {} # Remove anything that isn't JDownloader.jar
                         get_myjd_info # Get account info for this user. and insert it into this installation
                     fi
                 fi
