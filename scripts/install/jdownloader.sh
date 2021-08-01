@@ -29,7 +29,7 @@ function get_myjd_info() {
         echo_query "Please enter the password for the account"
         read -r 'MYJD_PASSWORD'
     else
-        echo_info "Using password = $MYJD_EMAIL"
+        echo_info "Using password = $MYJD_PASSWORD"
     fi
 
     if [[ -z "${MYJD_DEVICENAME}" ]]; then
@@ -93,9 +93,11 @@ function install_jdownloader() {
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
+                    rm "$tmp_log" # Remove the tmp log
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully."
+                    sleep 15
                     if grep -q "No Console Available" -F "$tmp_log"; then # If yes, JDownloader retry getting details.
                         echo_error "https://my.jdownloader.org/ account details were incorrect. Please try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
