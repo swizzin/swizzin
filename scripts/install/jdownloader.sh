@@ -107,6 +107,7 @@ function install_jdownloader() {
                         else
                             end_loop="true"
                         kill_process="true"
+                        fi
                     fi
                     if grep -q "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
