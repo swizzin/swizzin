@@ -93,7 +93,6 @@ function install_jdownloader() {
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
-                    rm "$tmp_log" # Remove the tmp log
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully."
