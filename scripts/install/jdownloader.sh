@@ -15,8 +15,6 @@
 
 function get_myjd_info() {
 
-    # TODO: Give the option to skip this, and have user do it manually later.
-
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
     if [[ -z "${MYJD_EMAIL}" ]]; then
         echo_query "Please enter the e-mail used to access this account once created:"
@@ -59,7 +57,14 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
-    get_myjd_info # Get account info for this user. and insert it into this installation
+    # TODO: Give the option to skip this, and have user do it manually later.
+
+    if ask "Do you want to inject MyJDownloader details for $user?" N; then
+        inject="true"
+        get_myjd_info # Get account info for this user. and insert it into this installation
+    else
+        inject="false"
+    fi
 
     echo_progress_start "Downloading JDownloader.jar"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -95,9 +100,12 @@ function install_jdownloader() {
                     # TODO: Pretty sure I can do this without the long pause here. Just skip previous check, and combine the next two
                     sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
                     if grep -q "No Console Available" -F "$tmp_log"; then
-                        echo_error "MyJDownloader account details were incorrect. Please try again."
-                        # TODO: Give the option to skip this, and have user do it manually later.
-                        get_myjd_info # Get account info for this user. and insert it into this installation
+                        if [[ $inject == "true" ]]; then
+                            echo_error "MyJDownloader account details were incorrect. Please try again."
+                            # TODO: Give the option to skip this, and have user do it manually later.
+                            get_myjd_info # Get account info for this user. and insert it into this installation
+                        else
+                            end_loop="true"
                         kill_process="true"
                     fi
                     if grep -q "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:" -F "$tmp_log"; then
