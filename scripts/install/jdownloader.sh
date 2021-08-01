@@ -78,17 +78,14 @@ function install_jdownloader() {
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
+        echo_info "Oh shit here we go again" # TODO: Change this back to log only
         touch "$tmp_log"
-        echo_log_only "Oh shit here we go again"
         $command > "$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
-
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
-            # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
-
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
