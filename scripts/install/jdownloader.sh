@@ -43,6 +43,7 @@ function get_myjd_info() {
 
     if [[ -e "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" ]]; then
         rm "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json"
+    fi
 
     cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
 {
@@ -83,7 +84,7 @@ function install_jdownloader() {
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         end_loop="false"
-        while [[ end_loop == "false" ]]; do # While background command is still running...
+        while [[ $end_loop == "false" ]]; do # While background command is still running...
 
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
