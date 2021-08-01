@@ -80,6 +80,7 @@ function install_jdownloader() {
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
         echo_info "Oh shit here we go again" # TODO: Change this back to log only
         touch "$tmp_log"
+        kill_process="false"
         $command > "$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
@@ -90,23 +91,27 @@ function install_jdownloader() {
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
+                    kill_process="true"
                 fi
-                if grep -q "Initialisation finished" -F "$tmp_log"; then #
+                if grep -q "Initialisation finished" -F "$tmp_log"; then
                     echo_info "JDownloader started successfully."
-                    sleep 15
+                    # TODO: Pretty sure I can do this without the long pause here. Just skip previous check, and combine the next two
+                    sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
                     if grep -q "No Console Available" -F "$tmp_log"; then # If yes, JDownloader retry getting details.
                         echo_error "https://my.jdownloader.org/ account details were incorrect. Please try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
                         get_myjd_info # Get account info for this user. and insert it into this installation
-                        kill $pid     # Kill the background command
-                        rm "$tmp_log" # Remove the tmp log
+                        kill_process="true"
                     fi
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "https://my.jdownloader.org/ account details verified."
+                        kill_process="true"
+                        end_loop="true"
+                    fi
+                    if [[ $kill_process == "true" ]]; then
                         kill $pid     # Kill the background command
                         rm "$tmp_log" # Remove the tmp log
                         trap - EXIT   # Disable the trap on a normal exit.
-                        end_loop="true"
                     fi
                 fi
             fi
