@@ -76,15 +76,15 @@ function install_jdownloader() {
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
     echo_progress_start "Attempting JDownloader2 initialisation"
-    while [ ! -e "$JD_HOME/build.json" ]; do # Run command until a certain file is created.
+    end_loop="false"
+    while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
         touch "$tmp_log"
         echo_log_only "Oh shit here we go again"
         $command > "$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
-        end_loop="false"
-        while [[ $end_loop == "false" ]]; do # While background command is still running...
+        while kill -0 $pid 2> /dev/null; do # While background command is still running...
 
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
@@ -101,6 +101,8 @@ function install_jdownloader() {
                         echo_error "https://my.jdownloader.org/ account details were incorrect. Please try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
                         get_myjd_info # Get account info for this user. and insert it into this installation
+                        kill $pid     # Kill the background command
+                        rm "$tmp_log" # Remove the tmp log
                     fi
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "https://my.jdownloader.org/ account details verified."
