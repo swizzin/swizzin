@@ -15,7 +15,6 @@
 function get_myjd_info() {
 
     # TODO: Give the option to skip this, and have user do it manually later.
-    # TODO: Should double check to confirm everything is accurate, and loop back if anything isn't filled out. swizzin likely has utils for this already
 
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
     if [[ -z "${MYJD_EMAIL}" ]]; then
@@ -78,7 +77,7 @@ function install_jdownloader() {
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
-        echo_info "Oh shit here we go again" # TODO: Change this back to log only
+        echo_log_only "Oh shit here we go again"
         touch "$tmp_log"
         kill_process="false"
         $command > "$tmp_log" 2>&1 &
@@ -86,7 +85,6 @@ function install_jdownloader() {
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
-            # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
@@ -97,22 +95,22 @@ function install_jdownloader() {
                     echo_info "JDownloader started successfully."
                     # TODO: Pretty sure I can do this without the long pause here. Just skip previous check, and combine the next two
                     sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
-                    if grep -q "No Console Available" -F "$tmp_log"; then # If yes, JDownloader retry getting details.
-                        echo_error "https://my.jdownloader.org/ account details were incorrect. Please try again."
+                    if grep -q "No Console Available" -F "$tmp_log"; then
+                        echo_error "MyJDownloader account details were incorrect. Please try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
                         get_myjd_info # Get account info for this user. and insert it into this installation
                         kill_process="true"
                     fi
-                    if grep -q "Start HTTP Server" -F "$tmp_log"; then
-                        echo_info "https://my.jdownloader.org/ account details verified."
+                    if grep -q "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:" -F "$tmp_log"; then
+                        echo_info "MyJDownloader account details verified."
                         kill_process="true"
                         end_loop="true"
                     fi
-                    if [[ $kill_process == "true" ]]; then
-                        kill $pid     # Kill the background command
-                        rm "$tmp_log" # Remove the tmp log
-                        trap - EXIT   # Disable the trap on a normal exit.
-                    fi
+                fi
+                if [[ $kill_process == "true" ]]; then
+                    kill $pid     # Kill the background command
+                    rm "$tmp_log" # Remove the tmp log
+                    trap - EXIT   # Disable the trap on a normal exit.
                 fi
             fi
             sleep 1 # Pace out the grep by pausing for a second
