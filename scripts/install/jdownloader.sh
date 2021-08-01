@@ -15,6 +15,12 @@
 
 function get_myjd_info() {
 
+<<<<<<< Updated upstream
+=======
+    # TODO: Give the option to skip this, and have user do it manually later.
+    # TODO: The way this is currently handled causes information to be passed to EACH user that it is installed for.
+
+>>>>>>> Stashed changes
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
     if [[ -z "${MYJD_EMAIL}" ]]; then
         echo_query "Please enter the e-mail used to access this account once created:"
