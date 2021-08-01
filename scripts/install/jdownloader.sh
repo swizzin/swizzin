@@ -70,8 +70,6 @@ function install_jdownloader() {
     fi
     echo_progress_done "Jar downloaded"
 
-    # TODO: Would this make a good function in other instances? Could be prettier though.
-
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
