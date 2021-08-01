@@ -76,12 +76,14 @@ function install_jdownloader() {
         echo_log_only "Oh shit here we go again"
         $command > "$tmp_log" 2>&1 &
         pid=$!
+        #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
 
             # TODO: Some case handling would be good here.  (( My.Jdownloader login failed \\ first run finished \\ started successfully? ))
             # TODO: Another alternative could be to have it iterate a list of strings instead of being spread out like this.
 
+            kill_me="false"
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
                 if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
@@ -90,18 +92,17 @@ function install_jdownloader() {
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully."
                     if grep -q "No Console Available" -F "$tmp_log"; then # I believe this only happens when MyJD details are incorrect. If so, we can use this to verify the details were correct.
-                        echo_info "Your my.jdownloader details were incorrect? Try again."
+                        echo_error "https://my.jdownloader.org/ account details were incorrect. Try again."
                         # TODO: Give the option to skip this, and have user do it manually later.
+                        kill_me="true"
+                        find "$JD_HOME" -type f -not -name 'JDownloader.jar' -print0 | xargs -0  -I {} rm -v {} # Remove anything that isn't JDownloader.jar
                         get_myjd_info # Get account info for this user. and insert it into this installation
-                        kill $pid     # Kill the background command
-                        rm "$tmp_log" # Remove the tmp log
-                        trap - EXIT   # Disable the trap on a normal exit.
-                        rm "$JD_HOME/build.json" # Remove this so the loop will run again.
-                    else
-                        kill $pid     # Kill the background command
-                        rm "$tmp_log" # Remove the tmp log
-                        trap - EXIT   # Disable the trap on a normal exit.
                     fi
+                fi
+                if [[ "$kill_me" = "true" ]]; then
+                    kill $pid     # Kill the background command
+                    rm "$tmp_log" # Remove the tmp log
+                    trap - EXIT   # Disable the trap on a normal exit.
                 fi
             fi
             sleep 1 # Pace out the grep by pausing for a second
