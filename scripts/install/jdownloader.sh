@@ -140,9 +140,6 @@ function install_jdownloader() {
     chown -R "$user": "$JD_HOME" # Set owner on JDownloader folder.
     chmod 700 -R "$JD_HOME" # Set permissions on JDownloader folder.
 
-    echo_progress_start "Enabling service jdownloader@$user"
-    systemctl enable -q --now jdownloader@"$user" --quiet
-    echo_progress_done
 }
 
 if [[ -n "$1" ]]; then # Install jd2 for user that was passed to script as arg (i.e. box adduser <user>) and do not execute the rest
@@ -171,16 +168,19 @@ ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd2/JDownloader.j
 [Install]
 WantedBy=multi-user.target
 EOF
-    # Service starting is handled in per-user installer
 }
+_systemd
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user
     install_jdownloader
 done
-
 # Don't start services until after each user is installed.
-_systemd
+for user in "${users[@]}"; do # Install a separate instance for each user
+    echo_progress_start "Enabling service jdownloader@$user"
+    systemctl enable -q --now jdownloader@"$user" --quiet
+    echo_progress_done
+done
 
 touch /install/.jdownloader.lock
 echo_success "JDownloader installed"
