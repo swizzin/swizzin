@@ -61,7 +61,6 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
-    #TODO: Add environment variable to bypass the following block. For unattended installs.
 
     if [[ $NO_MYJD == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
@@ -74,7 +73,7 @@ function install_jdownloader() {
     fi
 
     # TODO: Have this store the first downloader JDownlaoder in /opt/jdownloader, all further instances can just copy it from there.
-    # TODO: JDownloader will detect if this is corrupt, we could use that to
+    # TODO: JDownloader will detect if JDownlaoder.jar is corrupt, we could use that to our advantage.
     echo_progress_start "Downloading JDownloader.jar"
     mkdir -p "$JD_HOME"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -90,7 +89,6 @@ function install_jdownloader() {
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
-    readarray -t users < <(_get_user_list)
     for each_user in "${users[@]}"; do # disable all instances
         systemctl disable --now "jdownloader@$each_user" --quiet
     done
@@ -114,15 +112,15 @@ function install_jdownloader() {
             if [[ -e "$tmp_log" ]]; then # If the
                 # TODO: Seems to be missing this detection if the background command closes too quickly.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
-                    echo_info "JDownloader exited gracefully."
+                    echo_info "JDownloader exited gracefully." # TODO: This could be echo_log_only at PR end.
                     trap - EXIT   # Disable the trap on a normal exit.
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
-                    echo_info "JDownloader started successfully."
+                    echo_info "JDownloader started successfully." # TODO: This could be echo_log_only at PR end.
                     # TODO: Pretty sure I can do this without the long pause here... Somehow
                     sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
                     if grep -q "No Console Available" -F "$tmp_log"; then
-                        echo_warn "MyJDownloader account details were incorrect."
+                        echo_warn "MyJDownloader account details were incorrect. They won't be able to use the web UI."
                         if [[ $inject == "true" ]]; then
                             echo_info "Please enter the MyJDownloader details again."
                             get_myjd_info # Get account info for this user. and insert it into this installation
@@ -131,7 +129,6 @@ function install_jdownloader() {
                         fi
                         kill_process="true"
                     fi
-                    # TODO: This said verified regardless that new >.< Need a different string to verify with. "FINER [ org.appwork.loggingv3.LogV3(finer) ] -> Load Translation file:"
                     # TODO: This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
@@ -184,6 +181,7 @@ EOF
 }
 _systemd
 
+# TODO: Add environment variable to bypass the following block. For unattended installs.
 if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
     NO_MYJD="false" # If no
 else
