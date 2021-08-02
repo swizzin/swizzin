@@ -34,6 +34,7 @@ for user in ${users[@]}; do
             else
                 echo_info "Not purging JDownloader configuration for $user\n their JDownloader configuration can be found at $JD_HOME"
             fi
+        fi
     fi
     echo_progress_done
 done
