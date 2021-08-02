@@ -134,7 +134,7 @@ function install_jdownloader() {
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
                     echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
 
-                    # TODO: Pretty sure I can do this without the long pause here... Somehow
+                    # Pretty sure this will remove the long pause.
                     keep_sleeping="true"
                     while [[ ! $keep_sleeping == "false"]]; do
                         if grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log"; then
@@ -143,7 +143,7 @@ function install_jdownloader() {
                             sleep 1 # Wait until JDownloader has attempted launching the HTTP server.
                         fi
                     done
-                    
+
                     if grep -q "No Console Available" -F "$tmp_log"; then
                         echo_warn "MyJDownloader account details were incorrect. They won't be able to use the web UI."
                         if [[ $inject == "true" ]]; then
@@ -154,7 +154,7 @@ function install_jdownloader() {
                         fi
                         kill_process="true"
                     fi
-                    # TODO: This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
+                    # This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
                         kill_process="true"
