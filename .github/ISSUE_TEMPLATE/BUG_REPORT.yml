@@ -37,10 +37,11 @@ body:
       label: What OS are you using?
       multiple: false
       options:
-        - Debian 10
-        - Ubuntu 20.04
-        - Debian 9
-        - Ubuntu 18.04
+        - Debian 11 (Bullseye)
+        - Ubuntu 20.04 (Focal)
+        - Debian 10 (Buster)
+        - Ubuntu 18.04 (Xenial)
+        - Debian 9 (Stretch)
     validations:
       required: true
   - type: dropdown
