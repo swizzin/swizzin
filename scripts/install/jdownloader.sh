@@ -63,13 +63,14 @@ function install_jdownloader() {
 
     #TODO: Add environment variable to bypass the following block. For unattended installs.
 
-    if ask "Do you want to inject MyJDownloader details for $user?" N; then
-        inject="true"
-        echo_info "Injecting MyJDownloader details for $user"
-        get_myjd_info # Get account info for this user. and insert it into this installation
-    else
-        inject="false"
-    fi
+    if [[ NO_MYJD == "false" ]]; then
+        if ask "Do you want to inject MyJDownloader details for $user?" N; then
+            inject="true"
+            echo_info "Injecting MyJDownloader details for $user"
+            get_myjd_info # Get account info for this user. and insert it into this installation
+        else
+            inject="false"
+        fi
 
     # TODO: Have this store the first downloader JDownlaoder in /opt/jdownloader, all further instances can just copy it from there.
     # TODO: JDownloader will detect if this is corrupt, we could use that to
@@ -181,6 +182,12 @@ WantedBy=multi-user.target
 EOF
 }
 _systemd
+
+if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
+    NO_MYJD="true" # If yes
+else
+    NO_MYJD="false" # If no
+fi
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user

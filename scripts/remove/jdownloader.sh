@@ -19,7 +19,7 @@ if ask "Do you want to purge ANY JDownloader configurations?" N; then
     fi
 else
     purge_some="false" # If no
-    echo_info "Each user's JDownloader configuration can be found in home folder in the sub-dir 'jd2'"
+    echo_info "Each user's JDownloader configuration can be found in their home folder under the sub-directory 'jd2'"
 fi
 
 # The following line cannot follow SC2068 because it will cause the list to become a string.
