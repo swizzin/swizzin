@@ -79,7 +79,7 @@ function install_jdownloader() {
 
     echo_info "Setting up JDownloader for $user"
     # TODO: Should we move this to .config instead?
-    JD_HOME="/home/$user/jd2"
+    $JD_HOME="/home/$user/jd2"
 
     if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
@@ -106,6 +106,7 @@ function install_jdownloader() {
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     # TODO: The following line can probably use the most recent JDownloader log instead. /home/$user/jd2/logs/$get_most_recent_dir_in_folder/Log.L.log.0
     tmp_log="/tmp/jdownloader_install-${user}.log"
+    echo $(get_most_recent_dir $JD_HOME/logs)
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     for each_user in "${users[@]}"; do # disable all instances
