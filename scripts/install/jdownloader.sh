@@ -12,6 +12,7 @@
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
 # https://board.jdownloader.org/showthread.php?t=81420
+# https://swizzin.ltd/guides/advanced-setup/
 
 # TODO: Move this function to another file so the end user could user it to inject their details as well.
 
@@ -61,8 +62,7 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
-
-    if [[ $NO_MYJD == "false" ]]; then
+    if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
             inject="true"
             echo_info "Injecting MyJDownloader details for $user"
@@ -182,11 +182,12 @@ EOF
 _systemd
 
 # TODO: Add environment variable to bypass the following block. For unattended installs.
-if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
-    NO_MYJD="false" # If no
-else
-    NO_MYJD="true" # If yes
-fi
+if [[ -n "${BYPASS_MYJDOWNLOADER}" ]]; then
+    if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
+        BYPASS_MYJDOWNLOADER="false" # If no
+    else
+        BYPASS_MYJDOWNLOADER="true" # If yes
+    fi
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user
