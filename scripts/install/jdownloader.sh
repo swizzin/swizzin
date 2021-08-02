@@ -96,7 +96,8 @@ function install_jdownloader() {
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
         echo_info "Oh shit! Here we go again!" # TODO: Leave this visible for testing purposes until PR is ready.
-        touch "$tmp_log"
+        if [[ -e "$tmp_log" ]] && rm "$tmp_log" # Remove the tmp log if exists
+        touch "$tmp_log" # Create the tmp log
         kill_process="false"
         $command > "$tmp_log" 2>&1 &
         pid=$!
@@ -109,7 +110,7 @@ function install_jdownloader() {
                 # TODO: Seems to be missing this detection if the background command closes too quickly.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
-                    kill_process="true"
+                    trap - EXIT   # Disable the trap on a normal exit.
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
                     echo_info "JDownloader started successfully."
