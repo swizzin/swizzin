@@ -106,7 +106,7 @@ function install_jdownloader() {
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     # TODO: The following line can probably use the most recent JDownloader log instead. /home/$user/jd2/logs/$get_most_recent_dir_in_folder/Log.L.log.0
     tmp_log="/tmp/jdownloader_install-${user}.log"
-    echo $(get_most_recent_dir $JD_HOME/logs)
+    echo "$(get_most_recent_dir $JD_HOME/logs)/Log.L.log.0"
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     for each_user in "${users[@]}"; do # disable all instances
@@ -141,7 +141,7 @@ function install_jdownloader() {
                     # Pretty sure this will remove the long pause.
                     keep_sleeping="true"
                     while [[ ! $keep_sleeping == "false" ]]; do
-                        if [[ grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log" ]]; then
+                        if grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log"; then
                             keep_sleeping="false"
                         else
                             sleep 1 # Wait until JDownloader has attempted launching the HTTP server.
