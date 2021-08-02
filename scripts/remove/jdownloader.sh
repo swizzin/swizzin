@@ -2,6 +2,9 @@
 # JDownloader remover for swizzin
 # Author: Aethaeran
 
+# Import functions
+. /etc/swizzin/sources/functions/utils
+
 # this will check for all swizzin users, and iterate and remove all JDownloader installations.
 users=("$(_get_user_list)")
 
