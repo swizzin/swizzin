@@ -14,6 +14,7 @@ case "$(os_arch)" in
         fi
         ;;
     *)
-        echo_info "No upgrader yet! Your installation is currently managed by apt. Please use that in the meantime"
+        # echo_info "No upgrader yet! Your installation is currently managed by apt. Please use that in the meantime"
+        apt_install --only-upgrade calibre
         ;;
 esac

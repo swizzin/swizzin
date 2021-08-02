@@ -55,4 +55,6 @@ for i in "${locks[@]}"; do
     fi
 done
 
+apt_install --only-upgrade nginx
+
 systemctl reload nginx
