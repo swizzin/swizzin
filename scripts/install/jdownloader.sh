@@ -136,7 +136,7 @@ function install_jdownloader() {
 
                     # Pretty sure this will remove the long pause.
                     keep_sleeping="true"
-                    while [[ ! $keep_sleeping == "false"]]; do
+                    while [[ ! $keep_sleeping == "false" ]]; do
                         if grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log"; then
                             keep_sleeping="true"
                         else
