@@ -22,21 +22,19 @@
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
 # https://board.jdownloader.org/showthread.php?t=81433
 
-
 ##########################################################################
 # Functions
 ##########################################################################
 
-# TODO: Make $get_most_recent_dir_in_folder function
 function get_most_recent_dir() {
     #shellcheck disable=2012
-    ls -td -- "$1"/* | head -n 1
+    find $1 -mindepth 1 -maxdepth 1 -type d
 }
-# TODO: Move this function to another file so the end user could use it to inject their details as well.
+# TODO: Move this function to sources/functions/jdownloader so the end user could use it to inject their details as well.
 
-function get_myjd_info() {
+function inject_myjdownloader() {
 
-    # TODO: The way this is currently handled causes information to be passed to EACH user that it is installed for.
+    # TODO: Make this only pass env file details to master user
 
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
     if [[ -z "${MYJD_EMAIL}" ]]; then
@@ -78,21 +76,20 @@ EOF
 function install_jdownloader() {
 
     echo_info "Setting up JDownloader for $user"
-    # TODO: Should we move this to .config instead?
-    $JD_HOME="/home/$user/jd2"
+    JD_HOME="/home/$user/jd2"
 
     if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
             inject="true"
             echo_info "Injecting MyJDownloader details for $user"
-            get_myjd_info # Get account info for this user. and insert it into this installation
+            inject_myjdownloader # Get account info for this user. and insert it into this installation
         else
             inject="false"
         fi
     fi
 
-    # TODO: Have this store the first downloader JDownlaoder in /opt/jdownloader, all further instances can just copy it from there.
-    # TODO: JDownloader will detect if JDownlaoder.jar is corrupt, we could use that to our advantage.
+    # TODO: Have this store the first JDownloader.jar in /tmp/, all further instances can just copy it from there.
+    # TODO: JDownloader will detect if JDownloader.jar is corrupt, we could use that to our advantage.
     echo_progress_start "Downloading JDownloader.jar"
     mkdir -p "$JD_HOME"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -106,7 +103,6 @@ function install_jdownloader() {
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     # TODO: The following line can probably use the most recent JDownloader log instead. /home/$user/jd2/logs/$get_most_recent_dir_in_folder/Log.L.log.0
     tmp_log="/tmp/jdownloader_install-${user}.log"
-    echo "$(get_most_recent_dir $JD_HOME/logs)/Log.L.log.0"
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     for each_user in "${users[@]}"; do # disable all instances
@@ -120,20 +116,21 @@ function install_jdownloader() {
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
         fi
-        touch "$tmp_log" # Create the tmp log
+        #        touch "$tmp_log" # Create the tmp log
+        tmp_log="$(get_most_recent_dir "$JD_HOME"/logs)/Log.L.log.0"
         kill_process="false"
-        $command > "$tmp_log" 2>&1 &
+        $command >"$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
-        while kill -0 $pid 2> /dev/null; do # While background command is still running...
+        while kill -0 $pid 2>/dev/null; do # While background command is still running...
             sleep 2 # Pace this out a bit
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
                 # TODO: Seems to be missing this detection if the background command closes too quickly. Increased previous sleep to 2 seconds to see if it helps.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
-                    trap - EXIT   # Disable the trap on a normal exit.
+                    trap - EXIT                                # Disable the trap on a normal exit.
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
                     echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
@@ -152,7 +149,7 @@ function install_jdownloader() {
                         echo_warn "MyJDownloader account details were incorrect. They won't be able to use the web UI."
                         if [[ $inject == "true" ]]; then
                             echo_info "Please enter the MyJDownloader details again."
-                            get_myjd_info # Get account info for this user. and insert it into this installation
+                            inject_myjdownloader # Get account info for this user. and insert it into this installation
                         else
                             end_loop="true"
                         fi
@@ -177,8 +174,27 @@ function install_jdownloader() {
     echo_progress_done "Initialisation concluded"
 
     chown -R "$user": "$JD_HOME" # Set owner on JDownloader folder.
-    chmod 700 -R "$JD_HOME" # Set permissions on JDownloader folder.
+    chmod 700 -R "$JD_HOME"      # Set permissions on JDownloader folder.
 
+}
+
+_systemd() {
+    # JDownloader will automatically create a pidfile when running. That way, systemd can use it to ensure it is disabling the correct process.
+    cat >/etc/systemd/system/jdownloader@.service <<EOF
+[Unit]
+Description=JDownloader Service
+After=network.target
+
+[Service]
+User=%i
+Group=%i
+Environment=JD_HOME=/home/%i/jd2
+ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd2/JDownloader.jar
+PIDFile=/home/%i/jdownloader/JDownloader.pid
+
+[Install]
+WantedBy=multi-user.target
+EOF
 }
 
 ##########################################################################
@@ -195,24 +211,6 @@ fi
 . /etc/swizzin/sources/functions/java
 install_java8
 
-_systemd() {
-    # JDownloader will automatically create a pidfile when running. That way, systemd can use it to ensure it is disabling the correct process.
-    cat > /etc/systemd/system/jdownloader@.service << EOF
-[Unit]
-Description=JDownloader Service
-After=network.target
-
-[Service]
-User=%i
-Group=%i
-Environment=JD_HOME=/home/%i/jd2
-ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd2/JDownloader.jar
-PIDFile=/home/%i/jdownloader/JDownloader.pid
-
-[Install]
-WantedBy=multi-user.target
-EOF
-}
 _systemd
 
 # Add environment variable 'BYPASS_MYJDOWNLOADER' to bypass the following block. For unattended installs.
