@@ -28,7 +28,10 @@
 ##########################################################################
 
 # TODO: Make $get_most_recent_dir_in_folder function
-
+function get_most_recent_dir() {
+    #shellcheck disable=2012
+    ls -td -- "$1"/* | head -n 1
+}
 # TODO: Move this function to another file so the end user could use it to inject their details as well.
 
 function get_myjd_info() {
@@ -126,7 +129,7 @@ function install_jdownloader() {
             sleep 2 # Pace this out a bit
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
-                # TODO: Seems to be missing this detection if the background command closes too quickly.
+                # TODO: Seems to be missing this detection if the background command closes too quickly. Increased previous sleep to 2 seconds to see if it helps.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
                     trap - EXIT   # Disable the trap on a normal exit.
@@ -137,8 +140,8 @@ function install_jdownloader() {
                     # Pretty sure this will remove the long pause.
                     keep_sleeping="true"
                     while [[ ! $keep_sleeping == "false" ]]; do
-                        if grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log"; then
-                            keep_sleeping="true"
+                        if [[ grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log" ]]; then
+                            keep_sleeping="false"
                         else
                             sleep 1 # Wait until JDownloader has attempted launching the HTTP server.
                         fi
