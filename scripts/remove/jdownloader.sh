@@ -9,6 +9,8 @@
 users=("$(_get_user_list)")
 
 # TODO: Add bypass purging altogether with variable
+# TODO: Move purging functionality to a function outside this script
+
 # Do a check to see if they want to purge JDownloader configurations.
 if ask "Do you want to purge ANY JDownloader configurations?" N; then
     purge_some="false" # If no
