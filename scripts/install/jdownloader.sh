@@ -2,19 +2,30 @@
 # JDownloader Installer for swizzin
 # Author: Aethaeran
 
+##########################################################################
 # References
+##########################################################################
+# Liara already made a doc for installing JDownloader manually:
+# https://docs.swizzin.net/guides/jdownloader/
+# swizzin docs
 # https://swizzin.ltd/dev/structure/
-# https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-debian-10
+# Swizzin environment variables
+# https://swizzin.ltd/guides/advanced-setup/
+# JDownloader docs
 # https://support.jdownloader.org/Knowledgebase/Article/View/install-jdownloader-on-nas-and-embedded-devices
 # https://support.jdownloader.org/Knowledgebase/Article/View/headless-systemd-autostart-script
-# Liara already made a doc for installing JDownloader manually https://docs.swizzin.net/guides/jdownloader/
+# https://board.jdownloader.org/showthread.php?t=81420
+# Some of the logic used here
+# https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-debian-10
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
-# https://board.jdownloader.org/showthread.php?t=81420
-# https://swizzin.ltd/guides/advanced-setup/
 
 # TODO: Move this function to another file so the end user could user it to inject their details as well.
+
+##########################################################################
+# Functions
+##########################################################################
 
 function get_myjd_info() {
 
@@ -152,6 +163,10 @@ function install_jdownloader() {
 
 }
 
+##########################################################################
+# Script Main
+##########################################################################
+
 if [[ -n "$1" ]]; then # Install jd2 for user that was passed to script as arg (i.e. box adduser <user>) and do not execute the rest
     user="$1"
     install_jdownloader
@@ -181,7 +196,7 @@ EOF
 }
 _systemd
 
-# TODO: Add environment variable to bypass the following block. For unattended installs.
+# Add environment variable 'BYPASS_MYJDOWNLOADER' to bypass the following block. For unattended installs.
 if [[ -n "${BYPASS_MYJDOWNLOADER}" ]]; then
     if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
         BYPASS_MYJDOWNLOADER="false" # If no
