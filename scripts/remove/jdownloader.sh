@@ -2,20 +2,39 @@
 # JDownloader remover for swizzin
 # Author: Aethaeran
 
-# TODO: Not sure this import is necessary
-# Import swizzin utils
-. /etc/swizzin/sources/functions/utils
-
 # this will check for all swizzin users, and iterate and remove all JDownloader installations.
 users=("$(_get_user_list)")
+
+# TODO: Add bypass purging altogether with variable
+# Do a check to see if they want to purge JDownloader configurations.
+if ask "Do you want to purge ANY JDownloader configurations?" N; then
+    purge_some="true" # If yes
+    if ask "Do you want to purge ALL JDownloader configurations?" N; then
+        purge_all="true" # If yes
+    else
+        purge_all="false" # If no
+    fi
+else
+    purge_some="false" # If no
+    echo_info "Each user's JDownloader configuration can be found in home folder in the sub-dir 'jd2'"
+fi
+
 # The following line cannot follow SC2068 because it will cause the list to become a string.
 # shellcheck disable=SC2068
-
 for user in ${users[@]}; do
     echo_progress_start "Removing JDownloader for $user..."
     systemctl disable -q --now jdownloader@"$user"
-    # TODO: Do a check to see if they want to purge their JDownloader configurations.
-    rm_if_exists /home/"$user"/jd2
+    JD_HOME="/home/$user/jd2"
+    if [[ $purge_all == "true" ]]; then
+        rm_if_exists $JD_HOME
+    else
+        if [[ $purge_some == "true" ]]; then
+            if ask "Do you want to purge $user's JDownloader configuration?" N; then
+                rm_if_exists $JD_HOME # If yes
+            else
+                echo_info "Not purging JDownloader configuration for $user\n their JDownloader configuration can be found at $JD_HOME"
+            fi
+    fi
     echo_progress_done
 done
 echo_progress_start "Removing shared JDownloader files..."
