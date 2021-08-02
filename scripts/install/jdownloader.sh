@@ -11,6 +11,7 @@
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
+# https://board.jdownloader.org/showthread.php?t=81420
 
 # TODO: Move this function to another file so the end user could user it to inject their details as well.
 
@@ -88,8 +89,8 @@ function install_jdownloader() {
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     readarray -t users < <(_get_user_list)
-    for user in "${users[@]}"; do # disable all instances
-        systemctl disable --now "jdownloader@$user" --quiet
+    for each_user in "${users[@]}"; do # disable all instances
+        systemctl disable --now "jdownloader@$each_user" --quiet
     done
 
     echo_progress_start "Attempting JDownloader2 initialisation"
