@@ -185,9 +185,9 @@ EOF
 _systemd
 
 if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
-    NO_MYJD="true" # If yes
-else
     NO_MYJD="false" # If no
+else
+    NO_MYJD="true" # If yes
 fi
 
 readarray -t users < <(_get_user_list)
