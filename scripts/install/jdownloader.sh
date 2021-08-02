@@ -77,6 +77,7 @@ function install_jdownloader() {
 
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
+    mkdir -p "$JD_HOME"
 
     if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
@@ -89,9 +90,8 @@ function install_jdownloader() {
     fi
 
     # TODO: Have this store the first JDownloader.jar in /tmp/, all further instances can just copy it from there.
-    # TODO: JDownloader will detect if JDownloader.jar is corrupt, we could use that to our advantage.
+    # TODO: Java will detect if a .jar is corrupt, we could use that to our advantage. "Error: Invalid or corrupt jarfile"
     echo_progress_start "Downloading JDownloader.jar"
-    mkdir -p "$JD_HOME"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
         wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar" || {
             echo_error "Failed to download"
