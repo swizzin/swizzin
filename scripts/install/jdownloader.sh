@@ -12,9 +12,10 @@
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
 
+# TODO: Move this function to another file so the end user could user it to inject their details as well.
+
 function get_myjd_info() {
 
-    # TODO: Give the option to skip this, and have user do it manually later.
     # TODO: The way this is currently handled causes information to be passed to EACH user that it is installed for.
 
     echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
@@ -59,6 +60,8 @@ function install_jdownloader() {
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
 
+    #TODO: Add environment variable to bypass the following block. For unattended installs.
+
     if ask "Do you want to inject MyJDownloader details for $user?" N; then
         inject="true"
         echo_info "Injecting MyJDownloader details for $user"
@@ -83,14 +86,14 @@ function install_jdownloader() {
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     readarray -t users < <(_get_user_list)
-    for user in "${users[@]}"; do # Install a separate instance for each user
-        systemctl disable --now "jdownloader@$user"
+    for user in "${users[@]}"; do # disable all instances
+        systemctl disable --now "jdownloader@$user" --quiet
     done
 
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
-        echo_log_only "Oh shit here we go again"
+        echo_info "Oh shit! Here we go again!" # TODO: Leave this visible for testing purposes until PR is ready.
         touch "$tmp_log"
         kill_process="false"
         $command > "$tmp_log" 2>&1 &
@@ -100,7 +103,7 @@ function install_jdownloader() {
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
-                if grep -q "Shutdown Hooks Finished" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
+                if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
                     kill_process="true"
                 fi

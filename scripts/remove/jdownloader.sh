@@ -10,6 +10,7 @@
 users=("$(_get_user_list)")
 # The following line cannot follow SC2068 because it will cause the list to become a string.
 # shellcheck disable=SC2068
+
 for user in ${users[@]}; do
     echo_progress_start "Removing JDownloader for $user..."
     systemctl disable -q --now jdownloader@"$user"
