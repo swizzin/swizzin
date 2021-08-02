@@ -5,7 +5,7 @@ if [[ ! -f /install/.lounge.lock ]]; then
     exit 1
 fi
 
-if ! npm outdated --global thelounge; then # `npm outdated <package>` returns 0 if package is up to date, and 1 if an update is available
+if ! npm outdated --global thelounge >> $log 2>&1; then # `npm outdated <package>` returns 0 if package is up to date, and 1 if an update is available
     echo_progress_start "Shutting down and upgrading lounge"
     if [[ $(systemctl is-active lounge) == "active" ]]; then
         wasActive="true"
