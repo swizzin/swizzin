@@ -24,6 +24,10 @@ _process_apt_args() {
     _apt_packages=()
     while test $# -gt 0; do
         case "$1" in
+            --only-upgrade)
+                _apt_only_upgrade="true"
+                echo_log_only "APT will not install any packages if they weren't preveiously present"
+                ;;
             --interactive)
                 _apt_interactive=true
                 echo_log_only "APT set to interactive"
@@ -259,9 +263,13 @@ apt_install() {
     #Prepare flags for install
     flags=""
     if [[ $_apt_install_recommends == "true" ]]; then
-        flags="--install-recommends"
+        flags+="--install-recommends "
     elif [[ $_apt_install_recommends == "false" ]]; then
-        flags="--no-install-recommends"
+        flags+="--no-install-recommends "
+    fi
+
+    if [[ $_apt_only_upgrade == "true" ]]; then
+        flags+="--only-upgrade "
     fi
 
     # Run the install
