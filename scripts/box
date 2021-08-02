@@ -183,7 +183,7 @@ function _upgrade() {
         for blocker in "${blacklist[@]}"; do
             package_string="$(echo "$package_string" | sed "/$blocker/d")"
         done
-        echo_info "Upgrading all packages, EXCEPT torrent clients and packages with alternative upgrade methods (apt/built-in)\nAttempting packages: '${package_string/$'\n'/, }'"
+        echo_info "Upgrading all packages, EXCEPT torrent clients and packages with alternative upgrade methods (apt/built-in)\nAttempting packages: '${package_string//$'\n'/, }'"
         readarray -t packages < <(echo "$package_string")
     else
         packages=("${arg[@]:1}")
