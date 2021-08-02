@@ -188,6 +188,7 @@ if [[ -n "${BYPASS_MYJDOWNLOADER}" ]]; then
     else
         BYPASS_MYJDOWNLOADER="true" # If yes
     fi
+fi
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user
