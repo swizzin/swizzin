@@ -112,7 +112,7 @@ function install_jdownloader() {
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
-        echo_info "Oh shit! Here we go again!" # TODO: Leave this visible for testing purposes until PR is ready.
+        echo_info "Oh shit! Here we go again!" # TODO: This should be echo_log_only at PR end.
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
         fi
@@ -123,18 +123,27 @@ function install_jdownloader() {
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
-            sleep 1 # Pace this out a bit
+            sleep 2 # Pace this out a bit
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
                 # TODO: Seems to be missing this detection if the background command closes too quickly.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
-                    echo_info "JDownloader exited gracefully." # TODO: This could be echo_log_only at PR end.
+                    echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
                     trap - EXIT   # Disable the trap on a normal exit.
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then
-                    echo_info "JDownloader started successfully." # TODO: This could be echo_log_only at PR end.
+                    echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
+
                     # TODO: Pretty sure I can do this without the long pause here... Somehow
-                    sleep 15 # Wait this long to make sure JDownloader has gotten to the point of attempting to launch HTTP server.
+                    keep_sleeping="true"
+                    while [[ ! $keep_sleeping == "false"]]; do
+                        if grep -q "No Console Available" -F "$tmp_log" || grep -q "Start HTTP Server" -F "$tmp_log"; then
+                            keep_sleeping="true"
+                        else
+                            sleep 1 # Wait until JDownloader has attempted launching the HTTP server.
+                        fi
+                    done
+                    
                     if grep -q "No Console Available" -F "$tmp_log"; then
                         echo_warn "MyJDownloader account details were incorrect. They won't be able to use the web UI."
                         if [[ $inject == "true" ]]; then
