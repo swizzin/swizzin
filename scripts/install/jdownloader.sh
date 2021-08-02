@@ -96,7 +96,8 @@ function install_jdownloader() {
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
         echo_info "Oh shit! Here we go again!" # TODO: Leave this visible for testing purposes until PR is ready.
-        if [[ -e "$tmp_log" ]] && rm "$tmp_log" # Remove the tmp log if exists
+        if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
+            rm "$tmp_log"
         touch "$tmp_log" # Create the tmp log
         kill_process="false"
         $command > "$tmp_log" 2>&1 &
