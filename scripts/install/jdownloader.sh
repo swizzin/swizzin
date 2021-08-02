@@ -98,6 +98,7 @@ function install_jdownloader() {
         echo_info "Oh shit! Here we go again!" # TODO: Leave this visible for testing purposes until PR is ready.
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
+        fi
         touch "$tmp_log" # Create the tmp log
         kill_process="false"
         $command > "$tmp_log" 2>&1 &
