@@ -20,12 +20,16 @@
 # https://linuxize.com/post/how-to-check-if-string-contains-substring-in-bash/
 # https://linuxize.com/post/bash-check-if-file-exists/
 # https://superuser.com/questions/402979/kill-program-after-it-outputs-a-given-line-from-a-shell-script
+# https://board.jdownloader.org/showthread.php?t=81433
 
-# TODO: Move this function to another file so the end user could user it to inject their details as well.
 
 ##########################################################################
 # Functions
 ##########################################################################
+
+# TODO: Make $get_most_recent_dir_in_folder function
+
+# TODO: Move this function to another file so the end user could use it to inject their details as well.
 
 function get_myjd_info() {
 
@@ -71,6 +75,7 @@ EOF
 function install_jdownloader() {
 
     echo_info "Setting up JDownloader for $user"
+    # TODO: Should we move this to .config instead?
     JD_HOME="/home/$user/jd2"
 
     if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
@@ -178,7 +183,7 @@ fi
 install_java8
 
 _systemd() {
-    # TODO: JDownloader's suggested service file uses a pidfile rather than an environment variable. Which is optimal?
+    # JDownloader will automatically create a pidfile when running. That way, systemd can use it to ensure it is disabling the correct process.
     cat > /etc/systemd/system/jdownloader@.service << EOF
 [Unit]
 Description=JDownloader Service
@@ -189,6 +194,7 @@ User=%i
 Group=%i
 Environment=JD_HOME=/home/%i/jd2
 ExecStart=/usr/bin/java -Djava.awt.headless=true -jar /home/%i/jd2/JDownloader.jar
+PIDFile=/home/%i/jdownloader/JDownloader.pid
 
 [Install]
 WantedBy=multi-user.target
