@@ -70,6 +70,8 @@ function install_jdownloader() {
         inject="false"
     fi
 
+    # TODO: Have this store the first downloader JDownlaoder in /opt/jdownloader, all further instances can just copy it from there.
+    # TODO: JDownloader will detect if this is corrupt, we could use that to
     echo_progress_start "Downloading JDownloader.jar"
     mkdir -p "$JD_HOME"
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
@@ -81,7 +83,7 @@ function install_jdownloader() {
     echo_progress_done "Jar downloaded"
 
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
-    # TODO: This can probably use the most recent JDownloader log instead.
+    # TODO: The following line can probably use the most recent JDownloader log instead. /home/$user/jd2/logs/$get_most_recent_dir_in_folder/Log.L.log.0
     tmp_log="/tmp/jdownloader_install-${user}.log"
 
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
@@ -101,8 +103,10 @@ function install_jdownloader() {
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         while kill -0 $pid 2> /dev/null; do # While background command is still running...
+            sleep 1 # Pace this out a bit
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then # If the
+                # TODO: Seems to be missing this detection if the background command closes too quickly.
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully."
                     kill_process="true"
