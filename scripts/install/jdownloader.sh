@@ -25,8 +25,8 @@
 ##########################################################################
 # Import Sources
 ##########################################################################
-. etc/swizzin/sources/functions/utils
-. etc/swizzin/sources/functions/jdownloader
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/jdownloader
 
 ##########################################################################
 # Functions

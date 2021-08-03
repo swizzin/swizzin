@@ -145,6 +145,6 @@ _get_installed_apps() {
 }
 
 # Returns the most recently modified directory from the directory indicated in the first argument
-function get_most_recent_dir() {
+get_most_recent_dir() {
     find "$1" -mindepth 1 -maxdepth 1 -type d
 }
