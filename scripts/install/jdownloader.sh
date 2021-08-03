@@ -48,16 +48,19 @@ function install_jdownloader() {
         fi
     fi
 
-    # TODO: Have this store the first JDownloader.jar in /tmp/, all further instances can just copy it from there.
     # TODO: Java will detect if a .jar is corrupt, we could use that to our advantage. "Error: Invalid or corrupt jarfile"
     echo_progress_start "Downloading JDownloader.jar"
-    if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
-        wget -q http://installer.jdownloader.org/JDownloader.jar -O "$JD_HOME/JDownloader.jar" || {
+    if [[ ! -e "/tmp/JDownloader.jar" ]]; then
+        wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar" || {
             echo_error "Failed to download"
             exit 1
         }
     fi
     echo_progress_done "Jar downloaded"
+
+    if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
+        cp "/tmp/JDownloader.jar" "$JD_HOME/JDownloader.jar"
+    fi
 
     command="java -jar $JD_HOME/JDownloader.jar -norestart"
     # TODO: The following line can probably use the most recent JDownloader log instead. /home/$user/jd2/logs/$get_most_recent_dir_in_folder/Log.L.log.0
