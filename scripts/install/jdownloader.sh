@@ -123,8 +123,10 @@ function install_jdownloader() {
                         end_loop="true"
                     fi
                 fi
-                if [[ $kill_process == "true" ]]; then
-                    kill $pid     # Kill the background command
+                if [[ ! kill -0 $pid 2>/dev/null ]]; then
+                    if [[ $kill_process == "true" ]]; then
+                        kill $pid     # Kill the background command
+                    fi
                 fi
             fi
         done
