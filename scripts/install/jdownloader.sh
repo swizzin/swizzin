@@ -96,10 +96,10 @@ function install_jdownloader() {
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         process_died="false"
         while [[ $process_died == "false" ]]; do # While background command is still running...
+            echo_info "Background process is still running..." # TODO: This should be echo_log_only at PR end.
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
-
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
                 fi
@@ -136,20 +136,20 @@ function install_jdownloader() {
                     fi
 
                 fi
+            fi
 
-                if kill -0 $pid 2>/dev/null; then
-                    if [[ $kill_process == "true" ]]; then
-                        echo_info "Kill JDownloader..." # TODO: This should be echo_log_only at PR end.
-                        kill $pid     # Kill the background command
-                        sleep 1       # Give it a second to actually die.
-                        process_died="true"
-                    fi
-                else
-                    echo_info "Background command died without being killed." # TODO: This should be echo_log_only at PR end.
+            if kill -0 $pid 2>/dev/null; then
+                if [[ $kill_process == "true" ]]; then
+                    echo_info "Kill JDownloader..." # TODO: This should be echo_log_only at PR end.
+                    kill $pid     # Kill the background command
+                    sleep 1       # Give it a second to actually die.
                     process_died="true"
                 fi
-
+            else
+                echo_info "Background command died without being killed." # TODO: This should be echo_log_only at PR end.
+                process_died="true"
             fi
+
         done
         trap - EXIT   # Disable the trap on a normal exit.
     done
