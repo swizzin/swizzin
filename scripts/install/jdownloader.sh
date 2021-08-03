@@ -76,22 +76,20 @@ function install_jdownloader() {
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
         fi
-        #        touch "$tmp_log" # Create the tmp log
-        tmp_log="$(get_most_recent_dir "$JD_HOME"/logs)/Log.L.log.0"
+        if [[ -e "$JD_HOME"/logs ]]; then
+            tmp_log="$(get_most_recent_dir "$JD_HOME"/logs)/Log.L.log.0"
+        fi
         kill_process="false"
-        background_command_complete="false"
         $command >"$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
-        while kill -0 $pid 2>/dev/null && "$background_command_complete" == "false"; do # While background command is still running...
+        while kill -0 $pid 2>/dev/null; do # While background command is still running...
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
-                    background_command_complete="true"
-                    trap - EXIT                                # Disable the trap on a normal exit.
                 fi
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
@@ -125,12 +123,10 @@ function install_jdownloader() {
                 fi
                 if [[ $kill_process == "true" ]]; then
                     kill $pid     # Kill the background command
-                    rm "$tmp_log" # Remove the tmp log
-                    trap - EXIT   # Disable the trap on a normal exit.
                 fi
             fi
-            sleep 1 # Pace out the grep by pausing for a second
         done
+        trap - EXIT   # Disable the trap on a normal exit.
     done
     echo_progress_done "Initialisation concluded"
 
