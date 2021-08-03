@@ -143,3 +143,8 @@ function check_swap_off() {
 _get_installed_apps() {
     find /install -type f -name .\*.lock | awk -F. '{print $2}' | sort
 }
+
+# Returns the most recently modified directory from the directory indicated in the first argument
+function get_most_recent_dir() {
+    find "$1" -mindepth 1 -maxdepth 1 -type d
+}

@@ -23,55 +23,14 @@
 # https://board.jdownloader.org/showthread.php?t=81433
 
 ##########################################################################
+# Import Sources
+##########################################################################
+. /sources/functions/utils
+. /sources/functions/jdownloader
+
+##########################################################################
 # Functions
 ##########################################################################
-
-function get_most_recent_dir() {
-    #shellcheck disable=2012
-    find $1 -mindepth 1 -maxdepth 1 -type d
-}
-# TODO: Move this function to sources/functions/jdownloader so the end user could use it to inject their details as well.
-
-function inject_myjdownloader() {
-
-    # TODO: Make this only pass env file details to master user
-
-    echo_info "An account from https://my.jdownloader.org/ is required in order to access the web UI.\nUse a randomly generated password at registration as the password is stored in plain text"
-    if [[ -z "${MYJD_EMAIL}" ]]; then
-        echo_query "Please enter the e-mail used to access this account once created:"
-        read -r 'MYJD_EMAIL'
-    else
-        echo_info "Using email = $MYJD_EMAIL"
-    fi
-
-    if [[ -z "${MYJD_PASSWORD}" ]]; then
-        echo_query "Please enter the password for the account"
-        read -r 'MYJD_PASSWORD'
-    else
-        echo_info "Using password = $MYJD_PASSWORD"
-    fi
-
-    if [[ -z "${MYJD_DEVICENAME}" ]]; then
-        echo_query "Please enter the desired device name"
-        read -r 'MYJD_DEVICENAME'
-    else
-        echo_info "Using device name = $MYJD_DEVICENAME"
-    fi
-
-    mkdir -p "$JD_HOME/cfg"
-
-    if [[ -e "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" ]]; then
-        rm "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json"
-    fi
-
-    cat > "$JD_HOME/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json" << EOF
-{
-    "email" : "$MYJD_EMAIL",
-    "password" : "$MYJD_PASSWORD",
-    "devicename" : "$MYJD_DEVICENAME"
-}
-EOF
-}
 
 function install_jdownloader() {
 
