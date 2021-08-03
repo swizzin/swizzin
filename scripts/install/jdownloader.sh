@@ -47,6 +47,8 @@ function install_jdownloader() {
         else
             inject="false"
         fi
+    else
+        echo_info "Bypassing MyJDownloader detail entering because of unattended variable."
     fi
 
     echo_progress_start "Downloading JDownloader.jar..."
@@ -96,7 +98,7 @@ function install_jdownloader() {
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         process_died="false"
         while [[ $process_died == "false" ]]; do # While background command is still running...
-            echo_info "Background command is still running..." # TODO: This should be echo_log_only at PR end.
+            echo_info "Background command is still running..." # TODO: This should be removed at PR end.
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
