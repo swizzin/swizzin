@@ -38,7 +38,8 @@ function install_jdownloader() {
     JD_HOME="/home/$user/jd2"
     mkdir -p "$JD_HOME"
 
-    if [[ $MYJD_BYPASS == "false" ]]; then
+    # An environment variable 'MYJD_BYPASS' to bypass the following block. For unattended installs.
+    if [[ -n $MYJD_BYPASS ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
             inject="true"
             echo_info "Injecting MyJDownloader details for $user"
@@ -47,7 +48,6 @@ function install_jdownloader() {
             inject="false"
         fi
     fi
-
 
     echo_progress_start "Downloading JDownloader.jar..."
     while [[ ! -e "/tmp/JDownloader.jar" ]]; do
@@ -96,7 +96,7 @@ function install_jdownloader() {
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         process_died="false"
         while [[ $process_died == "false" ]]; do # While background command is still running...
-            echo_info "Background process is still running..." # TODO: This should be echo_log_only at PR end.
+            echo_info "Background command is still running..." # TODO: This should be echo_log_only at PR end.
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
@@ -194,15 +194,6 @@ fi
 install_java8
 
 _systemd
-
-# An environment variable 'MYJD_BYPASS' to bypass the following block. For unattended installs.
-if [[ -n "${MYJD_BYPASS}" ]]; then
-    if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
-        MYJD_BYPASS="false" # If no
-    else
-        MYJD_BYPASS="true" # If yes
-    fi
-fi
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do # Install a separate instance for each user
