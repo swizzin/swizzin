@@ -48,7 +48,7 @@ function install_jdownloader() {
         fi
     fi
 
-    
+
     echo_progress_start "Downloading JDownloader.jar..."
     while [[ ! -e "/tmp/JDownloader.jar" ]]; do
         if wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar"; then
@@ -78,8 +78,8 @@ function install_jdownloader() {
     done
 
     echo_progress_start "Attempting JDownloader2 initialisation"
-    end_loop="false"
-    while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
+    end_initialisation_loop="false"
+    while [[ $end_initialisation_loop == "false" ]]; do # Run command until a certain file is created.
         echo_info "Running temporary JDownloader process..." # TODO: This should be echo_log_only at PR end.
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
@@ -94,7 +94,8 @@ function install_jdownloader() {
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
-        while kill -0 $pid 2>/dev/null; do # While background command is still running...
+        process_died="false"
+        while [[ $process_died == "false" ]]; do # While background command is still running...
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
@@ -122,7 +123,7 @@ function install_jdownloader() {
                             echo_info "Please enter the MyJDownloader details again."
                             inject_myjdownloader # Get account info for this user. and insert it into this installation
                         else
-                            end_loop="true"
+                            end_initialisation_loop="true"
                         fi
                         kill_process="true"
                     fi
@@ -131,19 +132,21 @@ function install_jdownloader() {
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
                         kill_process="true"
-                        end_loop="true"
+                        end_initialisation_loop="true"
                     fi
 
                 fi
 
                 if kill -0 $pid 2>/dev/null; then
                     if [[ $kill_process == "true" ]]; then
-                        echo_info "Kill JDownloader..."
+                        echo_info "Kill JDownloader..." # TODO: This should be echo_log_only at PR end.
                         kill $pid     # Kill the background command
                         sleep 1       # Give it a second to actually die.
+                        process_died="true"
                     fi
                 else
-                    echo_info "Background command died without being killed."
+                    echo_info "Background command died without being killed." # TODO: This should be echo_log_only at PR end.
+                    process_died="true"
                 fi
 
             fi
