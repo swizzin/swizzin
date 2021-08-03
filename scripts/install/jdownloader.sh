@@ -25,16 +25,14 @@
 ##########################################################################
 # Import Sources
 ##########################################################################
-. /sources/functions/utils
-. /sources/functions/jdownloader
+. etc/swizzin/sources/functions/utils
+. etc/swizzin/sources/functions/jdownloader
 
 ##########################################################################
 # Functions
 ##########################################################################
 
 function install_jdownloader() {
-    
-    . /sources/functions/utils
 
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
