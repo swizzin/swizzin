@@ -145,6 +145,9 @@ _get_installed_apps() {
 }
 
 # Returns the most recently modified directory from the directory indicated in the first argument
+# Found at:
+# https://unix.stackexchange.com/questions/136976/get-the-latest-directory-not-the-latest-file
 get_most_recent_dir() {
-    find "$1" -mindepth 1 -maxdepth 1 -type d
+    latest_directory_inode=$(find "$1" -mindepth 1 -maxdepth 1 -type d -printf '%Ts %i\n' | sort -nr | sed -n '1 s/.* //p')
+    find "$1" -maxdepth 1 -inum "$latest_directory_inode"
 }
