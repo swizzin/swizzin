@@ -90,9 +90,11 @@ function install_jdownloader() {
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
+
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
                 fi
+
                 if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
 
@@ -116,18 +118,23 @@ function install_jdownloader() {
                         fi
                         kill_process="true"
                     fi
+
                     # This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
                         kill_process="true"
                         end_loop="true"
                     fi
+
                 fi
+
                 if kill -0 $pid 2>/dev/null; then
                     if [[ $kill_process == "true" ]]; then
                         kill $pid     # Kill the background command
+                        sleep 1       # Give it a second to actually die.
                     fi
                 fi
+
             fi
         done
         trap - EXIT   # Disable the trap on a normal exit.
