@@ -78,9 +78,11 @@ function install_jdownloader() {
         fi
         if [[ -e "$JD_HOME"/logs ]]; then
             tmp_log="$(get_most_recent_dir "$JD_HOME"/logs)/Log.L.log.0"
+            $command >"$tmp_log" 2>&1 &
+        else
+            $command >"/dev/null" 2>&1 &
         fi
         kill_process="false"
-        $command >"$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
