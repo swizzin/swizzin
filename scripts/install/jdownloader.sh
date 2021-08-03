@@ -133,6 +133,8 @@ function install_jdownloader() {
                         kill $pid     # Kill the background command
                         sleep 1       # Give it a second to actually die.
                     fi
+                else
+                    echo_info "Background command died without being killed."
                 fi
 
             fi
