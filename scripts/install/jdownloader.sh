@@ -130,6 +130,7 @@ function install_jdownloader() {
 
                 if kill -0 $pid 2>/dev/null; then
                     if [[ $kill_process == "true" ]]; then
+                        echo_info "Kill JDownloader..."
                         kill $pid     # Kill the background command
                         sleep 1       # Give it a second to actually die.
                     fi
