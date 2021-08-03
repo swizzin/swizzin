@@ -79,20 +79,21 @@ function install_jdownloader() {
         #        touch "$tmp_log" # Create the tmp log
         tmp_log="$(get_most_recent_dir "$JD_HOME"/logs)/Log.L.log.0"
         kill_process="false"
+        background_command_complete="false"
         $command >"$tmp_log" 2>&1 &
         pid=$!
         #shellcheck disable=SC2064
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
-        while kill -0 $pid 2>/dev/null; do # While background command is still running...
-            sleep 2 # Pace this out a bit
+        while kill -0 $pid 2>/dev/null && "$background_command_complete" == "false"; do # While background command is still running...
+            sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
-            if [[ -e "$tmp_log" ]]; then # If the
-                # TODO: Seems to be missing this detection if the background command closes too quickly. Increased previous sleep to 2 seconds to see if it helps.
+            if [[ -e "$tmp_log" ]]; then
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
+                    background_command_complete="true"
                     trap - EXIT                                # Disable the trap on a normal exit.
                 fi
-                if grep -q "Initialisation finished" -F "$tmp_log"; then
+                if grep -q "Initialisation finished" -F "$tmp_log"; then #
                     echo_info "JDownloader started successfully." # TODO: This should be echo_log_only at PR end.
 
                     # Pretty sure this will remove the long pause.
@@ -173,7 +174,7 @@ install_java8
 
 _systemd
 
-# Add environment variable 'BYPASS_MYJDOWNLOADER' to bypass the following block. For unattended installs.
+# An environment variable 'BYPASS_MYJDOWNLOADER' to bypass the following block. For unattended installs.
 if [[ -n "${BYPASS_MYJDOWNLOADER}" ]]; then
     if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
         BYPASS_MYJDOWNLOADER="false" # If no
