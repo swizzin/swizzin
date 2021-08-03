@@ -33,6 +33,8 @@
 ##########################################################################
 
 function install_jdownloader() {
+    
+    . /sources/functions/utils
 
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
