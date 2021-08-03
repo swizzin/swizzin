@@ -54,10 +54,10 @@ function install_jdownloader() {
         if wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar"; then
             echo_info "Jar downloaded..."
             if ! java -jar "/tmp/JDownloader.jar" 2>/dev/null;then
-                echo ".jar is corrupt. Removing, and trying again."
+                echo_info ".jar is corrupt. Removing, and trying again."
                 rm "/tmp/JDownloader.jar"
             else
-                echo ".jar is valid."
+                echo_info ".jar is valid."
             fi
         else
             echo_error "Failed to download"
