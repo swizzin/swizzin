@@ -50,12 +50,20 @@ function install_jdownloader() {
 
     # TODO: Java will detect if a .jar is corrupt, we could use that to our advantage. "Error: Invalid or corrupt jarfile"
     echo_progress_start "Downloading JDownloader.jar"
-    if [[ ! -e "/tmp/JDownloader.jar" ]]; then
-        wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar" || {
+    while [[ ! -e "/tmp/JDownloader.jar" ]]; do
+        if wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar"; then
+            echo_info "Jar downloaded..."
+            if ! java -jar "/tmp/JDownloader.jar" 2>/dev/null;then
+                echo ".jar is corrupt. Removing, and trying again."
+                rm "/tmp/JDownloader.jar"
+            else
+                echo ".jar is valid."
+            fi
+        else
             echo_error "Failed to download"
-            exit 1
-        }
-    fi
+        fi
+    done
+
     echo_progress_done "Jar downloaded"
 
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
