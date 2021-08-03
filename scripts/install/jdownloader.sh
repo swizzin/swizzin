@@ -38,7 +38,7 @@ function install_jdownloader() {
     JD_HOME="/home/$user/jd2"
     mkdir -p "$JD_HOME"
 
-    if [[ $BYPASS_MYJDOWNLOADER == "false" ]]; then
+    if [[ $MYJD_BYPASS == "false" ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
             inject="true"
             echo_info "Injecting MyJDownloader details for $user"
@@ -48,12 +48,12 @@ function install_jdownloader() {
         fi
     fi
 
-    # TODO: Java will detect if a .jar is corrupt, we could use that to our advantage. "Error: Invalid or corrupt jarfile"
-    echo_progress_start "Downloading JDownloader.jar"
+    
+    echo_progress_start "Downloading JDownloader.jar..."
     while [[ ! -e "/tmp/JDownloader.jar" ]]; do
         if wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar"; then
             echo_info "Jar downloaded..."
-            if ! java -jar "/tmp/JDownloader.jar" 2>/dev/null;then
+            if ! java -jar "/tmp/JDownloader.jar" 2>/dev/null;then # Java will detect if a .jar is corrupt
                 echo_info ".jar is corrupt. Removing, and trying again."
                 rm "/tmp/JDownloader.jar"
             else
@@ -64,7 +64,7 @@ function install_jdownloader() {
         fi
     done
 
-    echo_progress_done "Jar downloaded"
+    echo_progress_done "JDownloader.jar downloaded."
 
     if [[ ! -e "$JD_HOME/JDownloader.jar" ]]; then
         cp "/tmp/JDownloader.jar" "$JD_HOME/JDownloader.jar"
@@ -80,7 +80,7 @@ function install_jdownloader() {
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_loop="false"
     while [[ $end_loop == "false" ]]; do # Run command until a certain file is created.
-        echo_info "Oh shit! Here we go again!" # TODO: This should be echo_log_only at PR end.
+        echo_info "Running temporary JDownloader process..." # TODO: This should be echo_log_only at PR end.
         if [[ -e "$tmp_log" ]]; then # Remove the tmp log if exists
             rm "$tmp_log"
         fi
@@ -192,12 +192,12 @@ install_java8
 
 _systemd
 
-# An environment variable 'BYPASS_MYJDOWNLOADER' to bypass the following block. For unattended installs.
-if [[ -n "${BYPASS_MYJDOWNLOADER}" ]]; then
+# An environment variable 'MYJD_BYPASS' to bypass the following block. For unattended installs.
+if [[ -n "${MYJD_BYPASS}" ]]; then
     if ask "Do you want to add ANY MyJDownloader account information for users?\nIt is required for them to access the web UI." N; then
-        BYPASS_MYJDOWNLOADER="false" # If no
+        MYJD_BYPASS="false" # If no
     else
-        BYPASS_MYJDOWNLOADER="true" # If yes
+        MYJD_BYPASS="true" # If yes
     fi
 fi
 
