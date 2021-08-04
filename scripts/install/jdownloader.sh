@@ -5,6 +5,7 @@
 ##########################################################################
 # References
 ##########################################################################
+
 # Liara already made a doc for installing JDownloader manually:
 # https://docs.swizzin.net/guides/jdownloader/
 # swizzin docs
@@ -25,8 +26,10 @@
 ##########################################################################
 # Import Sources
 ##########################################################################
-. /etc/swizzin/sources/functions/utils
+
+. /etc/swizzin/sources/functions/java
 . /etc/swizzin/sources/functions/jdownloader
+. /etc/swizzin/sources/functions/utils
 
 ##########################################################################
 # Functions
@@ -38,8 +41,8 @@ function install_jdownloader() {
     JD_HOME="/home/$user/jd2"
     mkdir -p "$JD_HOME"
 
-    # An environment variable 'MYJD_BYPASS' to bypass the following block. For unattended installs.
-    if [[ -n $MYJD_BYPASS ]]; then
+    # TODO: Test environment variable 'MYJD_BYPASS' to bypass the following block. For unattended installs.
+    if [[ ! -z $MYJD_BYPASS ]]; then
         if ask "Do you want to inject MyJDownloader details for $user?" N; then
             inject="true"
             echo_info "Injecting MyJDownloader details for $user"
@@ -72,12 +75,13 @@ function install_jdownloader() {
         cp "/tmp/JDownloader.jar" "$JD_HOME/JDownloader.jar"
     fi
 
-    command="java -jar $JD_HOME/JDownloader.jar -norestart"
-
     # TODO: Currently, we need something here to disable all currently running JDownloader installations, or the MyJD verification logic will cause a loop. Would rather we didn't.
     for each_user in "${users[@]}"; do # disable all instances
         systemctl disable --now "jdownloader@$each_user" --quiet
     done
+
+    # TODO: Figure out if this would be a WHOLE lot simpler if I didn't run the `-norestart` flag *facepalm*
+    command="java -jar $JD_HOME/JDownloader.jar -norestart"
 
     echo_progress_start "Attempting JDownloader2 initialisation"
     end_initialisation_loop="false"
@@ -98,10 +102,12 @@ function install_jdownloader() {
         trap "kill $pid 2> /dev/null" EXIT # Set trap to kill background process if this script ends.
         process_died="false"
         while [[ $process_died == "false" ]]; do # While background command is still running...
+
             echo_info "Background command is still running..." # TODO: This should be removed at PR end.
             sleep 1 # Pace this out a bit, no need to check what JDownloader is doing more frequently than this.
             # If any of specified strings are found in the log, kill the last called background command.
             if [[ -e "$tmp_log" ]]; then
+
                 if grep -q "Create ExitThread" -F "$tmp_log"; then # JDownloader exited gracefully on it's own. Usually this will only happen first run.
                     echo_info "JDownloader exited gracefully." # TODO: This should be echo_log_only at PR end.
                 fi
@@ -131,6 +137,7 @@ function install_jdownloader() {
                     fi
 
                     # This only works for verification if it is the first JDownloader instance to attempt connecting to MyJDownloader. I assume other instances use the same HTTP server.
+
                     if grep -q "Start HTTP Server" -F "$tmp_log"; then
                         echo_info "MyJDownloader account details verified."
                         kill_process="true"
@@ -163,7 +170,8 @@ function install_jdownloader() {
 }
 
 _systemd() {
-    # JDownloader will automatically create a pidfile when running. That way, systemd can use it to ensure it is disabling the correct process.
+    # JD_HOME should be setting the working directory for this instance of JDownloader.
+    # JDownloader will automatically create a pid file when running. That way, systemd can use it to ensure it is disabling the correct process.
     cat >/etc/systemd/system/jdownloader@.service <<EOF
 [Unit]
 Description=JDownloader Service
@@ -185,28 +193,27 @@ EOF
 # Script Main
 ##########################################################################
 
-if [[ -n "$1" ]]; then # Install jd2 for user that was passed to script as arg (i.e. box adduser <user>) and do not execute the rest
+if [[ -n "$1" ]]; then # Install JDownloader for JUST the user that was passed to script as arg (i.e. box adduser $user)
     user="$1"
     install_jdownloader
     exit 0
 fi
 
-#shellcheck source=sources/functions/java
-. /etc/swizzin/sources/functions/java
-install_java8
+install_java8 # Install Java as it is a dependency.
 
-_systemd
-
-readarray -t users < <(_get_user_list)
-for user in "${users[@]}"; do # Install a separate instance for each user
+readarray -t users < <(_get_user_list) # Install a separate JDownloader instance for each user
+for user in "${users[@]}"; do
     install_jdownloader
 done
-# Don't start services until after each user is installed.
-for user in "${users[@]}"; do # Install a separate instance for each user
+
+_systemd # Insert service file to /etc/systemd/system
+
+# Don't start services until after each user is installed. Due to current verification process.
+for user in "${users[@]}"; do # Enable a separate service for each swizzin user
     echo_progress_start "Enabling service jdownloader@$user"
     systemctl enable -q --now jdownloader@"$user" --quiet
     echo_progress_done
 done
 
-touch /install/.jdownloader.lock
-echo_success "JDownloader installed"
+touch /install/.jdownloader.lock # Create lock file so that swizzin knows JDownloader is installed.
+echo_success "JDownloader installed" # Winner winner. Chicken dinner.
