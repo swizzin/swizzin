@@ -24,6 +24,10 @@ _process_apt_args() {
     _apt_packages=()
     while test $# -gt 0; do
         case "$1" in
+            --only-upgrade)
+                _apt_only_upgrade="true"
+                echo_log_only "APT will not install any packages if they weren't preveiously present"
+                ;;
             --interactive)
                 _apt_interactive=true
                 echo_log_only "APT set to interactive"
@@ -256,16 +260,23 @@ apt_install() {
     _apt_update
     _apt_simulate install "${_apt_packages[@]}"
 
+    action_msg="installation"
     #Prepare flags for install
     flags=""
     if [[ $_apt_install_recommends == "true" ]]; then
-        flags="--install-recommends"
+        flags+="--install-recommends "
     elif [[ $_apt_install_recommends == "false" ]]; then
-        flags="--no-install-recommends"
+        flags+="--no-install-recommends "
+    fi
+
+    if [[ $_apt_only_upgrade == "true" ]]; then
+        flags+="--only-upgrade "
+        action_msg="upgrade"
     fi
 
     # Run the install
-    echo_progress_start "Performing installation of ${#_apt_packages[@]} apt packages\n(${_apt_packages[*]})"
+
+    echo_progress_start "Performing $action_msg of ${#_apt_packages[@]} apt packages\n(${_apt_packages[*]})"
     if [[ $_apt_interactive == "true" ]]; then
         # TODO test the behaviour of this, I haven't had the time yet
         DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log
