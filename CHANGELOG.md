@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0] 3.0 was technically months ago edition
+## [3.0.0] was technically months ago edition
 
 ## <TBD>
 
