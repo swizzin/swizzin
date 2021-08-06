@@ -428,6 +428,11 @@ function _deluser() {
 
 function _chpasswd() {
     user="$2"
+    if ! id "$user"; then
+        echo_error "User $user does not exist."
+        exit 1
+    fi
+
     [[ -n $3 ]] && pass="$3"
     . /etc/swizzin/sources/functions/utils
     password_check
