@@ -30,7 +30,7 @@
 
 ### Removed
  - Xenial support (stretch life support notice ~ June 2022)
-  - Last commit supporting xenial lives at tag: xenial-eol. Please consider upgrading your server!
+   - Last commit supporting xenial lives at tag: xenial-eol. Please consider upgrading your server!
  - Sonarr v2 (old stable)
  - Couchpotato
  - Headphones
