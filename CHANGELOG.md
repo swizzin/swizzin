@@ -52,9 +52,9 @@
  - Websocket support for Mango
  - rar/unrar install function
  - update sabnzbd:
-  - Support 3.2.0
-  - Update python version requirements
-  - Pre-write config template to prevent infinite `sleep`
+   - Support 3.2.0
+   - Update python version requirements
+   - Pre-write config template to prevent infinite `sleep`
  - Update backports management
  - Pin nextcloud to v20 on Bionic
  - Code quality cleanups
@@ -63,16 +63,16 @@
  - \*arr scripts are becoming more uniform
  - Ensure swizzin directory perms stay correct between updates
  - Moved to opt:
-  - Lounge
-  - sabnzbd
+   - Lounge
+   - sabnzbd
  - Add config purging to ombi
  - Use upstream removal script for netdata
  - Add equivalent of apt-get install --only-upgrade to `apt_install`
 
 ### Fixed
  - qBittorrent depends were getting a bit too heavy. All deps are installed without use of recommends for qBittorrent and qt-related libraries.
-  - ***FOCAL ERRATA:*** By default, focal recommended to install an entire x server, mesa, gnome3 and a display manager, gdm, simply for requesting two qt development packages. If you find your server "crashing" or stop responding, it's probably suspending due to power management provided by `gdm`. Gnome 3 is an entire desktop package and the entire x11 server along with gnome3 and gdm can be safely purged if you run a headless server. If you installed gnome or a gui on purpose, you know who you are.
-  - It does not appear Debian has ever had this issue.
+   - ***FOCAL ERRATA:*** By default, focal recommended to install an entire x server, mesa, gnome3 and a display manager, gdm, simply for requesting two qt development packages. If you find your server "crashing" or stop responding, it's probably suspending due to power management provided by `gdm`. Gnome 3 is an entire desktop package and the entire x11 server along with gnome3 and gdm can be safely purged if you run a headless server. If you installed gnome or a gui on purpose, you know who you are.
+   - It does not appear Debian has ever had this issue.
  - Fixed an issue with nginx + remote torrent adder extension & php
  - Lots of bug fixes all throughout qbit and deluge scripts during rewrite
  - Refine panel (`swizzin`) user permissions and abilities
