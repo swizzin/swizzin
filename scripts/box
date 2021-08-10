@@ -541,14 +541,21 @@ fi
 if [[ -L /etc/swizzin ]]; then
     noupdate_message="Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
     noupdate="true"
-    runtests="true"
 elif [[ -e /etc/swizzin/.dev.lock ]]; then
     noupdate_message="Not updating /etc/swizzin as a dev lockfile is present."
     noupdate="true"
-    runtests="true"
 elif [[ $1 == "--dev" ]]; then
     noupdate_message="Not updating from git due to --dev flag"
     noupdate="true"
+fi
+
+if [ -f /etc/swizzin/.test.lock ]; then
+    echo_info "Tests will be ran at the end of this due to .test.lock"
+    runtests="true"
+fi
+
+if [[ "$*" == *--test* ]]; then
+    echo_info "Tests will be ran due to --test flag"
     runtests="true"
 fi
 
