@@ -9,22 +9,22 @@ app_name="autobrr"
 if [ -z "$AUTOBRR_OWNER" ]; then
     if ! AUTOBRR_OWNER="$(swizdb get "$app_name/owner")"; then
         AUTOBRR_OWNER="$(_get_master_username)"
-        echo_info "Setting ${app_name^} owner = $AUTOBRR_OWNER"
+        echo_info "Setting ${app_name} owner = $AUTOBRR_OWNER"
         swizdb set "$app_name/owner" "$AUTOBRR_OWNER"
     fi
 else
-    echo_info "Setting ${app_name^} owner = $AUTOBRR_OWNER"
+    echo_info "Setting ${app_name} owner = $AUTOBRR_OWNER"
     swizdb set "$app_name/owner" "$AUTOBRR_OWNER"
 fi
 user="$AUTOBRR_OWNER"
 swiz_configdir="/home/$user/.config"
-app_configdir="$swiz_configdir/${app_name^}"
+app_configdir="$swiz_configdir/${app_name}"
 app_group="$user"
 app_port="9090"
 app_reqs=("curl")
 app_servicefile="$app_name.service"
-app_dir="/opt/${app_name^}"
-app_binary="${app_name^}"
+app_dir="/opt/${app_name}"
+app_binary="${app_name}"
 #Remove any dashes in appname per FS
 app_lockname="${app_name//-/}"
 
@@ -115,19 +115,19 @@ _systemd_autobrr() {
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
-Description=${app_name^} Daemon
+Description=${app_name} Daemon
 After=syslog.target network.target
 [Service]
 # Change the user and group variables here.
 User=${user}
 Group=${app_group}
 Type=simple
-# Change the path to ${app_name^} here if it is in a different location for you.
+# Change the path to ${app_name} here if it is in a different location for you.
 ExecStart=$app_dir/$app_binary --config=$app_configdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
-# These lines optionally isolate (sandbox) ${app_name^} from the rest of the system.
+# These lines optionally isolate (sandbox) ${app_name} from the rest of the system.
 # Make sure to add any paths it might use to the list below (space-separated).
 #ReadWritePaths=$app_dir
 #ProtectSystem=strict
@@ -140,12 +140,12 @@ EOF
     systemctl -q daemon-reload
     systemctl enable --now -q "$app_servicefile"
     sleep 1
-    echo_progress_done "${app_name^} service installed and enabled"
+    echo_progress_done "${app_name} service installed and enabled"
 
     # In theory there should be no updating needed, so let's generalize this
-    echo_progress_start "${app_name^} is loading..."
+    echo_progress_start "${app_name} is loading..."
     if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
+        echo_error "The ${app_name} web server has taken longer than 30 seconds to start."
         exit 1
     fi
     echo_progress_done "Loading finished"
@@ -167,4 +167,4 @@ _systemd_autobrr
 _nginx_autobrr
 
 touch "/install/.$app_lockname.lock"
-echo_success "${app_name^} installed"
+echo_success "${app_name} installed"
