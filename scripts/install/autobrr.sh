@@ -50,10 +50,10 @@ _install_autobrr() {
         *)
             echo_error "Arch not supported"
             exit 1
-            ;;
+        ;;
     esac
 
-    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest |grep "linux_$arch" |grep browser_download_url |cut -d \" -f4) || {
+    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
         echo_error "Failed to query GitHub for latest version"
         exit 1
     }
@@ -110,7 +110,7 @@ CFG
     echo_progress_done
 
 }
-_systemd_utobrr() {
+_systemd_autobrr() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
