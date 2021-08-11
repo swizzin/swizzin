@@ -65,7 +65,10 @@ _install_autobrr() {
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
+
+    mkdir -p "$app_dir"
+
+    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/$app_name >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
@@ -74,7 +77,7 @@ _install_autobrr() {
     echo_progress_done "Archive extracted"
 
     echo_progress_start "Configuring autobrr"
-    cat "$app_configdir/config.toml" << CFG
+    cat > "$app_configdir/config.toml" << CFG
 # config.toml
 # Hostname / IP
 #
@@ -110,6 +113,7 @@ CFG
     echo_progress_done
 
 }
+
 _systemd_autobrr() {
 
     echo_progress_start "Installing Systemd service"
