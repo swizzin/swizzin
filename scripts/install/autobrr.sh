@@ -50,7 +50,7 @@ _install_autobrr() {
         *)
             echo_error "Arch not supported"
             exit 1
-        ;;
+            ;;
     esac
 
     latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {

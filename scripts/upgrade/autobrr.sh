@@ -25,7 +25,7 @@ _upgrade_autobrr() {
         *)
             echo_error "Arch not supported"
             exit 1
-        ;;
+            ;;
     esac
 
     latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
@@ -40,12 +40,12 @@ _upgrade_autobrr() {
 
     echo_progress_done "Archive downloaded"
 
-   if [[ $(systemctl is-active $app_name) == "active" ]]; then
-       wasActive="true"
-       echo_progress_start "Shutting down $app_name before upgrading"
-       systemctl stop "$app_name"
-       echo_progress_done
-   fi
+    if [[ $(systemctl is-active $app_name) == "active" ]]; then
+        wasActive="true"
+        echo_progress_start "Shutting down $app_name before upgrading"
+        systemctl stop "$app_name"
+        echo_progress_done
+    fi
 
     echo_progress_start "Extracting archive"
 
@@ -56,7 +56,6 @@ _upgrade_autobrr() {
     rm -rf "/tmp/$app_name.tar.gz"
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
-
 
     if [[ $wasActive = "true" ]]; then
         echo_progress_start "Restarting $app_name"
