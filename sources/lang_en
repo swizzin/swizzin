@@ -15,6 +15,7 @@
 // $L['RCLONE'] = '';
 // $L['SICKCHILL'] = '';
 // $L['SICKGEAR'] = '';
+$L['AUTOBRR'] = 'A powerful modern autodl alternative, which monitors IRC announce channels to get releases as soon as they are available and send to your favorite client.';
 $L['AUTODL'] = 'A tool to help you automatically add torrents to your clients from IRC announce channels, filtering them through regex expressions.';
 $L['BAZARR'] = 'The "-arr" tool to manage subtitles for items in Sonarr and Radarr.';
 $L['BTSYNC'] = 'BitTorrent Sync by BitTorrent aka Resilio is a proprietary peer-to-peer file synchronization tool.';
