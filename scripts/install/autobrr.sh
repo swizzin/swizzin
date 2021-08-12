@@ -119,7 +119,7 @@ _systemd_autobrr() {
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
-Description=${app_name} Daemon
+Description=${app_name}
 After=syslog.target network.target
 [Service]
 # Change the user and group variables here.
