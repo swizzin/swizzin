@@ -1,45 +1,28 @@
 #!/bin/bash
-# Installer for autobrr
+# autobrr installer
 # ludviglundgren 2021 for Swizzin
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-app_name="autobrr"
-if [ -z "$AUTOBRR_OWNER" ]; then
-    if ! AUTOBRR_OWNER="$(swizdb get "$app_name/owner")"; then
-        AUTOBRR_OWNER="$(_get_master_username)"
-        echo_info "Setting ${app_name} owner = $AUTOBRR_OWNER"
-        swizdb set "$app_name/owner" "$AUTOBRR_OWNER"
-    fi
-else
-    echo_info "Setting ${app_name} owner = $AUTOBRR_OWNER"
-    swizdb set "$app_name/owner" "$AUTOBRR_OWNER"
-fi
-user="$AUTOBRR_OWNER"
-swiz_configdir="/home/$user/.config"
-app_configdir="$swiz_configdir/${app_name}"
-app_group="$user"
-app_port="9090"
-app_reqs=("curl")
-app_servicefile="$app_name.service"
-app_dir="/opt/${app_name}"
-app_binary="${app_name}"
-#Remove any dashes in appname per FS
-app_lockname="${app_name//-/}"
+app_reqs=("curl" "sqlite3")
+apt_install "${app_reqs[@]}"
 
-if [ ! -d "$swiz_configdir" ]; then
-    mkdir -p "$swiz_configdir"
+users=($(_get_user_list))
+
+if [[ -n $1 ]]; then
+    user=$1
+    _autobrr_user_config ${user}
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        bash /etc/swizzin/scripts/nginx/autobrr.sh
+        systemctl reload nginx
+        echo_progress_done
+    fi
+    exit 0
 fi
-chown "$user":"$user" "$swiz_configdir"
 
 _install_autobrr() {
-    if [ ! -d "$app_configdir" ]; then
-        mkdir -p "$app_configdir"
-    fi
-    chown -R "$user":"$user" "$app_configdir"
-
-    apt_install "${app_reqs[@]}"
 
     echo_progress_start "Downloading release archive"
 
@@ -58,7 +41,7 @@ _install_autobrr() {
         exit 1
     }
 
-    if ! curl "$latest" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
+    if ! curl "$latest" -L -o "/tmp/autobrr.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
@@ -66,18 +49,30 @@ _install_autobrr() {
 
     echo_progress_start "Extracting archive"
 
-    mkdir -p "$app_dir"
-
-    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/$app_name >> "$log" 2>&1 || {
+    # the archive contains both autobrr and autobrrctl to easily setup the user
+    tar xfv "/tmp/autobrr.tar.gz" --directory /usr/bin/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
-    rm -rf "/tmp/$app_name.tar.gz"
-    chown -R "${user}": "$app_dir"
+    rm -rf "/tmp/autobrr.tar.gz"
     echo_progress_done "Archive extracted"
+}
 
+_autobrr_user_config() {
     echo_progress_start "Configuring autobrr"
-    cat > "$app_configdir/config.toml" << CFG
+
+    # get random available port
+    port=$(port 10000 12000)
+
+    # generate a sessionSecret
+    sessionSecret="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+
+    if [ ! -d "/home/$user/.config/autobrr/" ]; then
+        mkdir -p "/home/$user/.config/autobrr/"
+    fi
+    chown -R "$user": "/home/$user/.config/autobrr"
+
+    cat > "/home/$user/.config/autobrr/config.toml" << CFG
 # config.toml
 # Hostname / IP
 #
@@ -88,7 +83,7 @@ host = "127.0.0.1"
 #
 # Default: 8989
 #
-port = 9090
+port = ${port}
 # Base url
 # Set custom baseUrl eg /autobrr/ to serve in subdirectory.
 # Not needed for subdomain, or by accessing with the :port directly.
@@ -109,66 +104,86 @@ baseUrl = "/autobrr/"
 # Options: "ERROR", "DEBUG", "INFO", "WARN"
 #
 logLevel = "DEBUG"
+
+# Session secret
+#
+sessionSecret = "${sessionSecret}"
 CFG
+
+    chown -R "$user": "/home/$user/.config/autobrr"
+
     echo_progress_done
 
 }
 
-_systemd_autobrr() {
+_autobrr_add_user() {
+    # use autobrrctl to add user into database
+    echo_progress_start "Add user"
 
-    echo_progress_start "Installing Systemd service"
-    cat > "/etc/systemd/system/$app_servicefile" << EOF
+    for user in "${users[@]}"; do
+        echo_log_only "Adding user $user"
+        pass=$(_get_user_password "$user")
+
+        # the password needs to be created with argon2 so we use autobrrctl to create the user
+        # using sqlite3 directly was not an option
+        echo -n "$pass" | autobrrctl --config "/home/$user/.config/autobrr" create-user "$user"
+    done
+}
+
+_systemd_autobrr() {
+    if [[ ! -f /etc/systemd/system/autobrr@.service ]]; then
+        type=simple
+        if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+            type=exec
+        fi
+
+        echo_progress_start "Installing Systemd service"
+        cat > /etc/systemd/system/autobrr@.service << EOF
 [Unit]
-Description=${app_name}
+Description=autobrr service for %i
 After=syslog.target network.target
+
 [Service]
-# Change the user and group variables here.
-User=${user}
-Group=${app_group}
-Type=simple
-# Change the path to ${app_name} here if it is in a different location for you.
-ExecStart=$app_dir/$app_binary --config=$app_configdir
-TimeoutStopSec=20
-KillMode=process
-Restart=on-failure
-# These lines optionally isolate (sandbox) ${app_name} from the rest of the system.
-# Make sure to add any paths it might use to the list below (space-separated).
-#ReadWritePaths=$app_dir
-#ProtectSystem=strict
-#PrivateDevices=true
-#ProtectHome=true
+Type=$type
+User=%i
+Group=%i
+ExecStart=/usr/bin/autobrr --config=/home/%i/.config/autobrr/
+# TimeoutStopSec=20
+# KillMode=process
+# Restart=on-failure
+
 [Install]
 WantedBy=multi-user.target
 EOF
-
-    systemctl -q daemon-reload
-    systemctl enable --now -q "$app_servicefile"
-    sleep 1
-    echo_progress_done "${app_name} service installed and enabled"
-
-    # In theory there should be no updating needed, so let's generalize this
-    echo_progress_start "${app_name} is loading..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The ${app_name} web server has taken longer than 30 seconds to start."
-        exit 1
     fi
-    echo_progress_done "Loading finished"
+}
 
+_systemd_autobrr_enable_for_user() {
+    for user in ${users[@]}; do
+        echo_progress_start "Enabling autobrr for $user"
+        _autobrr_user_config ${user}
+        systemctl enable -q --now autobrr@${user} 2>&1 | tee -a $log
+        echo_progress_done "Started autobrr for $user"
+        sleep 3
+    done
 }
 
 _nginx_autobrr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        bash /usr/local/bin/swizzin/nginx/"$app_name".sh
-        systemctl reload nginx
+        bash /etc/swizzin/scripts/nginx/autobrr.sh
+        systemctl reload nginx >> $log 2>&1
         echo_progress_done "Nginx configured"
-    else
-        echo_info "$app_name will run on port $app_port"
     fi
 }
+
 _install_autobrr
+
 _systemd_autobrr
+_systemd_autobrr_enable_for_user
+_autobrr_add_user
+
 _nginx_autobrr
 
-touch "/install/.$app_lockname.lock"
-echo_success "${app_name} installed"
+touch "/install/.autobrr.lock"
+echo_success "autobrr installed"

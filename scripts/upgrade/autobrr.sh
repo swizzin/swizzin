@@ -1,16 +1,12 @@
 #!/bin/bash
-# autobrr upgrader for swizzin
-# Author: ludviglundgren
+# autobrr upgrader
+# ludviglundgren 2021 for Swizzin
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-app_name="autobrr"
-app_dir="/opt/${app_name}"
-app_lockname="${app_name//-/}"
-
-if [[ ! -f "/install/.$app_lockname.lock" ]]; then
-    echo_error "$app_name doesn't appear to be installed!"
+if [[ ! -f /install/.autobrr.lock ]]; then
+    echo_error "autobrr doesn't appear to be installed!"
     exit 1
 fi
 
@@ -33,37 +29,32 @@ _upgrade_autobrr() {
         exit 1
     }
 
-    if ! curl "$latest" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
+    if ! curl "$latest" -L -o "/tmp/autobrr.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
-
     echo_progress_done "Archive downloaded"
-
-    if [[ $(systemctl is-active $app_name) == "active" ]]; then
-        wasActive="true"
-        echo_progress_start "Shutting down $app_name before upgrading"
-        systemctl stop "$app_name"
-        echo_progress_done
-    fi
 
     echo_progress_start "Extracting archive"
 
-    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/$app_name >> "$log" 2>&1 || {
+    # the archive contains both autobrr and autobrrctl to easily setup the user
+    tar xfv "/tmp/autobrr.tar.gz" --directory /usr/bin/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
-    rm -rf "/tmp/$app_name.tar.gz"
-    chown -R "${user}": "$app_dir"
+    rm -rf "/tmp/autobrr.tar.gz"
     echo_progress_done "Archive extracted"
+}
 
-    if [[ $wasActive = "true" ]]; then
-        echo_progress_start "Restarting $app_name"
-        systemctl start "$app_name"
-        echo_progress_done
-    fi
+_restart_autobrr() {
+    for user in "${users[@]}"; do
+        # restart autobrr
+        systemctl try-restart "autobrr@${user}"
+    done
+    echo_progress_done "Service restarted"
 }
 
 _upgrade_autobrr
+_restart_autobrr
 
-echo_success "$app_name upgraded"
+echo_success "autobrr upgraded"
