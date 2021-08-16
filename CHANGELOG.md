@@ -10,7 +10,7 @@
    - We are working to make the installers more quiet and streamlined. If you notice anything odd or out of place, feel free to bring it up!
  - ARMv64 support
  - Radarr v3 (dotnet)
-  - #diemono
+   - #diemono
  - Prowlarr (@bakerboy448)
  - Ombi v4 -- ombi v3 is no more
  - Airsonic (@flying-sausages)
@@ -18,7 +18,7 @@
  - `sources/globals.sh` loads the most commonly used functions. Useful for writing your own scripts or debugging swizzin or reasons
  - Actually upgrade plex if you run `box upgrade plex` after the install installation of the update script
  - `box upgrade lounge`
- - `touch /etc/swizzin/.dev.lock` to prevent `box update` from forcing you to git head. Useful for troubleshooting or saying 
+ - `touch /etc/swizzin/.dev.lock` to prevent `box update` from forcing you to git head. Useful for troubleshooting or saying "stop updating my swizz"
  - Reboot required detection at the end of `setup.sh`
  - Unattended setup. Please see related docs for info on how to use (accepts arguments and env files)
  - cracklib is now mandatory when choosing an account password, unless you can read the docs
@@ -39,10 +39,10 @@
 
 ### Updated
  - Libtorrent static libraries: any version of qBittorrent can be installed with any version of Deluge.
-  - Deluge and qBittorrent now use static libraries built directly into the apps themselves. This allows them to be version agnostic which will be important for retaining compatibility with upcoming qBittorrent versions while maintaining compatibility with the slower pace of Deluge development.
-  - Libtorrent will accept a patch at `/root/libtorrent-${libtorrent_branch}.patch` if you would like to change the settings of libtorrent before compilation
-    - During upgrades Deluge and qBittorrent will ask to continue to use the existing version of libtorrent if it deems the current version acceptable for the requested change
-  - Bullseye will likely be the last OS supporting Deluge 1.3.15 as steps will not be taken to maintain python2 compatibility if/when distros purge python2 packages
+   - Deluge and qBittorrent now use static libraries built directly into the apps themselves. This allows them to be version agnostic which will be important for retaining compatibility with upcoming qBittorrent versions while maintaining compatibility with the slower pace of Deluge development.
+   - Libtorrent will accept a patch at `/root/libtorrent-${libtorrent_branch}.patch` if you would like to change the settings of libtorrent before compilation
+      - During upgrades Deluge and qBittorrent will ask to continue to use the existing version of libtorrent if it deems the current version acceptable for the requested change
+   - Bullseye will likely be the last OS supporting Deluge 1.3.15 as steps will not be taken to maintain python2 compatibility if/when distros purge python2 packages
  - Jellyfin: Use apt-get to install the jellyfin packages from the officially maintained repositories
  - Quick start: Made the quick-start command shorter and more memorable. Added the `source` to help prevent `box` post-install confusion.
  - Librespeed: update nginx config
