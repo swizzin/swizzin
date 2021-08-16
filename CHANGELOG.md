@@ -2,7 +2,7 @@
 
 ## [3.0.0] was technically months ago edition
 
-## <TBD>
+## August 16, 2021
 
 ### Added
  - develop branch
@@ -68,6 +68,7 @@
  - Add config purging to ombi
  - Use upstream removal script for netdata
  - Add equivalent of apt-get install --only-upgrade to `apt_install`
+ - Moved unzip to global depends
 
 ### Fixed
  - qBittorrent depends were getting a bit too heavy. All deps are installed without use of recommends for qBittorrent and qt-related libraries.
@@ -109,6 +110,7 @@
  - Fixed a scenario which would cause `box upgrade sabnzbd` to fail
  - bad service name in resilio sync updater
  - kill `box chpasswd` if user does not exist
+ - bazarr deployment method has been moved to github releases due to compiled translations
 
 ### GitHub Meta
  - Updated issue template that we hope is easier to fill out
