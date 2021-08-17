@@ -31,7 +31,7 @@ if [[ -f /install/.sonarrv3.lock ]]; then
     rm /install/.sonarrv3.lock
     touch /install/.sonarr.lock
 fi
-if [[ -f /install/.sonarr.lock && $(dpkg -l | grep sonarr > /dev/null 2>&1) ]]; then
+if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; then
     echo_info "Migrating Sonarr away from apt management"
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
     cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
