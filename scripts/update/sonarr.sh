@@ -33,6 +33,7 @@ if [[ -f /install/.sonarrv3.lock ]]; then
 fi
 if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; then
     echo_info "Migrating Sonarr away from apt management"
+    isActive=$(systemctl is-active sonarr)
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
     cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
 
@@ -76,5 +77,15 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; the
     rm -rf /usr/lib/sonarr
     rm -f /etc/apt/sources.list.d/sonarr.list*
     systemctl daemon-reload
-    systemctl try-restart sonarr
+
+    #Restart sonarr because apt-removal stops it
+    if [[ $isActive == "active" ]]; then
+        systemctl start sonarr
+    fi
+
+    #Update broken symlink to old service
+    if systemctl is-enabled sonarr > /dev/null 2>&1; then
+        systemctl enable sonarr >> ${log} 2>&1
+    fi
+
 fi
