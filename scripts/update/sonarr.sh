@@ -31,16 +31,20 @@ if [[ -f /install/.sonarrv3.lock ]]; then
     rm /install/.sonarrv3.lock
     touch /install/.sonarr.lock
 fi
-if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; then
+if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/null 2>&1; then
     echo_info "Migrating Sonarr away from apt management"
     isActive=$(systemctl is-active sonarr)
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
     cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
+    user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
+    echo_info "Moving config to '/home/${user}/.config/Sonarr'"
+    mv /home/${user}/.config/sonarr /home/${user}/.config/Sonarr
 
     #Remove comments
     sed -i '/^#/d' /etc/systemd/system/sonarr.service
     #Update binary location
-    sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|' /etc/systemd/system/sonarr.service
+    sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|g' /etc/systemd/system/sonarr.service
+    sed -i 's|.config/sonarr|.config/Sonarr|g' /etc/systemd/system/sonarr.service
 
     #Mark depends as manually installed
     LIST='mono-runtime
@@ -72,7 +76,7 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; the
 
     apt_install ${LIST}
 
-    apt_remove sonarr
+    apt_remove --purge sonarr
     rm -rf /var/lib/sonarr
     rm -rf /usr/lib/sonarr
     rm -f /etc/apt/sources.list.d/sonarr.list*

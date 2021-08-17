@@ -11,7 +11,7 @@ if [[ -z $sonarrv3owner ]]; then
     sonarrv3owner=$(_get_master_username)
 fi
 
-sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+sonarrv3confdir="/home/$sonarrv3owner/.config/Sonarr"
 
 #Handles existing v2 instances
 _sonarrold_flow() {
