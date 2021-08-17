@@ -121,7 +121,7 @@ _install_sonarr() {
     chown -R "$sonarrv3owner":"$sonarrv3owner" /home/"$sonarrv3owner"/.config
 
     echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
-    wget -O /tmp/sonarr.tar.gz "https://services.sonarr.tv/v1/download/main/latest?version=3&os=linux" || {
+    wget -O /tmp/sonarr.tar.gz "https://services.sonarr.tv/v1/download/main/latest?version=3&os=linux" >> ${log} 2>&1 || {
         echo_error "Sonarr could not be downloaded from sonarr.tv. Exiting"
         exit 1
     }
@@ -192,6 +192,7 @@ EOSD
   <Branch>main</Branch>
 </Config>
 EOSC
+        chown -R ${sonarrv3owner}: ${sonarrv3confdir}/config.xml
     fi
     systemctl enable --now sonarr >> ${log} 2>&1
 
