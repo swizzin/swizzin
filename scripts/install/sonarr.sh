@@ -130,31 +130,31 @@ _install_sonarr() {
     chown -R "$sonarrv3owner":"$sonarrv3owner" /opt/Sonarr
 
     LIST='mono-runtime
-    ca-certificates-mono
-    libmono-system-net-http4.0-cil
-    libmono-corlib4.5-cil
-    libmono-microsoft-csharp4.0-cil
-    libmono-posix4.0-cil
-    libmono-system-componentmodel-dataannotations4.0-cil
-    libmono-system-configuration-install4.0-cil
-    libmono-system-configuration4.0-cil
-    libmono-system-core4.0-cil
-    libmono-system-data-datasetextensions4.0-cil
-    libmono-system-data4.0-cil
-    libmono-system-identitymodel4.0-cil
-    libmono-system-io-compression4.0-cil
-    libmono-system-numerics4.0-cil
-    libmono-system-runtime-serialization4.0-cil
-    libmono-system-security4.0-cil
-    libmono-system-servicemodel4.0a-cil
-    libmono-system-serviceprocess4.0-cil
-    libmono-system-transactions4.0-cil
-    libmono-system-web4.0-cil
-    libmono-system-xml-linq4.0-cil
-    libmono-system-xml4.0-cil
-    libmono-system4.0-cil
-    sqlite3
-    mediainfo'
+        ca-certificates-mono
+        libmono-system-net-http4.0-cil
+        libmono-corlib4.5-cil
+        libmono-microsoft-csharp4.0-cil
+        libmono-posix4.0-cil
+        libmono-system-componentmodel-dataannotations4.0-cil
+        libmono-system-configuration-install4.0-cil
+        libmono-system-configuration4.0-cil
+        libmono-system-core4.0-cil
+        libmono-system-data-datasetextensions4.0-cil
+        libmono-system-data4.0-cil
+        libmono-system-identitymodel4.0-cil
+        libmono-system-io-compression4.0-cil
+        libmono-system-numerics4.0-cil
+        libmono-system-runtime-serialization4.0-cil
+        libmono-system-security4.0-cil
+        libmono-system-servicemodel4.0a-cil
+        libmono-system-serviceprocess4.0-cil
+        libmono-system-transactions4.0-cil
+        libmono-system-web4.0-cil
+        libmono-system-xml-linq4.0-cil
+        libmono-system-xml4.0-cil
+        libmono-system4.0-cil
+        sqlite3
+        mediainfo'
 
     apt_install ${LIST}
 
