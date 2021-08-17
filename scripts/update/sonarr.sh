@@ -37,7 +37,7 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; the
     cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
 
     #Remove comments
-    sed -i 's/^#/d' /etc/systemd/system/sonarr.service
+    sed -i '/^#/d' /etc/systemd/system/sonarr.service
     #Update binary location
     sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|' /etc/systemd/system/sonarr.service
 
