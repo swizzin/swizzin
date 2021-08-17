@@ -44,7 +44,7 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     sed -i '/^#/d' /etc/systemd/system/sonarr.service
     #Update binary location
     sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|g' /etc/systemd/system/sonarr.service
-    sed -i 's|.config/sonarr|.config/Sonarr|g' /etc/systemd/system/sonarr.service
+    sed -i 's|/home/${user}/.config/sonarr|/home/${user}/.config/Sonarr|g' /etc/systemd/system/sonarr.service
 
     #Mark depends as manually installed
     LIST='mono-runtime
