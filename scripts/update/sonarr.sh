@@ -71,7 +71,9 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr > /dev/null 2>&1; the
 
     apt_install ${LIST}
 
-    apt_remove --purge sonarr
+    apt_remove sonarr
+    rm -rf /var/lib/sonarr
+    rm -rf /usr/lib/sonarr
     systemctl daemon-reload
     systemctl try-restart sonarr
 fi
