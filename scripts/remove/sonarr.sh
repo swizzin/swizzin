@@ -2,7 +2,7 @@
 
 user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
 if ask "Would you like to purge the configuration?" Y; then
-    if [[-d /home/${user}/.config/sonarr ]]; then
+    if [[ -d /home/${user}/.config/sonarr ]]; then
         rm -rf "/home/${user}/.config/sonarr"
     fi
 fi
