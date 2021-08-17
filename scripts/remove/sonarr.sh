@@ -43,5 +43,6 @@ apt-mark auto ${LIST} >> ${log} 2>&1
 #Remove mono if no longer required
 apt-get autoremove -y >> ${log} 2>&1
 rm -f /etc/apt/sources.list.d/mono-xamarin.list*
+rm -f /etc/systemd/system/sonarr.service
 
 rm /install/.sonarr.lock
