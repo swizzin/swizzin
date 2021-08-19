@@ -45,11 +45,6 @@ _add_users() {
     for user in "${users[@]}"; do
         echo_progress_start "Enabling autobrr for $user"
 
-        _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" create-user "$user" || {
-            echo_error "Failed to execute autobrrctl command"
-            exit 1
-        }
-
         # get random available port
         port=$(port 10000 12000)
 
@@ -99,6 +94,11 @@ logLevel = "DEBUG"
 sessionSecret = "${sessionSecret}"
 CFG
         chown -R "$user": "/home/$user/.config/autobrr"
+
+        _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" create-user "$user" || {
+            echo_error "Failed to execute autobrrctl command"
+            exit 1
+        }
 
         # Only run the nginx hook if a new user is being added, otherwise it will be ran for all users at the end of the installer
         if [[ ${#users[@]} -eq 1 ]]; then
