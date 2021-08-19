@@ -482,7 +482,7 @@ function _chpasswd() {
         qbittorrent_chpasswd "${user}" "${pass}"
     fi
     if [[ -f /install/.autobrr.lock ]]; then
-        : # TODO change password commands go here
+        _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
     fi
     echo_success "Password for $user changed"
     pass=""
