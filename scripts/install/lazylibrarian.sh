@@ -46,16 +46,39 @@ function _configure() {
     #    Git clone/extract LL wherever you like
     #    Run "python LazyLibrarian.py -d" to start in daemon mode
     #    Fill in all the config (see docs for full configuration)
-    echo "This is where it would be installing..."
+    echo "This is where it would be configuring..."
     # chown
 }
 
 function _systemd() {
-    cat >/etc/systemd/system/"$app_name"@.service <<EOF
+
+    cat >/etc/systemd/system/"$app_name".service <<EOF
+[Unit]
+Description=LazyLibrarian
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/lazylibrarian/LazyLibrarian.py
+Type=simple
+User=htpc
+Group=htpc
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
 EOF
+
+    echo_progress_start "Enabling service $app_name"
+    systemctl enable -q --now "$app_name" --quiet
+    echo_progress_done
 }
 
 function _nginx() {
+}
+
+function _finishing_touch() {
+    touch "/install/.$app_name.lock"   # Create lock file so that swizzin knows the app is installed.
+    echo_success "$pretty_name installed." # Winner winner. Chicken dinner.
 }
 
 ##########################################################################
@@ -64,7 +87,8 @@ function _nginx() {
 app_name="lazylibrarian"
 pretty_name="LazyLibrarian"
 default_port="5299"
-master=
+master=$(_get_master_username)
+readarray -t users < <(_get_user_list)
 
 if [[ -n "$1" ]]; then # Configure for JUST the user that was passed to script as arg (i.e. box adduser $user)
     user="$1"
@@ -72,19 +96,14 @@ if [[ -n "$1" ]]; then # Configure for JUST the user that was passed to script a
     exit 0
 fi
 
-readarray -t users < <(_get_user_list)
+_dependencies
 
-for user in "${users[@]}"; do
-    _install
-done
+_install
+
+_configure
 
 _systemd
 
-for user in "${users[@]}"; do # Enable a separate service for each swizzin user
-    echo_progress_start "Enabling service $app_name@$user"
-    systemctl enable -q --now "$app_name"@"$user" --quiet
-    echo_progress_done
-done
+_nginx
 
-touch /install/."$app_name".lock     # Create lock file so that swizzin knows JDownloader is installed.
-echo_success "JDownloader installed" # Winner winner. Chicken dinner.
+_finishing_touch
