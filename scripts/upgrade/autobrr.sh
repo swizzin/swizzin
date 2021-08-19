@@ -10,42 +10,6 @@ if [[ ! -f /install/.autobrr.lock ]]; then
     exit 1
 fi
 
-_upgrade_autobrr() {
-
-    echo_progress_start "Downloading release archive"
-
-    case "$(_os_arch)" in
-        "amd64") arch='x86_64' ;;
-        "arm64") arch="arm64" ;;
-        "armhf") arch="armv6" ;;
-        *)
-            echo_error "Arch not supported"
-            exit 1
-            ;;
-    esac
-
-    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
-        echo_error "Failed to query GitHub for latest version"
-        exit 1
-    }
-
-    if ! curl "$latest" -L -o "/tmp/autobrr.tar.gz" >> "$log" 2>&1; then
-        echo_error "Download failed, exiting"
-        exit 1
-    fi
-    echo_progress_done "Archive downloaded"
-
-    echo_progress_start "Extracting archive"
-
-    # the archive contains both autobrr and autobrrctl to easily setup the user
-    tar xfv "/tmp/autobrr.tar.gz" --directory /usr/bin/ >> "$log" 2>&1 || {
-        echo_error "Failed to extract"
-        exit 1
-    }
-    rm -rf "/tmp/autobrr.tar.gz"
-    echo_progress_done "Archive extracted"
-}
-
 _restart_autobrr() {
     for user in "${users[@]}"; do
         # restart autobrr
@@ -54,7 +18,7 @@ _restart_autobrr() {
     echo_progress_done "Service restarted"
 }
 
-_upgrade_autobrr
+autobrr_download_latest
 _restart_autobrr
 
 echo_success "autobrr upgraded"

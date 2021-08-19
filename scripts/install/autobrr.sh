@@ -10,54 +10,6 @@ apt_install "${app_reqs[@]}"
 
 users=($(_get_user_list))
 
-if [[ -n $1 ]]; then
-    user=$1
-    _autobrr_user_config ${user}
-    if [[ -f /install/.nginx.lock ]]; then
-        echo_progress_start "Configuring nginx"
-        bash /etc/swizzin/scripts/nginx/autobrr.sh
-        systemctl reload nginx
-        echo_progress_done
-    fi
-    exit 0
-fi
-
-_install_autobrr() {
-
-    echo_progress_start "Downloading release archive"
-
-    case "$(_os_arch)" in
-        "amd64") arch='x86_64' ;;
-        "arm64") arch="arm64" ;;
-        "armhf") arch="armv6" ;;
-        *)
-            echo_error "Arch not supported"
-            exit 1
-            ;;
-    esac
-
-    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
-        echo_error "Failed to query GitHub for latest version"
-        exit 1
-    }
-
-    if ! curl "$latest" -L -o "/tmp/autobrr.tar.gz" >> "$log" 2>&1; then
-        echo_error "Download failed, exiting"
-        exit 1
-    fi
-    echo_progress_done "Archive downloaded"
-
-    echo_progress_start "Extracting archive"
-
-    # the archive contains both autobrr and autobrrctl to easily setup the user
-    tar xfv "/tmp/autobrr.tar.gz" --directory /usr/bin/ >> "$log" 2>&1 || {
-        echo_error "Failed to extract"
-        exit 1
-    }
-    rm -rf "/tmp/autobrr.tar.gz"
-    echo_progress_done "Archive extracted"
-}
-
 _autobrr_user_config() {
     echo_progress_start "Configuring autobrr"
 
@@ -69,8 +21,8 @@ _autobrr_user_config() {
 
     if [ ! -d "/home/$user/.config/autobrr/" ]; then
         mkdir -p "/home/$user/.config/autobrr/"
+        chown -R "$user": "/home/$user/.config"
     fi
-    chown -R "$user": "/home/$user/.config/autobrr"
 
     cat > "/home/$user/.config/autobrr/config.toml" << CFG
 # config.toml
@@ -116,29 +68,41 @@ CFG
 
 }
 
-_autobrr_add_user() {
+if [[ -n $1 ]]; then
+    user=$1
+    _autobrr_user_config ${user}
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        bash /etc/swizzin/scripts/nginx/autobrr.sh
+        systemctl reload nginx
+        echo_progress_done
+    fi
+    systemctl enable -q --now autobrr@${user} 2>&1 | tee -a $log
+
+    exit 0
+fi
+
+_autobrr_create_users() {
     # use autobrrctl to add user into database
     echo_progress_start "Add user"
 
     for user in "${users[@]}"; do
         echo_log_only "Adding user $user"
-        pass=$(_get_user_password "$user")
 
         # the password needs to be created with argon2 so we use autobrrctl to create the user
         # using sqlite3 directly was not an option
-        echo -n "$pass" | autobrrctl --config "/home/$user/.config/autobrr" create-user "$user"
+        _get_user_password "$user" | autobrrctl --config "/home/$user/.config/autobrr" create-user "$user"
     done
 }
 
 _systemd_autobrr() {
-    if [[ ! -f /etc/systemd/system/autobrr@.service ]]; then
-        type=simple
-        if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
-            type=exec
-        fi
+    type=simple
+    if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+        type=exec
+    fi
 
-        echo_progress_start "Installing Systemd service"
-        cat > /etc/systemd/system/autobrr@.service << EOF
+    echo_progress_start "Installing Systemd service"
+    cat > /etc/systemd/system/autobrr@.service << EOF
 [Unit]
 Description=autobrr service for %i
 After=syslog.target network.target
@@ -148,17 +112,11 @@ Type=$type
 User=%i
 Group=%i
 ExecStart=/usr/bin/autobrr --config=/home/%i/.config/autobrr/
-# TimeoutStopSec=20
-# KillMode=process
-# Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOF
-    fi
-}
 
-_systemd_autobrr_enable_for_user() {
     for user in ${users[@]}; do
         echo_progress_start "Enabling autobrr for $user"
         _autobrr_user_config ${user}
@@ -177,11 +135,10 @@ _nginx_autobrr() {
     fi
 }
 
-_install_autobrr
+autobrr_download_latest
 
 _systemd_autobrr
-_systemd_autobrr_enable_for_user
-_autobrr_add_user
+_autobrr_create_users
 
 _nginx_autobrr
 
