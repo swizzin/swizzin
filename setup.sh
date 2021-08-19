@@ -60,19 +60,16 @@ function _source_setup() {
 _source_setup "$@"
 
 function _arch_check() {
-    if [[ ! $(uname -m) == "x86_64" ]]; then
+    if [[ ! $(uname -m) =~ ("x86_64"|"aarch64") ]]; then
         echo_warn "$(_os_arch) detected!"
-        if [[ $(_os_arch) = "arm64" ]]; then
-            echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.\nAs such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
-        else
-            echo_warn "This is an unsupported architecture and THINGS WILL BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
-        fi
+        echo_warn "This is an unsupported architecture and THINGS MIGHT BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
         ask "Agree with the above and continue?" N || exit 1
         echo
+    else
+        echo_log_only "Arch detected as $(_os_arch)"
     fi
 }
 _arch_check
-
 function _option_parse() {
     while test $# -gt 0; do
         case "$1" in
