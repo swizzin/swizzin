@@ -13,6 +13,8 @@
 # https://gitlab.com/LazyLibrarian/LazyLibrarian
 # https://lazylibrarian.gitlab.io/config_commandline/
 # https://github.com/swizzin/swizzin/pull/743
+# https://lazylibrarian.gitlab.io/config_users/
+# https://lazylibrarian.gitlab.io/config_downloaders/
 
 ##########################################################################
 # Import Sources
@@ -27,6 +29,7 @@
 function _dependencies() {
     echo "This is where it would be installing dependencies..."
     #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
+    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ claims it might require libtorrent
 }
 
 function _install() {
@@ -40,13 +43,25 @@ function _install() {
     chown -R "$master": "$data_dir"
 }
 
+# TODO: https://lazylibrarian.gitlab.io/config_users/
 function _configure() {
-    echo "This is where it would be configuring..."
+    for user in "${users[@]}"; do
+        echo "This is where it would be configuring for $user..."
+    done
     #    Fill in all the config (see docs for full configuration)
 }
 
 function _systemd() {
-
+    # CommandLine Options¶
+    #-d --daemon - Run the server as a daemon - not available on windows
+    #-q --quiet - Don't log to console
+    #-p --pidfile - Store the process id in this file
+    #--debug - Show debug log messages
+    #--nolaunch - Don't launch browser
+    #--update - Update to latest version from GitHub at start-up (only git installations)
+    #--port - Force webserver to listen on this port
+    #--datadir - Path to the datadir used to store database, config, cache - Default is to use program directory if this is unset
+    #--config - Path to config.ini - Default is to use datadir
     #    Run "python LazyLibrarian.py -d" to start in daemon mode
     cat >/etc/systemd/system/"$app_name".service <<EOF
 [Unit]
@@ -54,7 +69,11 @@ Description=LazyLibrarian
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/lazylibrarian/LazyLibrarian.py --daemon --datadir=/home/$master/.config/lazylibrarian --nolaunch
+ExecStart=/usr/bin/python3 \
+$app_dir/LazyLibrarian.py \
+--nolaunch \
+--daemon \
+--datadir=$data_dir
 Type=simple
 User=htpc
 Group=htpc
@@ -65,7 +84,7 @@ WantedBy=multi-user.target
 EOF
 
     echo_progress_start "Enabling service $app_name"
-    systemctl enable -q --now "$app_name" --quiet
+    systemctl enable --quiet --now "$app_name"
     echo_progress_done
 }
 
@@ -73,6 +92,7 @@ function _nginx_sonarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Installing nginx configuration"
         bash "/usr/local/bin/swizzin/nginx/$app_name.sh"
+        # shellcheck disable=2154 # log variable is inherited from box itself.
         systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
     else
@@ -81,7 +101,7 @@ function _nginx_sonarr() {
 }
 
 function _finishing_touch() {
-    touch "/install/.$app_name.lock"   # Create lock file so that swizzin knows the app is installed.
+    touch "/install/.$app_name.lock"       # Create lock file so that swizzin knows the app is installed.
     echo_success "$pretty_name installed." # Winner winner. Chicken dinner.
 }
 
