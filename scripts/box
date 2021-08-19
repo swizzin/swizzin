@@ -553,10 +553,12 @@ fi
 if [ -f /etc/swizzin/.test.lock ]; then
     echo_info "Tests will be ran at the end of this due to .test.lock"
     runtests="true"
-fi
-
-if [[ "$*" == *--test* ]]; then
+elif [[ "$*" == *--test* ]]; then
     echo_info "Tests will be ran due to --test flag"
+    #Removing `--test` from the arguments
+    for arg in "$@"; do [[ $arg == --test ]] || args+=("$arg"); done
+    set -- "${args[@]}"
+    echo_log_only "Args after cleanup: $(printf "%s\n" "$@")"
     runtests="true"
 fi
 
