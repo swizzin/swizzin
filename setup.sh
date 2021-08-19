@@ -395,9 +395,9 @@ _run_checks() {
 
 _run_post() {
     if [[ -n $postcommand ]]; then
-        echo_progress_start "Executing post-install commands"
+        echo_info "message" "Executing post-install commands"
         $postcommand
-        echo_progress_done "Post-install commands finished"
+        echo_success "message" "Post-install commands finished"
     fi
 }
 
