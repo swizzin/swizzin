@@ -122,8 +122,23 @@ function _clr() {
     fi
 }
 
-#shellcheck disable=SC2120
 function _update() {
+    # Checking for develop branch
+    if [ "$branch_name" == "develop" ]; then
+        SWIZ_GIT_REF="develop"
+        export SWIZ_GIT_REF
+    fi
+
+    if [[ -L /etc/swizzin ]]; then
+        noupdate_message="Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+        noupdate="true"
+    elif [[ -e /etc/swizzin/.dev.lock ]]; then
+        noupdate_message="Not updating /etc/swizzin as a dev lockfile is present."
+        noupdate="true"
+    elif [[ $1 == "--dev" ]]; then
+        noupdate_message="Not updating from git due to --dev flag"
+        noupdate="true"
+    fi
 
     case "$(_os_codename)" in
         "bionic" | "focal" | "buster" | "stretch" | "bullseye")
@@ -528,24 +543,9 @@ _run_tests() {
 
 branch_name="$(git -C /etc/swizzin symbolic-ref HEAD 2> /dev/null)" || branch_name="(unnamed branch)" # detached HEAD
 branch_name=${branch_name##refs/heads/}
-if [ "$branch_name" == "develop" ]; then
-    SWIZ_GIT_REF="develop"
-    export SWIZ_GIT_REF
-fi
 
-if [[ ! $branch_name =~ ^(master|eol-.*)$ ]]; then
-    echo_info "Just FYI, you're not on the $branch_name branch! Remember that you need to mention this when asking for any sort of support."
-fi
-
-if [[ -L /etc/swizzin ]]; then
-    noupdate_message="Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
-    noupdate="true"
-elif [[ -e /etc/swizzin/.dev.lock ]]; then
-    noupdate_message="Not updating /etc/swizzin as a dev lockfile is present."
-    noupdate="true"
-elif [[ $1 == "--dev" ]]; then
-    noupdate_message="Not updating from git due to --dev flag"
-    noupdate="true"
+if [[ $branch_name != 'master' ]]; then
+    echo_info "Currently on branch: $branch_name"
 fi
 
 if [ -f /etc/swizzin/.test.lock ]; then
