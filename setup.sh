@@ -391,9 +391,9 @@ _run_tests() {
 
 _run_post() {
     if [[ -n $postcommand ]]; then
-        echo_info "message" "Executing post-install commands"
+        echo_info "Executing post-install commands"
         $postcommand
-        echo_success "message" "Post-install commands finished"
+        echo_success "Post-install commands finished"
     fi
 }
 
