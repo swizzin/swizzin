@@ -50,7 +50,7 @@ baseUrl = "/autobrr/"
 #
 # Optional
 #
-#logPath = "log/autobrr.log"
+logPath = "/home/${user}/.config/autobrr/logs/autobrr.log"
 # Log level
 #
 # Default: "DEBUG"
