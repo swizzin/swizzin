@@ -28,6 +28,7 @@
 ##########################################################################
 
 function _dependencies() {
+    # TODO: venv please
     echo "This is where it would be installing dependencies..."
     #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
     # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ claims it might require libtorrent
