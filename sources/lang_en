@@ -27,6 +27,7 @@ $L['EMBY'] = 'Emby Server is a client-server software package that lets consumer
 $L['FLOOD'] = 'A web frontend for rtorrent with a focus on simplicity and a pleasant GUI.';
 $L['HEADPHONES'] = 'A music download manager.';
 $L['JACKETT'] = 'API Support for your favorite private trackers.';
+$L['LAZYLIBRARIAN'] = 'LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs.';
 $L['JELLYFIN'] = 'A TV, Film and Music media streaming player, forked from Emby to keep it free and open-source.';
 $L['LETSENCRYPT'] = 'A tool to generate and manage SSL Certificates the easy and automated way.';
 $L['LIBRESPEED'] = 'Speed-test type utility which allows you to measure your upload and download against your machine.';
