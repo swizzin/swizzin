@@ -551,15 +551,15 @@ if [[ $branch_name != 'master' ]]; then
 fi
 
 if [ -f /etc/swizzin/.test.lock ]; then
-    echo_info "Tests will be ran at the end of this due to .test.lock"
+    testmsg="Tests will be ran at the end of this due to .test.lock"
     runtests="true"
 elif [[ "$*" == *--test* ]]; then
-    echo_info "Tests will be ran due to --test flag"
+    testmsg="Tests will be ran due to --test flag"
+    runtests="true"
     #Removing `--test` from the arguments
     for arg in "$@"; do [[ $arg == --test ]] || args+=("$arg"); done
     set -- "${args[@]}"
     echo_log_only "Args after cleanup: $(printf "%s\n" "$@")"
-    runtests="true"
 fi
 
 case "$1" in
@@ -654,6 +654,6 @@ esac
 
 if [[ $runtests == "true" ]]; then
     echo
-    echo_warn "We determined you're not in a \"normal\" environment, therefore we're running tests"
+    echo_warn "$testmsg"
     _run_tests
 fi
