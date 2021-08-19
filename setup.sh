@@ -119,11 +119,20 @@ function _option_parse() {
                     echo_error "File does not exist"
                     exit 1
                 fi
-                echo_info "Parsing env variables from $1\n--->"
-                #shellcheck disable=SC2046
-                export $(grep -v '^#' "$1" | grep '^[A-Z]' | tr '\n' ' ') # anything which begins with a cap is exported
-                #shellcheck disable=SC2091
-                source <(grep -v '^#' "$1" | grep '^[a-z]') # | read -d $'\x04' name -
+                envfile="$1"
+                echo_info "Parsing env variables from $envfile:\n$(grep -v '^#' "$envfile")"
+
+                # anything which begins with a cap is exported
+                if grep -v '^#' "$envfile" | grep '^[A-Z]' -q; then
+                    export $(grep -v '^#' "$envfile" | grep '^[A-Z]' | tr '\n' ' ')
+                fi
+
+                # anything with a lowercase will get sourced
+                if grep -v '^#' "$envfile" | grep '^[a-z]' -q; then
+                    source <(grep -v '^#' "$envfile" | grep '^[a-z]') # | read -d $'\x04' name -
+                fi
+
+                # If packages were in env, make the installArray
                 if [[ -n $packages ]]; then
                     readarray -td: installArray < <(printf '%s' "$packages")
                 fi
