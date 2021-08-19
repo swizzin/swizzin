@@ -14,6 +14,7 @@ function _remove_autobrr() {
 
     rm -f /etc/systemd/system/autobrr@.service
     rm -f /usr/bin/autobrr
+    rm -f /usr/bin/autobrrctl
 
     systemctl daemon-reload -q
 
