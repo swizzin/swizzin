@@ -399,8 +399,6 @@ function _deluser() {
                 echo_info "Remember to manually remove the organizr account!"
             elif [[ $app == "autodl" ]]; then
                 systemctl disable --now irssi@${user}
-            elif [[ $app == 'autobrr' ]]; then
-                : #TODO remove commands here
             else
                 systemctl disable ${app}@${user}
                 systemctl stop ${app}@${user}
