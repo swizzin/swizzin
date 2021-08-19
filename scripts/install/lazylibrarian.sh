@@ -6,6 +6,7 @@
 # References
 ##########################################################################
 
+# https://github.com/Aethaeran/swizzin/blob/feat/jdownloader/scripts/install/jdownloader.sh
 # https://lazylibrarian.gitlab.io/install/
 # https://github.com/lazylibrarian/LazyLibrarian
 # https://gitlab.com/LazyLibrarian/LazyLibrarian
