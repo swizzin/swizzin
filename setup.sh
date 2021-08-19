@@ -340,8 +340,7 @@ function _install() {
 }
 
 function _post() {
-    echo
-    echo
+    echo ---------------------------------------------
 
     user=$(_get_master_username)
 
@@ -399,6 +398,12 @@ _run_post() {
         echo_progress_done "Post-install commands finished"
     fi
 }
+
+############################################################
+#
+# Execution time after arguments got parsed
+#
+############################################################
 
 _os
 _preparation
