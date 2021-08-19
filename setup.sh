@@ -392,7 +392,7 @@ function _post() {
 }
 
 _run_tests() {
-    if [[ $test = "true" ]]; then
+    if [[ $test = "true" ]] || [ -f /etc/swizzin/.test.lock ]; then
         echo
         echo_info "Running post-install checks"
         bash /etc/swizzin/scripts/box test || return 1
