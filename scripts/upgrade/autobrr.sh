@@ -4,6 +4,8 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/autobrr
+. /etc/swizzin/sources/functions/autobrr
 
 if [[ ! -f /install/.autobrr.lock ]]; then
     echo_error "autobrr doesn't appear to be installed!"

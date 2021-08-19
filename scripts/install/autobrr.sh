@@ -4,6 +4,8 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/autobrr
+. /etc/swizzin/sources/functions/autobrr
 
 app_reqs=("curl" "sqlite3")
 apt_install "${app_reqs[@]}"
@@ -30,7 +32,7 @@ _autobrr_user_config() {
 #
 # Default: "localhost"
 #
-host = "127.0.0.1"
+host = "0.0.0.0"
 # Port
 #
 # Default: 8989
@@ -91,7 +93,7 @@ _autobrr_create_users() {
 
         # the password needs to be created with argon2 so we use autobrrctl to create the user
         # using sqlite3 directly was not an option
-        _get_user_password "$user" | autobrrctl --config "/home/$user/.config/autobrr" create-user "$user"
+        _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" create-user "$user"
     done
 }
 
