@@ -1,5 +1,5 @@
 #!/bin/bash
-# JDownloader Installer for swizzin
+# LazyLibrarian install script for swizzin
 # Author: Aethaeran
 
 ##########################################################################
@@ -38,19 +38,37 @@ function _install() {
     # chown
 }
 
+function _configure() {
+
+    # LazyLibrarian runs by default on port 5299 at http://localhost:5299
+    #
+    #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
+    #    Git clone/extract LL wherever you like
+    #    Run "python LazyLibrarian.py -d" to start in daemon mode
+    #    Fill in all the config (see docs for full configuration)
+    echo "This is where it would be installing..."
+    # chown
+}
+
 function _systemd() {
     cat >/etc/systemd/system/"$app_name"@.service <<EOF
 EOF
+}
+
+function _nginx() {
 }
 
 ##########################################################################
 # Script Main
 ##########################################################################
 app_name="lazylibrarian"
+pretty_name="LazyLibrarian"
+default_port="5299"
+master=
 
-if [[ -n "$1" ]]; then # Install JDownloader for JUST the user that was passed to script as arg (i.e. box adduser $user)
+if [[ -n "$1" ]]; then # Configure for JUST the user that was passed to script as arg (i.e. box adduser $user)
     user="$1"
-    _install
+    _configure
     exit 0
 fi
 
