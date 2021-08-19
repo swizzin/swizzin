@@ -8,8 +8,11 @@
 
 # https://github.com/Aethaeran/swizzin/blob/feat/jdownloader/scripts/install/jdownloader.sh
 # https://lazylibrarian.gitlab.io/install/
+# https://www.reddit.com/r/LazyLibrarian/comments/jw5e22/lazylibrarian_calibre_calibreweb_booksonic/
 # https://github.com/lazylibrarian/LazyLibrarian
 # https://gitlab.com/LazyLibrarian/LazyLibrarian
+# https://lazylibrarian.gitlab.io/config_commandline/
+# https://github.com/swizzin/swizzin/pull/743
 
 ##########################################################################
 # Import Sources
@@ -23,42 +26,35 @@
 
 function _dependencies() {
     echo "This is where it would be installing dependencies..."
-    # chown
+    #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
 }
 
 function _install() {
-
-    # LazyLibrarian runs by default on port 5299 at http://localhost:5299
-    #
-    #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
-    #    Git clone/extract LL wherever you like
-    #    Run "python LazyLibrarian.py -d" to start in daemon mode
-    #    Fill in all the config (see docs for full configuration)
     echo "This is where it would be installing..."
+    mkdir -p "$app_dir"
+    mkdir -p "$data_dir"
+    #    Git clone/extract LL wherever you like
+    git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir"
     # chown
+    chown -R "$master": "$app_dir"
+    chown -R "$master": "$data_dir"
 }
 
 function _configure() {
-
-    # LazyLibrarian runs by default on port 5299 at http://localhost:5299
-    #
-    #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
-    #    Git clone/extract LL wherever you like
-    #    Run "python LazyLibrarian.py -d" to start in daemon mode
-    #    Fill in all the config (see docs for full configuration)
     echo "This is where it would be configuring..."
-    # chown
+    #    Fill in all the config (see docs for full configuration)
 }
 
 function _systemd() {
 
+    #    Run "python LazyLibrarian.py -d" to start in daemon mode
     cat >/etc/systemd/system/"$app_name".service <<EOF
 [Unit]
 Description=LazyLibrarian
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/lazylibrarian/LazyLibrarian.py
+ExecStart=/usr/bin/python3 /opt/lazylibrarian/LazyLibrarian.py --daemon --datadir=/home/$master/.config/lazylibrarian --nolaunch
 Type=simple
 User=htpc
 Group=htpc
@@ -73,7 +69,15 @@ EOF
     echo_progress_done
 }
 
-function _nginx() {
+function _nginx_sonarr() {
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Installing nginx configuration"
+        bash "/usr/local/bin/swizzin/nginx/$app_name.sh"
+        systemctl reload nginx >> "$log" 2>&1
+        echo_progress_done
+    else
+        echo_info "$pretty_name will run on port $default_port"
+    fi
 }
 
 function _finishing_touch() {
@@ -89,6 +93,8 @@ pretty_name="LazyLibrarian"
 default_port="5299"
 master=$(_get_master_username)
 readarray -t users < <(_get_user_list)
+data_dir="/home/$master/.config/lazylibrarian"
+app_dir="/opt/$app_name"
 
 if [[ -n "$1" ]]; then # Configure for JUST the user that was passed to script as arg (i.e. box adduser $user)
     user="$1"
