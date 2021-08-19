@@ -7,8 +7,8 @@
 #shellcheck source=sources/functions/autobrr
 . /etc/swizzin/sources/functions/autobrr
 
-app_reqs=("curl" "sqlite3")
-apt_install "${app_reqs[@]}"
+# install needed tools
+apt_install curl
 
 users=($(_get_user_list))
 
