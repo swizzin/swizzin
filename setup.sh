@@ -14,8 +14,6 @@
 #
 #################################################################################
 
-echo "Starting Swizzin installation"
-
 if [[ $EUID -ne 0 ]]; then
     echo "Swizzin setup requires user to be root. su or sudo -s and run again ..."
     exit 1
@@ -31,31 +29,27 @@ function _source_setup() {
     echo -e "...\tInstalling git"      # The one true dependency
     apt-get update -q >> $log 2>&1     # Force update just in case sources were never pulled
     apt-get install git -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
-    echo -e "\tGit Installed"          # All dependencies go to scripts/update/10-dependencies.sh
+    echo -e "\t✔ Git Installed"        # All dependencies go to scripts/update/10-dependencies.sh
 
     if [[ "$*" =~ '--local' ]]; then
         RelativeScriptPath=$(dirname "${BASH_SOURCE[0]}")
         if [[ ! -e /etc/swizzin ]]; then # If there is no valid file or dir there...
             ln -sr "$RelativeScriptPath" /etc/swizzin
-            echo "The directory where the setup script is located is symlinked to /etc/swizzin"
+            echo -e "WARN\tThe directory where the setup script is located is symlinked to /etc/swizzin"
         else
             touch /etc/swizzin/.dev.lock
-            echo "/etc/swizzin/.dev.lock created"
+            echo -e "WARN\t/etc/swizzin/.dev.lock created"
         fi
-        echo "Best of luck and please follow the contribution guidelines cheerio"
+        echo -e "INFO\tBest of luck and please follow the contribution guidelines cheerio"
     else
         echo -e "...\tCloning swizzin repo to localhost"
         git clone https://github.com/swizzin/swizzin.git /etc/swizzin >> ${log} 2>&1
-        echo -e "\tSwizzin cloned!"
+        echo -e "\t✔ Swizzin cloned!"
     fi
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
-
-    # Set correct permissions on swizzin files
-    bash /etc/swizzin/scripts/update/04-setpermissions.sh
-    echo
 }
 _source_setup "$@"
 
@@ -64,12 +58,12 @@ function _arch_check() {
         echo_warn "$(_os_arch) detected!"
         echo_warn "This is an unsupported architecture and THINGS MIGHT BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
         ask "Agree with the above and continue?" N || exit 1
-        echo
     else
         echo_log_only "Arch detected as $(_os_arch)"
     fi
 }
 _arch_check
+
 function _option_parse() {
     while test $# -gt 0; do
         case "$1" in
@@ -205,10 +199,11 @@ _os() {
 }
 
 function _preparation() {
-    echo_info "Preparing system"
     apt-get install uuid-runtime -yy >> $log 2>&1
     apt_update # Do this because sometimes the system install is so fresh it's got a good stam but it is "empty"
     apt_upgrade
+    # Set correct permissions on swizzin files
+    bash /etc/swizzin/scripts/update/04-setpermissions.sh
 
     if ! bash /etc/swizzin/scripts/update/10-dependencies.sh; then
         echo_error "Dependencies failed to install\nPlease reveiw the log file and try again.\nFeel free to visit our Discord in case you need assistance."
@@ -217,8 +212,6 @@ function _preparation() {
 
     nofile=$(grep "DefaultLimitNOFILE=500000" /etc/systemd/system.conf)
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
-    echo_progress_done "Setup succesful"
-    echo
 }
 
 #FYI code duplication from `box rmgrsec`
@@ -401,7 +394,7 @@ _run_checks() {
 }
 
 _run_post() {
-    if [[ -z $postcommand ]]; then
+    if [[ -n $postcommand ]]; then
         echo_progress_start "Executing post-install commands"
         $postcommand
         echo_progress_done "Post-install commands finished"
