@@ -369,7 +369,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
                 if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -399,6 +399,8 @@ function _deluser() {
                 echo_info "Remember to manually remove the organizr account!"
             elif [[ $app == "autodl" ]]; then
                 systemctl disable --now irssi@${user}
+            elif [[ $app == 'autobrr' ]]; then
+                : #TODO remove commands here
             else
                 systemctl disable ${app}@${user}
                 systemctl stop ${app}@${user}
@@ -480,6 +482,9 @@ function _chpasswd() {
     if [[ -f /install/.qbittorrent.lock ]]; then
         . /etc/swizzin/sources/functions/qbittorrent
         qbittorrent_chpasswd "${user}" "${pass}"
+    fi
+    if [[ -f /install/.autobrr.lock ]]; then
+        : # TODO change password commands go here
     fi
     echo_success "Password for $user changed"
     pass=""
