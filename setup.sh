@@ -393,8 +393,6 @@ function _post() {
 
 _run_tests() {
     if [[ $test = "true" ]] || [ -f /etc/swizzin/.test.lock ]; then
-        echo
-        echo_info "Running post-install checks"
         bash /etc/swizzin/scripts/box test || return 1
     fi
 
@@ -427,10 +425,4 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_tests || {
-    BAD="true"
-}
-
-if [ "$BAD" == "true" ]; then
-    exit 1
-fi
+_run_tests || exit 1
