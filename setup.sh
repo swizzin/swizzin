@@ -105,9 +105,9 @@ function _option_parse() {
                 LOCAL=true
                 echo_info "Local = $LOCAL"
                 ;;
-            --run-checks)
-                export RUN_CHECKS=true
-                echo_info "RUN_CHECKS = $RUN_CHECKS"
+            --test)
+                export RUN_TESTS=true
+                echo_info "RUN_TESTS = $RUN_TESTS"
                 ;;
             --rmgrsec)
                 rmgrsec=yes
@@ -391,14 +391,10 @@ function _post() {
     bash /etc/swizzin/scripts/update/bash_completion.sh
 }
 
-_run_checks() {
-    if [[ $RUN_CHECKS = "true" ]]; then
+_run_tests() {
+    if [[ $RUN_TESTS = "true" ]]; then
         echo
         echo_info "Running post-install checks"
-        # echo_progress_start "Checking all failed units"
-        # systemctl list-units --failed
-        # echo_progress_done "listed"
-
         bash /etc/swizzin/scripts/box test || return 1
     fi
 
@@ -431,7 +427,7 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_checks || {
+_run_tests || {
     BAD="true"
 }
 
