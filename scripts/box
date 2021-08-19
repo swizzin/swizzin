@@ -447,7 +447,7 @@ function _chpasswd() {
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
     if [[ -f /install/.autobrr.lock ]]; then
-        "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
+        echo -n "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
     fi
     if [[ -e /install/.deluge.lock ]]; then
         systemctl stop deluged@${user} >> $log 2>&1
