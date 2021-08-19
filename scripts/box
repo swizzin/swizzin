@@ -481,9 +481,6 @@ function _chpasswd() {
         . /etc/swizzin/sources/functions/qbittorrent
         qbittorrent_chpasswd "${user}" "${pass}"
     fi
-    if [[ -f /install/.autobrr.lock ]]; then
-        _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
-    fi
     echo_success "Password for $user changed"
     pass=""
     unset pass
