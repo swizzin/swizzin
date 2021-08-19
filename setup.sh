@@ -97,8 +97,8 @@ function _option_parse() {
                 echo_info "Local = $LOCAL"
                 ;;
             --test)
-                export RUN_TESTS=true
-                echo_info "RUN_TESTS = $RUN_TESTS"
+                export test=true
+                echo_info "test = $test"
                 ;;
             --rmgrsec)
                 rmgrsec=yes
@@ -381,7 +381,7 @@ function _post() {
 }
 
 _run_tests() {
-    if [[ $RUN_TESTS = "true" ]]; then
+    if [[ $test = "true" ]]; then
         echo
         echo_info "Running post-install checks"
         bash /etc/swizzin/scripts/box test || return 1
