@@ -15,6 +15,7 @@
 # https://github.com/swizzin/swizzin/pull/743
 # https://lazylibrarian.gitlab.io/config_users/
 # https://lazylibrarian.gitlab.io/config_downloaders/
+# https://www.reddit.com/r/LazyLibrarian/
 
 ##########################################################################
 # Import Sources
@@ -43,12 +44,9 @@ function _install() {
     chown -R "$master": "$data_dir"
 }
 
-# TODO: https://lazylibrarian.gitlab.io/config_users/
 function _configure() {
-    for user in "${users[@]}"; do
-        echo "This is where it would be configuring for $user..."
-    done
     #    Fill in all the config (see docs for full configuration)
+    echo "This is where it would be configuring for $user..."
 }
 
 function _systemd() {
@@ -112,15 +110,8 @@ app_name="lazylibrarian"
 pretty_name="LazyLibrarian"
 default_port="5299"
 master=$(_get_master_username)
-readarray -t users < <(_get_user_list)
 data_dir="/home/$master/.config/lazylibrarian"
 app_dir="/opt/$app_name"
-
-if [[ -n "$1" ]]; then # Configure for JUST the user that was passed to script as arg (i.e. box adduser $user)
-    user="$1"
-    _configure
-    exit 0
-fi
 
 _dependencies
 
