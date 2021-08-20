@@ -70,7 +70,7 @@ function _install() {
 function _configure() {
     #    Fill in all the config (see docs for full configuration)
     echo_progress_start "Configuring $pretty_name..."
-    cat >"$app_dir/config.ini" << EOF
+    cat >"$data_dir/config.ini" << EOF
 [General]
 http_root = /lazylibrarian
 
@@ -103,7 +103,8 @@ User=$master
 Group=$master
 Type=simple
 ExecStart=/usr/bin/python3 \
-$app_dir/LazyLibrarian.py
+$app_dir/LazyLibrarian.py \
+--datadir $data_dir
 Restart=on-failure
 
 [Install]
