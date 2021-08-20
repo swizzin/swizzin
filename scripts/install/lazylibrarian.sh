@@ -71,6 +71,9 @@ function _configure() {
     cat >"$app_dir/config.ini" << EOF
 [General]
 http_root = /lazylibrarian
+
+[Git]
+auto_update = 1
 EOF
     echo_progress_done
 }
