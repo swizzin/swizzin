@@ -56,10 +56,12 @@ function _install() {
     mkdir -p "$app_dir"
     mkdir -p "$data_dir"
     #    Git clone/extract LL wherever you like
-    # TODO: Should add some logic in here to verify git cloned successfully. It passed by here without doing so on me once.
     # shellcheck disable=2154           # log variable is inherited from box itself.
     git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >>"$log" 2>&1
-
+    if [[ ! -e "$app_dir/LazyLibrarian.py" ]];then
+        ecoh_error "Git clone unsuccessful. Try running the script again."
+        exit 1
+    fi
     chown -R "$master": "$app_dir" # Change owner\group recursively for new dirs.
     chown -R "$master": "$data_dir"
     echo_progress_done
