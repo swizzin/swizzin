@@ -62,6 +62,12 @@ function _install() {
 function _configure() {
     #    Fill in all the config (see docs for full configuration)
     echo "This is where it would be configuring for $user..."
+    # TODO: this is gross. Would much rather pass the single config with the api
+    # https://lazylibrarian.gitlab.io/api/
+    cat >"$app_dir/config.ini" << EOF
+[General]
+http_root = /lazylibrarian
+EOF
 }
 
 function _systemd() {
