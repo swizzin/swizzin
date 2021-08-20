@@ -125,7 +125,10 @@ _install_sonarr() {
         echo_error "Sonarr could not be downloaded from sonarr.tv. Exiting"
         exit 1
     }
-    tar xf /tmp/sonarr.tar.gz -C /opt >> ${log} 2>&1
+    tar xf /tmp/sonarr.tar.gz -C /opt >> ${log} 2>&1 || {
+        echo_error "Failed to extract archive"
+        exit 1
+    }
     rm -f /tmp/sonarr.tar.gz
     chown -R "$sonarrv3owner":"$sonarrv3owner" /opt/Sonarr
 
