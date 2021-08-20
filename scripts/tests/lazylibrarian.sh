@@ -25,6 +25,8 @@ app_name="lazylibrarian"
 # Functions
 ##########################################################################
 
+# TODO: Is this change necessary? Maybe I just did the nginx configuration incorrectly.
+
 check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"
     if [ "$1" -eq "$1" ] 2> /dev/null; then

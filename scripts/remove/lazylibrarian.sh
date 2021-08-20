@@ -17,10 +17,20 @@ pretty_name="LazyLibrarian"
 app_dir="/opt/$app_name"
 master=$(_get_master_username)
 config_dir="/home/$master/.config/$app_name"
+venv_dir="/opt/.venv/$app_name"
 
 ##########################################################################
 # Main
 ##########################################################################
+
+if [[ -e "$venv_dir" ]];then
+    echo_progress_start "Removing $pretty_name venv..."
+    # shellcheck disable=2154 # log variable is inherited from box itself.
+    rm -rv "$venv_dir" >> "$log" 2>&1
+    echo_progress_done
+else
+    echo_info "$pretty_name venv_dir didn't exist."
+fi
 
 if [[ -e "$app_dir" ]];then
     echo_progress_start "Removing $pretty_name installation..."

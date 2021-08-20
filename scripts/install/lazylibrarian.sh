@@ -22,6 +22,9 @@
 # Import Sources
 ##########################################################################
 
+. /etc/swizzin/sources/functions/color_echo
+. /etc/swizzin/sources/functions/pyenv
+. /etc/swizzin/sources/functions/users
 . /etc/swizzin/sources/functions/utils
 
 ##########################################################################
@@ -34,21 +37,29 @@ default_port="5299"
 master=$(_get_master_username)
 data_dir="/home/$master/.config/lazylibrarian"
 app_dir="/opt/$app_name"
+venv_dir="/opt/.venv/$app_name"
 
 ##########################################################################
 # Functions
 ##########################################################################
 
 function _dependencies() {
-    # TODO: Create a venv for LazyLibrarian
-    # TODO: When run from CLI LazyLibrarian throws the following warnings early on. Add these libs to venv to ensure LazyLib has full functionality.
-    # 19-Aug-2021 17:43:39 - WARNING :: MAIN : __init__.py:initialize:976 : apprise: library missing
-    #19-Aug-2021 17:43:39 - WARNING :: MAIN : __init__.py:initialize:976 : pyOpenSSL: module missing
-    #19-Aug-2021 17:43:40 - WARNING :: MAIN : LazyLibrarian.py:main:276 : Looking for Apprise library: No module named 'apprise'
-    echo_progress_start "Installing dependencies for $pretty_name..."
-    #    Install Python 2 v2.6 or higher, or Python 3 v3.5 or higher
-    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ claims it might require libtorrent
+    echo_info "Installing dependencies for $pretty_name..."
+
+    echo_progress_start "Creating $pretty_name venv"
+    mkdir -p "$venv_dir"
+    python3_venv "$master" "$app_name"
     echo_progress_done
+
+    echo_progress_start "Installing python dependencies to venv"
+    # shellcheck disable=2154           # log variable is inherited from box itself.
+    "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1 # Upgrade PIP
+    PIP='apprise pyOpenSSL'
+    # shellcheck disable=2086           # We want the $PIP variable to expand. So 2086's warning is invalid here.
+    "$venv_dir/bin/pip" install $PIP >>"${log}" 2>&1
+    chown -R "$master": "$venv_dir"
+    echo_progress_done
+    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatability
 }
 
 function _install() {
@@ -58,8 +69,8 @@ function _install() {
     #    Git clone/extract LL wherever you like
     # shellcheck disable=2154           # log variable is inherited from box itself.
     git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >>"$log" 2>&1
-    if [[ ! -e "$app_dir/LazyLibrarian.py" ]];then
-        ecoh_error "Git clone unsuccessful. Try running the script again."
+    if [[ ! -e "$app_dir/LazyLibrarian.py" ]]; then
+        ecoh_error "Git clone unsuccessful. Try running the box install again."
         exit 1
     fi
     chown -R "$master": "$app_dir" # Change owner\group recursively for new dirs.
@@ -70,7 +81,7 @@ function _install() {
 function _configure() {
     #    Fill in all the config (see docs for full configuration)
     echo_progress_start "Configuring $pretty_name..."
-    cat >"$data_dir/config.ini" << EOF
+    cat >"$data_dir/config.ini" <<EOF
 [General]
 http_root = /lazylibrarian
 
@@ -102,7 +113,7 @@ After=network.target
 User=$master
 Group=$master
 Type=simple
-ExecStart=/usr/bin/python3 \
+ExecStart=$venv_dir/bin/python \
 $app_dir/LazyLibrarian.py \
 --datadir $data_dir
 Restart=on-failure
@@ -130,8 +141,8 @@ function _nginx() {
 }
 
 function _finishing_touch() {
-    touch "/install/.$app_name.lock"        # Create lock file so that swizzin knows the app is installed.
-    echo_success "$pretty_name installed."  # Winner winner. Chicken dinner.
+    touch "/install/.$app_name.lock"       # Create lock file so that swizzin knows the app is installed.
+    echo_success "$pretty_name installed." # Winner winner. Chicken dinner.
 }
 
 ##########################################################################
