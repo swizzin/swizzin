@@ -22,24 +22,27 @@ config_dir="/home/$master/.config/$app_name"
 # Main
 ##########################################################################
 
+# TODO: Put simple logic in here for verifying these need removing first.
+
 echo_progress_start "Removing $pretty_name installation..."
-rm -rv "$app_dir" >> $log 2>&1
+# shellcheck disable=2154 # log variable is inherited from box itself.
+rm -rv "$app_dir" >> "$log" 2>&1
 echo_progress_done
 
 echo_progress_start "Removing $pretty_name configuration..."
-rm -rv "$config_dir" >> $log 2>&1
+rm -rv "$config_dir" >> "$log" 2>&1
 echo_progress_done
 
 echo_progress_start "Removing $pretty_name systemd service..."
 systemctl disable --now --quiet $app_name
-rm -v "/etc/systemd/system/$app_name.service" >> $log 2>&1
-#rm -v "/etc/systemd/system/$app_name@.service" >> $log 2>&1
+rm -v "/etc/systemd/system/$app_name.service" >> "$log" 2>&1
+#rm -v "/etc/systemd/system/$app_name@.service" >> "$log" 2>&1
 echo_progress_done
 
 echo_progress_start "Removing $pretty_name nginx configuration..."
-rm -v "/etc/nginx/apps/$app_name.conf" >> $log 2>&1
+rm -v "/etc/nginx/apps/$app_name.conf" >> "$log" 2>&1
 echo_progress_done
 
 echo_progress_start "Removing $pretty_name lock..."
-rm -v "/install/.$app_name.lock" >> $log 2>&1
+rm -v "/install/.$app_name.lock" >> "$log" 2>&1
 echo_progress_done

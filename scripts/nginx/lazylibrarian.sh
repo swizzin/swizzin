@@ -18,6 +18,8 @@ app_name=lazylibrarian
 # Main
 ##########################################################################
 
+# TODO: Simple logic to verify this needs creating.
+
 cat > "/etc/nginx/apps/$app_name.conf" << 'EOF'
 location /lazylibrarian {
         proxy_bind              $server_addr;
@@ -28,5 +30,3 @@ location /lazylibrarian {
         proxy_set_header        X-Script-Name   /lazylibrarian;  # IMPORTANT: path has NO trailing slash
 }
 EOF
-
-# TODO: Verify if "Web Root" needs to be added to LazyLib config
