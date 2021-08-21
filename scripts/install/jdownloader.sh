@@ -35,7 +35,7 @@
 # Functions
 ##########################################################################
 
-function install_jdownloader() {
+function _install() {
 
     echo_info "Setting up JDownloader for $user"
     JD_HOME="/home/$user/jd2"
@@ -58,7 +58,7 @@ function install_jdownloader() {
     while [[ ! -e "/tmp/JDownloader.jar" ]]; do
         if wget -q http://installer.jdownloader.org/JDownloader.jar -O "/tmp/JDownloader.jar"; then
             echo_info "Jar downloaded..."
-            if [ ! jar tvf "/tmp/JDownloader.jar" 2> /dev/null ]; then # Java will detect if a .jar is corrupt
+            if [ ! jar tvf "/tmp/JDownloader.jar" ] 2>/dev/null; then # Java will detect if a .jar is corrupt
                 echo_info ".jar is corrupt. Removing, and trying again."
                 rm "/tmp/JDownloader.jar"
             else
@@ -152,7 +152,7 @@ function install_jdownloader() {
 
             if kill -0 $pid 2>/dev/null; then
                 if [[ $kill_process == "true" ]]; then
-                    echo_info "Kill JDownloader..." # TODO: This should be echo_log_only at PR end.
+                    echo_info "Kill JDownloader." # TODO: This should be echo_log_only at PR end.
                     kill $pid                       # Kill the background command
                     sleep 1                         # Give it a second to actually die.
                     process_died="true"
@@ -196,28 +196,28 @@ EOF
 # Script Main
 ##########################################################################
 
-if [[ -n "$1" ]]; then # Install JDownloader for JUST the user that was passed to script as arg (i.e. box adduser $user)
+if [[ -n "$1" ]]; then                  # Install JDownloader for JUST the user that was passed to script as argument (i.e. box adduser $user)
     user="$1"
-    install_jdownloader
+    _install
     exit 0
 fi
 
-install_java8                          # Install Java as it is a dependency.
+install_java8                           # Install Java as it is a dependency.
 
-readarray -t users < <(_get_user_list) # Install a separate JDownloader instance for each user, as it cannot be multi-seated.
+readarray -t users < <(_get_user_list)  # Install a separate JDownloader instance for each user, as it cannot be multi-seated.
 for user in "${users[@]}"; do
-    install_jdownloader
+    _install
 done
 
-_systemd # Insert service file to /etc/systemd/system
+_systemd                                # Insert service file to /etc/systemd/system
 
-# TODO: Remove this block once verification method is changed.
-# Don't start services until after each user is installed. Due to current verification process.
-for user in "${users[@]}"; do # Enable a separate service for each swizzin user
+                                        # TODO: Remove this block once verification method is changed.
+                                        # Don't start services until after each user is installed. Due to current verification process.
+for user in "${users[@]}"; do           # Enable a separate service for each swizzin user
     echo_progress_start "Enabling service jdownloader@$user"
-    systemctl enable -q --now jdownloader@"$user" --quiet
+    systemctl enable --quiet --now jdownloader@"$user"
     echo_progress_done
 done
 
-touch /install/.jdownloader.lock     # Create lock file so that swizzin knows JDownloader is installed.
-echo_success "JDownloader installed" # Winner winner. Chicken dinner.
+touch /install/.jdownloader.lock        # Create lock file so that swizzin knows JDownloader is installed.
+echo_success "JDownloader installed"    # Winner winner. Chicken dinner.
