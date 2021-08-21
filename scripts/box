@@ -303,7 +303,7 @@ function _adduser() {
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent jdownloader; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
                 if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -369,7 +369,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent jdownloader; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
                 if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
