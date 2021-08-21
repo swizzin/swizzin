@@ -33,7 +33,8 @@ app_name="lazylibrarian"
 pretty_name="LazyLibrarian"
 default_port="5299"
 master=$(_get_master_username)
-data_dir="/home/$master/.config/lazylibrarian"
+config_dir="/home/$master/.config"
+data_dir="/$config_dir/lazylibrarian"
 app_dir="/opt/$app_name"
 venv_dir="/opt/.venv/$app_name"
 pip_reqs='apprise pyOpenSSL'
@@ -70,6 +71,7 @@ function _install() {
         ecoh_error "Git clone unsuccessful. Try running the box install again."
         exit 1
     fi
+    chown "$master": "$config_dir" # Ensure correct owner\group on config_dir
     chown -R "$master": "$app_dir" # Change owner\group recursively for new dirs.
     chown -R "$master": "$data_dir"
     echo_progress_done
