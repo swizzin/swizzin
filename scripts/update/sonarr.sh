@@ -34,6 +34,7 @@ fi
 if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/null 2>&1; then
     echo_info "Migrating Sonarr away from apt management"
     isActive=$(systemctl is-active sonarr)
+    isEnabled=$(systemctl is-enabled sonarr)
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
     cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
     user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
@@ -88,7 +89,7 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     fi
 
     #Update broken symlink to old service
-    if systemctl is-enabled sonarr > /dev/null 2>&1; then
+    if [[ $isEnabled == "enabed" ]]; then
         systemctl enable sonarr >> ${log} 2>&1
     fi
 
