@@ -22,10 +22,8 @@
 # Import Sources
 ##########################################################################
 
-. /etc/swizzin/sources/functions/color_echo
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
-. /etc/swizzin/sources/functions/users
-. /etc/swizzin/sources/functions/utils
 
 ##########################################################################
 # Variables
