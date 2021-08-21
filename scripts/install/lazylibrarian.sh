@@ -36,6 +36,7 @@ master=$(_get_master_username)
 data_dir="/home/$master/.config/lazylibrarian"
 app_dir="/opt/$app_name"
 venv_dir="/opt/.venv/$app_name"
+pip_reqs='apprise pyOpenSSL'
 
 ##########################################################################
 # Functions
@@ -50,10 +51,9 @@ function _dependencies() {
 
     echo_progress_start "Installing python dependencies to venv"
     # shellcheck disable=2154           # log variable is inherited from box itself.
-    "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1 # Upgrade PIP
-    PIP='apprise pyOpenSSL'
-    # shellcheck disable=2086           # We want the $PIP variable to expand. So 2086's warning is invalid here.
-    "$venv_dir/bin/pip" install $PIP >>"${log}" 2>&1
+    "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1 # Upgrade pip
+    # shellcheck disable=2086           # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
+    "$venv_dir/bin/pip" install $pip_reqs >>"${log}" 2>&1
     chown -R "$master": "$venv_dir"
     echo_progress_done
     # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatability
