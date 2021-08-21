@@ -47,7 +47,6 @@ function _dependencies() {
     echo_info "Installing dependencies for $pretty_name..."
 
     echo_progress_start "Creating $pretty_name venv"
-    mkdir -p "$venv_dir"
     python3_venv "$master" "$app_name"
     echo_progress_done
 
