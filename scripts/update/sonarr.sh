@@ -89,7 +89,7 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     fi
 
     #Update broken symlink to old service
-    if [[ $isEnabled == "enabed" ]]; then
+    if [[ $isEnabled == "enabled" ]]; then
         systemctl enable sonarr >> ${log} 2>&1
     fi
 
