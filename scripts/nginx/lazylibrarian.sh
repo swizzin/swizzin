@@ -20,7 +20,7 @@ nginx_conf="/etc/nginx/apps/$app_name.conf"
 # Main
 ##########################################################################
 
-if [[ ! -e "$nginx_conf" ]];then
+if [[ ! -e "$nginx_conf" ]]; then
     cat > "$nginx_conf" << 'EOF'
     location /lazylibrarian {
             proxy_bind              $server_addr;
