@@ -13,8 +13,10 @@ if [[ ! -f /install/.autobrr.lock ]]; then
 fi
 
 _restart_autobrr() {
-    for user in "${users[@]}"; do
+    echo_progress_start "Restarting autobrr services"
+    for user in $(_get_user_list); do
         # restart autobrr
+        echo_log_only "Restarting autobrr for $user"
         systemctl try-restart "autobrr@${user}"
     done
     echo_progress_done "Service restarted"
