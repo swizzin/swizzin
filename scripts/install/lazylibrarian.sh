@@ -1,35 +1,14 @@
 #!/bin/bash
 # LazyLibrarian install script for swizzin
-# Author: Aethaeran
+# Author: Aethaeran 2021
+# GPLv3
 
-##########################################################################
 # References
-##########################################################################
-
-# https://github.com/Aethaeran/swizzin/blob/feat/jdownloader/scripts/install/jdownloader.sh
-# https://lazylibrarian.gitlab.io/install/
 # https://www.reddit.com/r/LazyLibrarian/comments/jw5e22/lazylibrarian_calibre_calibreweb_booksonic/
-# https://github.com/lazylibrarian/LazyLibrarian
 # https://gitlab.com/LazyLibrarian/LazyLibrarian
-# https://github.com/swizzin/swizzin/pull/743
-# https://lazylibrarian.gitlab.io/config_users/
-# https://lazylibrarian.gitlab.io/config_downloaders/
-# https://www.reddit.com/r/LazyLibrarian/
-# https://lazylibrarian.gitlab.io/api/
-
-##########################################################################
-# Import Sources
-##########################################################################
-
-#shellcheck source=sources/functions/pyenv
-. /etc/swizzin/sources/functions/pyenv
-
-##########################################################################
-# Variables
-##########################################################################
+# https://lazylibrarian.gitlab.io/
 
 app_name="lazylibrarian"
-
 if [ -z "$LAZYLIB_OWNER" ]; then
     if ! LAZYLIB_OWNER="$(swizdb get "$app_name/owner")"; then
         LAZYLIB_OWNER="$(_get_master_username)"
@@ -50,19 +29,16 @@ app_dir="/opt/$app_name"
 venv_dir="/opt/.venv/$app_name"
 pip_reqs='apprise pyOpenSSL'
 
-##########################################################################
-# Functions
-##########################################################################
-
 function _dependencies() {
     echo_info "Installing dependencies for $pretty_name"
 
+    #shellcheck source=sources/functions/pyenv
+    . /etc/swizzin/sources/functions/pyenv
     python3_venv "$user" "$app_name"
 
     echo_progress_start "Installing python dependencies to venv"
-    # shellcheck disable=2154           # log variable is inherited from box itself.
-    "$venv_dir/bin/pip" install --upgrade pip >> "${log}" 2>&1 # Upgrade pip
-    # shellcheck disable=2086           # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
+    "$venv_dir/bin/pip" install --upgrade pip >> "${log}" 2>&1
+    # shellcheck disable=2086 # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
     "$venv_dir/bin/pip" install $pip_reqs >> "${log}" 2>&1
     chown -R "$user": "$venv_dir"
     echo_progress_done
@@ -70,24 +46,22 @@ function _dependencies() {
 }
 
 function _install() {
+    # https://lazylibrarian.gitlab.io/install/
     echo_progress_start "Cloning $pretty_name source"
     mkdir -p "$app_dir"
     mkdir -p "$data_dir"
-    #    Git clone/extract LL wherever you like
-    # shellcheck disable=2154           # log variable is inherited from box itself.
     git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >> "$log" 2>&1
     if [[ ! -e "$app_dir/LazyLibrarian.py" ]]; then
         echo_error "Git clone unsuccessful. Try running the box install again."
         exit 1
     fi
-    chown "$user": "$config_dir" # Ensure correct owner\group on config_dir
-    chown -R "$user": "$app_dir" # Change owner\group recursively for new dirs.
+    chown "$user": "$config_dir"
+    chown -R "$user": "$app_dir"
     chown -R "$user": "$data_dir"
     echo_progress_done "Source cloned"
 }
 
 function _configure() {
-    #    Fill in all the config (see docs for full configuration)
     echo_progress_start "Configuring $pretty_name"
     cat > "$data_dir/config.ini" << EOF
 [General]
@@ -126,7 +100,6 @@ function _nginx() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Installing $app_name's nginx configuration"
         bash "/usr/local/bin/swizzin/nginx/$app_name.sh"
-        # shellcheck disable=2154           # log variable is inherited from box itself.
         systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
     else
@@ -135,23 +108,14 @@ function _nginx() {
 }
 
 function _finishing_touch() {
-    touch "/install/.$app_name.lock"       # Create lock file so that swizzin knows the app is installed.
+    touch "/install/.$app_name.lock"
     echo_success "$pretty_name installed." # Winner winner. Chicken dinner.
     echo_info "Please make sure to finalise the setup in $pretty_name's web interface"
 }
 
-##########################################################################
-# Main
-##########################################################################
-
 _dependencies
-
 _install
-
 _configure
-
 _systemd
-
 _nginx
-
 _finishing_touch
