@@ -33,10 +33,10 @@ EOF
 
 _nginx() {
     if [[ -f /install/.nginx.lock ]]; then
-        echo_progress_start "Configuring nginx"
+        echo_progress_start "Configuring nginx for autobrr"
         bash /etc/swizzin/scripts/nginx/autobrr.sh
         systemctl reload nginx >> $log 2>&1
-        echo_progress_done "Nginx configured"
+        echo_progress_done "Nginx configured for autobrr"
     fi
 }
 
@@ -112,10 +112,7 @@ CFG
 if [ -n "$1" ]; then
     users=("$1")
     _add_users
-    if [[ -f /install/.nginx.lock ]]; then
-        bash /etc/swizzin/scripts/nginx/autobrr.sh
-        systemctl reload nginx
-    fi
+    _nginx
     exit 0
 fi
 
