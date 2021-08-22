@@ -101,14 +101,6 @@ CFG
 
         chown -R "$user": "/home/$user/.config/autobrr"
 
-        # Only run the nginx hook if a new user is being added, otherwise it will be ran for all users at the end of the installer
-        if [[ ${#users[@]} -eq 1 ]]; then
-            if [[ -f /install/.nginx.lock ]]; then
-                bash /etc/swizzin/scripts/nginx/autobrr.sh
-                systemctl reload nginx
-            fi
-        fi
-
         systemctl enable -q --now autobrr@"${user}" 2>&1 | tee -a $log
         echo_progress_done "Started autobrr for $user"
 
@@ -121,6 +113,10 @@ CFG
 if [ -n "$1" ]; then
     users=("$1")
     _add_users
+    if [[ -f /install/.nginx.lock ]]; then
+        bash /etc/swizzin/scripts/nginx/autobrr.sh
+        systemctl reload nginx
+    fi
     exit 0
 fi
 
