@@ -93,12 +93,13 @@ logLevel = "DEBUG"
 #
 sessionSecret = "${sessionSecret}"
 CFG
-        chown -R "$user": "/home/$user/.config/autobrr"
 
         _get_user_password "$user" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" create-user "$user" || {
             echo_error "Failed to execute autobrrctl command"
             exit 1
         }
+
+        chown -R "$user": "/home/$user/.config/autobrr"
 
         # Only run the nginx hook if a new user is being added, otherwise it will be ran for all users at the end of the installer
         if [[ ${#users[@]} -eq 1 ]]; then
