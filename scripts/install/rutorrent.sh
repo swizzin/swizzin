@@ -16,7 +16,6 @@ bash /usr/local/bin/swizzin/nginx/rutorrent.sh || {
     exit 1
 }
 
-# This is touched early to the autodl bash script will run.
 if [[ -f /install/.autodl.lock ]]; then
     echo_progress_start "Configuring Autodl Plugin"
     bash /usr/local/bin/swizzin/nginx/autodl.sh || {
