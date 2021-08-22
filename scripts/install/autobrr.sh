@@ -51,10 +51,9 @@ _add_users() {
         # generate a sessionSecret
         sessionSecret="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
 
-        if [ ! -d "/home/$user/.config/autobrr/" ]; then
-            mkdir -p "/home/$user/.config/autobrr/"
-            chown -R "$user": "/home/$user/.config"
-        fi
+        mkdir -p "/home/$user/.config/autobrr/"
+        chown "$user": "/home/$user/.config"
+        chown -R "$user": "/home/$user/.config/autobrr"
 
         cat > "/home/$user/.config/autobrr/config.toml" << CFG
 # config.toml
