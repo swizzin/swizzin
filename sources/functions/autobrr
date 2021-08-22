@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function autobrr_download_latest() {
-    echo_progress_start "Downloading release archive"
+    echo_progress_start "Downloading autobrr release archive"
 
     case "$(_os_arch)" in
         "amd64") arch='x86_64' ;;
