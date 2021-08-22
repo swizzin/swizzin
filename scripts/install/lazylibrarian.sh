@@ -111,7 +111,9 @@ After=network.target
 User=$user
 Group=$user
 Type=simple
-ExecStart=$venv_dir/bin/python $app_dir/LazyLibrarian.py --datadir $data_dir
+ExecStart=$venv_dir/bin/python \
+$app_dir/LazyLibrarian.py \
+--datadir $data_dir
 Restart=on-failure
 
 [Install]
