@@ -1,8 +1,6 @@
 #!/bin/bash
-
 #Trackarr installer
-
-pvryaml="/opt/trackarr/pvr.yaml"
+# Flying sausages 2020 Swizzin
 
 _install() {
     trackarr_releases=$(curl -s "https://gitlab.com/api/v4/projects/cloudb0x%2Ftrackarr/releases/" | jq '.[0].assets.links[] | {url: .url} ') || {
@@ -53,6 +51,7 @@ _nginx() {
 _arrconf() {
     if [[ -e /install/.sonarr.lock ]] || [[ -e /install/.radarr.lock ]] || [[ -e /install/.lidarr.lock ]]; then
         echo_progress_start "Adding arrs to the trackarr config"
+        pvryaml="/opt/trackarr/pvr.yaml"
         touch "$pvryaml"
         echo "pvr:" > "$pvryaml"
         if [ -f /install/.sonarr.lock ]; then
