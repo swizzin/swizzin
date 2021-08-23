@@ -95,6 +95,7 @@ EOF
         echo_progress_done "Arrs added"
     fi
     chmod 700 -R /opt/trackarr
+    chown trackarr: -R /opt/trackarr
 
 }
 
