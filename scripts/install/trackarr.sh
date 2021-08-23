@@ -59,8 +59,9 @@ _arrconf() {
         touch "$pvryaml"
         echo "pvr:" > "$pvryaml"
         if [ -f /install/.sonarr.lock ]; then
-            #TDOD check path
-            apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/sonarr/config.xml)
+            #TODO Change to `swizdb` when change is merged
+            s_owner="$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2))"
+            apikey="$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$s_owner"/.config/Sonarr/config.xml)"
             [ -f /install/.nginx.lock ] && s_base="/sonarr"
             cat >> "$pvryaml" << EOF
 - name: sonarr
@@ -71,8 +72,8 @@ _arrconf() {
 EOF
         fi
         if [ -f /install/.radarr.lock ]; then
-            #TDOD check path
-            apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Radarr/config.xml)
+            r_owner="$(swizdb get lidarr/owner)"
+            apikey="$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$r_owner"/.config/Radarr/config.xml)"
             [ -f /install/.nginx.lock ] && r_base="/radarr"
             cat >> "$pvryaml" << EOF
 - name: radarr
@@ -83,8 +84,8 @@ EOF
 EOF
         fi
         if [ -f /install/.lidarr.lock ]; then
-            #TDOD check path
-            apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$user"/.config/Lidarr/config.xml)
+            l_owner="$(swizdb get lidarr/owner)"
+            apikey="$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$l_owner"/.config/Lidarr/config.xml)"
             [ -f /install/.nginx.lock ] && l_base="/lidarr"
             cat >> "$pvryaml" << EOF
 - name: lidarr
