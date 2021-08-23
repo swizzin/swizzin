@@ -5,17 +5,6 @@ if [[ -f /install/.sonarr.lock ]]; then
     . /etc/swizzin/sources/functions/mono
     mono_repo_update
     systemctl try-restart sonarr
-
-    #Ensure Sonarr repo key is up-to-date
-    if ! apt-key adv --list-public-keys 2> /dev/null | grep -q A236C58F409091A18ACA53CBEBFF6B99D9B78493 >> $log 2>&1; then
-        distribution=$(_os_distro)
-        if [[ $distribution == "ubuntu" ]]; then
-            apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493 > /dev/null 2>&1
-        elif [[ $distribution == "debian" ]]; then
-            #buster friendly
-            apt-key --keyring /etc/apt/trusted.gpg.d/nzbdrone.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0xA236C58F409091A18ACA53CBEBFF6B99D9B78493
-        fi
-    fi
 fi
 
 if dpkg -l | grep nzbdrone > /dev/null 2>&1; then
@@ -41,4 +30,67 @@ if [[ -f /install/.sonarrv3.lock ]]; then
     fi
     rm /install/.sonarrv3.lock
     touch /install/.sonarr.lock
+fi
+if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/null 2>&1; then
+    echo_info "Migrating Sonarr away from apt management"
+    isActive=$(systemctl is-active sonarr)
+    isEnabled=$(systemctl is-enabled sonarr)
+    cp -a /usr/lib/sonarr/bin /opt/Sonarr
+    cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
+    user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
+    echo_info "Moving config to '/home/${user}/.config/Sonarr'"
+    mv /home/${user}/.config/sonarr /home/${user}/.config/Sonarr
+
+    #Remove comments
+    sed -i '/^#/d' /etc/systemd/system/sonarr.service
+    #Update binary location
+    sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|g' /etc/systemd/system/sonarr.service
+    sed -i "s|/home/${user}/.config/sonarr|/home/${user}/.config/Sonarr|g" /etc/systemd/system/sonarr.service
+
+    #Mark depends as manually installed
+    LIST='mono-runtime
+        ca-certificates-mono
+        libmono-system-net-http4.0-cil
+        libmono-corlib4.5-cil
+        libmono-microsoft-csharp4.0-cil
+        libmono-posix4.0-cil
+        libmono-system-componentmodel-dataannotations4.0-cil
+        libmono-system-configuration-install4.0-cil
+        libmono-system-configuration4.0-cil
+        libmono-system-core4.0-cil
+        libmono-system-data-datasetextensions4.0-cil
+        libmono-system-data4.0-cil
+        libmono-system-identitymodel4.0-cil
+        libmono-system-io-compression4.0-cil
+        libmono-system-numerics4.0-cil
+        libmono-system-runtime-serialization4.0-cil
+        libmono-system-security4.0-cil
+        libmono-system-servicemodel4.0a-cil
+        libmono-system-serviceprocess4.0-cil
+        libmono-system-transactions4.0-cil
+        libmono-system-web4.0-cil
+        libmono-system-xml-linq4.0-cil
+        libmono-system-xml4.0-cil
+        libmono-system4.0-cil
+        sqlite3
+        mediainfo'
+
+    apt_install ${LIST}
+
+    apt_remove --purge sonarr
+    rm -rf /var/lib/sonarr
+    rm -rf /usr/lib/sonarr
+    rm -f /etc/apt/sources.list.d/sonarr.list*
+    systemctl daemon-reload
+
+    #Restart sonarr because apt-removal stops it
+    if [[ $isActive == "active" ]]; then
+        systemctl start sonarr
+    fi
+
+    #Update broken symlink to old service
+    if [[ $isEnabled == "enabled" ]]; then
+        systemctl enable sonarr >> ${log} 2>&1
+    fi
+
 fi
