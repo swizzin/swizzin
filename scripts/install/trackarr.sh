@@ -30,6 +30,7 @@ _install() {
 
     useradd --system trackarr -d /opt/trackarr
     chown -R trackarr:trackarr /opt/trackarr
+    chmod 700 -R /opt/trackarr
     /opt/trackarr/trackarr >> $log 2>&1
 
 }
@@ -41,15 +42,11 @@ _nginx() {
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
-        #shellcheck source=sources/functions/utils
-        . /etc/swizzin/sources/functions/utils
         user=$(_get_master_username)
         pass=$(_get_user_password "$user")
         sed -i "/^server:*/a \ \ pass: $pass" /opt/trackarr/config.yaml
         sed -i "/^server:*/a \ \ user: $user" /opt/trackarr/config.yaml
-        chown -R trackarr: /opt/trackarr
-        chmod 700 -R /opt/trackarr
-        echo_info "trackarr will be running on port 7337 and protected by your master's credentials"
+        echo_info "trackarr will be running on port 7337 and protected by the master account's credentials"
     fi
 }
 
