@@ -1,1 +1,3 @@
 .dev.lock
+.test.lock
+dev.env
