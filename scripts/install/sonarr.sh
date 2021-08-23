@@ -85,15 +85,15 @@ _sonarrold_flow() {
         cp -R /home/"${sonarroldowner}"/.config/NzbDrone /root/swizzin/backups/sonarrold.bak
         echo_progress_done "Backups copied"
 
-        if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
+        if [[ -d /home/"${sonarrv3owner}"/.config/Sonarr ]]; then
             if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
                 rm -rf
-                cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+                cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/Sonarr
             else
                 echo_info "Leaving v3 dir as is, why did we do any of this..."
             fi
         else
-            cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+            cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/Sonarr
         fi
 
         systemctl stop sonarr@"${sonarroldowner}"
