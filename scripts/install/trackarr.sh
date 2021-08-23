@@ -57,7 +57,7 @@ _arrconf() {
 
         if [ -f /install/.sonarr.lock ]; then
             #TODO Change to `swizdb` when change is merged
-            s_owner="$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2))"
+            s_owner="$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)"
             apikey="$(grep -oPm1 "(?<=<ApiKey>)[^<]+" /home/"$s_owner"/.config/Sonarr/config.xml)"
             [ -f /install/.nginx.lock ] && s_base="/sonarr"
             cat >> "$pvryaml" << EOF
