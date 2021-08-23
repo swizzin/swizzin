@@ -23,8 +23,6 @@ export log=/root/logs/swizzin.log
 mkdir -p /root/logs
 touch $log
 
-# Setting up /etc/swizzin
-#shellcheck disable=SC2120
 function _source_setup() {
     echo -e "...\tInstalling git"      # The one true dependency
     apt-get update -q >> $log 2>&1     # Force update just in case sources were never pulled
@@ -51,7 +49,6 @@ function _source_setup() {
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
 }
-_source_setup "$@"
 
 function _arch_check() {
     if [[ ! $(uname -m) =~ ("x86_64"|"aarch64") ]]; then
@@ -62,7 +59,25 @@ function _arch_check() {
         echo_log_only "Arch detected as $(_os_arch)"
     fi
 }
-_arch_check
+
+_os() {
+    if [ ! -d /install ]; then mkdir /install; fi
+    if [ ! -d /root/logs ]; then mkdir /root/logs; fi
+    if ! which lsb_release > /dev/null; then
+        echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
+        apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
+    fi
+    distribution=$(lsb_release -is)
+    codename=$(lsb_release -cs)
+    if [[ ! $distribution =~ ^(Debian|Ubuntu)$ ]]; then
+        echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
+        exit 1
+    fi
+    if [[ ! $codename =~ ^(bionic|stretch|buster|focal|bullseye)$ ]]; then
+        echo_error "Your release ($codename) of $distribution is not supported."
+        exit 1
+    fi
+}
 
 function _option_parse() {
     while test $# -gt 0; do
@@ -175,26 +190,6 @@ function _option_parse() {
                 echo_log_only "$i added to install queue 2"
             fi
         done
-    fi
-}
-_option_parse "$@"
-
-_os() {
-    if [ ! -d /install ]; then mkdir /install; fi
-    if [ ! -d /root/logs ]; then mkdir /root/logs; fi
-    if ! which lsb_release > /dev/null; then
-        echo -e "...\tInstalling lsb-release"      # Okay MAYBE there's one more depend until we gut this app in favour of /etc/os-release
-        apt-get install lsb-release -y -qq >> $log # DO NOT PUT MORE DEPENDENCIES HERE
-    fi
-    distribution=$(lsb_release -is)
-    codename=$(lsb_release -cs)
-    if [[ ! $distribution =~ ^(Debian|Ubuntu)$ ]]; then
-        echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
-        exit 1
-    fi
-    if [[ ! $codename =~ ^(bionic|stretch|buster|focal|bullseye)$ ]]; then
-        echo_error "Your release ($codename) of $distribution is not supported."
-        exit 1
     fi
 }
 
@@ -397,11 +392,14 @@ _run_post() {
 
 ############################################################
 #
-# Execution time after arguments got parsed
+# Execution time
 #
 ############################################################
 
+_source_setup "$@"
 _os
+_arch_check
+_option_parse "$@"
 _preparation
 ## If install is attended, do the nice intro
 if [[ $unattend != "true" ]]; then
