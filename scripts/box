@@ -298,6 +298,10 @@ function _adduser() {
         bash /etc/swizzin/scripts/setdisk "$user"
     fi
 
+    mkdir /home/"$user"/.config
+    chown "$user": /home/"$user"/.config
+    chmod 750 /home/"${user}"
+
     if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
@@ -328,10 +332,6 @@ function _adduser() {
             fi
         fi
     done
-
-    chmod 750 /home/"${user}"
-    mkdir /home/"$user"/.config
-    chown "$user": /home/"$user"/.config
 
     USER=${user^^}
 
