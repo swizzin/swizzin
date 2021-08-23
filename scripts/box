@@ -308,11 +308,14 @@ function _adduser() {
     fi
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
-    chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
         bash /etc/swizzin/scripts/setdisk "$user"
     fi
+
+    mkdir /home/"$user"/.config
+    chown "$user": /home/"$user"/.config
+    chmod 750 /home/"${user}"
 
     if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
