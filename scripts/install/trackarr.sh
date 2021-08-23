@@ -54,6 +54,7 @@ _arrconf() {
         pvryaml="/opt/trackarr/pvr.yaml"
         touch "$pvryaml"
         echo "pvr:" > "$pvryaml"
+
         if [ -f /install/.sonarr.lock ]; then
             #TODO Change to `swizdb` when change is merged
             s_owner="$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2))"
@@ -100,7 +101,6 @@ EOF
 function _systemd() {
     echo_progress_start "Installing systemd service"
     cat > /etc/systemd/system/trackarr.service << SYSD
-# Service file example for Trackarr
 [Unit]
 Description=Trackarr - an autodl for the modern human
 After=network.target
@@ -126,4 +126,4 @@ _systemd
 
 touch /install/.trackarr.lock
 echo_success "Trackarr installed"
-echo_info "Please make sure to configure your public domain in /opt/trackarr/config.yml, and set up your pvr.yaml according to the documentation here https://gitlab.com/cloudb0x/trackarr/-/wikis/Configuration/"
+echo_info "Please configure your public domain in /opt/trackarr/config.yml, and set up your pvr.yaml according to the documentation here https://gitlab.com/cloudb0x/trackarr/-/wikis/Configuration/"
