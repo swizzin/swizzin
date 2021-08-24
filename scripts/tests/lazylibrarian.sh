@@ -20,6 +20,7 @@
 ##########################################################################
 
 app_name="lazylibrarian"
+pretty_name="LazyLibrarian"
 
 ##########################################################################
 # Functions
@@ -27,9 +28,9 @@ app_name="lazylibrarian"
 
 # TODO: Is this change necessary? Maybe I just did the nginx configuration incorrectly.
 
-check_port_curl() {
+function _check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"
-    if [ "$1" -eq "$1" ] 2> /dev/null; then
+    if [ "$1" -eq "$1" ] 2>/dev/null; then
         port=$1
     else
         port=$(get_port "$1") || {
@@ -47,6 +48,26 @@ check_port_curl() {
     echo_progress_done
 }
 
+function check_journal_for_errors() {
+    STR="$(journalctl -xeu lazylibrarian)"
+    SUB="WARNING"
+    SUB2="ERROR"
+    found="false"
+    if [[ "$STR" == *"$SUB"* ]]; then
+        echo_warn "$pretty_name service is throwing a WARNING in it's log."
+        found="true"
+    fi
+    if [[ "$STR" == *"$SUB2"* ]]; then
+        echo_warn "$pretty_name service is throwing an ERROR in it's log."
+        found="true"
+    fi
+    if [[ "$found" == "true" ]]; then
+        return 1
+    else
+        echo_info "$pretty_name service is NOT throwing any WARNINGs or ERRORs."
+    fi
+}
+
 ##########################################################################
 # Main
 ##########################################################################
@@ -54,8 +75,9 @@ check_port_curl() {
 # run all functions, if one fails, mark as bad
 check_service "$app_name" || BAD="true"
 check_port "$app_name" || BAD="true"
-check_port_curl "$app_name" || BAD="true"
+_check_port_curl "$app_name" || BAD="true"
 # shellcheck disable=SC2034 # $BAD is used in evaluate_bad. So the warning is void here.
 check_nginx "$app_name" || BAD="true"
+check_journal_for_errors || BAD="true"
 
 evaluate_bad
