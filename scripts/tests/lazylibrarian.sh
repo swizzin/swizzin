@@ -2,6 +2,8 @@
 # LazyLibrarian test script for swizzin
 # Author: Aethaeran
 
+# box remove lazylibrarian && box install lazylibrarian && sleep 10 && box test lazylibrarian
+
 ##########################################################################
 # References
 ##########################################################################
@@ -48,18 +50,18 @@ function _check_port_curl() {
     echo_progress_done
 }
 
-function check_journalctl() {
+function _check_journalctl() {
     echo_progress_start "Checking if $pretty_name is throwing errors in it's service log."
     journal_log="$(journalctl -xeu $app_name)"
     found="false"
     if [[ "$journal_log" == *"WARNING"* ]]; then
         echo_warn "$pretty_name systemd service is throwing the following WARNINGs:"
-        cat $journal_log | grep "WARNING"
+        grep "$journal_log" "WARNING"
         found="true"
     fi
     if [[ "$journal_log" == *"ERROR"* ]]; then
         echo_warn "$pretty_name systemd service is throwing an ERRORs:"
-        cat $journal_log | grep "ERROR"
+        grep "$journal_log" "ERROR"
         found="true"
     fi
     if [[ "$found" == "true" ]]; then
@@ -80,6 +82,6 @@ check_port "$app_name" || BAD="true"
 _check_port_curl "$app_name" || BAD="true"
 check_nginx "$app_name" || BAD="true"
 # shellcheck disable=SC2034 # $BAD is used in evaluate_bad. So the warning is void here.
-check_journalctl || BAD="true"
+_check_journalctl || BAD="true"
 
 evaluate_bad
