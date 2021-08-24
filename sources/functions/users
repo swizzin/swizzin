@@ -24,7 +24,7 @@ function _get_user_password() {
 export -f _get_user_password
 
 # OLD way to get users from htpasswd
-# Rather wouldn't use this as 3rd party applications migh be playing with this as well
+# Rather wouldn't use this as 3rd party applications might be playing with this as well
 # function _get_user_list () {
 #     users=($(cut -d: -f1 < /etc/htpasswd))
 # }
