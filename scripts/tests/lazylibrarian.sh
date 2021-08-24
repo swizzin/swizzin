@@ -48,7 +48,8 @@ function _check_port_curl() {
     echo_progress_done
 }
 
-function check_journal_for_errors() {
+function check_journalctl() {
+    echo_progress_start "Checking if $pretty_name is throwing errors in it's service log."
     journal_log="$(journalctl -xeu $app_name)"
     found="false"
     if [[ "$journal_log" == *"WARNING"* ]]; then
@@ -64,6 +65,7 @@ function check_journal_for_errors() {
     else
         echo_info "$pretty_name service is NOT throwing any warnings or errors."
     fi
+    echo_progress_done
 }
 
 ##########################################################################
@@ -76,6 +78,6 @@ check_port "$app_name" || BAD="true"
 _check_port_curl "$app_name" || BAD="true"
 check_nginx "$app_name" || BAD="true"
 # shellcheck disable=SC2034 # $BAD is used in evaluate_bad. So the warning is void here.
-check_journal_for_errors || BAD="true"
+check_journalctl || BAD="true"
 
 evaluate_bad
