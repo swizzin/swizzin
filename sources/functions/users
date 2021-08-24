@@ -186,3 +186,25 @@ function username_check() {
     fi
     echo_log_only "Username_check returned"
 }
+
+# 1=app_name
+# 2=app_owner
+_set_app_owner() {
+    echo_log_only "Setting ${1^} owner = $2"
+    swizdb set "$1/owner" "$2"
+}
+
+# 1=app_name
+# 2=ENV_VAR
+# _get_app_owner $app_name something
+_get_app_owner() {
+    if [ -z "$2" ]; then                                    # If ENV_VAR isn't set
+        if [[ -z "$(swizdb get "$1/owner")" ]]; then        # and if swizdb doesn't already have an owner
+            master="$(_get_master_username)"                # Get master swizzin username
+            _set_app_owner "$1" "$master"                   # Set master as owner of app in swizdb
+        fi
+    else                                                    # If ENV_VAR is set
+        _set_app_owner "$1" "$2"                            # Save ENV_VAR as app owner in swizdb
+    fi
+    echo "$(swizdb get "$1/owner")"                         # Return swizdb entry
+}

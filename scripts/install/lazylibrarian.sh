@@ -24,27 +24,19 @@
 
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
+#shellcheck source=sources/functions/users
+. /etc/swizzin/sources/functions/users
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
+#shellcheck source=sources/functions/swizdb
+. /etc/swizzin/sources/functions/swizdb
 
 ##########################################################################
 # Variables
 ##########################################################################
 
 app_name="lazylibrarian"
-
-if [ -z "$LAZYLIB_OWNER" ]; then
-    if ! LAZYLIB_OWNER="$(swizdb get "$app_name/owner")"; then
-        LAZYLIB_OWNER="$(_get_master_username)"
-        echo_log_only "Setting ${app_name^} owner = $LAZYLIB_OWNER"
-        swizdb set "$app_name/owner" "$LAZYLIB_OWNER"
-    fi
-else
-    echo_info "Setting ${app_name^} owner = $LAZYLIB_OWNER"
-    swizdb set "$app_name/owner" "$LAZYLIB_OWNER"
-fi
-user="$LAZYLIB_OWNER"
-
+user="$(_get_app_owner "$app_name" "$LAZYLIB_OWNER")"
 pretty_name="LazyLibrarian"
 default_port="5299"
 config_dir="/home/$user/.config"
@@ -60,11 +52,10 @@ download_dir="/home/$user/Downloads/$pretty_name"
 
 function _dependencies() {
     # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatibility
-    apt_install "python3-venv"                                      # Ensure pip is installed. Required for Ubuntu Focal
-
-    echo_progress_start "Installing pip dependencies for $pretty_name"
+    apt_install "python3-venv"                                      # Ensure pip is installed. Required for Ubuntu Focal.
     python3_venv "$user" "$app_name"                                # Create venv
-    chown -R "$user": "$venv_dir"                                   # Ensure venv owner is app owner
+    chown -R "$user": "$venv_dir"                                   # Ensure venv's owner is app's owner
+    echo_progress_start "Installing pip dependencies for $pretty_name"
     # shellcheck disable=2154                                       # log variable is inherited from box itself.
     "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1       # Ensure pip is updated.
     # shellcheck disable=2086                                       # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
@@ -107,7 +98,8 @@ EOF
 }
 
 function _systemd() {
-    echo_progress_start "Configuring $pretty_name systemd service"
+    # TODO: add --daemon and --pidfile, probably type forking is necessary
+    echo_progress_start "Creating $pretty_name systemd service"
     cat >"/etc/systemd/system/$app_name.service" <<EOF
 [Unit]
 Description=LazyLibrarian
@@ -126,6 +118,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
+    systemctl daemon-reload
     systemctl enable --quiet --now "$app_name"
     echo_progress_done
 }
@@ -139,6 +132,8 @@ function _nginx() {
         echo_progress_done
     else
         echo_info "$pretty_name will run on port $default_port"
+        echo_info "Please make sure to finalize $pretty_name's configuration in it's web interface\nhttp://127.0.0.1:$(get_port "$app_name")/$app_name"
+
     fi
 }
 
@@ -157,6 +152,3 @@ _configure
 _systemd
 _nginx
 _finishing_touch
-echo_info "Please make sure to finalise the setup in $pretty_name's web interface"
-echo_info "http://127.0.0.1:$(get_port "$app_name")/$app_name"
-
