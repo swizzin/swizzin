@@ -21,6 +21,7 @@
 # Import Sources
 ##########################################################################
 
+. /etc/swizzin/sources/globals.sh
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 
@@ -48,7 +49,8 @@ config_dir="/home/$user/.config"
 data_dir="$config_dir/lazylibrarian"
 app_dir="/opt/$app_name"
 venv_dir="/opt/.venv/$app_name"
-pip_reqs='apprise pyOpenSSL'
+pip_reqs='urllib3 apprise Pillow pyOpenSSL'
+download_dir="/home/$user/Downloads/$pretty_name"
 
 ##########################################################################
 # Functions
@@ -56,42 +58,42 @@ pip_reqs='apprise pyOpenSSL'
 
 function _dependencies() {
     echo_info "Installing dependencies for $pretty_name"
-
-    python3_venv "$user" "$app_name"
-
+    apt_install "python3-venv"                                      # Ensure pip is installed. Required for Ubuntu Focal
+    python3_venv "$user" "$app_name"                                #
     echo_progress_start "Installing python dependencies to venv"
-    # shellcheck disable=2154           # log variable is inherited from box itself.
-    "$venv_dir/bin/pip" install --upgrade pip >> "${log}" 2>&1 # Upgrade pip
-    # shellcheck disable=2086           # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
-    "$venv_dir/bin/pip" install $pip_reqs >> "${log}" 2>&1
+    # shellcheck disable=2154                                       # log variable is inherited from box itself.
+    "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1       # Ensure pip is updated.
+    # shellcheck disable=2086                                       # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
+    "$venv_dir/bin/pip" install $pip_reqs >>"${log}" 2>&1
     chown -R "$user": "$venv_dir"
     echo_progress_done
-    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatability
+    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatibility
 }
 
 function _install() {
     echo_progress_start "Cloning $pretty_name source"
     mkdir -p "$app_dir"
     mkdir -p "$data_dir"
-    #    Git clone/extract LL wherever you like
-    # shellcheck disable=2154           # log variable is inherited from box itself.
-    git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >> "$log" 2>&1
+    # shellcheck disable=2154                                       # log variable is inherited from box itself.
+    git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >>"$log" 2>&1
     if [[ ! -e "$app_dir/LazyLibrarian.py" ]]; then
         echo_error "Git clone unsuccessful. Try running the box install again."
         exit 1
     fi
-    chown "$user": "$config_dir" # Ensure correct owner\group on config_dir
-    chown -R "$user": "$app_dir" # Change owner\group recursively for new dirs.
+chown "$user": "$config_dir"                                        # Ensure correct owner\group on config_dir
+    chown -R "$user": "$app_dir"                                    # Change owner\group recursively for new dirs.
     chown -R "$user": "$data_dir"
     echo_progress_done "Source cloned"
 }
 
 function _configure() {
-    #    Fill in all the config (see docs for full configuration)
     echo_progress_start "Configuring $pretty_name"
-    cat > "$data_dir/config.ini" << EOF
+    mkdir -p "$download_dir"
+    chown -R "$user": "$download_dir"
+    cat >"$data_dir/config.ini" <<EOF
 [General]
-http_root = /lazylibrarian
+http_root = /$app_name
+download_dir = /home/$user/Downloads/$pretty_name
 
 [Git]
 auto_update = 1
@@ -102,7 +104,7 @@ EOF
 function _systemd() {
     echo_progress_start "Configuring $pretty_name systemd service"
     # https://lazylibrarian.gitlab.io/config_commandline/
-    cat > "/etc/systemd/system/$app_name.service" << EOF
+    cat >"/etc/systemd/system/$app_name.service" <<EOF
 [Unit]
 Description=LazyLibrarian
 After=network.target
@@ -111,15 +113,15 @@ After=network.target
 User=$user
 Group=$user
 Type=simple
-ExecStart=$venv_dir/bin/python \
+ExecStart=$venv_dir/bin/python3 \
 $app_dir/LazyLibrarian.py \
+--nolaunch \
 --datadir $data_dir
 Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
 EOF
-
     systemctl enable --quiet --now "$app_name"
     echo_progress_done
 }
@@ -129,7 +131,7 @@ function _nginx() {
         echo_progress_start "Installing $app_name's nginx configuration"
         bash "/usr/local/bin/swizzin/nginx/$app_name.sh"
         # shellcheck disable=2154           # log variable is inherited from box itself.
-        systemctl reload nginx >> "$log" 2>&1
+        systemctl reload nginx >>"$log" 2>&1
         echo_progress_done
     else
         echo_info "$pretty_name will run on port $default_port"
@@ -147,13 +149,8 @@ function _finishing_touch() {
 ##########################################################################
 
 _dependencies
-
 _install
-
 _configure
-
 _systemd
-
 _nginx
-
 _finishing_touch
