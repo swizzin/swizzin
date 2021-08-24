@@ -16,14 +16,16 @@
 # https://lazylibrarian.gitlab.io/config_downloaders/
 # https://www.reddit.com/r/LazyLibrarian/
 # https://lazylibrarian.gitlab.io/api/
+# https://lazylibrarian.gitlab.io/config_commandline/
 
 ##########################################################################
 # Import Sources
 ##########################################################################
 
-. /etc/swizzin/sources/globals.sh
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
+#shellcheck source=sources/functions/tests
+. /etc/swizzin/sources/functions/tests
 
 ##########################################################################
 # Variables
@@ -57,27 +59,27 @@ download_dir="/home/$user/Downloads/$pretty_name"
 ##########################################################################
 
 function _dependencies() {
-    echo_info "Installing dependencies for $pretty_name"
+    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatibility
     apt_install "python3-venv"                                      # Ensure pip is installed. Required for Ubuntu Focal
-    python3_venv "$user" "$app_name"                                #
-    echo_progress_start "Installing python dependencies to venv"
+
+    echo_progress_start "Installing pip dependencies for $pretty_name"
+    python3_venv "$user" "$app_name"                                # Create venv
+    chown -R "$user": "$venv_dir"                                   # Ensure venv owner is app owner
     # shellcheck disable=2154                                       # log variable is inherited from box itself.
     "$venv_dir/bin/pip" install --upgrade pip >>"${log}" 2>&1       # Ensure pip is updated.
     # shellcheck disable=2086                                       # We want the $pip_reqs variable to expand. So 2086's warning is invalid here.
-    "$venv_dir/bin/pip" install $pip_reqs >>"${log}" 2>&1
-    chown -R "$user": "$venv_dir"
+    "$venv_dir/bin/pip" install $pip_reqs >>"${log}" 2>&1           # Add required/wanted Python libraries
     echo_progress_done
-    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatibility
 }
 
 function _install() {
     echo_progress_start "Cloning $pretty_name source"
-    mkdir -p "$app_dir"
-    mkdir -p "$data_dir"
+    mkdir -p "$app_dir"                                             # Ensure app dir exists.
+    mkdir -p "$data_dir"                                            # Ensure data dir exists.
     # shellcheck disable=2154                                       # log variable is inherited from box itself.
     git clone "https://gitlab.com/LazyLibrarian/LazyLibrarian.git" "$app_dir" >>"$log" 2>&1
-    if [[ ! -e "$app_dir/LazyLibrarian.py" ]]; then
-        echo_error "Git clone unsuccessful. Try running the box install again."
+    if [[ ! -e "$app_dir/LazyLibrarian.py" ]]; then                 # Check if git clone failed.
+        echo_error "Git clone unsuccessful."
         exit 1
     fi
 chown "$user": "$config_dir"                                        # Ensure correct owner\group on config_dir
@@ -87,13 +89,16 @@ chown "$user": "$config_dir"                                        # Ensure cor
 }
 
 function _configure() {
+    echo_info "Creating $download_dir as $pretty_name's default download directory."
+    mkdir -p "$download_dir"                                        # Ensure download dir exists
+    chown -R "$user": "$download_dir"                               # Ensure download dir has the correct owner
+    echo_progress_done
+
     echo_progress_start "Configuring $pretty_name"
-    mkdir -p "$download_dir"
-    chown -R "$user": "$download_dir"
     cat >"$data_dir/config.ini" <<EOF
 [General]
 http_root = /$app_name
-download_dir = /home/$user/Downloads/$pretty_name
+download_dir = $download_dir
 
 [Git]
 auto_update = 1
@@ -103,7 +108,6 @@ EOF
 
 function _systemd() {
     echo_progress_start "Configuring $pretty_name systemd service"
-    # https://lazylibrarian.gitlab.io/config_commandline/
     cat >"/etc/systemd/system/$app_name.service" <<EOF
 [Unit]
 Description=LazyLibrarian
@@ -130,7 +134,7 @@ function _nginx() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Installing $app_name's nginx configuration"
         bash "/usr/local/bin/swizzin/nginx/$app_name.sh"
-        # shellcheck disable=2154           # log variable is inherited from box itself.
+        # shellcheck disable=2154                                   # log variable is inherited from box itself.
         systemctl reload nginx >>"$log" 2>&1
         echo_progress_done
     else
@@ -139,9 +143,8 @@ function _nginx() {
 }
 
 function _finishing_touch() {
-    touch "/install/.$app_name.lock"       # Create lock file so that swizzin knows the app is installed.
-    echo_success "$pretty_name installed." # Winner winner. Chicken dinner.
-    echo_info "Please make sure to finalise the setup in $pretty_name's web interface"
+    touch "/install/.$app_name.lock"                                # Create lock file so that swizzin knows the app is installed.
+    echo_success "$pretty_name installed."                          # Winner winner. Chicken dinner.
 }
 
 ##########################################################################
@@ -154,3 +157,6 @@ _configure
 _systemd
 _nginx
 _finishing_touch
+echo_info "Please make sure to finalise the setup in $pretty_name's web interface"
+echo_info "http://127.0.0.1:$(get_port "$app_name")/$app_name"
+
