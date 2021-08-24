@@ -49,22 +49,20 @@ function _check_port_curl() {
 }
 
 function check_journal_for_errors() {
-    STR="$(journalctl -xeu lazylibrarian)"
-    SUB="WARNING"
-    SUB2="ERROR"
+    journal_log="$(journalctl -xeu $app_name)"
     found="false"
-    if [[ "$STR" == *"$SUB"* ]]; then
+    if [[ "$journal_log" == *"WARNING"* ]]; then
         echo_warn "$pretty_name service is throwing a WARNING in it's log."
         found="true"
     fi
-    if [[ "$STR" == *"$SUB2"* ]]; then
+    if [[ "$journal_log" == *"ERROR"* ]]; then
         echo_warn "$pretty_name service is throwing an ERROR in it's log."
         found="true"
     fi
     if [[ "$found" == "true" ]]; then
         return 1
     else
-        echo_info "$pretty_name service is NOT throwing any WARNINGs or ERRORs."
+        echo_info "$pretty_name service is NOT throwing any warnings or errors."
     fi
 }
 
@@ -76,8 +74,8 @@ function check_journal_for_errors() {
 check_service "$app_name" || BAD="true"
 check_port "$app_name" || BAD="true"
 _check_port_curl "$app_name" || BAD="true"
-# shellcheck disable=SC2034 # $BAD is used in evaluate_bad. So the warning is void here.
 check_nginx "$app_name" || BAD="true"
+# shellcheck disable=SC2034 # $BAD is used in evaluate_bad. So the warning is void here.
 check_journal_for_errors || BAD="true"
 
 evaluate_bad
