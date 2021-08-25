@@ -130,6 +130,22 @@ DIN
         sed -i '/index.html/d' /etc/nginx/sites-enabled/default
     fi
 
+    # Upgrade SSL Protocols
+    if grep -q 'ssl_protocols TLSv1 TLSv1.1 TLSv1.2;' /etc/nginx/snippets/ssl-params.conf; then
+        # Upgrades protocols to 1.2/1.3
+        sed 's|ssl_protocols TLSv1 TLSv1.1 TLSv1.2;|ssl_protocols TLSv1.2 TLSv1.3;|g' -i /etc/nginx/snippets/ssl-params.conf
+        # Changes cyphers
+        sed 's|ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";|ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:EECDH+AESGCM:EDH+AESGCM;|g' -i /etc/nginx/snippets/ssl-params.conf
+    fi
+
+    # Upgrade to http/2
+    if grep -q 'listen 443 ssl default_server;' /etc/nginx/sites-enabled/default; then
+        # IPV4 http2 upgrade
+        sed 's|listen 443 ssl default_server;|listen 443 ssl http2 default_server;|g' -i /etc/nginx/sites-enabled/default
+        # IPV6 http2 upgrade
+        sed 's|listen \[::]\:443 ssl default_server;|listen \[::]\:443 ssl http2 default_server;|g' -i /etc/nginx/sites-enabled/default
+    fi
+
     # fix /etc/nginx/sites-enabled/default to not cause nginx to fail on reloading when there are subdirectories in /etc/nginx/apps like /etc/nginx/apps/authelia
     sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/\*.conf;|g' -i /etc/nginx/sites-enabled/default
 
