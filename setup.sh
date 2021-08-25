@@ -102,9 +102,9 @@ function _option_parse() {
                 LOCAL=true
                 echo_info "Local = $LOCAL"
                 ;;
-            --run-checks)
-                export RUN_CHECKS=true
-                echo_info "RUN_CHECKS = $RUN_CHECKS"
+            --test)
+                export test=true
+                echo_info "test = $test"
                 ;;
             --rmgrsec)
                 rmgrsec=yes
@@ -116,11 +116,20 @@ function _option_parse() {
                     echo_error "File does not exist"
                     exit 1
                 fi
-                echo_info "Parsing env variables from $1\n--->"
-                #shellcheck disable=SC2046
-                export $(grep -v '^#' "$1" | grep '^[A-Z]' | tr '\n' ' ') # anything which begins with a cap is exported
-                #shellcheck disable=SC2091
-                source <(grep -v '^#' "$1" | grep '^[a-z]') # | read -d $'\x04' name -
+                envfile="$1"
+                echo_info "Parsing env variables from $envfile:\n$(grep -v '^#' "$envfile")"
+
+                # anything which begins with a cap is exported
+                if grep -v '^#' "$envfile" | grep '^[A-Z]' -q; then
+                    export $(grep -v '^#' "$envfile" | grep '^[A-Z]' | tr '\n' ' ')
+                fi
+
+                # anything with a lowercase will get sourced
+                if grep -v '^#' "$envfile" | grep '^[a-z]' -q; then
+                    source <(grep -v '^#' "$envfile" | grep '^[a-z]') # | read -d $'\x04' name -
+                fi
+
+                # If packages were in env, make the installArray
                 if [[ -n $packages ]]; then
                     readarray -td: installArray < <(printf '%s' "$packages")
                 fi
@@ -379,14 +388,8 @@ function _post() {
     bash /etc/swizzin/scripts/update/bash_completion.sh
 }
 
-_run_checks() {
-    if [[ $RUN_CHECKS = "true" ]]; then
-        echo
-        echo_info "Running post-install checks"
-        # echo_progress_start "Checking all failed units"
-        # systemctl list-units --failed
-        # echo_progress_done "listed"
-
+_run_tests() {
+    if [[ $test = "true" ]] || [ -f /etc/swizzin/.test.lock ]; then
         bash /etc/swizzin/scripts/box test || return 1
     fi
 
@@ -419,10 +422,4 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_checks || {
-    BAD="true"
-}
-
-if [ "$BAD" == "true" ]; then
-    exit 1
-fi
+_run_tests || exit 1
