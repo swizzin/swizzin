@@ -206,5 +206,5 @@ _get_app_owner() {
     else                                                    # If ENV_VAR is set
         _set_app_owner "$1" "$2"                            # Save ENV_VAR as app owner in swizdb
     fi
-    echo "$(swizdb get "$1/owner")"                         # Return swizdb entry
+    swizdb get "$1/owner"                                   # Return swizdb entry
 }
