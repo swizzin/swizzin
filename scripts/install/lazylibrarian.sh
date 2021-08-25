@@ -108,11 +108,14 @@ After=network.target
 [Service]
 User=$user
 Group=$user
-Type=simple
+Type=forking
 ExecStart=$venv_dir/bin/python3 \
 $app_dir/LazyLibrarian.py \
+--daemon \
+--pidfile $data_dir/pidfile \
 --nolaunch \
 --datadir $data_dir
+PIDFile=$data_dir/pidfile
 Restart=on-failure
 
 [Install]
