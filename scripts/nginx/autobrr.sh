@@ -29,4 +29,13 @@ AUTOBRRUC
 
     # change listening addr to 127.0.0.1
     sed -i 's|host = "0.0.0.0"|host = "127.0.0.1"|g' "/home/${user}/.config/autobrr/config.toml"
+    
+    # Restart autobrr for all user after changing port
+    isactive=$(systemctl is-active autobrr@${user})
+
+    if [[ $isactive == "active" ]]; then
+        echo_log_only "Restarting autobrr for ${user}"
+        systemctl restart autobrr@${user}
+    fi
+
 done
