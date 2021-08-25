@@ -136,8 +136,6 @@ DIN
         sed 's|ssl_protocols TLSv1 TLSv1.1 TLSv1.2;|ssl_protocols TLSv1.2 TLSv1.3;|g' -i /etc/nginx/snippets/ssl-params.conf
         # Changes cyphers
         sed 's|ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";|ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:EECDH+AESGCM:EDH+AESGCM;|g' -i /etc/nginx/snippets/ssl-params.conf
-        # Sets HSTS
-        sed 's|#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";|add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;|g' -i /etc/nginx/snippets/ssl-params.conf
     fi
 
     # Upgrade to http/2

@@ -141,7 +141,7 @@ resolver 127.0.0.1 valid=300s;
 resolver_timeout 5s;
 # Disable preloading HSTS for now.  You can use the commented out header line that includes
 # the "preload" directive if you understand the implications.
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+#add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 #add_header X-Frame-Options DENY;
 add_header X-Frame-Options SAMEORIGIN;
 add_header X-Content-Type-Options nosniff;
