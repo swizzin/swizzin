@@ -56,12 +56,12 @@ function _check_journalctl() {
     found="false"
     if [[ "$journal_log" == *"WARNING"* ]]; then
         echo_warn "$pretty_name systemd service is throwing the following WARNINGs:"
-        grep "$journal_log" "WARNING"
+        journalctl -xeu $app_name | grep "WARNING"
         found="true"
     fi
     if [[ "$journal_log" == *"ERROR"* ]]; then
         echo_warn "$pretty_name systemd service is throwing an ERRORs:"
-        grep "$journal_log" "ERROR"
+        journalctl -xeu $app_name | grep  "ERROR"
         found="true"
     fi
     if [[ "$found" == "true" ]]; then
