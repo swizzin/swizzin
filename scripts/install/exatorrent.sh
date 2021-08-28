@@ -64,8 +64,6 @@ _userconf() {
 
         exadir="/home/$user/exatorrent"
         mkdir -p "$exadir"
-        /opt/exatorrent -dir "$exadir" -engc
-        /opt/exatorrent -dir "$exadir" -torc
         clientconfig="$exadir/config/clientconfig.json"
         engconfig="$exadir/config/engconfig.json"
         flagconfig="$exadir/config/flagconfig.json"
@@ -74,13 +72,30 @@ _userconf() {
 EXAWEBPORT='$webport'
 ENV
 
-        port="$(port 5000 10000)"
-        cat <<< "$(jq --arg PORT "$port" '.ListenPort = $PORT' "$clientconfig")" > "$clientconfig"
+        rm -rf "$clientconfig" "$engconfig" "$flagconfig"
+        /opt/exatorrent -dir "$exadir" -engc &> $log || {
+            echo_error "Failed to create engine config"
+            exit 1
+        }
+        /opt/exatorrent -dir "$exadir" -torc &> $log || {
+            echo_error "Failed to create client config"
+            exit 1
+        }
+
+        # torrent engine settings
+        peerport="$(port 5000 10000)"
+        cat <<< "$(jq --arg PORT "$peerport" '.ListenPort = ($PORT|tonumber)' "$clientconfig")" > "$clientconfig" # Peer listening port
         cat <<< "$(jq '.NoDHT = true' "$clientconfig")" > "$clientconfig"
         cat <<< "$(jq '.DisablePEX = true' "$clientconfig")" > "$clientconfig"
         cat <<< "$(jq '.DisableTrackers = true' "$clientconfig")" > "$clientconfig" # Disables automatically adding a list of trackers to loaded torrents
 
+        # exatorrent settings
+        cat <<< "$(jq '.disableonlinecache = true' "$engconfig")" > "$engconfig"
+        cat <<< "$(jq '.disallowtrackersforcache = true' "$engconfig")" > "$engconfig"
+
         # TODO change password, but where?
+        # cat <<< "$(jq --arg PASS "$(_get_user_password "$user")" '.ListenPort = $PORT' "$clientconfig")" > "$clientconfig" # Peer listening port
+        # cat <<< "$(jq --arg USER "$user" '.AdminUsername = $PORT' "$engconfig")" > "$engconfig" # Peer listening port
 
         chown -R "$user": "$exadir"
         echo_progress_done "Exatorrent for $user started"
