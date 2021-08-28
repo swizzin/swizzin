@@ -18,8 +18,10 @@ TCONF
 
 for user in $(_get_user_list); do
     # socket=/var/run/$user/exatorrent.sock
-
-    port=$(jq -r '.ListenPort' /home/$user/exatorrent/config/clientconfig.json)
+    # port=$(jq -r '.ListenPort' /home/$user/exatorrent/config/clientconfig.json)
+    # port=5000
+    source /home/$user/exatorrent/config/.env
+    port=$EXAWEBPORT
     cat > /etc/nginx/conf.d/"${user}".exatorrent.conf << TDCONF
 upstream ${user}.exatorrent {
     server 127.0.0.1:${port};

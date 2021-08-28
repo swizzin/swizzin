@@ -45,7 +45,8 @@ After=network.target
 
 [Service]
 User=%i
-ExecStart=/opt/exatorrent -dir /home/%i/exatorrent 
+EnvironmentFile=/home/%i/exatorrent/config/.env
+ExecStart=/opt/exatorrent -dir /home/%i/exatorrent -admin %i -addr :\${EXAWEBPORT}
 Restart=on-abort
 TimeoutSec=20
 
@@ -66,6 +67,12 @@ _userconf() {
         /opt/exatorrent -dir "$exadir" -engc
         /opt/exatorrent -dir "$exadir" -torc
         clientconfig="$exadir/config/clientconfig.json"
+        engconfig="$exadir/config/engconfig.json"
+        flagconfig="$exadir/config/flagconfig.json"
+        webport=$(port 10001 20000)
+        cat > "$exadir"/config/.env << ENV
+EXAWEBPORT='$webport'
+ENV
 
         port="$(port 5000 10000)"
         cat <<< "$(jq --arg PORT "$port" '.ListenPort = $PORT' "$clientconfig")" > "$clientconfig"
