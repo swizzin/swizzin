@@ -98,6 +98,7 @@ ENV
         # cat <<< "$(jq --arg USER "$user" '.AdminUsername = $PORT' "$engconfig")" > "$engconfig" # Peer listening port
 
         chown -R "$user": "$exadir"
+        systemctl enable exatorrent@"$user" --now -q
         echo_progress_done "Exatorrent for $user started"
     done
 
@@ -126,3 +127,5 @@ _systemd
 readarray -t users < <(_get_user_list)
 _userconf
 _nginx
+
+touch /install/.exatorrent.lock
