@@ -17,7 +17,7 @@ _install() {
         echo_error "Failed to query github"
         exit 1
     }
-    wget "$dlurl" -O /tmp/exatorrent || {
+    wget "$dlurl" -O /tmp/exatorrent &> $log || {
         echo_error "Download failed"
         exit 1
     }
@@ -32,10 +32,11 @@ _install() {
     chown -R root: /opt/exatorrent
     chmod -R a+rx /opt/exatorrent # All users can browse and exec
     chmod -R og-w /opt/exatorrent # Only owner can overwrite
+
+    echo_progress_done "Binary downloaded"
 }
 
 _systemd() {
-    echo_progress_start "Installing systemd service"
     cat > /etc/systemd/system/exatorrent@.service << SYSD
 # Service file example for exatorrent
 [Unit]
@@ -58,7 +59,8 @@ _userconf() {
     . /etc/swizzin/sources/functions/utils # used for port
 
     for user in "${users[@]}"; do
-        : # -unix /run/%i/exatorrent.sock
+        echo_progress_start "Configuring exatorrent for $user"
+
         exadir="/home/$user/exatorrent"
         mkdir -p "$exadir"
         /opt/exatorrent -dir "$exadir" -engc
@@ -74,7 +76,7 @@ _userconf() {
         # TODO change password, but where?
 
         chown -R "$user": "$exadir"
-        # systemctl enable ex#atorrent@"$user" --now -q
+        echo_progress_done "Exatorrent for $user started"
     done
 
 }
@@ -86,7 +88,7 @@ _nginx() {
         systemctl reload nginx
         echo_progress_done "nginx configured"
     else
-        echo_info "exatorrent will run on ports defined in each user's \"exatorrent\" folder"
+        echo_info "exatorrent will run on ports defined in each user's \"exatorrent\" folder's .env file"
     fi
 }
 
