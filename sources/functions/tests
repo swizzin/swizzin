@@ -88,6 +88,6 @@ evaluate_bad() {
         echo_error "$1 did not pass tests"
         exit 1
     else
-        echo_success "$1 passed all tests"
+        echo_log_only "$1 passed all tests"
     fi
 }

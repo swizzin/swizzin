@@ -539,6 +539,8 @@ _run_tests() {
 
     if [ "$BAD" == "true" ]; then
         exit 1
+    else
+        echo_success "All tests completed succesfully.\nTest log can be found in $log"
     fi
     log="$oldlog"
     export log
