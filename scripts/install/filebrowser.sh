@@ -5,7 +5,7 @@
 # GNU General Public License v3.0 or later
 
 # Get our main user credentials to use when bootstrapping filebrowser.
-username="$(_get_master_user)"
+username="$(_get_master_username)"
 password="$(_get_user_password "$username")"
 
 #shellcheck source=sources/functions/utils
