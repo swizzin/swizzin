@@ -48,19 +48,20 @@ _install() {
 
 # Perform some bootstrapping commands on filebrowser to create the database settings we desire.
 _config() {
-    # Create a self signed cert in the config directory to use with filebrowser.
     #shellcheck source=sources/functions/ssl
     . /etc/swizzin/sources/functions/ssl
-    create_self_ssl ${username}
+    # Create a self signed cert in the config directory to use with filebrowser.
+    create_self_ssl "${username}"
 
     # This command initialise our database.
     echo_progress_start "Initialising database and configuring Filebrowser"
-    "/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-
-    # These commands configure some options in the database.
-    "/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-    "/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
-    "/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db" >> "$log" 2>&1
+    {
+        "/home/${username}/bin/filebrowser" config init -d "/home/${username}/.config/Filebrowser/filebrowser.db"
+        # These commands configure some options in the database.
+        "/home/${username}/bin/filebrowser" config set -t "/home/${username}/.ssl/${username}-self-signed.crt" -k "/home/${username}/.ssl/${username}-self-signed.key" -d "/home/${username}/.config/Filebrowser/filebrowser.db"
+        "/home/${username}/bin/filebrowser" config set -a 0.0.0.0 -p "${app_port_http}" -l "/home/${username}/.config/Filebrowser/filebrowser.log" -d "/home/${username}/.config/Filebrowser/filebrowser.db"
+        "/home/${username}/bin/filebrowser" users add "${username}" "${password}" --perm.admin -d "/home/${username}/.config/Filebrowser/filebrowser.db"
+    } >> "$log" 2>&1
 
     # Set the permissions after we are finsished configuring filebrowser.
     chown "${username}.${username}" -R "/home/${username}/bin" > /dev/null 2>&1
@@ -71,7 +72,6 @@ _config() {
 
 # Configure the nginx proxypass using positional parameters.
 _nginx() {
-
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Installing nginx config"
         bash "/usr/local/bin/swizzin/nginx/filebrowser.sh" "${app_port_http}"
@@ -108,9 +108,8 @@ _systemd() {
 SERVICE
 
     # Start the filebrowser service.
-
     systemctl daemon-reload -q
-    systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a $log
+    systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a "$log"
     echo_progress_done "Systemd service installed"
 }
 
@@ -125,4 +124,3 @@ touch "/install/.filebrowser.lock"
 # A helpful echo to the terminal.
 echo_success "FileBrowser installed"
 echo_warn "Make sure to use your swizzin credentials when logging in"
-#
