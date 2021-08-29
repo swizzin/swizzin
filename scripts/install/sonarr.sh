@@ -19,7 +19,7 @@ else
 fi
 
 user="$SONARR_OWNER"
-sonarrv3confdir="/home/$sonarrv3owner/.config/Sonarr"
+sonarrv3confdir="/home/$user/.config/Sonarr"
 
 #Handles existing v2 instances
 _sonarrold_flow() {
@@ -129,7 +129,7 @@ _install_sonarr() {
     chown "$user":"$user" /home/"$user"/.config
     chown "$user":"$user" -R "$sonarrv3confdir"
 
-    echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
+    echo_log_only "Setting sonarr v3 owner to $user"
     wget -O /tmp/sonarr.tar.gz "https://services.sonarr.tv/v1/download/main/latest?version=3&os=linux" >> ${log} 2>&1 || {
         echo_error "Sonarr could not be downloaded from sonarr.tv. Exiting"
 
@@ -140,7 +140,7 @@ _install_sonarr() {
         exit 1
     }
     rm -f /tmp/sonarr.tar.gz
-    chown -R "$sonarrv3owner":"$sonarrv3owner" /opt/Sonarr
+    chown -R "$user":"$user" /opt/Sonarr
 
     LIST='mono-runtime
         ca-certificates-mono
@@ -177,8 +177,8 @@ Description=Sonarr Daemon
 After=network.target
 
 [Service]
-User=${sonarrv3owner}
-Group=${sonarrv3owner}
+User=${user}
+Group=${user}
 UMask=0002
 
 Type=simple
@@ -192,7 +192,7 @@ WantedBy=multi-user.target
 EOSD
 
     if [[ ! -f ${sonarrv3confdir}/config.xml ]]; then
-        cat > ${sonarrv3confdir}/config.xml << EOSC
+        cat > "${sonarrv3confdir}"/config.xml << EOSC
 <Config>
   <LogLevel>info</LogLevel>
   <EnableSsl>False</EnableSsl>
@@ -205,7 +205,7 @@ EOSD
   <Branch>main</Branch>
 </Config>
 EOSC
-        chown -R ${sonarrv3owner}: ${sonarrv3confdir}/config.xml
+        chown -R "${user}": "${sonarrv3confdir}"/config.xml
     fi
     systemctl enable --now sonarr >> ${log} 2>&1
 
