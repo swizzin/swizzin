@@ -17,13 +17,12 @@ get_port() {
 
 # Attempts to verify that the service for an application specified by $1 is running.
 check_service() {
-    echo_progress_start "Checking $1 service is active"
+    echo_log_only "Checking $1 service is active"
     systemctl -q is-active "$1" || {
         systemctl status "$1" | tee -a "$log"
         echo_warn "$1.service not active!"
         return 1
     }
-    echo_progress_done
 }
 
 # Attempts to verify that the reverse proxy configuration for an application accessible at https://localhost/$1  is accessible.
@@ -34,48 +33,44 @@ check_nginx() {
     fi
 
     extra_params="$2"
-    echo_progress_start "Checking if $1 is reachable via nginx"
+    echo_log_only "Checking if $1 is reachable via nginx"
     master="$(_get_master_username)"
     password="$(_get_user_password "$master")"
-    curl --user "${master}:${password}" $extra_params -sSfLk https://127.0.0.1/"$1" -o /dev/null || {
+    curl --user "${master}:${password}" $extra_params -sSfLk https://127.0.0.1/"$1" -o /dev/null >> $log 2>&1 || {
         echo_warn "Querying https://127.0.0.1/$1 failed"
-        echo
         return 1
     }
-    echo_progress_done
 }
 
 # Attempts to verify that an application accessible at http://localhost:$1  is accessible.
 # If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
 check_port_curl() {
-    echo_progress_start "Checking if port $1 is reachable via curl"
+    echo_log_only "Checking if port $1 is reachable via curl"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
         port=$(get_port "$1") || {
-            echo_warn "Couldn't guess port"
+            echo_warn "Couldn't guess port of $1"
             return 1
         }
     fi
     extra_params="$2"
 
-    curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null || {
+    curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null >> $log 2>&1 || {
         echo_warn "Querying http://127.0.0.1:$port failed"
-        echo
         return 1
     }
-    echo_progress_done
 }
 
 # Attempts to verify that an application has opened and listens to the port $1 using `lsof`.
 # If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
 check_port() {
-    echo_progress_start "Checking if port $1 is open and listened to"
+    echo_log_only "Checking if port $1 is open and listened to"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
         port=$1
     else
         port=$(get_port "$1") || {
-            echo_warn "Couldn't guess port"
+            echo_warn "Couldn't guess port of $1"
             return 1
         }
     fi
@@ -85,7 +80,6 @@ check_port() {
         return 1
     }
 
-    echo_progress_done
 }
 
 # based off the value of $BAD, returns an appropriate message and kills the test with an appropriate exit code.
