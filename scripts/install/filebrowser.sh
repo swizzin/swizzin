@@ -29,7 +29,21 @@ mkdir -p "/home/${username}/.config/Filebrowser"
 #
 # Download and extract the files to the desired location.
 echo_progress_start "Downloading and extracting source code"
-wget -O "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | grep -Po 'ht(.*)linux-amd64(.*)gz')" >> $log 2>&1
+
+case "$(_os_arch)" in
+    "amd64" | "arm64")
+        fb_arch="$(_os_arch)"
+        ;;
+    "armhf")
+        fb_arch="(uname -r)"
+        ;;
+    *)
+        echo_error "$(_os_arch) not supported by filebrowser"
+        exit 1
+        ;;
+esac
+
+wget -O "/home/${username}/filebrowser.tar.gz" "$(curl -sNL https://api.github.com/repos/filebrowser/filebrowser/releases/latest | jq -r '.assets[]?.browser_download_url' | grep linux-"${fb_arch}")" >> $log 2>&1
 tar -xvzf "/home/${username}/filebrowser.tar.gz" --exclude LICENSE --exclude README.md -C "/home/${username}/bin" >> $log 2>&1
 echo_progress_done
 #
