@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-echo_info "No tests to run for quota"
+echo_log_only "No tests to run for quota"
