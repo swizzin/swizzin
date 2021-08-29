@@ -21,29 +21,30 @@ app_branch="nightly"
 
 cat > /etc/nginx/apps/$app_name.conf << PROWLARR
 location /$app_baseurl {
-  proxy_pass        http://127.0.0.1:$app_port/$app_baseurl;
-  proxy_set_header Host \$proxy_host;
-  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Proto \$scheme;
-  proxy_redirect off;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
+    proxy_pass              http://127.0.0.1:$app_port/$app_baseurl;
+    proxy_set_header        Host                \$proxy_host;
+    proxy_set_header        X-Forwarded-For     \$proxy_add_x_forwarded_for;
+    proxy_set_header        X-Forwarded-Proto   \$scheme;
+    proxy_redirect          off;
+    auth_basic              "What's the password?";
+    auth_basic_user_file    /etc/htpasswd.d/htpasswd.${master};
 
-  proxy_http_version 1.1;
-  proxy_set_header Upgrade \$http_upgrade;
-  proxy_set_header Connection \$http_connection;
- }
-  # Allow the App API
-  location /$app_baseurl/api { auth_request off;
-    proxy_pass http://127.0.0.1:$app_port/$app_baseurl/api;
- }
-  # Allow Content
-  location /$app_baseurl/Content { auth_request off;
-    proxy_pass http://127.0.0.1:$app_port/$app_baseurl/Content;
-}
-  # Allow Indexers  $1 matches the regex
-  location ~ /$app_baseurl/[0-9]+/api { auth_request off;
-    proxy_pass       http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
+    proxy_http_version      1.1;
+    proxy_set_header        Upgrade             \$http_upgrade;
+    proxy_set_header        Connection          \$http_connection;
+  
+    # Allow the App API
+    location /$app_baseurl/api {
+        auth_request    off;
+    }
+    # Allow Content
+    location /$app_baseurl/Content {
+        auth_request    off;
+    }
+    # Allow Indexers
+    location ~ /$app_baseurl/[0-9]+/api {
+        auth_request    off;
+    }
 }
 
 PROWLARR
