@@ -12,4 +12,4 @@ for user in "${users[@]}"; do
     check_service "rtorrent@$user" || BAD=true
 done
 
-evaluate_bad
+evaluate_bad "rtorrent"

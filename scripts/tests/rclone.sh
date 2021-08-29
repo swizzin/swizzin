@@ -12,4 +12,4 @@ for user in "${users[@]}"; do
     check_service "rclone@$user" || BAD=true
 done
 
-evaluate_bad
+evaluate_bad "rclone"

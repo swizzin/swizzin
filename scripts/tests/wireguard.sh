@@ -20,4 +20,4 @@ for user in "${users[@]}"; do
 
 done
 
-evaluate_bad
+evaluate_bad "wireguard"

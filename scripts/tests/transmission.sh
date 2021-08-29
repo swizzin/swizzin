@@ -29,4 +29,4 @@ else
     echo_warn "No transmission instance was running, skipping nginx check"
 fi
 
-evaluate_bad
+evaluate_bad "transmission"

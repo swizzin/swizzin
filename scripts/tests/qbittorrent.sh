@@ -30,4 +30,4 @@ else
     echo_warn "No qbittorrent instance was running, skipping nginx check"
 fi
 
-evaluate_bad
+evaluate_bad "qbittorrent"

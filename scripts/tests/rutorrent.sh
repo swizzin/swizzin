@@ -5,4 +5,4 @@
 
 check_nginx "rutorrent" || BAD="true"
 
-evaluate_bad
+evaluate_bad "rutorrent"

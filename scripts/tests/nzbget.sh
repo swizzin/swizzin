@@ -28,4 +28,4 @@ else
     echo_warn "No nzbget instance was running, skipping nginx check"
 fi
 
-evaluate_bad
+evaluate_bad "nzbget"

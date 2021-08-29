@@ -24,4 +24,4 @@ else
     echo_warn "No deluge-web instance was running, skipping nginx check"
 fi
 
-evaluate_bad
+evaluate_bad "delugeweb"

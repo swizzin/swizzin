@@ -19,4 +19,4 @@ for user in "${users[@]}"; do
     check_port "$d_port"
 done
 
-evaluate_bad
+evaluate_bad "deluge"

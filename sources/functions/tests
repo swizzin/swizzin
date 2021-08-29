@@ -91,9 +91,9 @@ check_port() {
 # based off the value of $BAD, returns an appropriate message and kills the test with an appropriate exit code.
 evaluate_bad() {
     if [[ $BAD == "true" ]]; then
-        echo_error "Errors were encountered"
+        echo_error "$1 did not pass tests"
         exit 1
     else
-        echo_success "No problems were encountered"
+        echo_success "$1 passed all tests"
     fi
 }

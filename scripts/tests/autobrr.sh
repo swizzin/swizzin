@@ -30,4 +30,4 @@ else
     echo_warn "No autobrr instance was running, skipping nginx check"
 fi
 
-evaluate_bad
+evaluate_bad "autobrr"
