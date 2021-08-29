@@ -6,7 +6,7 @@
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     systemctl -q is-enabled "transmission@$user" || {
-        echo_warn "transmission@$user is not enabled, skipping"
+        echo_log_only "transmission@$user is not enabled, skipping"
         continue
     }
 
@@ -26,7 +26,7 @@ if [[ "$atleastonerunning" = "true" ]]; then
     #Check nginx only once beause if the config works for one, it will work for all
     check_nginx "transmission" || BAD=true
 else
-    echo_warn "No transmission instance was running, skipping nginx check"
+    echo_log_only "No transmission instance was running, skipping nginx check"
 fi
 
 evaluate_bad "transmission"

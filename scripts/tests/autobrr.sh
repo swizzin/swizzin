@@ -6,7 +6,7 @@
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     systemctl -q is-enabled "autobrr@$user" || {
-        echo_warn "autobrr@$user is not enabled, skipping"
+        echo_log_only "autobrr@$user is not enabled, skipping"
         continue
     }
 
@@ -26,8 +26,7 @@ done
 if [[ "$atleastonerunning" = "true" ]]; then
     #Check nginx only once beause if the config works for one, it will work for all
     check_nginx "autobrr" || BAD=true
+    evaluate_bad "autobrr"
 else
-    echo_warn "No autobrr instance was running, skipping nginx check"
+    echo_warn "No autobrr instance was running"
 fi
-
-evaluate_bad "autobrr"

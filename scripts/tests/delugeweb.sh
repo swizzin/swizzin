@@ -20,8 +20,7 @@ done
 if [[ "$atleastonerunning" = "true" ]]; then
     #Check nginx only once beause if the config works for one, it will work for all
     check_nginx "deluge" || BAD=true
+    evaluate_bad "delugeweb"
 else
-    echo_warn "No deluge-web instance was running, skipping nginx check"
+    echo_warn "No deluge-web instance was running"
 fi
-
-evaluate_bad "delugeweb"
