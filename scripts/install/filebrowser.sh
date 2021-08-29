@@ -5,11 +5,13 @@
 # GNU General Public License v3.0 or later
 
 # Get our main user credentials to use when bootstrapping filebrowser.
-username="$(cut -d: -f1 < /root/.master.info)"
-password="$(cut -d: -f2 < /root/.master.info)"
+username="$(_get_master_user)"
+password="$(_get_user_password "$username")"
 
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 # This will generate a random port for the script between the range 10001 to 32001 to use with applications.
-app_port_http="$(shuf -i 10001-32001 -n 1)" && while [[ "$(ss -ln | grep -co ''"${app_port_http}"'')" -ge "1" ]]; do app_port_http="$(shuf -i 10001-32001 -n 1)"; done
+app_port_http="$(port 10001 32001)"
 
 _install() {
     # Create the required directories for this application.
@@ -64,9 +66,11 @@ _config() {
     } >> "$log" 2>&1
 
     # Set the permissions after we are finsished configuring filebrowser.
-    chown "${username}.${username}" -R "/home/${username}/bin" > /dev/null 2>&1
-    chown "${username}.${username}" -R "/home/${username}/.config" > /dev/null 2>&1
-    chmod 700 "/home/${username}/bin/filebrowser" > /dev/null 2>&1
+    chown "${username}:" -R "/home/${username}/bin"
+    chown "${username}:" "/home/${username}/.config"
+    chown "${username}:" -R "/home/${username}/.config/Filebrowser"
+    chmod 700 "/home/${username}/bin/filebrowser"
+    chmod 700 -R "/home/${username}/.config/Filebrowser"
     echo_progress_done
 }
 
@@ -108,9 +112,8 @@ _systemd() {
 SERVICE
 
     # Start the filebrowser service.
-    systemctl daemon-reload -q
     systemctl enable -q --now "filebrowser.service" 2>&1 | tee -a "$log"
-    echo_progress_done "Systemd service installed"
+    echo_progress_done "Filebrowser service started"
 }
 
 _install
