@@ -32,6 +32,7 @@ check_service() {
 }
 
 # Attempts to verify that the reverse proxy configuration for an application accessible at https://localhost/$1  is accessible.
+# $2 is optionally supplied to curl as extra parementers, e.g. basic auth
 check_nginx() {
     if [ ! -f /install/.nginx.lock ]; then
         echo_warn "nginx not installed, cannot verify if $1 is reachable through it. Skipping."
