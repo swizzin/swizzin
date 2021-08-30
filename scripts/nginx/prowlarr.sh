@@ -17,7 +17,7 @@ user="$PROWLARR_OWNER"
 app_servicefile="${app_name}.service"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
-app_branch="nightly"
+app_branch="develop"
 
 cat > /etc/nginx/apps/$app_name.conf << PROWLARR
 location /$app_baseurl {
