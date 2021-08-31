@@ -15,13 +15,15 @@
 app_name="lazylibrarian"
 pretty_name="LazyLibrarian"
 app_dir="/opt/$app_name"
-master=$(_get_master_username)
-config_dir="/home/$master/.config/$app_name"
+user="$(_get_app_owner "$app_name" "$LAZYLIB_OWNER")"
+config_dir="/home/$user/.config/$app_name"
 venv_dir="/opt/.venv/$app_name"
 
 ##########################################################################
 # Main
 ##########################################################################
+
+# TODO: Make sure these haven't changed since installation, as to avoid removing custom configs
 
 if [[ -e "$venv_dir" ]]; then
     echo_progress_start "Removing $pretty_name venv..."

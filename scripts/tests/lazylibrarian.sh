@@ -28,7 +28,7 @@ pretty_name="LazyLibrarian"
 # Functions
 ##########################################################################
 
-# TODO: Is this change necessary? Maybe I just did the nginx configuration incorrectly.
+# TODO: Is this curl change necessary? Maybe I just did the nginx configuration incorrectly.
 
 function _check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"

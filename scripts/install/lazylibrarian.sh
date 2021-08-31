@@ -36,6 +36,7 @@ data_dir="$config_dir/lazylibrarian"
 app_dir="/opt/$app_name"
 venv_dir="/opt/.venv/$app_name"
 pip_reqs='urllib3 apprise Pillow pyOpenSSL'
+# TODO: This should probably use swizdb and an ENV_VAR as well.
 download_dir="/home/$user/Downloads/$pretty_name"
 
 ##########################################################################
