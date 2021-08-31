@@ -122,29 +122,42 @@ function _clr() {
     fi
 }
 
-#shellcheck disable=SC2120
 function _update() {
+    # Checking for develop branch
+    if [ "$branch_name" == "develop" ]; then
+        SWIZ_GIT_REF="develop"
+        export SWIZ_GIT_REF
+    fi
+
+    if [[ -L /etc/swizzin ]]; then
+        noupdate_message="Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+        noupdate="true"
+    elif [[ -e /etc/swizzin/.dev.lock ]]; then
+        noupdate_message="Not updating /etc/swizzin as a dev lockfile is present."
+        noupdate="true"
+    elif [[ $1 == "--dev" ]]; then
+        noupdate_message="Not updating from git due to --dev flag"
+        noupdate="true"
+    fi
+
+    #Checking for EOL releases
     case "$(_os_codename)" in
         "bionic" | "focal" | "buster" | "stretch" | "bullseye")
             echo_log_only "OS supported"
             ;;
         *)
             name=$(_os_codename)
-            echo_warn "${name^} is no longer a supported by swizzin.
+            echo_warn "${name^} is not supported by swizzin at this stage.
 You will not be receiving any new updates past the last supported commit. Swizzin will continue to run as-is.
 We URGE you to migrate to a supported release if/while you still have the chance."
             SWIZ_GIT_REF="tags/eol-$(_os_codename)"
             export SWIZ_GIT_REF
             ;;
     esac
-
-    if [[ -L /etc/swizzin ]]; then
-        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
-    elif [[ -e /etc/swizzin/.dev.lock ]]; then
-        echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
-    elif [[ $1 == "--dev" ]]; then
-        echo_warn "Not updating from git due to --dev flag"
-    else
+    echo_log_only "noupdate = $noupdate"
+    # If there is nothing blocking the update...
+    if [[ -z $noupdate ]]; then
+        # Run the git update procedure
         echo_progress_start "Updating swizzin local repository"
         git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
             {
@@ -160,8 +173,10 @@ We URGE you to migrate to a supported release if/while you still have the chance
             echo_error "Failed to update from git"
             exit 1
         }
-        echo_progress_done "Local repository updated from ${SWIZ_GIT_REF:-master}"
+        echo_progress_done "Local repository updated using: ${SWIZ_GIT_REF:-master}"
         echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
+    else
+        echo_warn "$noupdate_message"
     fi
     export SWIZ_REPO_SCRIPT_RAN=true
 
@@ -293,17 +308,20 @@ function _adduser() {
     fi
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
-    chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
         bash /etc/swizzin/scripts/setdisk "$user"
     fi
 
+    mkdir /home/"$user"/.config
+    chown "$user": /home/"$user"/.config
+    chmod 750 /home/"${user}"
+
     if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl autobrr flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
                 if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -369,7 +387,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr; do
         if [[ $app = "rutorrent" ]]; then
             if [[ -d /srv/rutorrent ]]; then
                 if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
@@ -446,6 +464,9 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
+    if [[ -f /install/.autobrr.lock ]]; then
+        echo -n "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
+    fi
     if [[ -e /install/.deluge.lock ]]; then
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
@@ -506,23 +527,44 @@ _run_tests() {
     touch "$log"
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
-            echo_info "Running test for $item"
+            echo_log_only "Running test for $item"
             bash /etc/swizzin/scripts/tests/"$item".sh || BAD="true"
-            echo
+
         else
-            echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
+            echo_log_only "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
             bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
-            echo
+
         fi
     done
 
     if [ "$BAD" == "true" ]; then
         exit 1
+    else
+        echo_success "All tests completed succesfully.\nTest log can be found in $log"
     fi
     log="$oldlog"
     export log
 
 }
+
+branch_name="$(git -C /etc/swizzin symbolic-ref HEAD 2> /dev/null)" || branch_name="(unnamed branch)" # detached HEAD
+branch_name=${branch_name##refs/heads/}
+
+if [[ $branch_name != 'master' ]]; then
+    echo_info "Currently on branch: $branch_name"
+fi
+
+if [ -f /etc/swizzin/.test.lock ]; then
+    testmsg="Tests will be ran at the end of this due to .test.lock"
+    runtests="true"
+elif [[ "$*" == *--test* ]]; then
+    testmsg="Tests will be ran due to --test flag"
+    runtests="true"
+    #Removing `--test` from the arguments
+    for arg in "$@"; do [[ $arg == --test ]] || args+=("$arg"); done
+    set -- "${args[@]}"
+    echo_log_only "Args after cleanup: $(printf "%s\n" "$@")"
+fi
 
 case "$1" in
     "")
@@ -540,7 +582,6 @@ case "$1" in
             exit 1
         fi
         _cli "$@"
-        exit 0
         ;;
     "remove" | "rm")
         if [[ -z $2 ]]; then
@@ -548,7 +589,6 @@ case "$1" in
             exit 1
         fi
         _clr "$@"
-        exit 0
         ;;
     "adduser")
         if [[ -n $4 ]]; then
@@ -556,7 +596,6 @@ case "$1" in
             exit 1
         fi
         _adduser "$@"
-        exit 0
         ;;
     "deluser")
         if [[ -z $2 ]]; then
@@ -568,7 +607,6 @@ case "$1" in
             exit 1
         fi
         _deluser "$@"
-        exit 0
         ;;
     "chpasswd")
         if [[ -z $2 ]]; then
@@ -580,7 +618,6 @@ case "$1" in
             exit 1
         fi
         _chpasswd "$@"
-        exit 0
         ;;
     "rmgrsec")
         _nukeovh
@@ -588,10 +625,10 @@ case "$1" in
         ;;
     "rtx")
         /usr/local/bin/swizzin/rtx
+        exit 0
         ;;
     "update")
         _update "$2"
-        exit 0
         ;;
     "upgrade")
         if [[ $2 = "--dev" ]]; then
@@ -604,7 +641,6 @@ case "$1" in
         fi
         _update $dev
         _upgrade "$@"
-        exit 0
         ;;
     "list")
         _list
@@ -612,9 +648,16 @@ case "$1" in
         ;;
     "test")
         _run_tests "$@"
+        exit 0 # No need to double-run tests
         ;;
     *)
         echo_error "Invalid command: $1"
         exit 1
         ;;
 esac
+
+if [[ $runtests == "true" ]]; then
+    echo
+    echo_warn "$testmsg"
+    _run_tests
+fi

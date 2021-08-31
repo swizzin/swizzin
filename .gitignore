@@ -1,2 +1,4 @@
 .dev.lock
 .idea/**
+.test.lock
+dev.env

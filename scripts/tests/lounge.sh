@@ -7,4 +7,4 @@ check_service "lounge" || BAD=true
 check_port_curl "lounge" || BAD=true
 check_nginx "irc" || BAD=true
 
-evaluate_bad
+evaluate_bad "lounge"

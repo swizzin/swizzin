@@ -7,4 +7,4 @@ check_service "jellyfin" || BAD=true
 check_port "jellyfin" || BAD=true
 check_nginx "jellyfin" || BAD=true
 
-evaluate_bad
+evaluate_bad "jellyfin"

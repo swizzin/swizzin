@@ -20,13 +20,13 @@ isactive=$(systemctl is-active sonarr)
 if [[ $isactive == "active" ]]; then
     systemctl stop sonarr
 fi
-user=$(grep User= /lib/systemd/system/sonarr.service | cut -d= -f2)
+user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
 #shellcheck disable=SC2154
 echo_log_only "Sonarr user detected as $user"
-apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/sonarr/config.xml)
+apikey=$(awk -F '[<>]' '/ApiKey/{print $3}' /home/"$user"/.config/Sonarr/config.xml)
 echo_log_only "API Key  = $apikey"
 
-cat > /home/"$user"/.config/sonarr/config.xml << SONN
+cat > /home/"$user"/.config/Sonarr/config.xml << SONN
 <Config>
   <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
@@ -44,10 +44,10 @@ cat > /home/"$user"/.config/sonarr/config.xml << SONN
 SONN
 
 if [[ -f /install/.rutorrent.lock ]]; then
-    sqlite3 /home/"$user"/.config/sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+    sqlite3 /home/"$user"/.config/Sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
 fi
 
-chown -R "$user":"$user" /home/"$user"/.config/sonarr
+chown -R "$user":"$user" /home/"$user"/.config/Sonarr
 
 if [[ $isactive == "active" ]]; then
     systemctl start sonarr

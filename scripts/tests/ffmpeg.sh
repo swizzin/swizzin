@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-echo_warn "No tests to run for ffmpeg"
+echo_log_only "No tests to run for ffmpeg"

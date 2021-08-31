@@ -64,7 +64,7 @@ _config() {
         echo_progress_start "Configuring bazarr to work with sonarr"
 
         # TODO: Use owner when the updaters are merged
-        sonarrConfigFile=/home/${user}/.config/sonarr/config.xml
+        sonarrConfigFile=/home/${user}/.config/Sonarr/config.xml
 
         if [[ -f ${sonarrConfigFile} ]]; then
             sonarrapi=$(grep -oP "ApiKey>\K[^<]+" "${sonarrConfigFile}")
