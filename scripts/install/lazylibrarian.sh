@@ -121,8 +121,8 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    systemctl daemon-reload
-    systemctl enable --quiet --now "$app_name"
+    systemctl daemon-reload                                         # Reload daemons whenever a systemd service is changed
+    systemctl enable --quiet --now "$app_name"                      # Enable systemd service for app
     echo_progress_done
 }
 
@@ -136,7 +136,6 @@ function _nginx() {
     else
         echo_info "$pretty_name will run on port $default_port"
         echo_info "Please make sure to finalize $pretty_name's configuration in it's web interface\nhttp://127.0.0.1:$(get_port "$app_name")/$app_name"
-
     fi
 }
 
