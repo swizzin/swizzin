@@ -6,17 +6,9 @@
 # References
 ##########################################################################
 
-# https://github.com/Aethaeran/swizzin/blob/feat/jdownloader/scripts/install/jdownloader.sh
 # https://lazylibrarian.gitlab.io/install/
-# https://www.reddit.com/r/LazyLibrarian/comments/jw5e22/lazylibrarian_calibre_calibreweb_booksonic/
-# https://github.com/lazylibrarian/LazyLibrarian
-# https://gitlab.com/LazyLibrarian/LazyLibrarian
-# https://github.com/swizzin/swizzin/pull/743
-# https://lazylibrarian.gitlab.io/config_users/
-# https://lazylibrarian.gitlab.io/config_downloaders/
-# https://www.reddit.com/r/LazyLibrarian/
-# https://lazylibrarian.gitlab.io/api/
 # https://lazylibrarian.gitlab.io/config_commandline/
+# https://www.reddit.com/r/LazyLibrarian/comments/jw5e22/lazylibrarian_calibre_calibreweb_booksonic/
 
 ##########################################################################
 # Import Sources
@@ -51,7 +43,6 @@ download_dir="/home/$user/Downloads/$pretty_name"
 ##########################################################################
 
 function _dependencies() {
-    # TODO: https://lazylibrarian.gitlab.io/config_rtorrent/ says we would require libtorrent for rtorrent compatibility
     apt_install "python3-venv"                                      # Ensure pip is installed. Required for Ubuntu Focal.
     python3_venv "$user" "$app_name"                                # Create venv
     chown -R "$user": "$venv_dir"                                   # Ensure venv's owner is app's owner
@@ -98,7 +89,6 @@ EOF
 }
 
 function _systemd() {
-    # TODO: add --daemon and --pidfile, probably type forking is necessary
     echo_progress_start "Creating $pretty_name systemd service"
     cat >"/etc/systemd/system/$app_name.service" <<EOF
 [Unit]
