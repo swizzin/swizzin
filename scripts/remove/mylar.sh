@@ -1,6 +1,4 @@
 #!/bin/bash
-#shellcheck source=sources/globals.sh
-. /etc/swizzin/sources/globals.sh
 systemctl disable --now mylar
 rm -rf /opt/Mylar
 rm -rf /opt/.venv/mylar
