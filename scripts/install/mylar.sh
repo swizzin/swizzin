@@ -57,7 +57,6 @@ echo_progress_done
 echo_progress_start "Setting permissions"
 chown -R "$user": /opt/mylar
 chown -R "$user": /opt/.venv/mylar
-chown -R "$user": /home/$user/.config/mylar
 setfacl -m g:"$user":rx /home/*
 echo_progress_done
 
@@ -72,6 +71,7 @@ http_username = ${user}
 http_password = $(_get_user_password "${user}")
 authentication = 1
 EOF
+chown -R "$user": /home/$user/.config/mylar
 echo_progress_done
 
 # Checking nginx existence is the first thing that happens in the script
