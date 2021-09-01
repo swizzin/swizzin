@@ -8,7 +8,7 @@ rm -rf /install/.mylar.lock
 
 if ask "Would you like to purge the config?"; then
     :
-    rm -rf /home/$(swizdb get Mylar/owner)/.config/Mylar
+    rm -rf /home/$(swizdb get mylar/owner)/.config/Mylar
     swizdb clear Mylar/owner
 else
     : # no condition
