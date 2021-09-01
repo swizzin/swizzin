@@ -26,7 +26,7 @@ else
     LIST='python3-pip python3-venv acl'
 fi
 
-apt_install "$LIST"
+apt_install $LIST
 
 case ${PYENV} in
     True)
