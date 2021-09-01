@@ -39,10 +39,10 @@ function install_mylar() {
     pyenv_install_version 3.8.1
     pyenv_create_venv 3.8.1 /opt/.venv/${app_name}/
     # mylar
-    git clone https://github.com/mylar3/mylar3.git $app_dir
-    /opt/.venv/${app_name}/bin/pip install --upgrade pip
-    /opt/.venv/${app_name}/bin/pip install --upgrade pip
-    /opt/.venv/${app_name}/bin/pip3 install -r $app_dir/requirements.txt
+    git clone https://github.com/mylar3/mylar3.git $app_dir >> $log 2>&1
+    /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
+    /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
+    /opt/.venv/${app_name}/bin/pip3 install -r $app_dir/requirements.txt >> $log 2>&1
     # ownership
     chown $user:$app_group -R $app_dir
     chown $user:$app_group -R /opt/.venv/${app_name}
@@ -64,7 +64,7 @@ TimeoutStopSec=300
 [Install]
 WantedBy=multi-user.target
 MLR
-    systemctl enable --now ${app_servicefile}
+    systemctl enable -q --now ${app_servicefile}
 }
 #shellcheck source=scripts/nginx/mylar.sh
 . /etc/swizzin/scripts/nginx/mylar.sh
