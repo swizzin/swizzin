@@ -1,9 +1,18 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
+# Mylar test for Swizzin
+# Author: Brett
+# Copyright (C) 2021 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
-
-app_name="mylar"
+user=$(_get_master_username)
+port=$(awk -F "=" '/http_port/ {print $2}' /home/$user/.config/mylar/config.ini | tr -d ' ')
 
 function _check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"
@@ -17,8 +26,8 @@ function _check_port_curl() {
     fi
     extra_params="$2"
     # shellcheck disable=SC2086 # We want splitting on the extra params variable. So the warning is void here.
-    curl -sSfLk $extra_params http://127.0.0.1:"$port/$app_name" -o /dev/null || {
-        echo_warn "Querying http://127.0.0.1:$port/$app_name failed"
+    curl -sSfLk $extra_params http://127.0.0.1:"$port/mylar" -o /dev/null || {
+        echo_warn "Querying http://127.0.0.1:$port/mylar failed"
         echo
         return 1
     }
@@ -26,7 +35,7 @@ function _check_port_curl() {
 }
 
 check_service "mylar" || BAD=true
-_check_port_curl "$(swizdb get mylar/port)" || BAD=true
+_check_port_curl "${port}" || BAD=true
 check_nginx "mylar" || BAD=true
 
 evaluate_bad "mylar"

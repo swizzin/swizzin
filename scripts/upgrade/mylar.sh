@@ -1,26 +1,37 @@
 #!/bin/bash
-# Brett 2021
-user="$(swizdb get mylar/owner)"
-app_name="mylar"
-app_group="$user"
-app_servicefile="$app_name.service"
-app_dir="/opt/${app_name^}"
+# Mylar installer for Swizzin
+# Author: Brett
+# Copyright (C) 2021 Swizzin
+# Licensed under GNU General Public License v3.0 GPL-3 (in short)
+#
+#   You may copy, distribute and modify the software as long as you track
+#   changes/dates in source files. Any modifications to our software
+#   including (via compiler) GPL-licensed code must also be made available
+#   under the GPL along with build & install instructions.
+#
+if [[ -f /install/.mylar.lock ]]; then
+    if ! dpkg -s acl > /dev/null 2>&1; then
+        echo_progress_start "Modifying ACLs for mylar group to prevent issues"
+        apt_install acl
+        setfacl -m g:mylar:rx /home/*
+        echo_progress_done
+    fi
 
-echo_progress_start "Stopping mylar service."
-systemctl stop -q ${app_servicefile}
-echo_progress_done "Mylar stopped."
-echo_progress_start "Grabbing the latest mylar from git."
-git -C /opt/Mylar/ fetch origin >> $log 2>&1
-git -C /opt/Mylar/ reset --hard origin/master >> $log 2>&1
-echo_progress_done "Grabbed latest mylar."
-echo_progress_start "Grabbing requirements.txt"
-/opt/.venv/${app_name}/bin/pip3 install -r $app_dir/requirements.txt >> $log 2>&1
-echo_progress_done "Requirements satisfied."
-echo_progress_start "Fixing ownership"
-chown ${user}:${app_group} /opt/Mylar/
-chown ${user}:${app_group} /opt/.venv/mylar/
-echo_progress_done "Ownership fixed."
-echo_progress_start "Starting ${app_servicefile}"
-systemctl start -q ${app_servicefile}
-echo_progress_done "${app_servicefile} started."
-echo_info "Mylar is up to date."
+    cd /opt/mylar || {
+        echo_warn "Failed to cd into /opt/mylar."
+    }
+    #git reset HEAD --hard
+    echo_progress_start "Pulling new commits"
+    git pull >> ${log} 2>&1 || {
+        echo_warn "Pull failed."
+    }
+    echo_progress_done "Commits pulled"
+    echo_progress_start "Checking pip for new depends"
+    if ! /opt/.venv/mylar/bin/python /opt/mylar/tests/test_requirements.py >> ${log} 2>&1; then
+        /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >> ${log} 2>&1
+    fi
+    echo_progress_done "Depends up-to-date"
+    echo_progress_start "Restarting Mylar"
+    systemctl restart mylar
+    echo_progress_done "Done!"
+fi
