@@ -1,0 +1,21 @@
+#!/bin/bash
+function mylar_ngx() {
+    if [[ -f /install/.nginx.lock ]]; then
+        cat > /etc/nginx/apps/${app_name}.conf << NGX
+location ^~ /${app_name} {
+    # enable the next two lines for http auth
+    #auth_basic "Restricted";
+    #auth_basic_user_file /etc/htpasswd.d/$user;
+
+    include /etc/nginx/snippets/proxy.conf;
+    proxy_pass http://127.0.0.1:${app_port};
+}
+NGX
+        sleep 10
+        sed -i "s|http_port = 8090|http_port = ${app_port}|g" $app_configfile
+        sed -i "s|http_host = 0.0.0.0|http_host = 127.0.0.1|g" $app_configfile
+        sed -i "s|http_root = /|http_root = /mylar|g" $app_configfile
+        nginx -s reload
+        systemctl restart ${app_servicefile}
+    fi
+}
