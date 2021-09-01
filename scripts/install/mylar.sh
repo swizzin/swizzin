@@ -42,7 +42,7 @@ function install_mylar() {
     # mylar
     echo_progress_start "Grabbing the latest Mylar."
     git clone https://github.com/mylar3/mylar3.git $app_dir >> $log 2>&1
-    echo_progress_start "Mylar downloaded."
+    echo_progress_done "Mylar downloaded."
     echo_progress_start "Upgrading pip and installing dependencies."
     /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
     /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
