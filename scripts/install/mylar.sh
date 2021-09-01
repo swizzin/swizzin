@@ -57,6 +57,7 @@ echo_progress_done
 echo_progress_start "Setting permissions"
 chown -R "$user": /opt/mylar
 chown -R "$user": /opt/.venv/mylar
+chown -R "$user": /home/$user/.config/mylar
 setfacl -m g:"$user":rx /home/*
 echo_progress_done
 
