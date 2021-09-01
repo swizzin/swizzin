@@ -14,7 +14,7 @@ port=$(awk -F "=" '/http_port/ {print $2}' /home/${user}/.config/mylar/config.in
 sed -i 's|http_host = 0.0.0.0|http_host = 127.0.0.1|g' /home/${user}/.config/mylar/config.ini
 cat > /etc/nginx/apps/mylar.conf << EON
 location ^~ /mylar {
-    include /config/nginx/proxy.conf;
+    include snippets/proxy.conf;
     proxy_pass http://127.0.0.1:${port};
 }
 EON
