@@ -84,6 +84,9 @@ MLR
 http_port = ${app_port}
 http_host = ${interface}
 http_root = /${app_name}
+http_username = ${user}
+http_password = $(_get_user_password ${user})
+authentication = 1
 CFG
     chown $user:$app_group -R ${app_configdir}
     echo_progress_done "Service file written."
