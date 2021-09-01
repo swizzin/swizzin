@@ -65,7 +65,7 @@ After=nginx.service
 Type=simple
 User=$user
 
-ExecStart=/opt/.venv/${app_name}/bin/python $app_binary.py -p $app_port --datadir $app_configdir
+ExecStart=/opt/.venv/${app_name}/bin/python $app_binary.py --datadir $app_configdir
 WorkingDirectory=$app_dir
 Restart=on-failure
 TimeoutStopSec=300
@@ -73,6 +73,17 @@ TimeoutStopSec=300
 [Install]
 WantedBy=multi-user.target
 MLR
+    if [[ -f /install/.nginx.lock ]]; then
+        interface=127.0.0.1
+    else
+        interface=0.0.0.0
+    fi
+    cat > "${app_configfile}" << CFG
+[Interface]
+http_port = ${app_port}
+http_host = ${interface}
+http_root = /${app_name}
+CFG
     echo_progress_done "Service file written."
     systemctl enable -q --now ${app_servicefile} || echo_warn "Mylar failed to start."
 }
