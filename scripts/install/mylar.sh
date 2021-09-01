@@ -40,14 +40,20 @@ function install_mylar() {
     pyenv_install_version 3.8.1
     pyenv_create_venv 3.8.1 /opt/.venv/${app_name}/
     # mylar
+    echo_progress_start "Grabbing the latest Mylar."
     git clone https://github.com/mylar3/mylar3.git $app_dir >> $log 2>&1
+    echo_progress_start "Mylar downloaded."
+    echo_progress_start "Upgrading pip and installing dependencies."
     /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
     /opt/.venv/${app_name}/bin/pip install --upgrade pip >> $log 2>&1
     /opt/.venv/${app_name}/bin/pip3 install -r $app_dir/requirements.txt >> $log 2>&1
+    echo_progress_done "Upgrading pip and installing dependencies."
     # ownership
+    echo_progress_start "Owning the files to $user"
     chown $user:$app_group -R $app_dir
     chown $user:$app_group -R /opt/.venv/${app_name}
-
+    echo_progress_done "$user owns files."
+    echo_progress_start "Writing service file."
     cat > /etc/systemd/system/$app_servicefile << MLR
 [Unit]
 Description=mylarr3 service
@@ -65,10 +71,15 @@ TimeoutStopSec=300
 [Install]
 WantedBy=multi-user.target
 MLR
-    systemctl enable -q --now ${app_servicefile}
+    echo_progress_done "Service file written."
+    systemctl enable -q --now ${app_servicefile} || echo_warn "Mylar failed to start."
 }
 #shellcheck source=scripts/nginx/mylar.sh
 . /etc/swizzin/scripts/nginx/mylar.sh
 install_mylar
+echo_progress_start "Installing nginx config."
 mylar_ngx
+echo_progress_done "nginx config done."
+echo_progress_start "Touching lock file."
 touch /install/.${app_lockname}.lock
+echo_progress_done "Mylar intalled."
