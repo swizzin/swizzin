@@ -61,7 +61,8 @@ setfacl -m g:"$user":rx /home/*
 echo_progress_done
 
 echo_progress_start "Configuring Mylar"
-cat > /home/"$user"/.config/mylar/config.ini << EOF
+mkdir -p /home/${user}/.config/mylar/
+cat > /home/${user}/.config/mylar/config.ini << EOF
 [Interface]
 http_port = ${port}
 http_host = 0.0.0.0
