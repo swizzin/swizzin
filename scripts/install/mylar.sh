@@ -78,12 +78,14 @@ MLR
     else
         interface=0.0.0.0
     fi
+    mkdir -p "${app_configdir}"
     cat > "${app_configfile}" << CFG
 [Interface]
 http_port = ${app_port}
 http_host = ${interface}
 http_root = /${app_name}
 CFG
+    chown $user:$app_group -R ${app_configdir}
     echo_progress_done "Service file written."
     systemctl enable -q --now ${app_servicefile} || echo_warn "Mylar failed to start."
 }
