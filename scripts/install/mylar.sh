@@ -26,6 +26,8 @@ app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 #Remove any dashes in appname per FS
 app_lockname="${app_name//-/}"
+echo_info "Setting ${app_name^} port = ${app_port}"
+swizdb set "mylar/port" "${app_port}"
 
 if [ ! -d "$swiz_configdir" ]; then
     mkdir -p "$swiz_configdir"
