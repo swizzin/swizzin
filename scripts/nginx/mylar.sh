@@ -1,4 +1,5 @@
 #!/bin/bash
+# Brett 2021
 function mylar_ngx() {
     if [[ -f /install/.nginx.lock ]]; then
         cat > /etc/nginx/apps/${app_name}.conf << NGX
