@@ -14,4 +14,4 @@ check_port "$1" || BAD="true"
 check_port_curl "$1" || BAD="true"
 check_nginx "$1" || BAD="true"
 
-evaluate_bad
+evaluate_bad "$1"

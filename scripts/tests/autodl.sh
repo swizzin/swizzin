@@ -8,4 +8,4 @@ for user in "${users[@]}"; do
     check_service "irssi@$user" || BAD=true
 done
 
-evaluate_bad
+evaluate_bad "autodl"

@@ -517,7 +517,6 @@ _run_tests() {
         . /etc/swizzin/sources/functions/utils
         readarray -t list < <(_get_installed_apps)
         echo_info "Tests to run: ${list[*]}"
-        echo
     fi
 
     export bell=false
@@ -528,18 +527,20 @@ _run_tests() {
     touch "$log"
     for item in "${list[@]}"; do
         if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
-            echo_info "Running test for $item"
+            echo_log_only "Running test for $item"
             bash /etc/swizzin/scripts/tests/"$item".sh || BAD="true"
-            echo
+
         else
-            echo_info "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
+            echo_log_only "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
             bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
-            echo
+
         fi
     done
 
     if [ "$BAD" == "true" ]; then
         exit 1
+    else
+        echo_success "All tests completed succesfully.\nTest log can be found in $log"
     fi
     log="$oldlog"
     export log
