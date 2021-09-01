@@ -18,7 +18,7 @@ NGX
         sed -i "s|http_root = /|http_root = /mylar|g" $app_configfile
         nginx -s reload >> $log 2>&1 || echo_error "Something went wrong with nginx. Please run nginx -t"
         systemctl restart -q ${app_servicefile}
-        echo_info "Mylar is now up and running on https://yourdomain.tld:${app_port}/mylar"
+        echo_info "Mylar is now up and running on https://yourdomain.tld/mylar"
     else
         echo_info "Mylar is now up and running on ${app_port}"
     fi
