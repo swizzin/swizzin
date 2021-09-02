@@ -5,7 +5,7 @@ if [ ! -f /install/.calibre.lock ]; then
     exit 1
 fi
 
-case "$(os_arch)" in
+case "$(_os_arch)" in
     amd64)
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
         if ! bash /tmp/calibre-installer.sh install_dir=/opt >> $log 2>&1; then
