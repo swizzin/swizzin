@@ -364,6 +364,7 @@ Bittorrent\MaxConnecs=-1
 Bittorrent\MaxConnecsPerTorrent=-1
 Bittorrent\MaxUploads=-1
 Bittorrent\MaxUploadsPerTorrent=-1
+Downloads\PreAllocation=true
 Downloads\SavePath=/home/${user}/torrents/qbittorrent/
 Queueing\QueueingEnabled=false
 WebUI\Address=*
