@@ -153,7 +153,7 @@ _get_installed_apps() {
 # **Returns key's value after logic**
 populate_var() {
     if [ -z "$3" ]; then                        # If ENV_VAR is zero length
-        if [[ -z "$(swizdb get "$1")" ]]; then  # If swizdb key's value is zero length
+        if ! swizdb get "$1"; then              # If swizdb key's value is null
             swizdb set "$1" "$2"                # Save default as value
         fi
     else                                        # If ENV_VAR isn't zero length
