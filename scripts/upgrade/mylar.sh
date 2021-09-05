@@ -10,12 +10,6 @@
 #   under the GPL along with build & install instructions.
 #
 if [[ -f /install/.mylar.lock ]]; then
-    if ! dpkg -s acl > /dev/null 2>&1; then
-        echo_progress_start "Modifying ACLs for mylar group to prevent issues"
-        apt_install acl
-        setfacl -m g:mylar:rx /home/*
-        echo_progress_done
-    fi
 
     cd /opt/mylar || {
         echo_warn "Failed to cd into /opt/mylar."
