@@ -508,6 +508,24 @@ function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
 
+function _gobrr() {
+    app=$2
+    if [[ $app != brr ]]; then
+        echo_error "You can only go brr"
+        exit 1
+    fi
+    if [[ ! -f /install/.ffmpeg ]]; then
+        bash /etc/swizzin/scripts/install/ffmpeg.sh
+    fi
+
+    apt_install zlib-dev libjpeg-dev python3-setuptools python3-pip
+    pip3 install gif-for-cli >> ${log} 2>&1
+    gif-for-cli --display-mode=256 -l 2 https://media.tenor.co/videos/36c2c191bf4e05338e48c83a9a81ce35/mp4 &
+    bash /etc/swizzin/scripts/install/autobrr.sh >> ${log} 2>&1
+    wait
+    echo_success "BOX WENT BRR"
+}
+
 _run_tests() {
     shift
     if [[ -n $1 ]]; then
@@ -649,6 +667,9 @@ case "$1" in
     "test")
         _run_tests "$@"
         exit 0 # No need to double-run tests
+        ;;
+    "go")
+        _gobrr "$@"
         ;;
     *)
         echo_error "Invalid command: $1"
