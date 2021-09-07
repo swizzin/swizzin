@@ -518,7 +518,7 @@ function _gobrr() {
         bash /etc/swizzin/scripts/install/ffmpeg.sh
     fi
 
-    apt_install zlib-dev libjpeg-dev python3-setuptools python3-pip
+    apt_install zlib1g-dev libjpeg-dev python3-setuptools python3-pip
     pip3 install gif-for-cli >> ${log} 2>&1
     gif-for-cli --display-mode=256 -l 2 https://media.tenor.co/videos/36c2c191bf4e05338e48c83a9a81ce35/mp4 &
     bash /etc/swizzin/scripts/install/autobrr.sh >> ${log} 2>&1
