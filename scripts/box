@@ -514,13 +514,9 @@ function _gobrr() {
         echo_error "You can only go brr"
         exit 1
     fi
-    if [[ ! -f /install/.ffmpeg ]]; then
-        bash /etc/swizzin/scripts/install/ffmpeg.sh
-    fi
 
-    apt_install zlib1g-dev libjpeg-dev python3-setuptools python3-pip
-    pip3 install gif-for-cli >> ${log} 2>&1
-    gif-for-cli --display-mode=truecolor -l 2 https://media.tenor.co/videos/36c2c191bf4e05338e48c83a9a81ce35/mp4 &
+    apt_install --no-recommends mpv
+    mpv --vo=tct --really-quiet https://media.tenor.co/videos/36c2c191bf4e05338e48c83a9a81ce35/mp4 --loop-file=2 &
     if [[ ! -f /install/.autobrr.lock ]]; then
         bash /etc/swizzin/scripts/install/autobrr.sh >> ${log} 2>&1
     fi
