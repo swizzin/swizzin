@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.1.0]
+
+## September 20, 2021
+
+### Added
+ - New app: Autobrr
+   - A torrent client agnostic replacement for Autodl-irssi written in go.
+   - Still in active development. The author was kind enough to contribute the entire flow to swizzin, which is why it has been included despite being in active development.
+   - Consider not using it quite yet if you are afraid of potentially having to reinstall the application and reset-up your filters in the event an app upgrade requires a full database wipe. That said, the application currently does what it says on the box.
+ - Checking out the `develop` branch will keep you on `develop` over future runs of `box update`
+
+### Updated
+ - Sonarr installations will now use the tarball method of install rather than the apt repo (fixes Bullseye "no repo found" for Sonarr)
+ - Include arm64 in official support during install
+ - nginx will now default to TLS1.3 and http/2 connections
+ - made tests a bit less noisy
+ - Offer to remove mysql database when removing nextcloud
+
+### Fixed
+ - Autodl grepping for gui/server ports could accidentally return the wrong port if your client was fully setup.
+ - `/home/${user}/.config` will now be generated when creating/adding a user to prevent scenarios in which `~/.config` is created and owned by `root`
+ - Parsing `--test` and `--env` arguments during setup
+ - enable pre-allocation in qbittorrent by default (XFS users rejoice)
+ - Calibre: `os_arch` command not found during upgrade
+ - Filebrowser arm compatibility was broken on upgrades
+
 ## [3.0.0] was technically months ago edition
 
 ## August 16, 2021
