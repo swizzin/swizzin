@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.1]
+
+## October 14, 2021
+
+### Added
+ - `populate_var` function for swizdb toolkit
+
+### Updated
+ - Node version bump to 14 LTS.
+   - We will no longer clobber your choices if you are running a newer node version than is required by swizzin packages
+
+### Fixed
+ - apt function `check_install` was sometimes improperly returning the installed status of dependencies
+
 ## [3.1.0]
 
 ## September 20, 2021
