@@ -198,7 +198,7 @@ export -f _apt_update
 # $1 the package to check for
 # Returns code 0 in case a package is installed, 1 if missing
 check_installed() {
-    if dpkg -s "$1" >> $log 2>&1; then
+    if dpkg-query --showformat='${db:Status-Status}' -W "$1" 2>&1 | grep installed > /dev/null 2>&1; then
         return 0
     else
         return 1
