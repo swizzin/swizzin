@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Install a current cmake and ninja from prebuilt multiarch debs
+
+# Depends on:
+#. /etc/swizzin/sources/functions/debug
+#. /etc/swizzin/sources/functions/os
+#. /etc/swizzin/sources/functions/color_echo
+
+_install_cmake() {
+    echo_progress_start "Installing cmake to /opt/cmake"
+    curl -NL "https://github.com/swizzin/cmake_crossbuild/releases/latest/download/$(_os_distro)-$(_os_codename)-cmake-swizzin-$(_os_arch).deb" -o "/tmp/$(_os_distro)-$(_os_codename)-cmake-swizzin-$(_os_arch).deb"
+    dpkg -i "/tmp/$(_os_distro)-$(_os_codename)-cmake-swizzin-$(_os_arch).deb"
+    #
+    _pipe_status
+    #
+    rm_if_exists "/tmp/$(_os_distro)-$(_os_codename)-cmake-swizzin-$(_os_arch).deb"
+    echo_progress_done "cmake has been installed to /opt/cmake"
+} 2>> $log
