@@ -1,0 +1,9 @@
+#!/bin/bash
+
+debug_user() {
+    journalctl -e --user -u "${1}" | ccze -Ao nolookups
+}
+
+debug() {
+    journalctl -e -u "${1}" | ccze -Ao nolookups
+}
