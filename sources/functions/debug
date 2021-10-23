@@ -9,9 +9,8 @@ debug_user() {
 }
 
 _pipe_status() {
-    outcome="${PIPESTATUS[0]}"
-    if [[ "${outcome}" -gt '0' ]]; then
-        echo_error "Error: The command produced an exit code greater than 0 - Check the logs"
-        exit "${outcome}"
+    if [[ "${PIPESTATUS[0]}" -gt '0' ]]; then
+        echo_error "Error: The function produced an exit code greater than 0 - Check the logs"
+        exit "${PIPESTATUS[0]}"
     fi
 }
