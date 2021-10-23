@@ -7,3 +7,11 @@ debug() {
 debug_user() {
     journalctl -e --user -u "${1}" | ccze -Ao nolookups
 }
+
+_pipe_status() {
+    outcome="${PIPESTATUS[0]}"
+    if [[ "${outcome}" -gt '0' ]]; then
+        echo_error "Error: The command produced an exit code greater than 0 - Check the logs"
+        exit "${outcome}"
+    fi
+}
