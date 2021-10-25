@@ -1,5 +1,5 @@
 #!/bin/bash
-# autobrr remover
+# navidrome remover
 # byte 2021 for Swizzin
 
 #shellcheck source=sources/functions/utils
