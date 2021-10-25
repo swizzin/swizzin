@@ -1,6 +1,6 @@
 #!/bin/bash
 # autobrr remover
-# ludviglundgren 2021 for Swizzin
+# byte 2021 for Swizzin
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
