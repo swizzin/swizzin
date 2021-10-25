@@ -26,7 +26,7 @@ function navidrome_download_latest() {
 
     echo_progress_start "Extracting archive"
 
-    # the archive contains both autobrr and autobrrctl to easily setup the user
+    
     tar -xvzf Navidrome.tar.gz -C /opt/navidrome/ >> $log 2>&1 || {
         echo_error "Failed to extract"
         exit 1
