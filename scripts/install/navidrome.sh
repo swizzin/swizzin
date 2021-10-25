@@ -4,7 +4,7 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-#shellcheck source=sources/functions/autobrr
+#shellcheck source=sources/functions/navidrome
 . /etc/swizzin/sources/functions/navidrome
 
 _systemd() {
