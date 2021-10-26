@@ -20,7 +20,7 @@ _systemd() {
 [Unit]
 Description=Navidrome Music Server and Streamer compatible with Subsonic/Airsonic
 After=remote-fs.target network.target
-AssertPathExists=/home/$user/.config/navidrome/
+AssertPathExists=/var/lib/navidrome/
 
 [Install]
 WantedBy=multi-user.target
@@ -29,8 +29,8 @@ WantedBy=multi-user.target
 User=${user}
 Group=${user}
 Type=simple
-ExecStart=/opt/navidrome/navidrome --configfile "/home/$user/.config/navidrome/navidrome.toml"
-WorkingDirectory=/home/$user/.config/navidrome/
+ExecStart=/opt/navidrome/navidrome --configfile "/var/lib/navidrome/navidrome.toml"
+WorkingDirectory=/var/lib/navidrome/
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
@@ -87,8 +87,8 @@ _navidromedirectories() {
     echo_progress_start "Making data directory and owning it to ${user}"
     mkdir -p "/opt/navidrome"
     chown -R "$user":"$user" /opt/navidrome
-    mkdir -p "/home/$user/.config/navidrome/"
-    chown -R "$user":"$user" /home/$user/.config/navidrome/
+    mkdir -p "/var/lib/navidrome/"
+    chown -R "$user":"$user" /var/lib/navidrome/
     mkdir -p "/home/$user/music"
     chown -R "$user":"$user" "/home/$user/music"
     echo_progress_done "Data Directory created and owned."
@@ -96,7 +96,7 @@ _navidromedirectories() {
 
 _navidromeconfig() {
     echo_progress_start "Installing configuration file"
-    cat > /home/$user/.config/navidrome/navidrome.toml <<- SERV
+    cat > /var/lib/navidrome/navidrome.toml <<- SERV
 MusicFolder = "/home/$user/music"
 ND_BASEURL = "/navidrome"
 SERV
