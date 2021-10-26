@@ -10,7 +10,7 @@ function _remove_navidrome() {
 
     rm -f /etc/systemd/system/navidrome.service
     rm -rf /opt/navidrome
-    rm -rf /var/lib/navidrome
+    rm -rf /home/$user/.config/autobrr/
 
     systemctl daemon-reload -q
 
