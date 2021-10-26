@@ -1,7 +1,7 @@
 #!/bin/bash
 # navidrome installer
 # byte 2021 for Swizzin
-
+. user=$(_get_master_username)
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/navidrome
