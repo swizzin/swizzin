@@ -110,5 +110,6 @@ _ffmpegrequired
 _systemd
 _nginx
 
+systemctl enable -q --now navidrome.service 2>&1 | tee -a $log
 touch "/install/.navidrome.lock"
 echo_success "navidrome installed"
