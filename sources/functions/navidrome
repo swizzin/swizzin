@@ -13,12 +13,12 @@ function navidrome_download_latest() {
             ;;
     esac
 
-    latest=$(curl -sL  https://api.github.com/repos/navidrome/navidrome/releases/latest | jq -r '.assets[].browser_download_url' | grep "_${OS}_${ARCH}.tar.gz") > navidrome_${OS}_${ARCH}.tar.gz || {
+    latest=$(curl -sL  https://api.github.com/repos/navidrome/navidrome/releases/latest | jq -r '.assets[].browser_download_url' | grep "_${OS}_${ARCH}.tar.gz"\) > /tmp/navidrome.tar.gz || {
         echo_error "Failed to query GitHub for latest version"
         exit 1
     }
 
-    if ! curl "$latest" -L -o "/tmp/navidrome_${OS}_${ARCH}.tar.gz" >> "$log" 2>&1; then
+    if ! curl "$latest" -L -o "/tmp/navidrome.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
@@ -27,10 +27,10 @@ function navidrome_download_latest() {
     echo_progress_start "Extracting archive"
 
     
-    tar -xvzf navidrome_${OS}_${ARCH}.tar.gz -C /opt/navidrome/ >> $log 2>&1 || {
+    tar -xvzf /tmp/navidrome.tar.gz -C /opt/navidrome/ >> $log 2>&1 || {
         echo_error "Failed to extract"
         exit 1
     }
-    rm -rf "/tmp/navidrome_${OS}_${ARCH}.tar.gz"
+    rm -rf "/tmp/navidrome.tar.gz"
     echo_progress_done "Archive extracted"
 }
