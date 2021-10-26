@@ -84,7 +84,7 @@ fi
 }
 
 _navidromedirectories() {
-echo_progress_start "Making data directory and owning it to %i"
+echo_progress_start "Making data directory and owning it to ${user}"
 mkdir -p "/opt/navidrome"
 chown -R "$user":"$user" /opt/navidrome
 mkdir -p "/var/lib/navidrome"
