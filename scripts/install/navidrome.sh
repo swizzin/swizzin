@@ -1,7 +1,7 @@
 #!/bin/bash
 # navidrome installer
 # byte 2021 for Swizzin
-. user=$(_get_master_username)
+
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/navidrome
@@ -24,8 +24,8 @@ AssertPathExists=/var/lib/navidrome
 WantedBy=multi-user.target
 
 [Service]
-User=${user}
-Group=${group}
+User=%i
+Group=%i
 Type=simple
 ExecStart=/opt/navidrome/navidrome --configfile "/var/lib/navidrome/navidrome.toml"
 WorkingDirectory=/var/lib/navidrome
@@ -82,7 +82,7 @@ fi
 }
 
 _navidromedirectories() {
-echo_progress_start "Making data directory and owning it to ${user}"
+echo_progress_start "Making data directory and owning it to %i"
 mkdir -p "/opt/navidrome"
 chown -R "$user":"$user" /opt/navidrome
 mkdir -p "/var/lib/navidrome"
