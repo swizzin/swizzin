@@ -7,6 +7,8 @@
 #shellcheck source=sources/functions/navidrome
 . /etc/swizzin/sources/functions/navidrome
 
+user=$(_get_master_username)
+
 _systemd() {
     type=simple
     if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
@@ -24,8 +26,8 @@ AssertPathExists=/var/lib/navidrome
 WantedBy=multi-user.target
 
 [Service]
-User=%i
-Group=%i
+User=${user}
+Group=${user}
 Type=simple
 ExecStart=/opt/navidrome/navidrome --configfile "/var/lib/navidrome/navidrome.toml"
 WorkingDirectory=/var/lib/navidrome
