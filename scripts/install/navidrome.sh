@@ -65,7 +65,7 @@ ProtectSystem=full
 # You can customize some Navidrome config options by setting environment variables here. Ex:
 Environment=ND_BASEURL="/navidrome"
 SERV
-echo_progress_done "Navidrome service installed"
+    echo_progress_done "Navidrome service installed"
 }
 
 _nginx() {
@@ -78,29 +78,29 @@ _nginx() {
 }
 
 _ffmpegrequired() {
-if [[ ! -f /install/.ffmpeg.lock ]]; then
-    bash /usr/local/bin/swizzin/install/ffmpeg.sh
-fi
+    if [[ ! -f /install/.ffmpeg.lock ]]; then
+        bash /usr/local/bin/swizzin/install/ffmpeg.sh
+    fi
 }
 
 _navidromedirectories() {
-echo_progress_start "Making data directory and owning it to ${user}"
-mkdir -p "/opt/navidrome"
-chown -R "$user":"$user" /opt/navidrome
-mkdir -p "/var/lib/navidrome"
-chown -R "$user":"$user" /var/lib/navidrome
-mkdir -p "/home/$user/music"
-chown -R "$user":"$user" "/home/$user/music"
-echo_progress_done "Data Directory created and owned."
+    echo_progress_start "Making data directory and owning it to ${user}"
+    mkdir -p "/opt/navidrome"
+    chown -R "$user":"$user" /opt/navidrome
+    mkdir -p "/var/lib/navidrome"
+    chown -R "$user":"$user" /var/lib/navidrome
+    mkdir -p "/home/$user/music"
+    chown -R "$user":"$user" "/home/$user/music"
+    echo_progress_done "Data Directory created and owned."
 }
 
 _navidromeconfig() {
-echo_progress_start "Installing configuration file"
-cat >/var/lib/navidrome/navidrome.toml <<-SERV
+    echo_progress_start "Installing configuration file"
+    cat > /var/lib/navidrome/navidrome.toml <<- SERV
 MusicFolder = "/home/$user/music"
 ND_BASEURL = "/navidrome"
 SERV
-echo_progress_done "Configuration installed"
+    echo_progress_done "Configuration installed"
 }
 
 _navidromedirectories
