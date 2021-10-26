@@ -103,7 +103,7 @@ SERV
 echo_progress_done "Configuration installed"
 }
 
-
+navidrome_download_latest
 _navidromedirectories
 _navidromeconfig
 _ffmpegrequired
