@@ -26,7 +26,6 @@ function navidrome_download_latest() {
 
     echo_progress_start "Extracting archive"
 
-    
     tar xfv "/tmp/navidrome.tar.gz" --directory /opt/navidrome/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1
