@@ -9,8 +9,8 @@ function _remove_navidrome() {
     systemctl disable --now -q navidrome.service
 
     rm -f /etc/systemd/system/navidrome.service
-    rm -f /opt/navidrome
-    rm -f /var/lib/navidrome
+    rm -rf /opt/navidrome
+    rm -rf /var/lib/navidrome
 
     systemctl daemon-reload -q
 
