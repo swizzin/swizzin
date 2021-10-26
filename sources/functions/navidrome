@@ -13,7 +13,7 @@ function navidrome_download_latest() {
             ;;
     esac
 
-    latest=$(curl -sL  https://api.github.com/repos/navidrome/navidrome/releases/latest | jq -r '.assets[].browser_download_url' | grep "_${OS}_${ARCH}.tar.gz"\) > /tmp/navidrome.tar.gz || {
+    latest=$(curl -sL  https://api.github.com/repos/navidrome/navidrome/releases/latest | jq -r '.assets[].browser_download_url' | grep "_${OS}_${ARCH}.tar.gz") > /tmp/navidrome.tar.gz || {
         echo_error "Failed to query GitHub for latest version"
         exit 1
     }
