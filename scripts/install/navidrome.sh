@@ -20,7 +20,7 @@ _systemd() {
 [Unit]
 Description=Navidrome Music Server and Streamer compatible with Subsonic/Airsonic
 After=remote-fs.target network.target
-AssertPathExists=/var/lib/navidrome
+AssertPathExists=/home/$user/.config/navidrome/
 
 [Install]
 WantedBy=multi-user.target
