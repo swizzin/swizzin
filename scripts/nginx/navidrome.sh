@@ -4,7 +4,7 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-users=($(_get_user_list))
+user=$(_get_master_username)
 cat > /etc/nginx/apps/navidrome.conf <<- NGX
 location /navidrome {
   proxy_pass        http://127.0.0.1:4533/navidrome;
