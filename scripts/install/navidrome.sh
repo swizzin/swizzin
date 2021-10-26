@@ -105,7 +105,6 @@ echo_progress_done "Configuration installed"
 _navidromedirectories
 _navidromeconfig
 _ffmpegrequired
-navidrome_download_latest
 _systemd
 _nginx
 
