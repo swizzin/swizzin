@@ -10,19 +10,19 @@ jobs:
       TERM: xterm-256color
     steps:
       - uses: actions/checkout@v2.3.4
-      - name: download
-
+      - name: download install script
         run: wget -qO swizzin.sh git.io/swizzin
-      - name: download
+
+      - name: Install swizzin
         run: sudo bash swizzin.sh --user username --pass password --skip-cracklib --unattend
 
-      - name: Install
+      - name: Install pull request apps
         run: sudo box install calibreweb
 
       - name: Copy logs
         run: sudo cp -f /root/logs/swizzin.log ${{ job.name }}.swizzin.log
 
-      - name: Host - Upload artifacts
+      - name: Upload logs as artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ job.name }}.log
@@ -35,19 +35,19 @@ jobs:
       TERM: xterm-256color
     steps:
       - uses: actions/checkout@v2.3.4
-      - name: download
-
+      - name: download install script
         run: wget -qO swizzin.sh git.io/swizzin
-      - name: download
+
+      - name: Install swizzin
         run: sudo bash swizzin.sh --user username --pass password --skip-cracklib --unattend
 
-      - name: Install
+      - name: Install pull request apps
         run: sudo box install calibreweb
 
       - name: Copy logs
         run: sudo cp -f /root/logs/swizzin.log ${{ job.name }}.swizzin.log
 
-      - name: Host - Upload artifacts
+      - name: Upload logs as artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ job.name }}.log
