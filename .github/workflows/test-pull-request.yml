@@ -11,16 +11,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
       - name: download
+
         run: wget -qO swizzin.sh git.io/swizzin
       - name: download
         run: sudo bash swizzin.sh --user username --pass password --skip-cracklib --unattend
+
       - name: Install
         run: sudo box install calibreweb
+
+      - name: Copy logs
+        run: sudo cp -f /root/logs/swizzin.log ${{ job.name }}.swizzin.log
+
       - name: Host - Upload artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ job.name }}.log
-          path: /root/logs/swizzin.log
+          path: ${{ job.name }}.swizzin.log
 
   build_2:
     name: Test pull request 18.04
@@ -30,13 +36,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2.3.4
       - name: download
+
         run: wget -qO swizzin.sh git.io/swizzin
       - name: download
         run: sudo bash swizzin.sh --user username --pass password --skip-cracklib --unattend
+
       - name: Install
         run: sudo box install calibreweb
+
+      - name: Copy logs
+        run: sudo cp -f /root/logs/swizzin.log ${{ job.name }}.swizzin.log
+
       - name: Host - Upload artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ job.name }}.log
-          path: /root/logs/swizzin.log
+          path: ${{ job.name }}.swizzin.log
