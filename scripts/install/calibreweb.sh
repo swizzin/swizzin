@@ -116,7 +116,7 @@ Description=calibreweb
 [Service]
 User=$clbWebUser
 Type=simple
-ExecStart=/opt/.venv/calibreweb/bin/python3 $calibrewebdir/cps.py -f
+ExecStart=/opt/.venv/calibreweb/bin/python3 $calibrewebdir/cps.py
 WorkingDirectory=$calibrewebdir
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/opt/.venv/calibreweb/bin
 
