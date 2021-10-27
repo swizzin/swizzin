@@ -1,0 +1,21 @@
+name: test-pull-request
+on:
+  - workflow_dispatch
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Test pull reuest
+    env:
+      none: ""
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - name: download
+        run: sudo bash <(wget -qO - git.io/swizzin) --user username --pass password --skip-cracklib --unattend calibreweb
+
+      - name: Host - Upload artifacts
+        uses: actions/upload-artifact@v2.2.4
+        with:
+          name: log
+          path: /root/logs/swizzin.log
