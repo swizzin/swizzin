@@ -3,6 +3,32 @@ on:
   - workflow_dispatch
 
 jobs:
+  get-info:
+    name: get pull request info
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: 8BitJonny/gh-get-current-pr@1.2.0
+        id: PR
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Verbose setting SHA when using Pull_Request event trigger to fix #16
+          sha: ${{ github.event.pull_request.head.sha }}
+          # Only return if PR is still open
+          filterOutClosed: true
+      - run: echo "Your PR is ${prNumber} and its JSON is ${prJSON}"
+        if: success() && steps.PR.outputs.number
+        env:
+          # Direct access to common PR properties
+          prUrl: ${{ steps.PR.outputs.pr_url }}
+          prTitle: ${{ steps.PR.outputs.pr_title }}
+          prBody: ${{ steps.PR.outputs.pr_body }}
+
+      - name: save to file
+        run: |
+          echo ${{ env.PR.outputs.pr_url }} > test.txt
+          cat test.txt
+
   build_1:
     name: Test pull request 20.04
     runs-on: ubuntu-20.04
