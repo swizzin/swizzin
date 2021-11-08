@@ -5,12 +5,14 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+user=$(_get_master_username)
+
 function _remove_navidrome() {
     systemctl disable --now -q navidrome.service
 
     rm -f /etc/systemd/system/navidrome.service
     rm -rf /opt/navidrome
-    rm -rf /var/lib/navidrome/
+    rm -rf /home/${user}/.config/navidrome
 
     systemctl daemon-reload -q
 
