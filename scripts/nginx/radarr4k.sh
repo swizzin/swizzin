@@ -3,16 +3,16 @@
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
 master=$(_get_master_username)
-app_name="prowlarr"
-PROWLARR_OWNER="prowlarr"
+app_name="radarr4k"
+RADARR_OWNER="radarr"
 
-if ! PROWLARR_OWNER="$(swizdb get $app_name/owner)"; then
-    PROWLARR_OWNER=$master
+if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
+    RADARR_OWNER=$(_get_master_username)
 fi
-user="$PROWLARR_OWNER"
+user="$RADARR_OWNER"
 
-app_port="9696"
-app_sslport="9797"
+app_port="7879"
+app_sslport="7980"
 app_baseurl="$app_name"
 app_configdir="/var/lib/${app_name^}"
 app_servicefile="${app_name}.service"

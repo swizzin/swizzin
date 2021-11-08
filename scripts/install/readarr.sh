@@ -1,43 +1,40 @@
 #!/bin/bash
-# *Arr Installer for Prowlarr
-# Refactored from existing files by FlyingSausages and others
-# Bakerboy448 2021 for Swizzin
+# readarr installer
+# GPLv3 applies
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-app_name="prowlarr"
-PROWLARR_OWNER="prowlarr"
-if [ -z "$PROWLARR_OWNER" ]; then
-    if ! PROWLARR_OWNER="$(swizdb get "$app_name/owner")"; then
-        PROWLARR_OWNER="$(_get_master_username)"
-        echo_info "Setting ${app_name^} owner = $PROWLARR_OWNER"
-        swizdb set "$app_name/owner" "$PROWLARR_OWNER"
+app_name="readarr"
+READARR_OWNER="readarr"
+if [ -z "$READARR_OWNER" ]; then
+    if ! READARR_OWNER="$(swizdb get "$app_name/owner")"; then
+        READARR_OWNER="$(_get_master_username)"
+        swizdb set "$app_name/owner" "$READARR_OWNER"
     fi
 else
-    echo_info "Setting ${app_name^} owner = $PROWLARR_OWNER"
-    swizdb set "$app_name/owner" "$PROWLARR_OWNER"
+    echo_info "Setting ${app_name^} owner = $READARR_OWNER"
+    swizdb set "$app_name/owner" "$READARR_OWNER"
 fi
-user="$PROWLARR_OWNER"
+
+user="$READARR_OWNER"
 swiz_configdir="/var/lib/"
 app_configdir="$swiz_configdir/${app_name^}"
-app_group="$user"
-app_port="9696"
+app_group="media"
+app_port="8787"
 app_reqs=("curl" "sqlite3")
 app_servicefile="$app_name.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
-#Remove any dashes in appname per FS
 app_lockname="${app_name//-/}"
-app_branch="nightly"
-#ToDo: Update branch
+app_branch="nightly" # Change to develop/stable when available, tell users to migrate manually.
 
 if [ ! -d "$swiz_configdir" ]; then
     mkdir -p "$swiz_configdir"
 fi
 chown "$user":"$user" "$swiz_configdir"
 
-_install_prowlarr() {
+_install() {
     if [ ! -d "$app_configdir" ]; then
         mkdir -p "$app_configdir"
     fi
@@ -73,7 +70,19 @@ _install_prowlarr() {
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
 }
-_systemd_prowlarr() {
+
+_nginx() {
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Configuring nginx"
+        bash /etc/swizzin/scripts/nginx/"$app_name".sh
+        systemctl reload nginx
+        echo_progress_done "Nginx configured"
+    else
+        echo_info "$app_name will run on port $app_port"
+    fi
+}
+
+_systemd() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
@@ -105,34 +114,16 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
-    systemctl -q daemon-reload
     systemctl enable --now -q "$app_servicefile"
     sleep 1
+
     echo_progress_done "${app_name^} service installed and enabled"
 
-    # In theory there should be no updating needed, so let's generalize this
-    echo_progress_start "${app_name^} is loading..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
-        exit 1
-    fi
-    echo_progress_done "Loading finished"
-
 }
 
-_nginx_prowlarr() {
-    if [[ -f /install/.nginx.lock ]]; then
-        echo_progress_start "Configuring nginx"
-        bash /usr/local/bin/swizzin/nginx/"$app_name".sh
-        systemctl reload nginx
-        echo_progress_done "Nginx configured"
-    else
-        echo_info "$app_name will run on port $app_port"
-    fi
-}
-_install_prowlarr
-_systemd_prowlarr
-_nginx_prowlarr
+_install
+_nginx
+_systemd
 
 touch "/install/.$app_lockname.lock"
 echo_success "${app_name^} installed"

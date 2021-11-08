@@ -15,7 +15,7 @@ for user in "${users[@]}"; do
         continue
     }
 
-    d_port=$(jq -r '.["daemon_port"]' < /home/"$user"/.config/deluge/core.conf | grep -e '^[0-9]*$')
+    d_port=$(jq -r '.["daemon_port"]' < /var/lib/deluge/core.conf | grep -e '^[0-9]*$')
     check_port "$d_port"
 done
 

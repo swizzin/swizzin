@@ -1,12 +1,12 @@
 #!/bin/bash
 
-app_name="prowlarr"
+app_name="readarr"
 
-if ! PROWLARR_OWNER="$(swizdb get $app_name/owner)"; then
-    PROWLARR_OWNER=$(_get_master_username)
+if ! READARR_OWNER="$(swizdb get $app_name/owner)"; then
+    READARR_OWNER=$(_get_master_username)
 fi
 
-user="$PROWLARR_OWNER"
+user="$READARR_OWNER"
 app_configdir="/var/lib/${app_name^}"
 app_servicefile="${app_name}.service"
 app_dir="/opt/${app_name^}"

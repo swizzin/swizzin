@@ -1,62 +1,102 @@
 #!/bin/bash
-# radarr v3 installer
-# Flying sauasges for swizzin 2020
+# *Arr Installer for Prowlarr
+# Refactored from existing files by FlyingSausages and others
+# Bakerboy448 2021 for Swizzin
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-_install_radarr() {
-    apt_install curl mediainfo sqlite3
+app_name="radarr"
+RADARR_OWNER="radarr"
+if [ -z "$RADARR_OWNER" ]; then
+    if ! RADARR_OWNER="$(swizdb get "$app_name/owner")"; then
+        RADARR_OWNER="$(_get_master_username)"
+        echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+        swizdb set "$app_name/owner" "$RADARR_OWNER"
+    fi
+else
+    echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+    swizdb set "$app_name/owner" "$RADARR_OWNER"
+fi
+user="$RADARR_OWNER"
+swiz_configdir="/var/lib/"
+app_configdir="$swiz_configdir/${app_name^}"
+app_group="media"
+app_port="7878"
+app_reqs=("curl" "sqlite3")
+app_servicefile="$app_name.service"
+app_dir="/opt/${app_name^}"
+app_binary="${app_name^}"
+#Remove any dashes in appname per FS
+app_lockname="${app_name//-/}"
+app_branch="nightly"
+#ToDo: Update branch
 
-    radarrConfDir="/home/$radarrOwner/.config/Radarr"
-    mkdir -p "$radarrConfDir"
-    chown -R "$radarrOwner":"$radarrOwner" /home/$radarrOwner/.config
+if [ ! -d "$swiz_configdir" ]; then
+    mkdir -p "$swiz_configdir"
+fi
+chown "$user":"$user" "$swiz_configdir"
+
+_install_radarr() {
+    if [ ! -d "$app_configdir" ]; then
+        mkdir -p "$app_configdir"
+    fi
+    chown -R "$user":"$user" "$app_configdir"
+
+    apt_install "${app_reqs[@]}"
 
     echo_progress_start "Downloading release archive"
+
+    urlbase="https://$app_name.servarr.com/v1/update/$app_branch/updatefile?os=linux&runtime=netcore"
     case "$(_os_arch)" in
-        "amd64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" ;;
-        "armhf") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
-        "arm64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64" ;;
+        "amd64") dlurl="${urlbase}&arch=x64" ;;
+        "armhf") dlurl="${urlbase}&arch=arm" ;;
+        "arm64") dlurl="${urlbase}&arch=arm64" ;;
         *)
             echo_error "Arch not supported"
             exit 1
             ;;
     esac
 
-    if ! curl "$dlurl" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+    if ! curl "$dlurl" -L -o "/tmp/$app_name.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
     echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
-    tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
+    tar xfv "/tmp/$app_name.tar.gz" --directory /opt/ >> "$log" 2>&1 || {
+        echo_error "Failed to extract"
+        exit 1
+    }
+    rm -rf "/tmp/$app_name.tar.gz"
+    chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
-
-    touch /install/.radarr.lock
+}
+_systemd_radarr() {
 
     echo_progress_start "Installing Systemd service"
-    cat > /etc/systemd/system/radarr.service << EOF
+    cat > "/etc/systemd/system/$app_servicefile" << EOF
 [Unit]
-Description=Radarr Daemon
+Description=${app_name^} Daemon
 After=syslog.target network.target
 
 [Service]
 # Change the user and group variables here.
-User=${radarrOwner}
-Group=${radarrOwner}
+User=${user}
+Group=${app_group}
 
 Type=simple
 
-# Change the path to Radarr here if it is in a different location for you.
-ExecStart=/opt/Radarr/Radarr -nobrowser -data=/home/$radarrOwner/.config/Radarr/
+# Change the path to ${app_name^} here if it is in a different location for you.
+ExecStart=$app_dir/$app_binary -nobrowser -data=$app_configdir
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
 
-# These lines optionally isolate (sandbox) Radarr from the rest of the system.
+# These lines optionally isolate (sandbox) ${app_name^} from the rest of the system.
 # Make sure to add any paths it might use to the list below (space-separated).
-#ReadWritePaths=/opt/Radarr /path/to/movies/folder
+#ReadWritePaths=$app_dir /path/to/media/folder
 #ProtectSystem=strict
 #PrivateDevices=true
 #ProtectHome=true
@@ -64,55 +104,35 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-    chown -R "$radarrOwner":"$radarrOwner" /opt/Radarr
-    systemctl -q daemon-reload
-    systemctl enable --now -q radarr
-    sleep 1
-    echo_progress_done "Radarr service installed and enabled"
 
-    if [[ -f $radarrConfDir/update_required ]]; then
-        echo_progress_start "Radarr is installing an internal upgrade..."
-        # echo "You can track the update by running \`systemctl status radarr\`0. in another shell."
-        # echo "In case of errors, please press CTRL+C and run \`box remove radarr\` in this shell and check in with us in the Discord"
-        while [[ -f $radarrConfDir/update_required ]]; do
-            sleep 1
-            echo_log_only "Upgrade file is still here"
-        done
-        echo_progress_done "Upgrade finished"
+    systemctl -q daemon-reload
+    systemctl enable --now -q "$app_servicefile"
+    sleep 1
+    echo_progress_done "${app_name^} service installed and enabled"
+
+    # In theory there should be no updating needed, so let's generalize this
+    echo_progress_start "${app_name^} is loading..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
+        exit 1
     fi
+    echo_progress_done "Loading finished"
 
 }
 
 _nginx_radarr() {
     if [[ -f /install/.nginx.lock ]]; then
-        echo_progress_start "Installing nginx configuration"
-        #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
-        sleep 10
-        bash /usr/local/bin/swizzin/nginx/radarr.sh
-        systemctl -q reload nginx
+        echo_progress_start "Configuring nginx"
+        bash /usr/local/bin/swizzin/nginx/"$app_name".sh
+        systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
-        echo_info "Radarr will be available on port 7878. Secure your installation manually through the web interface."
+        echo_info "$app_name will run on port $app_port"
     fi
 }
-
-if [[ -z $radarrOwner ]]; then
-    radarrOwner=$(_get_master_username)
-fi
-
 _install_radarr
+_systemd_radarr
 _nginx_radarr
 
-if [[ -f /install/.ombi.lock ]]; then
-    echo_info "Please adjust your Ombi setup accordingly"
-fi
-
-if [[ -f /install/.tautulli.lock ]]; then
-    echo_info "Please adjust your Tautulli setup accordingly"
-fi
-
-if [[ -f /install/.bazarr.lock ]]; then
-    echo_info "Please adjust your Bazarr setup accordingly"
-fi
-
-echo_success "Radarr installed"
+touch "/install/.$app_lockname.lock"
+echo_success "${app_name^} installed"

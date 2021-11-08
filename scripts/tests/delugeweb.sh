@@ -13,7 +13,7 @@ for user in "${users[@]}"; do
     atleastonerunning=true
 
     extra_params="--user $user:$(_get_user_password "$user")"
-    web_port=$(jq -r '.["port"]' < /home/"$user"/.config/deluge/web.conf | grep -e '^[0-9]*$')
+    web_port=$(jq -r '.["port"]' < /var/lib/deluge/web.conf | grep -e '^[0-9]*$')
     check_port_curl "$web_port" "$extra_params" || BAD=true
 done
 

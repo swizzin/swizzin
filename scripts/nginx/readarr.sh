@@ -3,16 +3,16 @@
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
 master=$(_get_master_username)
-app_name="prowlarr"
-PROWLARR_OWNER="prowlarr"
+app_name="readarr"
+READARR_OWNER="readarr"
 
-if ! PROWLARR_OWNER="$(swizdb get $app_name/owner)"; then
-    PROWLARR_OWNER=$master
+if ! READARR_OWNER="$(swizdb get $app_name/owner)"; then
+    READARR_OWNER=$master
 fi
-user="$PROWLARR_OWNER"
+user="$READARR_OWNER"
 
-app_port="9696"
-app_sslport="9797"
+app_port="8787"
+app_sslport="6868"
 app_baseurl="$app_name"
 app_configdir="/var/lib/${app_name^}"
 app_servicefile="${app_name}.service"
@@ -44,12 +44,6 @@ location /$app_baseurl/api {
 location /$app_baseurl/Content {
     auth_request    off;
     proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/Content;
-}
-
-# Allow Indexers  $1 matches the regex
-location ~ /$app_baseurl/[0-9]+/api {
-    auth_request    off;
-    proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
 }
 
 ARRNGINX

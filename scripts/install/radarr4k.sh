@@ -6,29 +6,29 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-app_name="prowlarr"
-PROWLARR_OWNER="prowlarr"
-if [ -z "$PROWLARR_OWNER" ]; then
-    if ! PROWLARR_OWNER="$(swizdb get "$app_name/owner")"; then
-        PROWLARR_OWNER="$(_get_master_username)"
-        echo_info "Setting ${app_name^} owner = $PROWLARR_OWNER"
-        swizdb set "$app_name/owner" "$PROWLARR_OWNER"
+app_name="radarr"
+RADARR_OWNER="radarr"
+if [ -z "$RADARR_OWNER" ]; then
+    if ! RADARR_OWNER="$(swizdb get "$app_name/owner")"; then
+        RADARR_OWNER="$(_get_master_username)"
+        echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+        swizdb set "$app_name/owner" "$RADARR_OWNER"
     fi
 else
-    echo_info "Setting ${app_name^} owner = $PROWLARR_OWNER"
-    swizdb set "$app_name/owner" "$PROWLARR_OWNER"
+    echo_info "Setting ${app_name^} owner = $RADARR_OWNER"
+    swizdb set "$app_name/owner" "$RADARR_OWNER"
 fi
-user="$PROWLARR_OWNER"
+user="$RADARR_OWNER"
 swiz_configdir="/var/lib/"
-app_configdir="$swiz_configdir/${app_name^}"
-app_group="$user"
-app_port="9696"
+app_configdir="$swiz_configdir/${app_name^}4k"
+app_group="media"
+app_port="7979"
 app_reqs=("curl" "sqlite3")
-app_servicefile="$app_name.service"
+app_servicefile="$app_name4k.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 #Remove any dashes in appname per FS
-app_lockname="${app_name//-/}"
+app_lockname="${app_name//-/}4k"
 app_branch="nightly"
 #ToDo: Update branch
 
@@ -37,7 +37,7 @@ if [ ! -d "$swiz_configdir" ]; then
 fi
 chown "$user":"$user" "$swiz_configdir"
 
-_install_prowlarr() {
+_install_radarr() {
     if [ ! -d "$app_configdir" ]; then
         mkdir -p "$app_configdir"
     fi
@@ -73,7 +73,7 @@ _install_prowlarr() {
     chown -R "${user}": "$app_dir"
     echo_progress_done "Archive extracted"
 }
-_systemd_prowlarr() {
+_systemd_radarr() {
 
     echo_progress_start "Installing Systemd service"
     cat > "/etc/systemd/system/$app_servicefile" << EOF
@@ -120,19 +120,19 @@ EOF
 
 }
 
-_nginx_prowlarr() {
+_nginx_radarr() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
-        bash /usr/local/bin/swizzin/nginx/"$app_name".sh
+        bash /usr/local/bin/swizzin/nginx/"$app_name"4k.sh
         systemctl reload nginx
         echo_progress_done "Nginx configured"
     else
         echo_info "$app_name will run on port $app_port"
     fi
 }
-_install_prowlarr
-_systemd_prowlarr
-_nginx_prowlarr
+_install_radarr
+_systemd_radarr
+_nginx_radarr
 
 touch "/install/.$app_lockname.lock"
-echo_success "${app_name^} installed"
+echo_success "${app_name^}4k installed"

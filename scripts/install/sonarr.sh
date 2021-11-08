@@ -184,7 +184,7 @@ EOSD
     if [[ ! -f ${sonarrv3confdir}/config.xml ]]; then
         cat > ${sonarrv3confdir}/config.xml << EOSC
 <Config>
-  <LogLevel>info</LogLevel>
+  <LogLevel>trace</LogLevel>
   <EnableSsl>False</EnableSsl>
   <Port>8989</Port>
   <SslPort>9898</SslPort>
