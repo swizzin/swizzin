@@ -5,20 +5,20 @@
 
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
-    systemctl -q is-enabled "qbittorrent@$user" || {
-        echo_log_only "qbittorrent@$user is not enabled, skipping"
+    systemctl -q is-enabled "qbittorrent$user" || {
+        echo_log_only "qbittorrent$user is not enabled, skipping"
         continue
     }
 
     atleastonerunning=true
 
-    check_service "qbittorrent@$user" || {
+    check_service "qbittorrent$user" || {
         BAD=true
         continue
     }
 
     extra_params="--user $user:$(_get_user_password "$user")"
-    confpath="/home/${user}/.config/qBittorrent/qBittorrent.conf"
+    confpath="/var/lib/qBittorrent/qBittorrent.conf"
     port=$(grep 'WebUI\\Port' "$confpath" | cut -d= -f2)
     check_port_curl "$port" "$extra_params" || BAD=true
 done

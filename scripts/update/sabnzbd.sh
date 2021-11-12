@@ -27,7 +27,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         mkdir /home/${user}/.config > /dev/null 2>&1
         chown ${user}: /home/${user}/.config
 
-        mv /home/${user}/.sabnzbd /home/${user}/.config/sabnzbd
+        mv /home/${user}/.sabnzbd /var/lib/sabnzbd
         mv /home/${user}/SABnzbd /opt/sabnzbd
 
         cat > /etc/systemd/system/sabnzbd.service << SABSD
@@ -38,7 +38,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /var/lib/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 

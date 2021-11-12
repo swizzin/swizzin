@@ -20,7 +20,7 @@ location /autobrr/ {
 AUTOBRR
 
 for user in ${users[@]}; do
-    port=$(grep 'port =' /home/${user}/.config/autobrr/config.toml | awk '{ print $3 }')
+    port=$(grep 'port =' /var/lib/autobrr/config.toml | awk '{ print $3 }')
     cat > /etc/nginx/conf.d/${user}.autobrr.conf << AUTOBRRUC
 upstream ${user}.autobrr {
   server 127.0.0.1:${port};
@@ -28,7 +28,7 @@ upstream ${user}.autobrr {
 AUTOBRRUC
 
     # change listening addr to 127.0.0.1
-    sed -i 's|host = "0.0.0.0"|host = "127.0.0.1"|g' "/home/${user}/.config/autobrr/config.toml"
+    sed -i 's|host = "0.0.0.0"|host = "127.0.0.1"|g' "/var/lib/autobrr/config.toml"
 
     # Restart autobrr for all user after changing port
     echo_log_only "Restarting autobrr for ${user}"

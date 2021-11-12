@@ -57,6 +57,6 @@ for user in "${users[@]}"; do
         qbittorrent_chpasswd "${user}" "${password}"
     else
         #Just restart qbittorrent if no changes to password are needed
-        systemctl try-restart qbittorrent@${user}
+        systemctl try-restart qbittorrent
     fi
 done

@@ -9,7 +9,7 @@ function _remove_autobrr() {
     users=($(_get_user_list))
     for user in ${users[@]}; do
         systemctl disable --now -q autobrr@${user}
-        rm -rf /home/${user}/.config/autobrr
+        rm -rf /var/lib/autobrr
     done
 
     rm -f /etc/systemd/system/autobrr@.service

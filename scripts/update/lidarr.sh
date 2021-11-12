@@ -58,7 +58,7 @@ if [[ -f /install/.lidarr.lock ]]; then
         mkdir -p "/home/${user}/.tmp"
         chown -R "${user}": "/home/${user}/.tmp"
 
-        sed -i "/ExecStart/c\ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/" /etc/systemd/system/lidarr.service
+        sed -i "/ExecStart/c\ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/var/lib/Lidarr/" /etc/systemd/system/lidarr.service
         sed -i "/ExecStop/d" /etc/systemd/system/lidarr.service
         sed -i "/WorkingDirectory/d" /etc/systemd/system/lidarr.service
         systemctl daemon-reload

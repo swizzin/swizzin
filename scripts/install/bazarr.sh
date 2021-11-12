@@ -64,7 +64,7 @@ _config() {
         echo_progress_start "Configuring bazarr to work with sonarr"
 
         # TODO: Use owner when the updaters are merged
-        sonarrConfigFile=/home/${user}/.config/Sonarr/config.xml
+        sonarrConfigFile=/var/lib/Sonarr/config.xml
 
         if [[ -f "${sonarrConfigFile}" ]]; then
             sonarrapi=$(grep -oP "ApiKey>\K[^<]+" "${sonarrConfigFile}")
@@ -94,7 +94,7 @@ SONC
         echo_progress_start "Configuring bazarr to work with radarr"
 
         # TODO: Use owner when the updaters are merged
-        radarrConfigFile=/home/${user}/.config/Radarr/config.xml
+        radarrConfigFile=/var/lib/Radarr/config.xml
 
         if [[ -f "${radarrConfigFile}" ]]; then
             radarrapi=$(grep -oP "ApiKey>\K[^<]+" "${radarrConfigFile}")
@@ -158,7 +158,7 @@ _systemd() {
     echo_progress_start "Creating and starting service"
     cat > /etc/systemd/system/bazarr.service << BAZ
 [Unit]
-Description=Bazarr for ${user}
+Description=Bazarr Service
 After=syslog.target network.target
 
 [Service]

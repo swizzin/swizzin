@@ -18,7 +18,7 @@ for user in "${users[@]}"; do
     }
 
     extra_params="--user $user:$(_get_user_password "$user")"
-    confpath="/home/${user}/.config/autobrr/config.toml"
+    confpath="/var/lib/autobrr/config.toml"
     port=$(grep -e '^port' "$confpath" | cut -d' ' -f3)
     check_port_curl "$port" "$extra_params" || BAD=true
 done

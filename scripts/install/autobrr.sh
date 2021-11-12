@@ -79,7 +79,7 @@ baseUrl = "/autobrr/"
 #
 # Optional
 #
-logPath = "/home/${user}/.config/autobrr/logs/autobrr.log"
+logPath = "/var/lib/autobrr/logs/autobrr.log"
 # Log level
 #
 # Default: "DEBUG"

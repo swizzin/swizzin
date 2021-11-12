@@ -66,7 +66,7 @@ fi
 echo_progress_done
 
 chown -R ${user}: /opt/.venv/sabnzbd
-mkdir -p /home/${user}/.config/sabnzbd
+mkdir -p /var/lib/sabnzbd
 mkdir -p /home/${user}/Downloads/{complete,incomplete}
 
 echo_progress_start "Installing systemd service"
@@ -78,7 +78,7 @@ After=network-online.target
 
 [Service]
 User=${user}
-ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /home/${user}/.config/sabnzbd/sabnzbd.ini --logging 1
+ExecStart=/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --config-file /var/lib/sabnzbd/sabnzbd.ini --logging 1
 WorkingDirectory=/opt/sabnzbd
 Restart=on-failure
 
@@ -87,7 +87,7 @@ WantedBy=multi-user.target
 SABSD
 
 echo_progress_start "Configuring SABnzbd"
-cat > /home/${user}/.config/sabnzbd/sabnzbd.ini << SAB_INI
+cat > /var/lib/sabnzbd/sabnzbd.ini << SAB_INI
 [misc]
 host_whitelist = $(hostname -f), $(hostname)
 host = 0.0.0.0
@@ -105,7 +105,7 @@ username = "${user}"
 SAB_INI
 chown -R ${user}: /opt/sabnzbd
 chown ${user}: /home/${user}/.config
-chown -R ${user}: /home/${user}/.config/sabnzbd
+chown -R ${user}: /var/lib/sabnzbd
 chown ${user}: /home/${user}/Downloads
 chown ${user}: /home/${user}/Downloads/{complete,incomplete}
 echo_progress_done

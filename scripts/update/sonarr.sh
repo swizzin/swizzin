@@ -46,14 +46,14 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
         echo_error "Could not determine the owner of Sonarr"
         exit 1
     fi
-    echo_info "Moving config to '/home/${user}/.config/Sonarr'"
-    mv /home/${user}/.config/sonarr /home/${user}/.config/Sonarr
+    echo_info "Moving config to '/var/lib/Sonarr'"
+    mv /var/lib/sonarr /var/lib/Sonarr
 
     #Remove comments
     sed -i '/^#/d' /etc/systemd/system/sonarr.service
     #Update binary location
     sed -i 's|/usr/lib/sonarr/bin|/opt/Sonarr|g' /etc/systemd/system/sonarr.service
-    sed -i "s|/home/${user}/.config/sonarr|/home/${user}/.config/Sonarr|g" /etc/systemd/system/sonarr.service
+    sed -i "s|/var/lib/sonarr|/var/lib/Sonarr|g" /etc/systemd/system/sonarr.service
 
     #Mark depends as manually installed
     LIST='mono-runtime

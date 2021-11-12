@@ -52,7 +52,7 @@ QBTN
 fi
 
 for user in ${users[@]}; do
-    port=$(grep 'WebUI\\Port' /home/${user}/.config/qBittorrent/qBittorrent.conf | cut -d= -f2)
+    port=$(grep 'WebUI\\Port' /var/lib/qBittorrent/qBittorrent.conf | cut -d= -f2)
     cat > /etc/nginx/conf.d/${user}.qbittorrent.conf << QBTUC
 upstream ${user}.qbittorrent {
   server 127.0.0.1:${port};

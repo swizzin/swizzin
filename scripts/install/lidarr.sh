@@ -57,8 +57,8 @@ install() {
 config() {
 
     echo_progress_start "Creating configuration and service files"
-    if [[ ! -d /home/${user}/.config/Lidarr/ ]]; then mkdir -p "/home/${user}/.config/Lidarr/"; fi
-    cat > "/home/${user}/.config/Lidarr/config.xml" << LID
+    if [[ ! -d /var/lib/Lidarr/ ]]; then mkdir -p "/var/lib/Lidarr/"; fi
+    cat > "/var/lib/Lidarr/config.xml" << LID
 <Config>
   <Port>8686</Port>
   <UrlBase>lidarr</UrlBase>
@@ -83,7 +83,7 @@ Type=simple
 User=${user}
 Group=${user}
 Environment="TMPDIR=/home/${user}/.tmp"
-ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/home/${user}/.config/Lidarr/
+ExecStart=/opt/Lidarr/Lidarr -nobrowser -data=/var/lib/Lidarr/
 Restart=on-failure
 
 [Install]

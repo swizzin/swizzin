@@ -2,8 +2,8 @@
 
 user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
 if ask "Would you like to purge the configuration?" Y; then
-    if [[ -d /home/${user}/.config/Sonarr ]]; then
-        rm -rf "/home/${user}/.config/Sonarr"
+    if [[ -d /var/lib/Sonarr ]]; then
+        rm -rf "/var/lib/Sonarr"
     fi
 fi
 rm -rf /opt/Sonarr
