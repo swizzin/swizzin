@@ -5,6 +5,7 @@ if [ ! -f /install/.calibre.lock ]; then
     exit 1
 fi
 
+echo_progress_start "Upgrading calibre"
 case "$(_os_arch)" in
     amd64)
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
@@ -18,3 +19,5 @@ case "$(_os_arch)" in
         apt_install --only-upgrade calibre
         ;;
 esac
+systemctl restart calibre
+systemctl restart calibrecs
