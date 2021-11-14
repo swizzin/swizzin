@@ -67,9 +67,7 @@ cat > /home/${MYLAR_OWNER}/.config/mylar/config.ini << EOF
 http_port = ${port}
 http_host = 0.0.0.0
 http_root = /mylar
-http_username = ${MYLAR_OWNER}
-http_password = $(_get_user_password "${MYLAR_OWNER}")
-authentication = 1
+authentication = 0
 EOF
 
 chown -R "$MYLAR_OWNER": /home/$MYLAR_OWNER/.config/mylar
