@@ -13,7 +13,7 @@ echo_info "Setting Mylar owner = ${MYLAR_OWNER}"
 swizdb set "mylar/owner" "${MYLAR_OWNER}"
 
 if dpkg --compare-versions "${systempy3_ver}" lt 3.7.5; then
-    PYENV=True
+    PYENV=true
     LIST=("libsqlite3-dev")
 else
     LIST=("python3-pip" "python3-venv" "libsqlite3-dev")
@@ -22,7 +22,7 @@ fi
 apt install "${LIST[@]}"
 
 case ${PYENV} in
-    True)
+    true)
         pyenv_install
         pyenv_install_version 3.8.1
         pyenv_create_venv 3.8.1 /opt/.venv/mylar
