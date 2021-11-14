@@ -70,7 +70,7 @@ http_root = /mylar
 authentication = 0
 EOF
 
-chown -R "$MYLAR_OWNER": /home/$MYLAR_OWNER/.config/mylar
+chown -R "${MYLAR_OWNER}": "/home/${MYLAR_OWNER}/.config/mylar"
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
