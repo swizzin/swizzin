@@ -2,10 +2,11 @@
 # Mylar installer for Swizzin
 # Author: Brett
 # Copyright (C) 2021 Swizzin
-MYLAR_OWNER=$(swizdb get mylar/owner)
+MYLAR_OWNER="$(swizdb get mylar/owner)"
 port=$(awk -F "=" '/http_port/ {print $2}' /home/${MYLAR_OWNER}/.config/mylar/config.ini | tr -d ' ')
-sed -i 's|http_host = 0.0.0.0|http_host = 127.0.0.1|g' /home/${MYLAR_OWNER}/.config/mylar/config.ini
-sed -i 's|http_root = /|http_root = /mylar|g' /home/${MYLAR_OWNER}/.config/mylar/config.ini
+sed -i 's|http_host = 0.0.0.0|http_host = 127.0.0.1|g' "/home/${MYLAR_OWNER}/.config/mylar/config.ini"
+sed -i 's|http_root = /|http_root = /mylar|g' "/home/${MYLAR_OWNER}/.config/mylar/config.ini"
+
 cat > /etc/nginx/apps/mylar.conf << EON
 location ^~ /mylar {
     include snippets/proxy.conf;
