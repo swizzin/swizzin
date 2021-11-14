@@ -11,8 +11,9 @@
 #
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
-user=$(_get_master_username)
-port=$(awk -F "=" '/http_port/ {print $2}' /home/$user/.config/mylar/config.ini | tr -d ' ')
+
+MYLAR_OWNER=$(swizdb get mylar/owner)
+port=$(awk -F "=" '/http_port/ {print $2}' /home/$MYLAR_OWNER/.config/mylar/config.ini | tr -d ' ')
 
 function _check_port_curl() {
     echo_progress_start "Checking if port $1 is reachable via curl"
