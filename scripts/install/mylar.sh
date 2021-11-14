@@ -88,7 +88,7 @@ Description=Mylar service
 [Service]
 Type=simple
 User=${user}
-ExecStart=/opt/.venv/mylar/bin/python Mylar.py --datadir /home/${MYLAR_OWNER}/.config/mylar/
+ExecStart=/opt/.venv/mylar/bin/python /opt/mylar/Mylar.py --datadir /home/${MYLAR_OWNER}/.config/mylar/
 WorkingDirectory=/opt/mylar
 Restart=on-failure
 TimeoutStopSec=300
