@@ -19,7 +19,7 @@ else
     LIST=("python3-pip" "python3-venv" "libsqlite3-dev")
 fi
 
-apt install "${LIST[@]}"
+apt_install "${LIST[@]}"
 
 case "${PYENV}" in
     true)
