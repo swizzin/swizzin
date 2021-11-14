@@ -2,28 +2,27 @@
 # Mylar installer
 # Author: Brett
 # Copyright (C) 2021 Swizzin
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-#
-#! /bin/bash
-#shellcheck source=sources/functions/utils
-. /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 
-user=$(_get_master_username)
-port=$(port 7000 11000)
+port=9645
 systempy3_ver=$(get_candidate_version python3)
 
+if [ -z "$MYLAR_OWNER" ]; then
+    if ! MYLAR_OWNER="$(swizdb get mylar/owner)"; then
+        MYLAR_OWNER=$(_get_master_username)
+        echo_info "Setting Mylar owner = $MYLAR_OWNER"
+        swizdb set "mylar/owner" "$MYLAR_OWNER"
+    fi
+else
+    echo_info "Setting Mylar owner = $MYLAR_OWNER"
+    swizdb set "mylar/owner" "$MYLAR_OWNER"
+fi
+
 if dpkg --compare-versions "${systempy3_ver}" lt 3.7.5; then
-    LIST='acl'
     PYENV=True
 else
-    LIST='python3-pip python3-venv acl'
+    LIST='python3-pip python3-venv'
 fi
 
 apt_install $LIST
@@ -36,7 +35,7 @@ case ${PYENV} in
         chown -R mylar: /opt/.venv/mylar
         ;;
     *)
-        python3_venv "${user}" mylar
+        python3_venv "${MYLAR_OWNER}" mylar
         ;;
 esac
 
@@ -48,6 +47,7 @@ git clone https://github.com/mylar3/mylar3.git /opt/mylar >> ${log} 2>&1 || {
 echo_progress_done "Mylar cloned"
 
 echo_progress_start "Installing python dependencies"
+/opt/.venv/mylar/bin/pip install --upgrade pip >> ${log} 2>&1
 /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >> ${log} 2>&1 || {
     echo_warn "Failed to install requirements."
     exit 1
@@ -55,30 +55,31 @@ echo_progress_start "Installing python dependencies"
 echo_progress_done
 
 echo_progress_start "Setting permissions"
-chown -R "$user": /opt/mylar
-chown -R "$user": /opt/.venv/mylar
-setfacl -m g:"$user":rx /home/*
+chown -R "$MYLAR_OWNER": /opt/mylar
+chown -R "$MYLAR_OWNER": /opt/.venv/mylar
 echo_progress_done
 
 echo_progress_start "Configuring Mylar"
-mkdir -p /home/${user}/.config/mylar/
-cat > /home/${user}/.config/mylar/config.ini << EOF
+mkdir -p /home/${MYLAR_OWNER}/.config/mylar/
+cat > /home/${MYLAR_OWNER}/.config/mylar/config.ini << EOF
 [Interface]
 http_port = ${port}
 http_host = 0.0.0.0
 http_root = /mylar
-http_username = ${user}
-http_password = $(_get_user_password "${user}")
+http_username = ${MYLAR_OWNER}
+http_password = $(_get_user_password "${MYLAR_OWNER}")
 authentication = 1
 EOF
-chown -R "$user": /home/$user/.config/mylar
+
+chown -R "$MYLAR_OWNER": /home/$MYLAR_OWNER/.config/mylar
 echo_progress_done
 
-# Checking nginx existence is the first thing that happens in the script
-echo_progress_start "Configuring nginx"
-bash /usr/local/bin/swizzin/nginx/mylar.sh
-systemctl reload nginx
-echo_progress_done
+if [[ -f /install/.nginx.lock ]]; then
+    echo_progress_start "Configuring nginx"
+    bash /usr/local/bin/swizzin/nginx/mylar.sh
+    systemctl reload nginx
+    echo_progress_done
+fi
 
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/mylar.service << EOS
@@ -87,7 +88,7 @@ Description=Mylar service
 [Service]
 Type=simple
 User=${user}
-ExecStart=/opt/.venv/mylar/bin/python Mylar.py --datadir /home/${user}/.config/mylar/
+ExecStart=/opt/.venv/mylar/bin/python Mylar.py --datadir /home/${MYLAR_OWNER}/.config/mylar/
 WorkingDirectory=/opt/mylar
 Restart=on-failure
 TimeoutStopSec=300

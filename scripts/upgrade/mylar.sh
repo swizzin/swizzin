@@ -2,30 +2,36 @@
 # Mylar installer for Swizzin
 # Author: Brett
 # Copyright (C) 2021 Swizzin
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-#
-if [[ -f /install/.mylar.lock ]]; then
 
-    cd /opt/mylar || {
-        echo_warn "Failed to cd into /opt/mylar."
-    }
-    #git reset HEAD --hard
+if [[ -f /install/.mylar.lock ]]; then
+    systemctl stop mylar
+    MYLAR_OWNER=$(swizdb get mylar/owner)
+
     echo_progress_start "Pulling new commits"
-    git pull >> ${log} 2>&1 || {
-        echo_warn "Pull failed."
+    git -C /opt/mylar checkout origin/master ||
+        {
+            echo_warn "Unclean repo detected, resetting current branch."
+            git -C /opt/mylar reset --hard >> $log 2>&1
+            git -C /opt/mylar checkout master >> $log 2>&1
+        }
+    {
+        #shellcheck disable=SC2129
+        git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+        git -C /etc/swizzin reset --hard master >> $log 2>&1
+    } || {
+        echo_error "Failed to update from git"
+        exit 1
     }
-    echo_progress_done "Commits pulled"
+    echo_progress_done
+
     echo_progress_start "Checking pip for new depends"
-    if ! /opt/.venv/mylar/bin/python /opt/mylar/tests/test_requirements.py >> ${log} 2>&1; then
-        /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >> ${log} 2>&1
-    fi
+    /opt/.venv/mylar/bin/pip install --upgrade pip >> ${log} 2>&1
+    /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt >> ${log} 2>&1
+    chown -R $MYLAR_OWNER: /opt/mylar/
+    chown -R $MYLAR_OWNER: /opt/.venv/mylar/
     echo_progress_done "Depends up-to-date"
+
     echo_progress_start "Restarting Mylar"
-    systemctl restart mylar
+    systemctl restart -q mylar
     echo_progress_done "Done!"
 fi
