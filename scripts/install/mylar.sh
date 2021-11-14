@@ -49,7 +49,7 @@ echo_progress_done "Mylar cloned"
 
 echo_progress_start "Installing python dependencies"
 /opt/.venv/mylar/bin/pip install --upgrade pip >> ${log} 2>&1
-/opt/.venv/mylar/bin/pip3 install -r /opt/mylar/requirements.txt >> ${log} 2>&1 || {
+/opt/.venv/mylar/bin/pip3 install -r /opt/mylar/requirements.txt >> "${log}" 2>&1 || {
     echo_warn "Failed to install requirements."
     exit 1
 }
