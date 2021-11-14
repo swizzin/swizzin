@@ -29,7 +29,7 @@ fi
 apt install "${LIST[@]}"
 
 case ${PYENV} in
-    True)
+    true)
         pyenv_install
         pyenv_install_version 3.8.1
         pyenv_create_venv 3.8.1 /opt/.venv/mylar
