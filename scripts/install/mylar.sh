@@ -21,7 +21,7 @@ fi
 
 if dpkg --compare-versions "${systempy3_ver}" lt 3.7.5; then
     PYENV=True
-    LIST='libsqlite3-dev'
+    LIST=("libsqlite3-dev")
 else
     LIST=("python3-pip" "python3-venv" "libsqlite3-dev")
 fi
