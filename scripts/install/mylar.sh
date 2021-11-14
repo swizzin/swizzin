@@ -32,7 +32,7 @@ case ${PYENV} in
         pyenv_install
         pyenv_install_version 3.8.1
         pyenv_create_venv 3.8.1 /opt/.venv/mylar
-        chown -R mylar: /opt/.venv/mylar
+        chown -R $MYLAR_OWNER: /opt/.venv/mylar
         ;;
     *)
         python3_venv "${MYLAR_OWNER}" mylar
