@@ -36,8 +36,16 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     isActive=$(systemctl is-active sonarr)
     isEnabled=$(systemctl is-enabled sonarr)
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
-    cp /usr/lib/systemd/system/sonarr.service /etc/systemd/system
+    if [[ ! -f /lib/systemd/system/sonarr.service ]]; then
+        echo_error "A required file for the update could not be found: /lib/systemd/system/sonarr.service . Is your current Sonarr installation in a proper state?"
+        exit 1
+    fi
+    cp /lib/systemd/system/sonarr.service /etc/systemd/system
     user=$(grep User= /etc/systemd/system/sonarr.service | cut -d= -f2)
+    if [[ -z ${user} ]]; then
+        echo_error "Could not determine the owner of Sonarr"
+        exit 1
+    fi
     echo_info "Moving config to '/home/${user}/.config/Sonarr'"
     mv /home/${user}/.config/sonarr /home/${user}/.config/Sonarr
 
