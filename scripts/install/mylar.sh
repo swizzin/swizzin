@@ -88,7 +88,7 @@ cat > /etc/systemd/system/mylar.service << EOS
 Description=Mylar service
 [Service]
 Type=simple
-User=${user}
+User=${MYLAR_OWNER}
 ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${MYLAR_OWNER}/.config/mylar/
 WorkingDirectory=/opt/mylar
 Restart=on-failure
