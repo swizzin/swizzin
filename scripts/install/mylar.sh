@@ -41,7 +41,7 @@ case ${PYENV} in
 esac
 
 echo_progress_start "Cloning mylar"
-git clone https://github.com/mylar3/mylar3.git /opt/mylar >> ${log} 2>&1 || {
+git clone https://github.com/mylar3/mylar3.git /opt/mylar >> "${log}" 2>&1 || {
     echo_warn "Clone failed!"
     exit 1
 }
