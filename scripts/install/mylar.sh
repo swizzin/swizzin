@@ -8,7 +8,7 @@
 port=9645
 systempy3_ver="$(get_candidate_version python3)"
 
-MYLAR_OWNER=${MYLAR_OWNER:-$(_get_master_username)}
+MYLAR_OWNER="${MYLAR_OWNER:-$(_get_master_username)}"
 echo_info "Setting Mylar owner = ${MYLAR_OWNER}"
 swizdb set "mylar/owner" "${MYLAR_OWNER}"
 
