@@ -62,7 +62,7 @@ echo_progress_done
 
 echo_progress_start "Configuring Mylar"
 mkdir -p /home/${MYLAR_OWNER}/.config/mylar/
-cat > /home/${MYLAR_OWNER}/.config/mylar/config.ini << EOF
+cat > "/home/${MYLAR_OWNER}/.config/mylar/config.ini" << EOF
 [Interface]
 http_port = ${port}
 http_host = 0.0.0.0
