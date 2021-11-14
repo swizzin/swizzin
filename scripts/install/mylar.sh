@@ -78,6 +78,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/mylar.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Mylar is now running on port ${port}/mylar."
 fi
 
 echo_progress_start "Installing systemd service"
@@ -97,8 +99,5 @@ EOS
 
 systemctl enable -q --now mylar >> ${log} 2>&1
 echo_progress_done "Mylar started"
-
-echo_info "Mylar is now running on port ${port}."
-
 echo_success "Mylar installed"
 touch /install/.mylar.lock
