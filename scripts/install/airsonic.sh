@@ -5,7 +5,7 @@
 master=$(_get_master_username)
 distribution=$(lsb_release -is)
 
-airsonicdir="/opt/airsonic" #Where to install airsonic
+airsonicdir="/opt/airsonic" #Where to install airosnic
 airsonicusr="airsonic"      #Who to run airsonic as
 
 #shellcheck source=sources/functions/java
@@ -51,7 +51,7 @@ airsonic_nginx() {
         systemctl reload nginx
         echo_progress_done
     else
-        echo_info "Airsonic will run on <IP/domain.tld>${bold}:8185"
+        echo_info "Airosnic will run on <IP/domain.tld>${bold}:8185"
     fi
 }
 
