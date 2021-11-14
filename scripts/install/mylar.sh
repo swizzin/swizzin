@@ -21,7 +21,7 @@ fi
 
 apt install "${LIST[@]}"
 
-case ${PYENV} in
+case "${PYENV}" in
     true)
         pyenv_install
         pyenv_install_version 3.8.1
