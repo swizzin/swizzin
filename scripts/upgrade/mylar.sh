@@ -2,7 +2,6 @@
 # Mylar installer for Swizzin
 # Author: Brett
 # Copyright (C) 2021 Swizzin
-
 if [[ -f /install/.mylar.lock ]]; then
     systemctl stop mylar
     MYLAR_OWNER=$(swizdb get mylar/owner)

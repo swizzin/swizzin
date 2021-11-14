@@ -1,14 +1,7 @@
 #!/bin/bash
-# Mylar test for Swizzin
+# Mylar installer for Swizzin
 # Author: Brett
 # Copyright (C) 2021 Swizzin
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-#
 #shellcheck source=sources/functions/tests
 . /etc/swizzin/sources/functions/tests
 

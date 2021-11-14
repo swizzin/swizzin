@@ -1,4 +1,7 @@
 #!/bin/bash
+# Mylar installer for Swizzin
+# Author: Brett
+# Copyright (C) 2021 Swizzin
 systemctl disable --now mylar
 rm -rf /etc/systemd/system/mylar.service
 rm -rf /opt/mylar
