@@ -8,16 +8,9 @@
 port=9645
 systempy3_ver=$(get_candidate_version python3)
 
-if [ -z "$MYLAR_OWNER" ]; then
-    if ! MYLAR_OWNER="$(swizdb get mylar/owner)"; then
-        MYLAR_OWNER=$(_get_master_username)
-        echo_info "Setting Mylar owner = $MYLAR_OWNER"
-        swizdb set "mylar/owner" "$MYLAR_OWNER"
-    fi
-else
-    echo_info "Setting Mylar owner = $MYLAR_OWNER"
-    swizdb set "mylar/owner" "$MYLAR_OWNER"
-fi
+MYLAR_OWNER=${MYLAR_OWNER:-$(_get_master_username)}
+echo_info "Setting Mylar owner = ${MYLAR_OWNER}"
+swizdb set "mylar/owner" "${MYLAR_OWNER}"
 
 if dpkg --compare-versions "${systempy3_ver}" lt 3.7.5; then
     PYENV=True
@@ -66,7 +59,7 @@ cat > "/home/${MYLAR_OWNER}/.config/mylar/config.ini" << EOF
 [Interface]
 http_port = ${port}
 http_host = 0.0.0.0
-http_root = /mylar
+http_root = /
 authentication = 0
 EOF
 
