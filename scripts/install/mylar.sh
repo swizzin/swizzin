@@ -6,7 +6,7 @@
 . /etc/swizzin/sources/functions/pyenv
 
 port=9645
-systempy3_ver=$(get_candidate_version python3)
+systempy3_ver="$(get_candidate_version python3)"
 
 MYLAR_OWNER=${MYLAR_OWNER:-$(_get_master_username)}
 echo_info "Setting Mylar owner = ${MYLAR_OWNER}"
