@@ -97,7 +97,7 @@ TimeoutStopSec=300
 WantedBy=multi-user.target
 EOS
 
-systemctl enable -q --now mylar >> ${log} 2>&1
+systemctl enable -q --now mylar >> "${log}" 2>&1
 echo_progress_done "Mylar started"
 echo_success "Mylar installed"
 touch /install/.mylar.lock
