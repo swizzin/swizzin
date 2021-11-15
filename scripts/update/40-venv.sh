@@ -16,7 +16,7 @@ if [[ -d /home/${user}/.venv ]]; then
 fi
 
 if [[ -d /opt/.venv ]]; then
-    envs=($(find /opt/.venv/* -maxdepth 0 -type d ! -empty))
+    envs=($(find /opt/.venv/ -mindepth 1 -maxdepth 1 ! -empty -type d))
     for venvpath in ${envs[@]}; do
         if ! grep -q "#\!${venvpath}/bin/python" ${venvpath}/bin/*; then
             echo_log_only "Replacing venv path in $venvpath"
