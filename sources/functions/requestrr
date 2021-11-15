@@ -38,7 +38,7 @@ function _requestrr_config() {
 {
   "Authentication": {
     "Username": "${user}",
-    "Password": "",
+    "Password": "$(_get_user_password "${user}")",
     "PrivateKey": "[PRIVATEKEY]"
   },
   "ChatClients": {
