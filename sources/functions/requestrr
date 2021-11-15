@@ -31,7 +31,7 @@ function _requestrr_chpass() {
 function _requestrr_config() {
     _requestrr_chpass
     if [[ -f /install/.sonarr.lock ]]; then
-        s_config="/home/$user/.config/sonarr/config.xml"
+        s_config="/home/$(swizdb get sonarr/owner)/.config/sonarr/config.xml"
         s_bind=$(sed -n 's|\(.*\)<BindAddress>\(.*\)</BindAddress>|\2|p' "$s_config")
         s_port=$(sed -n 's|\(.*\)<Port>\(.*\)</Port>|\2|p' "$s_config")
         s_api=$(sed -n 's|\(.*\)<ApiKey>\(.*\)</ApiKey>|\2|p' "$s_config")
@@ -47,9 +47,9 @@ function _requestrr_config() {
     cat > /opt/requestrr/SettingsTemplate.json << CFG
 {
   "Authentication": {
-    "Username": "$(_get_master_username)",
-    "Password": "${requestrr_pass}",
-    "PrivateKey": "${requestrr_key}"
+    "Username": "",
+    "Password": "",
+    "PrivateKey": ""
   },
   "ChatClients": {
     "Discord": {
