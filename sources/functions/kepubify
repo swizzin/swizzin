@@ -18,7 +18,7 @@ _kepubify() {
             kepubify_action="Removing"
             ;;
         *)
-            echo_error "The directory origin ${whereami##*/} not supported by this function"
+            echo_error "The directory origin ${whereami} is not supported by this function"
             exit 1
             ;;
     esac
