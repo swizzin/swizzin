@@ -92,6 +92,7 @@ _install_kepubify() {
     kepdlurl=$(curl -s https://api.github.com/repos/pgaskin/kepubify/releases/latest | grep "browser_download_url" | grep "kepubify-linux-64bit" | head -1 | cut -d\" -f 4) || {
         echo_error "Failed to query github"
         exit 1
+        }
     wget -q "$kepdlurl" -O /tmp/kepubify >> $log 2>&1
     #TODO and figure out if it's needed for all cases or not
     echo_progress_done
