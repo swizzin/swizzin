@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+_kepubify() {
+    whereami=$(dirname "$0") && whereami="${whereami##*/}"
+
+    case "${whereami}" in
+        "install")
+            kepubify_action="Installing"
+            ;;
+        "upgrade")
+            if [[ -f /install/.calibreweb.lock ]]; then
+                kepubify_action="Upgrading"
+            else
+                return
+            fi
+            ;;
+        "remove")
+            kepubify_action="Removing"
+            ;;
+        *)
+            echo_error "The directory origin ${whereami##*/} not supported by this function"
+            exit 1
+            ;;
+    esac
+
+    echo_progress_start "${kepubify_action} kepubify apps"
+
+    case "$(_os_arch)" in
+        "amd64")
+            kepubify_arch="64bit"
+            ;;
+        "arm64")
+            kepubify_arch="arm64"
+            ;;
+        "armhf")
+            kepubify_arch="arm"
+            ;;
+        *)
+            echo_error "$(_os_arch) not supported by this app"
+            exit 1
+            ;;
+    esac
+
+    kepubify_url="https://github.com/pgaskin/kepubify/releases/latest/download"
+    kepubify_apps_array=("kepubify-linux-${kepubify_arch}" "covergen-linux-${kepubify_arch}" "seriesmeta-linux-${kepubify_arch}")
+
+    if [[ "${whereami}" == 'remove' ]]; then
+        for kepubify_apps in "${kepubify_apps_array[@]}"; do
+            rm_if_exists "/usr/local/bin/${kepubify_apps%%-*}"
+        done
+        return
+    fi
+
+    for kepubify_apps in "${kepubify_apps_array[@]}"; do
+        kepubify_app_url_status="$(curl -sLo /dev/null -w "%{http_code}" "${kepubify_url}/${kepubify_apps}")"
+
+        if [[ "${kepubify_app_url_status}" -eq '200' ]]; then
+            wget "${kepubify_url}/${kepubify_apps}" -O "/usr/local/bin/${kepubify_apps%%-*}"
+            chmod 755 "/usr/local/bin/${kepubify_apps%%-*}"
+        else
+            echo_error "${kepubify_apps%%-*} github release URL status: ${kepubify_app_url_status}"
+            exit 1
+        fi
+    done
+    echo_progress_done
+} 2>> "${log}"

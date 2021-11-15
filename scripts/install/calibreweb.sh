@@ -8,6 +8,9 @@ clbWebUser="calibreweb" # or make this master user?
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
+#shellcheck source=sources/functions/kepubify
+. /etc/swizzin/sources/functions/kepubify
+
 if [ -z "$CALIBRE_LIBRARY_USER" ]; then
     if ! CALIBRE_LIBRARY_USER="$(swizdb get calibre/library_user)"; then
         CALIBRE_LIBRARY_USER=$(_get_master_username)
@@ -87,43 +90,6 @@ function _install_calibreweb() {
     echo_progress_done
 }
 
-_install_kepubify() {
-	echo_progress_start "Installing kepubify"
-
-	case "$(_os_arch)" in
-		"amd64")
-			kepubify_arch="64bit"
-			;;
-		"arm64")
-			kepubify_arch="arm64"
-			;;
-		"armhf")
-			kepubify_arch="arm"
-			;;
-		*)
-			echo_error "$(_os_arch) not supported by this app"
-			exit 1
-			;;
-	esac
-
-	kepubify_url="https://github.com/pgaskin/kepubify/releases/latest/download"
-	kepubify_apps=("${kepubify_url}/kepubify-linux-${kepubify_arch}" "${kepubify_url}/covergen-linux-${kepubify_arch}" "${kepubify_url}/seriesmeta-linux-${kepubify_arch}")
-
-	for kepubify_apps in "${kepubify_apps[@]}"; do
-		kepubify_app_url_status="$(curl -sLo /dev/null -w "%{http_code}" "${kepubify_apps}")"
-		#
-		if [[ "${kepubify_app_url_status}" -eq '200' ]]; then
-			kepubify_apps_short=${kepubify_apps[0]##*/} && kepubify_apps_short="${kepubify_apps_short%%-*}"
-			wget "${kepubify_apps}" -O "/usr/local/bin/${kepubify_apps_short}"
-			chmod 755 "/usr/local/bin/${kepubify_apps_short}"
-		else
-			echo_error "kepubify github release URL status: ${kepubify_app_url_status}"
-			exit 1
-		fi
-	done
-	echo_progress_done
-} 2>> "${log}"
-
 _nginx_calibreweb() {
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Setting up nginx conf"
@@ -189,7 +155,7 @@ _post_changepass() {
 
 _install_dependencies_calibreweb
 _install_calibreweb
-_install_kepubify
+_kepubify
 _systemd_calibreweb
 _nginx_calibreweb
 _post_libdir || {
