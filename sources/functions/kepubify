@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 _kepubify() {
     whereami=$(dirname "$0") && whereami="${whereami##*/}"
