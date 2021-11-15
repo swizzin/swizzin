@@ -106,16 +106,21 @@ _install_kepubify() {
 			;;
 	esac
 
-	kepubify_url="https://github.com/pgaskin/kepubify/releases/latest/download/kepubify-linux-${kepubify_arch}"
-	kepubify_url_status="$(curl -sLo /dev/null -w "%{http_code}" "${kepubify_url}")"
+	kepubify_url="https://github.com/pgaskin/kepubify/releases/latest/download"
+	kepubify_apps=("${kepubify_url}/kepubify-linux-${kepubify_arch}" "${kepubify_url}/covergen-linux-${kepubify_arch}" "${kepubify_url}/seriesmeta-linux-${kepubify_arch}")
 
-	if [[ "${kepubify_url_status}" -eq '200' ]]; then
-		wget "${kepubify_url}" -O /usr/local/bin/kepubify
-		chmod 755 /usr/local/bin/kepubify
-	else
-		echo_error "kepubify github release URL status: ${kepubify_url_status}"
-		exit 1
-	fi
+	for kepubify_apps in "${kepubify_apps[@]}"; do
+		kepubify_app_url_status="$(curl -sLo /dev/null -w "%{http_code}" "${kepubify_apps}")"
+		#
+		if [[ "${kepubify_app_url_status}" -eq '200' ]]; then
+			kepubify_apps_short=${kepubify_apps[0]##*/} && kepubify_apps_short="${kepubify_apps_short%%-*}"
+			wget "${kepubify_apps}" -O "/usr/local/bin/${kepubify_apps_short}"
+			chmod 755 "/usr/local/bin/${kepubify_apps_short}"
+		else
+			echo_error "kepubify github release URL status: ${kepubify_app_url_status}"
+			exit 1
+		fi
+	done
 	echo_progress_done
 } 2>> "${log}"
 
