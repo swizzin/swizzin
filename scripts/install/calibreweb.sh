@@ -89,9 +89,10 @@ function _install_calibreweb() {
 
 _install_kepubify() {
     echo_progress_start "Installing kepubify"
-    wget -q "https://github.com/pgaskin/kepubify/releases/download/v3.1.2/kepubify-linux-64bit" -O /tmp/kepubify >> $log 2>&1
-    chmod a+x /tmp/kepubify
-    mv /tmp/kepubify /usr/local/bin/kepubify
+    kepdlurl=$(curl -s https://api.github.com/repos/pgaskin/kepubify/releases/latest | grep "browser_download_url" | grep "kepubify-linux-64bit" | head -1 | cut -d\" -f 4) || {
+        echo_error "Failed to query github"
+        exit 1
+    wget -q "$kepdlurl" -O /tmp/kepubify >> $log 2>&1
     #TODO and figure out if it's needed for all cases or not
     echo_progress_done
 }
