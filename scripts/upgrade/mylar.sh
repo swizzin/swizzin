@@ -14,8 +14,8 @@ if [[ -f /install/.mylar.lock ]]; then
         }
     {
         #shellcheck disable=SC2129
-        git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
-        git -C /etc/swizzin reset --hard master >> $log 2>&1
+        git -C /opt/mylar fetch --all --tags --prune >> $log 2>&1
+        git -C /opt/mylar reset --hard master >> $log 2>&1
     } || {
         echo_error "Failed to update from git"
         exit 1
