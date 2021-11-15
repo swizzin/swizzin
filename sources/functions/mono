@@ -1,39 +1,37 @@
 #!/bin/bash
 
 function mono_repo_setup() {
-    distribution=$(lsb_release -is)
-    codename=$(lsb_release -cs)
+    distribution=$(_os_distro)
+    codename=$(_os_codename)
     if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-        if [[ $distribution == "Ubuntu" ]]; then
-            apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /dev/null 2>&1
-        elif [[ $distribution == "Debian" ]]; then
-            if [[ ! $codename == "buster" ]]; then
+        if [[ $distribution == "ubuntu" ]]; then
+            if [[ ! $codename == "focal" ]]; then
+                apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /dev/null 2>&1
+            fi
+        elif [[ $distribution == "debian" ]]; then
+            if [[ ! $codename == "bullseye" ]]; then
                 apt-key --keyring /etc/apt/trusted.gpg.d/mono-xamarin.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /dev/null 2>&1
-                #gpg --keyserver http://keyserver.ubuntu.com --recv 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >/dev/null 2>&1
-                #gpg --export 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF > /etc/apt/trusted.gpg.d/mono-xamarin.gpg
             fi
         fi
-        if [[ ! $codename =~ ("buster"|"focal") ]]; then
-            echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
+        if [[ $codename =~ ^(stretch|bionic|buster)$ ]]; then
+            echo "deb https://download.mono-project.com/repo/${distribution} ${codename}/snapshots/6.8/. main" > /etc/apt/sources.list.d/mono-xamarin.list
         fi
         apt_update
     fi
 }
 
 function mono_repo_update() {
-    distribution=$(lsb_release -is)
-    codename=$(lsb_release -cs)
+    distribution=$(_os_distro)
+    codename=$(_os_codename)
     if [[ -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
-        if grep -q "5.18" /etc/apt/sources.list.d/mono-xamarin.list; then
+        if grep -q "6.8" /etc/apt/sources.list.d/mono-xamarin.list; then
             :
         else
-            echo "deb https://download.mono-project.com/repo/${distribution,,} ${codename}/snapshots/5.18/. main" > /etc/apt/sources.list.d/mono-xamarin.list
-            echo_log_only "Upgrading to mono 5.18 snapshot"
+            echo "deb https://download.mono-project.com/repo/${distribution} ${codename}/snapshots/6.8/. main" > /etc/apt/sources.list.d/mono-xamarin.list
+            echo_log_only "Upgrading to mono 6.8 snapshot"
             apt_upgrade
             apt_autoremove
         fi
-    #elif [[ $codename == "buster" ]]; then
-    #  :
     else
         if ! command -v mono > /dev/null 2>&1; then
             mono_repo_setup

@@ -7,4 +7,4 @@ check_service "panel" || BAD=true
 check_port_curl "panel" || BAD=true
 check_nginx "" || BAD=true
 
-evaluate_bad
+evaluate_bad "panel"

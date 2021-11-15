@@ -1,0 +1,63 @@
+name: Bug Report
+description: Report broken functionality of the swizzin toolset
+title: "[BUG] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting bugs to us. Please make sure you've ran `box update` before, and that you checked that your issue is not covered in the [Documentation](https://swizzin.ltd)
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      value: |
+        Steps to reproduce:
+
+        1. Install package '...'
+        2. Go to '....'
+        3. Error '...'
+
+        Expected results:
+
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Swizzin commit
+      description: What hash of Swizzin are you running? You can find the hash when you run `box update`
+      placeholder: abcdef7
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: What OS are you using?
+      multiple: false
+      options:
+        - Debian 11 (Bullseye)
+        - Ubuntu 20.04 (Focal)
+        - Debian 10 (Buster)
+        - Ubuntu 18.04 (Xenial)
+        - Debian 9 (Stretch)
+    validations:
+      required: true
+  - type: dropdown
+    id: arch
+    attributes:
+      label: What architecture is your OS?
+      multiple: false
+      options:
+        - amd64
+        - arm64
+        - armhf (experimental)
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs and output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: plaintext

@@ -1,0 +1,39 @@
+diff --git a/configure.ac b/configure.ac
+index ba5bbf2..03fbb8a 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4,7 +4,6 @@ AC_DEFINE(API_VERSION, 9, api version)
+ 
+ AM_INIT_AUTOMAKE
+ AC_CONFIG_HEADERS(config.h)
+-AM_PATH_CPPUNIT(1.9.6)
+ 
+ AC_PROG_CXX
+ AC_PROG_LIBTOOL
+@@ -37,9 +36,11 @@ if test "x$ax_cv_ncursesw" != xyes && test "x$ax_cv_ncurses" != xyes; then
+    AC_MSG_ERROR([requires either NcursesW or Ncurses library])
+ fi
+ 
+-CFLAGS="$CFLAGS $PTHREAD_CFLAGS $CURSES_CFLAGS"
+-CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS $CURSES_CFLAGS"
+-LIBS="$PTHREAD_LIBS $CURSES_LIB $LIBS"
++PKG_CHECK_MODULES([CPPUNIT], [cppunit],, [no_cppunit="yes"])
++
++CFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CFLAGS $CURSES_CFLAGS"
++CXXFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CXXFLAGS $CURSES_CFLAGS"
++LIBS="$PTHREAD_LIBS $CURSES_LIB $CPPUNIT_LIBS $LIBS"
+ 
+ PKG_CHECK_MODULES([libcurl], libcurl >= 7.15.4,
+ 	          CXXFLAGS="$CXXFLAGS $libcurl_CFLAGS";
+diff --git a/src/display/window_file_list.cc b/src/display/window_file_list.cc
+index 7c9f692..b550490 100644
+--- a/src/display/window_file_list.cc
++++ b/src/display/window_file_list.cc
+@@ -36,6 +36,7 @@
+ 
+ #include "config.h"
+ 
++#include <locale>
+ #include <stdio.h>
+ #include <torrent/path.h>
+ #include <torrent/data/file.h>

@@ -6,4 +6,4 @@
 check_service "plexmediaserver" || BAD=true
 check_port "32400" || BAD=true
 
-evaluate_bad
+evaluate_bad "plex"

@@ -19,6 +19,8 @@ We expect the following criteria from a PR. You're more than welcome to ask us h
 You are welcome to submit PRs that do not fit this spec, but they are required to be marked as Draft PRs and preferrably pre-pended with `WIP: ` at the beginning of the PR title. If that is the case, please mention what your outstanding TODOs for the PR are.
 
 ## Editor plugins and tooling
+Please note that Extensions for VSCode should pop up as "recommended extensions", so just open it up and install them in one click!
+
 ### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
 - `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
