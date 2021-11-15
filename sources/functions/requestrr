@@ -21,7 +21,6 @@ function _requestrr_download() {
 }
 
 function _requestrr_config() {
-    _requestrr_chpass
     if [[ -f /install/.sonarr.lock ]]; then
         s_config="/home/$(swizdb get sonarr/owner)/.config/sonarr/config.xml"
         s_bind=$(sed -n 's|\(.*\)<BindAddress>\(.*\)</BindAddress>|\2|p' "$s_config")
