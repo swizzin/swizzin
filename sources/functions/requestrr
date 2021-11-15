@@ -20,14 +20,6 @@ function _requestrr_download() {
     echo_progress_done "Source downloaded"
 }
 
-function _requestrr_chpass() {
-    password="$(_get_user_password "$(_get_master_username)")"
-    local_packages=/usr/local/bin/swizzin
-    readarray -t hashpass < <(python3 ${local_packages}/requestrr.hashPass.py "${password}")
-    export requestrr_pass=${hashpass[0]}
-    export requestrr_key=${hashpass[1]}
-}
-
 function _requestrr_config() {
     _requestrr_chpass
     if [[ -f /install/.sonarr.lock ]]; then
@@ -49,13 +41,13 @@ function _requestrr_config() {
   "Authentication": {
     "Username": "",
     "Password": "",
-    "PrivateKey": ""
+    "PrivateKey": "[PRIVATEKEY]"
   },
   "ChatClients": {
     "Discord": {
       "BotToken": "",
       "ClientId": "",
-      "StatusMessage": "!help",
+      "StatusMessage": "/help",
       "TvShowRoles": [],
       "MovieRoles": [],
       "MonitoredChannels": [],
@@ -63,9 +55,9 @@ function _requestrr_config() {
       "AutomaticallyNotifyRequesters": true,
       "NotificationMode": "PrivateMessages",
       "NotificationChannels": [],
-      "AutomaticallyPurgeCommandMessages": false,
-      "DisplayHelpCommandInDMs": true
-    }
+      "AutomaticallyPurgeCommandMessages": true
+    },
+    "Language": "english"
   },
   "DownloadClients": {
     "Ombi": {
@@ -81,43 +73,54 @@ function _requestrr_config() {
       "Hostname": "",
       "Port": 5055,
       "ApiKey": "",
-      "DefaultApiUserID": "",
+      "Movies": {
+        "DefaultApiUserID": "",
+        "Categories": []
+      },
+      "TvShows": {
+        "DefaultApiUserID": "",
+        "Categories": []
+      },
       "UseSSL": false,
       "Version": "1"
     },
     "Radarr": {
-      "Hostname": "${r_bind}",
+      "Hostname": "127.0.0.1",
       "Port": ${r_port:-7878},
       "ApiKey": "${r_api}",
       "BaseUrl": "${r_base}",
-      "MovieProfileId": "1",
-      "MovieRootFolder": "",
-      "MovieMinimumAvailability": "",
-      "MovieTags": [],
-      "AnimeProfileId": "1",
-      "AnimeRootFolder": "",
-      "AnimeMinimumAvailability": "",
-      "AnimeTags": [],
+      "Categories": [
+        {
+          "Id": 0,
+          "Name": "movie",
+          "ProfileId": "1",
+          "RootFolder": "",
+          "MinimumAvailability": "announced",
+          "Tags": []
+        }
+      ],
       "SearchNewRequests": true,
       "MonitorNewRequests": true,
       "UseSSL": false,
-      "Version": "2"
+      "Version": "3"
     },
     "Sonarr": {
-      "Hostname": "${s_bind}",
+      "Hostname": "127.0.0.1",
       "Port": ${s_port:-8989},
       "ApiKey": "${s_api}",
       "BaseUrl": "${s_base}",
-      "TvProfileId": "1",
-      "TvRootFolder": "",
-      "TvTags": [],
-      "TvLanguageId": "1",
-      "TvUseSeasonFolders": true,
-      "AnimeProfileId": "1",
-      "AnimeRootFolder": "",
-      "AnimeTags": [],
-      "AnimeLanguageId": "1",
-      "AnimeUseSeasonFolders": true,
+      "Categories": [
+        {
+          "Id": 0,
+          "Name": "tv",
+          "ProfileId": "1",
+          "RootFolder": "",
+          "Tags": [],
+          "LanguageId": "1",
+          "UseSeasonFolders": true,
+          "SeriesType": "standard"
+        }
+      ],
       "SearchNewRequests": true,
       "MonitorNewRequests": true,
       "UseSSL": false,
@@ -125,21 +128,19 @@ function _requestrr_config() {
     }
   },
   "BotClient": {
-    "Client": "",
-    "CommandPrefix": "!"
+    "Client": ""
   },
   "Movies": {
-    "Client": "Disabled",
-    "Command": "movie"
+    "Client": "Disabled"
   },
   "TvShows": {
     "Client": "Disabled",
-    "Command": "tv",
     "Restrictions": "None"
   },
   "Port": 4545,
-  "BaseUrl" : "/requestrr",
-  "Version": "1.12.0"
+  "BaseUrl": "/requestrr",
+  "DisableAuthentication": true,
+  "Version": "2.1.0"
 }
 CFG
 }
