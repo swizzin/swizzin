@@ -93,7 +93,7 @@ _install_kepubify() {
         echo_error "Failed to query github"
         exit 1
     }
-    wget -q "$kepdlurl" -O /tmp/kepubify >>$log 2>&1
+    wget -q "$kepdlurl" -O /tmp/kepubify >> $log 2>&1
     chmod a+x /tmp/kepubify
     mv /tmp/kepubify /usr/local/bin/kepubify
     #TODO and figure out if it's needed for all cases or not
