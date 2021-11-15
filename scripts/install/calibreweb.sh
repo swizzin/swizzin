@@ -88,17 +88,36 @@ function _install_calibreweb() {
 }
 
 _install_kepubify() {
-    echo_progress_start "Installing kepubify"
-    kepdlurl=$(curl -s https://api.github.com/repos/pgaskin/kepubify/releases/latest | grep "browser_download_url" | grep "kepubify-linux-64bit" | head -1 | cut -d\" -f 4) || {
-        echo_error "Failed to query github"
-        exit 1
-    }
-    wget -q "$kepdlurl" -O /tmp/kepubify >> $log 2>&1
-    chmod a+x /tmp/kepubify
-    mv /tmp/kepubify /usr/local/bin/kepubify
-    #TODO and figure out if it's needed for all cases or not
-    echo_progress_done
-}
+	echo_progress_start "Installing kepubify"
+
+	case "$(_os_arch)" in
+		"amd64")
+			kepubify_arch="64bit"
+			;;
+		"arm64")
+			kepubify_arch="arm64"
+			;;
+		"armhf")
+			kepubify_arch="arm"
+			;;
+		*)
+			echo_error "$(_os_arch) not supported by this app"
+			exit 1
+			;;
+	esac
+
+	kepubify_url="https://github.com/pgaskin/kepubify/releases/latest/download/kepubify-linux-${kepubify_arch}"
+	kepubify_url_status="$(curl -sLo /dev/null -w "%{http_code}" "${kepubify_url}")"
+
+	if [[ "${kepubify_url_status}" -eq '200' ]]; then
+		wget "${kepubify_url}" -O /usr/local/bin/kepubify
+		chmod 755 /usr/local/bin/kepubify
+	else
+		echo_error "kepubify github release URL status: ${kepubify_url_status}"
+		exit 1
+	fi
+	echo_progress_done
+} 2>> "${log}"
 
 _nginx_calibreweb() {
     if [[ -f /install/.nginx.lock ]]; then
