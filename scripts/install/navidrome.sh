@@ -100,7 +100,7 @@ _navidromeconfig() {
 		MusicFolder = "/home/$user/music"
 		Port = "${http_port}"
 		Address = "0.0.0.0"
-		BaseUrl = /
+		BaseUrl = ""
 	SERV
     echo_progress_done "Configuration installed"
 }
