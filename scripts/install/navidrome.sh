@@ -64,7 +64,6 @@ _systemd() {
 		#ProtectHome=true
 
 		# You can customize some Navidrome config options by setting environment variables here. Ex:
-		Environment=ND_BASEURL="/navidrome"
 	SERV
     echo_progress_done "Navidrome service installed"
 } 2>> "${log}"
