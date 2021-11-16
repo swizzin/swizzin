@@ -28,6 +28,6 @@ function _navidrome_download_latest() {
         echo_error "Failed to extract"
         exit 1
     }
-    rm -rf "/tmp/navidrome.tar.gz"
+    rm_if_exists "/tmp/navidrome.tar.gz"
     echo_progress_done "Archive extracted"
 }
