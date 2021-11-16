@@ -14,7 +14,6 @@ fi
 
 _restart_navidrome() {
     systemctl try-restart "navidrome"
-    done
     echo_progress_done "Service restarted"
 }
 
