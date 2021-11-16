@@ -13,10 +13,8 @@ function navidrome_download_latest() {
             ;;
     esac
 
-    latest=$(curl -sL https://api.github.com/repos/navidrome/navidrome/releases/latest | grep "Linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
-        echo_error "Failed to query GitHub for latest version"
-        exit 1
-    }
+github_tag="$(git ls-remote -q -t --refs https://github.com/navidrome/navidrome.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+latest="https://github.com/navidrome/navidrome/releases/download/${github_tag}/navidrome_${github_tag#v}_Linux_${arch}.tar.gz"
 
     if ! curl "$latest" -L -o "/tmp/navidrome.tar.gz" >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
