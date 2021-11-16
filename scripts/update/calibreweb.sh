@@ -11,7 +11,7 @@ if [[ -f /install/.calibreweb.lock ]]; then
         /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt
         if systemctl is-enabled calibreweb > /dev/null 2>&1 &&
             [[ "$(tail -n 1 /opt/calibreweb/calibre-web.log | grep -c 'webserver stop (restart=True)')" -eq 1 ]]; then
-            systemctl start calibreweb
+            systemctl restart calibreweb
         fi
         echo_progress_done
     fi
