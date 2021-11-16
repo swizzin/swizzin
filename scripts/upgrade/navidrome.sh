@@ -20,7 +20,7 @@ _restart_navidrome() {
     echo_progress_done "Service restarted"
 }
 
-navidrome_download_latest
+_navidrome_download_latest
 _restart_navidrome
 
 echo_success "navidrome upgraded"
