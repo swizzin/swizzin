@@ -13,7 +13,6 @@ if [[ ! -f /install/.navidrome.lock ]]; then
 fi
 
 _restart_navidrome() {
-    for user in "${users[@]}"; do
         # restart navidrome
         systemctl try-restart "navidrome"
     done
