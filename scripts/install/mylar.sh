@@ -70,7 +70,7 @@ echo_progress_done
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
     bash /usr/local/bin/swizzin/nginx/mylar.sh
-    systemctl reload nginx
+    systemctl reload -q nginx
     echo_progress_done
 else
     echo_info "Mylar is now running on port ${http_port}."

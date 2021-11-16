@@ -6,8 +6,8 @@
 mylar_owner="$(swizdb get mylar/owner)"
 port="$(sed -rn 's|http_port = (.*)|\1|p' "/home/${mylar_owner}/.config/mylar/config.ini")"
 
-sed -i 's|http_host = 0.0.0.0|http_host = 127.0.0.1|g' "/home/${mylar_owner}/.config/mylar/config.ini"
-sed -i 's|http_root = /|http_root = /mylar|g' "/home/${mylar_owner}/.config/mylar/config.ini"
+sed -r 's|http_host = (.*)|http_host = 127.0.0.1|g' -i "/home/${mylar_owner}/.config/mylar/config.ini"
+sed -r 's|http_root = (.*)|http_root = /mylar|g' -i "/home/${mylar_owner}/.config/mylar/config.ini"
 
 cat > /etc/nginx/apps/mylar.conf << EON
 location ^~ /mylar {
@@ -18,3 +18,5 @@ location ^~ /mylar {
     auth_basic_user_file /etc/htpasswd.d/htpasswd.${mylar_owner};
 }
 EON
+
+systemctl restart -q mylar
