@@ -88,27 +88,36 @@ _ffmpegrequired() {
 }
 
 _navidromedirectories() {
-    echo_progress_start "Making data directory and owning it to ${user}"
+    echo_progress_start "Making data directory"
     mkdir -p "/opt/navidrome"
-    chown -R "$user":"$user" /opt/navidrome
     mkdir -p "/home/${user}/.config/navidrome"
-    chown -R "$user":"$user" "/home/${user}/.config/navidrome"
     mkdir -p "/home/$user/music"
-    chown -R "$user":"$user" "/home/$user/music"
-    echo_progress_done "Data Directory created and owned."
+    echo_progress_done "Data Directory created."
 }
 
 _navidromeconfig() {
     echo_progress_start "Installing configuration file"
     cat > "/home/${user}/.config/navidrome/navidrome.toml" <<- SERV
 		MusicFolder = "/home/$user/music"
+        Port = "${http_port}"
+        Address = "0.0.0.0"
+        BaseUrl = /
 	SERV
     echo_progress_done "Configuration installed"
+}
+
+_navidromeowner() {
+    echo_progress_start "Owning directories to $user"
+    chown -R "$user":"$user" /opt/navidrome
+    chown -R "$user":"$user" "/home/${user}/.config/navidrome"
+    chown -R "$user":"$user" "/home/$user/music"
+    echo_progress_done "Directory Owned."
 }
 
 _navidromedirectories
 _navidrome_download_latest
 _navidromeconfig
+_navidromeowner
 _ffmpegrequired
 _systemd
 _nginx
