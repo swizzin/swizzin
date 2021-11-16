@@ -6,7 +6,7 @@ function _navidrome_download_latest() {
     case "$(_os_arch)" in
         "amd64") arch='x86_64' ;;
         "arm64") arch="arm64" ;;
-        "armhf") arch="armv6" ;;
+        "armhf") arch="armv7" ;;
         *)
             echo_error "Arch not supported"
             exit 1
