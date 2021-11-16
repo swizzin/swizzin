@@ -98,9 +98,9 @@ _navidromeconfig() {
     echo_progress_start "Installing configuration file"
     cat > "/home/${user}/.config/navidrome/navidrome.toml" <<- SERV
 		MusicFolder = "/home/$user/music"
-        Port = "${http_port}"
-        Address = "0.0.0.0"
-        BaseUrl = /
+		Port = "${http_port}"
+		Address = "0.0.0.0"
+		BaseUrl = /
 	SERV
     echo_progress_done "Configuration installed"
 }
