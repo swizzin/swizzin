@@ -13,8 +13,7 @@ if [[ ! -f /install/.navidrome.lock ]]; then
 fi
 
 _restart_navidrome() {
-        # restart navidrome
-        systemctl try-restart "navidrome"
+    systemctl try-restart "navidrome"
     done
     echo_progress_done "Service restarted"
 }
