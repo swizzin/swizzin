@@ -116,10 +116,10 @@ _navidromeowner() {
 _navidromedirectories
 _navidrome_download_latest
 _navidromeconfig
-_navidromeowner
 _ffmpegrequired
 _systemd
 _nginx
+_navidromeowner
 
 systemctl enable -q --now navidrome.service &>> "${log}"
 touch "/install/.navidrome.lock"
