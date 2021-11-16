@@ -103,7 +103,7 @@ SERV
 }
 
 _navidromedirectories
-navidrome_download_latest
+_navidrome_download_latest
 _navidromeconfig
 _ffmpegrequired
 _systemd

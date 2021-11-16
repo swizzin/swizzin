@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function navidrome_download_latest() {
+function _navidrome_download_latest() {
     echo_progress_start "Downloading release archive"
 
     case "$(_os_arch)" in
