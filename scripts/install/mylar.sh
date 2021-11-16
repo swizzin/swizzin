@@ -73,7 +73,7 @@ if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
     echo_progress_done
 else
-    echo_info "Mylar is now running on port ${http_port}/mylar."
+    echo_info "Mylar is now running on port ${http_port}."
 fi
 
 echo_progress_start "Installing systemd service"
