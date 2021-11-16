@@ -28,7 +28,7 @@ WantedBy=multi-user.target
 [Service]
 User=${user}
 Group=${user}
-Type=simple
+Type=${type}
 ExecStart=/opt/navidrome/navidrome --configfile "/home/${user}/.config/navidrome/navidrome.toml"
 WorkingDirectory=/home/${user}/.config/navidrome/
 TimeoutStopSec=20
