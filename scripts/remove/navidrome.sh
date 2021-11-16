@@ -5,7 +5,7 @@
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
-user=$(_get_master_username)
+user="$(_get_master_username)"
 
 function _remove_navidrome() {
     systemctl disable --now -q navidrome.service
@@ -18,7 +18,7 @@ function _remove_navidrome() {
 
     if [[ -f /install/.nginx.lock ]]; then
         rm_if_exists /etc/nginx/apps/navidrome.conf
-        systemctl reload -q nginx >> "$log" 2>&1
+        systemctl reload -q nginx &>> "${log}"
     fi
 
     rm_if_exists /install/.navidrome.lock
