@@ -10,19 +10,18 @@ user=$(_get_master_username)
 function _remove_navidrome() {
     systemctl disable --now -q navidrome.service
 
-    rm -f /etc/systemd/system/navidrome.service
-    rm -rf /opt/navidrome
-    rm -rf /home/${user}/.config/navidrome
+    rm_if_exists /etc/systemd/system/navidrome.service
+    rm_if_exists /opt/navidrome
+    rm_if_exists "/home/${user}/.config/navidrome"
 
     systemctl daemon-reload -q
 
     if [[ -f /install/.nginx.lock ]]; then
-        rm -f /etc/nginx/apps/navidrome.conf
-
-        systemctl reload nginx >> "$log" 2>&1
+        rm_if_exists /etc/nginx/apps/navidrome.conf
+        systemctl reload -q nginx >> "$log" 2>&1
     fi
 
-    rm /install/.navidrome.lock
+    rm_if_exists /install/.navidrome.lock
 }
 
 _remove_navidrome
