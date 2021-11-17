@@ -23,9 +23,10 @@ cat > /etc/nginx/apps/$app_name.conf << PROWLARR
 location /$app_baseurl {
     proxy_pass          http://127.0.0.1:$app_port/$app_baseurl;
     proxy_http_version  1.1;
-    proxy_set_header    Host                \$proxy_host;
+    proxy_set_header    Host                \$host;
     proxy_set_header    X-Forwarded-For     \$proxy_add_x_forwarded_for;
     proxy_set_header    X-Forwarded-Proto   \$scheme;
+    proxy_set_header    X-Forwarded-Host    \$host;
     proxy_set_header    Upgrade             \$http_upgrade;
     proxy_set_header    Connection          \$http_connection;
     proxy_redirect      off;
