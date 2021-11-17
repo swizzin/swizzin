@@ -471,7 +471,12 @@ function _chpasswd() {
         systemctl stop deluged@${user} >> $log 2>&1
         systemctl stop deluge-web@${user} >> $log 2>&1
         DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
+        if $(command -v python2.7 > /dev/null 2>&1); then
+            pythonversion=python2.7
+        elif $(command -v python3 > /dev/null 2>&1); then
+            pythonversion=python3
+        fi
+        DWP=$(${pythonversion} /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
         sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
         sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
         sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
