@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function _navidrome_download_latest() {
+    echo_progress_start "Downloading release archive"
+
+    case "$(_os_arch)" in
+        "amd64") arch='x86_64' ;;
+        "arm64") arch="arm64" ;;
+        "armhf") arch="armv7" ;;
+        *)
+            echo_error "Arch not supported"
+            exit 1
+            ;;
+    esac
+
+    github_tag="$(git ls-remote -q -t --refs https://github.com/navidrome/navidrome.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+    latest="https://github.com/navidrome/navidrome/releases/download/${github_tag}/navidrome_${github_tag#v}_Linux_${arch}.tar.gz"
+
+    if ! curl "${latest}" -L -o "/tmp/navidrome.tar.gz" &>> "${log}"; then
+        echo_error "Download failed, exiting"
+        exit 1
+    fi
+    echo_progress_done "Archive downloaded"
+
+    echo_progress_start "Extracting archive"
+
+    tar xfv "/tmp/navidrome.tar.gz" --directory /opt/navidrome/ &>> "${log}" || {
+        echo_error "Failed to extract"
+        exit 1
+    }
+    rm_if_exists "/tmp/navidrome.tar.gz"
+    echo_progress_done "Archive extracted"
+}
