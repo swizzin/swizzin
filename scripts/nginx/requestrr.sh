@@ -14,6 +14,9 @@ location ^~ /requestrr {
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
 }
+location /requestrr/api {
+    proxy_pass http://127.0.0.1:4545;
+}
 SRC
 cat > /opt/requestrr/appsettings.json << SET
 {
