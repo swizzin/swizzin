@@ -17,7 +17,7 @@ debug_user() {
 _pipe_status() {
     return_code=("${PIPESTATUS[@]}")               # set pipestatus to an array now or it will be reset by any new command or action taken.
     return_location=-1                             # set the count start point to -1. An array index starts from 0 so we make sure the first count increment starts at 0 so it matches the location of the error
-    unset return_code_outcome                      # unset this to make sure it clear/unset when he function is called so we don't auto exit
+    unset return_code_outcome                      # unset this to make sure it clear/unset when the function is called so we don't auto exit when using the function
     for return_code in "${return_code[@]}"; do     # loop through the return_code array.
         return_location="$((return_location + 1))" # start the count, starting from 0 so we get 0,0 > 0,1 > 0,2 and so on.
         if [[ "${return_code}" -gt '0' ]]; then    # If any indexed value in the array returns as a non 0 number do this.
@@ -26,5 +26,5 @@ _pipe_status() {
         fi
     done
     [[ "${return_code_outcome}" -eq '1' ]] && exit 1 # if there was any error in the pipe then exit now instead of returning.
-    return                                           # if there were no problems we simply return tot he main scrpt and do nothing.
+    return                                           # if there were no problems we simply return to the main scrpt and do nothing.
 }
