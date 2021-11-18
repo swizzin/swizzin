@@ -2,20 +2,23 @@
 #
 declare -A app_port
 #
-# List our ports here using the forman array_name[app_name]port
-app_port[authelia]=9091
-app_port[filebrowser]=9090
-app_port[jackett]=9117
+log=${log:-/root/logs/swizzin.log}
+#
+# #shellcheck source=sources/functions/app_port
+# . /etc/swizzin/sources/functions/app_port
+# _get_app_port
+#
+# #shellcheck source=sources/default_ports
+. /etc/swizzin/sources/default_ports
 #
 # Use this function to get a port from the array using the command inside an install script app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
 _get_app_port() {
-    if [[ -n "${1}" ]]; then
-        if [[ -n ${app_port[$1]+$1} ]]; then
-            echo ${app_port[$1]}
-        else
-            echo "get_app_port ERROR app name does not exist "
-        fi
-    else
-        echo "get_app_port ERROR no app name provided"
-    fi
+	which_app="$(basename -- "$0" \.sh)"
+	if [[ -n "${app_port[${which_app}]+${which_app}}" ]]; then
+		printf '%s' "${app_port[${which_app}]}"
+	else
+		echo_error "ERROR get_app_port ${which_app} does not exist or does not have a port defined"
+		exit 1
+	fi
+	return
 }
