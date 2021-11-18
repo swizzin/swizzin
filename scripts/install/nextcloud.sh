@@ -57,15 +57,22 @@ else
     #Nextcloud 21 no longer supports php7.2 so 20 is the latest supported release for Bionic
     echo_progress_start "Downloading and extracting Nextcloud"
     codename=$(lsb_release -cs)
-    if [[ $codename == "stretch" ]]; then
-        version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
-    elif [[ $codename = "bionic" ]]; then
-        version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest20"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
-    else
-        version=latest
-    fi
-    wget -q https://download.nextcloud.com/server/releases/${version}.zip > /dev/null 2>&1
-    unzip ${version}.zip > /dev/null 2>&1
+    case $codename in
+        stretch)
+            version=latest-15
+            ;;
+        bionic)
+            version=latest-20
+            ;;
+        *)
+            version=latest
+            ;;
+    esac
+    wget https://download.nextcloud.com/server/releases/${version}.zip >> ${log} 2>&1 || {
+        echo_error "Could not download nextcloud"
+        exit 1
+    }
+    unzip ${version}.zip >> ${log} 2>&1
     mv nextcloud /srv
     rm -rf /tmp/${version}.zip
     echo_progress_done "Nextcloud extracted"
