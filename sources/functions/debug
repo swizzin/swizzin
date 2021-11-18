@@ -21,7 +21,7 @@ _pipe_status() {
     for return_code in "${return_code[@]}"; do     # loop through the return_code array.
         return_location="$((return_location + 1))" # start the count, starting from 0 so we get 0,0 > 0,1 > 0,2 and so on.
         if [[ "${return_code}" -gt '0' ]]; then    # If any indexed value in the array returns as a non 0 number do this.
-            echo -e "\nError in piped command at position: ${return_location} with return code: ${return_code} - Check the logs\n"
+            echo_warn "\nError in piped command at position: ${return_location} with return code: ${return_code} - Check the logs\n"
             return_code_outcome='1' # set this variable to exit at the end of the function so we can see all errors in the pipe instead of exiting at the first one.
         fi
     done
