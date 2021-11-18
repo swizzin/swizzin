@@ -8,7 +8,7 @@ log=${log:-/root/logs/swizzin.log}
 # . /etc/swizzin/sources/functions/app_port
 # _get_app_port
 #
-# #shellcheck source=sources/default_ports
+#shellcheck source=sources/default_ports
 . /etc/swizzin/sources/default_ports
 #
 # Use this function to get a port from the array using the command inside an install script app_proxy_port="$(_get_app_port "$(basename -- "$0" \.sh)")"
