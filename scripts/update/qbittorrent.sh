@@ -19,4 +19,11 @@ if [[ -f /install/.qbittorrent.lock ]]; then
         echo_info "qBittorrent systemd services have been updated. Please restart qBittorrent services at your convenience."
     fi
     #End systemd service updates
+    #Check for proxy_cookie_path in nginx to prevent writing cookies to /
+    if [[ -f /install/.nginx.lock ]]; then
+        if ! grep -q proxy_cookie_path /etc/nginx/apps/qbittorrent.conf; then
+            sed -i '/rewrite.* /a \   \ proxy_cookie_path \/ "\/qbittorrent\/\; Secure"\;' /etc/nginx/apps/qbittorrent.conf
+            systemctl reload nginx
+        fi
+    fi
 fi
