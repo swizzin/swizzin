@@ -26,7 +26,7 @@ app_servicefile="$app_name.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 app_lockname="${app_name//-/}"
-app_branch="nightly" # Change to develop/stable when available, tell users to migrate manually.
+app_branch="develop" # Change to develop/stable when available, tell users to migrate manually.
 
 if [ ! -d "$swiz_configdir" ]; then
     mkdir -p "$swiz_configdir"
