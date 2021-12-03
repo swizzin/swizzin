@@ -113,11 +113,18 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
+    systemctl -q daemon-reload
     systemctl enable --now -q "$app_servicefile"
     sleep 1
-
     echo_progress_done "${app_name^} service installed and enabled"
-
+    
+    # In theory there should be no updating needed, so let's generalize this
+    echo_progress_start "${app_name^} is loading..."
+    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:$app_port >> \"$log\" 2>&1; do sleep 2; done"; then
+        echo_error "The ${app_name^} web server has taken longer than 30 seconds to start."
+        exit 1
+    fi
+    echo_progress_done "Loading finished"
 }
 
 _install
