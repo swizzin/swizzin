@@ -20,8 +20,9 @@ app_branch="nightly"
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location /$app_baseurl {
     proxy_pass          http://127.0.0.1:$app_port/$app_baseurl;
-    proxy_set_header    Host                \$proxy_host;
+    proxy_set_header    Host                \$host;
     proxy_set_header    X-Forwarded-For     \$proxy_add_x_forwarded_for;
+    proxy_set_header    X-Forwarded-Host    \$host;
     proxy_set_header    X-Forwarded-Proto   \$scheme;
     proxy_redirect      off;
 
@@ -44,13 +45,6 @@ location /$app_baseurl/Content {
     auth_request    off;
     proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/Content;
 }
-
-# Allow Indexers  $1 matches the regex
-location ~ /$app_baseurl/[0-9]+/api {
-    auth_request    off;
-    proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
-}
-
 ARRNGINX
 
 wasActive=$(systemctl is-active $app_servicefile)
