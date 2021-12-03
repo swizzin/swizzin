@@ -121,8 +121,8 @@ EOF
 }
 
 _install
-_nginx
 _systemd
+_nginx
 
 touch "/install/.$app_lockname.lock"
 echo_success "${app_name^} installed"
