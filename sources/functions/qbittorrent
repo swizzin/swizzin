@@ -316,9 +316,9 @@ function build_libtorrent_qbittorrent() {
                 -D BUILD_SHARED_LIBS=OFF \
                 -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
                 -D CMAKE_C_FLAGS="${CFLAGS}" \
-                -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local"
-            PATH=/opt/local/bin:${PATH} cmake --build build
-            PATH=/opt/local/bin:${PATH} cmake --install build
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local" >> ${log} 2>&1
+            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1
+            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1
             #Fix pkgconfig paths/quirks
             sed -i 's|/tmp/dist/libtorrent||g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
             sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
@@ -377,9 +377,9 @@ function build_qbittorrent() {
                 -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
                 -D CMAKE_C_FLAGS="${CFLAGS}" \
                 -D GUI=OFF \
-                -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr"
-            PATH=/opt/local/bin:${PATH} cmake --build build
-            PATH=/opt/local/bin:${PATH} cmake --install build
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr" >> ${log} 2>&1
+            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1
+            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1
             ;;
         autotools)
             ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1
