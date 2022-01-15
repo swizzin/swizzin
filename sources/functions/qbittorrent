@@ -79,6 +79,7 @@ function qbittorrent_version_info() {
             stdcver="c++14"
             qt_minimum_version=5.5
             cryptography_type=built-in
+            buid_type=autotools
             ;;
         4.2.*)
             libtorrent_branch=RC_1_2
@@ -86,6 +87,7 @@ function qbittorrent_version_info() {
             stdcver="c++14"
             qt_minimum_version=5.9
             cryptography_type=openssl
+            build_type=autotools
             ;;
         4.3.[012]*)
             libtorrent_branch=RC_1_2
@@ -93,6 +95,7 @@ function qbittorrent_version_info() {
             stdcver="c++14"
             qt_minimum_version=5.9
             cryptography_type=openssl
+            build_type=autotools
             ;;
         4.3.3)
             libtorrent_branch=RC_1_2
@@ -100,6 +103,7 @@ function qbittorrent_version_info() {
             stdcver="c++17"
             qt_minimum_version=5.9
             cryptography_type=openssl
+            build_type=autotools
             ;;
         4.3.*)
             libtorrent_branch=RC_1_2
@@ -107,6 +111,7 @@ function qbittorrent_version_info() {
             stdcver="c++17"
             qt_minimum_version=5.12
             cryptography_type=openssl
+            build_type=autotools
             ;;
         4.4.*)
             libtorrent_branch=RC_2_0
@@ -115,6 +120,7 @@ function qbittorrent_version_info() {
             qt_minimum_version=6.0
             qbt_use_qt6=ON
             cryptography_type=openssl
+            build_type=cmake
             ;;
         *)
             echo_error "qBittorrent version should be between 4.1.*(.*) and 4.4.*(.*) -- Setup will not proceed."
@@ -280,7 +286,6 @@ function whiptail_skip_qt() {
 function build_libtorrent_qbittorrent() {
     rm_if_exists /tmp/libtorrent
     booststrap
-    #echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
     apt_install libssl-dev
     git clone -b ${libtorrent_branch} --recurse-submodules https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
@@ -302,21 +307,31 @@ function build_libtorrent_qbittorrent() {
         sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
     fi
     VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
-    PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
-        -D CMAKE_BUILD_TYPE="Release" \
-        -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
-        -D BOOST_INCLUDEDIR="/opt/boost_${BOOST_VERSION}" \
-        -D BUILD_SHARED_LIBS=OFF \
-        -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
-        -D CMAKE_C_FLAGS="${CFLAGS}" \
-        -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local"
-    PATH=/opt/local/bin:${PATH} cmake --build build
-    PATH=/opt/local/bin:${PATH} cmake --install build
-    #Fix pkgconfig paths/quirks
-    sed -i 's|/tmp/dist/libtorrent||g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
-    sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
-    #Deprecated boost build command
-    #/opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static fpic=on lto=on install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
+    case $build_type in
+        cmake)
+            PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
+                -D CMAKE_BUILD_TYPE="Release" \
+                -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
+                -D BOOST_INCLUDEDIR="/opt/boost_${BOOST_VERSION}" \
+                -D BUILD_SHARED_LIBS=OFF \
+                -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+                -D CMAKE_C_FLAGS="${CFLAGS}" \
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local"
+            PATH=/opt/local/bin:${PATH} cmake --build build
+            PATH=/opt/local/bin:${PATH} cmake --install build
+            #Fix pkgconfig paths/quirks
+            sed -i 's|/tmp/dist/libtorrent||g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
+            sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
+            ;;
+        autotools)
+            echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
+            /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
+            ;;
+        *)
+            echo_error "Build type must be cmake or autotools"
+            exit 1
+            ;;
+    esac
     tag=" static with ${stdcver} march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
@@ -352,20 +367,30 @@ function build_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
-    PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
-        -D CMAKE_BUILD_TYPE="release" \
-        -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
-        -D QT6="${qbt_use_qt6:=OFF}" \
-        -D Boost_NO_BOOST_CMAKE=TRUE \
-        -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
-        -D CMAKE_C_FLAGS="${CFLAGS}" \
-        -D GUI=OFF \
-        -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr"
-    PATH=/opt/local/bin:${PATH} cmake --build build
-    PATH=/opt/local/bin:${PATH} cmake --install build
-    #./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1
-    #make -j$(nproc) >> $log 2>&1
-    #make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
+    case $build_type in
+        cmake)
+            PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
+                -D CMAKE_BUILD_TYPE="release" \
+                -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
+                -D QT6="${qbt_use_qt6:=OFF}" \
+                -D Boost_NO_BOOST_CMAKE=TRUE \
+                -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+                -D CMAKE_C_FLAGS="${CFLAGS}" \
+                -D GUI=OFF \
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr"
+            PATH=/opt/local/bin:${PATH} cmake --build build
+            PATH=/opt/local/bin:${PATH} cmake --install build
+            ;;
+        autotools)
+            ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1
+            make -j$(nproc) >> $log 2>&1
+            make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
+            ;;
+        *)
+            echo_error "Build type must be cmake or autotools"
+            exit 1
+            ;;
+    esac
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin$tag" >> ${log} 2>&1
     dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb >> ${log} 2>&1 || {
