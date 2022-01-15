@@ -79,7 +79,7 @@ function qbittorrent_version_info() {
             stdcver="c++14"
             qt_minimum_version=5.5
             cryptography_type=built-in
-            buid_type=autotools
+            build_type=autotools
             ;;
         4.2.*)
             libtorrent_branch=RC_1_2
