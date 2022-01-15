@@ -191,7 +191,7 @@ function install_qt_swizzin() {
 function install_cmake_swizzin() {
     latest_cmake_swizzin=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/swizzin/cmake_crossbuild/releases/latest | grep -o '[^/]*$')
     installed_cmake_swizzin=$(dpkg-query --showformat='${Version}' --show cmake-swizzin 2> /dev/null)
-    if [[ -z ${installed_cmake_swizzin} ]] || dpkg --compare-versions ${installed_cmake_swizzin} lt ${latest_cmake_swizzin}; then
+    if [[ -z ${installed_cmake_swizzin} ]] || dpkg --compare-versions ${installed_cmake_swizzin} lt ${latest_cmake_swizzin//_/+}; then
         echo_progress_start "Installing latest cmake-swizzin"
         wget -O /tmp/cmake-swizzin.deb https://github.com/swizzin/cmake_crossbuild/releases/download/${latest_cmake_swizzin}/$(_os_distro)-$(_os_codename)-cmake-swizzin-$(_os_arch).deb >> ${log} 2>&1 || {
             echo_error "cmake-swizzin could not be downloaded from github. Setup will not proceed"
