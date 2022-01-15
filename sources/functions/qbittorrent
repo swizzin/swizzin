@@ -187,14 +187,14 @@ function install_cmake_swizzin() {
     installed_cmake_swizzin=$(dpkg-query --showformat='${Version}' --show cmake-swizzin 2> /dev/null)
     if [[ -z ${installed_cmake_swizzin} ]] || dpkg --compare-versions ${installed_cmake_swizzin} lt ${latest_cmake_swizzin}; then
         echo_progress_start "Installing latest cmake-swizzin"
-        wget -O /tmp/qt6-swizzin.deb https://github.com/swizzin/qt6_crossbuild/releases/download/${latest_cmake_swizzin}/$(_os_distro)-$(_os_codename)-qt6-swizzin-$(_os_arch).deb >> ${log} 2>&1 || {
+        wget -O /tmp/cmake-swizzin.deb https://github.com/swizzin/cmake_crossbuild/releases/download/${latest_cmake_swizzin}/$(_os_distro)-$(_os_codename)-qt6-swizzin-$(_os_arch).deb >> ${log} 2>&1 || {
             echo_error "cmake-swizzin could not be downloaded from github. Setup will not proceed"
             exit 1
         }
-        dpkg -i /tmp/qt6-swizzin.deb >> ${log} 2>&1 || {
+        dpkg -i /tmp/cmake-swizzin.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing cmake-swizzin. Setup will not proceed"
         }
-        rm -rf /tmp/qt6-swizzin.deb
+        rm -rf /tmp/cmake-swizzin.deb
         echo_progress_done "cmake-swizzin installed"
     fi
 }
