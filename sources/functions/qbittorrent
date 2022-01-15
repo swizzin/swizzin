@@ -147,7 +147,7 @@ function skip_libtorrent_qbittorrent() {
 function install_qt() {
     qt_repo_version=$(get_candidate_version qtbase5-dev)
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
-        if ${qt_minimum_version} ge 6.0; then
+        if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
             install_qt_swizzin
             QT_PREFIX=/opt/local
         else
