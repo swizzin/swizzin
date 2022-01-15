@@ -51,13 +51,12 @@ for u in ${users[@]}; do
     mv "${confpath}.tmp" "$confpath"
     
     RPCPORT=$(jq -r '.["rpc-port"]' < "$confpath")
-    if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
-        cat > /etc/nginx/conf.d/${u}.transmission.conf << TDCONF
+    cat > /etc/nginx/conf.d/${u}.transmission.conf << TDCONF
 upstream ${u}.transmission {
     server 127.0.0.1:${RPCPORT};
 }
 TDCONF
-    fi
+    
     if [[ $active == "active" ]]; then
         systemctl start transmission@${u}
         echo_log_only "Activating service"
