@@ -302,7 +302,7 @@ function build_libtorrent_qbittorrent() {
         sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
     fi
     VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
-    PATH=${PATH}:/opt/local/bin cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
+    PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
         -D CMAKE_BUILD_TYPE="Release" \
         -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
         -D BOOST_INCLUDEDIR="/opt/boost_${BOOST_VERSION}" \
@@ -310,8 +310,8 @@ function build_libtorrent_qbittorrent() {
         -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
         -D CMAKE_C_FLAGS="${CFLAGS}" \
         -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local"
-    PATH=${PATH}:/opt/local/bin cmake --build build
-    PATH=${PATH}:/opt/local/bin cmake --install build
+    PATH=/opt/local/bin:${PATH} cmake --build build
+    PATH=/opt/local/bin:${PATH} cmake --install build
     #Fix pkgconfig paths/quirks
     sed -i 's|/tmp/dist/libtorrent||g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
     sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
@@ -352,7 +352,7 @@ function build_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
-    PATH=${PATH}:/opt/local/bin cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
+    PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
         -D CMAKE_BUILD_TYPE="release" \
         -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
         -D QT6="${qbt_use_qt6:=OFF}" \
@@ -361,8 +361,8 @@ function build_qbittorrent() {
         -D CMAKE_C_FLAGS="${CFLAGS}" \
         -D GUI=OFF \
         -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr"
-    PATH=${PATH}:/opt/local/bin cmake --build build
-    PATH=${PATH}:/opt/local/bin cmake --install build
+    PATH=/opt/local/bin:${PATH} cmake --build build
+    PATH=/opt/local/bin:${PATH} cmake --install build
     #./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1
     #make -j$(nproc) >> $log 2>&1
     #make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
