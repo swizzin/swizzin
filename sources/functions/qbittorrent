@@ -183,7 +183,7 @@ function install_qt_swizzin() {
 }
 
 function install_cmake_swizzin() {
-    latest_cmake_swizzin=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/swizzin/qt6_crossbuild/releases/latest | grep -o '[^/]*$')
+    latest_cmake_swizzin=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/swizzin/cmake_crossbuild/releases/latest | grep -o '[^/]*$')
     installed_cmake_swizzin=$(dpkg-query --showformat='${Version}' --show cmake-swizzin 2> /dev/null)
     if [[ -z ${installed_cmake_swizzin} ]] || dpkg --compare-versions ${installed_cmake_swizzin} lt ${latest_cmake_swizzin}; then
         echo_progress_start "Installing latest cmake-swizzin"
