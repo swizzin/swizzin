@@ -28,6 +28,7 @@ case ${QBITTORRENT_VERSION} in
         detect_libtorrent_rasterbar_conflict qbittorrent
         qbittorrent_version_info
         install_fpm
+        install_cmake_swizzin
         check_swap_on
 
         if ! skip_libtorrent_qbittorrent; then
