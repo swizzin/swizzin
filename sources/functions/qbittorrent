@@ -152,9 +152,9 @@ function install_qt() {
             QT_PREFIX=/opt/local
         else
             build_qt_swizzin
+            QT_SWIZZIN=Qt5_DIR="${QT_PREFIX}"
         fi
         QT_METHOD=swizzin
-        QT_SWIZZIN=QT_QMAKE="${QT_PREFIX}/bin"
     else
         LIST='qtbase5-dev qttools5-dev'
         apt_install --no-recommends $LIST
@@ -300,12 +300,14 @@ function build_libtorrent_qbittorrent() {
     if [[ ${libtorrent_branch} == "RC_1_1" ]]; then
         #Dirty hack to ensure finished library uses `libtorrent-rasterbar` for its name in the deprecated 1.1 branch
         sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
+        #Inconsistent boost variables
+        cmakeboost=Boost_INCLUDE_DIR
     fi
     VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
     PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
         -D CMAKE_BUILD_TYPE="Release" \
         -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
-        -D BOOST_INCLUDEDIR="/opt/boost_${BOOST_VERSION}" \
+        -D ${cmakeboost:=BOOST_INCLUDEDIR}="/opt/boost_${BOOST_VERSION}" \
         -D BUILD_SHARED_LIBS=OFF \
         -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
         -D CMAKE_C_FLAGS="${CFLAGS}" \
@@ -352,7 +354,7 @@ function build_qbittorrent() {
     tag=" static with ${stdcver} march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
-    PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
+    ${QT_SWIZZIN} PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
         -D CMAKE_BUILD_TYPE="release" \
         -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
         -D QT6="${qbt_use_qt6:=OFF}" \
