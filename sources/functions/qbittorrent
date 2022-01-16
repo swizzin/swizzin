@@ -65,9 +65,15 @@ function whiptail_qbittorrent() {
 
 function qbittorrent_version_info() {
     if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
-        releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr)
-        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
-        QBITTORRENT_VERSION=${latestv43}
+        case $(_os_codename) in
+            stretch)
+                QBITTORRENT_VERSION=4.3.1
+                ;;
+            *)
+                QBITTORRENT_VERSION=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr | head -n1)
+                #latestv44=$(echo "$releases" | grep -m1 -oP '4\.4\.\d?.?\d')
+                ;;
+        esac
     fi
     CFLAGS="-march=native"
     CXXFLAGS="-march=native"
