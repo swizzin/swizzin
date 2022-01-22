@@ -112,10 +112,6 @@ server {
   location ~ /\.ht {
     deny all;
   }
-
-  location /fancyindex {
-
-  }
 }
 NGC
 
@@ -190,6 +186,24 @@ fancyindex_name_length 255; # Maximum file name length in bytes, change as you l
 FIC
 sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
 sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+
+cat > /etc/nginx/apps/fancyindex.conf << FIAC
+location /fancyindex {
+    location ~ \.php {
+        fastcgi_split_path_info ^(.+?\.php)(/.+)$;
+        # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
+        set \$path_info \$fastcgi_path_info;
+        fastcgi_param PATH_INFO \$path_info;
+
+        # Make sure the script exists.
+        try_files \$fastcgi_script_name =404;
+        fastcgi_pass unix:/run/${sock}.sock;
+        fastcgi_param SCRIPT_FILENAME \$request_filename;
+        include fastcgi_params;
+        fastcgi_index index.php;
+    }
+}
+FIAC
 echo_progress_done "Fancyindex installed"
 
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
