@@ -109,12 +109,12 @@ function _itplugs() {
             filemanager-share)
                 git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > ${log} 2>&1
                 ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
-                sed -i 's/$downloadpath .*/$downloadpath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
+                sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                 ;;
             filemanager-media)
                 git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > ${log} 2>&1
                 ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
-                sed -i 's/$streampath .*/$streampath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
+                sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
                 ;;
             #fileupload)
             #svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
@@ -134,6 +134,9 @@ function _itplugs() {
             ratiocolor)
                 svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor > /dev/null 2>&1
                 sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
+                ;;
+            *)
+                echo_error "$ is invalid"
                 ;;
         esac
     done
@@ -212,6 +215,9 @@ function _itthemes() {
                 ;;
             MaterialDesign)
                 git clone https://github.com/phlooo/ruTorrent-MaterialDesign.git ${result} > /dev/null 2>&1
+                ;;
+            *)
+                echo_error "$i is invalid"
                 ;;
         esac
     done
