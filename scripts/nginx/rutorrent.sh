@@ -81,13 +81,6 @@ FMCONF
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
     fi
 
-    if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
-        cd /srv/rutorrent/plugins
-        wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-        tar xf logoff-1.3.tar.gz
-        rm -rf logoff-1.3.tar.gz
-        chown -R www-data: logoff
-    fi
     echo_progress_done "Plugins downloaded"
 
     if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
