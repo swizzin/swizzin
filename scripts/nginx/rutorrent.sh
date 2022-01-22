@@ -47,7 +47,10 @@ function rutorrent_install() {
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
-    # TODO: Add new FileManager when it's more stable with new ruTorrent
+    if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
+        git clone https://github.com/nelu/rutorrent-filemanager filemanager >> ${log} 2>&1
+        chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
+    fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
