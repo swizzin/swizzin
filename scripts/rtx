@@ -66,7 +66,7 @@ function _themes() {
 
 function _itplugs() {
     installa=()
-    plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare geoip history httprpc ipad loginmgr logoff lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
+    plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-share geoip history httprpc ipad loginmgr lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
     for i in "${plugs[@]}"; do
         plug=${i}
         if [[ ! -d /srv/rutorrent/plugins/${plug} ]]; then
@@ -103,42 +103,18 @@ function _itplugs() {
                 fi
                 ;;
             filemanager)
-                svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager > /dev/null 2>&1
+                git clone https://github.com/nelu/rutorrent-filemanager filemanager >> ${log} 2>&1
                 chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
-                cat > /srv/rutorrent/plugins/filemanager/conf.php << FMCONF
-<?php
-
-\$fm['tempdir'] = '/tmp';
-\$fm['mkdperm'] = 755;
-
-// set with fullpath to binary or leave empty
-\$pathToExternals['rar'] = '$(which rar)';
-\$pathToExternals['zip'] = '$(which zip)';
-\$pathToExternals['unzip'] = '$(which unzip)';
-\$pathToExternals['tar'] = '$(which tar)';
-
-
-// archive mangling, see archiver man page before editing
-
-\$fm['archive']['types'] = array('rar', 'zip', 'tar', 'gzip', 'bzip2');
-
-
-
-
-\$fm['archive']['compress'][0] = range(0, 5);
-\$fm['archive']['compress'][1] = array('-0', '-1', '-9');
-\$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
-
-
-
-
-?>
-FMCONF
                 ;;
-            fileshare)
-                svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileshare > /dev/null 2>&1
-                ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php > /dev/null 2>&1
-                sed -i 's/$downloadpath .*/$downloadpath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/fileshare/conf.php
+            filemanager-share)
+                git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > ${log} 2>&1
+                ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                sed -i 's/$downloadpath .*/$downloadpath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
+                ;;
+            filemanager-media)
+                git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > ${log} 2>&1
+                ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
+                sed -i 's/$streampath .*/$streampath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
                 ;;
             #fileupload)
             #svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
@@ -169,7 +145,7 @@ FMCONF
 
 function _rmplugs() {
     removea=()
-    plugs=(autotools checkport chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare fileupload geoip getdir history httprpc ipad loginmgr logoff lookat mediainfo mobile noty pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram task theme throttle tracklabels trafic unpack uploadeta xmpp)
+    plugs=(autotools checkport chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-share fileshare fileupload geoip getdir history httprpc ipad loginmgr logoff lookat mediainfo mobile noty pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram task theme throttle tracklabels trafic unpack uploadeta xmpp)
     for i in "${plugs[@]}"; do
         plug=${i}
         if [[ -d /srv/rutorrent/plugins/$i ]]; then
