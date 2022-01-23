@@ -103,16 +103,16 @@ function _itplugs() {
                 fi
                 ;;
             filemanager)
-                git clone https://github.com/nelu/rutorrent-filemanager filemanager >> ${log} 2>&1
+                git clone https://github.com/nelu/rutorrent-filemanager filemanager >> /dev/null 2>&1
                 chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
                 ;;
             filemanager-share)
-                git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > ${log} 2>&1
+                git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > /dev/null 2>&1
                 ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
                 sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                 ;;
             filemanager-media)
-                git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > ${log} 2>&1
+                git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
                 ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
                 sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
                 ;;
