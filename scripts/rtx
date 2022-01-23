@@ -138,14 +138,16 @@ FMCONF
                 case $tag in
                     3.*)
                         svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileshare > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                        sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                         ;;
                     *)
                         git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > /dev/null 2>&1
-
+                        ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                        sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                         ;;
                 esac
-                ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
-                sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
+
                 ;;
             filemanager-media)
                 git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
@@ -203,9 +205,15 @@ function _rmplugs() {
         result=$(echo $i)
         echo -e "Removing ${result}"
         rm -rf /srv/rutorrent/plugins/${result}
-        if [[ $result = "fileshare" ]]; then
-            rm -f /srv/fancyindex/share.php
-        fi
+        case $result in
+            fileshare | filemanager-share)
+                rm -f /srv/fancyindex/share.php
+                ;;
+            filemanager-media)
+                rm -f /srv/fancyindex/stream.php
+                ;;
+            *) ;;
+        esac
     done
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
     rm /tmp/results
