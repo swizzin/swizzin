@@ -58,11 +58,6 @@ function rutorrent_install() {
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
     fi
 
-    if [[ -f /install/.autodl.lock && ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
-        git clone https://github.com/swizzin/autodl-rutorrent.git /srv/rutorrent/plugins/autodl-irssi > ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
-        chown -R www-data:www-data autodl-irssi/
-    fi
-
     echo_progress_done "Plugins downloaded"
 
     if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
