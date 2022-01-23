@@ -187,6 +187,7 @@ FIC
 sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
 sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
 
+#Some ruTorrent plugins need to bypass htpasswd, so we stuff the php for this here
 cat > /etc/nginx/apps/fancyindex.conf << FIAC
 location /fancyindex {
     location ~ \.php {
@@ -197,7 +198,7 @@ location /fancyindex {
 
         # Make sure the script exists.
         try_files \$fastcgi_script_name =404;
-        fastcgi_pass unix:/run/${sock}.sock;
+        fastcgi_pass unix:/run/php/${sock}.sock;
         fastcgi_param SCRIPT_FILENAME \$request_filename;
         include fastcgi_params;
         fastcgi_index index.php;
