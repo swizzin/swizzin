@@ -20,7 +20,9 @@ function rutorrent_install() {
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+        # Get current stable ruTorrent version
+        release=$(git ls-remote -t --refs https://github.com/novik/ruTorrent.git | awk '{sub("refs/tags/", ""); print $2 }' | sort -Vr | head -n1)
+        git clone --recurse-submodules --depth 1 -b ${release} https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
             echo_error "Failed to clone rutorrent"
             exit 1
         }
