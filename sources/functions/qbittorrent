@@ -293,7 +293,7 @@ function build_libtorrent_qbittorrent() {
     rm_if_exists /tmp/libtorrent
     booststrap
     apt_install libssl-dev
-    git clone -b ${libtorrent_branch} --recurse-submodules https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
+    git clone -b ${libtorrent_branch} --depth 1 --recurse-submodules https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
     }
