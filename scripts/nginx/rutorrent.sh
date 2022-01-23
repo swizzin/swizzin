@@ -33,7 +33,7 @@ function rutorrent_install() {
         echo_progress_done "RuTorrent cloned"
     fi
 
-    echo_progress_start "Cloning some essential themes and plugins"
+    echo_progress_start "Cloning some popular themes and plugins"
     sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
@@ -43,19 +43,24 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-        git clone https://github.com/nelu/rutorrent-filemanager filemanager >> ${log} 2>&1
+        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
         svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
-        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
+        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+    fi
+
+    if [[ -f /install/.autodl.lock && ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
+        git clone https://github.com/swizzin/autodl-rutorrent.git /srv/rutorrent/plugins/autodl-irssi > ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        chown -R www-data:www-data autodl-irssi/
     fi
 
     echo_progress_done "Plugins downloaded"
@@ -97,14 +102,24 @@ DSKSP
 @define('HTTP_USE_GZIP', true, true);
 \$httpIP = null; // IP string. Or null for any.
 
+\$httpProxy = array
+(
+    'use' 	=> false,
+    'proto'	=> 'http',		// 'http' or 'https'
+    'host'	=> 'PROXY_HOST_HERE',
+    'port'	=> 3128
+);
+
 @define('RPC_TIME_OUT', 5, true); // in seconds
 
 @define('LOG_RPC_CALLS', false, true);
 @define('LOG_RPC_FAULTS', true, true);
 
 // for php
-@define('PHP_USE_GZIP', false, true);
+@define('PHP_USE_GZIP', false, false);
 @define('PHP_GZIP_LEVEL', 2, true);
+
+\$schedule_rand = 10;			// rand for schedulers start, +0..X seconds
 
 \$do_diagnostic = true;
 \$log_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
@@ -148,7 +163,15 @@ DSKSP
 // Both Webserver and rtorrent users must have read-write access to it.
 // For example, if Webserver and rtorrent users are in the same group then the value may be 0770.
 
-?>
+\$tempDirectory = null;			// Temp directory. Absolute path with trail slash. If null, then autodetect will be used.
+
+\$canUseXSendFile = false;		// If true then use X-Sendfile feature if it exist
+
+\$locale = "UTF8";
+
+\$enableCSRFCheck = false;		// If true then Origin and Referer will be checked
+\$enabledOrigins = array();		// List of enabled domains for CSRF check (only hostnames, without protocols, port etc.).
+						        // If empty, then will retrieve domain from HTTP_HOST / HTTP_X_FORWARDED_HOST
 RUC
 }
 
