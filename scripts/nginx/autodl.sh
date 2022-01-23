@@ -12,7 +12,7 @@ users=($(cut -d: -f1 < /etc/htpasswd))
 if [[ -f /install/.rutorrent.lock ]]; then
     cd /srv/rutorrent/plugins/
     if [[ ! -d /srv/rutorrent/plugins/autodl-irssi ]]; then
-        git clone https://github.com/swizzin/autodl-rutorrent.git autodl-irssi > /dev/null 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git clone https://github.com/swizzin/autodl-rutorrent.git autodl-irssi > ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         chown -R www-data:www-data autodl-irssi/
     fi
     for u in "${users[@]}"; do
