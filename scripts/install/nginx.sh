@@ -190,7 +190,7 @@ sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
 #Some ruTorrent plugins need to bypass htpasswd, so we stuff the php for this here
 cat > /etc/nginx/apps/fancyindex.conf << FIAC
 location /fancyindex {
-    location ~ \.php {
+    location ~ \.php($|/) {
         fastcgi_split_path_info ^(.+?\.php)(/.+)$;
         # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
         # Don't think this is necessary, but saving for posterity
