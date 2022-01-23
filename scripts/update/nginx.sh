@@ -135,13 +135,13 @@ DIN
     if [[ ! -f /etc/nginx/apps/fancyindex.conf ]]; then
         cat > /etc/nginx/apps/fancyindex.conf << FIAC
 location /fancyindex {
-    location ~ \.php {
+    location ~ \.php/ {
         fastcgi_split_path_info ^(.+?\.php)(/.+)$;
         # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
-        set \$path_info \$fastcgi_path_info;
-        fastcgi_param PATH_INFO \$path_info;
+        # Don't think it's necessary but saving for posterity.
+        #set \$path_info \$fastcgi_path_info;
+        #fastcgi_param PATH_INFO \$path_info;
 
-        # Make sure the script exists.
         try_files \$fastcgi_script_name =404;
         fastcgi_pass unix:/run/php/${sock}.sock;
         fastcgi_param SCRIPT_FILENAME \$request_filename;
