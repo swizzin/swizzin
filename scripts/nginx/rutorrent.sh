@@ -81,9 +81,9 @@ function rutorrent_install() {
     $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
     $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
-    cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
+    CachedEcho::send('{ "total": '.$total.', "free": '.$free.' }',"application/json");
   } else {
-      cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
+      CachedEcho::send('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
   }
 ?>
 DSKSP
