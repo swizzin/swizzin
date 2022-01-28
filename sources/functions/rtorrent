@@ -113,6 +113,9 @@ function build_libtorrent_rakshasa() {
             if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
                 patch -p1 < /etc/swizzin/sources/cppunit-libtorrent.patch >> "$log" 2>&1
             fi
+            if [[ ${libtorrentver} == "0.13.6" ]]; then
+                patch -p1 < /etc/swizzin/sources/bencode-libtorrent.patch >> "$log" 2>&1
+            fi
         fi
     fi
     ./autogen.sh >> $log 2>&1
