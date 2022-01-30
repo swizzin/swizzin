@@ -18,7 +18,7 @@ if [[ ! -f /install/.deluge.lock ]]; then
 fi
 
 for swizz_dep in qtbase5-swizzin qttools5-swizzin qt6-swizzin cmake-swizzin; do
-    if dpkg-query -W -f='${Status}' ${swizz_dep} 2> /dev/null | grep -c "ok installed" > /dev/null 2>&1; then
+    if check_installed ${swizz_dep}; then
         dpkg -r ${swizz_dep} > /dev/null 2>&1
     fi
 done
