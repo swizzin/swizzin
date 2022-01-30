@@ -5,25 +5,16 @@
 # Copyright (C) 2022 Swizzin
 
 if [[ -f /install/.mylar.lock ]]; then
+    #shellcheck source=sources/functions/mylar
+    . /etc/swizzin/sources/functions/mylar
+    if git -C /opt/mylar rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        rm -rf /opt/mylar
+        _download_latest
+    fi
     if ! grep "forking" /etc/systemd/system/mylar.service; then
         mylar_owner=$(swizdb get mylar/owner)
-        cat > /etc/systemd/system/mylar.service << EOS
-[Unit]
-Description=Mylar service
-After=network-online.target
-
-[Service]
-Type=forking
-User=${mylar_owner}
-ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${mylar_owner}/.config/mylar/ -v --daemon  --nolaunch --quiet
-WorkingDirectory=/opt/mylar
-GuessMainPID=no
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOS
-        systemctl daemon-reload
+        _service
+        systemctl daemon-reload -q
         systemctl try-restart mylar
     fi
 fi
