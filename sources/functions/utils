@@ -161,3 +161,10 @@ function populate_var() {
     fi
     swizdb get "$1" # Return swizdb key's value
 }
+
+function github_latest_version() {
+    # Argument expects the author/repo format
+    # e.g. swizzin/swizzin
+    repo=$1
+    curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest | grep -o '[^/]*$'
+}
