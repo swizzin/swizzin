@@ -399,7 +399,7 @@ function build_qbittorrent() {
     esac
     #install qbt-cli
     qbt_cli_version=$(github_latest_version ludviglundgren/qbittorrent-cli)
-    cd /root/dist/qbittorrent/usr/bin
+    cd /tmp/dist/qbittorrent/usr/bin
     wget -O qbtcli.tar.gz https://github.com/ludviglundgren/qbittorrent-cli/releases/download/${qbt_cli_version}/qbittorrent-cli_${qbt_cli_version//v/}_linux_$(_os_arch).tar.gz >> ${log} 2>&1
     tar xvf qbtcli.tar.gz >> ${log} 2>&1
     rm -f qbtcli.tar.gz README.md >> ${log} 2>&1
