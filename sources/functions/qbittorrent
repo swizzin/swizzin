@@ -178,7 +178,7 @@ function install_qt() {
 }
 
 function install_qt_swizzin() {
-    latest_qt_swizzin=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/swizzin/qt6_crossbuild/releases/latest | grep -o '[^/]*$')
+    latest_qt_swizzin=$(latest_github_version swizzin/qt6_crossbuild)
     installed_qt_swizzin=$(dpkg-query --showformat='${Version}' --show qt6-swizzin 2> /dev/null)
     if [[ -z ${installed_qt_swizzin} ]] || dpkg --compare-versions ${installed_qt_swizzin} lt ${latest_qt_swizzin}; then
         echo_progress_start "Installing latest qt6-swizzin"
@@ -195,7 +195,7 @@ function install_qt_swizzin() {
 }
 
 function install_cmake_swizzin() {
-    latest_cmake_swizzin=$(curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/swizzin/cmake_crossbuild/releases/latest | grep -o '[^/]*$')
+    latest_cmake_swizzin=$(latest_github_version swizzin/cmake_crossbuild)
     installed_cmake_swizzin=$(dpkg-query --showformat='${Version}' --show cmake-swizzin 2> /dev/null)
     if [[ -z ${installed_cmake_swizzin} ]] || dpkg --compare-versions ${installed_cmake_swizzin} lt ${latest_cmake_swizzin//_/+}; then
         echo_progress_start "Installing latest cmake-swizzin"
@@ -397,6 +397,12 @@ function build_qbittorrent() {
             exit 1
             ;;
     esac
+    #install qbt-cli
+    qbt_cli_version=$(github_latest_version ludviglundgren/qbittorrent-cli)
+    cd /root/dist/qbittorrent/usr/bin
+    wget -O qbtcli.tar.gz https://github.com/ludviglundgren/qbittorrent-cli/releases/download/${qbt_cli_version}/qbittorrent-cli_${qbt_cli_version//v/}_linux_$(_os_arch).tar.gz >> ${log} 2>&1
+    tar xvf qbtcli.tar.gz >> ${log} 2>&1
+    rm -f qbtcli.tar.gz README.md >> ${log} 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/qbittorrent -p /root/dist/qbittorrent-nox_VERSION.deb -s dir -t deb -n qbittorrent-nox --version ${VERSION} --description "qbittorrent-nox compiled by swizzin$tag" >> ${log} 2>&1
     dpkg -i /root/dist/qbittorrent-nox_${VERSION}.deb >> ${log} 2>&1 || {
