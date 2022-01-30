@@ -81,13 +81,16 @@ echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/mylar.service << EOS
 [Unit]
 Description=Mylar service
+After=network-online.target
+
 [Service]
-Type=simple
+Type=forking
 User=${mylar_owner}
-ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${mylar_owner}/.config/mylar/
+ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${mylar_owner}/.config/mylar/ -v --daemon  --nolaunch --quiet
 WorkingDirectory=/opt/mylar
+GuessMainPID=no
 Restart=on-failure
-TimeoutStopSec=300
+
 [Install]
 WantedBy=multi-user.target
 EOS
