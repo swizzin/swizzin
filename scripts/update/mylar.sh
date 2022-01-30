@@ -6,7 +6,7 @@
 
 if [[ -f /install/.mylar.lock ]]; then
     if ! grep "forking" /etc/systemd/system/mylar.service; then
-        mylar_owner=$(swizdb get)
+        mylar_owner=$(swizdb get mylar/owner)
         cat > /etc/systemd/system/mylar.service << EOS
 [Unit]
 Description=Mylar service
