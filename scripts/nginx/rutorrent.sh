@@ -20,11 +20,12 @@ function rutorrent_install() {
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
         echo_progress_start "Cloning rutorrent"
-        git clone --recurse-submodules https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
+        # Get current stable ruTorrent version
+        release=$(git ls-remote -t --refs https://github.com/novik/ruTorrent.git | awk '{sub("refs/tags/", ""); print $2 }' | sort -Vr | head -n1)
+        git clone --recurse-submodules --depth 1 -b ${release} https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
             echo_error "Failed to clone rutorrent"
             exit 1
         }
-        git -C /srv/rutorrent/ checkout 6bffcb1d3fd0a25dcba9100a6bbbc6cb8de7af29 >> "$log" 2>&1
         chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
         rm -rf /srv/rutorrent/plugins/_cloudflare
@@ -34,7 +35,7 @@ function rutorrent_install() {
         echo_progress_done "RuTorrent cloned"
     fi
 
-    echo_progress_start "Cloning some essential themes and plugins"
+    echo_progress_start "Cloning some popular themes and plugins"
     sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
@@ -44,51 +45,21 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-        cd /srv/rutorrent/plugins/
-        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager >> "$log" 2>&1
-        chown -R www-data: /srv/rutorrent/plugins/filemanager
+        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
-
-        cat > /srv/rutorrent/plugins/filemanager/conf.php << FMCONF
-<?php
-
-\$fm['tempdir'] = '/tmp';
-\$fm['mkdperm'] = 755;
-
-// set with fullpath to binary or leave empty
-\$pathToExternals['rar'] = '$(which rar)';
-\$pathToExternals['zip'] = '$(which zip)';
-\$pathToExternals['unzip'] = '$(which unzip)';
-\$pathToExternals['tar'] = '$(which tar)';
-
-// archive mangling, see archiver man page before editing
-\$fm['archive']['types'] = array('rar', 'zip', 'tar', 'gzip', 'bzip2');
-\$fm['archive']['compress'][0] = range(0, 5);
-\$fm['archive']['compress'][1] = array('-0', '-1', '-9');
-\$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
-
-?>
-FMCONF
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
         svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
-        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
+        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
     fi
 
-    if [[ ! -d /srv/rutorrent/plugins/logoff ]]; then
-        cd /srv/rutorrent/plugins
-        wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-        tar xf logoff-1.3.tar.gz
-        rm -rf logoff-1.3.tar.gz
-        chown -R www-data: logoff
-    fi
     echo_progress_done "Plugins downloaded"
 
     if [[ -f /install/.quota.lock ]] && [[ -z $(grep quota /srv/rutorrent/plugins/diskspace/action.php) ]]; then
@@ -98,7 +69,7 @@ FMCONF
 ##  [Quick Box - action.php modified for quota systems use]
 #################################################################################
 # QUICKLAB REPOS
-# QuickLab _ packages:   https://github.com/QuickBox/quickbox_rutorrent-plugins
+# QuickLab _ packages:   https://github.com/QuickBox/QB/tree/master/rtplugins/diskspace
 # LOCAL REPOS
 # Local _ packages   :   ~/QuickBox/rtplugins
 # Author             :   QuickBox.IO
@@ -110,9 +81,9 @@ FMCONF
     $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
     $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
     $free = sprintf($total - $used);
-    cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
+    CachedEcho::send('{ "total": '.$total.', "free": '.$free.' }',"application/json");
   } else {
-      cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
+      CachedEcho::send('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
   }
 ?>
 DSKSP
@@ -128,14 +99,24 @@ DSKSP
 @define('HTTP_USE_GZIP', true, true);
 \$httpIP = null; // IP string. Or null for any.
 
+\$httpProxy = array
+(
+    'use' 	=> false,
+    'proto'	=> 'http',		// 'http' or 'https'
+    'host'	=> 'PROXY_HOST_HERE',
+    'port'	=> 3128
+);
+
 @define('RPC_TIME_OUT', 5, true); // in seconds
 
 @define('LOG_RPC_CALLS', false, true);
 @define('LOG_RPC_FAULTS', true, true);
 
 // for php
-@define('PHP_USE_GZIP', false, true);
+@define('PHP_USE_GZIP', false, false);
 @define('PHP_GZIP_LEVEL', 2, true);
+
+\$schedule_rand = 10;			// rand for schedulers start, +0..X seconds
 
 \$do_diagnostic = true;
 \$log_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
@@ -159,14 +140,11 @@ DSKSP
 //\$XMLRPCMountPoint = "/RPC2"; // DO NOT DELETE THIS LINE!!! DO NOT COMMENT THIS LINE!!!
 
 \$pathToExternals = array(
-"php" => '/usr/bin/php', // Something like /usr/bin/php. If empty, will be found in PATH.
-"curl" => '/usr/bin/curl', // Something like /usr/bin/curl. If empty, will be found in PATH.
-"gzip" => '/bin/gzip', // Something like /usr/bin/gzip. If empty, will be found in PATH.
-"id" => '/usr/bin/id', // Something like /usr/bin/id. If empty, will be found in PATH.
-"stat" => '/usr/bin/stat', // Something like /usr/bin/stat. If empty, will be found in PATH.
-"bzip2" => '/bin/bzip2',
-"pgrep" => '/usr/bin/pgrep',
-"python" => '/usr/bin/python2',
+    "php" 	=> '',			// Something like /usr/bin/php. If empty, will be found in PATH.
+    "curl"	=> '',			// Something like /usr/bin/curl. If empty, will be found in PATH.
+    "gzip"	=> '',			// Something like /usr/bin/gzip. If empty, will be found in PATH.
+    "id"	=> '',			// Something like /usr/bin/id. If empty, will be found in PATH.
+    "stat"	=> '',			// Something like /usr/bin/stat. If empty, will be found in PATH.
 );
 
 \$localhosts = array( // list of local interfaces
@@ -174,12 +152,20 @@ DSKSP
 "localhost",
 );
 
-\$profilePath = '../share'; // Path to user profiles
+\$profilePath = '../../share'; // Path to user profiles
 \$profileMask = 0777; // Mask for files and directory creation in user profiles.
 // Both Webserver and rtorrent users must have read-write access to it.
 // For example, if Webserver and rtorrent users are in the same group then the value may be 0770.
 
-?>
+\$tempDirectory = null;			// Temp directory. Absolute path with trail slash. If null, then autodetect will be used.
+
+\$canUseXSendFile = false;		// If true then use X-Sendfile feature if it exist
+
+\$locale = "UTF8";
+
+\$enableCSRFCheck = false;		// If true then Origin and Referer will be checked
+\$enabledOrigins = array();		// List of enabled domains for CSRF check (only hostnames, without protocols, port etc.).
+						        // If empty, then will retrieve domain from HTTP_HOST / HTTP_X_FORWARDED_HOST
 RUC
 }
 

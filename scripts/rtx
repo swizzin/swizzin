@@ -65,8 +65,12 @@ function _themes() {
 }
 
 function _itplugs() {
+    tag=$(git -C /srv/rutorrent describe --tags | grep -oP 'v\d\.\d+(\-beta\.?\d?+)?([^-]?)')
     installa=()
-    plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare geoip history httprpc ipad loginmgr logoff lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
+    plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-media filemanager-share geoip history httprpc ipad loginmgr lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
+    if [[ $tag =~ ^v3 ]]; then
+        plugs=("${plugs[@]/filemanager-media/}")
+    fi
     for i in "${plugs[@]}"; do
         plug=${i}
         if [[ ! -d /srv/rutorrent/plugins/${plug} ]]; then
@@ -93,7 +97,7 @@ function _itplugs() {
                         continue
                     fi
                 fi
-                svn co https://github.com/Novik/ruTorrent.git/trunk/plugins/${result} ${result}
+                svn co https://github.com/Novik/ruTorrent.git/tags/${tag}/plugins/${result} ${result}
                 if [[ $result = "create" ]]; then
                     sed -i 's/useExternal = false;/useExternal = "mktorrent";/' /srv/rutorrent/plugins/create/conf.php
                     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
@@ -103,51 +107,61 @@ function _itplugs() {
                 fi
                 ;;
             filemanager)
-                svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager > /dev/null 2>&1
-                chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
-                cat > /srv/rutorrent/plugins/filemanager/conf.php << FMCONF
+                case $tag in
+                    3.*)
+                        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/filemanager > /dev/null 2>&1
+                        chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
+                        cat > /srv/rutorrent/plugins/filemanager/conf.php << FMCONF
 <?php
-
 \$fm['tempdir'] = '/tmp';
 \$fm['mkdperm'] = 755;
-
 // set with fullpath to binary or leave empty
 \$pathToExternals['rar'] = '$(which rar)';
 \$pathToExternals['zip'] = '$(which zip)';
 \$pathToExternals['unzip'] = '$(which unzip)';
 \$pathToExternals['tar'] = '$(which tar)';
-
-
 // archive mangling, see archiver man page before editing
-
 \$fm['archive']['types'] = array('rar', 'zip', 'tar', 'gzip', 'bzip2');
-
-
-
-
 \$fm['archive']['compress'][0] = range(0, 5);
 \$fm['archive']['compress'][1] = array('-0', '-1', '-9');
 \$fm['archive']['compress'][2] = \$fm['archive']['compress'][3] = \$fm['archive']['compress'][4] = array(0);
-
-
-
-
 ?>
 FMCONF
+                        ;;
+                    *)
+                        git clone https://github.com/nelu/rutorrent-filemanager filemanager >> /dev/null 2>&1
+                        chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
+                        ;;
+                esac
                 ;;
-            fileshare)
-                svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileshare > /dev/null 2>&1
-                ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php > /dev/null 2>&1
-                sed -i 's/$downloadpath .*/$downloadpath = $_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/fileshare/conf.php
+            filemanager-share)
+                case $tag in
+                    3.*)
+                        svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileshare > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                        sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
+                        ;;
+                    *)
+                        git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                        sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
+                        ;;
+                esac
+
+                ;;
+            filemanager-media)
+                git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
+                ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
+                sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
                 ;;
             #fileupload)
             #svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
             #;;
-            logoff)
-                wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
-                tar xf logoff-1.3.tar.gz > /dev/null 2>&1
-                rm -rf logoff-1.3.tar.gz
-                ;;
+            #logoff)
+            #    wget -q https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/rutorrent-logoff/logoff-1.3.tar.gz
+            #    tar xf logoff-1.3.tar.gz > /dev/null 2>&1
+            #    rm -rf logoff-1.3.tar.gz
+            #    ;;
             mobile)
                 git clone https://github.com/xombiemp/rutorrentMobile.git mobile > /dev/null 2>&1
                 rm -r /srv/rutorrent/plugins/ipad
@@ -159,6 +173,9 @@ FMCONF
                 svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor > /dev/null 2>&1
                 sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js
                 ;;
+            *)
+                echo_error "$ is invalid"
+                ;;
         esac
     done
     chown -R www-data: /srv/rutorrent/plugins
@@ -169,7 +186,7 @@ FMCONF
 
 function _rmplugs() {
     removea=()
-    plugs=(autotools checkport chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager fileshare fileupload geoip getdir history httprpc ipad loginmgr logoff lookat mediainfo mobile noty pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram task theme throttle tracklabels trafic unpack uploadeta xmpp)
+    plugs=(autotools checkport chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-media filemanager-share fileshare fileupload geoip getdir history httprpc ipad loginmgr logoff lookat mediainfo mobile noty pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram task theme throttle tracklabels trafic unpack uploadeta xmpp)
     for i in "${plugs[@]}"; do
         plug=${i}
         if [[ -d /srv/rutorrent/plugins/$i ]]; then
@@ -188,9 +205,15 @@ function _rmplugs() {
         result=$(echo $i)
         echo -e "Removing ${result}"
         rm -rf /srv/rutorrent/plugins/${result}
-        if [[ $result = "fileshare" ]]; then
-            rm -f /srv/fancyindex/share.php
-        fi
+        case $result in
+            fileshare | filemanager-share)
+                rm -f /srv/fancyindex/share.php
+                ;;
+            filemanager-media)
+                rm -f /srv/fancyindex/stream.php
+                ;;
+            *) ;;
+        esac
     done
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
     rm /tmp/results
@@ -236,6 +259,9 @@ function _itthemes() {
                 ;;
             MaterialDesign)
                 git clone https://github.com/phlooo/ruTorrent-MaterialDesign.git ${result} > /dev/null 2>&1
+                ;;
+            *)
+                echo_error "$i is invalid"
                 ;;
         esac
     done
