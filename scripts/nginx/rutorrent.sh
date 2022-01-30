@@ -69,7 +69,7 @@ function rutorrent_install() {
 ##  [Quick Box - action.php modified for quota systems use]
 #################################################################################
 # QUICKLAB REPOS
-# QuickLab _ packages:   https://github.com/QuickBox/quickbox_rutorrent-plugins
+# QuickLab _ packages:   https://github.com/QuickBox/QB/tree/master/rtplugins/diskspace
 # LOCAL REPOS
 # Local _ packages   :   ~/QuickBox/rtplugins
 # Author             :   QuickBox.IO
