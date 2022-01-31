@@ -166,5 +166,9 @@ function github_latest_version() {
     # Argument expects the author/repo format
     # e.g. swizzin/swizzin
     repo=$1
-    curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest | grep -o '[^/]*$'
+    set -o pipefail
+    if ! curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest 2> /dev/null | grep -o '[^/]*$'; then
+        exit 1
+    fi
+    set +o pipefail
 }

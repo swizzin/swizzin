@@ -52,11 +52,11 @@ function _install() {
     done
     whiptail --title "Install Software" --checklist --noitem --separate-output "Make some choices:" 15 26 7 "${installa[@]}" 2> results
 
-    readarray result < results
-    for i in "${result[@]}"; do
-        result=$(echo $i)
-        echo_info "Installing ${result}"
-        bash /usr/local/bin/swizzin/install/${result}.sh
+    readarray -t result < results
+    for result in "${result[@]}"; do
+        #result=$(echo $i)
+        #echo_info "Installing ${result}"
+        echo "/usr/local/bin/swizzin/install/${result}.sh"
     done
 
     rm results
@@ -73,7 +73,7 @@ function _remove() {
         fi
     done
     whiptail --title "Remove Software" --noitem --checklist --separate-output "Make some choices:" 15 26 7 "${removea[@]}" 2> results
-    readarray result < results
+    readarray -t result < results
     for i in "${result[@]}"; do
         result=$(echo $i)
         echo_info -e "Removing ${result}"

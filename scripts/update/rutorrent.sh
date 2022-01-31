@@ -70,30 +70,8 @@ RUC
 
     if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -c cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]]; }; then
         echo_progress_start "Fixing quota rutorrent plugin"
-        cat > /srv/rutorrent/plugins/diskspace/action.php << 'DSKSP'
-<?php
-#################################################################################
-##  [Quick Box - action.php modified for quota systems use]
-#################################################################################
-# QUICKLAB REPOS
-# QuickLab _ packages:   https://github.com/QuickBox/quickbox_rutorrent-plugins
-# LOCAL REPOS
-# Local _ packages   :   ~/QuickBox/rtplugins
-# Author             :   QuickBox.IO
-# URL                :   https://plaza.quickbox.io
-#
-#################################################################################
-  require_once( '../../php/util.php' );
-  if (isset($quotaUser) && file_exists('/install/.quota.lock')) {
-    $total = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $3*1024}'");
-    $used = shell_exec("sudo /usr/bin/quota -wu ".$quotaUser."| tail -n 1 | sed -e 's|^[ \t]*||' | awk '{print $2*1024}'");
-    $free = sprintf($total - $used);
-    cachedEcho('{ "total": '.$total.', "free": '.$free.' }',"application/json");
-  } else {
-      cachedEcho('{ "total": '.disk_total_space($topDirectory).', "free": '.disk_free_space($topDirectory).' }',"application/json");
-  }
-?>
-DSKSP
+        . /etc/swizzin/sources/functions/rutorrent
+        rutorrent_fix_quota
         . /etc/swizzin/sources/functions/php
         restart_php_fpm
         echo_progress_done
