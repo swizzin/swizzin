@@ -45,19 +45,19 @@ function rutorrent_install() {
     install_rar
 
     if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1 || { echo_warn "git of quickbox theme to main plugins seems to have failed"; }
         perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_warn "git of filemanager plugin to main plugins seems to have failed"; }
         chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         cd /srv/rutorrent/plugins
         svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
-        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_warn "git of ratio-color plugin to main plugins seems to have failed"; }
     fi
 
     echo_progress_done "Plugins downloaded"
