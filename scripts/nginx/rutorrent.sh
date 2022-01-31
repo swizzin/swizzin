@@ -19,8 +19,6 @@ fi
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 #shellcheck source=sources/functions/rtorrent
-. /etc/swizzin/sources/functions/rtorrent
-#shellcheck source=sources/functions/rtorrent
 . /etc/swizzin/sources/functions/rutorrent
 
 if [[ ! -f /install/.rutorrent.lock ]]; then
