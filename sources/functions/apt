@@ -274,21 +274,31 @@ apt_install() {
         action_msg="upgrade"
     fi
 
-    # Run the install
+    # Check existing packages
+    for package in ${_apt_packages[@]}; do
+        if check_installed $package; then
+            _apt_packages=("${_apt_packages[@]/$package/}")
+        fi
+    done
 
-    echo_progress_start "Performing $action_msg of ${#_apt_packages[@]} apt packages\n(${_apt_packages[*]})"
-    if [[ $_apt_interactive == "true" ]]; then
-        # TODO test the behaviour of this, I haven't had the time yet
-        DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log
+    if [[ -z ${_apt_packages[*]} ]]; then
+        :
     else
-        for pekkidge in "${_apt_packages[@]}"; do
-            DEBIAN_FRONTEND=noninteractive apt-get install $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
-        done
+        # Run the install
+        echo_progress_start "Performing $action_msg of ${#_apt_packages[@]} apt packages\n(${_apt_packages[*]})"
+        if [[ $_apt_interactive == "true" ]]; then
+            # TODO test the behaviour of this, I haven't had the time yet
+            DEBIAN_FRONTEND=readline apt-get install -y $flags "${_apt_packages[@]}" | tee -a $log
+        else
+            for pekkidge in "${_apt_packages[@]}"; do
+                DEBIAN_FRONTEND=noninteractive apt-get install $flags -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -y "$pekkidge" >> $log 2>&1
+            done
+        fi
+
+        _apt_logcheck
+
+        echo_progress_done "Apt install complete"
     fi
-
-    _apt_logcheck
-
-    echo_progress_done "Apt install complete"
 }
 export -f apt_install
 
