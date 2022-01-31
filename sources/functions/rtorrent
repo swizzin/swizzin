@@ -82,14 +82,20 @@ function build_xmlrpc-c() {
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1; }
     cd /tmp/xmlrpc-c
-    ./configure --prefix=/usr --disable-cplusplus >> $log 2>&1
+    ./configure --prefix=/usr --disable-cplusplus >> $log 2>&1 || {
+        echo_error "Something went wrong while configuring xmlrpc"
+        exit 1
+    }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
     make -j$(nproc) >> $log 2>&1
-    make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1
+    make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
+        echo_error "Something went wrong while making xmlrpc"
+        exit 1
+    }
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/xmlrpc-c -p /root/dist/xmlrpc-c_VERSION.deb -s dir -t deb -n xmlrpc-c --version ${VERSION} --description "xmlrpc-c compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/xmlrpc-c_${VERSION}.deb
+    dpkg -i /root/dist/xmlrpc-c_${VERSION}.deb >> $log 2>&1
     cd /tmp
     rm -rf xmlrpc-c
     rm -rf /tmp/dist/xmlrpc-c
@@ -122,13 +128,19 @@ function build_libtorrent_rakshasa() {
         fi
     fi
     ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr >> $log 2>&1
-    make -j$(nproc) >> $log 2>&1
+    ./configure --prefix=/usr >> $log 2>&1 || {
+        echo_error "Something went wrong while configuring libtorrent"
+        exit 1
+    }
+    make -j$(nproc) >> $log 2>&1 || {
+        echo_error "Something went wrong while making libtorrent"
+        exit 1
+    }
     rm_if_exists "/tmp/dist/libtorrent-rakshasa"
     make DESTDIR=/tmp/dist/libtorrent-rakshasa install >> $log 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb
+    dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb >> $log 2>&1
     cd /tmp
     rm -rf /tmp/dist/libtorrent-rakshasa
     rm -rf libtorrent*
@@ -156,13 +168,19 @@ function build_rtorrent() {
     if [[ ${rtorrentver} == feature-bind ]]; then
         VERSION=$(git describe | sed 's/^.//g')
     fi
-    ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1
-    make -j$(nproc) >> $log 2>&1
+    ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
+        echo_error "Something went wrong while configuring rtorrent"
+        exit 1
+    }
+    make -j$(nproc) >> $log 2>&1 || {
+        echo_error "Something went wrong while making rtorrent"
+        exit 1
+    }
     rm_if_exists "/tmp/dist/rtorrent"
     make DESTDIR=/tmp/dist/rtorrent install >> $log 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version ${VERSION} --description "rtorrent compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/rtorrent_${VERSION}.deb
+    dpkg -i /root/dist/rtorrent_${VERSION}.deb >> $log 2>&1
     cd "/tmp"
     ldconfig >> $log 2>&1
     rm -rf rtorrent* >> $log 2>&1
