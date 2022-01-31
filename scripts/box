@@ -192,14 +192,30 @@ We URGE you to migrate to a supported release if/while you still have the chance
 
 function _upgrade() {
     arg=("$@")
-    packages=("${arg[@]:1}")
+    if [[ "${arg[*]}" == *--all* ]]; then
+        package_string="$(find /install -type f -name '.*.lock' | awk -F. '{print $2}')"
+        blacklist=("rtorrent" "qbittorrent" "deluge" "libtorrent" "panel" "transmission" "curl" "nginx")
+        for blocker in "${blacklist[@]}"; do
+            package_string="$(echo "$package_string" | sed "/$blocker/d")"
+        done
+        echo_info "Upgrading all packages, EXCEPT torrent clients and packages with alternative upgrade methods (apt/built-in)\nAttempting packages: '${package_string//$'\n'/, }'"
+        readarray -t packages < <(echo "$package_string")
+    else
+        packages=("${arg[@]:1}")
+    fi
+
     repo=($(find /usr/local/bin/swizzin/upgrade -type f -printf "%f\n" | cut -d "." -f 1))
     for i in "${packages[@]}"; do
         app=${i}
         if [[ "${repo[*]}" =~ $i ]]; then
             bash /usr/local/bin/swizzin/upgrade/"$i".sh || exit 1
         else
-            echo_warn "Upgrade script for $i does not exist"
+            if [ -f /usr/local/bin/swizzin/install/"$i".sh ]; then
+                echo_warn "Please upgrade $i via its suggested upgrade method."
+                echo_docs "applications/$i"
+            else
+                echo_error "Upgrade script for $i does not exist"
+            fi
         fi
     done
 }
