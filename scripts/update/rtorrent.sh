@@ -2,10 +2,12 @@
 users=($(cut -d: -f1 < /etc/htpasswd))
 
 for u in "${users[@]}"; do
+    # Create tmpfiles.d for user if not exists
     if [[ ! -f /etc/tmpfiles.d/${u}.conf ]]; then
         echo "D /var/run/${u} 0750 ${u} ${u} -" >> /etc/tmpfiles.d/${u}.conf
         systemd-tmpfiles /etc/tmpfiles.d/${u}.conf --create
     fi
+
     if [[ -f /home/${u}/.rtorrent.rc ]]; then
         if grep -q network.scgi.open_local /home/${u}/.rtorrent.rc; then
             :
@@ -21,6 +23,7 @@ for u in "${users[@]}"; do
     if [[ $restart = 1 ]]; then
         systemctl try-restart rtorrent@${u}
     fi
+    # Check if rTorrent using outdated/insecure scgi bind
     if [[ -f /etc/nginx/apps/${u}.scgi.conf ]]; then
         if grep -q "scgi_pass 127.0.0.1" /etc/nginx/apps/${u}.scgi.conf; then
             sed -i 's/scgi_pass.*/scgi_pass unix:\/var\/run\/'${u}'\/.rtorrent.sock;/g' /etc/nginx/apps/${u}.scgi.conf

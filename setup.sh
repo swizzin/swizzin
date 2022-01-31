@@ -265,10 +265,9 @@ function _choices() {
             fi
         done
         whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
-        readarray guis < /root/guis
-        for g in "${guis[@]}"; do
-            g=$(echo $g)
-            sed -i "/rtorrent/a $g" /root/results
+        readarray -t guis < /root/guis
+        for gui in "${guis[@]}"; do
+            sed -i "/rtorrent/a $gui" /root/results
         done
         rm -f /root/guis
     fi
