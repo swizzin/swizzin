@@ -6,6 +6,8 @@
 
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
+#shellcheck source=sources/functions/mylar
+. /etc/swizzin/sources/functions/mylar
 
 http_port="9645"
 systempy3_ver="$(get_candidate_version python3)"
@@ -35,19 +37,7 @@ case "${pyenv_install}" in
         ;;
 esac
 
-echo_progress_start "Cloning mylar"
-git clone https://github.com/mylar3/mylar3.git /opt/mylar >> "${log}" 2>&1 || {
-    echo_warn "Clone failed!"
-    exit 1
-}
-echo_progress_done "Mylar cloned"
-
-echo_progress_start "Installing python dependencies"
-/opt/.venv/mylar/bin/pip install --upgrade pip >> "${log}" 2>&1
-/opt/.venv/mylar/bin/pip3 install -r /opt/mylar/requirements.txt >> "${log}" 2>&1 || {
-    echo_warn "Failed to install requirements."
-    exit 1
-}
+_download_latest
 echo_progress_done
 
 echo_progress_start "Setting permissions"
@@ -78,20 +68,8 @@ else
 fi
 
 echo_progress_start "Installing systemd service"
-cat > /etc/systemd/system/mylar.service << EOS
-[Unit]
-Description=Mylar service
-[Service]
-Type=simple
-User=${mylar_owner}
-ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${mylar_owner}/.config/mylar/
-WorkingDirectory=/opt/mylar
-Restart=on-failure
-TimeoutStopSec=300
-[Install]
-WantedBy=multi-user.target
-EOS
-
+_service
+systemctl -q daemon-reload
 systemctl enable -q --now mylar >> "${log}" 2>&1
 echo_progress_done "Mylar started"
 echo_success "Mylar installed"
