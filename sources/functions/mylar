@@ -5,6 +5,8 @@
 # Copyright (C) 2022 Swizzin
 
 function _download_latest() {
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
     echo_progress_start "Grabbing the latest Mylar"
     mylar_owner="$(swizdb get mylar/owner)"
     mylar_latest=$(github_latest_version mylar/mylar) || {
