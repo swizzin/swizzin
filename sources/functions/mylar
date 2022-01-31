@@ -9,7 +9,7 @@ function _download_latest() {
     . /etc/swizzin/sources/functions/utils
     echo_progress_start "Grabbing the latest Mylar"
     mylar_owner="$(swizdb get mylar/owner)"
-    mylar_latest=$(github_latest_version mylar/mylar) || {
+    mylar_latest=$(github_latest_version mylar3/mylar3) || {
         echo_error "Failed to grab latest mylar version"
         exit 1
     }
