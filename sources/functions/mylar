@@ -7,11 +7,11 @@
 function _download_latest() {
     echo_progress_start "Grabbing the latest Mylar"
     mylar_owner="$(swizdb get mylar/owner)"
-    latest=$(curl -sL https://api.github.com/repos/mylar3/mylar3/releases/latest | jq -r '.tarball_url') || {
-        echo_error "Failed to query GitHub for latest mylar version"
+    mylar_latest=$(github_latest_version mylar/mylar) || {
+        echo_error "Failed to grab latest mylar version"
         exit 1
     }
-    curl -sL "${latest}" -o /tmp/mylar.tar.gz || {
+    curl https://github.com/mylar3/mylar3/archive/refs/tags/${mylar_latest}.tar.gz -o /tmp/mylar.tar.gz || {
         echo_error "Failed to grab latest mylar version"
         exit 1
     }
