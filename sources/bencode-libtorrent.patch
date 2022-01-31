@@ -1,0 +1,101 @@
+From cf08ca779fc8f2b1de2f64d55406dddae0871bb3 Mon Sep 17 00:00:00 2001
+From: accela <accelaproxy@gmail.com>
+Date: Mon, 30 Nov 2015 19:36:55 -0800
+Subject: [PATCH 1/4] Include size of size_t for maxLen in build_bencode
+
+---
+ src/protocol/extensions.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/protocol/extensions.cc b/src/protocol/extensions.cc
+index ccfd93f0..5e91e84d 100644
+--- a/src/protocol/extensions.cc
++++ b/src/protocol/extensions.cc
+@@ -394,7 +394,7 @@ ProtocolExtension::send_metadata_piece(size_t piece) {
+   if (m_download->info()->is_meta_download() || piece >= pieceEnd) {
+     // reject: { "msg_type" => 2, "piece" => ... }
+     m_pendingType = UT_METADATA;
+-    m_pending = build_bencode(40, "d8:msg_typei2e5:piecei%zuee", piece);
++    m_pending = build_bencode(sizeof(size_t) + 36), "d8:msg_typei2e5:piecei%zuee", piece);
+     return;
+   }
+ 
+@@ -407,7 +407,7 @@ ProtocolExtension::send_metadata_piece(size_t piece) {
+   // data: { "msg_type" => 1, "piece" => ..., "total_size" => ... } followed by piece data (outside of dictionary)
+   size_t length = piece == pieceEnd - 1 ? m_download->info()->metadata_size() % metadata_piece_size : metadata_piece_size;
+   m_pendingType = UT_METADATA;
+-  m_pending = build_bencode(length + 128, "d8:msg_typei1e5:piecei%zue10:total_sizei%zuee", piece, metadataSize);
++  m_pending = build_bencode((2 * sizeof(size_t)) + length + 120, "d8:msg_typei1e5:piecei%zue10:total_sizei%zuee", piece, metadataSize);
+ 
+   memcpy(m_pending.end(), buffer + (piece << metadata_piece_shift), length);
+   m_pending.set(m_pending.data(), m_pending.end() + length, m_pending.owned());
+
+From 251da36214d9d1050258c4edbfd19db0abe7f290 Mon Sep 17 00:00:00 2001
+From: accela <accelaproxy@gmail.com>
+Date: Mon, 30 Nov 2015 19:37:39 -0800
+Subject: [PATCH 2/4] throw handshake_error instead of interal to avoid DOS
+
+---
+ src/protocol/handshake.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/protocol/handshake.cc b/src/protocol/handshake.cc
+index 81c39f69..6b41bbe3 100644
+--- a/src/protocol/handshake.cc
++++ b/src/protocol/handshake.cc
+@@ -738,7 +738,7 @@ Handshake::event_read() {
+         break;
+ 
+       if (m_readBuffer.remaining() > m_encryption.length_ia())
+-        throw internal_error("Read past initial payload after incoming encrypted handshake.");
++        throw handshake_error(ConnectionManager::handshake_failed, e_handshake_invalid_value);
+ 
+       if (m_encryption.crypto() != HandshakeEncryption::crypto_rc4)
+         m_encryption.info()->set_obfuscated();
+
+From abd8419f1061f5aa8636e6f28cf2f946056c944d Mon Sep 17 00:00:00 2001
+From: accela <accelaproxy@gmail.com>
+Date: Sun, 20 Dec 2015 15:44:17 -0800
+Subject: [PATCH 3/4] fixed typo
+
+---
+ src/protocol/extensions.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/protocol/extensions.cc b/src/protocol/extensions.cc
+index 5e91e84d..d558a5ee 100644
+--- a/src/protocol/extensions.cc
++++ b/src/protocol/extensions.cc
+@@ -394,7 +394,7 @@ ProtocolExtension::send_metadata_piece(size_t piece) {
+   if (m_download->info()->is_meta_download() || piece >= pieceEnd) {
+     // reject: { "msg_type" => 2, "piece" => ... }
+     m_pendingType = UT_METADATA;
+-    m_pending = build_bencode(sizeof(size_t) + 36), "d8:msg_typei2e5:piecei%zuee", piece);
++    m_pending = build_bencode(sizeof(size_t) + 36, "d8:msg_typei2e5:piecei%zuee", piece);
+     return;
+   }
+ 
+
+From c8906d9f14bb6521dd2e7415e298745f867f6efc Mon Sep 17 00:00:00 2001
+From: accela <accelaproxy@gmail.com>
+Date: Sun, 20 Dec 2015 15:46:38 -0800
+Subject: [PATCH 4/4] Explicit int overflow check
+
+---
+ src/torrent/object_stream.cc | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/torrent/object_stream.cc b/src/torrent/object_stream.cc
+index 8c09aea5..011e23d8 100644
+--- a/src/torrent/object_stream.cc
++++ b/src/torrent/object_stream.cc
+@@ -104,7 +104,8 @@ object_read_bencode_c_string(const char* first, const char* last) {
+   while (first != last && *first >= '0' && *first <= '9')
+     length = length * 10 + (*first++ - '0');
+ 
+-  if (length + 1 > (unsigned int)std::distance(first, last) || *first++ != ':')
++  if (length + 1 > (unsigned int)std::distance(first, last) || *first++ != ':'
++		  || length + 1 == 0)
+     throw torrent::bencode_error("Invalid bencode data.");
+   
+   return raw_string(first, length);

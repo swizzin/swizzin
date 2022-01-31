@@ -17,12 +17,11 @@ if [[ ! -f /install/.deluge.lock ]]; then
     dpkg -r python3-libtorrent > /dev/null 2>&1
 fi
 
-if dpkg -s qtbase5-swizzin > /dev/null 2>&1; then
-    dpkg -r qtbase5-swizzin > /dev/null 2>&1
-fi
-if dpkg -s qttools5-swizzin > /dev/null 2>&1; then
-    dpkg -r qttools5-swizzin > /dev/null 2>&1
-fi
+for swizz_dep in qtbase5-swizzin qttools5-swizzin qt6-swizzin cmake-swizzin; do
+    if check_installed ${swizz_dep}; then
+        dpkg -r ${swizz_dep} > /dev/null 2>&1
+    fi
+done
 
 if [[ -f /install/.nginx.lock ]]; then
     systemctl reload nginx
