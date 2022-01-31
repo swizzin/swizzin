@@ -42,4 +42,4 @@ fi
 dependencies="whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools gnupg2 cracklib-runtime unzip ccze"
 
 echo_info "Installing missing dependencies"
-apt_install "${dependencies[@]}"
+apt_install ${dependencies[@]}
