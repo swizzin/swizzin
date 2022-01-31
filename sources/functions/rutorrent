@@ -35,7 +35,6 @@ function rutorrent_install() {
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
-        chmod -R +x /srv/rutorrent/plugins/filemanager/scripts
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
