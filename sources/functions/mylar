@@ -13,7 +13,7 @@ function _download_latest() {
         echo_error "Failed to grab latest mylar version"
         exit 1
     }
-    curl https://github.com/mylar3/mylar3/archive/refs/tags/${mylar_latest}.tar.gz -o /tmp/mylar.tar.gz || {
+    curl -L https://github.com/mylar3/mylar3/archive/refs/tags/${mylar_latest}.tar.gz -o /tmp/mylar.tar.gz || {
         echo_error "Failed to grab latest mylar version"
         exit 1
     }
