@@ -12,34 +12,37 @@ function whiptail_rtorrent() {
             Repo "(${repov})" \
             0.9.8 "" \
             0.9.7 "" \
-            0.9.6 "" \
-            feature-bind "" 3>&1 1>&2 2>&3) || {
+            0.9.6 "" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
         }
 
-        if [[ $function == 0.9.8 ]]; then
-            export rtorrentver='0.9.8'
-            export libtorrentver='0.13.8'
-        elif [[ $function == 0.9.7 ]]; then
-            export rtorrentver='0.9.7'
-            export libtorrentver='0.13.7'
-        elif [[ $function == 0.9.6 ]]; then
-            export rtorrentver='0.9.6'
-            export libtorrentver='0.13.6'
-        elif [[ $function == 0.9.4 ]]; then
-            export rtorrentver='0.9.4'
-            export libtorrentver='0.13.4'
-        elif [[ $function == 0.9.3 ]]; then
-            export rtorrentver='0.9.3'
-            export libtorrentver='0.13.3'
-        elif [[ $function == feature-bind ]]; then
-            export rtorrentver='feature-bind'
-            export libtorrentver='feature-bind'
-        elif [[ $function == Repo ]]; then
-            export rtorrentver='repo'
-            export libtorrentver='repo'
-        fi
+        case $function in
+            0.9.6)
+                export rtorrentver='0.9.6'
+                export libtorrentver='0.13.6'
+                ;;
+
+            0.9.7)
+                export rtorrentver='0.9.7'
+                export libtorrentver='0.13.7'
+                ;;
+
+            0.9.8)
+                export rtorrentver='0.9.8'
+                export libtorrentver='0.13.8'
+                ;;
+
+            Repo)
+                export rtorrentver='repo'
+                export libtorrentver='repo'
+                ;;
+
+            *)
+                echo_error "$function is not a valid rTorrent version"
+                exit 1
+                ;;
+        esac
     fi
 }
 
