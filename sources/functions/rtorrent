@@ -106,25 +106,19 @@ function build_libtorrent_rakshasa() {
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
-    if [[ ${libtorrentver} == feature-bind ]]; then
-        git clone -b ${libtorrentver} https://github.com/rakshasa/libtorrent.git /tmp/libtorrent >> $log 2>&1
-        cd /tmp/libtorrent
-        VERSION=$(git describe | sed 's/^.//g')
-    else
-        mkdir /tmp/libtorrent
-        wget -q ${libtorrentloc} -O /tmp/libtorrent-${libtorrentver}.tar.gz
-        VERSION=$libtorrentver
-        tar -xvf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
-        cd /tmp/libtorrent >> $log 2>&1
+    mkdir /tmp/libtorrent
+    wget -q ${libtorrentloc} -O /tmp/libtorrent-${libtorrentver}.tar.gz
+    VERSION=$libtorrentver
+    tar -xvf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
+    cd /tmp/libtorrent >> $log 2>&1
 
-        if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
-            patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
-            if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
-                patch -p1 < /etc/swizzin/sources/cppunit-libtorrent.patch >> "$log" 2>&1
-            fi
-            if [[ ${libtorrentver} == "0.13.6" ]]; then
-                patch -p1 < /etc/swizzin/sources/bencode-libtorrent.patch >> "$log" 2>&1
-            fi
+    if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
+        patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
+        if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
+            patch -p1 < /etc/swizzin/sources/cppunit-libtorrent.patch >> "$log" 2>&1
+        fi
+        if [[ ${libtorrentver} == "0.13.6" ]]; then
+            patch -p1 < /etc/swizzin/sources/bencode-libtorrent.patch >> "$log" 2>&1
         fi
     fi
     ./autogen.sh >> $log 2>&1
@@ -151,23 +145,16 @@ function build_rtorrent() {
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/rtorrent*"
-    if [[ ${rtorrentver} == feature-bind ]]; then
-        git clone -b ${rtorrentver} https://github.com/rakshasa/rtorrent.git /tmp/rtorrent >> $log 2>&1
-    else
-        mkdir /tmp/rtorrent
-        wget -q ${rtorrentloc} -O /tmp/rtorrent-${rtorrentver}.tar.gz
-        tar -xzvf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
-        VERSION=$rtorrentver
-    fi
+    mkdir /tmp/rtorrent
+    wget -q ${rtorrentloc} -O /tmp/rtorrent-${rtorrentver}.tar.gz
+    tar -xzvf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
+    VERSION=$rtorrentver
     cd /tmp/rtorrent
     #use pkgconfig for cppunit if 0.9.6
     if [[ ${rtorrentver} == "0.9.6" ]]; then
         patch -p1 < /etc/swizzin/sources/rtorrent-0.9.6.patch >> "$log" 2>&1
     fi
     ./autogen.sh >> $log 2>&1
-    if [[ ${rtorrentver} == feature-bind ]]; then
-        VERSION=$(git describe | sed 's/^.//g')
-    fi
     ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
