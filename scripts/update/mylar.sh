@@ -11,7 +11,7 @@ if [[ -f /install/.mylar.lock ]]; then
         rm -rf /opt/mylar
         _download_latest
     fi
-    if ! grep "forking" /etc/systemd/system/mylar.service; then
+    if ! grep "forking" /etc/systemd/system/mylar.service > /dev/null 2>&1; then
         mylar_owner=$(swizdb get mylar/owner)
         _service
         systemctl daemon-reload -q
