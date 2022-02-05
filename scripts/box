@@ -321,9 +321,6 @@ function _adduser() {
                     eval systemctl enable -q ${app}@"${user}"
                     eval systemctl start ${app}@"${user}"
                     ;;
-                flood)
-                    /usr/local/bin/swizzin/install/${app}.sh
-                    ;;
                 rutorrent)
                     if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
                     /usr/local/bin/swizzin/install/${app}.sh

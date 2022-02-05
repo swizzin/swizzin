@@ -2,15 +2,22 @@
 # Flood uninstaller
 # Author: liara
 
-systemctl disable flood --now -q
-rm /etc/systemd/system/flood.service
-npm -g remove flood >> "$log" 2>&1
+readarray -t users < <(_get_user_list)
 
-userdel -rf flood
+for user in ${users[@]}; do
+    systemctl disable flood@${user} --now -q
+    rm -rf /home/${user}/.config/flood
+    # Remove deprecated install method, incase the current install is outdated
+    rm -rf /home/${user}/.flood
+done
 
-if [ -f "/etc/nginx/apps/flood.conf" ]; then
-    rm /etc/nginx/apps/flood.conf
+if [[ -f /install/.flood.lock ]]; then
+    rm -f /etc/nginx/apps/flood.conf
+    rm -f /etc/nginx/conf.d/*.flood.conf
     systemctl reload nginx
 fi
 
-rm /install/.flood.lock
+npm -g remove flood >> "$log" 2>&1
+
+rm -f /etc/systemd/system/flood@.service
+rm -f /install/.flood.lock
