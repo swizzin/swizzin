@@ -39,6 +39,6 @@ FLUPS
     fi
 done
 
-sed -i '/ExecStart=/ s/$/ --baseuri=\/flood --auth=none/' /etc/systemd/system/flood@.service
+sed -i '/ExecStart=/ s/$/ --baseuri=\/flood/' /etc/systemd/system/flood@.service
 systemctl daemon-reload
 systemctl try-restart flood@${user}
