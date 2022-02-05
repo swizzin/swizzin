@@ -65,7 +65,7 @@ readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     echo_progress_start "Assigning flood port to $user and starting service"
     _flood_port
-    systemctl enable --now flood@${user}
+    systemctl enable --now flood@${user} >> ${log} 2>&1
     echo_progress_done "Done"
 done
 
