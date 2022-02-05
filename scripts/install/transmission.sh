@@ -17,7 +17,7 @@ After=network.target
 User=%i
 Group=%i
 Type=simple
-ExecStart=/usr/bin/transmission-daemon -f --log-error
+ExecStart=/usr/bin/transmission-daemon -f --log-error --logfile /home/%i/.config/transmission-daemon/transmission.log
 ExecReload=/bin/kill -s HUP $MAINPID
 
 [Install]
@@ -188,8 +188,11 @@ EOF
 }
 
 _nginx_transmission() {
-    bash /usr/local/bin/swizzin/nginx/transmission.sh
-    systemctl reload nginx
+    echo_progress_start "Creating nginx config"
+    if [[ -f /install/.nginx.lock ]]; then
+        bash /usr/local/bin/swizzin/nginx/transmission.sh
+        systemctl reload nginx
+    fi
 }
 
 ##########################################################################

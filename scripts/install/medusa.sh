@@ -75,6 +75,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/medusa.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Medusa will run on port 8081"
 fi
 
 echo_success "Medua installed"

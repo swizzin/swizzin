@@ -11,7 +11,18 @@ if [[ ! -f /install/.rtorrent.lock ]]; then
     exit 1
 fi
 
-bash /usr/local/bin/swizzin/nginx/rutorrent.sh
+bash /usr/local/bin/swizzin/nginx/rutorrent.sh || {
+    echo_error "Something went wrong"
+    exit 1
+}
+
+if [[ -f /install/.autodl.lock ]]; then
+    echo_progress_start "Configuring Autodl Plugin"
+    bash /usr/local/bin/swizzin/nginx/autodl.sh || {
+        echo_error "Autodl plugin config failed."
+    }
+    echo_progress_done "Autodl Plugin Configured"
+fi
+
 systemctl reload nginx
 echo_success "ruTorrent installed"
-touch /install/.rutorrent.lock

@@ -12,13 +12,22 @@ _install_radarr() {
     mkdir -p "$radarrConfDir"
     chown -R "$radarrOwner":"$radarrOwner" /home/$radarrOwner/.config
 
-    echo_progress_start "Downloading source files"
-    #curl https://api.github.com/repos/Radarr/Radarr/releases | jq -r '.[0].assets | .[] | select (.browser_download_url | contains ("linux-core")).browser_download_url'
-    if ! curl "https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
+    echo_progress_start "Downloading release archive"
+    case "$(_os_arch)" in
+        "amd64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=x64" ;;
+        "armhf") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm" ;;
+        "arm64") dlurl="https://radarr.servarr.com/v1/update/master/updatefile?os=linux&runtime=netcore&arch=arm64" ;;
+        *)
+            echo_error "Arch not supported"
+            exit 1
+            ;;
+    esac
+
+    if ! curl "$dlurl" -L -o /tmp/Radarr.tar.gz >> "$log" 2>&1; then
         echo_error "Download failed, exiting"
         exit 1
     fi
-    echo_progress_done "Source downloaded"
+    echo_progress_done "Archive downloaded"
 
     echo_progress_start "Extracting archive"
     tar -xvf /tmp/Radarr.tar.gz -C /opt >> "$log" 2>&1
@@ -39,8 +48,8 @@ Group=${radarrOwner}
 
 Type=simple
 
-# Change the path to Radarr or mono here if it is in a different location for you.
-ExecStart=/opt/Radarr/Radarr -nobrowser
+# Change the path to Radarr here if it is in a different location for you.
+ExecStart=/opt/Radarr/Radarr -nobrowser -data=/home/$radarrOwner/.config/Radarr/
 TimeoutStopSec=20
 KillMode=process
 Restart=on-failure
@@ -106,4 +115,4 @@ if [[ -f /install/.bazarr.lock ]]; then
     echo_info "Please adjust your Bazarr setup accordingly"
 fi
 
-echo_success "Radarr v3 installed"
+echo_success "Radarr installed"

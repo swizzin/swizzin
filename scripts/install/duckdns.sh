@@ -63,7 +63,7 @@ EOS
 chmod 700 $duckScript
 
 ## Installing into cron
-
+# TODO move cron job aditions tot their own files
 checkCron=$(crontab -l | grep -c $duckScript)
 if [ "$checkCron" -eq 0 ]; then
     crontab -l | {

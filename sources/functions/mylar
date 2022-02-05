@@ -1,0 +1,53 @@
+#!/bin/bash
+#
+# Mylar Functions
+# Author: Brett
+# Copyright (C) 2022 Swizzin
+
+function _download_latest() {
+    #shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    echo_progress_start "Grabbing the latest Mylar"
+    mylar_owner="$(swizdb get mylar/owner)"
+    mylar_latest=$(github_latest_version mylar3/mylar3) || {
+        echo_error "Failed to grab latest mylar version"
+        exit 1
+    }
+    curl -sL https://github.com/mylar3/mylar3/archive/refs/tags/${mylar_latest}.tar.gz -o /tmp/mylar.tar.gz || {
+        echo_error "Failed to grab latest mylar version"
+        exit 1
+    }
+    echo_progress_done
+    echo_progress_start "Extracting mylar"
+    mkdir -p /opt/mylar
+    tar xvf /tmp/mylar.tar.gz --directory /opt/mylar --strip-components=1 >> "${log}" 2>&1 || {
+        echo_error "Failed to extract."
+        exit 1
+    }
+    rm -f /tmp/mylar.tar.gz
+    echo_progress_done
+    echo_progress_start "Fixing dependencies"
+    /opt/.venv/mylar/bin/pip install --upgrade pip &>> "${log}"
+    /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt &>> "${log}"
+    chown -R "${mylar_owner}": /opt/mylar/
+    chown -R "${mylar_owner}": /opt/.venv/mylar/
+}
+
+function _service() {
+    cat > /etc/systemd/system/mylar.service << EOS
+[Unit]
+Description=Mylar service
+After=network-online.target
+
+[Service]
+Type=forking
+User=${mylar_owner}
+ExecStart=/opt/.venv/mylar/bin/python3 /opt/mylar/Mylar.py --datadir /home/${mylar_owner}/.config/mylar/ -v --daemon  --nolaunch --quiet
+WorkingDirectory=/opt/mylar
+GuessMainPID=no
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOS
+}

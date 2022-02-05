@@ -1,5 +1,6 @@
 #!/bin/bash
 # nginx setup for qbittorrent
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 
@@ -33,7 +34,7 @@ location /qbittorrent/ {
 
     auth_basic_user_file /etc/htpasswd;
     rewrite ^/qbittorrent/(.*) /$1 break;
-
+    proxy_cookie_path / "/qbittorrent/; Secure";
 
     # The following directives effectively nullify Cross-site request forgery (CSRF)
     # protection mechanism in qBittorrent, only use them when you encountered connection problems.

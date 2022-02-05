@@ -2,46 +2,57 @@
 
 function whiptail_deluge() {
     echo_progress_start "Choosing Deluge versions"
-    if [[ -z $deluge ]]; then
+    if [[ -z $DELUGE_VERSION ]]; then
         repov=$(get_candidate_version deluge)
-        case $(lsb_release -cs) in
+        function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+            "Repo" "${repov}" \
+            "Deluge 1.3" "" \
+            "Deluge 2.0" "" 3>&1 1>&2 2>&3)
+        case $function in
+            "Deluge 1.3")
+                export DELUGE_VERSION=1.3-stable
+                ;;
+            "Deluge 2.0")
+                export DELUGE_VERSION=master
+                ;;
+            "Repo")
+                export DELUGE_VERSION=repo
+                ;;
             *)
-                function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
-                    "Repo" "(${repov})" \
-                    "Deluge 1.3" "" \
-                    "Deluge 2.0" "" 3>&1 1>&2 2>&3)
+                echo_error "$function is not a valid value for whiptail_deluge."
                 ;;
         esac
-        if [[ $function == "Repo" ]]; then
-            export deluge=repo
-        elif [[ $function == "Deluge 1.3" ]]; then
-            export deluge=1.3-stable
-        elif [[ $function == "Deluge 2.0" ]]; then
-            export deluge=master
-        fi
     fi
 }
 
 function whiptail_deluge_downupgrade() {
     if [[ -n $(command -v deluged) ]]; then
-        dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
+        if [[ $DELUGE_VERSION == "repo" ]]; then
+            function=$(get_candidate_version deluge)
+        fi
+        if echo $function | grep -q Deluge; then
+            dverup=$(echo "$function" | sed 's|Deluge ||g' | cut -d. -f1)
+        else
+            dverup=$(echo "$function" | cut -d. -f1)
+        fi
         dvercurmajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
         if [[ $dverup -lt $dvercurmajor ]]; then
-            message="You have chosen to perform a major version DOWNGRADE to $function. Please be advised that this will downgrade your Deluge binaries to an older version which is not compatible with the new version state.\n\nIf you have never had $function installed, you will not have a backup to restore. NO TORRENTS WILL BE LOADED. This is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to continue.\n\nI hope you know what you're doing."
+            downupmessage="You have chosen to perform a major version DOWNGRADE to $function. Please be advised that this will downgrade your Deluge binaries to an older version which is not compatible with the new version state.\n\nIf you have never had $function installed, you will not have a backup to restore. NO TORRENTS WILL BE LOADED. This is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to continue.\n\nI hope you know what you're doing."
         elif [[ $dverup -gt $dvercurmajor ]]; then
-            message="You have chosen to perform a major version UPGRADE to $function. Please be advised that this will upgrade your Deluge binaries to a newer version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch."
+            downupmessage="You have chosen to perform a major version UPGRADE to $function. Please be advised that this will upgrade your Deluge binaries to a newer version which is not compatible with the old version.\n\nA backup of your current config will be created; however, if you wish to downgrade back to the old version, you will need to restore the backup to reload your torrents. Torrents you may have added since upgrading will not be preserved.\n\nDowngrading (while possible and not disabled) is an unsupported action and you will receive **ABSOLUTELY ZERO** support if you decide to go back to the previous branch."
         fi
-        if [[ -n $message ]]; then
-            if ! whiptail --yesno "${message}" --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING!!" --scrolltext 18 78; then
+        if [[ -n ${downupmessage} ]]; then
+            if ! whiptail --yesno "${downupmessage}" --yes-button "I agree" --no-button "Oh heck, nvm" --title "WARNING!!" --scrolltext 18 78; then
                 exit 1
             fi
         fi
     fi
     echo_progress_done
-    echo_log_only "deluge = $deluge"
+    echo_log_only "deluge = $DELUGE_VERSION"
 }
+
 function remove_ltcheckinstall() {
-    oldv=$(apt-cache show libtorrent | grep checkinstall)
+    oldv=$(apt-cache show libtorrent 2> /dev/null | grep checkinstall)
     if [[ -n $oldv ]]; then
         echo_progress_start "Removing checkinstall libtorrent"
         dpkg -r libtorrent
@@ -49,116 +60,232 @@ function remove_ltcheckinstall() {
     fi
 }
 
+function deluge_version_info() {
+    case $DELUGE_VERSION in
+        1.3-stable)
+            cryptography=openssl
+            libtorrent_branch=RC_1_1
+            libtorrent_minimum_version=1.1.0
+            libtorrent_maximum_version=1.1.14
+            pythonver=python2.7
+            pythonmajor=2.7
+            python=python
+            deluge_git_branch=deluge-1.3.15
+            ;;
+        master)
+            cryptography=openssl
+            libtorrent_branch=RC_1_2
+            libtorrent_minimum_version=1.2.0
+            pythonver=python3
+            pythonmajor=$(get_candidate_version python3 | cut -d. -f1-2)
+            python=python3
+            deluge_git_branch=master
+            ;;
+        *)
+            echo_error "Deluge version should be 1.3-stable or master. Setup will not proceed."
+            exit 1
+            ;;
+    esac
+}
+
+function skip_libtorrent_deluge() {
+    if command -v deluged > /dev/null 2>&1; then
+        libtorrent_current_version=$(deluged --version | grep libtorrent | grep -oP '\d+\.\d+\.\d+(\.\d+)?' || echo "0.0.0.0")
+        if [[ -n $libtorrent_maximum_version ]]; then
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && dpkg --compare-versions ${libtorrent_current_version} le ${libtorrent_maximum_version} && whiptail_skip_libtorrent_rasterbar; then
+                return
+            fi
+        else
+            if dpkg --compare-versions ${libtorrent_current_version} ge ${libtorrent_minimum_version} && whiptail_skip_libtorrent_rasterbar; then
+                return
+            fi
+        fi
+    fi
+    false
+    return
+}
+
+function build_libtorrent_deluge() {
+    booststrap
+    echo 'using gcc : : : <cflags>"-march=native -std=c++14" <cxxflags>"-march=native -std=c++14" ;' > /root/user-config.jam
+    echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
+    apt_install ${pythonver}-dev libssl-dev
+    rm_if_exists /tmp/libtorrent
+    git clone -b ${libtorrent_branch} https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
+        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
+        exit 1
+    }
+    cd /tmp/libtorrent
+    VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
+
+    if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
+        patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1 || {
+            echo _error "Something went wrong when patching libtorrent"
+            exit 1
+        }
+        echo_info "Libtorrent patch found and applied!"
+    else
+        echo_log_only "No libtorrent patch found at /root/libtorrent-${libtorrent_branch}.patch"
+    fi
+
+    #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
+    #If not enabled, Deluge may not properly reannounce on unregistered torrents.
+    #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
+    case $libtorrent_branch in
+        RC_1_1)
+            sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
+            #Patch the Jamfile to allow 1.1 to use stage_module
+            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch >> ${log} 2>&1
+            ;;
+        RC_1_2)
+            sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
+            #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
+            ;;
+        *) ;;
+    esac
+    cd /tmp/libtorrent/bindings/python
+    /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
+    tag=" static with c++14 march=native"
+    mkdir -p /root/dist
+    fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version ${VERSION} --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> ${log} 2>&1 || {
+        echo_error "Error packaging ${python}-libtorrent. Setup will exit"
+        exit 1
+    }
+    cd /tmp
+    rm_if_exists /tmp/libtorrent
+    rm_if_exists /tmp/dist
+    echo_log_only "Checking python bindings for libtorrent"
+    dpkg -r python-libtorrent >> ${log} 2>&1
+    dpkg -r python3-libtorrent >> ${log} 2>&1
+    dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb >> ${log} 2>&1 || {
+        echo_error "Libtorrent python binding could not be installed. Setup will not proceed"
+        exit 1
+    }
+}
+
 function build_deluge() {
     echo_progress_start "Building Deluge"
-    if [[ $deluge == repo ]]; then
-        apt_install deluged deluge-web deluge-console
-        dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-        if [[ $dver =~ ^1\. ]]; then
-            cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
-            chmod 644 /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
-        fi
-        systemctl stop deluged
-        update-rc.d deluged remove
-        rm /etc/init.d/deluged
-    else
-        noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-        if [[ -n $noexec ]]; then
-            mount -o remount,exec /tmp
-            noexec=1
-        fi
-        case $deluge in
-            master)
-                LIST='python3 python3-setuptools intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
-                pythonver=python3
-                distver=python3
-                args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
-                ;;
-            1.3-stable)
-                if [[ $release == "focal" ]]; then
-                    LIST='python2.7-dev intltool xdg-utils librsvg2-common'
-                    PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
-                    pythonver=python2.7
-                    distver=python2.7
-                    args=
-                else
-                    LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
-                    pythonver=python2
-                    distver=python2.7
-                    args=
-                fi
-
-                ;;
-        esac
-        apt_install $LIST
-
-        if [[ -n $PIP ]]; then
-            . /etc/swizzin/sources/functions/pyenv
-            python_getpip
-            for p in $PIP; do
-                pip install $p >> $log 2>&1
-            done
-        fi
-        . /etc/swizzin/sources/functions/fpm
-        install_fpm
-        if [[ $pythonver == python3 ]]; then
-            twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
-            if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
-                case $release in
-                    "xenial")
-                        echo_progress_start "Packaging up-to-date python3-twisted"
-                        LIST='libffi-dev python3-pip'
-                        packages=(setuptools pycparser asn1crypto cffi constantly incremental attrs automat idna hyperlink pyhamcrest cryptography pyopenssl service_identity zope.interface twisted)
-                        mkdir -p /root/dist/python3
-                        apt_install $LIST
-                        for d in ${packages[@]}; do
-                            fpm -s python -t deb --python-pip=pip3 --python-bin=${pythonver} --python-package-name-prefix=${pythonver} -f -p /root/dist/python3/python3-$d.deb $d >> ${log} 2>&1
-                            dpkg -i /root/dist/python3/python3-$d.deb >> ${log} 2>&1
-                        done
-                        echo_progress_done "Packaging finished"
-                        ;;
-                    "stretch")
-                        . /etc/swizzin/sources/functions/backports
-                        check_debian_backports
-                        set_packages_to_backports python3-twisted
-                        LIST='python3-twisted'
-                        apt_install $LIST
-                        ;;
-                esac
-            fi
-            if [[ -n $noexec ]]; then
-                mount -o remount,noexec /tmp
-            fi
-        fi
-        cd /tmp
-        git clone -b ${deluge} git://deluge-torrent.org/deluge.git >> "${log}" 2>&1 || {
-            echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
-            git clone -b ${deluge} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
-                echo_error "Cloning Deluge from github failed"
-                exit 1
-            }
-        }
-        cd deluge
-        VERSION=$(git describe | cut -d- -f2)
-        sed -i 's/-dev//g' setup.cfg
-        mkdir -p /root/dist
-        fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py > /dev/null 2>&1
-        dpkg -i /root/dist/deluge-common_${VERSION}.deb
-        chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
-        if [[ $deluge == 1.3-stable ]]; then
-            #update-tracker is built into v2 (update_tracker)
-            cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
-            chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
-        fi
-        cd /tmp
-        rm -rf deluge
-        apt-mark hold deluge-common
+    noexec=$(grep "/tmp" /etc/fstab | grep noexec)
+    if [[ -n $noexec ]]; then
+        mount -o remount,exec /tmp
+        noexec=1
     fi
+    case $DELUGE_VERSION in
+        master)
+            LIST='python3 python3-setuptools python3-pip intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
+            pythonver=python3
+            distver=python3
+            args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
+            ;;
+        1.3-stable)
+            if [[ $(_os_codename) =~ ^(focal|bullseye)$ ]]; then
+                LIST='python2.7-dev intltool xdg-utils librsvg2-common'
+                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
+                pythonver=python2.7
+                distver=python2.7
+                args=
+            else
+                LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
+                pythonver=python2
+                distver=python2.7
+                args=
+            fi
+            ;;
+        *)
+            echo_error "$DELUGE_VERSION branch not recognized. Setup will now exit"
+            exit 1
+            ;;
+    esac
+    apt_install --no-recommends $LIST
+
+    if [[ -n $PIP ]]; then
+        . /etc/swizzin/sources/functions/pyenv
+        python_getpip
+        for p in $PIP; do
+            pip install $p >> $log 2>&1
+        done
+    fi
+
+    if [[ $pythonver == python3 ]]; then
+        twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
+        if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
+            case $(_os_codename) in
+                "stretch")
+                    . /etc/swizzin/sources/functions/backports
+                    check_debian_backports
+                    set_packages_to_backports python3-twisted
+                    LIST='python3-twisted'
+                    apt_install $LIST
+                    ;;
+                *) ;;
+
+            esac
+        fi
+        if [[ -n $noexec ]]; then
+            mount -o remount,noexec /tmp
+        fi
+    fi
+    rm_if_exists /tmp/deluge
+    git clone -b ${deluge_git_branch} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
+        echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
+        git clone -b ${deluge_git_branch} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
+            echo_error "Cloning Deluge from github failed. Setup will now exit"
+            exit 1
+        }
+    }
+    cd /tmp/deluge
+    VERSION=$(git describe | cut -d- -f2)
+    sed -i 's/-dev//g' setup.cfg
+    mkdir -p /root/dist
+    fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py >> "${log}" 2>&1
+    dpkg -i /root/dist/deluge-common_${VERSION}.deb >> "${log}" 2>&1
+    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
+    if [[ ${DELUGE_VERSION} == 1.3-stable ]]; then
+        #update-tracker is built into v2 (update_tracker)
+        cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
+        chmod 644 /usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py
+    fi
+    cd /tmp
+    rm -rf /tmp/deluge
+    apt-mark hold deluge-common >> "${log}" 2>&1
     echo_progress_done "Deluge installed"
 }
 
+function apt_install_deluge() {
+    cleanup=(python3-libtorrent python-libtorrent)
+    for a in ${cleanup[@]}; do
+        if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
+            echo_info "Removing conflicting package: $a."
+            dpkg -r $a > /dev/null 2>&1
+        fi
+    done
+    if [[ -f /install/.deluge.lock ]]; then
+        whiptail_deluge_downupgrade
+        dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+        if [[ $dver == 1.3* ]] && dpkg --compare-versions $(get_candidate_version deluge-common) ge 2.0.0; then
+            echo_info "Major version upgrade detected. User-data will be backed-up."
+            users=($(_get_user_list))
+            for user in "${users[@]}"; do
+                echo_info "'/home/${user}/.config/deluge' -> '/home/$user/.config/deluge.$$'"
+                cp -a /home/${user}/.config/deluge /home/${user}/.config/deluge.$$
+            done
+        fi
+        apt_remove --purge ^deluge.*
+    fi
+
+    apt_install deluged deluge-web deluge-console
+    dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+    if [[ $dver =~ ^1\. ]]; then
+        cp /etc/swizzin/scripts/deluge.UpdateTracker.py /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+        chmod 644 /usr/lib/python2.7/dist-packages/deluge/ui/console/commands/update-tracker.py
+    fi
+    systemctl stop deluged
+    update-rc.d deluged remove
+    rm /etc/init.d/deluged
+}
+
 function dweb_check() {
-    if [[ $deluge == master ]]; then
+    if [[ ${DELUGE_VERSION} == master ]]; then
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
     else
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
@@ -167,7 +294,7 @@ function dweb_check() {
     dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
     for u in ${users[@]}; do
         localpass=$(grep localclient /home/$u/.config/deluge/auth | cut -d: -f2)
-        DUDID=$(python2 /usr/local/bin/swizzin/deluge.addHost.py)
+        DUDID=$(${pythonver} /usr/local/bin/swizzin/deluge.addHost.py)
         DPORT=$(grep daemon_port /home/$u/.config/deluge/core.conf | grep -oP '\d+')
 
         case $dvermajor in
@@ -231,6 +358,254 @@ function ltconfig() {
     fi
     if grep -q user_agent /home/${u}/.config/deluge/ltconfig.conf > /dev/null 2>&1; then
         sed -i "s/Deluge[^\"]*/Deluge ${dver}/g" /home/${u}/.config/deluge/ltconfig.conf
+    fi
+}
+
+function _dconf() {
+    for u in "${users[@]}"; do
+        echo_progress_start "Configuring Deluge for $u"
+        if [[ ${u} == ${master} ]]; then
+            pass=$(cut -d: -f2 < /root/.master.info)
+        else
+            pass=$(cut -d: -f2 < /root/${u}.info)
+        fi
+        n=$RANDOM
+        DPORT=$((n % 59000 + 10024))
+        DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+        localpass=$(tr -dc 'a-f0-9' < /dev/urandom | fold -w 40 | head -n 1)
+        if $(command -v python2.7 > /dev/null 2>&1); then
+            pythonversion=python2.7
+        elif $(command -v python3 > /dev/null 2>&1); then
+            pythonversion=python3
+        fi
+        DWP=$(${pythonversion} ${local_packages}/deluge.Userpass.py ${pass} ${DWSALT})
+        DUDID=$(${pythonversion} ${local_packages}/deluge.addHost.py)
+        # -- Secondary awk command -- #
+        #DPORT=$(awk -v min=59000 -v max=69024 'BEGIN{srand(); print int(min+rand()*(max-min+1))}')
+        DWPORT=$(shuf -i 10001-11000 -n 1)
+        ltconfig
+        chmod 755 /home/${u}/.config
+        chmod 755 /home/${u}/.config/deluge
+        cat > /home/${u}/.config/deluge/core.conf << DC
+  {
+    "file": 1,
+    "format": 1
+  }{
+    "info_sent": 0.0,
+    "lsd": true,
+    "max_download_speed": -1.0,
+    "send_info": false,
+    "natpmp": true,
+    "move_completed_path": "/home/${u}/Downloads",
+    "peer_tos": "0x08",
+    "enc_in_policy": 1,
+    "queue_new_to_top": false,
+    "ignore_limits_on_local_network": true,
+    "rate_limit_ip_overhead": true,
+    "daemon_port": ${DPORT},
+    "torrentfiles_location": "/home/${u}/dwatch",
+    "max_active_limit": -1,
+    "geoip_db_location": "/usr/share/GeoIP/GeoIP.dat",
+    "upnp": false,
+    "utpex": true,
+    "max_active_downloading": 3,
+    "max_active_seeding": -1,
+    "allow_remote": true,
+    "outgoing_ports": [
+      0,
+      0
+    ],
+    "enabled_plugins": [
+      "ltConfig"
+    ],
+    "max_half_open_connections": 50,
+    "download_location": "/home/${u}/torrents/deluge",
+    "compact_allocation": true,
+    "max_upload_speed": -1.0,
+    "plugins_location": "/home/${u}/.config/deluge/plugins",
+    "max_connections_global": -1,
+    "enc_prefer_rc4": true,
+    "cache_expiry": 60,
+    "dht": true,
+    "stop_seed_at_ratio": false,
+    "stop_seed_ratio": 2.0,
+    "max_download_speed_per_torrent": -1,
+    "prioritize_first_last_pieces": true,
+    "max_upload_speed_per_torrent": -1,
+    "auto_managed": true,
+    "enc_level": 2,
+    "copy_torrent_file": false,
+    "max_connections_per_second": 50,
+    "listen_ports": [
+      6881,
+      6891
+    ],
+    "max_connections_per_torrent": -1,
+    "del_copy_torrent_file": false,
+    "move_completed": false,
+    "autoadd_enable": false,
+    "proxies": {
+      "peer": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "web_seed": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "tracker": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      },
+      "dht": {
+        "username": "",
+        "password": "",
+        "hostname": "",
+        "type": 0,
+        "port": 8080
+      }
+    },
+    "dont_count_slow_torrents": true,
+    "add_paused": false,
+    "random_outgoing_ports": true,
+    "max_upload_slots_per_torrent": -1,
+    "new_release_check": false,
+    "enc_out_policy": 1,
+    "seed_time_ratio_limit": 7.0,
+    "remove_seed_at_ratio": false,
+    "autoadd_location": "/home/${u}/dwatch/",
+    "max_upload_slots_global": -1,
+    "seed_time_limit": 180,
+    "cache_size": 512,
+    "share_ratio_limit": 2.0,
+    "random_port": true,
+    "listen_interface": "${ip}"
+  }
+DC
+        cat > /home/${u}/.config/deluge/web.conf << DWC
+{
+  "file": 1,
+  "format": 1
+}{
+  "port": ${DWPORT},
+  "enabled_plugins": [],
+  "pwd_sha1": "${DWP}",
+  "theme": "gray",
+  "show_sidebar": true,
+  "sidebar_show_zero": false,
+  "pkey": "ssl/daemon.pkey",
+  "https": true,
+  "sessions": {},
+  "base": "/",
+  "interface": "0.0.0.0",
+  "pwd_salt": "${DWSALT}",
+  "show_session_speed": false,
+  "first_login": false,
+  "cert": "ssl/daemon.cert",
+  "session_timeout": 3600,
+  "default_daemon": "${DUDID}",
+  "sidebar_multiple_filters": true
+}
+DWC
+        dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
+
+        case $dvermajor in
+            1)
+                SUFFIX=.1.2
+                ;;
+        esac
+        cat > /home/${u}/.config/deluge/hostlist.conf${SUFFIX} << DHL
+{
+  "file": 1,
+  "format": 1
+}{
+  "hosts": [
+    [
+      "${DUDID}",
+      "127.0.0.1",
+      ${DPORT},
+      "localclient",
+      "${localpass}"
+    ]
+  ]
+}
+DHL
+
+        echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
+        echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
+        chmod 600 /home/${u}/.config/deluge/auth
+        chown -R ${u}.${u} /home/${u}/.config/
+        mkdir /home/${u}/dwatch
+        chown ${u}: /home/${u}/dwatch
+        mkdir -p /home/${u}/torrents/deluge
+        chown ${u}: /home/${u}/torrents
+        chown ${u}: /home/${u}/torrents/deluge
+        usermod -a -G ${u} www-data 2>> "$log"
+        echo_progress_done "Configured for $u"
+    done
+}
+
+function _dservice() {
+    echo_progress_start "Adding systemd service files"
+    if [[ ! -f /etc/systemd/system/deluged@.service ]]; then
+        dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
+        if [[ $dvermajor == 2 ]]; then args=" -d"; fi
+        cat > /etc/systemd/system/deluged@.service << DD
+[Unit]
+Description=Deluge Bittorrent Client Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+ExecStart=/usr/bin/deluged -d
+Restart=on-failure
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
+DD
+    fi
+    if [[ ! -f /etc/systemd/system/deluge-web@.service ]]; then
+        cat > /etc/systemd/system/deluge-web@.service << DW
+[Unit]
+Description=Deluge Bittorrent Client Web Interface
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+ExecStart=/usr/bin/deluge-web${args}
+TimeoutStopSec=300
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+DW
+    fi
+    for u in "${users[@]}"; do
+        systemctl enable -q deluged@${u} 2>&1 | tee -a $log
+        systemctl enable -q deluge-web@${u} 2>&1 | tee -a $log
+        systemctl start deluged@${u}
+        systemctl start deluge-web@${u}
+    done
+
+    echo_progress_done "Services added and started"
+
+    if [[ -f /install/.nginx.lock ]]; then
+        echo_progress_start "Adding nginx configs"
+        bash /usr/local/bin/swizzin/nginx/deluge.sh
+        systemctl reload nginx
+        echo_progress_done "nginx configured"
     fi
 }
 

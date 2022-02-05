@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ -f /install/.btsync.lock ]]; then
     if [[ ! -f /etc/systemd/system/resilio-sync.service ]]; then
-        active=$(systemctl is-active lounge)
+        active=$(systemctl is-active resilo-sync)
         if [[ $active == "active" ]]; then
             systemctl stop resilo-sync
         fi

@@ -33,7 +33,7 @@ mkdir -p /opt/.venv
 chown ${user}: /opt/.venv
 
 #minver 3.7.2
-if [[ ! $codename =~ ("xenial"|"stretch"|"bionic") ]]; then
+if [[ ! $codename =~ ("stretch"|"bionic") ]]; then
     apt_install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv
     echo_progress_start "Setting up venv for Sickgear"
     python3 -m venv /opt/.venv/sickgear
@@ -87,6 +87,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sickgear.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "SickGear will run on port 8081"
 fi
 
 echo_success "Sickgear installed"

@@ -1,1 +1,6 @@
 .dev.lock
+.test.lock
+dev.env
+
+# Ignore JetBrains IDE's project settings folder
+.idea/**

@@ -2,20 +2,19 @@
 
 if [[ -f /install/.sabnzbd.lock ]]; then
     if [[ -f /etc/systemd/system/sabnzbd@.service ]]; then
-        user=$(cut -d: -f1 < /root/.master.info)
-        password=$(cut -d: -f2 < /root/.master.info)
-        codename=$(lsb_release -cs)
+        user=$(_get_master_username)
+        codename=$(_os_codename)
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
-        systemctl disable -q --now sabnzbd@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        systemctl disable -q --now sabnzbd@${user} >> "${log}" 2>&1
+        if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else
             LIST='par2 p7zip-full python2.7-dev libxml2-dev libxslt1-dev libglib2.0-dev'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
             python_getpip
         fi
 
@@ -51,7 +50,7 @@ SABSD
         rm /etc/systemd/system/sabnzbd@.service
 
         if [[ $active == "active" ]]; then
-            systemctl enable -q --now sabnzbd 2>&1 | tee -a $log
+            systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
         fi
     fi
 fi

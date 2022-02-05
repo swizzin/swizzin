@@ -2,8 +2,8 @@
 #
 # A functions for reused commands.
 function reused_commands() {
-    sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i /etc/jellyfin/system.xml
-    sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i /etc/jellyfin/system.xml
+    sed -r 's#<string>0.0.0.0</string>#<string>127.0.0.1</string>#g' -i /etc/jellyfin/network.xml
+    sed -r 's#<BaseUrl />#<BaseUrl>/jellyfin</BaseUrl>#g' -i /etc/jellyfin/network.xml
     chown jellyfin:jellyfin /etc/jellyfin/system.xml
 }
 #

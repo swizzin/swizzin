@@ -1,7 +1,26 @@
 # Contributing guidelines
 Here are a couple things to take into account when contributing to swizzin.
 
+There is a large amount of further documentation and guidance available in our docs https://swizzin.ltd/dev/. You are expected to familiarise yourself with the documentation and the code.
+
+In case anything is not clear, we're always happy to explain and teach why/how these things are done; feel free to come talk to us in our Discord.
+
+## Merging against the `develop` branch
+As we use the git flow, please make sure to make your PRs from the `develop` branch, and target the `develop` branch for the PRs.
+
+Changes will make it to the master in releases.
+
+## Requirements for consideration
+We expect the following criteria from a PR. You're more than welcome to ask us how to achieve any of these that you are not familiar with, and we'll be happy to help.
+- A completed checklist
+- No `shellcheck`/`shfmt` errors or warnings.
+- A proof of the changes being tested
+
+You are welcome to submit PRs that do not fit this spec, but they are required to be marked as Draft PRs and preferrably pre-pended with `WIP: ` at the beginning of the PR title. If that is the case, please mention what your outstanding TODOs for the PR are.
+
 ## Editor plugins and tooling
+Please note that Extensions for VSCode should pop up as "recommended extensions", so just open it up and install them in one click!
+
 ### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
 - `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
@@ -36,7 +55,7 @@ Please use `shellcheck` and its IDE plugins and resolve any warnings for the cod
 ### Code re-use
 Please familiarise yourself with the functions available under `sources/functions` as they handle a large amount of steps you might need to do manually.
 
-A list of the files that are included on a `box` or a `setup.sh` by default arte in `sources/globals.sh`
+A list of the files that are included on a `box` or a `setup.sh` by default are in `sources/globals.sh`
 
 Whenever you are contributing code that might be generalized and useful for other applications, please add the functions to this location. When doing so, please give a quick comment into the file on what the purpose and possible return output is. e.g:
 ```bash
@@ -57,7 +76,7 @@ When making logic based on distribution codenames, please structure it in such a
 
 A practical example for this is handling packages that are no longer packaged for newer LTS releases. In such scenarios, please make it so that the "default" behaviour is for newer LTS releases, and the older LTS releases are treated as the outliers. e.g.:
 ```bash
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename =~ ("buster"|"stretch") ]]; then
   mcrypt=php-mcrypt
 else
   mcrypt=
@@ -67,6 +86,16 @@ fi
 
 ```
 In this example, the default (`else`) behaviour triggers for current releases, and only the old ones have the modified behaviour
+
+## Handling interactivity
+Please make sure your scripts are compatible with the custom/unattended installation options through environment variables. This means that there should be a scenario in your script, where no interaction is necessary if necessary variables are available before the script started.
+
+Please stick to the following:
+- Pre-fix your variables with the name of the application to prevent collisions, e.g. `$APPLICATION_VARIABLE`
+- Ensure your script is checking the existance of the variable before triggering anything interactive, so that the scripts can skip over things if they are supplied through options.
+  - e.g. `if [[ -z $APPLICATION_VARIABLE ]]; then read $APPLICATION_VARIABLE; fi`
+  - e.g. `while [[ -z $APPLICATION_VARIABLE ]]; do [...] APPLICATION_VARIABLE=$verified-value [...] ; done`
+- Appropriately document the varaibles in the docs repo
 
 ## APT handling
 We have developed our own internal set of functions for handling `apt` packages in a predictable and uniform way. In the event any of these functions encounter an error, they will (with default behaviour) ensure the rest of the script will not continue. Please use the following functions and see the available options. **Refrain from calling the raw apt equivalents of the functions below.** 

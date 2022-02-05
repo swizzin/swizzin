@@ -29,7 +29,7 @@ if [[ -n $active ]]; then
     fi
 fi
 
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
+if [[ $codename == "stretch" ]]; then
     pyenv_install
     pyenv_install_version 3.7.7
     pyenv_create_venv 3.7.7 /opt/.venv/sickchill
@@ -79,6 +79,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sickchill.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "SickChill will run on port 8081"
 fi
 
 echo_success "SickChill installed"

@@ -3,12 +3,6 @@
 ## Description
 <!-- Any general story time goes here :) Feel free to add screenshots/recording of your change in action here-->
 
-<!-- This will create an expandable section. Feel free to delete this if you don't need it-->
-<details>
-<summary>Label of collapsible goes here</summary>
-<!-- This is where you can put pictures, huge logs, or anything.-->
-</details>
-
 ## Fixes issues: 
 - Issue #nr...
 - Un-tracked issue...
@@ -27,14 +21,19 @@
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
+- [ ] Branch was made off the `develop` branch and the PR is targetting the `develop` branch
 - [ ] Docs have been made OR are not necessary
     - PR link: 
 - [ ] Changes to panel have been made OR are not necessary
     - PR link: 
 - [ ] Code is formatted [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
+- [ ] Code conforms to project structure [(See more)](https://swizzin.ltd/dev/structure)
 - [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
 - [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] Testing was done
+   - [ ] Tests created or no new tests necessary
+   - [ ] Tests executed
 
 ## Test scenarios
 <!-- Please let us know what has been done or anything else that works/doesn't. Feel free to copy-paste the examples at the bottom of this section -->

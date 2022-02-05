@@ -39,7 +39,7 @@ for u in ${users[@]}; do
         # echo "is active"
         timeout+=0.3
         if [[ $timeout -ge 20 ]]; then
-            echo "The service transmission@$u took too long to shut down. Aborting."
+            echo_error "The service transmission@$u took too long to shut down. Aborting."
             exit 1
         fi
         sleep 0.3

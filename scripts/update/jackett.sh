@@ -25,7 +25,7 @@ if [[ -f /install/.jackett.lock ]]; then
         :
     fi
 
-    if ! grep -q "jacket_launcher" /etc/systemd/system/jackett@.service; then
+    if ! grep -q "jackett_launcher" /etc/systemd/system/jackett@.service; then
         cat > /etc/systemd/system/jackett@.service << JAK
 [Unit]
 Description=jackett for %I

@@ -18,36 +18,41 @@ fi
 . /etc/swizzin/sources/functions/letsencrypt
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
-echo_query "Enter domain name to secure with LE"
-read -e hostname
+if [[ -z $LE_HOSTNAME ]]; then
+    echo_query "Enter domain name to secure with LE"
+    read -e hostname
+else
+    hostname=$LE_HOSTNAME
+fi
 
-echo_query "Do you want to apply this certificate to your swizzin default conf?" "y/n"
-read yn
-case $yn in
-    [Yy])
+if [[ -z $LE_DEFAULTCONF ]]; then
+    if ask "Do you want to apply this certificate to your swizzin default conf?"; then
         main=yes
-        ;;
-    [Nn])
+    else
         main=no
-        ;;
-    *) echo_warn "Please answer (y)es or (n)o." ;;
-esac
+    fi
+else
+    main=$LE_DEFAULTCONF
+fi
 
 if [[ $main == yes ]]; then
     sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-echo_query "Is your DNS managed by CloudFlare?" "y/n"
-read yn
-case $yn in
-    [Yy])
+if [[ -n $LE_CF_API ]] || [[ -n $LE_CF_EMAIL ]] || [[ -n $LE_CF_ZONE ]]; then
+    LE_BOOL_CF=yes
+fi
+
+if [[ -z $LE_BOOL_CF ]]; then
+    if ask "Is your DNS managed by CloudFlare?"; then
         cf=yes
-        ;;
-    [Nn])
+    else
         cf=no
-        ;;
-    *) echo_warn "Please answer (y)es or (n)o." ;;
-esac
+    fi
+else
+    [[ $LE_BOOL_CF = "yes" ]] && cf=yes
+    [[ $LE_BOOL_CF = "no" ]] && cf=no
+fi
 
 if [[ ${cf} == yes ]]; then
 
@@ -56,25 +61,34 @@ if [[ ${cf} == yes ]]; then
         exit 1
     fi
 
-    echo_query "Does the record for this subdomain already exist?" "y/n"
-    read yn
-    case $yn in
-        [Yy])
-            record=yes
-            ;;
-        [Nn])
-            record=no
-            ;;
-        *)
-            echo_warn "Please answer (y)es or (n)o."
-            ;;
-    esac
+    if [[ -n $LE_CF_ZONE ]]; then
+        LE_CF_ZONEEXISTS=no
+    fi
 
-    echo_query "Enter CF API key"
-    read -e api
+    if [[ -z $LE_CF_ZONEEXISTS ]]; then
+        if ask "Does the record for this subdomain already exist?"; then
+            main=yes
+        else
+            main=no
+        fi
+    else
+        [[ $LE_CF_ZONEEXISTS = "yes" ]] && zone=yes
+        [[ $LE_CF_ZONEEXISTS = "no" ]] && zone=no
+    fi
 
-    echo_query "CF Email"
-    read -e email
+    if [[ -z $LE_CF_API ]]; then
+        echo_query "Enter CF API key"
+        read -e api
+    else
+        api=$LE_CF_API
+    fi
+
+    if [[ -z $LE_CF_EMAIL ]]; then
+        echo_query "CF Email"
+        read -e email
+    else
+        api=$LE_CF_EMAIL
+    fi
 
     export CF_Key="${api}"
     export CF_Email="${email}"
@@ -87,8 +101,14 @@ if [[ ${cf} == yes ]]; then
     fi
 
     if [[ ${record} == no ]]; then
-        echo_query "Zone Name" "e.g example.com"
-        read -e zone
+
+        if [[ -z $LE_CF_ZONE ]]; then
+            echo_query "Zone Name (example.com)"
+            read -e zone
+        else
+            zone=$LE_CF_ZONE
+        fi
+
         zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
         addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
         if [[ $addrecord == *"\"success\":false"* ]]; then
@@ -112,6 +132,19 @@ fi
 
 mkdir -p /etc/nginx/ssl/${hostname}
 chmod 700 /etc/nginx/ssl
+
+/root/.acme.sh/acme.sh --set-default-ca --server letsencrypt >> $log 2>&1 || {
+    echo_warn "Could not set default certificate authority to Let's Encrypt. Upgrading acme.sh to retry."
+    /root/.acme.sh/acme.sh --upgrade >> $log 2>&1 || {
+        echo_error "Could not upgrade acme.sh."
+        exit 1
+    }
+    /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt >> $log 2>&1 || {
+        echo_error "Could not set default certificate authority to Let's Encrypt"
+        exit 1
+    }
+    echo_info "acme.sh has been upgraded successfully."
+}
 
 echo_progress_start "Registering certificates"
 if [[ ${cf} == yes ]]; then

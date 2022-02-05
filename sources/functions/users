@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+
+# Returns a password for a user in case one exists.
+# If password is not found, returns with error code 1
+function _get_user_password() {
+    user_to_get="$1"
+    password=''
+
+    for file in $(find /root/ -maxdepth 1 -name '*.info' | sort); do
+        if [[ -f $file ]]; then
+            user_in_file=$(cat $file | cut -d: -f1)
+            if [ "$user_in_file" = "$user_to_get" ]; then
+                password="$(cat $file | cut -d: -f2)"
+                break
+            fi
+        fi
+    done
+
+    if [[ -z $password ]]; then
+        return 1
+    fi
+    echo "$password"
+}
+export -f _get_user_password
+
+# OLD way to get users from htpasswd
+# Rather wouldn't use this as 3rd party applications migh be playing with this as well
+# function _get_user_list () {
+#     users=($(cut -d: -f1 < /etc/htpasswd))
+# }
+
+#Returns all users managed by swizzin as a newline separated list
+function _get_user_list() {
+    output=""
+    for file in $(find /root/ -maxdepth 1 -name '*.info' ! -name .master.info | sort); do
+        if [[ -f $file ]]; then
+            output+="$(cut -d: -f1 < "$file")\n"
+        fi
+    done
+    output+=$(cut -d: -f1 < /root/.master.info)
+    echo -e "$output" | sort | uniq
+}
+export -f _get_user_list
+
+#Returns the username of the master
+function _get_master_username() {
+    cut -d: -f1 < /root/.master.info
+}
+export -f _get_master_username
+
+# Will recurse if $pass isn't set or isn't valid
+function password_check() {
+    ui="$1"
+    if [ "$SETUP_USER" = "true" ]; then
+        ui="whiptail"
+    fi
+    #If no password set, then get one
+    if [[ -z $pass ]]; then
+        # While password isn't confirmed ...
+        while [[ -z $confirmedPass ]]; do
+            # Get a password
+            if [[ $ui = "whiptail" ]]; then
+                pass=$(whiptail --passwordbox "Enter new password for $user. Leave empty to generate." 9 40 3>&1 1>&2 2>&3)
+                exitstatus=$?
+                if [ "$exitstatus" = 1 ]; then exit 1; fi
+            else
+                echo_query "Enter password for ${user}. (leave empty to generate a password)" "hidden"
+                read -rs 'pass'
+                echo
+            fi
+            # Check the password
+            if [[ $pass = "" ]]; then
+                #If password should be generated, skip the check
+                confirmedPass=true
+            else
+                if [[ $ui = "whiptail" ]]; then
+                    pass2=$(whiptail --passwordbox "Please confirm the password" 9 40 3>&1 1>&2 2>&3)
+                    exitstatus=$?
+                    if [ "$exitstatus" = 1 ]; then exit 1; fi
+                else
+                    echo_query "Please confirm password" "hidden"
+                    read -rs 'pass2'
+                    echo
+                fi
+                if [[ $pass != "$pass2" ]]; then
+                    # Restart if they don't match
+                    if [[ $ui = "whiptail" ]]; then
+                        whiptail --title "Error" --msgbox "Passwords did not match." --ok-button="Try again" 10 50
+                    else
+                        echo_warn "Passwords did not match. Press enter to try again"
+                        read -n 1 -r
+                    fi
+                else
+                    #continue if they're good
+                    confirmedPass=true
+                fi
+            fi
+        done
+        unset confirmedPass
+    fi
+    # If password was empty then it needs to be generated
+    if [[ -z "${pass}" ]]; then
+        echo_progress_start "Generating password"
+        pass="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+        whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+        while ! whiptail --title "Did you write it down?" --yesno "Just checking, we're not going to show you this password again after you tell us you got it." --defaultno --yes-button "Yeah I got it" --no-button "Let's see it again" 8 78; do
+            whiptail --title "Generated password" --msgbox "The generated password for $user is:\n$pass \n\nNote this down as this will not be shown again after it is hidden" --ok-button="Hide" 10 70
+        done
+        echo_progress_done "Password generated and hidden"
+    fi
+
+    #Perform tests. If failure is detected, recurse by unsetting $pass, and running `password_check $ui`
+    ##Cracklib test
+    if [ "$SKIPCRACKLIB" != "true" ]; then
+        echo_progress_start "Checking password strength"
+        result=$(cracklib-check <<< "$pass")
+        if ! grep -q OK <<< "$result"; then
+            crackreason=$(echo "$result" | cut -d':' -f2)
+            if [[ $ui = "whiptail" ]]; then
+                whiptail --title "Error" --msgbox "Password did not pass cracklib check.\nReason: \"${crackreason/ /}\"" --ok-button="Try again" 10 50
+            else
+                echo_warn "Password did not pass cracklib check. Reason: \"${crackreason/ /}\". Press enter to try again"
+                read -n 1 -r
+            fi
+            result=""
+            unset result
+            pass=
+            unset pass
+            password_check "$1"
+        else
+            echo_progress_done "Password passed"
+        fi
+        SKIPCRACKLIB=""
+        unset SKIPCRACKLIB
+    fi
+}
+
+# Will recurse while $user isn't set or isn't valid
+function username_check() {
+    ui="$ui"
+    if [ "$SETUP_USER" = "true" ]; then
+        ui="whiptail"
+    fi
+    if [[ -z $user ]]; then
+        if [[ $ui = "whiptail" ]]; then
+            user=$(whiptail --inputbox "Enter username for Swizzin \"master\"" 8 40 3>&1 1>&2 2>&3)
+            exitstatus=$?
+            if [ "$exitstatus" = 1 ]; then exit 1; fi
+        else
+            echo_query "Enter a name for the new user (CTRL+C to cancel)"
+            read -r user
+        fi
+    fi
+
+    #Perform tests. If failure is set message and set flag
+    ## Quick caps check
+    error_message=""
+    if [[ $user =~ [A-Z] ]]; then
+        error_message+="Usernames must not contain capital letters.\n"
+        badUsername=true
+    fi
+    # Check reserved usernames
+    badnames=("swizzin" "admin" "www-data" "root" "cydrex" "sudo" "user" "users")
+    # Reserving usernames from the names of apps in install folder
+    badnames+=($(find /etc/swizzin/scripts/install/ -type f -printf '%f\n' | cut -d. -f1))
+    #shellcheck disable=SC2199,SC2076
+    if [[ " ${badnames[@]} " =~ " ${user} " ]]; then
+        error_message+="$user is a not an allowed username -- please use something else.\n"
+        badUsername=true
+    fi
+    ## Do the complicated regex
+    if ! [[ $user =~ ^[a-z_]([a-z0-9_-]{0,31}|[a-z0-9_-]{0,30}\$)$ ]]; then
+        error_message+="Usernames must contain no capitals or special characters, start with a letter and be no longer than 32 characters"
+        badUsername=true
+    fi
+    ## Recurse if error found
+    if [[ $badUsername = "true" ]]; then
+        if [[ $ui = "whiptail" ]]; then
+            whiptail --title "Error" --msgbox "$error_message" --ok-button="Try again" 12 50
+        else
+            echo_warn "${error_message}Please try again"
+        fi
+        user=
+        badUsername=false
+        username_check "$1"
+    fi
+    echo_log_only "Username_check returned"
+}

@@ -4,8 +4,8 @@
 
 function _sources() {
     echo_progress_start "Installing ombi apt sources"
-    echo "deb http://repo.ombi.turd.me/stable/ jessie main" > /etc/apt/sources.list.d/ombi.list
-    wget -qO - https://repo.ombi.turd.me/pubkey.txt | apt-key add - >> "$log" 2>&1
+    echo "deb https://apt.ombi.app/master jessie main" > /etc/apt/sources.list.d/ombi.list
+    wget -qO - https://apt.ombi.app/pub.key | apt-key add - >> "$log" 2>&1
     echo_progress_done "Sources installed"
     apt_update
 }

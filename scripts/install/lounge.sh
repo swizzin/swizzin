@@ -4,18 +4,24 @@
 
 function _install() {
 
-    useradd lounge -m -s /bin/bash
-    passwd lounge -l >> ${log} 2>&1
+    useradd lounge --system -m -d /opt/lounge
 
-    npm -g config set user root
+    npm -g config set user root || {
+        echo_error "npm config step failed"
+        exit 1
+    }
+
     echo_progress_start "Installing lounge from npm"
-    npm install -g thelounge >> $log 2>&1
+    npm install -g thelounge >> $log 2>&1 || {
+        echo_error "Lounge failed to install"
+        exit 1
+    }
     sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
     echo_progress_done
 
-    mkdir -p /home/lounge/.thelounge/
+    mkdir -p /opt/lounge/.thelounge/
 
-    cat > /home/lounge/.thelounge/config.js << 'EOF'
+    cat > /opt/lounge/.thelounge/config.js << 'EOF'
 "use strict";
 
 module.exports = {
@@ -321,13 +327,15 @@ module.exports = {
 };
 EOF
 
-    chown -R lounge: /home/lounge
+    chown -R lounge: /opt/lounge
 
     if [[ -f /install/.nginx.lock ]]; then
         echo_progress_start "Configuring nginx"
         bash /usr/local/bin/swizzin/nginx/lounge.sh
         systemctl reload nginx
         echo_progress_done
+    else
+        echo_info "Lounge will run on port 9000"
     fi
 
     echo_progress_start "Installing systemd service"
@@ -366,7 +374,7 @@ function _adduser() {
             password=$(cut -d: -f2 < /root/$u.info)
         fi
         crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
-        cat > /home/lounge/.thelounge/users/$u.json << EOU
+        cat > /opt/lounge/.thelounge/users/$u.json << EOU
 {
 	"password": "${crypt}",
 	"log": true,
@@ -377,7 +385,7 @@ function _adduser() {
 EOU
         echo_progress_done "Added $u to lounge"
     done
-    chown -R lounge: /home/lounge
+    chown -R lounge: /opt/lounge
 }
 
 users=($(cut -d: -f1 < /etc/htpasswd))
@@ -387,8 +395,10 @@ if [[ -n $1 ]]; then
     _adduser
     exit 0
 fi
+
+#shellcheck source=sources/functions/npm
 . /etc/swizzin/sources/functions/npm
-npm_install
+npm_install || exit 1
 _install
 _adduser
 
