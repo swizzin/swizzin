@@ -35,12 +35,12 @@ _nginx() {
         systemctl reload nginx
         echo_progress_done "nginx configured"
     else
-        sed '/ExecStart=/ s/$/ --host=0.0.0.0' -i /etc/systemd/system/flood.service
+        sed -i '/ExecStart=/ s/$/ --host=0.0.0.0/' /etc/systemd/system/flood@.service
     fi
 }
 
 _flood_port() {
-    flood_port=$(_port 3300 3400)
+    flood_port=$(port 3300 3400)
     mkdir -p /home/${user}/.config/flood
     echo "FLOOD_PORT=${flood_port}" > /home/${user}/.config/flood/env
     chown -R ${user}: /home/${user}/.config/flood
