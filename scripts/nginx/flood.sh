@@ -8,7 +8,7 @@ location /flood/api {
   proxy_buffering off;
   proxy_cache off;
   auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d
+  auth_basic_user_file /etc/htpasswd.d;
 }
 
 location /flood {
