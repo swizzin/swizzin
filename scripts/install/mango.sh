@@ -56,10 +56,12 @@ db_path: $mangodir/.config/mango/mango.db
 scan_interval_minutes: 5
 log_level: info
 upload_path: $mangodir/uploads
+plugin_path: $mangodir/plugins
+library_cache_path: $mangodir/.config/mango/library.yml.gz
 disable_ellipsis_truncation: false
 mangadex:
   base_url: https://mangadex.org
-  api_url: https://mangadex.org/api
+  api_url: https://api.mangadex.org/v2
   download_wait_seconds: 5
   download_retries: 4
   download_queue_db_path: $mangodir/.config/mango/queue.db
