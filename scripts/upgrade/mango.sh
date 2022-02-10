@@ -31,6 +31,26 @@ wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
 chmod +x "$mangodir"/mango
 echo_progress_done
 
+# Update config to match upstream version
+if [[ -f $mangodir/.config/mango/config.yml ]]; then
+    mango_config_file=$mangodir/.config/mango/config.yml
+    echo_progress_start "Verifying config file"
+
+    if ! grep -q "plugin_path:" $mango_config_file; then
+        echo "plugin_path: $mangodir/plugins" >> $mango_config_file
+    fi
+
+    if ! grep -q "library_cache_path:" $mango_config_file; then
+        echo "library_cache_path: $mangodir/.config/mango/library.yml.gz" >> $mango_config_file
+    fi
+
+    if grep -q "api_url: https://mangadex.org/api" $mango_config_file; then
+        sed -i "s/api_url: https:\\/\\/mangadex.org\\/api/api_url: https:\\/\\/api.mangadex.org\\/v2/g" $mango_config_file
+    fi
+
+    echo_progress_done
+fi
+
 if [[ $wasActive = "true" ]]; then
     echo_progress_start "Restarting Mango ($($mangodir/mango --version))"
     systemctl start mango
