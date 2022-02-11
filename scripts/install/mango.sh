@@ -43,36 +43,6 @@ function _install_mango() {
 
 }
 
-## Creating config
-function _mkconf_mango() {
-    echo_progress_start "Configuring mango"
-    mkdir -p $mangodir/.config/mango
-    cat > "$mangodir/.config/mango/config.yml" << CONF
-#Please do not edit as swizzin will be replacing this file as updates roll out. 
-port: 9003
-base_url: /
-library_path: $mangodir/library
-db_path: $mangodir/.config/mango/mango.db
-scan_interval_minutes: 5
-log_level: info
-upload_path: $mangodir/uploads
-plugin_path: $mangodir/plugins
-library_cache_path: $mangodir/.config/mango/library.yml.gz
-disable_ellipsis_truncation: false
-mangadex:
-  base_url: https://mangadex.org
-  api_url: https://api.mangadex.org/v2
-  download_wait_seconds: 5
-  download_retries: 4
-  download_queue_db_path: $mangodir/.config/mango/queue.db
-  chapter_rename_rule: '[Vol.{volume} ][Ch.{chapter} ]{title|id}'
-  manga_rename_rule: '{title}'
-CONF
-    chown $mangousr:$mangousr -R $mangodir
-    chmod o-rwx $mangodir/.config
-    echo_progress_done
-}
-
 # Creating systemd unit
 function _mkservice_mango() {
     echo_progress_start "Installing systemd service"
@@ -130,7 +100,11 @@ if [[ -n $1 ]]; then
 fi
 
 _install_mango
+
+# shellcheck source=sources/functions/mango
+. /etc/swizzin/sources/functions/mango
 _mkconf_mango
+
 _addusers_mango
 _mkservice_mango
 
