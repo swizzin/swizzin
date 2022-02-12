@@ -113,12 +113,12 @@ function build_libtorrent_rakshasa() {
     cd /tmp/libtorrent >> $log 2>&1
 
     if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
-        patch -p1 < /etc/swizzin/sources/openssl.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> "$log" 2>&1
         if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
-            patch -p1 < /etc/swizzin/sources/cppunit-libtorrent.patch >> "$log" 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/cppunit-libtorrent.patch >> "$log" 2>&1
         fi
         if [[ ${libtorrentver} == "0.13.6" ]]; then
-            patch -p1 < /etc/swizzin/sources/bencode-libtorrent.patch >> "$log" 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> "$log" 2>&1
         fi
     fi
     ./autogen.sh >> $log 2>&1
@@ -151,10 +151,10 @@ function build_rtorrent() {
     VERSION=$rtorrentver
     cd /tmp/rtorrent
     #apply xmlrpc-fix to all rtorrents
-    patch -p1 < /etc/swizzin/sources/xmlrpc-fix.patch >> "$log" 2>&1
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
     if [[ ${rtorrentver} == "0.9.6" ]]; then
-        patch -p1 < /etc/swizzin/sources/rtorrent-0.9.6.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> "$log" 2>&1
     fi
     ./autogen.sh >> $log 2>&1
     ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
