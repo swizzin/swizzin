@@ -2,20 +2,22 @@
 # Flood uninstaller
 # Author: liara
 
-users=($(cut -d: -f1 < /etc/htpasswd))
-for u in "${users[@]}"; do
-    systemctl disable -q flood@$u
-    systemctl stop -q flood@$u
-    rm -rf /home/$u/.flood
-    rm -rf /etc/nginx/conf.d/$u.flood.conf
-done
-rm -rf /etc/nginx/apps/flood.conf
-if [[ ! -f /install/.rutorrent.lock ]]; then
-    rm -rf /etc/nginx/apps/rindex.conf
-    rm -f /etc/nginx/apps/${u}.scgi.conf
-fi
-rm -rf /etc/systemd/system/flood@.service
-systemctl reload nginx
-rm -rf /install/.flood.lock
+readarray -t users < <(_get_user_list)
 
-users=($(cut -d: -f1 < /etc/htpasswd))
+for user in ${users[@]}; do
+    systemctl disable flood@${user} --now -q
+    rm -rf /home/${user}/.config/flood
+    # Remove deprecated install method, incase the current install is outdated
+    rm -rf /home/${user}/.flood
+done
+
+if [[ -f /install/.flood.lock ]]; then
+    rm -f /etc/nginx/apps/flood.conf
+    rm -f /etc/nginx/conf.d/*.flood.conf
+    systemctl reload nginx
+fi
+
+npm -g remove flood >> "$log" 2>&1
+
+rm -f /etc/systemd/system/flood@.service
+rm -f /install/.flood.lock

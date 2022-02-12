@@ -1,73 +1,44 @@
 #!/bin/bash
 # nginx configuration for flood
-# Author: liara
+# Author: flying_sausages
 
-users=($(cut -d: -f1 < /etc/htpasswd))
-if [[ -n $1 ]]; then
-    users=($1)
-fi
+cat > /etc/nginx/apps/flood.conf << EOF
+location /flood/api {
+  proxy_pass http://\$remote_user.flood;
+  proxy_buffering off;
+  proxy_cache off;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+}
 
-if [[ ! -f /etc/nginx/apps/flood.conf ]]; then
-    cat > /etc/nginx/apps/flood.conf << 'FLO'
 location /flood {
-  return 301 /flood/;
+    return 302 \$scheme://\$host/flood/;
 }
 
 location /flood/ {
-  include /etc/nginx/snippets/proxy.conf;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd;
-  proxy_pass http://$remote_user.flood;
-  rewrite ^/flood/(.*) /$1 break;
+  alias /usr/lib/node_modules/flood/dist/assets/;
+  try_files \$uri /flood/index.html;
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 6;
+  gzip_types text/plain text/css text/xml application/json application/javascript image/x-icon;
 }
-FLO
-fi
+EOF
 
-if [[ ! -f /etc/nginx/apps/rindex.conf ]]; then
-    cat > /etc/nginx/apps/rindex.conf << RIN
-location /rtorrent.downloads {
-  alias /home/\$remote_user/torrents/rtorrent;
-  include /etc/nginx/snippets/fancyindex.conf;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd;
+readarray -t users < <(_get_user_list)
+for user in "${users[@]}"; do
+    if [[ ! -f /etc/nginx/conf.d/${user}.flood.conf ]]; then
+        . /home/${user}/.config/flood/env || { echo_warn "Could not determine flood port for ${user}"; }
+        echo_progress_start "Creating flood nginx upstream for $user"
+        cat > /etc/nginx/conf.d/${user}.flood.conf << FLUPS
+upstream $user.flood {
+  server 127.0.0.1:${FLOOD_PORT};
 }
-RIN
-fi
-
-for u in "${users[@]}"; do
-    isactive=$(systemctl is-active flood@$u)
-    if [[ ! -f /etc/nginx/conf.d/$u.flood.conf ]]; then
-        port=$(grep floodServerPort /home/$u/.flood/config.js | cut -d: -f2 | sed 's/[^0-9]*//g')
-        cat > /etc/nginx/conf.d/$u.flood.conf << FLUP
-upstream $u.flood {
-  server 127.0.0.1:$port;
-}
-FLUP
+FLUPS
     fi
-
-    sed -i "s/floodServerHost: '0.0.0.0'/floodServerHost: '127.0.0.1'/g" /home/$u/.flood/config.js
-    base=$(grep baseURI /home/$u/.flood/config.js | cut -d"'" -f2)
-    sed -i "s/baseURI: '\/'/baseURI: '\/flood'/g" /home/$u/.flood/config.js
-
-    if [[ ! -d /home/$u/.flood/server/assets ]]; then
-        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
-    elif [[ -d /home/$u/.flood/server/assets ]] && [[ $base == "/" ]]; then
-        su - $u -c "cd /home/$u/.flood; npm run build" >> $log 2>&1
-    fi
-
-    if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-        cat > /etc/nginx/apps/${u}.scgi.conf << RUC
-location /${u} {
-include scgi_params;
-scgi_pass unix:/var/run/${u}/.rtorrent.sock;
-auth_basic "What's the password?";
-auth_basic_user_file /etc/htpasswd.d/htpasswd.${u};
-}
-RUC
-    fi
-
-    if [[ $isactive == "active" ]]; then
-        systemctl restart flood@$u
-    fi
-
 done
+
+sed -i '/ExecStart=/ s/$/ --baseuri=\/flood/' /etc/systemd/system/flood@.service
+systemctl daemon-reload
+systemctl try-restart flood@${user}
