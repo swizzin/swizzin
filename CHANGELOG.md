@@ -1,5 +1,45 @@
 # Changelog
 
+## [ 3.3.0]
+
+## Feb 12, 2022
+
+Some good fixes in this release that have been some glaring issues for a little while now. Major improvements to the ruTorrent install-flow, enabling qbit 4.4 builds and fixing broken flood compiles.
+
+Also, lots of first time contributors in this release. Thank you for your contributions!
+
+### Updated
+ - qBittorrent
+   - qBittorrent now has support for version 4.4.*
+     - These builds utilize libtorrent 2.0 and QT6
+     - Thanks to @userdocs and their contributions to providing us a github workflow to produce the deb builds used in the new version for cmake/qt6 automagically
+   - qBittorrent reverse proxy will now properly write the cookie path
+ - ruTorrent
+   - ruTorrent will now pin to the latest version tag on install. Master has become a bit unstable so this should provide a better experience for everybody. swizzin has generated some logic to keep installs rolling with the most recent tag.
+   - `rtx` is now version aware when you install plugins will do its best to install a plugin from a matching version tag
+   - pulled the autodl-plugin into our organization and applied the patches to make it work with ruTorrent 4
+   - If you are still having version issues and plugin problems, please uninstall and reinstall ruTorrent -- we don't officially support upgrades, so a reinstallation would be the best way to resolve outstanding issues at this point. Be aware some settings/traffic data may be lost. I would encourage you to backup your ruTorrent folder (/srv/rutorrent) first if you value this data and would like to attempt to restore it.
+ - rTorrent
+   - Community members have provided patches to help fix some instabilities to rTorrent:
+     - bencode dos vulnerabilities in rTorrent 0.9.6 (@static53)
+     - fix a crash in rTorrent when xmlrpc receives invalid data (@stickz)
+   - rTorrent has internally received some TLC and code updates as the rtorrent code is some of the first that was ever contributed to this repo
+ - Flood
+   - We now use jesec's fork and npm install this package globally. Existing users of flood will need to reinstall their package to receive updates moving forward. We no longer compile flood on a per-user basis. Regretfully some double authentication issues remain; however, I determined this to be the best solution since we have support for all the backends flood supports. If you take issue with the new layout, see the reasoning [here](https://github.com/swizzin/swizzin/pull/579#issuecomment-1030685911)
+ - mango
+   - updated the default config and push new config on mango upgrades (@rubysamurai)
+ - mylar
+   - cleaned up some issues preventing a clean experience on a fresh installation
+ - `box`
+   - The box management script has received some TLC in the form of refactoring 
+   - `apt_install` function will now do some checks and only inform you about the packages it is actually installing
+
+### Internal/Development notes
+ - New function `github_latest_version` in the utils functions
+   - `github_latest_version mylar3/mylar3` queries the release page of the org/project and returns the latest version of a package. You can then use this version to generate your case statement to download stuff based on architecture.
+ - Restructured patches to live in `sources/functions/patches`
+
+
 ## [3.2.0]
 
 ## January 1, 2022
