@@ -150,6 +150,8 @@ function build_rtorrent() {
     tar -xzvf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
     VERSION=$rtorrentver
     cd /tmp/rtorrent
+    #apply xmlrpc-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
     if [[ ${rtorrentver} == "0.9.6" ]]; then
         patch -p1 < /etc/swizzin/sources/rtorrent-0.9.6.patch >> "$log" 2>&1
