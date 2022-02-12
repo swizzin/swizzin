@@ -135,7 +135,7 @@ function build_libtorrent_deluge() {
         RC_1_1)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
             #Patch the Jamfile to allow 1.1 to use stage_module
-            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch >> ${log} 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/deluge/Jamfile-RC_1_1.patch >> ${log} 2>&1
             ;;
         RC_1_2)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
