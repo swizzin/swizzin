@@ -37,7 +37,7 @@ Also, lots of first time contributors in this release. Thank you for your contri
 ### Internal/Development notes
  - New function `github_latest_version` in the utils functions
    - `github_latest_version mylar3/mylar3` queries the release page of the org/project and returns the latest version of a package. You can then use this version to generate your case statement to download stuff based on architecture.
- - Restructured patches to live in `sources/functions/patches`
+ - Restructured patches to live in `sources/patches/appname`
 
 
 ## [3.2.0]
