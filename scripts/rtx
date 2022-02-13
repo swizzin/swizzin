@@ -165,6 +165,7 @@ FMCONF
                         ;;
                     *)
                         git clone https://github.com/nelu/rutorrent-filemanager filemanager >> /dev/null 2>&1
+                        git -C /srv/rutorrent/plugins/filemanager checkout 234f5f20841ad3d1e3c095e6c6954a875fc8a6ea >> /dev/null 2>&1
                         ;;
                 esac
                 ;;
