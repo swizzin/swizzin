@@ -1,6 +1,17 @@
 # Changelog
 
-## [ 3.3.0]
+## [3.3.1]
+
+## Feb 13, 2022
+
+Hotfix release
+
+### Fixed
+ - grep in check_installed function will now make a more reliable check. It was sometimes greedily matching the string "not-installed" causing apt_install to skip the package.
+ - Pinned filemanager-rutorrent to last known working commit as the latest commit is broken and causing ruTorrent to not load.
+ - Mango pushed another config change which caused the app to break.
+
+## [3.3.0]
 
 ## Feb 12, 2022
 
