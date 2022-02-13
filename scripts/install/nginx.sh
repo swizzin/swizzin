@@ -193,9 +193,8 @@ location /fancyindex {
     location ~ \.php($|/) {
         fastcgi_split_path_info ^(.+?\.php)(/.+)$;
         # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
-        # Don't think this is necessary, but saving for posterity
-        #set \$path_info \$fastcgi_path_info;
-        #fastcgi_param PATH_INFO \$path_info;
+        set \$path_info \$fastcgi_path_info;
+        fastcgi_param PATH_INFO \$path_info;
 
         # Make sure the script exists.
         try_files \$fastcgi_script_name =404;
