@@ -1,5 +1,5 @@
 function rutorrent_install() {
-    apt_install sox geoip-database
+    apt_install sox geoip-database p7zip-full zip unzip
 
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
@@ -35,6 +35,7 @@ function rutorrent_install() {
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git -C /srv/rutorrent/plugins/filemanager checkout 234f5f20841ad3d1e3c095e6c6954a875fc8a6ea >> ${log} 2>&1
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
