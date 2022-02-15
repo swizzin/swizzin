@@ -106,7 +106,7 @@ ${app_name^} updater is exiting, please try again later."
         echo_log_only "Radarr's ports are not on 8787"
     fi
     if [[ -f /install/.nginx.lock ]]; then
-        if ! grep "X-Forwarded-Host" /etc/nginx/apps/radarr.conf; then
+        if ! grep -q "X-Forwarded-Host" /etc/nginx/apps/radarr.conf; then
             echo_progress_start "Upgrading nginx config for Radarr"
             bash /etc/swizzin/scripts/nginx/radarr.sh
             systemctl reload nginx -q
