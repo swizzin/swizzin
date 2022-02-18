@@ -15,16 +15,16 @@
 
 user=$(_get_master_username)
 password="$(_get_user_password ${user})"
-#latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
-latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("tar.gz"))') || {
+latestversion=$(github_latest_version sabnzbd/sabnzbd) || {
     echo_error "Failed to query GitHub for latest sabnzbd version"
     exit 1
 }
-latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
+latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.tar.gz"
+
 systempy3_ver=$(get_candidate_version python3)
 
-#Version 3.2 is going to raise the min python version to 3.6 so we have to differentiate whether or not to build a pyenv
-if dpkg --compare-versions ${systempy3_ver} lt 3.6.0 && dpkg --compare-versions ${latestversion} ge 3.2.0; then
+#Version 3.5 is going to raise the min python version to 3.7 so we have to differentiate whether or not to build a pyenv
+if dpkg --compare-versions ${systempy3_ver} lt 3.7.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV=True
 else
@@ -37,8 +37,8 @@ install_rar
 case ${PYENV} in
     True)
         pyenv_install
-        pyenv_install_version 3.7.7
-        pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
+        pyenv_install_version 3.10.2 # As shipping on Windows/macOS.
+        pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
         chown -R ${user}: /opt/.venv/sabnzbd
         ;;
     *)
