@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.3.2]
+
+## Feb 18, 2022
+
+Hotfix release
+
+### Fixed
+ - radarr: properly setting host variable in the reverse proxy (todo: lidarr, etc)
+ - flood: fixed an issue which was causing an unresolvable issue during `box update`
+ - sabnzbd: bump pyenv version requirements
+ - rutorrent(filemanager): pinned filemanager-share/media packages to match fm
+
 ## [3.3.1]
 
 ## Feb 13, 2022
