@@ -35,7 +35,7 @@ if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
         rm -rf /opt/.venv/sabnzbd
         systempy3_ver=$(get_candidate_version python3)
         if dpkg --compare-versions ${systempy3_ver} lt 3.7.0; then
-            pyenv_installs
+            pyenv_install
             pyenv_install_version 3.10.2
             pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
             chown -R ${user}: /opt/.venv/sabnzbd

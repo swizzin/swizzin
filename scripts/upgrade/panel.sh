@@ -24,6 +24,7 @@ if [[ -f /install/.panel.lock ]]; then
     echo_progress_done "Commits pulled"
     echo_progress_start "Checking pip for new depends"
     if ! /opt/.venv/swizzin/bin/python /opt/swizzin/tests/test_requirements.py >> ${log} 2>&1; then
+        /opt/.venv/swizzin/bin/pip install --upgrade pip wheel >> ${log} 2>&1
         /opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> ${log} 2>&1
     fi
     echo_progress_done "Depends up-to-date"
