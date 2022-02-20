@@ -29,7 +29,7 @@ else
 fi
 apt_install $LIST
 
-if dpkg --compare-versions ${localversion:0.0} lt ${latestversion}; then
+if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
     if [[ $PYENV_REBUILD == True ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment"
         rm -rf /opt/.venv/sabnzbd
