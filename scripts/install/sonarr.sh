@@ -11,7 +11,7 @@ if [[ -z $sonarrv3owner ]]; then
     sonarrv3owner=$(_get_master_username)
 fi
 
-sonarrv3confdir="/home/$sonarrv3owner/.config/sonarr"
+sonarrv3confdir="/home/$sonarrv3owner/.config/Sonarr"
 
 #Handles existing v2 instances
 _sonarrold_flow() {
@@ -85,15 +85,15 @@ _sonarrold_flow() {
         cp -R /home/"${sonarroldowner}"/.config/NzbDrone /root/swizzin/backups/sonarrold.bak
         echo_progress_done "Backups copied"
 
-        if [[ -d /home/"${sonarrv3owner}"/.config/sonarr ]]; then
+        if [[ -d /home/"${sonarrv3owner}"/.config/Sonarr ]]; then
             if ask "$sonarrv3owner already has a sonarrv3 directory. Overwrite?" Y; then
                 rm -rf
-                cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+                cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/Sonarr
             else
                 echo_info "Leaving v3 dir as is, why did we do any of this..."
             fi
         else
-            cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/sonarr
+            cp -R /home/"${sonarroldowner}"/.config/NzbDrone /home/"${sonarrv3owner}"/.config/Sonarr
         fi
 
         systemctl stop sonarr@"${sonarroldowner}"
@@ -113,50 +113,93 @@ _sonarrold_flow() {
     fi
 }
 
-_add_sonarr_repos() {
-    echo_progress_start "Adding apt sources for Sonarr v3"
-    codename=$(lsb_release -cs)
-    distribution=$(lsb_release -is)
-
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 2009837CBFFD68F45BC180471F4F90DE2A9B4BF8 >> "$log" 2>&1
-    echo "deb https://apt.sonarr.tv/${distribution,,} ${codename,,} main" | tee /etc/apt/sources.list.d/sonarr.list >> "$log" 2>&1
-
+_install_sonarr() {
     #shellcheck source=sources/functions/mono
     . /etc/swizzin/sources/functions/mono
     mono_repo_setup
-
-    apt_update
-
-    if ! apt-cache policy sonarr | grep -q apt.sonarr.tv; then
-        echo_error "Sonarr was not found from apt.sonarr.tv repository. Please inspect the logs and try again later."
-        exit 1
-    fi
-}
-
-_install_sonarr() {
     mkdir -p "$sonarrv3confdir"
     chown -R "$sonarrv3owner":"$sonarrv3owner" /home/"$sonarrv3owner"/.config
 
     echo_log_only "Setting sonarr v3 owner to $sonarrv3owner"
-    # settings relevant from https://github.com/Sonarr/Sonarr/blob/phantom-develop/distribution/debian/config
-    echo "sonarr sonarr/owning_user string ${sonarrv3owner}" | debconf-set-selections
-    echo "sonarr sonarr/owning_group string ${sonarrv3owner}" | debconf-set-selections
-    echo "sonarr sonarr/config_directory string ${sonarrv3confdir}" | debconf-set-selections
-    apt_install sonarr sqlite3
+    wget -O /tmp/sonarr.tar.gz "https://services.sonarr.tv/v1/download/main/latest?version=3&os=linux" >> ${log} 2>&1 || {
+        echo_error "Sonarr could not be downloaded from sonarr.tv. Exiting"
+        exit 1
+    }
+    tar xf /tmp/sonarr.tar.gz -C /opt >> ${log} 2>&1 || {
+        echo_error "Failed to extract archive"
+        exit 1
+    }
+    rm -f /tmp/sonarr.tar.gz
+    chown -R "$sonarrv3owner":"$sonarrv3owner" /opt/Sonarr
+
+    LIST='mono-runtime
+        ca-certificates-mono
+        libmono-system-net-http4.0-cil
+        libmono-corlib4.5-cil
+        libmono-microsoft-csharp4.0-cil
+        libmono-posix4.0-cil
+        libmono-system-componentmodel-dataannotations4.0-cil
+        libmono-system-configuration-install4.0-cil
+        libmono-system-configuration4.0-cil
+        libmono-system-core4.0-cil
+        libmono-system-data-datasetextensions4.0-cil
+        libmono-system-data4.0-cil
+        libmono-system-identitymodel4.0-cil
+        libmono-system-io-compression4.0-cil
+        libmono-system-numerics4.0-cil
+        libmono-system-runtime-serialization4.0-cil
+        libmono-system-security4.0-cil
+        libmono-system-servicemodel4.0a-cil
+        libmono-system-serviceprocess4.0-cil
+        libmono-system-transactions4.0-cil
+        libmono-system-web4.0-cil
+        libmono-system-xml-linq4.0-cil
+        libmono-system-xml4.0-cil
+        libmono-system4.0-cil
+        sqlite3
+        mediainfo'
+
+    apt_install ${LIST}
+
+    cat > /etc/systemd/system/sonarr.service << EOSD
+[Unit]
+Description=Sonarr Daemon
+After=network.target
+
+[Service]
+User=${sonarrv3owner}
+Group=${sonarrv3owner}
+UMask=0002
+
+Type=simple
+ExecStart=/usr/bin/mono --debug /opt/Sonarr/Sonarr.exe -nobrowser -data=${sonarrv3confdir}
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOSD
+
+    if [[ ! -f ${sonarrv3confdir}/config.xml ]]; then
+        cat > ${sonarrv3confdir}/config.xml << EOSC
+<Config>
+  <LogLevel>info</LogLevel>
+  <EnableSsl>False</EnableSsl>
+  <Port>8989</Port>
+  <SslPort>9898</SslPort>
+  <UrlBase></UrlBase>
+  <BindAddress>*</BindAddress>
+  <AuthenticationMethod>None</AuthenticationMethod>
+  <UpdateMechanism>BuiltIn</UpdateMechanism>
+  <Branch>main</Branch>
+</Config>
+EOSC
+        chown -R ${sonarrv3owner}: ${sonarrv3confdir}/config.xml
+    fi
+    systemctl enable --now sonarr >> ${log} 2>&1
+
     touch /install/.sonarr.lock
-    sleep 1
-
-    if [[ ! -d /usr/lib/sonarr ]]; then
-        echo_error "The Sonarr v3 pacakge did not install correctly. Please try again. (Is sonarr repo reachable?)"
-        exit 1
-    fi
-
-    echo_progress_start "Sonarr is installing an internal upgrade..."
-    if ! timeout 30 bash -c -- "while ! curl -sIL http://127.0.0.1:8989 >> \"$log\" 2>&1; do sleep 2; done"; then
-        echo_error "The Sonarr web server has taken longer than 30 seconds to start."
-        exit 1
-    fi
-    echo_progress_done "Internal upgrade finished"
 }
 
 # _add2usergroups_sonarrv3 () {
@@ -179,7 +222,6 @@ _nginx_sonarr() {
     if [[ -f /install/.nginx.lock ]]; then
         #TODO what is this sleep here for? See if this can be fixed by doing a check for whatever it needs to
         echo_progress_start "Installing nginx configuration"
-        sleep 10
         bash /usr/local/bin/swizzin/nginx/sonarr.sh
         systemctl reload nginx >> "$log" 2>&1
         echo_progress_done
@@ -189,7 +231,6 @@ _nginx_sonarr() {
 }
 
 _sonarrold_flow
-_add_sonarr_repos
 _install_sonarr
 _nginx_sonarr
 

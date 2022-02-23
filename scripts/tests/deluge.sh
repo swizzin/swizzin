@@ -6,7 +6,7 @@
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     systemctl -q is-enabled "deluged@$user" || {
-        echo_warn "deluged@$user is not enabled, skipping"
+        echo_log_only "deluged@$user is not enabled, skipping"
         continue
     }
 
@@ -19,4 +19,4 @@ for user in "${users[@]}"; do
     check_port "$d_port"
 done
 
-evaluate_bad
+evaluate_bad "deluge"

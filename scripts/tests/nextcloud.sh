@@ -5,4 +5,4 @@
 
 check_nginx "nextcloud" || BAD="true"
 
-evaluate_bad
+evaluate_bad "nextcloud"

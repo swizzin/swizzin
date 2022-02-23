@@ -6,10 +6,10 @@
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     systemctl -q is-enabled "rclone@$user" || {
-        echo_warn "rclone@$user is not enabled, skipping"
+        echo_log_only "rclone@$user is not enabled, skipping"
         continue
     }
     check_service "rclone@$user" || BAD=true
 done
 
-evaluate_bad
+evaluate_bad "rclone"

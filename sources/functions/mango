@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function _mkconf_mango() {
+    echo_progress_start "Configuring mango"
+    mangodir="/opt/mango"
+    mangousr="mango"
+    mkdir -p $mangodir/.config/mango
+
+    # Determine base path
+    if [[ -f /install/.nginx.lock ]]; then
+        mangobase="/mango"
+    else
+        mangobase="/"
+    fi
+
+    cat > "$mangodir/.config/mango/config.yml" << CONF
+#Please do not edit as swizzin will be replacing this file as updates roll out. 
+port: 9003
+base_url: $mangobase
+library_path: $mangodir/library
+db_path: $mangodir/.config/mango/mango.db
+queue_db_path: $mangodir/.config/mango/queue.db
+scan_interval_minutes: 5
+log_level: info
+upload_path: $mangodir/uploads
+plugin_path: $mangodir/plugins
+library_cache_path: $mangodir/.config/mango/library.yml.gz
+disable_ellipsis_truncation: false
+CONF
+    chown $mangousr:$mangousr -R $mangodir
+    chmod o-rwx $mangodir/.config
+    echo_progress_done
+}

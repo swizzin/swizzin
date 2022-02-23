@@ -2,7 +2,7 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/liaralabs/swizzin/badge)](https://www.codefactor.io/repository/github/liaralabs/swizzin) [![Discord](https://img.shields.io/discord/577667871727943696?logo=discord&logoColor=white)](https://discord.gg/sKjs9UM)  ![GitHub](https://img.shields.io/github/license/liaralabs/swizzin) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/liaralabs/swizzin) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/liaralabs/swizzin)
 
-# 2.999999 Stable
+# 3.3.2 Stable
 
 [website](https://swizzin.ltd) \| [docs](https://swizzin.ltd/getting-started) \| [discord](https://discord.gg/bDFqAUF)
 
@@ -10,9 +10,9 @@ Please use Discord for all community functions, [feathub](https://feathub.com/li
 
 
 ## What is swizzin?
-Swizzin is a light, modular seedbox solution that can be installed on Debian 9/10 or Ubuntu 16.04/18.04/20.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
+Swizzin is a light, modular seedbox solution that can be installed on Debian 9/10/11 or Ubuntu 18.04/20.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
-Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional add-on packages can be installed during installation. No need to wait until the installer finishes! I may even add an automated installer hooks in the future.
+Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional add-on packages can be installed during installation. No need to wait until the installer finishes! Now with unattended installs!
 
 ## Installation
 You can either use the quick installation method (recommended) or you can wile out with installations options using the advanced setup.
@@ -83,7 +83,7 @@ bash <(curl -sL git.io/swizzin) --env /path/to/your/env/file/here.env
 
 Long-term support branches only:
 
--   Debian 9/10
+-   Debian 9/10/11
 -   Ubuntu 18.04/20.04
 
 ## Support and Help
@@ -131,7 +131,7 @@ We're more than happy to talk about any changes to our codebase on the Discord s
 
 ## Donations
 
-I accept donations on the [project website](https://swizzin.ltd/#donate) and also through [GitHub Sponsors](https://github.com/sponsors/liaralabs) and [Liberapay](https://liberapay.com/liara/). If you are a vendor who profits off the project by deploying the project in a commercial setting, please consider sponsoring the project. Contributions from single users are also greatly appreciated!
+Donations are accepted through the [GitHub Sponsors](https://github.com/sponsors/liaralabs) program. If you are a vendor who profits off the project by deploying the project in a commercial setting, please consider sponsoring the project. Contributions from single users are also greatly appreciated!
 
 If you don't have spare funds, then you might consider donating the idle cycles on your CPU to my mining pool. Setting it up is easy and will cost you nothing. Simply issue the command:
 

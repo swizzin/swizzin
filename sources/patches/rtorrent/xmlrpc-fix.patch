@@ -1,0 +1,33 @@
+From 4abaa260ce758accc1866d1b0f744dc370ba3254 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sat, 27 Nov 2021 23:00:20 -0500
+Subject: [PATCH] Fix common rtorrent xml-rpc crash when trying to queue an
+ invalid task
+
+Instead of throwing an internal error and terminating the client, it's better not to queue the invalid task in the first place.
+`C Caught internal_error: 'priority_queue_insert(...) called on an invalid item.'.`
+---
+ src/rpc/command_scheduler_item.cc | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/rpc/command_scheduler_item.cc b/src/rpc/command_scheduler_item.cc
+index 42a6ef43..af04a884 100644
+--- a/src/rpc/command_scheduler_item.cc
++++ b/src/rpc/command_scheduler_item.cc
+@@ -53,10 +53,14 @@ CommandSchedulerItem::enable(rak::timer t) {
+ 
+   if (is_queued())
+     disable();
++    
++  // Don't schedule invalid tasks for rpc commands
++  if (!m_task.is_valid())
++    return;
+ 
+   // If 'first' is zero then we execute the task
+   // immediately. ''interval()'' will not return zero so we never end
+-  // up in an infinit loop.
++  // up in an infinite loop.
+   m_timeScheduled = t;
+   priority_queue_insert(&taskScheduler, &m_task, t);
+ }
+
