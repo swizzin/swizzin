@@ -39,12 +39,6 @@ location /$app_baseurl/api {
     auth_request    off;
     proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/api;
 }
-
-# Allow Content
-location /$app_baseurl/Content {
-    auth_request    off;
-    proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/Content;
-}
 ARRNGINX
 
 wasActive=$(systemctl is-active $app_servicefile)
