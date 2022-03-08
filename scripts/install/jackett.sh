@@ -16,9 +16,9 @@
 #   changes/dates in source files. Any modifications to our software
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 
-distribution=$(lsb_release -is)
-version=$(lsb_release -cs)
 username=$(cut -d: -f1 < /root/.master.info)
 case "$(_os_arch)" in
     amd64)
@@ -35,12 +35,12 @@ case "$(_os_arch)" in
         ;;
 esac
 
-jackett=$(curl -s https://api.github.com/repos/Jackett/Jackett/releases/latest | grep "$arch" | grep browser_download_url | cut -d \" -f4)
+version=$(github_latest_version "Jackett/Jackett")
 password=$(cut -d: -f2 < /root/.master.info)
 
 echo_progress_start "Downloading and extracting jackett"
 cd /home/$username
-wget $jackett >> "$log" 2>&1
+wget "https://github.com/Jackett/Jackett/releases/download/${version}/Jackett.Binaries.Linux${arch}.tar.gz" >> "$log" 2>&1
 tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.*.tar.gz
 chown ${username}.${username} -R Jackett
