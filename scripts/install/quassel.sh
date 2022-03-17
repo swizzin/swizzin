@@ -32,14 +32,12 @@ if [[ $distribution == Ubuntu ]]; then
 else
     #shellcheck source=sources/functions/backports
     . /etc/swizzin/sources/functions/backports
-    if [[ $codename == "buster" ]]; then
+    if [[ $codename == "buster" || $codename == "bullseye" ]]; then
         apt_install quassel-core
     elif [[ $codename == "stretch" ]]; then
         check_debian_backports
         echo_info "Using latest backport"
         set_packages_to_backports quassel-core
-        apt_install quassel-core
-    elif [[ $codename == "bullseye" ]]; then
         apt_install quassel-core
     else
         echo_info "Using latest backport"
