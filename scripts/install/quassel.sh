@@ -39,6 +39,8 @@ else
         echo_info "Using latest backport"
         set_packages_to_backports quassel-core
         apt_install quassel-core
+    elif [[ $codename == "bullseye" ]]; then
+        apt_install quassel-core
     else
         echo_info "Using latest backport"
         wget -r -l1 --no-parent --no-directories -A "quassel-core*.deb" https://iskrembilen.com/quassel-packages-debian/ >> "$log" 2>&1
