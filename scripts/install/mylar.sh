@@ -16,7 +16,7 @@ mylar_owner="${mylar_owner:-$(_get_master_username)}"
 echo_info "Setting Mylar owner = ${mylar_owner}"
 swizdb set "mylar/owner" "${mylar_owner}"
 
-if dpkg --compare-versions "${systempy3_ver}" lt 3.7.5; then
+if dpkg --compare-versions "${systempy3_ver}" lt 3.8.1; then
     pyenv_install="true"
     dependency_list=("libsqlite3-dev")
 else
@@ -28,8 +28,8 @@ apt_install "${dependency_list[@]}"
 case "${pyenv_install}" in
     true)
         pyenv_install
-        pyenv_install_version 3.8.1
-        pyenv_create_venv 3.8.1 /opt/.venv/mylar
+        pyenv_install_version 3.9.4
+        pyenv_create_venv 3.9.4 /opt/.venv/mylar
         chown -R "${mylar_owner}": /opt/.venv/mylar
         ;;
     *)
