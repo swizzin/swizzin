@@ -96,7 +96,7 @@ EOF
     systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
-}f
+}
 
 _nginx_whisparr() {
     if [[ -f /install/.nginx.lock ]]; then
