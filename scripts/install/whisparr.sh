@@ -26,7 +26,7 @@ app_servicefile="$app_name.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 #Remove any dashes in appname per FS
-app_lockname="$ {app_name//-/}"
+app_lockname="${app_name//-/}"
 app_branch="nightly"
 #ToDo: Update branch
 
@@ -96,7 +96,7 @@ EOF
     systemctl enable --now -q "$app_servicefile"
     sleep 1
     echo_progress_done "${app_name^} service installed and enabled"
-}
+}f
 
 _nginx_whisparr() {
     if [[ -f /install/.nginx.lock ]]; then
