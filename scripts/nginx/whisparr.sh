@@ -45,7 +45,6 @@ location /$app_baseurl {
   location ~ /$app_baseurl/[0-9]+/api { auth_request off;
     proxy_pass       http://127.0.0.1:$app_port/$app_baseurl/\$1/api;
 }
-
 WHISPARR
 
 wasActive=$(systemctl is-active $app_servicefile)
