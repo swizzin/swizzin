@@ -82,13 +82,13 @@ function build_xmlrpc-c() {
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1; }
     cd /tmp/xmlrpc-c
-    ./configure --prefix=/usr --disable-cplusplus >> $log 2>&1 || {
+    ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) >> $log 2>&1
+    make -j$(nproc) CFLAGS="-flto" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -126,7 +126,7 @@ function build_libtorrent_rakshasa() {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
-    make -j$(nproc) >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-O2 -flto" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -161,7 +161,7 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    make -j$(nproc) >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-O2 -flto" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
