@@ -246,7 +246,7 @@ function build_qt_swizzin() {
         }
         echo_progress_done "qtbase5-swizzin installed"
         echo_progress_start "Compiling qttools5-swizzin v${QT_VERSION}"
-        git clone --depth 1 -b $QT_VERSION --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> ${log} 2>&1 || {
+        git clone --depth 1 -b "v${QT_VERSION}" --recurse-submodules https://github.com/qt/qttools /tmp/qttools >> ${log} 2>&1 || {
             echo_error "qttools5 could not be cloned from github. Setup will not proceed"
             exit 1
         }
