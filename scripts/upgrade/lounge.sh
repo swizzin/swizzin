@@ -11,9 +11,11 @@ function _yarnlounge() {
     yarn_install
     yarn --non-interactive global add thelounge >> $log 2>&1
     yarn --non-interactive cache clean >> $log 2>&1
+    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn"
     if [[ $active == "active" ]]; then
         systemctl start lounge
     fi
+    chown -R lounge: /opt/lounge
 }
 
 if [[ ! -f /install/.lounge.lock ]]; then
