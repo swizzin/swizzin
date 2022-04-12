@@ -25,7 +25,7 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
     echo_progress_done
 fi
 
-if [[ $(thelounge --version) -lt 4.3.1 ]]; then
+if thelounge --version lt 4.3.1; then
     _yarnlounge
 fi
 
