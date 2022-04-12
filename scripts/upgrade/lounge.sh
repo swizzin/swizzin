@@ -29,11 +29,10 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
 fi
 
 if thelounge --version lt 4.3.1; then
-
     _yarnlounge
 fi
 
-if ! yarn --non-interactive global upgrade thelounge >> "$log"; then
+if ! /usr/bin/yarn --non-interactive global upgrade thelounge >> "$log"; then
     echo_error "Lounge failed to update, please investigate the logs"
 fi
 
