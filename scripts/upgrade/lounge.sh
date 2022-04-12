@@ -11,8 +11,8 @@ function _yarnlounge() {
     yarn_install
     yarn --non-interactive global add thelounge >> $log 2>&1
     yarn --non-interactive cache clean >> $log 2>&1
-    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn"
     chown -R lounge: /opt/lounge
+    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn"
     # Replace with new execstart line
     sed -i "s|ExecStart=.*|ExecStart=$(which thelounge) start|g" /etc/systemd/system/lounge.service
     systemctl daemon-reload
