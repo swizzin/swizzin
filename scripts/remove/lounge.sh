@@ -3,7 +3,8 @@
 systemctl disable -q lounge >> /dev/null 2>&1
 systemctl stop -q lounge
 
-npm uninstall -g thelounge --save >> /dev/null 2>&1
+yarn --non-interactive global remove thelounge >> /dev/null 2>&1
+yarn --non-interactive cache clean >> /dev/null 2>&1
 
 deluser lounge --remove-home >> /dev/null 2>&1
 rm -rf /home/lounge # just in case
