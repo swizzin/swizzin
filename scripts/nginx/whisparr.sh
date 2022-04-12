@@ -47,7 +47,7 @@ if [[ $wasActive == "active" ]]; then
 fi
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 
-# Set to Debug as this is alpha software
+# Set to Debug as this is beta software
 # ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << WHISPARR
 <Config>
