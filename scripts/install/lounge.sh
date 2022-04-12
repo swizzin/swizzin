@@ -525,7 +525,7 @@ After=znc.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/thelounge start
+ExecStart=/usr/local/bin/thelounge start
 User=lounge
 Group=lounge
 Restart=on-failure
