@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 function _yarnlounge() {
+    #shellcheck source=sources/functions/npm
+    . /etc/swizzin/sources/functions/npm
+
     if [[ $active == "active" ]]; then
         systemctl stop lounge
     fi
@@ -26,6 +29,7 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
 fi
 
 if thelounge --version lt 4.3.1; then
+
     _yarnlounge
 fi
 
