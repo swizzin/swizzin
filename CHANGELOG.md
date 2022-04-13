@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.4.0]
+
+### New
+ - Readarr has finally left beta
+
+### Fixed
+ - rtorrent: optimize performance (thanks stickz!)
+ - qbittorrent: fix git tagging for qttools compiles
+ - bazarr: fix proxy setup bad sed
+
 ## [3.3.2]
 
 ## Feb 18, 2022
