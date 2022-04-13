@@ -39,16 +39,6 @@ else
         echo_info "Using latest backport"
         set_packages_to_backports quassel-core
         apt_install quassel-core
-    else
-        echo_info "Using latest backport"
-        wget -r -l1 --no-parent --no-directories -A "quassel-core*.deb" https://iskrembilen.com/quassel-packages-debian/ >> "$log" 2>&1
-        echo_progress_start "Installing quassel dpkg"
-        dpkg -i quassel-core* >> "$log" 2>&1
-        echo_progress_done "Quassel installed"
-        rm quassel-core*
-        #Note: this is here due to the dependencies not being installed for the dpkg-installed package
-        apt-get install -f -y -q >> "$log" 2>&1
-    fi
 fi
 echo_progress_start "Starting quassel"
 mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
