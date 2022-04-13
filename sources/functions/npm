@@ -36,6 +36,6 @@ function npm_update() {
 function yarn_install() {
     npm_install
     echo_progress_start "Installing yarn"
-    npm install --global yarn
+    npm install --global yarn >> $log 2>&1
     echo_progress_done "Yarn installed"
 }
