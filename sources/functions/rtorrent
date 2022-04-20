@@ -153,15 +153,17 @@ function build_rtorrent() {
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
+    stdc=
     if [[ ${rtorrentver} == "0.9.6" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> "$log" 2>&1
+        stdc="-std=c++11"
     fi
     ./autogen.sh >> $log 2>&1
     ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-O2 -flto" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-O2 -flto ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
