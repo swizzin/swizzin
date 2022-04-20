@@ -178,7 +178,7 @@ function build_deluge() {
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
             ;;
         1.3-stable)
-            if [[ $(_os_codename) =~ ^(focal|bullseye)$ ]]; then
+            if [[ $(_os_codename) =~ ^(focal|bullseye|jammy)$ ]]; then
                 LIST='python2.7-dev intltool xdg-utils librsvg2-common'
                 PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
                 pythonver=python2.7
