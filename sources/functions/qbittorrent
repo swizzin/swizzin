@@ -409,6 +409,7 @@ function build_qbittorrent() {
         echo_error "qBittorrent could not be installed. Setup will not proceed"
         exit 1
     }
+    apt-mark hold qbittorrent-nox >> ${log} 2>&1
     cd /tmp
     rm_if_exists /tmp/qbittorrent
     rm_if_exists /tmp/dist
