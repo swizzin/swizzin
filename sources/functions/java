@@ -11,9 +11,8 @@ install_java8() {
                 ;;
             *)
                 echo_progress_start "Adding adoptopenjdk repository"
-                apt_install software-properties-common
-                wget -qO- https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | apt-key --keyring /etc/apt/trusted.gpg.d/adoptopenjdk.gpg add - >> "${log}" 2>&1
-                add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ >> "${log}" 2>&1
+                curl -s https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | gpg --dearmor > /usr/share/keyrings/adoptopenjdk-archive-keyring.gpg 2>> "${log}"
+                echo "deb [signed-by=/usr/share/keyrings/adoptopenjdk-archive-keyring.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ ${codename} main" > /etc/apt/sources.list.d/adoptopenjdk.list
                 echo_progress_done "adoptopenjdk repos enabled"
                 apt_update
                 apt_install adoptopenjdk-8-hotspot
