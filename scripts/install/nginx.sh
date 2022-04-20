@@ -10,9 +10,8 @@
 #   under the GPL along with build & install instructions.
 #
 
-distribution=$(lsb_release -is)
-release=$(lsb_release -rs)
-codename=$(lsb_release -cs)
+distribution=$(_os_distro)
+codename=$(_os_codename)
 
 if [[ -n $(pidof apache2) ]]; then
     if [[ -z $apache2 ]]; then
@@ -36,13 +35,23 @@ if [[ -n $(pidof apache2) ]]; then
     fi
 fi
 
-if [[ $codename == "stretch" ]]; then
-    mcrypt=php-mcrypt
-else
-    mcrypt=
-fi
+case $codename in
+    stretch)
+        mcrypt="php-mcrypt"
+        geoip="php-geoip"
+        ;;
+    bionic | focal | buster | bullseye)
+        mcrypt=
+        geoip="php-geoip"
+        ;;
+    *)
+        mcrypt=
+        geoip=
 
-APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
+        ;;
+esac
+
+APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml ${geoip} ${mcrypt}"
 
 apt_install $APT
 mkdir -p /srv
