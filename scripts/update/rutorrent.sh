@@ -4,11 +4,11 @@ if [ -f /install/.rutorrent.lock ]; then
     #Update club-QuickBox with latest changes
     if [[ -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
         cqbdir="/srv/rutorrent/plugins/theme/themes/club-QuickBox"
-        git -C "$cqbdir" fetch
+        sudo -u www-data git -C "$cqbdir" fetch
         if [[ ! $(git -C "$cqbdir" rev-parse HEAD) == $(git -C "$cqbdir" rev-parse @{u}) ]]; then
             echo_progress_start "Updating rutorrent theme"
-            git -C "$cqbdir" reset HEAD --hard >> $log 2>&1
-            git -C "$cqbdir" pull >> $log 2>&1
+            sudo -u www-data git -C "$cqbdir" reset HEAD --hard >> $log 2>&1
+            sudo -u www-data git -C "$cqbdir" pull >> $log 2>&1
             echo_progress_done
         fi
     fi

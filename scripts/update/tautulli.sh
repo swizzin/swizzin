@@ -14,7 +14,7 @@ if [[ -f /install/.tautulli.lock ]]; then
     if ! grep -q python3 /etc/systemd/system/tautulli.service; then
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli|g' /etc/systemd/system/tautulli.service
         cd /opt/tautulli
-        git pull
+        sudo -u tautulli git -C /opt/tautulli pull
         chown -R tautulli:nogroup /opt/tautulli
         systemctl daemon-reload
         systemctl try-restart tautulli

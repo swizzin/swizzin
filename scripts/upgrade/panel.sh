@@ -8,11 +8,10 @@ if [[ -f /install/.panel.lock ]]; then
         setfacl -m g:swizzin:rx /home/*
         echo_progress_done
     fi
-
     cd /opt/swizzin
     #git reset HEAD --hard
     echo_progress_start "Pulling new commits"
-    git pull >> ${log} 2>&1 || { PANELRESET=1; }
+    sudo -u swizzin git -C /opt/swizzin pull >> ${log} 2>&1 || { PANELRESET=1; }
     if [[ $PANELRESET == 1 ]]; then
         echo_warn "Working around unclean git repo"
         git fetch origin master >> ${log} 2>&1
