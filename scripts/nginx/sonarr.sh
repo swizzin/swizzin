@@ -16,7 +16,7 @@ app_sslport="8990"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
-app_branch="nightly"
+app_branch="main"
 
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location ^~ /$app_baseurl {
