@@ -4,7 +4,6 @@
 # Refactored by Bakerboy448 2021
 master=$(_get_master_username)
 app_name="radarr"
-RADARR_OWNER="radarr"
 
 if ! RADARR_OWNER="$(swizdb get $app_name/owner)"; then
     RADARR_OWNER=$(_get_master_username)

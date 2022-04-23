@@ -4,7 +4,6 @@
 # Refactored by Bakerboy448 2021
 master=$(_get_master_username)
 app_name="sonarr"
-SONARR_OWNER="sonarr"
 
 if ! SONARR_OWNER="$(swizdb get $app_name/owner)"; then
     SONARR_OWNER=$(_get_master_username)
