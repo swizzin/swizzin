@@ -7,7 +7,7 @@ function _yarnlounge() {
     if [[ $active == "active" ]]; then
         systemctl stop lounge
     fi
-    npm uninstall -g thelounge --save >> /dev/null 2>&1
+    npm uninstall --quiet -g thelounge --save >> /dev/null 2>&1
     yarn_install
     yarn --non-interactive global add thelounge >> $log 2>&1
     yarn --non-interactive cache clean >> $log 2>&1
