@@ -4,17 +4,16 @@ if [[ -f /install/.tautulli.lock ]]; then
     if [[ ! -d /opt/tautulli/.git ]]; then
         systemctl stop tautulli
         chown -R tautulli:nogroup /opt/tautulli
-        sudo -u tautulli git init
-        sudo -u tautulli git remote add origin https://github.com/Tautulli/Tautulli.git
-        sudo -u tautulli git fetch origin
-        sudo -u tautulli git reset --hard origin/master
+        sudo -u tautulli git -C /opt/tautulli init
+        sudo -u tautulli git -C /opt/tautulli remote add origin https://github.com/Tautulli/Tautulli.git
+        sudo -u tautulli git -C /opt/tautulli fetch origin
+        sudo -u tautulli git -C /opt/tautulli reset --hard origin/master
         systemctl start tautulli
     fi
 
     if ! grep -q python3 /etc/systemd/system/tautulli.service; then
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli|g' /etc/systemd/system/tautulli.service
         chown -R tautulli:nogroup /opt/tautulli
-        cd /opt/tautulli
         sudo -u tautulli git -C /opt/tautulli pull
         systemctl daemon-reload
         systemctl try-restart tautulli
