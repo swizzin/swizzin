@@ -3,19 +3,18 @@
 if [[ -f /install/.tautulli.lock ]]; then
     if [[ ! -d /opt/tautulli/.git ]]; then
         systemctl stop tautulli
-        cd /opt/tautulli
-        git init
-        git remote add origin https://github.com/Tautulli/Tautulli.git
-        git fetch origin
-        git reset --hard origin/master
+        chown -R tautulli:nogroup /opt/tautulli
+        sudo -u tautulli git -C /opt/tautulli init
+        sudo -u tautulli git -C /opt/tautulli remote add origin https://github.com/Tautulli/Tautulli.git
+        sudo -u tautulli git -C /opt/tautulli fetch origin
+        sudo -u tautulli git -C /opt/tautulli reset --hard origin/master
         systemctl start tautulli
     fi
 
     if ! grep -q python3 /etc/systemd/system/tautulli.service; then
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli|g' /etc/systemd/system/tautulli.service
-        cd /opt/tautulli
-        git pull
         chown -R tautulli:nogroup /opt/tautulli
+        sudo -u tautulli git -C /opt/tautulli pull
         systemctl daemon-reload
         systemctl try-restart tautulli
     fi
