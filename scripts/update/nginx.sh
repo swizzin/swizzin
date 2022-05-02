@@ -28,7 +28,7 @@ function update_nginx() {
         rm $(ls -d /etc/nginx/modules-enabled/*.removed)
         systemctl reload nginx
     fi
-    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json  php-mbstring php-opcache php-xml ${geoip} ${mcrypt}"
+    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml ${geoip} ${mcrypt}"
 
     missing=()
     for dep in $LIST; do
