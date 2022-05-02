@@ -3,11 +3,22 @@
 function update_nginx() {
     codename=$(lsb_release -cs)
 
-    if [[ $codename == "stretch" ]]; then
-        mcrypt=php-mcrypt
-    else
-        mcrypt=
-    fi
+    case $codename in
+        stretch)
+            mcrypt="php-mcrypt"
+            geoip="php-geoip"
+            ;;
+        bionic | focal | buster | bullseye)
+            mcrypt=
+            geoip="php-geoip"
+            ;;
+        *)
+            mcrypt=
+            geoip=
+
+            ;;
+    esac
+
     #Deprecate nginx-extras in favour of installing fancyindex alone
 
     if dpkg -s nginx-extras > /dev/null 2>&1; then
@@ -17,7 +28,7 @@ function update_nginx() {
         rm $(ls -d /etc/nginx/modules-enabled/*.removed)
         systemctl reload nginx
     fi
-    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
+    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json  php-mbstring php-opcache php-xml ${geoip} ${mcrypt}"
 
     missing=()
     for dep in $LIST; do
