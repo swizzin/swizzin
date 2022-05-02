@@ -37,6 +37,7 @@ body:
       label: What OS are you using?
       multiple: false
       options:
+        - Ubuntu 22.04 (Jammy)
         - Debian 11 (Bullseye)
         - Ubuntu 20.04 (Focal)
         - Debian 10 (Buster)
