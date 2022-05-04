@@ -31,7 +31,7 @@ _systemd() {
     fi
 
     echo_progress_start "Installing Systemd service"
-    cat >/etc/systemd/system/rclone@.service <<-EOF
+    cat > /etc/systemd/system/rclone@.service <<- EOF
 [Unit]
 Description=rclonemount
 After=network.target
@@ -63,6 +63,7 @@ StartLimitBurst=3
 [Install]
 WantedBy=multi-user.target
 EOF
+
     echo_progress_done
 }
 
