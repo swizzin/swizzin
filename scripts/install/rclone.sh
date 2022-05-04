@@ -26,16 +26,18 @@ _systemd() {
     type="simple"
     if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
         type="exec"
+    else
+        type="simple"
     fi
 
     echo_progress_start "Installing Systemd service"
-    cat >/etc/systemd/system/rclone@.service <<-EOF
+    cat > /etc/systemd/system/rclone@.service <<- EOF
 [Unit]
 Description=rclonemount
 After=network.target
 
 [Service]
-Type=simple
+Type=${type}
 User=%i
 Group=%i
 ExecStartPre=-/bin/mkdir -p /home/%i/cloud/
