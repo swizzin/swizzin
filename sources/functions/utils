@@ -143,3 +143,28 @@ function check_swap_off() {
 _get_installed_apps() {
     find /install -type f -name .\*.lock | awk -F. '{print $2}' | sort
 }
+
+# ENV_VAR > swizdb key's value > default
+# \
+# $1 = swizdb key
+# $2 = default
+# $3 = ENV_VAR
+# \
+# **Returns key's value after logic**
+function populate_var() {
+    if [ -z "$3" ]; then           # If ENV_VAR is zero length
+        if ! swizdb get "$1"; then # If swizdb key's value is null
+            swizdb set "$1" "$2"   # Save default as value
+        fi
+    else                     # If ENV_VAR isn't zero length
+        swizdb set "$1" "$3" # Save ENV_VAR as value
+    fi
+    swizdb get "$1" # Return swizdb key's value
+}
+
+function github_latest_version() {
+    # Argument expects the author/repo format
+    # e.g. swizzin/swizzin
+    repo=$1
+    curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest | grep -o '[^/]*$'
+}

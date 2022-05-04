@@ -7,4 +7,4 @@ check_service "jackett@$(_get_master_username)" || BAD=true
 check_port_curl "jackett" || BAD=true
 check_nginx "jackett" || BAD=true
 
-evaluate_bad
+evaluate_bad "jackett"

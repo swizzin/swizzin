@@ -41,7 +41,8 @@ location /bazarr/ {
 BAZN
 
 sed 's|ip = 0.0.0.0|ip = 127.0.0.1|' -i /opt/bazarr/data/config/config.ini
-sed 's|^base_url =.*|base_url = /bazarr/|' -i /opt/bazarr/data/config/config.ini
+# Replace only first occurance of base_url to prevent causing issues.
+sed -i '/^\[general\]$/,/^\[/ s/^base_url = .*/base_url = \/bazarr/' /opt/bazarr/data/config/config.ini
 
 if [[ $isactive == "active" ]]; then
     systemctl start bazarr

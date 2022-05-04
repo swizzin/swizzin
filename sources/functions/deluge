@@ -70,6 +70,7 @@ function deluge_version_info() {
             pythonver=python2.7
             pythonmajor=2.7
             python=python
+            deluge_git_branch=deluge-1.3.15
             ;;
         master)
             cryptography=openssl
@@ -78,6 +79,7 @@ function deluge_version_info() {
             pythonver=python3
             pythonmajor=$(get_candidate_version python3 | cut -d. -f1-2)
             python=python3
+            deluge_git_branch=master
             ;;
         *)
             echo_error "Deluge version should be 1.3-stable or master. Setup will not proceed."
@@ -133,7 +135,7 @@ function build_libtorrent_deluge() {
         RC_1_1)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
             #Patch the Jamfile to allow 1.1 to use stage_module
-            patch -p1 < /etc/swizzin/sources/Jamfile-RC_1_1.patch >> ${log} 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/deluge/Jamfile-RC_1_1.patch >> ${log} 2>&1
             ;;
         RC_1_2)
             sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
@@ -176,7 +178,7 @@ function build_deluge() {
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
             ;;
         1.3-stable)
-            if [[ $(_os_codename) =~ ^(focal|bullseye)$ ]]; then
+            if [[ $(_os_codename) =~ ^(focal|bullseye|jammy)$ ]]; then
                 LIST='python2.7-dev intltool xdg-utils librsvg2-common'
                 PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
                 pythonver=python2.7
@@ -224,9 +226,9 @@ function build_deluge() {
         fi
     fi
     rm_if_exists /tmp/deluge
-    git clone -b ${DELUGE_VERSION} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
+    git clone -b ${deluge_git_branch} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
         echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
-        git clone -b ${DELUGE_VERSION} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
+        git clone -b ${deluge_git_branch} https://github.com/deluge-torrent/deluge/ >> "${log}" 2>&1 || {
             echo_error "Cloning Deluge from github failed. Setup will now exit"
             exit 1
         }

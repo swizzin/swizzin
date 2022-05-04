@@ -7,8 +7,8 @@ fi
 if ! grep -q apt.ombi.app /etc/apt/sources.list.d/ombi.list; then
 
     echo_info "Upgrading ombi apt sources"
-    curl -sSL https://apt.ombi.app/pub.key | apt-key add - >> "$log" 2>&1
-    echo "deb https://apt.ombi.app/master jessie main" > /etc/apt/sources.list.d/ombi.list
+    curl -sSL https://apt.ombi.app/pub.key | gpg --dearmor > /usr/share/keyrings/ombi-archive-keyring.gpg 2>> "${log}"
+    echo "deb [signed-by=/usr/share/keyrings/ombi-archive-keyring.gpg] https://apt.ombi.app/master jessie main" > /etc/apt/sources.list.d/ombi.list
 
     echo_progress_start "Backing up old Ombi config and database"
     mkdir -p /root/swizzin/backups/ombiv3

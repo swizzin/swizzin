@@ -1,5 +1,142 @@
 # Changelog
 
+## [3.4.0]
+
+### New
+ - Readarr has finally left beta
+
+### Fixed
+ - rtorrent: optimize performance (thanks stickz!)
+ - qbittorrent: fix git tagging for qttools compiles
+ - bazarr: fix proxy setup bad sed
+
+## [3.3.2]
+
+## Feb 18, 2022
+
+Hotfix release
+
+### Fixed
+ - radarr: properly setting host variable in the reverse proxy (todo: lidarr, etc)
+ - flood: fixed an issue which was causing an unresolvable issue during `box update`
+ - sabnzbd: bump pyenv version requirements
+ - rutorrent(filemanager): pinned filemanager-share/media packages to match fm
+
+## [3.3.1]
+
+## Feb 13, 2022
+
+Hotfix release
+
+### Fixed
+ - grep in check_installed function will now make a more reliable check. It was sometimes greedily matching the string "not-installed" causing apt_install to skip the package.
+ - Pinned filemanager-rutorrent to last known working commit as the latest commit is broken and causing ruTorrent to not load.
+ - Mango pushed another config change which caused the app to break.
+
+## [3.3.0]
+
+## Feb 12, 2022
+
+Some good fixes in this release that have been some glaring issues for a little while now. Major improvements to the ruTorrent install-flow, enabling qbit 4.4 builds and fixing broken flood compiles.
+
+Also, lots of first time contributors in this release. Thank you for your contributions!
+
+### Updated
+ - qBittorrent
+   - qBittorrent now has support for version 4.4.*
+     - These builds utilize libtorrent 2.0 and QT6
+     - Thanks to @userdocs and their contributions to providing us a github workflow to produce the deb builds used in the new version for cmake/qt6 automagically
+   - qBittorrent reverse proxy will now properly write the cookie path
+ - ruTorrent
+   - ruTorrent will now pin to the latest version tag on install. Master has become a bit unstable so this should provide a better experience for everybody. swizzin has generated some logic to keep installs rolling with the most recent tag.
+   - `rtx` is now version aware when you install plugins will do its best to install a plugin from a matching version tag
+   - pulled the autodl-plugin into our organization and applied the patches to make it work with ruTorrent 4
+   - If you are still having version issues and plugin problems, please uninstall and reinstall ruTorrent -- we don't officially support upgrades, so a reinstallation would be the best way to resolve outstanding issues at this point. Be aware some settings/traffic data may be lost. I would encourage you to backup your ruTorrent folder (/srv/rutorrent) first if you value this data and would like to attempt to restore it.
+ - rTorrent
+   - Community members have provided patches to help fix some instabilities to rTorrent:
+     - bencode dos vulnerabilities in rTorrent 0.9.6 (@static53)
+     - fix a crash in rTorrent when xmlrpc receives invalid data (@stickz)
+   - rTorrent has internally received some TLC and code updates as the rtorrent code is some of the first that was ever contributed to this repo
+ - Flood
+   - We now use jesec's fork and npm install this package globally. Existing users of flood will need to reinstall their package to receive updates moving forward. We no longer compile flood on a per-user basis. Regretfully some double authentication issues remain; however, I determined this to be the best solution since we have support for all the backends flood supports. If you take issue with the new layout, see the reasoning [here](https://github.com/swizzin/swizzin/pull/579#issuecomment-1030685911)
+ - mango
+   - updated the default config and push new config on mango upgrades (@rubysamurai)
+ - mylar
+   - cleaned up some issues preventing a clean experience on a fresh installation
+ - `box`
+   - The box management script has received some TLC in the form of refactoring 
+   - `apt_install` function will now do some checks and only inform you about the packages it is actually installing
+
+### Internal/Development notes
+ - New function `github_latest_version` in the utils functions
+   - `github_latest_version mylar3/mylar3` queries the release page of the org/project and returns the latest version of a package. You can then use this version to generate your case statement to download stuff based on architecture.
+ - Restructured patches to live in `sources/patches/appname`
+
+
+## [3.2.0]
+
+## January 1, 2022
+
+Happy new year! Due to some recent, major bugs, swizzin is getting an update today to fix some issues with AutoDL and Deluge 1.3. Also a few new apps and some other fixes.
+
+Enjoy!
+
+### Added
+ - Navidrome
+ - Mylar
+ - Debug functions
+
+### Updated
+  - Node to 16 LTS
+
+### Fixed
+ - Some bazarr variables were returning as null and creating chatter
+ - Incorrect python version being used during `box chpasswd` with Deluge 1.3 installed
+ - Branch used when installing 1.3-stable of Deluge
+ - Calibre-web installer to update venv requirements on upgrade and remove the deprecated `-f` flag
+ - Pinned ruTorrent to a known working commit to prevent a fatal error with outdated autodl
+ - Nextcloud broke download links for older versions
+
+## [3.1.1]
+
+## October 14, 2021
+
+### Added
+ - `populate_var` function for swizdb toolkit
+
+### Updated
+ - Node version bump to 14 LTS.
+   - We will no longer clobber your choices if you are running a newer node version than is required by swizzin packages
+
+### Fixed
+ - apt function `check_install` was sometimes improperly returning the installed status of dependencies
+
+## [3.1.0]
+
+## September 20, 2021
+
+### Added
+ - New app: Autobrr
+   - A torrent client agnostic replacement for Autodl-irssi written in go.
+   - Still in active development. The author was kind enough to contribute the entire flow to swizzin, which is why it has been included despite being in active development.
+   - Consider not using it quite yet if you are afraid of potentially having to reinstall the application and reset-up your filters in the event an app upgrade requires a full database wipe. That said, the application currently does what it says on the box.
+ - Checking out the `develop` branch will keep you on `develop` over future runs of `box update`
+
+### Updated
+ - Sonarr installations will now use the tarball method of install rather than the apt repo (fixes Bullseye "no repo found" for Sonarr)
+ - Include arm64 in official support during install
+ - nginx will now default to TLS1.3 and http/2 connections
+ - made tests a bit less noisy
+ - Offer to remove mysql database when removing nextcloud
+
+### Fixed
+ - Autodl grepping for gui/server ports could accidentally return the wrong port if your client was fully setup.
+ - `/home/${user}/.config` will now be generated when creating/adding a user to prevent scenarios in which `~/.config` is created and owned by `root`
+ - Parsing `--test` and `--env` arguments during setup
+ - enable pre-allocation in qbittorrent by default (XFS users rejoice)
+ - Calibre: `os_arch` command not found during upgrade
+ - Filebrowser arm compatibility was broken on upgrades
+
 ## [3.0.0] was technically months ago edition
 
 ## August 16, 2021

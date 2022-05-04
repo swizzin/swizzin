@@ -198,7 +198,7 @@ export -f _apt_update
 # $1 the package to check for
 # Returns code 0 in case a package is installed, 1 if missing
 check_installed() {
-    if dpkg -s "$1" >> $log 2>&1; then
+    if dpkg-query --showformat='${db:Status-Status}' -W "$1" 2>&1 | grep "^installed" > /dev/null 2>&1; then
         return 0
     else
         return 1
@@ -254,6 +254,18 @@ export -f apt_upgrade
 apt_install() {
     _apt_logcheck_mark
     _process_apt_args "$@"
+    # Check existing packages
+    apt_uninstalled=()
+    for package in ${_apt_packages[@]}; do
+        if ! check_installed $package; then
+            apt_uninstalled+=($package)
+        fi
+    done
+    _apt_packages=("${apt_uninstalled[@]}")
+    if [[ -z ${_apt_packages[*]} ]]; then
+        return
+    fi
+
     #Do checks
     _check_dpkg_lock
     _apt_check
@@ -275,7 +287,6 @@ apt_install() {
     fi
 
     # Run the install
-
     echo_progress_start "Performing $action_msg of ${#_apt_packages[@]} apt packages\n(${_apt_packages[*]})"
     if [[ $_apt_interactive == "true" ]]; then
         # TODO test the behaviour of this, I haven't had the time yet

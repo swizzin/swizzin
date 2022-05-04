@@ -6,17 +6,19 @@ if [[ ! -f /install/.sabnzbd.lock ]]; then
     exit 1
 fi
 
+. /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/pyenv
 localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
-latest=$(curl -sL https://api.github.com/repos/sabnzbd/sabnzbd/releases/latest | jq -r '.assets[]?.browser_download_url | select(contains("tar.gz"))') || {
+latestversion=$(github_latest_version sabnzbd/sabnzbd) || {
     echo_error "Failed to query GitHub for latest sabnzbd version"
     exit 1
 }
-latestversion=$(echo $latest | awk -F "/" '{print $NF}' | cut -d- -f2)
+latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.tar.gz"
+
 pyvenv_version=$(/opt/.venv/sabnzbd/bin/python --version | awk '{print $2}')
 
-if dpkg --compare-versions ${pyvenv_version} lt 3.6.0 && dpkg --compare-versions ${latestversion} ge 3.2.0; then
+if dpkg --compare-versions ${pyvenv_version} lt 3.7.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV_REBUILD=True
 elif [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
@@ -27,15 +29,15 @@ else
 fi
 apt_install $LIST
 
-if dpkg --compare-versions ${localversion} lt ${latestversion}; then
+if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
     if [[ $PYENV_REBUILD == True ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment"
         rm -rf /opt/.venv/sabnzbd
         systempy3_ver=$(get_candidate_version python3)
-        if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+        if dpkg --compare-versions ${systempy3_ver} lt 3.7.0; then
             pyenv_install
-            pyenv_install_version 3.7.7
-            pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
+            pyenv_install_version 3.10.2
+            pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
             chown -R ${user}: /opt/.venv/sabnzbd
         else
             python3_venv ${user} sabnzbd
@@ -58,10 +60,10 @@ if dpkg --compare-versions ${localversion} lt ${latestversion}; then
         echo_progress_start "Upgrading SABnzbd python virtual environment to python3"
         rm -rf /opt/.venv/sabnzbd
         systempy3_ver=$(get_candidate_version python3)
-        if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+        if dpkg --compare-versions ${systempy3_ver} lt 3.7.0; then
             pyenv_install
-            pyenv_install_version 3.7.7
-            pyenv_create_venv 3.7.7 /opt/.venv/sabnzbd
+            pyenv_install_version 3.10.2
+            pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
             chown -R ${user}: /opt/.venv/sabnzbd
         else
             python3_venv ${user} sabnzbd

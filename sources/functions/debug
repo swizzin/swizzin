@@ -1,0 +1,30 @@
+#!/bin/bash
+
+debug() {
+    journalctl -e -u "${1}" | ccze -Ao nolookups
+}
+
+debug_user() {
+    journalctl -e --user -u "${1}" | ccze -Ao nolookups
+}
+
+# Some test commands
+#
+# true | true | true | false | true | true | true; _pipe_status
+# false | true | true | false | true | true | false; _pipe_status
+# true | true | true | true | true | true | false; _pipe_status
+
+_pipe_status() {
+    return_code=("${PIPESTATUS[@]}")               # set pipestatus to an array now or it will be reset by any new command or action taken.
+    return_location=-1                             # set the count start point to -1. An array index starts from 0 so we make sure the first count increment starts at 0 so it matches the location of the error
+    unset return_code_outcome                      # unset this to make sure it clear/unset when the function is called so we don't auto exit when using the function
+    for return_code in "${return_code[@]}"; do     # loop through the return_code array.
+        return_location="$((return_location + 1))" # start the count, starting from 0 so we get 0,0 > 0,1 > 0,2 and so on.
+        if [[ "${return_code}" -gt '0' ]]; then    # If any indexed value in the array returns as a non 0 number do this.
+            echo_warn "\nError in piped command at position: ${return_location} with return code: ${return_code} - Check the logs\n"
+            return_code_outcome='1' # set this variable to exit at the end of the function so we can see all errors in the pipe instead of exiting at the first one.
+        fi
+    done
+    [[ "${return_code_outcome}" -eq '1' ]] && exit 1 # if there was any error in the pipe then exit now instead of returning.
+    return                                           # if there were no problems we simply return to the main scrpt and do nothing.
+}

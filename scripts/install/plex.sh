@@ -29,8 +29,8 @@ read 'claim'
 
 echo_progress_start "Installing plex keys and sources ... "
 apt_install apt-transport-https
-wget -q https://downloads.plex.tv/plex-keys/PlexSign.key -O - | apt-key add -
-echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list
+curl -s https://downloads.plex.tv/plex-keys/PlexSign.key | gpg --dearmor > /usr/share/keyrings/plex-archive-keyring.gpg 2>> "${log}"
+echo "deb [signed-by=/usr/share/keyrings/plex-archive-keyring.gpg] https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list
 echo
 
 apt_update

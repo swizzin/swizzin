@@ -6,4 +6,4 @@
 check_service "vsftpd" || BAD=true
 check_port "21" || BAD=true
 
-evaluate_bad
+evaluate_bad "vsftpd"

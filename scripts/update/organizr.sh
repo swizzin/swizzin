@@ -9,7 +9,7 @@ if [[ -f /install/organizr.sh ]]; then
         echo_progress_done "Organizr nginx config updated"
 
         echo_progress_start "Pulling down new organizr source code"
-        git -C "/srv/organizr" pull >> "${log:?}"
+        sudo -u www-data git -C "/srv/organizr" pull >> "${log:?}"
         echo_progress_done "Retrieved new organizr source code"
     fi
 

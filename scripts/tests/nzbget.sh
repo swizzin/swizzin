@@ -6,7 +6,7 @@
 readarray -t users < <(_get_user_list)
 for user in "${users[@]}"; do
     systemctl -q is-enabled "nzbget@$user" || {
-        echo_warn "nzbget@$user is not enabled, skipping"
+        echo_log_only "nzbget@$user is not enabled, skipping"
         continue
     }
 
@@ -24,8 +24,7 @@ done
 if [[ "$atleastonerunning" = "true" ]]; then
     #Check nginx only once beause if the config works for one, it will work for all
     check_nginx "nzbget" || BAD=true
+    evaluate_bad "nzbget"
 else
-    echo_warn "No nzbget instance was running, skipping nginx check"
+    echo_warn "No nzbget instance was running"
 fi
-
-evaluate_bad

@@ -66,13 +66,14 @@ _config() {
         # TODO: Use owner when the updaters are merged
         sonarrConfigFile=/home/${user}/.config/Sonarr/config.xml
 
-        if [[ -f ${sonarrConfigFile} ]]; then
+        if [[ -f "${sonarrConfigFile}" ]]; then
             sonarrapi=$(grep -oP "ApiKey>\K[^<]+" "${sonarrConfigFile}")
             sonarrport=$(grep -oP "\<Port>\K[^<]+" "${sonarrConfigFile}")
             sonarrbase=$(grep -oP "UrlBase>\K[^<]+" "${sonarrConfigFile}")
+            sonarr_config="true"
         else
             echo_warn "Sonarr configuration was not found in ${sonarrConfigFile}, configure api key, port and url base manually in bazarr"
-            badsonarr="true"
+            sonarr_config="false"
         fi
 
         cat >> /opt/bazarr/data/config/config.ini << SONC
@@ -95,13 +96,14 @@ SONC
         # TODO: Use owner when the updaters are merged
         radarrConfigFile=/home/${user}/.config/Radarr/config.xml
 
-        if [[ -f ${radarrConfigFile} ]]; then
+        if [[ -f "${radarrConfigFile}" ]]; then
             radarrapi=$(grep -oP "ApiKey>\K[^<]+" "${radarrConfigFile}")
             radarrport=$(grep -oP "\<Port>\K[^<]+" "${radarrConfigFile}")
             radarrbase=$(grep -oP "UrlBase>\K[^<]+" "${radarrConfigFile}")
+            radarr_config="true"
         else
             echo_warn "Radarr configuration was not found in ${radarrConfigFile}, configure api key, port and url base manually in bazarr"
-            badradarr=true
+            radarr_config="false"
         fi
 
         cat >> /opt/bazarr/data/config/config.ini << RADC
@@ -124,13 +126,13 @@ ip = 0.0.0.0
 base_url = /
 BAZC
 
-    if [ -f /install/.sonarr.lock ] && [ $badsonarr != "true" ]; then
+    if [[ -f /install/.sonarr.lock ]] && [[ "${sonarr_config}" == "true" ]]; then
         echo "use_sonarr = True" >> /opt/bazarr/data/config/config.ini
     else
         echo "use_sonarr = False" >> /opt/bazarr/data/config/config.ini
     fi
 
-    if [ -f /install/.radarr.lock ] && [ $badradarr != "true" ]; then
+    if [[ -f /install/.radarr.lock ]] && [[ "${radarr_config}" == "true" ]]; then
         echo "use_radarr = True" >> /opt/bazarr/data/config/config.ini
     else
         echo "use_radarr = False" >> /opt/bazarr/data/config/config.ini

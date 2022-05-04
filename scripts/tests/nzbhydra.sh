@@ -9,4 +9,4 @@ check_port "nzbhydra" || BAD="true"
 # check_port_curl "nzbhydra" || BAD="true"
 check_nginx "nzbhydra" || BAD="true"
 
-evaluate_bad
+evaluate_bad "nzbhydra"

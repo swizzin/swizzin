@@ -48,8 +48,10 @@ Please use these emojis here to fill the table below. It will nicely auto-format
 -->
 |   			| `amd64` 	| `armhf` 	| `arm64` 	| Unspecified 	|
 |--------		|-------- 	|-------- 	|-------- 	|----------		|
+| Jammy 		|			|			|			|				|
 | Focal 		|			|			|			|				|
 | Bionic		|			|			|			|				|
+| Bullseye		|			|			|			|				|
 | Buster		|			|			|			|				|
 | Stretch		|			|			|			|				|
 | Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
