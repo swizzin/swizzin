@@ -19,7 +19,7 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-#shellcheck source=sources/functions/navidrome
+#shellcheck source=sources/functions/rclone
 . /etc/swizzin/sources/functions/rclone
 
 _systemd() {
@@ -31,7 +31,7 @@ _systemd() {
     fi
 
     echo_progress_start "Installing Systemd service"
-    cat > /etc/systemd/system/rclone@.service <<- EOF
+    cat > /etc/systemd/system/rclone@.service << EOF
 [Unit]
 Description=rclonemount
 After=network.target
