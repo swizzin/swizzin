@@ -17,26 +17,22 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-# Install fuse
-apt_install fuse
-sed -i -e 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/navidrome
+. /etc/swizzin/sources/functions/rclone
 
-echo_progress_start "Downloading and installing rclone"
-# One-liner to check arch/os type, as well as download latest rclone for relevant system.
-wget -q https://rclone.org/install.sh -O /tmp/rcloneinstall.sh >> $log 2>&1
+_systemd() {
+    type="simple"
+    if [[ $(systemctl --version | awk 'NR==1 {print $2}') -ge 240 ]]; then
+        type="exec"
+    fi
 
-# Make sure rclone downloads and installs without error before proceeding
-if ! bash /tmp/rcloneinstall.sh; then
-    echo_error "Rclone installer failed"
-    exit 1
-fi
-
-echo_progress_start "Adding rclone multi-user mount service"
-cat > /etc/systemd/system/rclone@.service << EOF
+    echo_progress_start "Installing Systemd service"
+    cat > /etc/systemd/system/rclone@.service << EOF
 [Unit]
 Description=rclonemount
 After=network.target
-
 [Service]
 Type=simple
 User=%i
@@ -60,12 +56,14 @@ Restart=on-failure
 RestartSec=30
 StartLimitInterval=60s
 StartLimitBurst=3
-
 [Install]
 WantedBy=multi-user.target
-
 EOF
-echo_progress_done
+    echo_progress_done
+} 2>> "${log}"
+
+_rclone_download_latest
+_systemd
 
 touch /install/.rclone.lock
 echo_success "Rclone installed"
