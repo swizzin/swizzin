@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 # rclone upgrader
 # byte 2022 for Swizzin
 
