@@ -58,7 +58,7 @@ _systemd() {
         StartLimitBurst=3
         [Install]
         WantedBy=multi-user.target
-    EOF
+EOF
     echo_progress_done
 } 2>> "${log}"
 
