@@ -29,7 +29,7 @@ _systemd() {
     fi
 
     echo_progress_start "Installing Systemd service"
-    cat >/etc/systemd/system/rclone@.service <<EOF
+    cat > /etc/systemd/system/rclone@.service << EOF
 [Unit]
 Description=rclonemount
 After=network.target
@@ -39,18 +39,18 @@ User=%i
 Group=%i
 ExecStartPre=-/bin/mkdir -p /home/%i/cloud/
 ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
---user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36' \
---config /home/%i/.config/rclone/rclone.conf \
---use-mmap \
---dir-cache-time 1h \
---timeout 30s \
---umask 002 \
---allow-other \
---poll-interval=1h \
---vfs-cache-mode writes \
---vfs-read-chunk-size 1M \
---vfs-read-chunk-size-limit 64M \
---tpslimit 10
+  --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36' \
+  --config /home/%i/.config/rclone/rclone.conf \
+  --use-mmap \
+  --dir-cache-time 1h \
+  --timeout 30s \
+  --umask 002 \
+  --allow-other \
+  --poll-interval=1h \
+  --vfs-cache-mode writes \
+  --vfs-read-chunk-size 1M \
+  --vfs-read-chunk-size-limit 64M \
+  --tpslimit 10
 ExecStop=/bin/fusermount -u /home/%i/cloud
 Restart=on-failure
 RestartSec=30
@@ -58,9 +58,10 @@ StartLimitInterval=60s
 StartLimitBurst=3
 [Install]
 WantedBy=multi-user.target
+
 EOF
     echo_progress_done
-} 2>>"${log}"
+} 2>> "${log}"
 
 _rclone_download_latest
 _systemd
