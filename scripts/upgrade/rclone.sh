@@ -4,7 +4,7 @@
 
 #shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
-#shellcheck source=sources/functions/navidrome
+#shellcheck source=sources/functions/rclone
 . /etc/swizzin/sources/functions/rclone
 
 if [[ ! -f /install/.rclone.lock ]]; then
