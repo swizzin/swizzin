@@ -13,7 +13,7 @@ if [[ ! -f /install/.rclone.lock ]]; then
 fi
 
 _restart_rclone() {
-    systemctl try-restart "rclone"
+    systemctl try-restart "rclone@"
     echo_progress_done "Service restarted"
 }
 
