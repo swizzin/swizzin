@@ -39,7 +39,7 @@ _systemd() {
         Group=%i
         ExecStartPre=-/bin/mkdir -p /home/%i/cloud/
         ExecStart=/usr/bin/rclone mount gdrive: /home/%i/cloud/ \
-          --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36' \
+        --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36' \
         --config /home/%i/.config/rclone/rclone.conf \
         --use-mmap \
         --dir-cache-time 1h \
