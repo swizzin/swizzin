@@ -552,7 +552,7 @@ function _adduser() {
         else
             password=$(cut -d: -f2 < /root/$u.info)
         fi
-        crypt=$(node /usr/lib/node_modules/thelounge/node_modules/bcryptjs/bin/bcrypt "${password}")
+        crypt=$(node /usr/local/share/.config/yarn/global/node_modules/bcryptjs/bin/bcrypt "${password}")
         cat > /opt/lounge/.thelounge/users/$u.json << EOU
 {
 	"password": "${crypt}",
