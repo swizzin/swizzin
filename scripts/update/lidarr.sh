@@ -77,7 +77,7 @@ if [[ -f /install/.lidarr.lock ]]; then
 
     fi
     if [[ -f /install/.nginx.lock ]]; then
-        if grep -q "8686/lidarr"; then
+        if grep -q "8686/lidarr" /etc/nginx/apps/lidarr.conf; then
             echo_progress_start "Updating nginx config"
             bash /etc/swizzin/scripts/nginx/lidarr.sh
             systemctl reload nginx
