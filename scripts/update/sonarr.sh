@@ -7,7 +7,7 @@ if [[ -f /install/.sonarr.lock ]]; then
     systemctl try-restart sonarr
 
     # Update Sonarr nginx config to bakerboy specs
-    if ! grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf; then
+    if grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf; then
         echo_progress_start "Upgrading nginx config for Sonarr"
         bash /etc/swizzin/scripts/nginx/sonarr.sh
         systemctl reload nginx -q
