@@ -8,6 +8,7 @@ yarn --non-interactive cache clean >> /dev/null 2>&1
 
 deluser lounge --remove-home >> /dev/null 2>&1
 rm -rf /home/lounge # just in case
+rm -rf /opt/lounge # new location who dis
 
 rm -f /etc/nginx/apps/lounge.conf
 systemctl reload nginx -q
