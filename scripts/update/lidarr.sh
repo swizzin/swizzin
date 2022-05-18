@@ -81,7 +81,7 @@ if [[ -f /install/.lidarr.lock ]]; then
             echo_progress_start "Updating nginx config"
             bash /etc/swizzin/scripts/nginx/lidarr.sh
             systemctl reload nginx
-            echo_progress_done
+            echo_progress_done "nginx updated."
         fi
     fi
 fi
