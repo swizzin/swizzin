@@ -51,8 +51,6 @@ fi
 
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 
-# Set to Debug as this is alpha software
-# ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
   <LogLevel>info</LogLevel>
