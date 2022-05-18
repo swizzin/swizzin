@@ -55,7 +55,7 @@ apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 # ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
-  <LogLevel>trace</LogLevel>
+  <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>$app_port</Port>
