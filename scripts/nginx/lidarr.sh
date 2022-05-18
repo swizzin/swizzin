@@ -11,7 +11,7 @@ fi
 user="$LIDARR_OWNER"
 
 app_port="8686"
-app_sslport="8787"
+app_sslport="7979"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
