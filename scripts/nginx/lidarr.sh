@@ -17,6 +17,7 @@ app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
 app_branch="master"
 
+echo_log_only "Installing nginx config"
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location ^~ /$app_baseurl {
     proxy_pass http://127.0.0.1:$app_port;
@@ -41,6 +42,7 @@ location ^~ /$app_baseurl/api {
 ARRNGINX
 
 wasActive=$(systemctl is-active $app_servicefile)
+echo_log_only "Active: ${wasActive}"
 
 if [[ $wasActive == "active" ]]; then
     echo_log_only "Stopping $app_name"
@@ -71,5 +73,6 @@ chown -R "$user":"$user" "$app_configdir"
 
 # Switch app back off if it was dead before; otherwise start it
 if [[ $wasActive == "active" ]]; then
+    echo_log_only "Activating service"
     systemctl start "$app_servicefile" -q
 fi
