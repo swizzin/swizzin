@@ -2,7 +2,7 @@
 
 if [[ -f /install/.prowlarr.lock ]]; then
     if [[ -f /install/.nginx.lock ]]; then
-        if ! grep -q "proxy_host" /etc/nginx/apps/prowlarr.conf; then
+        if ! grep -q "8686/prowlarr" /etc/nginx/apps/prowlarr.conf; then
             echo_progress_start "Upgrading nginx config for Prowlarr"
             bash /etc/swizzin/scripts/nginx/prowlarr.sh
             systemctl reload nginx -q
