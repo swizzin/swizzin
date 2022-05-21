@@ -6,39 +6,39 @@ master=$(_get_master_username)
 app_name="readarr"
 
 if ! READARR_OWNER="$(swizdb get $app_name/owner)"; then
-    READARR_OWNER=$(_get_master_username)
+    READARR_OWNER=$master
 fi
 user="$READARR_OWNER"
 
 app_port="8787"
-app_sslport="7979"
-app_baseurl="$app_name"
+app_sslport="6868"
 app_configdir="/home/$user/.config/${app_name^}"
+app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
 app_branch="develop"
 
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
-location /$app_baseurl {
-    proxy_pass          http://127.0.0.1:$app_port/$app_baseurl;
-    proxy_set_header    Host                \$host;
-    proxy_set_header    X-Forwarded-For     \$proxy_add_x_forwarded_for;
-    proxy_set_header    X-Forwarded-Host    \$host;
-    proxy_set_header    X-Forwarded-Proto   \$scheme;
-    proxy_redirect      off;
+location ^~ /$app_baseurl {
+    proxy_pass http://127.0.0.1:$app_port;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host \$host;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection \$http_connection;
 
-    auth_basic              "What's the password?";
-    auth_basic_user_file    /etc/htpasswd.d/htpasswd.${master};
-
-    proxy_http_version  1.1;
-    proxy_set_header    Upgrade     \$http_upgrade;
-    proxy_set_header    Connection  \$http_connection;
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
 }
 
-# Allow the App API
-location /$app_baseurl/api {
-    auth_request    off;
-    proxy_pass      http://127.0.0.1:$app_port/$app_baseurl/api;
+# Allow the API External Access via NGINX
+location ^~ /$app_baseurl/api {
+    auth_basic off;
+    proxy_pass http://127.0.0.1:$app_port;
 }
+
 ARRNGINX
 
 wasActive=$(systemctl is-active $app_servicefile)
@@ -54,7 +54,7 @@ apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 # ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
-  <LogLevel>debug</LogLevel>
+  <LogLevel>trace</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>$app_port</Port>

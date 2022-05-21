@@ -76,5 +76,12 @@ if [[ -f /install/.lidarr.lock ]]; then
         echo_success "Lidarr moved to opt on netcore"
 
     fi
-
+    if [[ -f /install/.nginx.lock ]]; then
+        if grep -q "8686/lidarr" /etc/nginx/apps/lidarr.conf; then
+            echo_progress_start "Updating nginx for config lidarr"
+            bash /etc/swizzin/scripts/nginx/lidarr.sh
+            systemctl reload nginx
+            echo_progress_done "nginx updated."
+        fi
+    fi
 fi
