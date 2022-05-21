@@ -7,7 +7,7 @@ wget -O /tmp/emby.dpkg https://github.com/MediaBrowser/Emby.Releases/releases/do
     echo_error "Emby failed to download"
     exit 1
 }
-dpkg -i emby.dpkg >> ${log} 2>&1 || {
+dpkg -i /tmp/emby.dpkg >> ${log} 2>&1 || {
     echo_error "Emby failed to install"
 }
-rm emby.dpkg
+rm /tmp/emby.dpkg
