@@ -39,6 +39,7 @@ fi
 
 if ! /usr/bin/yarn --non-interactive global upgrade thelounge >> "$log" 2>&1; then
     echo_error "Lounge failed to update, please investigate the logs"
+    exit 1
 fi
 
 if [[ $wasActive = "true" ]]; then
