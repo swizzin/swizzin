@@ -33,7 +33,7 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
     echo_progress_done
 fi
 
-if thelounge --version lt 4.3.1 >> /dev/null 2>&1; then
+if dpkg --compare-versions "$(thelounge --version | sed 's/v//g')" lt 4.3.1; then
     _yarnlounge
 fi
 
@@ -47,4 +47,3 @@ if [[ $wasActive = "true" ]]; then
     systemctl start lounge
     echo_progress_done
 fi
-
