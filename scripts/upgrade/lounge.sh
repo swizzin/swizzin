@@ -8,7 +8,6 @@ function _yarnlounge() {
         systemctl stop lounge
     fi
     npm uninstall --quiet -g thelounge --save >> /dev/null 2>&1
-    yarn_install
     yarn --non-interactive global add thelounge >> $log 2>&1
     yarn --non-interactive cache clean >> $log 2>&1
     chown -R lounge: /opt/lounge
@@ -33,11 +32,14 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
     echo_progress_done
 fi
 
-if dpkg --compare-versions "$(thelounge --version | sed 's/v//g')" lt 4.3.1; then
-    _yarnlounge
+if ! command -v yarn > /dev/null 2>&1; then
+    yarn_install
 fi
 
-if ! /usr/bin/yarn --non-interactive global upgrade thelounge >> "$log" 2>&1; then
+if npm list -g | grep -q lounge; then
+    echo_info "Switching lounge to yarn install"
+    _yarnlounge
+elif ! /usr/bin/yarn --non-interactive global upgrade thelounge >> "$log" 2>&1; then
     echo_error "Lounge failed to update, please investigate the logs"
     exit 1
 fi
