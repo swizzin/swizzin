@@ -12,6 +12,8 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+. /etc/swizzin/sources/functions/utils
+
 if [[ $(systemctl is-active jellyfin) == "active" ]]; then
     active=jellyfin
 fi
@@ -33,7 +35,7 @@ fi
 username=$(cut -d: -f1 < /root/.master.info)
 
 echo_progress_start "Downloading emby installer"
-current=$(curl -L -s -H 'Accept: application/json' https://github.com/MediaBrowser/Emby.Releases/releases/latest | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+current=$(github_latest_version MediaBrowser/Emby.Releases)
 wget -O /tmp/emby.dpkg https://github.com/MediaBrowser/Emby.Releases/releases/download/${current}/emby-server-deb_${current}_$(_os_arch).deb >> $log 2>&1 || {
     echo_error "Failed to download"
     exit 1
