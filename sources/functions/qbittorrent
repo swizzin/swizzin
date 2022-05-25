@@ -6,10 +6,10 @@ function whiptail_qbittorrent() {
         codename=$(_os_codename)
         releases=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr)
 
-        latestv41=$(echo "$releases" | grep -m1 -oP '4\.1\.\d?.?\d')
-        latestv42=$(echo "$releases" | grep -m1 -oP '4\.2\.\d?.?\d')
-        latestv43=$(echo "$releases" | grep -m1 -oP '4\.3\.\d?.?\d')
-        latestv44=$(echo "$releases" | grep -m1 -oP '4\.4\.\d?.?\d')
+        latestv41=$(echo "$releases" | grep -m1 -oP '^4\.1\.\d?.?\d')
+        latestv42=$(echo "$releases" | grep -m1 -oP '^4\.2\.\d?.?\d')
+        latestv43=$(echo "$releases" | grep -m1 -oP '^4\.3\.\d?.?\d')
+        latestv44=$(echo "$releases" | grep -m1 -oP '^4\.4\.\d?.?\d')
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
