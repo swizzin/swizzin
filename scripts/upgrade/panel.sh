@@ -13,10 +13,10 @@ if [[ -f /install/.panel.lock ]]; then
     if [[ $PANELRESET == 1 ]]; then
         echo_warn "Working around unclean git repo"
         sudo -u swizzin git -C /opt/swizzin fetch origin master >> ${log} 2>&1
-        cp -a core/custom core/custom.tmp
+        cp -a /opt/swizzin/core/custom /opt/swizzin/core/custom.tmp
         sudo -u swizzin git -C /opt/swizzin reset --hard origin/master >> ${log} 2>&1
-        mv core/custom.tmp/* core/custom/ >> ${log} 2>&1
-        rm -rf core/custom.tmp
+        mv /opt/swizzin/core/custom.tmp/* /opt/swizzin/core/custom/ >> ${log} 2>&1
+        rm -rf opt/swizzin/core/custom.tmp
     fi
     echo_progress_done "Commits pulled"
     echo_progress_start "Checking pip for new depends"
