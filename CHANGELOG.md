@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.5.0]
+
+### New
+ - Ubuntu Jammy Support (22.04)
+ - Add b to funding. Toss him some money.
+
+### Updated
+ - The Lounge will now use yarn for the install method. Existing installs will be swapped to the new method.
+
+### Fixed
+ - Pull git repo updates as user owning repo (Ubuntu CVE fix)
+ - Update the *arr nginx configs
+ - apt-key is deprecated, use current best practices for pulling in keys
+    - Existing keys won't be updated. You will only start to see noisy warnings starting in Jammy, so this will only potentially affect you if you dist-upgrade, but keys previously via apt-key will still work
+ - hold rtorrent/qbittorrent packages when compiled
+ - wireguard wasn't installing iptables even though it depends on it
+ - emby upgrader qol fixes and suspiciously missing arm support
+ - qbittorrent 4.4.3.1 update broke version matching because it was fuzzy, now it is not.
+
+### Upstream issues
+ - Jellyfin builds are known not to work under Jammy. This is not our fault. Track here for info on when this is resolved.
+    - https://github.com/jellyfin/jellyfin/issues/7742
+
 ## [3.4.0]
 
 ### New
