@@ -38,7 +38,8 @@ if [[ -f /install/.panel.lock ]]; then
             pyenv_create_venv 3.8.6 /opt/.venv/swizzin
             chown -R swizzin: /opt/.venv/swizzin
         fi
-
+        chown -R swizzin: /opt/swizzin
+        chown -R swizzin: /opt/.venv/swizzin
         bash /usr/local/bin/swizzin/upgrade/panel.sh
         echo_progress_done
     fi

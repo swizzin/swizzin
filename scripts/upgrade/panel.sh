@@ -23,6 +23,7 @@ if [[ -f /install/.panel.lock ]]; then
     if ! /opt/.venv/swizzin/bin/python /opt/swizzin/tests/test_requirements.py >> ${log} 2>&1; then
         /opt/.venv/swizzin/bin/pip install --upgrade pip wheel >> ${log} 2>&1
         /opt/.venv/swizzin/bin/pip install -r /opt/swizzin/requirements.txt >> ${log} 2>&1
+        chown -R swizzin: /opt/.venv/swizzin
     fi
     echo_progress_done "Depends up-to-date"
     echo_progress_start "Restarting Panel"
