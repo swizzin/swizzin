@@ -54,7 +54,7 @@ function _install_wg() {
     fi
 
     apt_update
-    apt_install --recommends wireguard qrencode
+    apt_install --recommends wireguard qrencode iptables
 
     if [[ ! -d /etc/wireguard ]]; then
         mkdir /etc/wireguard
