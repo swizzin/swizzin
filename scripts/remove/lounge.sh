@@ -3,6 +3,10 @@
 systemctl disable -q lounge >> /dev/null 2>&1
 systemctl stop -q lounge
 
+# remove old npm installs
+npm uninstall -g thelounge --save >> /dev/null 2>&1
+
+# remove modernized yarn installs
 yarn --non-interactive global remove thelounge >> /dev/null 2>&1
 yarn --non-interactive cache clean >> /dev/null 2>&1
 
