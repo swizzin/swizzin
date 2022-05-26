@@ -8,6 +8,7 @@
 
 ### Updated
  - The Lounge will now use yarn for the install method. Existing installs will be swapped to the new method.
+ - ruTorrent installs will no longer install club-quickbox theme by default. The theme needs work to be compatible with v4
 
 ### Fixed
  - Pull git repo updates as user owning repo (Ubuntu CVE fix)
