@@ -74,6 +74,18 @@ function depends_rtorrent() {
     rm -rf mktorrent*
 }
 
+function build_vmtouch() {
+    cd "/tmp"
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists "/tmp/vmtouch"
+    git clone https://github.com/hoytech/vmtouch.git /tmp/vmtouch >> $log 2>&1
+    cd /tmp/vmtouch
+    make -j$(nproc) >> $log 2>&1
+    make install >> $log 2>&1
+    cd /tmp
+    rm -rf vmtouch
+}
+
 function build_xmlrpc-c() {
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils

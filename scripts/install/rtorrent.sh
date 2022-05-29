@@ -64,6 +64,7 @@ Type=forking
 KillMode=none
 User=%i
 ExecStartPre=-/bin/rm -f /home/%i/.sessions/rtorrent.lock
+ExecStartPre=-/usr/local/bin/vmtouch -i '*.torrent' -m 125K -dl /srv/rutorrent/
 ExecStart=/usr/bin/screen -d -m -fa -S rtorrent /usr/bin/rtorrent
 ExecStop=/usr/bin/screen -X -S rtorrent quit
 WorkingDirectory=/home/%i/
@@ -97,6 +98,9 @@ if [[ -n $noexec ]]; then
     noexec=1
 fi
 depends_rtorrent
+echo_progress_start "Building vmtouch from source"
+build_vmtouch
+echo_progress_done
 if [[ ! $rtorrentver == repo ]]; then
     echo_progress_start "Building xmlrpc-c from source"
     build_xmlrpc-c
