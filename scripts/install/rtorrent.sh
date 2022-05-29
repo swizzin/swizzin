@@ -65,6 +65,7 @@ KillMode=none
 User=%i
 ExecStartPre=-/bin/rm -f /home/%i/.sessions/rtorrent.lock
 ExecStartPre=-/usr/local/bin/vmtouch -i '*.torrent' -m 125K -dl /srv/rutorrent/
+ExecStartPre=-/usr/local/bin/vmtouch -I '*.torrent.libtorrent_resume' -I '*.torrent.rtorrent' -m 5K -dl /home/%i/.sessions/
 ExecStart=/usr/bin/screen -d -m -fa -S rtorrent /usr/bin/rtorrent
 ExecStop=/usr/bin/screen -X -S rtorrent quit
 WorkingDirectory=/home/%i/
@@ -72,6 +73,13 @@ WorkingDirectory=/home/%i/
 [Install]
 WantedBy=multi-user.target
 EOF
+
+    # If available memory is greater than 2GB
+    if [[ $memory > 2048 ]]; then
+        # Increase vmtouch limit for session files from 5K to 125K
+        sed 's/5K/125K/g' /etc/systemd/system/rtorrent@.service
+    fi
+
     systemctl enable -q --now rtorrent@${user} 2>> $log
 }
 
@@ -80,6 +88,7 @@ export DEBIAN_FRONTEND=noninteractive
 . /etc/swizzin/sources/functions/rtorrent
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
+memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
 rutorrent="/srv/rutorrent/"
 port=$((RANDOM % 64025 + 1024))
 portend=$((${port} + 1500))
