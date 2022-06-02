@@ -77,7 +77,7 @@ EOF
     # If available memory is greater than 2GB
     if [[ $memory > 2048 ]]; then
         # Increase vmtouch limit for session files from 5K to 125K
-        sed 's/5K/125K/g' /etc/systemd/system/rtorrent@.service
+        sed -i 's/\-m 5K/\-m 125K/g' /etc/systemd/system/rtorrent@.service
     fi
 
     systemctl enable -q --now rtorrent@${user} 2>> $log
