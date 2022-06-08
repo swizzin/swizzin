@@ -285,23 +285,17 @@ function _itthemes() {
         echo_info "Installing ${result}"
         cd /srv/rutorrent/plugins/theme/themes
         case "$result" in
-            Acid | Blue | Dark | Excel | Oblivion)
+            Acid | Blue | Dark | DarkBetter | Excel | MaterialDesign | Oblivion)
                 svn co https://github.com/Novik/ruTorrent.git/trunk/plugins/theme/themes/${result} ${result} > /dev/null 2>&1
                 ;;
             Agent* | OblivionBlue)
                 svn co https://github.com/ArtyumX/ruTorrent-Themes/trunk/${result} ${result} > /dev/null 2>&1
-                ;;
-            DarkBetter)
-                git clone https://github.com/chocolatkey/DarkBetter.git ${result} > /dev/null 2>&1
                 ;;
             club-QuickBox)
                 git clone https://github.com/QuickBox/club-QuickBox.git ${result} > /dev/null 2>&1
                 ;;
             FlatUI*)
                 svn co https://github.com/exetico/FlatUI.git/trunk/${result} ${result} > /dev/null 2>&1
-                ;;
-            MaterialDesign)
-                git clone https://github.com/phlooo/ruTorrent-MaterialDesign.git ${result} > /dev/null 2>&1
                 ;;
             *)
                 echo_error "$result is invalid"
@@ -316,7 +310,7 @@ function _itthemes() {
 
 function _rmthemes() {
     removea=()
-    themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
+    themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark DarkBetter Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
     for i in "${themes[@]}"; do
         themes=${i}
         if [[ -d /srv/rutorrent/plugins/theme/themes/$i ]]; then
