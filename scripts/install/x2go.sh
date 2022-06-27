@@ -42,6 +42,8 @@ deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages
 #deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} heuler
 EOF
     echo_progress_done "Repo added"
+    mkdir -p /root/.gnupg
+    chmod 700 /root/.gnupg
     gpg --no-default-keyring --keyring /usr/share/keyrings/x2go-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
     apt_update
     apt_install x2go-keyring
