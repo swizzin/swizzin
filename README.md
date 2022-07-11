@@ -106,11 +106,6 @@ Box functions:
 -   rtx - starts the r(u)Torrent extras management interface (`rtx` alone will also do)
     -   Usage: `box rtx` or `rtx`
 
-## Feature Requests:
-
-You can request and vote on features at [feathub](https://feathub.com/liaralabs/swizzin).
-
-[![Feature Requests](http://feathub.com/liaralabs/swizzin?format=svg)](http://feathub.com/liaralabs/swizzin)
 
 ## Contributing
 We welcome any bug fixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organized and keep your submissions supported properly.
