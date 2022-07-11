@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.5.1]
+
+## July 10, 2022
+
+### Fixed
+ - x2go: debian keychain quirk
+ - prevent log clobbering from certain commands
+ - rtx: DarkBetter and MaterialDesign themes are ruTorrent submodules now
+ - jellyfin: fix apt dependency resolution
+
 ## [3.5.0]
 
 ### New
