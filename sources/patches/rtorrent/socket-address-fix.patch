@@ -1,0 +1,22 @@
+From d351a48a62688487527e646fb07f84623af4b1c5 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Thu, 14 Jul 2022 16:56:57 -0400
+Subject: [PATCH] Fix memory access crash with socket_address object
+
+---
+ rak/socket_address.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rak/socket_address.h b/rak/socket_address.h
+index 8eb601168..db4f4db35 100644
+--- a/rak/socket_address.h
++++ b/rak/socket_address.h
+@@ -393,7 +393,7 @@ socket_address::copy(const socket_address& src, size_t length) {
+ inline void
+ socket_address::copy_sockaddr(const sockaddr* src) {
+   std::memset(this, 0, sizeof(socket_address));
+-  std::memcpy(this, src, socket_address::cast_from(src)->length());
++  std::memcpy(static_cast<void*>(this), src, socket_address::cast_from(src)->length());
+ }
+ 
+ inline bool
