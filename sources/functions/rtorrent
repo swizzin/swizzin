@@ -111,7 +111,7 @@ function build_libtorrent_rakshasa() {
     VERSION=$libtorrentver
     tar -xvf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
     cd /tmp/libtorrent >> $log 2>&1
-    
+
     if [[ ${libtorrentver} == "repo" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/socket-address-fix.patch >> "$log" 2>&1
     elif [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
