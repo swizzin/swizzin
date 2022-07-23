@@ -131,6 +131,25 @@ DIN
         fi
     fi
 
+    if [[ -f /install/.transmission.lock ]]; then
+        if grep -q "php" /etc/nginx/apps/tmsindex.conf; then
+            :
+        else
+            cat > /etc/nginx/apps/tmsindex.conf << DIN
+location /transmission.downloads {
+  alias /home/\$remote_user/torrents/transmission;
+  include /etc/nginx/snippets/fancyindex.conf;
+  auth_basic "What's the password?";
+  auth_basic_user_file /etc/htpasswd;
+
+  location ~* \.php$ {
+
+  }
+}
+DIN
+        fi
+    fi
+
     # Remove php directive at the root level since we no longer use php
     # on root and we define php manually for nested locations
     if grep -q '\.php\$' /etc/nginx/sites-enabled/default; then
