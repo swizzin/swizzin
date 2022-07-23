@@ -18,7 +18,7 @@
 
 master=$(cut -d: -f1 < /root/.master.info)
 
-echo_info "Please visit https://www.plex.tv/claim, login, copy your plex claim token to your clipboard and paste it here. This will automatically claim your server! Otherwise, you can leave this blank and to tunnel to the port instead."
+echo_info "Please visit https://www.plex.tv/claim, login, copy your plex claim token to your clipboard and paste it here. This will automatically claim your server! Otherwise, you can leave this blank and tunnel to the port instead."
 echo_query "Insert your Plex claim token" "e.g. 'claim-...' or blank"
 read 'claim'
 
