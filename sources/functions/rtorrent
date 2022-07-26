@@ -112,6 +112,15 @@ function build_libtorrent_rakshasa() {
     tar -xvf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
     cd /tmp/libtorrent >> $log 2>&1
 
+    if [[ -f /root/libtorrent-rakshasa-${libtorrentver}.patch ]]; then
+        patch -p1 < /root/libtorrent-rakshasa-${libtorrentver}.patch >> ${log} 2>&1 || {
+            echo _error "Something went wrong when patching libtorrent-rakshasa"
+            exit 1
+        }
+        echo_info "Libtorrent-rakshasa patch found and applied!"
+    else
+        echo_log_only "No libtorrent-rakshasa patch found at /root/libtorrent-rakshasa-${libtorrentver}.patch"
+    fi
     if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> "$log" 2>&1
         if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
@@ -150,6 +159,15 @@ function build_rtorrent() {
     tar -xzvf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
     VERSION=$rtorrentver
     cd /tmp/rtorrent
+    if [[ -f /root/rtorrent-${rtorrentver}.patch ]]; then
+        patch -p1 < /root/rtorrent-${rtorrentver}.patch >> ${log} 2>&1 || {
+            echo _error "Something went wrong when patching rTorrent"
+            exit 1
+        }
+        echo_info "rTorrent patch found and applied!"
+    else
+        echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
+    fi
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
