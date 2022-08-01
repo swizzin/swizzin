@@ -96,17 +96,20 @@ echo "deb [signed-by=/usr/share/keyrings/jellyfin-archive-keyring.gpg arch=$(dpk
 # install jellyfin and jellyfin-ffmepg using apt functions.
 apt_update #forces apt refresh
 apt_install jellyfin
+
 #
 # Add the jellyfin user to the master user's group.
 usermod -a -G "${username}" jellyfin
 #
 chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
 chown jellyfin:jellyfin /etc/jellyfin/system.xml
-chown jellyfin:root /etc/jellyfin/logging.json
+chown jellyfin:root /etc/jellyfin/logging.default.json
 chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
+    # network.xml does not consistently appear on first or second start of jellyfin
+    timeout 30 bash -c "until [[ -f /etc/jellyfin/network.xml ]]; do systemctl restart jellyfin >> ${log} 2>&1; sleep 5; done"
     bash /usr/local/bin/swizzin/nginx/jellyfin.sh
     systemctl -q restart nginx.service
 else
