@@ -132,6 +132,7 @@ usermod -a -G "${username}" jellyfin
 #
 chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
 chown jellyfin:jellyfin /etc/jellyfin/system.xml
+chown jellyfin:jellyfin /etc/jellyfin/network.xml
 chown jellyfin:root /etc/jellyfin/logging.json
 chown jellyfin:adm /etc/jellyfin
 #
