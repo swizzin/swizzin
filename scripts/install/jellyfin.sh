@@ -91,7 +91,7 @@ CONFIG
 #
 # Create network.xml. This is the applications configuration for ssl and other stuff
 # Required because of the sed stuff in nginx config.
-cat > /etc/jellyfin/system.xml <<- NET
+cat > /etc/jellyfin/network.xml <<- NET
 <?xml version="1.0" encoding="utf-8"?>
 <NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <RequireHttps>true</RequireHttps>
