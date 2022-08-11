@@ -89,6 +89,36 @@ cat > /etc/jellyfin/system.xml <<- CONFIG
 	</ServerConfiguration>
 CONFIG
 #
+# Create network.xml. This is the applications configuration for ssl and other stuff
+# Required because of the sed stuff in nginx config.
+cat > /etc/jellyfin/system.xml <<- NET
+<?xml version="1.0" encoding="utf-8"?>
+<NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RequireHttps>true</RequireHttps>
+  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
+  <CertificatePassword />
+  <BaseUrl />
+  <PublicHttpsPort>8920</PublicHttpsPort>
+  <HttpServerPortNumber>8096</HttpServerPortNumber>
+  <HttpsPortNumber>8920</HttpsPortNumber>
+  <EnableHttps>true</EnableHttps>
+  <PublicPort>8096</PublicPort>
+  <EnableIPV6>true</EnableIPV6>
+  <EnableIPV4>true</EnableIPV4>
+  <IgnoreVirtualInterfaces>true</IgnoreVirtualInterfaces>
+  <VirtualInterfaceNames>vEthernet*</VirtualInterfaceNames>
+  <TrustAllIP6Interfaces>false</TrustAllIP6Interfaces>
+  <PublishedServerUriBySubnet />
+  <RemoteIPFilter />
+  <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
+  <EnableUPnP>false</EnableUPnP>
+  <EnableRemoteAccess>true</EnableRemoteAccess>
+  <LocalNetworkSubnets />
+  <LocalNetworkAddresses />
+  <KnownProxies />
+</NetworkConfiguration>
+NET
+#
 # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
 curl -s "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | gpg --dearmor > /usr/share/keyrings/jellyfin-archive-keyring.gpg 2>> "${log}"
 echo "deb [signed-by=/usr/share/keyrings/jellyfin-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
