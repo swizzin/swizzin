@@ -76,18 +76,43 @@ cat > /etc/jellyfin/dlna.xml <<- CONFIG
 CONFIG
 #
 # Create the system.xml. This is the applications main configuration file.
-cat > /etc/jellyfin/system.xml <<- CONFIG
-	<?xml version="1.0"?>
-	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
-	  <EnableUPnP>false</EnableUPnP>
-	  <EnableHttps>true</EnableHttps>
-	  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
-	  <IsPortAuthorized>true</IsPortAuthorized>
-	  <EnableRemoteAccess>true</EnableRemoteAccess>
-	  <RequireHttps>true</RequireHttps>
-	</ServerConfiguration>
+#cat > /etc/jellyfin/system.xml <<- CONFIG
+#	<?xml version="1.0"?>
+#	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+#	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
+#	  <IsPortAuthorized>true</IsPortAuthorized>
+#	</ServerConfiguration>
+#CONFIG
+
+# Create the network.xml. This is the applications network configuration file.
+cat > /etc/jellyfin/network.xml <<- CONFIG
+<?xml version="1.0" encoding="utf-8"?>
+<NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RequireHttps>true</RequireHttps>
+  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
+  <CertificatePassword />
+  <BaseUrl />
+  <PublicHttpsPort>8920</PublicHttpsPort>
+  <HttpServerPortNumber>8096</HttpServerPortNumber>
+  <HttpsPortNumber>8920</HttpsPortNumber>
+  <EnableHttps>true</EnableHttps>
+  <PublicPort>8096</PublicPort>
+  <EnableIPV6>false</EnableIPV6>
+  <EnableIPV4>true</EnableIPV4>
+  <IgnoreVirtualInterfaces>true</IgnoreVirtualInterfaces>
+  <VirtualInterfaceNames>vEthernet*</VirtualInterfaceNames>
+  <TrustAllIP6Interfaces>false</TrustAllIP6Interfaces>
+  <PublishedServerUriBySubnet />
+  <RemoteIPFilter />
+  <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
+  <EnableUPnP>false</EnableUPnP>
+  <EnableRemoteAccess>true</EnableRemoteAccess>
+  <LocalNetworkSubnets />
+  <LocalNetworkAddresses />
+  <KnownProxies />
+</NetworkConfiguration>
 CONFIG
+
 #
 # Create network.xml. This is the applications configuration for ssl and other stuff
 # Required because of the sed stuff in nginx config.
@@ -126,14 +151,17 @@ echo "deb [signed-by=/usr/share/keyrings/jellyfin-archive-keyring.gpg arch=$(dpk
 # install jellyfin and jellyfin-ffmepg using apt functions.
 apt_update #forces apt refresh
 apt_install jellyfin
+
 #
 # Add the jellyfin user to the master user's group.
 usermod -a -G "${username}" jellyfin
 #
+
 chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
 chown jellyfin:jellyfin /etc/jellyfin/system.xml
 chown jellyfin:jellyfin /etc/jellyfin/network.xml
 chown jellyfin:root /etc/jellyfin/logging.json
+chown jellyfin:root /etc/jellyfin/logging.default.json
 chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
