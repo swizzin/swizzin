@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.2]
+
+## September 2, 2022
+
+### New
+ - rtorrent: add user patch support
+
+### Fixed
+
+ - transmission: add support for nginx fancy index download endpoint
+ - jellyfin: support new install settings/locations
+ - wireguard: postdown script was adding the nat rule instead of deleting it
+
 ## [3.5.1]
 
 ## July 10, 2022
