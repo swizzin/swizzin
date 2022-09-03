@@ -35,7 +35,7 @@ bash <(curl -sL git.io/swizzin) && . ~/.bashrc
 
 ### Make sure you are root
 
-Either login directly as root or elevate to root with proper login settings with either `su` - or `sudo -i`.
+Either login directly as root or elevate to root with proper login settings with either `su -` or `sudo -i`.
 
 Don't use `su` or something like `sudo -s` (which is the default under Ubuntu when using sudo). You won't be fully logged in as root and certain environment variables not having the full perspective of root will cause failures.
 
