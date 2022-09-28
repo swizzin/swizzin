@@ -13,12 +13,12 @@ function _install_mango() {
     case "$(_os_arch)" in
         "arm64" | "arm32")
             # TODO this needs the build process for amr
-            # dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | grep "$(_os_arch)" | cut -d\" -f 4)
+            # dlurl=$(curl -sL https://api.github.com/repos/getmango/Mango/releases/latest | grep "browser_download_url" | grep "$(_os_arch)" | cut -d\" -f 4)
             echo_error "Currently unsupported but might be in the future. Please check back later!\nhttps://github.com/hkalexling/Mango/issues/131"
             exit 1
             ;;
         "amd64")
-            dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+            dlurl=$(curl -sL https://api.github.com/repos/getmango/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
             ;;
         *)
             echo_error "Unsupported arch?"
