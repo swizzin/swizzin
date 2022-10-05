@@ -239,7 +239,6 @@ function build_deluge() {
     mkdir -p /root/dist
     fpm ${args} --python-fix-dependencies --python-bin=${pythonver} --python-package-name-prefix=${pythonver} --python-setup-py-arguments=--install-layout=deb -n deluge-common -f -p /root/dist/deluge-common_VERSION.deb --description "Deluge compiled by swizzin" -s python -t deb /tmp/deluge/setup.py >> "${log}" 2>&1
     dpkg -i /root/dist/deluge-common_${VERSION}.deb >> "${log}" 2>&1
-    chmod 644 /etc/swizzin/scripts/deluge.UpdateTracker.py
     if [[ ${DELUGE_VERSION} == 1.3-stable ]]; then
         #update-tracker is built into v2 (update_tracker)
         cp /etc/swizzin/scripts/deluge.UpdateTracker.py "/usr/lib/${distver}/dist-packages/deluge/ui/console/commands/update-tracker.py"
