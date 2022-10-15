@@ -15,34 +15,31 @@
 #
 #################################################################################
 
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
+codename=$(_os_codename)
 IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
-user=$(cut -d: -f1 < /root/.master.info)
 
-if [[ $distribution == Ubuntu ]]; then
-    if [[ $codename == "bionic" ]]; then
+case $codename in
+    bionic | focal)
         echo_progress_start "Installing Quassel PPA"
         apt_install software-properties-common
         apt-add-repository ppa:mamarley/quassel -y >> "$log" 2>&1
         apt_update
         echo_progress_done
-    fi
-    apt_install quassel-core
-else
-    #shellcheck source=sources/functions/backports
-    . /etc/swizzin/sources/functions/backports
-    if [[ $codename == "buster" || $codename == "bullseye" ]]; then
-        apt_install quassel-core
-    elif [[ $codename == "stretch" ]]; then
+        ;;
+    stretch)
+        . /etc/swizzin/sources/functions/backports
         check_debian_backports
         echo_info "Using latest backport"
         set_packages_to_backports quassel-core
-        apt_install quassel-core
-fi
+        ;;
+    *) ;;
+esac
+
+apt_install quassel-core
+
 echo_progress_start "Starting quassel"
 mv /etc/init.d/quasselcore /etc/init.d/quasselcore.BAK
-systemctl enable -q --now quasselcore 2>&1 | tee -a $log
+systemctl enable -q --now quasselcore >> ${log} 2>&1
 echo_progress_done
 
 echo_success "Quassel installed"
