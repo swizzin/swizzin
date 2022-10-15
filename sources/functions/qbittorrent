@@ -120,7 +120,23 @@ function qbittorrent_version_info() {
             build_type=autotools
             ;;
         4.4.*)
-            libtorrent_branch=RC_1_2
+            if [[ -n ${LIBTORRENT_VERSION} ]]; then
+                case $LIBTORRENT_VERSION in
+                    RC_2_0)
+                        libtorrent_branch=RC_2_0
+                        ;;
+                    RC_1_2)
+                        libtorrent_branch=RC_1_2
+                        ;;
+                    *)
+                        echo_error "LIBTORRENT_VERSION must be either RC_1_2 or RC_2_0. You entered ${LIBTORRENT_VERSION}."
+                        exit 1
+                        ;;
+                esac
+                echo_info "Overriding libtorrent version with ${LIBTORRENT_VERSION}"
+            else
+                libtorrent_branch=RC_1_2
+            fi
             libtorrent_minimum_version=1.2.12
             stdcver="c++17"
             qt_minimum_version=6.0
