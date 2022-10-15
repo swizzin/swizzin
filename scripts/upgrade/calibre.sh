@@ -5,6 +5,8 @@ if [ ! -f /install/.calibre.lock ]; then
     exit 1
 fi
 
+if ! check_installed libopengl0; then apt_install libopengl0; fi
+
 case "$(_os_arch)" in
     amd64)
         wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
