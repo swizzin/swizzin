@@ -130,8 +130,10 @@ function qbittorrent_version_info() {
                         ;;
                     *)
                         echo_error "LIBTORRENT_VERSION must be either RC_1_2 or RC_2_0. You entered ${LIBTORRENT_VERSION}."
+                        exit 1
                         ;;
                 esac
+                echo_info "Overriding libtorrent version with ${LIBTORRENT_VERSION}"
             else
                 libtorrent_branch=RC_1_2
             fi
