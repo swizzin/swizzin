@@ -84,7 +84,7 @@ function _themes() {
 }
 
 function _itplugs() {
-    tag=$(git -C /srv/rutorrent describe --tags | grep -oP 'v\d\.\d+(\-beta\.?\d?+)?([^-]?)')
+    tag=$(git -C /srv/rutorrent describe --tags | grep -oP 'v\d\.\d+(\-beta\.?\d?+)?(\.?\d+?)?([^-]?)')
     installa=()
     plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-media filemanager-share geoip history httprpc ipad loginmgr lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
 
@@ -163,9 +163,12 @@ function _itplugs() {
 ?>
 FMCONF
                         ;;
-                    *)
+                    v4.0-beta.1)
                         git clone https://github.com/nelu/rutorrent-filemanager filemanager >> /dev/null 2>&1
                         git -C /srv/rutorrent/plugins/filemanager checkout 234f5f20841ad3d1e3c095e6c6954a875fc8a6ea >> /dev/null 2>&1
+                        ;;
+                    *)
+                        git clone https://github.com/nelu/rutorrent-filemanager filemanager >> /dev/null 2>&1
                         ;;
                 esac
                 ;;
@@ -174,11 +177,16 @@ FMCONF
                     3.*)
                         svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileshare > /dev/null 2>&1
                         ln -s /srv/rutorrent/plugins/fileshare/share.php /srv/fancyindex/share.php > /dev/null 2>&1
+                        sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/fileshare/conf.php
+                        ;;
+                    v4.0-beta.1)
+                        git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > /dev/null 2>&1
+                        git -C /srv/rutorrent/plugins/filemanager-share checkout 08abb838ec1e76d59051e3da5f3be69afeef31a1 > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
                         sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                         ;;
                     *)
                         git clone https://github.com/nelu/rutorrent-filemanager-share.git filemanager-share > /dev/null 2>&1
-                        git -C /srv/rutorrent/plugins/filemanager-share checkout 08abb838ec1e76d59051e3da5f3be69afeef31a1 > /dev/null 2>&1
                         ln -s /srv/rutorrent/plugins/filemanager-share/share.php /srv/fancyindex/share.php > /dev/null 2>&1
                         sed -i 's/$downloadpath .*/$downloadpath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/share.php'"';/g' /srv/rutorrent/plugins/filemanager-share/conf.php
                         ;;
@@ -186,10 +194,19 @@ FMCONF
 
                 ;;
             filemanager-media)
-                git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
-                git -C /srv/rutorrent/plugins/filemanager-media checkout f1b92a1a9de1e81561877953a8599596510078d2 > /dev/null 2>&1
-                ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
-                sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
+                case $tag in
+                    v4.0-beta.1)
+                        git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
+                        git -C /srv/rutorrent/plugins/filemanager-media checkout f1b92a1a9de1e81561877953a8599596510078d2 > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
+                        sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
+                        ;;
+                    *)
+                        git clone https://github.com/nelu/rutorrent-filemanager-media.git filemanager-media > /dev/null 2>&1
+                        ln -s /srv/rutorrent/plugins/filemanager-media/stream.php /srv/fancyindex/stream.php > /dev/null 2>&1
+                        sed -i 's/$streampath .*/$streampath = '"'https:\/\/'"'.$_SERVER['"'HTTP_HOST'"'] . '"'\/fancyindex\/stream.php'"';/g' /srv/rutorrent/plugins/filemanager-media/conf.php
+                        ;;
+                esac
                 ;;
             #fileupload)
             #svn co https://github.com/nelu/rutorrent-thirdparty-plugins/trunk/fileupload >/dev/null 2>&1
