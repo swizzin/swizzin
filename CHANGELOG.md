@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.5.3]
+
+## October 15, 2022
+
+### Changed
+ - qbittorrent: installs now default to RC_1_2 libtorrent branch for 4.4.x (following upstream). You may choose to compile with RC_2_0 if you `export LIBTORRENT_VERSION=RC_2_0` before install.
+ - panel: added proper log management/levels
+
+
+### Fixed
+ - fpm: fixed installation on stretch, bionic and buster
+ - netdata: uninstall now exists (again)
+ - mango: fixed dl links
+ - calibre: libopengl0 
+ - nginx/php: add zip module
+ - rutorrent: fix version sorting, install latest
+ - rtx: fix version grepping for tag support in many plugins
+ - rutorrent: un-pin filemanager plugin
+ - deluge: don't chmod deluge.UpdateTracker.py
+ - qbit: removed useless code
+ - panel: fixed log spam of missing profiles (nginx, vsftp, quota, rclone, ffmpeg, etc) 
+
 ## [3.5.2]
 
 ## September 2, 2022
