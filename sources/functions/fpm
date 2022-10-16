@@ -6,9 +6,12 @@ function install_fpm() {
     if [[ ! $exit == '0' ]]; then
         apt_install ruby ruby-dev libffi-dev
         echo_progress_start "Installing fpm through ruby/gem"
-        if [[ $(_os_codename) == "bionic" ]]; then
-            gem install public_suffix -v 4.0.7 >> $log 2>&1
-        fi
+        case $(_os_codename) in
+            stretch | bionic | buster)
+                gem install public_suffix -v 4.0.7 >> $log 2>&1
+                ;;
+            *) ;;
+        esac
         gem install fpm >> $log 2>&1
         echo_progress_done
     fi
