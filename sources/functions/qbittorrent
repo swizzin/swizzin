@@ -372,9 +372,19 @@ function build_qbittorrent() {
         noexec=1
     fi
     VERSION=${QBITTORRENT_VERSION}
-    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 zlib1g-dev'
-
-    apt_install --no-recommends $LIST
+    case $(_os_codename) in
+        buster)
+            OS_DEPS='libdouble-conversion1 libdouble-conversion-dev'
+            ;;
+        bullseye | jammy)
+            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
+            ;;
+        *)
+            OS_DEPS=''
+            ;;
+    esac
+    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev'
+    apt_install --no-recommends "$LIST ${OS_DEPS}"
     rm_if_exists "/tmp/qbittorrent"
     wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
         echo_error "qBittorrent could not be downloaded. Setup will not proceed"
