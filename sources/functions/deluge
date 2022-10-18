@@ -5,7 +5,7 @@ function whiptail_deluge() {
     if [[ -z $DELUGE_VERSION ]]; then
         repov=$(get_candidate_version deluge)
         # todo: add deluge 2.1 to whiptail menu
-        function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+        function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 4 \
             "Repo" "${repov}" \
             "Deluge 1.3" "" \
             "Deluge 2.0" "" \
