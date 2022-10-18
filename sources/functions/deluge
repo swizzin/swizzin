@@ -374,7 +374,7 @@ function ltconfig() {
             if ls /etc/skel/.config/deluge/plugins/ltConfig-2* > /dev/null 2>&1; then rm -f /etc/skel/.config/deluge/plugins/ltConfig-2*; fi
             if ls /home/${u}/.config/deluge/plugins/ltConfig-2* > /dev/null 2>&1; then rm -f /home/${u}/.config/deluge/plugins/ltConfig-2*; fi
             ;;
-        2.0* | 2.1*)
+        2.*)
             ltcver=2.0.0
             py=
             if [[ -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg ]]; then rm -f /etc/skel/.config/deluge/plugins/ltConfig-0.3.1-py2.7.egg; fi
