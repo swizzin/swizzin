@@ -111,7 +111,7 @@ function build_libtorrent_deluge() {
     echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
     apt_install ${pythonver}-dev libssl-dev
     rm_if_exists /tmp/libtorrent
-    
+
     libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
     libtorrent_github_tags_list=$(git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)
 
@@ -133,11 +133,11 @@ function build_libtorrent_deluge() {
     libtorrent_github_tag_default="$(grep -Eom1 "v${d_libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
     libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
 
-    git clone --no-tags --single-branch --branch "${libtorrent_github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "https://github.com/arvidn/libtorrent.git" "/tmp/libtorrent">> ${log} 2>&1 || {
+    git clone --no-tags --single-branch --branch "${libtorrent_github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "https://github.com/arvidn/libtorrent.git" "/tmp/libtorrent" >> ${log} 2>&1 || {
         echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
         exit 1
     }
-    
+
     cd /tmp/libtorrent
     VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
 
