@@ -314,6 +314,9 @@ function build_libtorrent_qbittorrent() {
     libtorrent_github_tags_list=$(git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)
 
     case $libtorrent_branch in
+        RC_1_1)
+            libtorrent_github_tag=RC_1_1
+            ;;
         RC_1_2)
             qbt_libtorrent_version=1.2
             ;;
