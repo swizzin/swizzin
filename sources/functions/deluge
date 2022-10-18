@@ -118,6 +118,7 @@ function build_libtorrent_deluge() {
     case $libtorrent_branch in
         RC_1_1)
             d_libtorrent_version=1.1
+            ;;
         RC_1_2)
             d_libtorrent_version=1.2
             ;;
