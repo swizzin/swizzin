@@ -310,7 +310,6 @@ function build_libtorrent_qbittorrent() {
     booststrap
     apt_install libssl-dev
 
-    libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
     libtorrent_github_tags_list=$(git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)
 
     case $libtorrent_branch in
