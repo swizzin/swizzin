@@ -333,7 +333,7 @@ function build_libtorrent_qbittorrent() {
             if [[ $(get_candidate_version cmake) < 3.16 ]]; then
                 install_cmake_swizzin
             else
-                apt_install cmake
+                apt_install cmake ninja-build
             fi
 
             PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
