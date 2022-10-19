@@ -31,8 +31,10 @@ case ${QBITTORRENT_VERSION} in
     *)
         detect_libtorrent_rasterbar_conflict qbittorrent
         qbittorrent_version_info
-        #check_client_compatibility
         install_fpm
+        if [[ $build_type == "cmake" ]]; then
+            install_cmake_swizzin
+        fi
         check_swap_on
 
         if ! skip_libtorrent_qbittorrent; then
