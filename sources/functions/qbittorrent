@@ -335,7 +335,7 @@ function build_libtorrent_qbittorrent() {
             else
                 apt_install cmake
             fi
-            
+
             PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
                 -D CMAKE_BUILD_TYPE="Release" \
                 -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
