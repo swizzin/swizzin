@@ -47,8 +47,8 @@ git clone https://github.com/SickChill/SickChill.git /opt/sickchill >> ${log} 2>
 chown -R $user: /opt/sickchill
 echo_progress_done
 
-echo_progress_start "Installing requirements.txt with pip"
-sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install sickchill[speedup]" >> $log 2>&1
+echo_progress_start "Installing dependencies with pip"
+sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install sickchill[speedups]" >> $log 2>&1
 echo_progress_done
 
 install_rar
@@ -72,6 +72,7 @@ WantedBy=multi-user.target
 SCSD
 
 systemctl enable -q --now sickchill 2>&1 | tee -a $log
+sleep 5
 echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then
