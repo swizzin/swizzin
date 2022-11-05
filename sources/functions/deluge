@@ -180,7 +180,7 @@ function build_deluge() {
         1.3-stable)
             if [[ $(_os_codename) =~ ^(focal|bullseye|jammy)$ ]]; then
                 LIST='python2.7-dev intltool xdg-utils librsvg2-common'
-                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity'
+                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity Automat==20.2.0'
                 pythonver=python2.7
                 distver=python2.7
                 args=
