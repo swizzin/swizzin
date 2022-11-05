@@ -31,7 +31,6 @@ case ${QBITTORRENT_VERSION} in
     *)
         detect_libtorrent_rasterbar_conflict qbittorrent
         qbittorrent_version_info
-        #check_client_compatibility
         install_fpm
         check_swap_on
 

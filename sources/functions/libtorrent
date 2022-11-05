@@ -162,3 +162,30 @@ function booststrap() {
         echo_progress_done "Boost installed!"
     fi
 }
+
+function libtorrent_clone() {
+    libtorrent_github_tags_list=$(git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)
+
+    case $libtorrent_branch in
+        RC_1_1)
+            libtorrent_github_tag=RC_1_1
+            ;;
+        RC_1_2)
+            tag_libtorrent_version=1.2
+            ;;
+        RC_2_0)
+            tag_libtorrent_version=2.0
+            ;;
+        *)
+            tag_libtorrent_version=1.2
+            ;;
+    esac
+
+    libtorrent_github_tag_default="$(grep -Eom1 "v${tag_libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
+    libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
+
+    git clone --no-tags --single-branch --branch "${libtorrent_github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "https://github.com/arvidn/libtorrent.git" "/tmp/libtorrent" >> ${log} 2>&1 || {
+        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
+        exit 1
+    }
+}

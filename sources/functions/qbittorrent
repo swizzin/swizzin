@@ -309,10 +309,9 @@ function build_libtorrent_qbittorrent() {
     rm_if_exists /tmp/libtorrent
     booststrap
     apt_install libssl-dev
-    git clone -b ${libtorrent_branch} --depth 1 --recurse-submodules https://github.com/arvidn/libtorrent /tmp/libtorrent >> ${log} 2>&1 || {
-        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
-        exit 1
-    }
+
+    export "${libtorrent_branch}"
+    libtorrent_clone
 
     cd /tmp/libtorrent
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
@@ -331,6 +330,12 @@ function build_libtorrent_qbittorrent() {
     VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
     case $build_type in
         cmake)
+            if [[ $(get_candidate_version cmake) < 3.16 ]]; then
+                install_cmake_swizzin
+            else
+                apt_install cmake ninja-build
+            fi
+
             PATH=/opt/local/bin:${PATH} cmake -Wno-dev -Wno-deprecated -G Ninja -B build \
                 -D CMAKE_BUILD_TYPE="Release" \
                 -D CMAKE_CXX_STANDARD="${stdcver//[^0-9]/}" \
@@ -373,9 +378,19 @@ function build_qbittorrent() {
         noexec=1
     fi
     VERSION=${QBITTORRENT_VERSION}
-    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 zlib1g-dev'
-
-    apt_install --no-recommends $LIST
+    case $(_os_codename) in
+        buster)
+            OS_DEPS='libdouble-conversion1 libdouble-conversion-dev'
+            ;;
+        bullseye | jammy)
+            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
+            ;;
+        *)
+            OS_DEPS=''
+            ;;
+    esac
+    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev'
+    apt_install --no-recommends "$LIST ${OS_DEPS}"
     rm_if_exists "/tmp/qbittorrent"
     wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
         echo_error "qBittorrent could not be downloaded. Setup will not proceed"
