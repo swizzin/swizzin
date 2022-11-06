@@ -7,9 +7,9 @@ function _check_for_rutorrent() {
         exit 1
     fi
 }
-_check_for_rutorrent
 . /etc/swizzin/sources/globals.sh
 . /etc/swizzin/sources/functions/rutorrent
+_check_for_rutorrent
 
 function _intro() {
     whiptail --title "ruTorrent Extras Manager" --msgbox "Welcome to rtx! Using this script you can choose to install and remove the plugins and themes for ruTorrent. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
@@ -84,6 +84,8 @@ function _themes() {
 }
 
 function _itplugs() {
+    arg=("$@")
+    result=("${arg[@]:1}")
     tag=$(git -C /srv/rutorrent describe --tags | grep -oP 'v\d\.\d+(\-beta\.?\d?+)?(\.?\d+?)?([^-]?)')
     installa=()
     plugs=(_getdir _noty _noty2 _task autotools check_port chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-media filemanager-share geoip history httprpc ipad loginmgr lookat mediainfo mobile pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram theme throttle tracklabels trafic unpack uploadeta xmpp)
@@ -101,15 +103,16 @@ function _itplugs() {
             installa+=("$i" '""')
         fi
     done
+    if [[ -z $result ]]; then
+        whiptail --title "Choose Plugins" --checklist --noitem --separate-output "Make some choices:" 15 46 7 "${installa[@]}" 2> /tmp/results
 
-    whiptail --title "Choose Plugins" --checklist --noitem --separate-output "Make some choices:" 15 46 7 "${installa[@]}" 2> /tmp/results
+        exitstatus=$?
+        if [[ $exitstatus = "1" ]]; then
+            _plugins
+        fi
 
-    exitstatus=$?
-    if [[ $exitstatus = "1" ]]; then
-        _plugins
+        readarray -t result < /tmp/results
     fi
-
-    readarray -t result < /tmp/results
     for result in "${result[@]}"; do
         echo_info "Installing ${result}"
         cd /srv/rutorrent/plugins
@@ -234,11 +237,15 @@ FMCONF
     done
     chown -R www-data: /srv/rutorrent/plugins
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
-    rm /tmp/results
-    _function
+    if [[ -z $arg ]]; then
+        rm /tmp/results
+        _function
+    fi
 }
 
 function _rmplugs() {
+    arg=("$@")
+    result=("${arg[@]:1}")
     removea=()
     plugs=(autotools checkport chunks cookies cpuload create data datadir diskspace edit erasedata extratio extsearch feeds filedrop filemanager filemanager-media filemanager-share fileshare fileupload geoip getdir history httprpc ipad loginmgr logoff lookat mediainfo mobile noty pausewebui ratio ratiocolor retrackers rpc rss rssurlrewrite rutracker_check scheduler screenshots seedingtime show_peers_like_wtorrent source spectrogram task theme throttle tracklabels trafic unpack uploadeta xmpp)
 
@@ -250,15 +257,16 @@ function _rmplugs() {
             removea+=("$i" '""')
         fi
     done
+    if [[ -z $result ]]; then
+        whiptail --title "Choose Plugins" --noitem --checklist --separate-output "Make some choices:" 15 46 7 "${removea[@]}" 2> /tmp/results
 
-    whiptail --title "Choose Plugins" --noitem --checklist --separate-output "Make some choices:" 15 46 7 "${removea[@]}" 2> /tmp/results
+        exitstatus=$?
+        if [[ $exitstatus = "1" ]]; then
+            _plugins
+        fi
 
-    exitstatus=$?
-    if [[ $exitstatus = "1" ]]; then
-        _plugins
+        readarray -t result < /tmp/results
     fi
-
-    readarray -t result < /tmp/results
     for result in "${result[@]}"; do
         echo_info "Removing ${result}"
         rm -rf /srv/rutorrent/plugins/${result}
@@ -273,11 +281,15 @@ function _rmplugs() {
         esac
     done
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
-    rm /tmp/results
-    _function
+    if [[ -z $arg ]]; then
+        rm /tmp/results
+        _function
+    fi
 }
 
 function _itthemes() {
+    arg=("$@")
+    result=("${arg[@]:1}")
     installa=()
     themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark DarkBetter Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
 
@@ -289,15 +301,16 @@ function _itthemes() {
             installa+=("$theme" '""')
         fi
     done
+    if [[ -z $result ]]; then
+        whiptail --title "Choose Themes" --checklist --noitem --separate-output "Make some choices:" 15 46 7 "${installa[@]}" 2> /tmp/results
 
-    whiptail --title "Choose Themes" --checklist --noitem --separate-output "Make some choices:" 15 46 7 "${installa[@]}" 2> /tmp/results
+        exitstatus=$?
+        if [[ $exitstatus = "1" ]]; then
+            _themes
+        fi
 
-    exitstatus=$?
-    if [[ $exitstatus = "1" ]]; then
-        _themes
+        readarray -t result < /tmp/results
     fi
-
-    readarray -t result < /tmp/results
     for result in "${result[@]}"; do
         echo_info "Installing ${result}"
         cd /srv/rutorrent/plugins/theme/themes
@@ -321,11 +334,15 @@ function _itthemes() {
     done
     chown -R www-data: /srv/rutorrent/plugins
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
-    rm /tmp/results
-    _function
+    if [[ -z $arg ]]; then
+        rm /tmp/results
+        _function
+    fi
 }
 
 function _rmthemes() {
+    arg=("$@")
+    result=("${arg[@]:1}")
     removea=()
     themes=(Acid Agent34 Agent46 Blue club-QuickBox Dark DarkBetter Excel FlatUI_Dark FlatUI_Light FlatUI_Material MaterialDesign Oblivion OblivionBlue)
     for i in "${themes[@]}"; do
@@ -334,22 +351,63 @@ function _rmthemes() {
             removea+=("$i" '""')
         fi
     done
-    whiptail --title "Choose Themes" --noitem --checklist --separate-output "Make some choices:" 15 46 7 "${removea[@]}" 2> /tmp/results
+    if [[ -z $result ]]; then
+        whiptail --title "Choose Themes" --noitem --checklist --separate-output "Make some choices:" 15 46 7 "${removea[@]}" 2> /tmp/results
 
-    exitstatus=$?
-    if [[ $exitstatus = "1" ]]; then
-        _themes
+        exitstatus=$?
+        if [[ $exitstatus = "1" ]]; then
+            _themes
+        fi
+
+        readarray -t result < /tmp/results
     fi
-
-    readarray -t result < /tmp/results
     for result in "${result[@]}"; do
         echo_info "Removing ${result}"
         rm -rf /srv/rutorrent/plugins/theme/themes/${result}
     done
     /usr/local/bin/swizzin/php-fpm-cli -r 'opcache_reset();'
-    rm /tmp/results
-    _function
+    if [[ -z $arg ]]; then
+        rm /tmp/results
+        _function
+    fi
 }
 
-_intro
-_function
+case "$1" in
+    "")
+        _intro
+        _function
+        exit 0
+        ;;
+    "install-plugin" | "itp")
+        if [[ -z $2 ]]; then
+            echo_error "You must choose some plugins"
+            exit 1
+        fi
+        _itplugs "$@"
+        ;;
+    "remove-plugin" | "rmp")
+        if [[ -z $2 ]]; then
+            echo_error "You must choose some plugins"
+            exit 1
+        fi
+        _rmplugs "$@"
+        ;;
+    "install-theme" | "itt")
+        if [[ -z $2 ]]; then
+            echo_error "You must choose some themes"
+            exit 1
+        fi
+        _itthemes "$@"
+        ;;
+    "remove-theme" | "rmt")
+        if [[ -z $2 ]]; then
+            echo_error "You must choose some themes"
+            exit 1
+        fi
+        _rmthemes "$@"
+        ;;
+    *)
+        echo_error "Invalid command: $1"
+        exit 1
+        ;;
+esac
