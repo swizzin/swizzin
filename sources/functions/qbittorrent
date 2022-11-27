@@ -10,6 +10,7 @@ function whiptail_qbittorrent() {
         latestv42=$(echo "$releases" | grep -m1 -oP '^4\.2\.\d?.?\d')
         latestv43=$(echo "$releases" | grep -m1 -oP '^4\.3\.\d?.?\d')
         latestv44=$(echo "$releases" | grep -m1 -oP '^4\.4\.\d?.?\d')
+        latestv45=$(echo "$releases" | grep -m1 -oP '^4\.5\.\d?.?\d')
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
@@ -24,8 +25,9 @@ function whiptail_qbittorrent() {
                 )
                 ;;
             *)
-                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
+                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
+                    "4.5" "(${latestv45})" \
                     "4.4" "(${latestv44})" \
                     "4.3" "(${latestv43})" \
                     "4.2" "(${latestv42})" \
@@ -52,6 +54,8 @@ function whiptail_qbittorrent() {
             4.4)
                 export QBITTORRENT_VERSION=${latestv44}
                 ;;
+            4.5)
+                export QBITTORRENT_VERSION=${latestv45}
             Repo)
                 export QBITTORRENT_VERSION=repo
                 ;;
@@ -119,7 +123,7 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=autotools
             ;;
-        4.4.*)
+        4.4.* | 4.5.*)
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
                     RC_2_0)
