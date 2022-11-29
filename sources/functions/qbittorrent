@@ -124,7 +124,7 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=autotools
             ;;
-        4.4.* | )
+        4.4.*)
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
                     RC_2_0)
@@ -142,7 +142,7 @@ function qbittorrent_version_info() {
             else
                 libtorrent_branch=RC_1_2
             fi
-            libtorrent_minimum_version=1.2.12
+            libtorrent_minimum_version=1.2.14
             stdcver="c++17"
             qt_minimum_version=6.0
             qbt_use_qt6=ON
