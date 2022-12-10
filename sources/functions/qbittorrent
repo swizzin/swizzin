@@ -373,16 +373,28 @@ function build_libtorrent_qbittorrent() {
                 -D BUILD_SHARED_LIBS=OFF \
                 -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
                 -D CMAKE_C_FLAGS="${CFLAGS}" \
-                -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local" >> ${log} 2>&1
-            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1
-            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/libtorrent/usr/local" >> ${log} 2>&1 || {
+                echo_error "The cmake build of libtorrent did not complete successfully"
+                exit 1
+            }
+            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1 || {
+                echo_error "The cmake build of libtorrent did not complete successfully"
+                exit 1
+            }
+            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1 || {
+                echo_error "The cmake install of libtorrent did not complete successfully"
+                exit 1
+            }
             #Fix pkgconfig paths/quirks
             sed -i 's|/tmp/dist/libtorrent||g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
             sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
             ;;
         autotools)
             echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
-            /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1
+            /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1 || {
+                echo_error "The boost build of libtorrent did not complete successfully"
+                exit 1
+            }
             ;;
         *)
             echo_error "Build type must be cmake or autotools"
@@ -419,7 +431,7 @@ function build_qbittorrent() {
             OS_DEPS=''
             ;;
     esac
-    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev'
+    LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev libiconv-hook-dev'
     apt_install --no-recommends "$LIST ${OS_DEPS}"
     rm_if_exists "/tmp/qbittorrent"
     wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
@@ -444,20 +456,42 @@ function build_qbittorrent() {
                 -D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
                 -D CMAKE_C_FLAGS="${CFLAGS}" \
                 -D GUI=OFF \
-                -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr" >> ${log} 2>&1
-            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1
-            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1
+                -D CMAKE_INSTALL_PREFIX="/tmp/dist/qbittorrent/usr" >> ${log} 2>&1 || {
+                echo_error "The cmake build of qbittorrent did not complete successfully"
+                exit 1
+            }
+            PATH=/opt/local/bin:${PATH} cmake --build build >> ${log} 2>&1 || {
+                echo_error "The cmake build of qbittorrent did not complete successfully"
+                exit 1
+            }
+            PATH=/opt/local/bin:${PATH} cmake --install build >> ${log} 2>&1 || {
+                echo_error "The cmake install of qbittorrent did not complete successfully"
+                exit 1
+            }
             ;;
         autotools)
-            ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1
-            make -j$(nproc) >> $log 2>&1
-            make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1
+            ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1 || {
+                echo_error "The configure of qbittorrent did not complete successfully"
+                exit 1
+            }
+            make -j$(nproc) >> $log 2>&1 || {
+                echo_error "The make of qbittorrent did not complete successfully"
+                exit 1
+            }
+            make INSTALL_ROOT=/tmp/dist/qbittorrent install >> ${log} 2>&1 || {
+                echo_error "The make install of qbittorrent did not complete successfully"
+                exit 1
+            }
             ;;
         *)
             echo_error "Build type must be cmake or autotools"
             exit 1
             ;;
     esac
+    if [[ ! -f /tmp/dist/qbittorrent/usr/bin/qbittorrent-nox ]]; then
+        echo_error "Compile did not produce a qbittorrent-nox binary. Something went wrong"
+        exit 1
+    fi
     #install qbt-cli
     qbt_cli_version=$(github_latest_version ludviglundgren/qbittorrent-cli)
     cd /tmp/dist/qbittorrent/usr/bin
