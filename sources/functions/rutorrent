@@ -1,5 +1,5 @@
 function rutorrent_install() {
-    apt_install sox geoip-database p7zip-full zip unzip
+    apt_install sox geoip-database p7zip-full zip unzip ffmpeg
 
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
