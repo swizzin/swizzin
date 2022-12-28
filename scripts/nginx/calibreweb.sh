@@ -7,6 +7,11 @@ location /calibreweb {
         proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header        X-Scheme        \$scheme;
         proxy_set_header        X-Script-Name   /calibreweb;  # IMPORTANT: path has NO trailing slash
+        
+        # Add Kobo Support. See https://github.com/janeczku/calibre-web/issues/1891#issuecomment-801886803
+        proxy_buffer_size       128k;
+        proxy_buffers           4 256k;
+        proxy_busy_buffers_size 256k;
 }
 EOF
 
