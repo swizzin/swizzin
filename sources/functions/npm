@@ -3,7 +3,7 @@
 
 function npm_install() {
     if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
-        bash <(curl -sL https://deb.nodesource.com/setup_16.x) >> $log 2>&1 || {
+        bash <(curl -sL https://deb.nodesource.com/setup_18.x) >> $log 2>&1 || {
             echo_error "Failed to install node"
             return 1
         }
@@ -20,9 +20,9 @@ function npm_install() {
 
 function npm_update() {
     if [[ -f /etc/apt/sources.list.d/nodesource.list ]]; then
-        if [[ $(grep -m1 -oP 'node_\d+' /etc/apt/sources.list.d/nodesource.list | sed 's/node_//g') -lt "16" ]]; then
-            echo_progress_start "Upgrading nodejs to version 16 LTS"
-            bash <(curl -sL https://deb.nodesource.com/setup_16.x) >> $log 2>&1 || {
+        if [[ $(grep -m1 -oP 'node_\d+' /etc/apt/sources.list.d/nodesource.list | sed 's/node_//g') -lt "18" ]]; then
+            echo_progress_start "Upgrading nodejs to version 18 LTS"
+            bash <(curl -sL https://deb.nodesource.com/setup_18.x) >> $log 2>&1 || {
                 echo_error "Failed to install node"
                 return 1
             }
