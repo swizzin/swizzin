@@ -71,8 +71,8 @@ bash <(curl -sL git.io/swizzin) --env /path/to/your/env/file/here.env
 
 Long-term support branches only:
 
--   Debian 9/10/11
--   Ubuntu 18.04/20.04/22.04
+-   Debian 10/11
+-   Ubuntu 20.04/22.04
 
 ## Support and Help
 
