@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.6.0]
+
+## January 21, 2023
+
+### Changed
+ - Do not use git.io links for quick setup. Bespoke s5n.sh links have been setup for this
+ - Stretch and Bionic have officially been EOL'd. The current commit will be retagged for eol-bionic and eol-stretch. Please update your OS to something that isn't 5+ years old
+ - rtx now supports some rudimentary cli options for installing plugins and themes without the GUI
+ - qBittorrent now supports version 4.5
+ - Deluge 2.1 is supported
+ - Node version has been bumped to version 18 LTS
+
+### Fixed
+ - qBittorrent now has some better error handling
+ - Deluge Automat version has been pinned
+
+
 ## [3.5.3]
 
 ## October 15, 2022
