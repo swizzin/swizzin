@@ -10,7 +10,7 @@ Please use Discord for all community functions, [feathub](https://feathub.com/li
 
 
 ## What is swizzin?
-Swizzin is a light, modular seedbox solution that can be installed on Debian 9/10/11 or Ubuntu 18.04/20.04/22.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
+Swizzin is a light, modular seedbox solution that can be installed on Debian 10/11 or Ubuntu 20.04/22.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
 Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional add-on packages can be installed during installation. No need to wait until the installer finishes! Now with unattended installs!
 
