@@ -25,12 +25,12 @@ You can see what that looks like here:
 
 Using `wget`:
 ```shell
-bash <(wget -qO - git.io/swizzin) && . ~/.bashrc
+bash <(wget -qO - s5n.sh) && . ~/.bashrc
 ```
 
 Using `curl`:
 ```shell
-bash <(curl -sL git.io/swizzin) && . ~/.bashrc
+bash <(curl -sL s5n.sh) && . ~/.bashrc
 ```
 
 ### Make sure you are root
