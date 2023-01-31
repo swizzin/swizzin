@@ -6,8 +6,8 @@ rm -rf /root/.config/jfa-go
 
 apt_remove jfa-go
 
-rm -f /usr/share/keyrings/jf-ago-archive-keyring.gpg
-rm -f /etc/apt/sources.list.d/jf-ago.list
+rm -f /usr/share/keyrings/jfa-go-archive-keyring.gpg
+rm -f /etc/apt/sources.list.d/jfa-go.list
 
 apt_update
 
