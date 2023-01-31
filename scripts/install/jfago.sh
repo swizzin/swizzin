@@ -10,9 +10,10 @@ curl -s "https://apt.hrfee.dev/hrfee.pubkey.gpg" | gpg --dearmor > /usr/share/ke
 echo "deb [signed-by=/usr/share/keyrings/jfa-go-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://apt.hrfee.dev trusty main" > /etc/apt/sources.list.d/jfa-go.list
 echo_progress_done "Repository added"
 
-# install jfa-go using apt functions.
-apt_update #forces apt refresh
-apt_install jfa-go
+# Install jfa-go using apt functions.
+# Install crudini to edit the config file
+apt_update
+apt_install jfa-go crudini
 
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
@@ -43,6 +44,8 @@ echo_progress_done "Service installed"
 echo_progress_start "Enabling and starting jfago to create config file"
 systemctl -q enable jfago --now
 echo_progress_done
+
+crudini --set /root/.config/jfa-go/config.ini ui url_base /jfa-go
 
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch /install/.jfago.lock
