@@ -5,7 +5,7 @@ function rutorrent_install() {
     if [[ ! -d /srv/rutorrent ]]; then
         echo_progress_start "Cloning ruTorrent"
         # Get current stable ruTorrent version
-        release=$(git ls-remote -t --refs https://github.com/novik/ruTorrent.git | awk '{sub("refs/tags/", ""); print $2 }' | sort -r | head -n1)
+        release=$(git ls-remote -t --refs https://github.com/novik/ruTorrent.git | awk '{sub("refs/tags/", ""); print $2 }' | tail -n1)
         git clone --recurse-submodules --depth 1 -b ${release} https://github.com/Novik/ruTorrent.git /srv/rutorrent >> "$log" 2>&1 || {
             echo_error "Failed to clone ruTorrent"
             exit 1
@@ -51,83 +51,89 @@ function rutorrent_install() {
         rutorrent_fix_quota
     fi
 
-    cat > /srv/rutorrent/conf/config.php << RUC
+    cat > /srv/rutorrent/conf/config.php << 'RUC'
 <?php
-// configuration parameters
+	// configuration parameters
 
-// for snoopy client
-@define('HTTP_USER_AGENT', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; pl; rv:1.9) Gecko/2008052906 Firefox/3.0', true);
-@define('HTTP_TIME_OUT', 30, true); // in seconds
-@define('HTTP_USE_GZIP', true, true);
-\$httpIP = null; // IP string. Or null for any.
+	// for snoopy client
+	$httpUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36';
+	$httpTimeOut = 30; // in seconds
+	$httpUseGzip = true;
+	$httpIP = null;				// IP string. Or null for any.
+	$httpProxy = array
+	(
+		'use' 	=> false,
+		'proto'	=> 'http',		// 'http' or 'https'
+		'host'	=> 'PROXY_HOST_HERE',
+		'port'	=> 3128
+	);
 
-\$httpProxy = array
-(
-    'use' 	=> false,
-    'proto'	=> 'http',		// 'http' or 'https'
-    'host'	=> 'PROXY_HOST_HERE',
-    'port'	=> 3128
-);
+	// for xmlrpc actions
+	$rpcTimeOut = 5; // in seconds
+	$rpcLogCalls = false;
+	$rpcLogFaults = true;
 
-@define('RPC_TIME_OUT', 5, true); // in seconds
+	// for php
+	$phpUseGzip = false;
+	$phpGzipLevel = 2;
 
-@define('LOG_RPC_CALLS', false, true);
-@define('LOG_RPC_FAULTS', true, true);
+	$schedule_rand = 10;			// rand for schedulers start, +0..X seconds
 
-// for php
-@define('PHP_USE_GZIP', false, false);
-@define('PHP_GZIP_LEVEL', 2, true);
+	$do_diagnostic = true;			// Diagnose ruTorrent. Recommended to keep enabled, unless otherwise required.
+	$al_diagnostic = true;			// Diagnose auto-loader. Set to "false" to make composer plugins work.
+	
+	$log_file = '/tmp/errors.log';		// path to log file (comment or leave blank to disable logging)
 
-\$schedule_rand = 10;			// rand for schedulers start, +0..X seconds
+	$saveUploadedTorrents = true;		// Save uploaded torrents to profile/torrents directory or not
+	$overwriteUploadedTorrents = false;     // Overwrite existing uploaded torrents in profile/torrents directory or make unique name
 
-\$do_diagnostic = true;
-\$log_file = '/tmp/rutorrent_errors.log'; // path to log file (comment or leave blank to disable logging)
+	//$topDirectory = '/';			// Upper available directory. Absolute path with trail slash.
+	$forbidUserSettings = false;
 
-\$saveUploadedTorrents = true; // Save uploaded torrents to profile/torrents directory or not
-\$overwriteUploadedTorrents = false; // Overwrite existing uploaded torrents in profile/torrents directory or make unique name
+	//$scgi_port = 5000;
+	//$scgi_host = "127.0.0.1";
 
-// \$topDirectory = '/home'; // Upper available directory. Absolute path with trail slash.
-\$forbidUserSettings = false;
+	// For web->rtorrent link through unix domain socket 
+	// (scgi_local in rtorrent conf file), change variables 
+	// above to something like this:
+	//
+	// $scgi_port = 0;
+	// $scgi_host = "unix:///tmp/rpc.socket";
 
-//\$scgi_port = 5000;
-//\$scgi_host = "127.0.0.1";
+	//$XMLRPCMountPoint = "/RPC2";		// DO NOT DELETE THIS LINE!!! DO NOT COMMENT THIS LINE!!!
+	
+	$throttleMaxSpeed = 327625*1024;	// DO NOT EDIT THIS LINE!!! DO NOT COMMENT THIS LINE!!!
+	// Can't be greater then 327625*1024 due to limitation in libtorrent ResourceManager::set_max_upload_unchoked function.
 
-// For web->rtorrent link through unix domain socket
-// (scgi_local in rtorrent conf file), change variables
-// above to something like this:
-//
-//\$scgi_port = 0;
-//\$scgi_host = "unix:///tmp/rtorrent.sock";
+	$pathToExternals = array(
+		"php" 	=> '',			// Something like /usr/bin/php. If empty, will be found in PATH.
+		"curl"	=> '',			// Something like /usr/bin/curl. If empty, will be found in PATH.
+		"gzip"	=> '',			// Something like /usr/bin/gzip. If empty, will be found in PATH.
+		"id"	=> '',			// Something like /usr/bin/id. If empty, will be found in PATH.
+		"stat"	=> '',			// Something like /usr/bin/stat. If empty, will be found in PATH.
+	);
+	
+	$localHostedMode = true; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
 
-//\$XMLRPCMountPoint = "/RPC2"; // DO NOT DELETE THIS LINE!!! DO NOT COMMENT THIS LINE!!!
+	$localhosts = array( 			// list of local interfaces
+		"127.0.0.1",
+		"localhost",
+	);
 
-\$pathToExternals = array(
-    "php" 	=> '',			// Something like /usr/bin/php. If empty, will be found in PATH.
-    "curl"	=> '',			// Something like /usr/bin/curl. If empty, will be found in PATH.
-    "gzip"	=> '',			// Something like /usr/bin/gzip. If empty, will be found in PATH.
-    "id"	=> '',			// Something like /usr/bin/id. If empty, will be found in PATH.
-    "stat"	=> '',			// Something like /usr/bin/stat. If empty, will be found in PATH.
-);
+	$profilePath = '../../share';		// Path to user profiles
+	$profileMask = 0777;			// Mask for files and directory creation in user profiles.
+						// Both Webserver and rtorrent users must have read-write access to it.
+						// For example, if Webserver and rtorrent users are in the same group then the value may be 0770.
 
-\$localhosts = array( // list of local interfaces
-"127.0.0.1",
-"localhost",
-);
+	$tempDirectory = null;			// Temp directory. Absolute path with trail slash. If null, then autodetect will be used.
 
-\$profilePath = '../../share'; // Path to user profiles
-\$profileMask = 0777; // Mask for files and directory creation in user profiles.
-// Both Webserver and rtorrent users must have read-write access to it.
-// For example, if Webserver and rtorrent users are in the same group then the value may be 0770.
+	$canUseXSendFile = false;		// If true then use X-Sendfile feature if it exist
 
-\$tempDirectory = null;			// Temp directory. Absolute path with trail slash. If null, then autodetect will be used.
+	$locale = "UTF8";
 
-\$canUseXSendFile = false;		// If true then use X-Sendfile feature if it exist
-
-\$locale = "UTF8";
-
-\$enableCSRFCheck = false;		// If true then Origin and Referer will be checked
-\$enabledOrigins = array();		// List of enabled domains for CSRF check (only hostnames, without protocols, port etc.).
-						        // If empty, then will retrieve domain from HTTP_HOST / HTTP_X_FORWARDED_HOST
+	$enableCSRFCheck = false;		// If true then Origin and Referer will be checked
+	$enabledOrigins = array();		// List of enabled domains for CSRF check (only hostnames, without protocols, port etc.).
+					            	// If empty, then will retrieve domain from HTTP_HOST / HTTP_X_FORWARDED_HOST
 RUC
 }
 
