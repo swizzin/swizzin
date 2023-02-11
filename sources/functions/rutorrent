@@ -113,7 +113,7 @@ function rutorrent_install() {
 		"stat"	=> '',			// Something like /usr/bin/stat. If empty, will be found in PATH.
 	);
 	
-	$localHostedMode = true; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
+	$localHostedMode = false; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
 
 	$localhosts = array( 			// list of local interfaces
 		"127.0.0.1",
