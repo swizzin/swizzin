@@ -189,8 +189,8 @@ function rutorrent_user_config() {
 RUU
         fi
 
-        if [[ ! -f /etc/nginx/apps/${u}.scgi.conf ]]; then
-            cat > /etc/nginx/apps/${u}.scgi.conf << RUC
+        if [[ ! -f /etc/nginx/apps/${user}.scgi.conf ]]; then
+            cat > /etc/nginx/apps/${user}.scgi.conf << RUC
 location /${user} {
 include scgi_params;
 scgi_pass unix:/var/run/${user}/.rtorrent.sock;
