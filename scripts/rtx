@@ -7,9 +7,16 @@ function _check_for_rutorrent() {
         exit 1
     fi
 }
+
+function _check_rutorrent_safe_dir() {
+    if ! $(git config --global --get safe.directory | grep -q '/srv/rutorrent'); then
+        git config --global --add safe.directory /srv/rutorrent
+    fi
+}
 . /etc/swizzin/sources/globals.sh
 . /etc/swizzin/sources/functions/rutorrent
 _check_for_rutorrent
+_check_rutorrent_safe_dir
 
 function _intro() {
     whiptail --title "ruTorrent Extras Manager" --msgbox "Welcome to rtx! Using this script you can choose to install and remove the plugins and themes for ruTorrent. Use the arrow keys to navigate, spacebar to toggle the currently selected item and enter to continue." 15 50
