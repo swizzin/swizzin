@@ -70,6 +70,7 @@ for version in $phpv; do
         -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
         -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
     phpenmod -v $version opcache
+    sed -i 's/;env\[PATH\]/env[PATH]/g' /etc/php/$version/fpm/pool.d/www.conf
 done
 echo_progress_done "PHP config modified"
 
