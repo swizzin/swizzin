@@ -60,7 +60,7 @@ RUC
         echo_progress_done
     fi
 
-    if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -ic cachedEcho /srv/rutorrent/plugins/diskspace/action.php) == 2 ]]; }; then
+    if [[ -f /install/.quota.lock ]] && { ! grep -q "/usr/bin/quota -wu" /srv/rutorrent/plugins/diskspace/action.php > /dev/null 2>&1 || [[ ! $(grep -ic cachedEcho::send /srv/rutorrent/plugins/diskspace/action.php) == 2 ]]; }; then
         echo_progress_start "Fixing quota ruTorrent plugin"
         . /etc/swizzin/sources/functions/rutorrent
         rutorrent_fix_quota
