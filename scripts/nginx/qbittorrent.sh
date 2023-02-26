@@ -59,4 +59,19 @@ upstream ${user}.qbittorrent {
   server 127.0.0.1:${port};
 }
 QBTUC
+
+    wasActive=$(systemctl is-active qbittorrent@${user})
+    echo_log_only "Active: ${wasActive}"
+
+    if [[ $wasActive == "active" ]]; then
+        echo_log_only "Stopping qBittorrent for ${user}"
+        systemctl stop -q "qbittorrent@${user}"
+    fi
+
+    sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
+    systemctl start "qbittorrent@${user}"
+    if [[ $wasActive == "active" ]]; then
+        echo_log_only "Activating qBittorrent for ${user}"
+        systemctl start "qbittorrent@${user}" -q
+    fi
 done
