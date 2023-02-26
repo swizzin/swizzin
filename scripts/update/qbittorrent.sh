@@ -28,21 +28,32 @@ if [[ -f /install/.qbittorrent.lock ]]; then
             sed -r 's|(rewrite .*)|\1\n    proxy_cookie_path / "/qbittorrent/; Secure";|g' -i /etc/nginx/apps/qbittorrent.conf
             systemctl reload nginx
         fi
-        for user in ${users[@]}; do
-            if ! grep -q "WebUI\\\Address=127.0.0.1" /home/${user}/.config/qBittorrent/qBittorrent.conf; then
-                wasActive=$(systemctl is-active qbittorrent@${user})
-                echo_log_only "Active: ${wasActive}"
-                if [[ $wasActive == "active" ]]; then
-                    echo_log_only "Stopping qBittorrent for ${user}"
-                    systemctl stop -q "qbittorrent@${user}"
-                fi
-                sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
-                systemctl start "qbittorrent@${user}"
-                if [[ $wasActive == "active" ]]; then
-                    echo_log_only "Activating qBittorrent for ${user}"
-                    systemctl start "qbittorrent@${user}" -q
-                fi
+        if [ -z "$SWIZDB_BIND_ENFORCE" ]; then
+            if ! SWIZDB_BIND_ENFORCE="$(swizdb get qbittorrent/bindEnforce)"; then
+                SWIZDB_BIND_ENFORCE=True
+                swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
             fi
-        done
-    fi
+        else
+            echo_info "Setting qbittorrent/bindEnforce = $SWIZDB_BIND_ENFORCE"
+            swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
+        fi
+        if $(swizdb get qbittorrent/bindEnforce); then
+            for user in ${users[@]}; do
+                if ! grep -q "WebUI\\\Address=127.0.0.1" /home/${user}/.config/qBittorrent/qBittorrent.conf; then
+                    wasActive=$(systemctl is-active qbittorrent@${user})
+                    echo_log_only "Active: ${wasActive}"
+                    if [[ $wasActive == "active" ]]; then
+                        echo_log_only "Stopping qBittorrent for ${user}"
+                        systemctl stop -q "qbittorrent@${user}"
+                    fi
+                    sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
+                    systemctl start "qbittorrent@${user}"
+                    if [[ $wasActive == "active" ]]; then
+                        echo_log_only "Activating qBittorrent for ${user}"
+                        systemctl start "qbittorrent@${user}" -q
+                    fi
+                fi
+            done
+        fi
+    fi          
 fi
