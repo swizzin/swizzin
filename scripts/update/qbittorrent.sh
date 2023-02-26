@@ -33,9 +33,10 @@ if [[ -f /install/.qbittorrent.lock ]]; then
                 SWIZDB_BIND_ENFORCE=True
                 swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
             fi
-        else
-            echo_info "Setting qbittorrent/bindEnforce = $SWIZDB_BIND_ENFORCE"
-            swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
+            else
+                echo_info "Setting qbittorrent/bindEnforce = $SWIZDB_BIND_ENFORCE"
+                swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
+            fi
         fi
         if $(swizdb get qbittorrent/bindEnforce); then
             for user in ${users[@]}; do
