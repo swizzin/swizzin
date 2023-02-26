@@ -1,4 +1,7 @@
 #!/bin/bash
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
+users=($(_get_user_list))
 
 if [[ -f /install/.qbittorrent.lock ]]; then
     #Check systemd service for updates
@@ -25,5 +28,21 @@ if [[ -f /install/.qbittorrent.lock ]]; then
             sed -r 's|(rewrite .*)|\1\n    proxy_cookie_path / "/qbittorrent/; Secure";|g' -i /etc/nginx/apps/qbittorrent.conf
             systemctl reload nginx
         fi
+        for user in ${users[@]}; do
+            if ! grep -q "WebUI\\\Address=127.0.0.1" /home/${user}/.config/qBittorrent/qBittorrent.conf; then
+                wasActive=$(systemctl is-active qbittorrent@${user})
+                echo_log_only "Active: ${wasActive}"
+                if [[ $wasActive == "active" ]]; then
+                    echo_log_only "Stopping qBittorrent for ${user}"
+                    systemctl stop -q "qbittorrent@${user}"
+                fi
+                sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
+                systemctl start "qbittorrent@${user}"
+                if [[ $wasActive == "active" ]]; then
+                    echo_log_only "Activating qBittorrent for ${user}"
+                    systemctl start "qbittorrent@${user}" -q
+                fi
+            fi
+        done
     fi
 fi
