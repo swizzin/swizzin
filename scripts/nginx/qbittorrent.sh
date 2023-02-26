@@ -4,6 +4,16 @@
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 
+if [ -z "$SWIZDB_BIND_ENFORCE" ]; then
+    if ! SWIZDB_BIND_ENFORCE="$(swizdb get qbittorrent/bindEnforce)"; then
+        SWIZDB_BIND_ENFORCE=True
+        swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
+    fi
+else
+    echo_info "Setting qbittorrent/bindEnforce = $SWIZDB_BIND_ENFORCE"
+    swizdb set "qbittorrent/bindEnforce" "$SWIZDB_BIND_ENFORCE"
+fi
+
 if [[ ! -f /etc/nginx/apps/qbtindex.conf ]]; then
     cat > /etc/nginx/apps/qbtindex.conf << DIN
 location /qbittorrent.downloads {
@@ -60,18 +70,20 @@ upstream ${user}.qbittorrent {
 }
 QBTUC
 
-    wasActive=$(systemctl is-active qbittorrent@${user})
-    echo_log_only "Active: ${wasActive}"
+    if $(swizdb get qbittorrent/bindEnforce); then
+        wasActive=$(systemctl is-active qbittorrent@${user})
+        echo_log_only "Active: ${wasActive}"
 
-    if [[ $wasActive == "active" ]]; then
-        echo_log_only "Stopping qBittorrent for ${user}"
-        systemctl stop -q "qbittorrent@${user}"
-    fi
+        if [[ $wasActive == "active" ]]; then
+            echo_log_only "Stopping qBittorrent for ${user}"
+            systemctl stop -q "qbittorrent@${user}"
+        fi
 
-    sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
-    systemctl start "qbittorrent@${user}"
-    if [[ $wasActive == "active" ]]; then
-        echo_log_only "Activating qBittorrent for ${user}"
-        systemctl start "qbittorrent@${user}" -q
+        sed -i 's|WebUI\\\Address*|WebUI\\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
+        systemctl start "qbittorrent@${user}"
+        if [[ $wasActive == "active" ]]; then
+            echo_log_only "Activating qBittorrent for ${user}"
+            systemctl start "qbittorrent@${user}" -q
+        fi
     fi
 done
