@@ -40,14 +40,15 @@ function _selectiface() {
 }
 
 function _install_wg() {
-    PKGS=(wireguard qrencode iptables)
 
     case ${codename} in
         buster)
             check_debian_backports
-            PKGS+=(wireguard-dkms)
+            PKGS+=(wireguard-dkms qrencode iptables)
             ;;
-        *) ;;
+        *)
+            PKGS=(wireguard qrencode iptables)
+            ;;
     esac
 
     apt_update
