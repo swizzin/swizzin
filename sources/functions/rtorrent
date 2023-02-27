@@ -88,7 +88,11 @@ function build_xmlrpc-c() {
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) CFLAGS="-flto" >> $log 2>&1
+    flto=
+    if [ $(nproc) -ge 4 ]; then
+        flto="-flto=$(nproc)"
+    fi
+    make -j$(nproc) CFLAGS="${flto}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -135,7 +139,11 @@ function build_libtorrent_rakshasa() {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-O2 -flto" >> $log 2>&1 || {
+    flto=
+    if [ $(nproc) -ge 4 ]; then
+        flto="-flto=$(nproc)"
+    fi
+    make -j$(nproc) CXXFLAGS="-O2 ${flto}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -181,7 +189,11 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-O2 -flto ${stdc}" >> $log 2>&1 || {
+    flto=
+    if [ $(nproc) -ge 4 ]; then
+        flto="-flto=$(nproc)"
+    fi
+    make -j$(nproc) CXXFLAGS="-O2 ${flto} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
