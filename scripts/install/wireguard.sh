@@ -42,24 +42,13 @@ function _selectiface() {
 function _install_wg() {
     PKGS=(wireguard qrencode iptables)
 
-    if [[ $distribution == "Debian" ]]; then
-        case $distribution in
-            buster)
-                check_debian_backports
-                PKGS+=(wireguard-dkms)
-                ;;
-            stretch)
-                echo_info "Adding debian unstable repository and limiting packages"
-                echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-                printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
-                ;;
-            *) ;;
-
-        esac
-    elif [[ $codename == "bionic" ]]; then
-        #This *should* be enabled by default but you know what they say about assumptions.
-        check_ubuntu_updates
-    fi
+    case ${codename} in
+        buster)
+            check_debian_backports
+            PKGS+=(wireguard-dkms)
+            ;;
+        *) ;;
+    esac
 
     apt_update
     apt_install --recommends ${PKGS[@]}
@@ -172,8 +161,8 @@ EOWGC
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/backports
 
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
+distribution=$(_os_distro)
+codename=$(_os_codename)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -f /install/.wireguard.lock ]]; then
     wgiface=$(cat /install/.wireguard.lock)
