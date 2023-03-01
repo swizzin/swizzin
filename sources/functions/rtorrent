@@ -92,7 +92,12 @@ function build_xmlrpc-c() {
     if [ $(nproc) -ge 4 ]; then
         flto="-flto=$(nproc)"
     fi
-    make -j$(nproc) CFLAGS="${flto}" >> $log 2>&1
+    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    pipe=
+    if [[ $memory > 1024 ]]; then
+        pipe="-pipe"
+    fi
+    make -j$(nproc) CFLAGS="${flto} ${pipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -147,7 +152,12 @@ function build_libtorrent_rakshasa() {
     if [ $(nproc) -le 2 ]; then
         level="-O1"
     fi
-    make -j$(nproc) CXXFLAGS="${level} ${flto}" >> $log 2>&1 || {
+    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    pipe=
+    if [[ $memory > 1024 ]]; then
+        pipe="-pipe"
+    fi
+    make -j$(nproc) CXXFLAGS="${level} ${flto} ${pipe}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -201,7 +211,12 @@ function build_rtorrent() {
     if [ $(nproc) -le 2 ]; then
         level="-O1"
     fi
-    make -j$(nproc) CXXFLAGS="${level} ${flto} ${stdc}" >> $log 2>&1 || {
+    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    pipe=
+    if [[ $memory > 1024 ]]; then
+        pipe="-pipe"
+    fi
+    make -j$(nproc) CXXFLAGS="${level} ${flto} ${pipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
