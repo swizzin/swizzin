@@ -97,7 +97,7 @@ function build_xmlrpc-c() {
     if [[ $memory > 1024 ]]; then
         pipe="-pipe"
     fi
-    make -j$(nproc) CFLAGS="${flto} ${pipe}" >> $log 2>&1
+    make -j$(nproc) CFLAGS="-w ${flto} ${pipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -157,7 +157,7 @@ function build_libtorrent_rakshasa() {
     if [[ $memory > 1024 ]]; then
         pipe="-pipe"
     fi
-    make -j$(nproc) CXXFLAGS="${level} ${flto} ${pipe}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -216,7 +216,7 @@ function build_rtorrent() {
     if [[ $memory > 1024 ]]; then
         pipe="-pipe"
     fi
-    make -j$(nproc) CXXFLAGS="${level} ${flto} ${pipe} ${stdc}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
