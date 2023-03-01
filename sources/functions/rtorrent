@@ -143,7 +143,11 @@ function build_libtorrent_rakshasa() {
     if [ $(nproc) -ge 4 ]; then
         flto="-flto=$(nproc)"
     fi
-    make -j$(nproc) CXXFLAGS="-O2 ${flto}" >> $log 2>&1 || {
+    level="-O2"
+    if [ $(nproc) -le 2 ]; then
+        level="-O1"
+    fi
+    make -j$(nproc) CXXFLAGS="${level} ${flto}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -193,7 +197,11 @@ function build_rtorrent() {
     if [ $(nproc) -ge 4 ]; then
         flto="-flto=$(nproc)"
     fi
-    make -j$(nproc) CXXFLAGS="-O2 ${flto} ${stdc}" >> $log 2>&1 || {
+    level="-O2"
+    if [ $(nproc) -le 2 ]; then
+        level="-O1"
+    fi
+    make -j$(nproc) CXXFLAGS="${level} ${flto} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
