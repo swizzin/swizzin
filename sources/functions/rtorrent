@@ -63,7 +63,7 @@ function depends_rtorrent() {
 
     # mktorrent from source
     cd /tmp
-    wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> $log 2>&1
+    curl -sL https://github.com/Rudde/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1rm
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
     unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
