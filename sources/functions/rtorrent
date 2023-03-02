@@ -92,9 +92,9 @@ function build_xmlrpc-c() {
     if [ $(nproc) -ge 4 ]; then
         flto="-flto=$(nproc)"
     fi
-    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
     pipe=
-    if [[ $memory > 1024 ]]; then
+    if [[ $memory > 512 ]]; then
         pipe="-pipe"
     fi
     make -j$(nproc) CFLAGS="-w ${flto} ${pipe}" >> $log 2>&1
@@ -152,9 +152,9 @@ function build_libtorrent_rakshasa() {
     if [ $(nproc) -le 2 ]; then
         level="-O1"
     fi
-    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
     pipe=
-    if [[ $memory > 1024 ]]; then
+    if [[ $memory > 512 ]]; then
         pipe="-pipe"
     fi
     make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe}" >> $log 2>&1 || {
@@ -211,9 +211,9 @@ function build_rtorrent() {
     if [ $(nproc) -le 2 ]; then
         level="-O1"
     fi
-    memory = $(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
     pipe=
-    if [[ $memory > 1024 ]]; then
+    if [[ $memory > 512 ]]; then
         pipe="-pipe"
     fi
     make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe} ${stdc}" >> $log 2>&1 || {
