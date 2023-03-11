@@ -46,28 +46,26 @@ function whiptail_rtorrent() {
     fi
 }
 
-function configure_rtorrent() {    
+function configure_rtorrent() {
     # Link time optimizations for 4 plus threads
-    flto=
     if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi    
-    export rtorrentflto=${flto}
-    
+        export rtorrentflto="-flto=$(nproc)"
+    else
+        export rtorrentflto=""
+    fi
     # pipe optimizations for 512MB plus memory
     memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
-    pipe=
     if [[ $memory > 512 ]]; then
-        pipe="-pipe"
+        export rtorrentpipe="-pipe"
+    else
+        export rtorrentpipe=""
     fi
-    export rtorrentpipe=${pipe}
-    
     # GCC optimization level for program compilation
-    level="-O2"
     if [ $(nproc) -le 2 ]; then
-        level="-O1"
+        export rtorrentlevel="-O1"
+    else
+        export rtorrentlevel="-O2"
     fi
-    export rtorrentlevel=${level}
 }
 
 function depends_rtorrent() {
