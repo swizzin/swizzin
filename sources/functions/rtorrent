@@ -46,6 +46,30 @@ function whiptail_rtorrent() {
     fi
 }
 
+function configure_rtorrent() {    
+    # Link time optimizations for 4 plus threads
+    flto=
+    if [ $(nproc) -ge 4 ]; then
+        flto="-flto=$(nproc)"
+    fi    
+    export rtorrentflto=${flto}
+    
+    # pipe optimizations for 512MB plus memory
+    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    pipe=
+    if [[ $memory > 512 ]]; then
+        pipe="-pipe"
+    fi
+    export rtorrentpipe=${pipe}
+    
+    # GCC optimization level for program compilation
+    level="-O2"
+    if [ $(nproc) -le 2 ]; then
+        level="-O1"
+    fi
+    export rtorrentlevel=${level}
+}
+
 function depends_rtorrent() {
     if [[ ! $rtorrentver == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
@@ -88,16 +112,7 @@ function build_xmlrpc-c() {
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
-    pipe=
-    if [[ $memory > 512 ]]; then
-        pipe="-pipe"
-    fi
-    make -j$(nproc) CFLAGS="-w ${flto} ${pipe}" >> $log 2>&1
+    make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -144,20 +159,7 @@ function build_libtorrent_rakshasa() {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    level="-O2"
-    if [ $(nproc) -le 2 ]; then
-        level="-O1"
-    fi
-    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
-    pipe=
-    if [[ $memory > 512 ]]; then
-        pipe="-pipe"
-    fi
-    make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -203,20 +205,7 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    level="-O2"
-    if [ $(nproc) -le 2 ]; then
-        level="-O1"
-    fi
-    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
-    pipe=
-    if [[ $memory > 512 ]]; then
-        pipe="-pipe"
-    fi
-    make -j$(nproc) CXXFLAGS="-w ${level} ${flto} ${pipe} ${stdc}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
