@@ -46,6 +46,28 @@ function whiptail_rtorrent() {
     fi
 }
 
+function configure_rtorrent() {
+    # Link time optimizations for 4 plus threads
+    if [ $(nproc) -ge 4 ]; then
+        export rtorrentflto="-flto=$(nproc)"
+    else
+        export rtorrentflto=""
+    fi
+    # pipe optimizations for 512MB plus memory
+    memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    if [[ $memory > 512 ]]; then
+        export rtorrentpipe="-pipe"
+    else
+        export rtorrentpipe=""
+    fi
+    # GCC optimization level for program compilation
+    if [ $(nproc) -le 2 ]; then
+        export rtorrentlevel="-O1"
+    else
+        export rtorrentlevel="-O2"
+    fi
+}
+
 function depends_rtorrent() {
     if [[ ! $rtorrentver == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
@@ -63,7 +85,7 @@ function depends_rtorrent() {
 
     # mktorrent from source
     cd /tmp
-    wget -q -O mktorrent.zip https://github.com/Rudde/mktorrent/archive/v1.1.zip >> $log 2>&1
+    curl -sL https://github.com/Rudde/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
     unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
@@ -88,11 +110,7 @@ function build_xmlrpc-c() {
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    make -j$(nproc) CFLAGS="${flto}" >> $log 2>&1
+    make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -111,9 +129,9 @@ function build_libtorrent_rakshasa() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
     mkdir /tmp/libtorrent
-    wget -q ${libtorrentloc} -O /tmp/libtorrent-${libtorrentver}.tar.gz
+    curl -sL ${libtorrentloc} -o /tmp/libtorrent-${libtorrentver}.tar.gz
     VERSION=$libtorrentver
-    tar -xvf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
+    tar -xf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
     cd /tmp/libtorrent >> $log 2>&1
 
     if [[ -f /root/libtorrent-rakshasa-${libtorrentver}.patch ]]; then
@@ -139,11 +157,7 @@ function build_libtorrent_rakshasa() {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    make -j$(nproc) CXXFLAGS="-O2 ${flto}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
@@ -163,8 +177,8 @@ function build_rtorrent() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/rtorrent*"
     mkdir /tmp/rtorrent
-    wget -q ${rtorrentloc} -O /tmp/rtorrent-${rtorrentver}.tar.gz
-    tar -xzvf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
+    curl -sL ${rtorrentloc} -o /tmp/rtorrent-${rtorrentver}.tar.gz
+    tar -xzf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
     VERSION=$rtorrentver
     cd /tmp/rtorrent
     if [[ -f /root/rtorrent-${rtorrentver}.patch ]]; then
@@ -189,11 +203,7 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    flto=
-    if [ $(nproc) -ge 4 ]; then
-        flto="-flto=$(nproc)"
-    fi
-    make -j$(nproc) CXXFLAGS="-O2 ${flto} ${stdc}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
