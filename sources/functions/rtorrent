@@ -9,8 +9,8 @@ function whiptail_rtorrent() {
         repov=$(get_candidate_version rtorrent)
 
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
+            0.9.8 "(Recommended)" \
             Repo "(${repov})" \
-            0.9.8 "" \
             0.9.7 "" \
             0.9.6 "" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
