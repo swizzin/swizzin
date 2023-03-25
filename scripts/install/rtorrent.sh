@@ -25,6 +25,7 @@ network.scgi.open_local = /var/run/${user}/.rtorrent.sock
 schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}/.rtorrent.sock"
 network.tos.set = throughput
 pieces.hash.on_completion.set = no
+pieces.preload.min_rate.set = 50000
 protocol.pex.set = no
 schedule = watch_directory,5,5,load.start=/home/${user}/rwatch/*.torrent
 session.path.set = /home/${user}/.sessions/
