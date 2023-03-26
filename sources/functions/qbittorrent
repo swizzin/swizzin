@@ -14,15 +14,14 @@ function whiptail_qbittorrent() {
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
-            "stretch")
-                #We can't go past 4.3.1 due to openssl and c++ requirements
-                function=$(
-                    whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 5 \
-                        "Repo" "${repov}" \
-                        "4.3.1" "(4.3.1)" \
-                        "4.2" "(${latestv42})" \
-                        "4.1" "(${latestv41})" 3>&1 1>&2 2>&3
-                )
+            "buster")
+                #We can't go past 4.5 due to gcc8 missing features
+                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
+                    "Repo" "${repov}" \
+                    "4.4" "(${latestv44})" \
+                    "4.3" "(${latestv43})" \
+                    "4.2" "(${latestv42})" \
+                    "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
             *)
                 function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
