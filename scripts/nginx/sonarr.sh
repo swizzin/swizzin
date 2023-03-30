@@ -2,7 +2,7 @@
 # Nginx conf for *Arr
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
-# Refactored by Brett 2023
+# Swapped to Sonarr by Brett 2023
 master=$(_get_master_username)
 app_name="sonarr"
 
@@ -16,7 +16,7 @@ app_sslport="9898"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
-app_branch="main"
+app_branch="master"
 
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location /$app_baseurl {
