@@ -57,7 +57,7 @@ if [[ -f /install/.sonarr.lock ]]; then
             fi
 
         elif [[ $(_sonarr_version) = "mono-v2" ]]; then
-            echo_warn "Sonarr v0.2 is EOL and not supported. Please upgrade your Sonarr to v3. An attempt will be made to migrate to .Net core on the next \`box update\` run"
+            echo_warn "Sonarr v2 is EOL and not supported. Please upgrade your Sonarr to v4. An attempt will be made to migrate to .NET on the next \`box update\` run"
             echo_docs "applications/sonarr#migrating-to-v3-on-net-core"
         fi
     else
