@@ -2,12 +2,12 @@
 # Nginx conf for *Arr
 # Flying sausages 2020
 # Refactored by Bakerboy448 2021
-# Swapped to Sonarr by Brett 2023
+# Refactored by Brett 2023
 master=$(_get_master_username)
 app_name="sonarr"
 
 if ! SONARR_OWNER="$(swizdb get $app_name/owner)"; then
-    SONARR_OWNER=$(_get_master_username)
+    SONARR_OWNER=$master
 fi
 user="$SONARR_OWNER"
 
@@ -16,7 +16,7 @@ app_sslport="9898"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
-app_branch="master"
+app_branch="develop"
 
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location /$app_baseurl {
@@ -29,7 +29,6 @@ location /$app_baseurl {
     proxy_http_version 1.1;
     proxy_set_header Upgrade \$http_upgrade;
     proxy_set_header Connection \$http_connection;
-    
     auth_basic "What's the password?";
     auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
 }
@@ -49,9 +48,11 @@ fi
 
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 
+# Set to Debug as this is alpha software
+# ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
-  <LogLevel>info</LogLevel>
+  <LogLevel>trace</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>$app_port</Port>
