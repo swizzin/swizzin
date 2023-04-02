@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.7.0]
+
+## April 2, 2023
+
+This release is mainly aimed at improving the ruTorrent issues as a result of a recent surge in development, but a few other improvements made it in as well.
+
+### New
+- New application: jfa-go
+
+### Changed
+- qbittorrent: disabled 4.5 branch on buster due to gcc incompatibilities
+- rtorrent: compiliation improvements and better LTO settings thanks to @stickz
+- rtorrent: installation speed improvements thanks to @stickz
+- php: will now set path in the pool config, avoiding the need to manually set path in ruTorrent configs
+- readme: removed more feathub links
+
+### Fixed
+- rtx: revert to filemanager pinning on 4.0 rutorrent version
+- rtx: better tag detection of your current installation
+- rtx: ensure rutorrent directory is a git safe.dir
+- rutorrent: better version matching, avoid beta releases now that 4.0 is stable
+- rutorrent: botched scgi creation
+- quota: fix rutorrent diskspace creation (use existing function rather than duplicate code)
+- wireguard: finally found the pesky bug causing rt kernel to be installed in buster (should be generally more functional in buster now as well)
+- box list: not showing package names
+
 ## [3.6.0]
 
 ## January 21, 2023
