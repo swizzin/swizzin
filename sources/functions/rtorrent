@@ -3,6 +3,7 @@
 export distribution=$(lsb_release -is)
 export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
+export rlog="/tmp/rtorrent/rtorrent.log"
 
 function whiptail_rtorrent() {
     if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
@@ -50,7 +51,6 @@ function mount_rtorrent_rd() {
     memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
     # Ramdisk optimization for 4GB plus memory
     mkdir -p /tmp/rtorrent
-    export log="/tmp/rtorrent/rtorrent.log"
     if [[ $memory > 4096 ]]; then
         echo_info "Mounting temporary rtorrent ramdisk"
         mount -t tmpfs -o rw,size=1G tmpfs /tmp/rtorrent >> $log 2>&1
@@ -118,14 +118,14 @@ function build_xmlrpc-c() {
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/rtorrent/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/rtorrent/xmlrpc-c >> $log 2>&1; }
     cd /tmp/rtorrent/xmlrpc-c
-    ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
+    ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $rlog 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
-    make DESTDIR=/tmp/rtorrent/dist/xmlrpc-c install >> $log 2>&1 || {
+    make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe}" >> $rlog 2>&1
+    make DESTDIR=/tmp/rtorrent/dist/xmlrpc-c install >> $rlog 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
     }
@@ -166,17 +166,17 @@ function build_libtorrent_rakshasa() {
             patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> "$log" 2>&1
         fi
     fi
-    ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr >> $log 2>&1 || {
+    ./autogen.sh >> $rlog 2>&1
+    ./configure --prefix=/usr >> $rlog 2>&1 || {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $rlog 2>&1 || {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
     rm_if_exists "/tmp/rtorrent/dist/libtorrent-rakshasa"
-    make DESTDIR=/tmp/rtorrent/dist/libtorrent-rakshasa install >> $log 2>&1
+    make DESTDIR=/tmp/rtorrent/dist/libtorrent-rakshasa install >> $rlog 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/rtorrent/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb >> $log 2>&1
@@ -212,17 +212,17 @@ function build_rtorrent() {
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> "$log" 2>&1
         stdc="-std=c++11"
     fi
-    ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
+    ./autogen.sh >> $rlog 2>&1
+    ./configure --prefix=/usr --with-xmlrpc-c >> $rlog 2>&1 || {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $rlog 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
     rm_if_exists "/tmp/rtorrent/dist/rtorrent"
-    make DESTDIR=/tmp/rtorrent/dist/rtorrent install >> $log 2>&1
+    make DESTDIR=/tmp/rtorrent/dist/rtorrent install >> $rlog 2>&1
     mkdir -p /root/dist
     fpm -f -C /tmp/rtorrent/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version ${VERSION} --description "rtorrent compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/rtorrent_${VERSION}.deb >> $log 2>&1
@@ -245,7 +245,6 @@ function remove_rtorrent_rd() {
         umount -f /tmp/rtorrent
     fi
     rm -rf /tmp/rtorrent
-    export log="/root/logs/swizzin.log"
 }
 
 function remove_rtorrent() {
