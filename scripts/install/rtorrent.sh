@@ -96,6 +96,7 @@ if [[ -n $noexec ]]; then
     mount -o remount,exec /tmp
     noexec=1
 fi
+mount_rtorrent_rd
 depends_rtorrent
 if [[ ! $rtorrentver == repo ]]; then
     configure_rtorrent
@@ -112,6 +113,7 @@ else
     echo_info "Installing rtorrent with apt-get"
     rtorrent_apt
 fi
+remove_rtorrent_rd
 echo_progress_start "Making ${user} directory structure"
 _makedirs
 echo_progress_done

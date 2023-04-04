@@ -29,6 +29,7 @@ else
     remove_rtorrent
 fi
 echo_progress_done
+mount_rtorrent_rd
 
 echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
@@ -49,7 +50,7 @@ else
     rtorrent_apt
     echo_progress_done
 fi
-
+remove_rtorrent_rd
 if [[ -n $noexec ]]; then
     mount -o remount,noexec /tmp
 fi
