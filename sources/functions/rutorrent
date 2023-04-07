@@ -56,7 +56,7 @@ function rutorrent_install() {
 	// configuration parameters
 
 	// for snoopy client
-	$httpUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.87 Safari/537.36';
+	$httpUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
 	$httpTimeOut = 30; // in seconds
 	$httpUseGzip = true;
 	$httpIP = null;				// IP string. Or null for any.
@@ -114,6 +114,7 @@ function rutorrent_install() {
 	);
 	
 	$localHostedMode = false; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
+	$cachedPluginLoading = false;	// Set to true to enable rapid cached loading of ruTorrent plugins
 
 	$localhosts = array( 			// list of local interfaces
 		"127.0.0.1",
