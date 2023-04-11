@@ -190,6 +190,8 @@ function build_rtorrent() {
     else
         echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
     fi
+    #apply lockfile-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
