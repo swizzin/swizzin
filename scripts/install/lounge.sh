@@ -6,11 +6,6 @@ function _install() {
 
     useradd lounge --system -m -d /opt/lounge
 
-    npm -g config set user root || {
-        echo_error "npm config step failed"
-        exit 1
-    }
-
     echo_progress_start "Installing lounge from npm"
     yarn --non-interactive global add thelounge >> $log 2>&1 || {
         echo_error "Lounge failed to install"
