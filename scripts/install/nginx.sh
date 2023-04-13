@@ -11,7 +11,6 @@
 #
 
 distribution=$(_os_distro)
-codename=$(_os_codename)
 
 if [[ -n $(pidof apache2) ]]; then
     if [[ -z $apache2 ]]; then
@@ -35,25 +34,27 @@ if [[ -n $(pidof apache2) ]]; then
     fi
 fi
 
-case $codename in
-    stretch)
-        mcrypt="php-mcrypt"
-        geoip="php-geoip"
-        ;;
-    bionic | focal | buster | bullseye)
-        mcrypt=
-        geoip="php-geoip"
-        ;;
-    *)
-        mcrypt=
-        geoip=
+. /etc/swizzin/sources/functions/utils
+. /etc/swizzin/sources/functions/async
+. /etc/swizzin/sources/functions/nginx
 
-        ;;
-esac
+# Prepare temporary file to check for asynchronous script completion
+nTemp="/install/nginx.txt"
+rm_if_exists $nTemp
+touch $nTemp
 
-APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml php-zip ${geoip} ${mcrypt}"
+# Run package installation and OpenSSL dhparm generation in parallel
+fArray=("nginxInstallPackages" "nginxGenerateOpensslDhparm")
+parallel nginxEchoAsyncProgress "${fArray[*]}" nginxAsyncCompletion
 
-apt_install $APT
+# Wait for asynchronous tasks to complete before moving onward
+while [[ $(grep -c 'done' $nTemp) -le 0 ]]; do
+    echo -n "."
+    sleep 1
+done
+echo ""
+rm $nTemp
+
 mkdir -p /srv
 
 cd /etc/php
@@ -92,19 +93,16 @@ server {
   listen 80 default_server;
   listen [::]:80 default_server;
   server_name _;
-
   location /.well-known {
     alias /srv/.well-known;
     allow all;
     default_type "text/plain";
     autoindex    on;
   }
-
   location / {
     return 301 https://\$host\$request_uri;
   }
 }
-
 # SSL configuration
 server {
   listen 443 ssl http2 default_server;
@@ -116,23 +114,21 @@ server {
   client_max_body_size 40M;
   server_tokens off;
   root /srv/;
-
   include /etc/nginx/apps/*.conf;
-
   location ~ /\.ht {
     deny all;
   }
 }
 NGC
 
-mkdir -p /etc/nginx/ssl/
+#mkdir -p /etc/nginx/ssl/
 mkdir -p /etc/nginx/snippets/
 mkdir -p /etc/nginx/apps/
 
-chmod 700 /etc/nginx/ssl
+#chmod 700 /etc/nginx/ssl
 
 cd /etc/nginx/ssl
-openssl dhparam -out dhparam.pem 2048 >> $log 2>&1
+#openssl dhparam -out dhparam.pem 2048 >> $log 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
 ssl_protocols TLSv1.2 TLSv1.3;
@@ -151,23 +147,19 @@ resolver_timeout 5s;
 #add_header X-Frame-Options DENY;
 add_header X-Frame-Options SAMEORIGIN;
 add_header X-Content-Type-Options nosniff;
-
 ssl_dhparam /etc/nginx/ssl/dhparam.pem;
 SSC
 
 cat > /etc/nginx/snippets/proxy.conf << PROX
 client_max_body_size 10m;
 client_body_buffer_size 128k;
-
 #Timeout if the real server is dead
 proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;
-
 # Advanced Proxy Config
 send_timeout 5m;
 proxy_read_timeout 240;
 proxy_send_timeout 240;
 proxy_connect_timeout 240;
-
 # Basic Proxy Config
 proxy_set_header Host \$host;
 proxy_set_header X-Real-IP \$remote_addr;
@@ -205,7 +197,6 @@ location /fancyindex {
         # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
         set \$path_info \$fastcgi_path_info;
         fastcgi_param PATH_INFO \$path_info;
-
         # Make sure the script exists.
         try_files \$fastcgi_script_name =404;
         fastcgi_pass unix:/run/php/${sock}.sock;

@@ -1,0 +1,42 @@
+#!/bin/bash
+
+nginxEchoAsyncProgress() {
+    echo_progress_start "Installing nginx packages"
+    echo_progress_start "Generating OpenSSL dhparm"
+}
+
+nginxInstallPackages() {
+    codename=$(_os_codename)
+    case $codename in
+        stretch)
+            mcrypt="php-mcrypt"
+            geoip="php-geoip"
+            ;;
+        bionic | focal | buster | bullseye)
+            mcrypt=
+            geoip="php-geoip"
+            ;;
+        *)
+            mcrypt=
+            geoip=
+
+            ;;
+    esac
+
+    APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml php-zip ${geoip} ${mcrypt}"
+    apt_install $APT
+    echo_progress_done "Nginx packages Done"
+}
+
+nginxGenerateOpensslDhparm() {
+    mkdir -p /etc/nginx/ssl/
+    chmod 700 /etc/nginx/ssl
+    cd /etc/nginx/ssl
+    openssl dhparam -out dhparam.pem 2048 >> $log 2>&1
+    echo_progress_done "Nginx OpenSSL Done"
+}
+
+# Signal completion to current bash terminal
+nginxAsyncCompletion() {
+    echo "done" >> $nTemp
+}
