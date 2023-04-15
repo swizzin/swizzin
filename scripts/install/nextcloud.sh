@@ -53,16 +53,14 @@ else
     #a2enmod rewrite > /dev/null 2>&1
     cd /tmp
 
-    #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9/Xenial
-    #Nextcloud 21 no longer supports php7.2 so 20 is the latest supported release for Bionic
     echo_progress_start "Downloading and extracting Nextcloud"
     codename=$(lsb_release -cs)
     case $codename in
-        stretch)
-            version=latest-15
+        buster)
+            version=latest-23
             ;;
-        bionic)
-            version=latest-20
+        focal | bullseye)
+            version=latest-25
             ;;
         *)
             version=latest
