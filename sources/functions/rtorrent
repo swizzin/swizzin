@@ -145,6 +145,9 @@ function build_libtorrent_rakshasa() {
     else
         echo_log_only "No libtorrent-rakshasa patch found at /root/libtorrent-rakshasa-${libtorrentver}.patch"
     fi
+    if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
+    fi
     if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> "$log" 2>&1
         if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
@@ -152,6 +155,7 @@ function build_libtorrent_rakshasa() {
         fi
         if [[ ${libtorrentver} == "0.13.6" ]]; then
             patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> "$log" 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.6.patch >> "$log" 2>&1
         fi
     fi
     ./autogen.sh >> $log 2>&1
