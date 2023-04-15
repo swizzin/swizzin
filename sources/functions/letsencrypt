@@ -6,22 +6,30 @@ function le_vsftpd_hook() {
     if [[ -n "$chkhost" ]]; then
         echo_progress_start "Installing certificate into vsftpd"
         defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
-        if [[ ! "$defaulthost" == "_" ]]; then
-            . /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+        if [[ ! "${defaulthost}" == "_" ]]; then
+            if [[ -d /root/.acme.sh/${defaulthost}_ecc ]]; then
+                defaulthostDir="${defaulthost}_ecc"
+            else
+                defaulthostDir="${defaulthost}"
+            fi
+            . /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf || {
+                echo_warn "vsftpd could not find certificate for ${defaulthost}. Certificate will not be installed."
+                return 1
+            }
             sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/"${defaulthost}"/fullchain.pem#g" /etc/vsftpd.conf
             sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/"${defaulthost}"/key.pem#g" /etc/vsftpd.conf
-            if [[ -z $Le_PostHook ]]; then
+            if [[ -z ${Le_PostHook} ]]; then
                 BASE64CMD=$(echo -n "systemctl restart vsftpd" | base64 -w 0)
-                sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${BASE64CMD}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+                sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${BASE64CMD}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
             elif [[ $Le_PostHook =~ ("ACME_BASE64") ]]; then
-                POSTDECODE=$(echo -n "$Le_PostHook" | sed -e "s/__ACME_BASE64__START_//g" -e "s/__ACME_BASE64__END_//g" | base64 -d)
-                if [[ ! "$POSTDECODE" =~ ("vsftpd") ]]; then
+                POSTDECODE=$(echo -n "${Le_PostHook}" | sed -e "s/__ACME_BASE64__START_//g" -e "s/__ACME_BASE64__END_//g" | base64 -d)
+                if [[ ! "${POSTDECODE}" =~ ("vsftpd") ]]; then
                     POSTDECODE="systemctl restart vsftpd; ${POSTDECODE}"
-                    POSTENCODE=$(echo -n "$POSTDECODE" | base64 -w 0)
-                    sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${POSTENCODE}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+                    POSTENCODE=$(echo -n "${POSTDECODE}" | base64 -w 0)
+                    sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${POSTENCODE}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
                 fi
-            elif [[ ! $Le_PostHook =~ ("vsftpd") ]]; then
-                sed -i "s/Le_PostHook=.*/Le_PostHook='systemctl restart vsftpd; $Le_PostHook'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+            elif [[ ! ${Le_PostHook} =~ ("vsftpd") ]]; then
+                sed -i "s/Le_PostHook=.*/Le_PostHook='systemctl restart vsftpd; ${Le_PostHook}'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
             fi
         fi
         echo_progress_done
@@ -31,25 +39,33 @@ function le_vsftpd_hook() {
 function le_znc_hook() {
     echo_progress_start "Installing certificate into ZNC"
     chkhost="$(find /etc/nginx/ssl/* -maxdepth 1 -type d | cut -f 5 -d '/')"
-    if [[ -n $chkhost ]]; then
+    if [[ -n ${chkhost} ]]; then
         defaulthost=$(grep -m1 "server_name" /etc/nginx/sites-enabled/default | awk '{print $2}' | sed 's/;//g')
         if [[ ! $defaulthost == "_" ]]; then
-            . /root/.acme.sh/${defaulthost}/${defaulthost}.conf
-            if [[ -z $Le_PostHook ]]; then
-                cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-                BASE64CMD=$(echo -n "cat /etc/nginx/ssl/$defaulthost/{key,fullchain}.pem > /home/znc/.znc/znc.pem" | base64 -w 0)
-                sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${BASE64CMD}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
-            elif [[ $Le_PostHook =~ ("ACME_BASE64") ]]; then
-                POSTDECODE=$(echo -n "$Le_PostHook" | sed -e "s/__ACME_BASE64__START_//g" -e "s/__ACME_BASE64__END_//g" | base64 -d)
+            if [[ -d /root/.acme.sh/${defaulthost}_ecc ]]; then
+                defaulthostDir="${defaulthost}_ecc"
+            else
+                defaulthostDir="${defaulthost}"
+            fi
+            . /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf || {
+                echo_warn "znc could not find certificate for ${defaulthost}. Certificate will not be installed."
+                return 1
+            }
+            if [[ -z ${Le_PostHook} ]]; then
+                cat /etc/nginx/ssl/"${defaulthost}"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+                BASE64CMD=$(echo -n "cat /etc/nginx/ssl/${defaulthost}/{key,fullchain}.pem > /home/znc/.znc/znc.pem" | base64 -w 0)
+                sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${BASE64CMD}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
+            elif [[ ${Le_PostHook} =~ ("ACME_BASE64") ]]; then
+                POSTDECODE=$(echo -n "${Le_PostHook}" | sed -e "s/__ACME_BASE64__START_//g" -e "s/__ACME_BASE64__END_//g" | base64 -d)
                 if [[ ! "$POSTDECODE" =~ ("znc") ]]; then
-                    cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-                    POSTDECODE="cat /etc/nginx/ssl/$defaulthost/{key,fullchain}.pem > /home/znc/.znc/znc.pem; ${POSTDECODE}"
-                    POSTENCODE=$(echo -n "$POSTDECODE" | base64 -w 0)
-                    sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${POSTENCODE}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+                    cat /etc/nginx/ssl/"${defaulthost}"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+                    POSTDECODE="cat /etc/nginx/ssl/${defaulthost}/{key,fullchain}.pem > /home/znc/.znc/znc.pem; ${POSTDECODE}"
+                    POSTENCODE=$(echo -n "${POSTDECODE}" | base64 -w 0)
+                    sed -i "s/Le_PostHook=.*/Le_PostHook='__ACME_BASE64__START_${POSTENCODE}__ACME_BASE64__END_'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
                 fi
-            elif [[ ! $Le_PostHook =~ ("znc") ]]; then
-                cat /etc/nginx/ssl/"$defaulthost"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
-                sed -i "s/Le_PostHook=.*/Le_PostHook='cat /etc/nginx/ssl/$defaulthost/{key,fullchain}.pem > /home/znc/.znc/znc.pem; $Le_PostHook'/g" /root/.acme.sh/"${defaulthost}"/"${defaulthost}".conf
+            elif [[ ! ${Le_PostHook} =~ ("znc") ]]; then
+                cat /etc/nginx/ssl/"${defaulthost}"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+                sed -i "s/Le_PostHook=.*/Le_PostHook='cat /etc/nginx/ssl/${defaulthost}/{key,fullchain}.pem > /home/znc/.znc/znc.pem; ${Le_PostHook}'/g" /root/.acme.sh/"${defaulthostDir}"/"${defaulthost}".conf
             fi
         fi
     fi
