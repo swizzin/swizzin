@@ -8,11 +8,13 @@ function whiptail_rtorrent() {
     if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
 
+        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
+
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
-            Repo "(${repov})" \
             0.9.8 "" \
             0.9.7 "" \
-            0.9.6 "" 3>&1 1>&2 2>&3) || {
+            0.9.6 "" \
+            Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
         }
