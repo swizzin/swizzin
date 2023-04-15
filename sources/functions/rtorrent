@@ -8,11 +8,13 @@ function whiptail_rtorrent() {
     if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
 
+        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
+
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
-            Repo "(${repov})" \
             0.9.8 "" \
             0.9.7 "" \
-            0.9.6 "" 3>&1 1>&2 2>&3) || {
+            0.9.6 "" \
+            Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
         }
@@ -117,6 +119,8 @@ function build_xmlrpc-c() {
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/rtorrent/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/rtorrent/xmlrpc-c >> $log 2>&1; }
     cd /tmp/rtorrent/xmlrpc-c
+    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
+    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
@@ -156,6 +160,9 @@ function build_libtorrent_rakshasa() {
     else
         echo_log_only "No libtorrent-rakshasa patch found at /root/libtorrent-rakshasa-${libtorrentver}.patch"
     fi
+    if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
+    fi
     if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> "$log" 2>&1
         if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
@@ -163,6 +170,7 @@ function build_libtorrent_rakshasa() {
         fi
         if [[ ${libtorrentver} == "0.13.6" ]]; then
             patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> "$log" 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.6.patch >> "$log" 2>&1
         fi
     fi
     ./autogen.sh >> $log 2>&1
@@ -203,6 +211,8 @@ function build_rtorrent() {
     else
         echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
     fi
+    #apply lockfile-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6

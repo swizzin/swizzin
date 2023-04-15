@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.7.1]
+
+## April 15, 2023
+
+### Updated
+- rutorrent: version 4.0.2, 4.0.3 compatibility
+
+### Fixed
+- rtorrent:
+  - resolve lockfile crash
+  - patch xmlrpc-c for newer architectures
+  - support 10gbit throttles
+  - lower repo priority on the installation options
+- nextcloud: version pinned everything except jammy
+- lounge: remove problematic `npm config set`
+
 ## [3.7.0]
 
 ## April 2, 2023
