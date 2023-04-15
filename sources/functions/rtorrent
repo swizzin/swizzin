@@ -104,6 +104,8 @@ function build_xmlrpc-c() {
     XMLRPC_REV=2954
     svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1; }
     cd /tmp/xmlrpc-c
+    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
+    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
