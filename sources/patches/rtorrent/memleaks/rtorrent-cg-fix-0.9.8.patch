@@ -1,0 +1,75 @@
+From 5992c602197834d2e3feb7a84d55f53f08fe0500 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sun, 4 Jul 2021 18:54:55 -0400
+Subject: [PATCH] command_groups: fix cg_list_hack memory leak
+
+---
+ src/command_groups.cc  | 11 +++++++++++
+ src/command_helpers.cc |  6 ++++++
+ src/command_helpers.h  |  2 ++
+ src/main.cc            |  2 ++
+ 4 files changed, 21 insertions(+)
+
+diff --git a/src/command_groups.cc b/src/command_groups.cc
+index 65e923e0c..acab210bf 100644
+--- a/src/command_groups.cc
++++ b/src/command_groups.cc
+@@ -381,3 +381,14 @@ initialize_command_groups() {
+                                                                  std::bind(&torrent::choke_queue::heuristics, CHOKE_GROUP(&torrent::choke_group::down_queue))));
+   CMD2_ANY_LIST    ("choke_group.down.heuristics.set", std::bind(&apply_cg_heuristics_set, std::placeholders::_2, false));
+ }
++
++void cleanup_command_groups() {
++#if USE_CHOKE_GROUP
++#else
++  while (!cg_list_hack.empty()) {
++    auto cg = cg_list_hack.back();
++    delete cg;
++    cg_list_hack.pop_back();
++  }
++#endif
++}
+\ No newline at end of file
+diff --git a/src/command_helpers.cc b/src/command_helpers.cc
+index 54c0b35e4..31599e265 100644
+--- a/src/command_helpers.cc
++++ b/src/command_helpers.cc
+@@ -57,6 +57,12 @@ void initialize_command_tracker();
+ void initialize_command_scheduler();
+ void initialize_command_ui();
+ 
++void cleanup_command_groups();
++
++void cleanup_commands() {
++  cleanup_command_groups();
++}
++
+ void
+ initialize_commands() {
+   initialize_command_dynamic();
+diff --git a/src/command_helpers.h b/src/command_helpers.h
+index a104fbbc4..6918f9632 100644
+--- a/src/command_helpers.h
++++ b/src/command_helpers.h
+@@ -43,6 +43,8 @@
+ 
+ void initialize_commands();
+ 
++void cleanup_commands();
++
+ //
+ // New std::function based command_base helper functions:
+ //
+diff --git a/src/main.cc b/src/main.cc
+index b0fd6cf98..4be972259 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -508,6 +508,8 @@ main(int argc, char** argv) {
+     lt_log_print(torrent::LOG_CRITICAL, "Caught exception: '%s'.", e.what());
+     return -1;
+   }
++  
++  cleanup_commands();
+ 
+   torrent::log_cleanup();
+ 

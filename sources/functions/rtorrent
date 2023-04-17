@@ -202,11 +202,24 @@ function build_rtorrent() {
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
-    #use pkgconfig for cppunit if 0.9.6
     stdc=
-    if [[ ${rtorrentver} == "0.9.6" ]]; then
+    if [[ ${rtorrentver} == "0.9.8" ]]; then
+        # Patch download list memory leak with rTorrent screen specific with version 0.9.8
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-dl-fix-0.9.8.patch >> "$log" 2>&1
+        # Patch a couple memory leaks related to how rTorrent handles commands for rtorrent.rc
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cg-fix-0.9.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cd-fix-0.9.8.patch >> "$log" 2>&1
+    elif [[ ${rtorrentver} == "0.9.7" ]]; then
+        # Patch a couple memory leaks related to how rTorrent handles commands for rtorrent.rc
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cg-fix-0.9.7.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cd-fix-0.9.7.patch >> "$log" 2>&1
+    elif [[ ${rtorrentver} == "0.9.6" ]]; then
+        #use pkgconfig for cppunit if 0.9.6
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> "$log" 2>&1
         stdc="-std=c++11"
+        # Patch a couple memory leaks related to how rTorrent handles commands for rtorrent.rc
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cg-fix-0.9.6.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/memleaks/rtorrent-cd-fix-0.9.7.patch >> "$log" 2>&1
     fi
     ./autogen.sh >> $log 2>&1
     ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {

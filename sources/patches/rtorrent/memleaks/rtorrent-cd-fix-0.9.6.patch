@@ -1,0 +1,22 @@
+From 4d6cb3474ff47cd6e2ca46c30644eec458ddc8cb Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sun, 4 Jul 2021 18:51:33 -0400
+Subject: [PATCH] command_dynamic: fix memory leak of dynamic commands
+
+---
+ src/command_dynamic.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/command_dynamic.cc b/src/command_dynamic.cc
+index 0a1f8e7b4..21865f525 100644
+--- a/src/command_dynamic.cc
++++ b/src/command_dynamic.cc
+@@ -144,7 +144,7 @@ system_method_insert_object(const torrent::Object::list_type& args, int flags) {
+     throw torrent::input_error("Invalid type.");
+   }
+ 
+-  int cmd_flags = 0;
++  int cmd_flags = rpc::CommandMap::flag_delete_key;
+ 
+   if (!(flags & rpc::object_storage::flag_static))
+     cmd_flags |= rpc::CommandMap::flag_modifiable;

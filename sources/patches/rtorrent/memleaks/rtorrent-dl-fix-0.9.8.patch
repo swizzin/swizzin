@@ -1,0 +1,29 @@
+From 9b1a7fd7528bbf60f9c71558758dd9d0fe639115 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sun, 4 Jul 2021 18:56:44 -0400
+Subject: [PATCH] download_list: fix potential memory leak
+
+---
+ src/ui/download_list.cc | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/ui/download_list.cc b/src/ui/download_list.cc
+index f1d6af5c6..7cb0e9a89 100644
+--- a/src/ui/download_list.cc
++++ b/src/ui/download_list.cc
+@@ -272,6 +272,7 @@ DownloadList::receive_view_input(Input type) {
+           std::getline(ss, view_name_var, ',');
+           if (current_view()->name() == rak::trim(view_name_var)) {
+               control->core()->push_log_std("View '" + current_view()->name() + "' can't be filtered.");
++              delete input;
+               return;
+           }
+       }
+@@ -281,6 +282,7 @@ DownloadList::receive_view_input(Input type) {
+     break;
+ 
+   default:
++    delete input;
+     throw torrent::internal_error("DownloadList::receive_view_input(...) Invalid input type.");
+   }
+ 
