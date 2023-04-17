@@ -107,7 +107,7 @@ function depends_rtorrent() {
     make install PREFIX=/usr >> $log 2>&1
     cd /tmp
     rm -rf mktorrent*
-    
+
     # libudns from source
     if [[ ${libudns} == "true" ]]; then
         git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
