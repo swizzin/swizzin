@@ -225,6 +225,9 @@ function build_rtorrent() {
     else
         echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
     fi
+    if [[ ${libudns} == "true" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
+    fi
     #apply lockfile-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
