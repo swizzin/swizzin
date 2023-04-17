@@ -172,6 +172,7 @@ function build_libtorrent_rakshasa() {
     fi
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
     fi
     if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
