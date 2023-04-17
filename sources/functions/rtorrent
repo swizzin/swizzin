@@ -8,12 +8,13 @@ function whiptail_rtorrent() {
     if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
         repov=$(get_candidate_version rtorrent)
 
-        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
+        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s. UDNS includes a stability patch for UDP trackers on rTorrent." 15 50
 
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
             0.9.8 "" \
             0.9.7 "" \
             0.9.6 "" \
+            UDNS "(0.9.8)" \
             Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
@@ -23,21 +24,31 @@ function whiptail_rtorrent() {
             0.9.6)
                 export rtorrentver='0.9.6'
                 export libtorrentver='0.13.6'
+                export libudns='false'
                 ;;
 
             0.9.7)
                 export rtorrentver='0.9.7'
                 export libtorrentver='0.13.7'
+                export libudns='false'
                 ;;
 
             0.9.8)
                 export rtorrentver='0.9.8'
                 export libtorrentver='0.13.8'
+                export libudns='false'
+                ;;
+
+            UDNS)
+                export rtorrentver='0.9.8'
+                export libtorrentver='0.13.8'
+                export libudns='true'
                 ;;
 
             Repo)
                 export rtorrentver='repo'
                 export libtorrentver='repo'
+                export libudns='false'
                 ;;
 
             *)
@@ -96,6 +107,18 @@ function depends_rtorrent() {
     make install PREFIX=/usr >> $log 2>&1
     cd /tmp
     rm -rf mktorrent*
+    
+    # libudns from source
+    if [[ ${libudns} == "true" ]]; then
+        git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
+        cd /tmp/udns
+        ./autogen.sh >> $log 2>&1
+        ./configure --prefix=/usr >> $log 2>&1
+        make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} -O2 -fPIC" >> $log 2>&1
+        make -s install >> $log 2>&1
+        cd /tmp
+        rm -rf udns*
+    fi
 }
 
 function build_xmlrpc-c() {
@@ -146,6 +169,9 @@ function build_libtorrent_rakshasa() {
         echo_info "Libtorrent-rakshasa patch found and applied!"
     else
         echo_log_only "No libtorrent-rakshasa patch found at /root/libtorrent-rakshasa-${libtorrentver}.patch"
+    fi
+    if [[ ${libudns} == "true" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
     fi
     if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
