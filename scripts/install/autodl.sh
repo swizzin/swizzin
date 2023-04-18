@@ -27,7 +27,7 @@ function _installautodl() {
 
 function _autoconf() {
     echo_progress_start "Downloading autodl source code"
-    curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget -O /tmp/autodl-irssi.zip --quiet
+    curl -sL http://git.io/vlcND | grep -Po '(?<="browser_download_url":).*?[^\\].zip"' | sed 's/"//g' | xargs wget -q -O /tmp/autodl-irssi.zip
     echo_progress_done "Download finished"
     for u in "${users[@]}"; do
         echo_progress_start "Configuring autodl for $u"
