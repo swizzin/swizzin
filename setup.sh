@@ -194,11 +194,11 @@ _os() {
     fi
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
-    if [[ ! $distribution =~ ^(Debian|Ubuntu)$ ]]; then
+    if [[ ! $distribution =~ ^(Debian|Ubuntu|Elementarr)$ ]]; then
         echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
         exit 1
     fi
-    if [[ ! $codename =~ ^(buster|focal|bullseye|jammy)$ ]]; then
+    if [[ ! $codename =~ ^(buster|focal|bullseye|jammy|jolnir)$ ]]; then
         echo_error "Your release ($codename) of $distribution is not supported."
         exit 1
     fi
