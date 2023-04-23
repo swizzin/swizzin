@@ -247,7 +247,6 @@ function rtorrent_apt() {
 }
 
 function remove_rtorrent_rd() {
-    mv /tmp/rtorrent/rtorrent.log /root/logs/rtorrent.log
     if [[ ${rtorrentrd} == "true" ]]; then
         echo_info "Removing temporary rtorrent ramdisk"
         cd "/tmp"
