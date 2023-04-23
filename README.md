@@ -61,6 +61,11 @@ Want to specify the user and their password? And the packages to have installed?
 bash <(curl -sL git.io/swizzin) --unattend qbittorrent nginx panel --user tester --pass test1234 
 ```
 
+Want to enable BBR Congestion Control for increased TCP throughput? Use the `--enablebbr` flag on your supported or default configuration! Optionally, combine it with the `--unattend`, `--user` and `--pass` flags above for automated setup!
+```bash
+bash <(curl -sL git.io/swizzin) --enablebbr
+```
+
 Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file! (see the [unattended.example.env](unattended.example.env) file for an example)
 ```bash
 bash <(curl -sL git.io/swizzin) --env /path/to/your/env/file/here.env

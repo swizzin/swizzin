@@ -110,6 +110,10 @@ function _option_parse() {
                 rmgrsec=yes
                 echo_info "OVH Kernel nuke = $rmgrsec"
                 ;;
+            --enablebbr)
+                enablebbr=true
+                echo_info "Enable BBR = $enablebbr"
+                ;;
             --env)
                 shift
                 if [[ ! -f $1 ]]; then
@@ -219,6 +223,52 @@ function _preparation() {
     if [[ ! "$nofile" ]]; then echo "DefaultLimitNOFILE=500000" >> /etc/systemd/system.conf; fi
     echo_progress_done "Setup succesful"
     echo
+}
+
+function _checkbbr() {
+    # If bbr is enabled through unattended setup mark it as enabled
+    if [[ -n $BBR_CONGESTION_CONTROL ]]; then
+        [[ $BBR_CONGESTION_CONTROL = "yes" ]] && enablebbr=true
+    fi
+    # If bbr is already running on the operating system, skip checks and exit function
+    local old_cc=$(sysctl net.ipv4.tcp_congestion_control | grep -c bbr)
+    if [[ $old_cc -ge 1 ]]; then
+        echo_info "BBR Congestion Control is already enabled, skipping BBR"
+        return 0
+    fi
+    # if sysctl.conf has already defined a cc or qdisc, skip checks and exit function
+    local sysctl_cc=$(grep -c net.ipv4.tcp_congestion_control /etc/sysctl.conf)
+    local sysctl_qdisc=$(grep -c net.core.default_qdisc /etc/sysctl.conf)
+    if [[ $sysctl_cc -ge 1 ]] || [[ $sysctl_qdisc -ge 1 ]]; then
+        echo_info "sysctl.conf has conflicting options, skipping BBR"
+        return 0
+    fi
+    # If bbr is not supported by the linux kernel, skip checks and exit function
+    modprobe tcp_bbr >> $log 2>&1
+    local availible_cc=$(sysctl net.ipv4.tcp_available_congestion_control | grep -c bbr)
+    if [[ $availible_cc -le 0 ]]; then
+        echo_info "Linux Kernel does not support BBR Congestion Control, skipping BBR"
+        return 0
+    fi
+    # If fq is not supported by the linux kernel, skip checks and exit function
+    local availible_fq=$(grep -c CONFIG_NET_SCH_FQ= /boot/config-$(uname -r))
+    if [[ $availible_fq -le 0 ]]; then
+        echo_info "Linux Kernel does not support Fair Queue Scheduler, skipping BBR"
+        return 0
+    fi
+    # If enablebbr was NOT set and we're not in unattended mode
+    if [[ $enablebbr != "true" ]] && [[ $unattend != "true" ]]; then
+        # Ask the user if they would like to enable bbr congestion control
+        if ask "Would you like to enable BBR congestion control for increased throughput?" Y; then
+            enablebbr=true
+        fi
+    fi
+    # If enablebbr is set then enable fq plus bbq and apply the changes
+    if [[ $enablebbr = "true" ]]; then
+        echo "net.core.default_qdisc=fq" >> /etc/sysctl.d/55-swizzin.conf
+        echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.d/55-swizzin.conf
+        sysctl --system >> $log 2>&1
+    fi
 }
 
 #FYI code duplication from `box rmgrsec`
@@ -404,6 +454,7 @@ _run_post() {
 
 _os
 _preparation
+_checkbbr
 ## If install is attended, do the nice intro
 if [[ $unattend != "true" ]]; then
     if [[ -z "$user" ]] && [[ -z "$pass" ]]; then # If password AND username are empty
