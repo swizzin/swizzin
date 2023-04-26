@@ -1,0 +1,75 @@
+#!/bin/bash
+# Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
+
+build_cares() {
+    cd /tmp
+
+    . /etc/swizzin/sources/functions/utils
+    cares_latest=$(github_latest_version c-ares/c-ares)
+    cares_tar=${cares_latest/cares/c-ares}
+    
+    wget -O /tmp/cares.tar.gz https://github.com/c-ares/c-ares/releases/download/${cares_latest}/${cares_tar//_/.}.tar.gz > ${log} 2>&1 || {
+        echo_error "There was an error downloading c-ares! Please check the log for more info"
+        rm /tmp/cares.tar.gz >> $log 2>&1
+        exit 1
+    }
+    
+    mkdir -p /tmp/cares
+    tar -xzf /tmp/cares.tar.gz -C /tmp/cares --strip-components=1 >> $log 2>&1
+    rm /tmp/cares.tar.gz
+
+    cd /tmp/cares
+    ./configure --prefix=/usr >> ${log} 2>&1 || {
+    echo_error "There was an error configuring c-ares! Please check the log for more info"
+        cd /tmp
+        rm -rf /tmp/cares >> $log 2>&1
+        exit 1
+    }
+    make -j$(nproc) CFLAGS="-O2 -flto=$(nproc)" >> ${log} 2>&1 || {
+        echo_error "There was an error compiling c-ares! Please check the log for more info"
+        cd /tmp
+        rm -rf /tmp/cares >> $log 2>&1
+        exit 1
+    }
+    make install >> ${log} 2>&1 >> $log 2>&1
+
+    cd /tmp
+    rm -rf /tmp/cares >> $log 2>&1
+}
+
+build_curl() {
+    cd /tmp
+    
+    wget -O /tmp/curl.zip https://salsa.debian.org/debian/curl/-/archive/debian/bullseye-backports/curl-debian-bullseye-backports.zip >> ${log} 2>&1 || {
+        echo_error "There was an error downloading curl! Please check the log for more info"
+        rm /tmp/curl.zip >> $log 2>&1
+        exit 1
+    }
+
+    unzip /tmp/curl.zip -d /tmp >> $log 2>&1
+    rm /tmp/curl.zip
+
+    apt_install libssl-dev
+
+    cd /tmp/curl-debian-bullseye-backports
+    ./configure --enable-versioned-symbols --with-openssl --enable-ares >> ${log} 2>&1 || {
+        echo_error "There was an error configuring curl! Please check the log for more info"
+        cd /tmp
+        rm -rf /tmp/curl-* >> $log 2>&1
+        exit 1
+    }
+    make -j$(nproc) CFLAGS="-O2 -flto=$(nproc)" >> ${log} 2>&1 || {
+        echo_error "There was an error compiling curl! Please check the log for more info"
+        cd /tmp
+        rm -rf /tmp/curl-* >> $log 2>&1
+        exit 1
+    }
+    make install >> ${log} 2>&1 >> $log 2>&1
+
+    cd /tmp
+    rm -rf /tmp/curl-* >> $log 2>&1
+
+    ldconfig /usr/local/bin
+    ldconfig /usr/local/lib
+}
+
