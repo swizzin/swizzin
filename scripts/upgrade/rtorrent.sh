@@ -34,6 +34,8 @@ echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
 echo_progress_done
 if [[ ! $rtorrentver == repo ]]; then
+    . /etc/swizzin/sources/functions/gcc
+    Upgrade_GCC_Ubuntu
     configure_rtorrent
     echo_progress_start "Building xmlrpc-c from source ... "
     build_xmlrpc-c

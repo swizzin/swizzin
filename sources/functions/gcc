@@ -1,0 +1,49 @@
+#!/bin/bash
+# Functions to upgrade GCC on Ubuntu
+# Stickz for Swizzin 2023
+# GPLv3 Applies
+
+Upgrade_GCC_Ubuntu() {
+    echo_info "Checking OS for GCC upgrade"
+    if [[ "$(_os_codename)" = "focal" ]]; then
+        Upgrade_GCC10_Focal
+    elif [[ "$(_os_codename)" = "jammy" ]]; then
+        Upgrade_GCC12_Jammy
+    else
+        echo_info "Skipping GCC upgrade due to unsupported OS"
+    fi
+}
+
+Upgrade_GCC10_Focal() {
+    local gccten=$(gcc --version | grep -c "Ubuntu 10")
+    if [[ $gccten -le 0 ]]; then
+        echo_info "Ubuntu 20.04 Found. Upgrading from GCC 9 to 10."
+        apt_install gcc-10 g++-10
+
+        echo_progress_start "Configuring GCC 10"
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10 >> $log 2>&1
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10 >> $log 2>&1
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9 >> $log 2>&1
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9 >> $log 2>&1
+        echo_progress_done "GCC 10 Configured"
+    else
+        echo_info "GCC version is 10. No upgrade required."
+    fi
+}
+
+Upgrade_GCC12_Jammy() {
+    local gcctwelve=$(gcc --version | grep -c "Ubuntu 12")
+    if [[ $gcctwelve -le 0 ]]; then
+        echo_info "Ubuntu 22.04 Found. Upgrading from GCC 11 to 12."
+        apt_install gcc-12 g++-12
+
+        echo_progress_start "Configuring GCC 12"
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 12 >> $log 2>&1
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12 >> $log 2>&1
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11 >> $log 2>&1
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11 >> $log 2>&1
+        echo_progress_done "GCC 12 Configured"
+    else
+        echo_info "GCC version is 12. No upgrade required."
+    fi
+}
