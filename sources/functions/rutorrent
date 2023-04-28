@@ -113,7 +113,7 @@ function rutorrent_install() {
 		"stat"	=> '',			// Something like /usr/bin/stat. If empty, will be found in PATH.
 	);
 	
-	$localHostedMode = false; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
+	$localHostedMode = true; 		// Set to true if rTorrent is hosted on the SAME machine as ruTorrent
 	
 	$cachedPluginLoading = false;	// Set to true to enable rapid cached loading of ruTorrent plugins	
 	$pluginJSCacheExpire = 3*60;	// Sets duration ruTorrent plugin javascript cache is valid for in minutes
