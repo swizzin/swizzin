@@ -16,6 +16,12 @@ bash /usr/local/bin/swizzin/nginx/rutorrent.sh || {
     exit 1
 }
 
+if [[ ! -f /install.ffmpeg.lock ]]; then
+    echo_progress_start "Installing ffmpeg for ruTorrent"
+    . /etc/swizzin/sources/functions/ffmpeg
+    ffmpeg_install
+fi
+
 if [[ -f /install/.autodl.lock ]]; then
     echo_progress_start "Configuring Autodl Plugin"
     bash /usr/local/bin/swizzin/nginx/autodl.sh || {
