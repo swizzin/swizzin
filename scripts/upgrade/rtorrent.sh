@@ -35,6 +35,7 @@ echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
 echo_progress_done
 if [[ ! $rtorrentver == repo ]]; then
+    configure_curl
     echo_progress_start "Building c-ares from source"
     build_cares
     echo_progress_done

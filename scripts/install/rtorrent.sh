@@ -99,6 +99,7 @@ if [[ -n $noexec ]]; then
 fi
 depends_rtorrent
 if [[ ! $rtorrentver == repo ]]; then
+    configure_curl
     echo_progress_start "Building c-ares from source"
     build_cares
     echo_progress_done
