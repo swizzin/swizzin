@@ -21,7 +21,19 @@ export -f _os_distro
 # - etc.
 _os_codename() {
     source /etc/os-release
-    printf '%s' "$VERSION_CODENAME"
+    output=$VERSION_CODENAME
+    
+    # Add support for Linux Mint, by returning the UBUNTU_CODENAME instead
+    # Supports all flavours of Ubuntu returning 'focal' or 'jammy'
+    mint=("vera" "vanessa" "una" "uma" "ulyssa" "ulyana" "tricia" "tina" "tessa" "tara")
+    for str in ${mint[@]}; do
+        if [[ "$output" == "$str" ]]; then
+            output=$UBUNTU_CODENAME
+            break
+        fi
+    done
+    
+    printf '%s' "$output"
 }
 export -f _os_codename
 
