@@ -8,7 +8,10 @@
 # - `raspbian`
 _os_distro() {
     source /etc/os-release
-    output=($ID == "Linuxmint") ? "ubuntu" : $ID
+    output=$ID
+    if [["$output" == "linuxmint"]]; then
+        output="ubuntu"
+    fi
     printf '%s' "$output"
 }
 export -f _os_distro
