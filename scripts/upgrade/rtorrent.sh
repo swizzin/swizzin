@@ -11,6 +11,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 #shellcheck source=sources/functions/rtorrent
 . /etc/swizzin/sources/functions/rtorrent
+. /etc/swizzin/sources/functions/curl
 whiptail_rtorrent
 
 user=$(cut -d: -f1 < /root/.master.info)
@@ -34,6 +35,13 @@ echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
 echo_progress_done
 if [[ ! $rtorrentver == repo ]]; then
+    configure_curl
+    echo_progress_start "Building c-ares from source"
+    build_cares
+    echo_progress_done
+    echo_progress_start "Building curl from source"
+    build_curl
+    echo_progress_done
     configure_rtorrent
     echo_progress_start "Building xmlrpc-c from source ... "
     build_xmlrpc-c

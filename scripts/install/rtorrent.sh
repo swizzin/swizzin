@@ -78,6 +78,7 @@ EOF
 export DEBIAN_FRONTEND=noninteractive
 
 . /etc/swizzin/sources/functions/rtorrent
+. /etc/swizzin/sources/functions/curl
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
@@ -99,6 +100,13 @@ if [[ -n $noexec ]]; then
 fi
 depends_rtorrent
 if [[ ! $rtorrentver == repo ]]; then
+    configure_curl
+    echo_progress_start "Building c-ares from source"
+    build_cares
+    echo_progress_done
+    echo_progress_start "Building curl from source"
+    build_curl
+    echo_progress_done
     configure_rtorrent
     echo_progress_start "Building xmlrpc-c from source"
     build_xmlrpc-c
