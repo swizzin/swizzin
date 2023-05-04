@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function rutorrent_install() {
     apt_install sox geoip-database p7zip-full zip unzip
 
@@ -35,6 +37,7 @@ function rutorrent_install() {
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        rutorrent_fm_config
         #pinning filemanager should no longer be required
         #git -C /srv/rutorrent/plugins/filemanager checkout 234f5f20841ad3d1e3c095e6c6954a875fc8a6ea >> ${log} 2>&1
     fi
@@ -138,6 +141,53 @@ function rutorrent_install() {
 	$enabledOrigins = array();		// List of enabled domains for CSRF check (only hostnames, without protocols, port etc.).
 					            	// If empty, then will retrieve domain from HTTP_HOST / HTTP_X_FORWARDED_HOST
 RUC
+}
+
+function rutorrent_fm_config() {
+    # Reconfigure file manager plugin for ARM64 support
+    # rar is not supported on arm, so it needs to be dropped
+    if [[ "$(_os_arch)" = "arm64" ]]; then
+        cat > /srv/rutorrent/plugins/filemanager/conf.php << 'RUFMC'
+<?php
+
+    global $pathToExternals;
+    // set with fullpath to binary or leave empty
+    $pathToExternals['7zip'] = '/usr/bin/7z';
+
+    $config['mkdperm'] = 755; // default permission to set to new created directories
+    $config['show_fullpaths'] = false; // wheter to show userpaths or full system paths in the UI
+
+    $config['textExtensions'] = 'log|txt|nfo|sfv|xml|html';
+
+    // see what 7zip extraction supports as type by file extension
+    $config['fileExtractExtensions'] = '(7z|bzip2|t?bz2|tgz|gz(ip)?|iso|img|lzma|rar|tar|t?xz|zip|z01|wim)(\.[0-9]+)?';
+
+    // archive creation, see archiver man page before editing
+    // archive.fileExt -> config
+    $config['archive']['type'] = [
+        '7z' => [
+            'bin' => '7zip',
+            'compression' => [1, 5, 9],
+        ]];
+
+   $config['archive']['type']['zip'] = $config['archive']['type']['7z'];
+   $config['archive']['type']['tar'] = $config['archive']['type']['7z'];
+   $config['archive']['type']['tar']['has_password'] = false;
+   $config['archive']['type']['bz2'] = $config['archive']['type']['tar'];
+   $config['archive']['type']['gz'] = $config['archive']['type']['tar'];
+   $config['archive']['type']['tar.7z'] = $config['archive']['type']['tar'];
+   $config['archive']['type']['tar.bz2'] = $config['archive']['type']['tar'];
+   $config['archive']['type']['tar.gz'] = $config['archive']['type']['tar'];
+   $config['archive']['type']['tar.xz'] = $config['archive']['type']['tar'];
+
+
+   // multiple passes for archiving and compression
+   $config['archive']['type']['tar.gz']['multipass'] = ['tar', 'gzip'];
+   $config['archive']['type']['tar.bz2']['multipass'] = ['tar', 'bzip2'];
+   $config['archive']['type']['tar.7z']['multipass'] = ['tar', '7z'];
+   $config['archive']['type']['tar.xz']['multipass'] = ['tar', 'xz'];        
+RUFMC
+    fi
 }
 
 function rutorrent_nginx_config() {
