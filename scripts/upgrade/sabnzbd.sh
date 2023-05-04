@@ -18,7 +18,7 @@ latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.ta
 
 pyvenv_version=$(/opt/.venv/sabnzbd/bin/python --version | awk '{print $2}')
 
-if dpkg --compare-versions ${pyvenv_version} lt 3.7.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
+if dpkg --compare-versions ${pyvenv_version} lt 3.8.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV_REBUILD=True
 elif [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
@@ -36,8 +36,8 @@ if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
         systempy3_ver=$(get_candidate_version python3)
         if dpkg --compare-versions ${systempy3_ver} lt 3.7.0; then
             pyenv_install
-            pyenv_install_version 3.10.2
-            pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
+            pyenv_install_version 3.11.3
+            pyenv_create_venv 3.11.3 /opt/.venv/sabnzbd
             chown -R ${user}: /opt/.venv/sabnzbd
         else
             python3_venv ${user} sabnzbd

@@ -23,8 +23,8 @@ latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.ta
 
 systempy3_ver=$(get_candidate_version python3)
 
-#Version 3.5 is going to raise the min python version to 3.7 so we have to differentiate whether or not to build a pyenv
-if dpkg --compare-versions ${systempy3_ver} lt 3.7.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
+#Version 4.0 is going to raise the min python version to 3.8 so we have to differentiate whether or not to build a pyenv
+if dpkg --compare-versions ${systempy3_ver} lt 3.8.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV=True
 else
@@ -37,8 +37,8 @@ install_rar
 case ${PYENV} in
     True)
         pyenv_install
-        pyenv_install_version 3.10.2 # As shipping on Windows/macOS.
-        pyenv_create_venv 3.10.2 /opt/.venv/sabnzbd
+        pyenv_install_version 3.11.3
+        pyenv_create_venv 3.11.3 /opt/.venv/sabnzbd
         chown -R ${user}: /opt/.venv/sabnzbd
         ;;
     *)
@@ -57,9 +57,6 @@ rm -rf /tmp/sabnzbd.tar.gz
 echo_progress_done
 
 echo_progress_start "Installing pip requirements"
-if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
-    sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
-fi
 
 /opt/.venv/sabnzbd/bin/pip install --upgrade pip wheel >> "${log}" 2>&1
 /opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt >> "${log}" 2>&1
