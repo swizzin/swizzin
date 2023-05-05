@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.8.0]
+
+## May 4, 2023
+
+### New:
+
+- rtorrent: add UDNS install option
+- rtorrent: compile a fancier, featureful version of curl
+
+### Changed:
+
+- rutorrent: enable localhostedmode (will load much faster now!)
+- autodl: change some downloading logic
+- rutorrent: install ffmpeg by default
+- rutorrent: update config for v4.1.4
+
+### Fixed:
+
+- let's encrypt: respects ecc certs for hooks
+- sabnzbd: python packaging logic for v4 (python3 < 3.8)
+- bazarr: python packing logic improvements and remove EOL support (python3 < 3.8)
+- rtorrent: limit piece preloading to torrents uploading at 50KB/s+ (no updater script for this. [It's a simple config change if you want this](https://github.com/swizzin/swizzin/commit/cd3519824a8b7dc631d2d709533024533c87aac8))
+- nginx: remove duplicate packages from install params
+- rutorrent: arm64 support for filemanager (reinstall the plugin if this is you)
+
 ## [3.7.1]
 
 ## April 15, 2023
