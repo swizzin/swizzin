@@ -13,19 +13,25 @@ codename=$(lsb_release -cs)
 _install() {
 
     user=$(cut -d: -f1 < /root/.master.info)
-    if [[ $codename =~ ("bionic"|"stretch") ]]; then
-        #shellcheck source=sources/functions/pyenv
-        . /etc/swizzin/sources/functions/pyenv
-        pyenv_install
-        pyenv_install_version 3.7.7
-        pyenv_create_venv 3.7.7 /opt/.venv/bazarr
-        chown -R "${user}": /opt/.venv/bazarr
-    else
-        apt_install python3-pip python3-dev python3-venv
-        mkdir -p /opt/.venv/bazarr
-        python3 -m venv /opt/.venv/bazarr
-        chown -R "${user}": /opt/.venv/bazarr
+    . /etc/swizzin/sources/functions/pyenv
+    systempy3_ver=$(get_candidate_version python3)
+
+    if dpkg --compare-versions ${systempy3_ver} lt 3.8.0; then
+        PYENV=True
     fi
+
+    case ${PYENV} in
+        True)
+            pyenv_install
+            pyenv_install_version 3.11.3
+            pyenv_create_venv 3.11.3 /opt/.venv/bazarr
+            chown -R ${user}: /opt/.venv/bazarr
+            ;;
+        *)
+            apt_install python3-pip python3-dev python3-venv
+            python3_venv ${user} bazarr
+            ;;
+    esac
 
     if [[ $(_os_arch) =~ "arm" ]]; then
         apt_install libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg libatlas-base-dev
