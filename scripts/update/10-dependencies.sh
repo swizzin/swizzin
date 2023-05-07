@@ -10,9 +10,10 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         echo_info "Upgrading to Python 3.11"
         add-apt-repository -y ppa:deadsnakes/ppa >> ${log} 2>&1
         apt_install python3.11-full
-        echo "alias python=‘/usr/bin/python3.11’" >> ~/.bashrc
-        echo "alias python3=‘/usr/bin/python3.11’" >> ~/.bashrc
+        echo "alias python=‘/usr/lib/python3.11’" >> ~/.bashrc
+        echo "alias python3=‘/usr/lib/python3.11’" >> ~/.bashrc
         ln -s /usr/lib/python3.11/dist-packages/$(ls -a | grep apt_pkg.cpython) /usr/lib/python3.11/dist-packages/apt_pkg.so >> ${log} 2>&1
+        source ~/.bashrc
     fi
     #Ignore a found match if the line is commented out
     if ! grep 'universe' /etc/apt/sources.list | grep -q -v '^#'; then
