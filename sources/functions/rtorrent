@@ -87,7 +87,9 @@ function depends_rtorrent() {
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
     libfontconfig1-dev mediainfo'
-        apt_install $APT
+        FPM='ruby ruby-dev libffi-dev'
+        CURL='cmake libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev'
+        apt_install $APT $FPM $CURL
 
         . /etc/swizzin/sources/functions/fpm
         install_fpm
