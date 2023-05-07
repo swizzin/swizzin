@@ -29,6 +29,8 @@ function _download_latest() {
     echo_progress_start "Fixing dependencies"
     /opt/.venv/mylar/bin/pip install --upgrade pip &>> "${log}"
     /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt &>> "${log}"
+    # hotfix for urllib3 breaking stuff
+    /opt/.venv/mylar/bin/pip install 'urllib3<2'
     chown -R "${mylar_owner}": /opt/mylar/
     chown -R "${mylar_owner}": /opt/.venv/mylar/
 }
