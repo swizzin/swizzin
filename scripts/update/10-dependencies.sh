@@ -10,9 +10,9 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         echo_info "Upgrading to Python 3.11"
         add-apt-repository -y ppa:deadsnakes/ppa >> ${log} 2>&1
         apt_install python3.11-full
-        update-alternatives --install /usr/bin/python python /usr/bin/python3.11 11 >> ${log} 2>&1
-        update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 11 >> ${log} 2>&1
-        ln -s /usr/lib/python3/dist-packages/$(ls -a | grep apt_pkg.cpython) /usr/lib/python3/dist-packages/apt_pkg.so >> ${log} 2>&1
+        echo "alias python=‘/usr/bin/python3.11’" >> ~/.bashrc
+        echo "alias python3=‘/usr/bin/python3.11’" >> ~/.bashrc
+        ln -s /usr/lib/python3.11/dist-packages/$(ls -a | grep apt_pkg.cpython) /usr/lib/python3.11/dist-packages/apt_pkg.so >> ${log} 2>&1
     fi
     #Ignore a found match if the line is commented out
     if ! grep 'universe' /etc/apt/sources.list | grep -q -v '^#'; then
@@ -52,4 +52,4 @@ dependencies="whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl
 apt_install "${dependencies[@]}"
 
 #fix pip for python 3.11 after installing curl
-curl -sS https://bootstrap.pypa.io/get-pip.py | python3 >> ${log} 2>&1
+curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11 >> ${log} 2>&1
