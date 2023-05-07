@@ -10,8 +10,11 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         echo_info "Upgrading to Python 3.11"
         add-apt-repository -y ppa:deadsnakes/ppa >> ${log} 2>&1
         apt_install python3.11-full
-        echo "alias python=/usr/bin/python3.11" >> ~/.bashrc
-        echo "alias python3=/usr/bin/python3.11" >> ~/.bashrc
+        echo "alias python=/usr/bin/python3.11" >> /root/.bashrc
+        echo "alias python3=/usr/bin/python3.11" >> /root/.bashrc
+        mkdir -p /usr/local/bin/swizzin/python/ >> ${log} 2>&1
+        echo "export PATH=/usr/local/bin/swizzin/python:$PATH" >> /root/.bashrc
+        ln -s /usr/bin/python3.11 /usr/local/bin/swizzin/python/python3 >> ${log} 2>&1
         ln -s /usr/lib/python3.11/dist-packages/$(ls -a | grep apt_pkg.cpython) /usr/lib/python3.11/dist-packages/apt_pkg.so >> ${log} 2>&1
         source ~/.bashrc
     fi
