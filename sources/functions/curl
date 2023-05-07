@@ -2,7 +2,7 @@
 # Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
 
 configure_curl() {
-    apt_install cmake
+    apt_install cmake libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev
 }
 
 build_cares() {
@@ -54,8 +54,6 @@ build_curl() {
 
     unzip -q /tmp/curl.zip -d /tmp >> $log 2>&1
     rm /tmp/curl.zip
-
-    apt_install libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev
 
     cd /tmp/curl-debian-bullseye-backports
     rm CMakeCache.txt >> $log 2>&1
