@@ -38,6 +38,7 @@ throttle.min_peers.normal.set = 1
 throttle.min_peers.seed.set = -1
 trackers.use_udp.set = yes
 schedule2 = session_save, 1200, 3600, ((session.save))
+method.set_key = event.download.inserted, 2_save_session, ((d.save_full_session))
 
 execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
