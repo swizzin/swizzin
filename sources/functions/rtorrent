@@ -82,6 +82,21 @@ function configure_rtorrent() {
 }
 
 function depends_rtorrent() {
+    # mktorrent and libudns from source
+    echo_info "Building source dependencies"
+    local mklog="/root/logs/mktorrent.log"
+    local udnslog="/root/logs/libudns.log"
+    bash "/etc/swizzin/sources/build/mktorrent.sh" $mklog &
+    if [[ ${libudns} == "true" ]]; then
+        bash "/etc/swizzin/sources/build/libudns.sh" $udnslog &
+    fi
+
+    # wait for building to complete if less than 4 threads, otherwise it will take longer
+    if [ $(nproc) -lt 4 ]; then
+        wait
+    fi
+
+    # package installation of dependencies
     if [[ ! $rtorrentver == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
     dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
@@ -96,29 +111,25 @@ function depends_rtorrent() {
         apt_install $APT
     fi
 
-    # mktorrent from source
-    cd /tmp
-    curl -sL https://github.com/Rudde/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1
-    . /etc/swizzin/sources/functions/utils
-    rm_if_exists "/tmp/mktorrent"
-    unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
-    cd mktorrent
-    make >> $log 2>&1
-    make install PREFIX=/usr >> $log 2>&1
-    cd /tmp
-    rm -rf mktorrent*
+    # Wait for build tasks to complete
+    wait
 
-    # libudns from source
+    # mktorrent and udns log append
+    rt_build_log_append "mktorrent" $mklog
     if [[ ${libudns} == "true" ]]; then
-        git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
-        cd /tmp/udns
-        ./autogen.sh >> $log 2>&1
-        ./configure --prefix=/usr >> $log 2>&1
-        make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} -O2 -fPIC" >> $log 2>&1
-        make -s install >> $log 2>&1
-        cd /tmp
-        rm -rf udns*
+        rt_build_log_append "libudns" $udnslog
     fi
+}
+
+function rt_build_log_append() {
+    local binary=$1
+    local file=$2
+
+    echo -e "\nBegin of $binary build log" >> $log 2>&1
+    cat $file >> $log 2>&1
+    echo -e "End of $binary build log\n" >> $log 2>&1
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists $file
 }
 
 function build_xmlrpc-c() {
