@@ -12,7 +12,7 @@ build_cares() {
     cares_latest=$(github_latest_version c-ares/c-ares)
     cares_tar=${cares_latest/cares/c-ares}
 
-    wget -q -O /tmp/cares.tar.gz https://github.com/c-ares/c-ares/releases/download/${cares_latest}/${cares_tar//_/.}.tar.gz > ${log} 2>&1 || {
+    wget -q -O /tmp/cares.tar.gz https://github.com/c-ares/c-ares/releases/download/${cares_latest}/${cares_tar//_/.}.tar.gz >> ${log} 2>&1 || {
         echo_error "There was an error downloading c-ares! Please check the log for more info"
         rm /tmp/cares.tar.gz >> $log 2>&1
         exit 1
