@@ -82,20 +82,12 @@ function configure_rtorrent() {
 }
 
 function depends_rtorrent() {
-    # mktorrent and libudns from source
-    echo_info "Building source dependencies"
-    local mklog="/root/logs/mktorrent.log"
-    local udnslog="/root/logs/libudns.log"
-    bash "/etc/swizzin/sources/build/mktorrent.sh" $mklog &
-    if [[ ${libudns} == "true" ]]; then
-        bash "/etc/swizzin/sources/build/libudns.sh" $udnslog &
-    fi
-
-    # wait for building to complete if less than 4 threads, otherwise it will take longer
+    build_deps_rtorrent
+    sources_rtorrent
+    # wait for tasks to complete if less than 4 threads, otherwise it will take longer
     if [ $(nproc) -lt 4 ]; then
         wait
     fi
-
     # package installation of dependencies
     if [[ ! $rtorrentver == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
@@ -110,38 +102,74 @@ function depends_rtorrent() {
         APT='screen zip unzip bc mediainfo curl'
         apt_install $APT
     fi
-
-    # Wait for build tasks to complete
+    # Wait for tasks to complete
     wait
-
-    # mktorrent and udns log append
-    rt_build_log_append "mktorrent" $mklog
+    log_deps_rtorrent
+}
+function build_deps_rtorrent() {
+    # mktorrent and libudns from source
+    echo_info "Building source dependencies"
+    mklog="/root/logs/mktorrent.log"
+    udnslog="/root/logs/libudns.log"
+    bash "/etc/swizzin/sources/build/mktorrent.sh" $mklog &
     if [[ ${libudns} == "true" ]]; then
-        rt_build_log_append "libudns" $udnslog
+        bash "/etc/swizzin/sources/build/libudns.sh" $udnslog &
     fi
 }
-
-function rt_build_log_append() {
+function sources_rtorrent() {
+    echo_info "Preparing source files"
+    # Prepare xmlrpc source files
+    xlog="/root/logs/xmlrpc.log"
+    xpath="/tmp/xmlrpc-c"    
+    bash "/etc/swizzin/sources/build/prepare_xmlrpc.sh" $xlog $xpath &
+    # Prepare libtorrent source files
+    llog="/root/logs/lt_rakshasa.log"
+    lelog="/root/logs/lt_rkshasa_errors.log"
+    lpath="/tmp/libtorrent"
+    bash "/etc/swizzin/sources/build/prepare_lt_rakshasa.sh" $llog $lelog $lpath $libtorrentver $libudns &
+    # Prepare rtorrent source files
+    rlog="/root/logs/rtorrent.log"
+    relog="/root/logs/rtorrent_errors.log"
+    rpath="/tmp/rtorrent"
+    bash "/etc/swizzin/sources/build/prepare_rtorrent.sh" $rlog $relog $rpath $rtorrentver $libudns &
+}
+function log_deps_rtorrent() {
+    # Append output to swizzin log file and remove log files
+    rt_log_append "mktorrent" $mklog "build"
+    if [[ ${libudns} == "true" ]]; then
+       rt_log_append "libudns" $udnslog "build"
+    fi
+    rt_log_append "xmlrc" $xlog "prepare"
+    rt_log_append "libtorrent" $llog "prepare"
+    rt_log_append "rtorrent" $rlog "prepare"
+    # Check for errors, remove error files and exit script on error
+    rt_error_check $lelog
+    rt_error_check $relog
+}
+function rt_log_append() {
     local binary=$1
     local file=$2
-
-    echo -e "\nBegin of $binary build log" >> $log 2>&1
+    local type=$3
+    echo -e "\nBegin of $binary $type log" >> $log 2>&1
     cat $file >> $log 2>&1
-    echo -e "End of $binary build log\n" >> $log 2>&1
+    echo -e "End of $binary $type log\n" >> $log 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists $file
 }
-
-function build_xmlrpc-c() {
-    cd "/tmp"
+function rt_error_check() {
+    local file=$1
     . /etc/swizzin/sources/functions/utils
-    rm_if_exists "/tmp/xmlrpc-c"
-    rm_if_exists "/tmp/dist/xmlrpc-c "
-    XMLRPC_REV=2954
-    svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1 || { svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV /tmp/xmlrpc-c >> $log 2>&1; }
-    cd /tmp/xmlrpc-c
-    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
-    cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
+    if [[ $(grep -c "PASSED" $file) -lt 1 ]]; then
+        local error=$(cat $file)
+        echo_error $error
+        rm_if_exists $file
+        exit 1
+    fi
+    rm_if_exists $file
+}
+
+function build_xmlrpc-c() {   
+    cd "/tmp/xmlrpc-c"
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
@@ -162,43 +190,8 @@ function build_xmlrpc-c() {
 }
 
 function build_libtorrent_rakshasa() {
-    libtorrentloc="https://github.com/rakshasa/libtorrent/archive/refs/tags/v${libtorrentver}.tar.gz"
-    cd "/tmp"
-    . /etc/swizzin/sources/functions/utils
-    rm_if_exists "/tmp/libtorrent"
-    mkdir /tmp/libtorrent
-    curl -sL ${libtorrentloc} -o /tmp/libtorrent-${libtorrentver}.tar.gz
     VERSION=$libtorrentver
-    tar -xf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
-    cd /tmp/libtorrent >> $log 2>&1
-
-    if [[ -f /root/libtorrent-rakshasa-${libtorrentver}.patch ]]; then
-        patch -p1 < /root/libtorrent-rakshasa-${libtorrentver}.patch >> ${log} 2>&1 || {
-            echo _error "Something went wrong when patching libtorrent-rakshasa"
-            exit 1
-        }
-        echo_info "Libtorrent-rakshasa patch found and applied!"
-    else
-        echo_log_only "No libtorrent-rakshasa patch found at /root/libtorrent-rakshasa-${libtorrentver}.patch"
-    fi
-    if [[ ${libudns} == "true" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
-    fi
-    if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
-    fi
-    if [[ ${libtorrentver} =~ ^("0.13.6"|"0.13.7")$ ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> "$log" 2>&1
-        if pkg-config --atleast-version=1.14 cppunit && [[ ${libtorrentver} == 0.13.6 ]]; then
-            patch -p1 < /etc/swizzin/sources/patches/rtorrent/cppunit-libtorrent.patch >> "$log" 2>&1
-        fi
-        if [[ ${libtorrentver} == "0.13.6" ]]; then
-            patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> "$log" 2>&1
-            patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.6.patch >> "$log" 2>&1
-        fi
-    fi
-    ./autogen.sh >> $log 2>&1
+    cd "/tmp/libtorrent"
     ./configure --prefix=/usr >> $log 2>&1 || {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
@@ -218,38 +211,12 @@ function build_libtorrent_rakshasa() {
 }
 
 function build_rtorrent() {
-    rtorrentloc="https://github.com/rakshasa/rtorrent/archive/refs/tags/v${rtorrentver}.tar.gz"
-    cd "/tmp"
-    . /etc/swizzin/sources/functions/utils
-    rm_if_exists "/tmp/rtorrent*"
-    mkdir /tmp/rtorrent
-    curl -sL ${rtorrentloc} -o /tmp/rtorrent-${rtorrentver}.tar.gz
-    tar -xzf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
+    cd "/tmp/rtorrent"
     VERSION=$rtorrentver
-    cd /tmp/rtorrent
-    if [[ -f /root/rtorrent-${rtorrentver}.patch ]]; then
-        patch -p1 < /root/rtorrent-${rtorrentver}.patch >> ${log} 2>&1 || {
-            echo _error "Something went wrong when patching rTorrent"
-            exit 1
-        }
-        echo_info "rTorrent patch found and applied!"
-    else
-        echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
-    fi
-    if [[ ${libudns} == "true" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
-    fi
-    #apply lockfile-fix to all rtorrents
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
-    #apply xmlrpc-fix to all rtorrents
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
-    #use pkgconfig for cppunit if 0.9.6
     stdc=
     if [[ ${rtorrentver} == "0.9.6" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> "$log" 2>&1
         stdc="-std=c++11"
     fi
-    ./autogen.sh >> $log 2>&1
     ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
@@ -267,6 +234,8 @@ function build_rtorrent() {
     ldconfig >> $log 2>&1
     rm -rf rtorrent* >> $log 2>&1
     rm -rf /tmp/dist/rtorrent
+    rm_if_exists /root/dist
+    rm_if_exists /tmp/dist
     apt-mark hold rtorrent >> ${log} 2>&1
 }
 
