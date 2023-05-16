@@ -11,8 +11,8 @@ rm_if_exists $tpath
 touch $xlog
 mkdir $tpath
 
-svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV $tpath >> $xlog 2>&1 || { 
-    svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV $tpath >> $xlog 2>&1; 
+svn co http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV $tpath >> $xlog 2>&1 || {
+    svn co https://github.com/mirror/xmlrpc-c/trunk/advanced@$XMLRPC_REV $tpath >> $xlog 2>&1
 }
 
 cd $tpath >> $xlog 2>&1

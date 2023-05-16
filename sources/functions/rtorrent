@@ -120,7 +120,7 @@ function sources_rtorrent() {
     echo_info "Preparing source files"
     # Prepare xmlrpc source files
     xlog="/root/logs/xmlrpc.log"
-    xpath="/tmp/xmlrpc-c"    
+    xpath="/tmp/xmlrpc-c"
     bash "/etc/swizzin/sources/build/prepare_xmlrpc.sh" $xlog $xpath &
     # Prepare libtorrent source files
     llog="/root/logs/lt_rakshasa.log"
@@ -137,7 +137,7 @@ function log_deps_rtorrent() {
     # Append output to swizzin log file and remove log files
     rt_log_append "mktorrent" $mklog "build"
     if [[ ${libudns} == "true" ]]; then
-       rt_log_append "libudns" $udnslog "build"
+        rt_log_append "libudns" $udnslog "build"
     fi
     rt_log_append "xmlrc" $xlog "prepare"
     rt_log_append "libtorrent" $llog "prepare"
@@ -168,7 +168,7 @@ function rt_error_check() {
     rm_if_exists $file
 }
 
-function build_xmlrpc-c() {   
+function build_xmlrpc-c() {
     cd "/tmp/xmlrpc-c"
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"

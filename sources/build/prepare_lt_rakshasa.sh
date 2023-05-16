@@ -36,27 +36,27 @@ fi
 
 # Apply source file patches based on the libtorrent version
 case $version in
-  0.13.6)
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> $llog 2>&1
-    if pkg-config --atleast-version=1.14 cppunit; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/cppunit-libtorrent.patch >> $llog 2>&1
-    fi
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> $llog 2>&1
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.6.patch >> $llog 2>&1
-    ;;
+    0.13.6)
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> $llog 2>&1
+        if pkg-config --atleast-version=1.14 cppunit; then
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/cppunit-libtorrent.patch >> $llog 2>&1
+        fi
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/bencode-libtorrent.patch >> $llog 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.6.patch >> $llog 2>&1
+        ;;
 
-  0.13.7)
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> $llog 2>&1
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> $llog 2>&1
-    ;;
+    0.13.7)
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> $llog 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/openssl.patch >> $llog 2>&1
+        ;;
 
-  0.13.8)
-    if [[ $udns == "true" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> $llog 2>&1
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> $llog 2>&1
-    fi
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> $llog 2>&1 
-    ;;
+    0.13.8)
+        if [[ $udns == "true" ]]; then
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> $llog 2>&1
+            patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> $llog 2>&1
+        fi
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> $llog 2>&1
+        ;;
 esac
 
 # Generate source files for compile
