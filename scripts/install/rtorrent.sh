@@ -24,6 +24,8 @@ network.port_range.set = $port-$portend
 network.scgi.open_local = /var/run/${user}/.rtorrent.sock
 schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}/.rtorrent.sock"
 network.tos.set = throughput
+network.send_buffer.size.set = 4M
+network.receive_buffer.size.set = 4M
 pieces.hash.on_completion.set = no
 pieces.preload.min_rate.set = 50000
 protocol.pex.set = no
@@ -33,6 +35,7 @@ throttle.global_down.max_rate.set = 0
 throttle.global_up.max_rate.set = 0
 throttle.max_peers.normal.set = 100
 throttle.max_peers.seed.set = -1
+throttle.max_uploads.set = 50
 throttle.max_uploads.global.set = 100
 throttle.min_peers.normal.set = 1
 throttle.min_peers.seed.set = -1
