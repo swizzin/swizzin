@@ -33,10 +33,20 @@ throttle.global_down.max_rate.set = 0
 throttle.global_up.max_rate.set = 0
 throttle.max_peers.normal.set = 100
 throttle.max_peers.seed.set = -1
+throttle.max_uploads.set = 50
 throttle.max_uploads.global.set = 100
 throttle.min_peers.normal.set = 1
 throttle.min_peers.seed.set = -1
 trackers.use_udp.set = yes
+
+# Disabled by default becuase these will override Linux Kernel settings
+# Suggested to configure on a per application basis to improve throughput
+#
+# 4MB per TCP socket is the most ideal setting to balance memory consumption
+# 100 upload slots will consume 400MB of memory and stabilize gigabit upload speeds
+#
+#network.send_buffer.size.set = 4M
+#network.receive_buffer.size.set = 4M
 
 execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
