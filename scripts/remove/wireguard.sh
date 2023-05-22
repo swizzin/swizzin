@@ -19,8 +19,6 @@ echo_progress_start "Removing unused repositories"
 if [[ $distribution == "Debian" ]]; then
     rm_if_exists /etc/apt/sources.list.d/unstable.list
     rm_if_exists /etc/apt/preferences.d/limit-unstable
-elif [[ $codename == "bionic" ]]; then
-    add-apt-repository -r -y ppa:wireguard/wireguard >> /dev/null 2>&1
 fi
 echo_progress_done
 

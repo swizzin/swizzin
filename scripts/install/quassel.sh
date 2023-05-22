@@ -19,7 +19,7 @@ codename=$(_os_codename)
 IP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 case $codename in
-    bionic | focal)
+    focal)
         echo_progress_start "Installing Quassel PPA"
         apt_install software-properties-common
         apt-add-repository ppa:mamarley/quassel -y >> "$log" 2>&1
