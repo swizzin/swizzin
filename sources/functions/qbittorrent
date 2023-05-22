@@ -220,6 +220,8 @@ function install_qt() {
         #If we're installing from repo then we can remove these (i.e. dist-upgrade or qbit downgrade)
         dpkg -r qtbase5-swizzin > /dev/null 2>&1
         dpkg -r qttools5-swizzin > /dev/null 2>&1
+        dpkg -r qt6-swizzin > /dev/null 2>&1
+        dpkg -r cmake-swizzin > /dev/null 2>&1
         QT_METHOD=repo
     fi
 }
