@@ -85,7 +85,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
         usermod -a -G "${username}" jellyfin
         #
         # Set the correct and required permissions of any directories we created or modified.
-        chown "${username}.${username}" -R "/home/${username}/.ssl"
+        chown "${username}:${username}" -R "/home/${username}/.ssl"
         chmod -R g+r "/home/${username}/.ssl"
         #
         # Set the default permissions after we have migrated our data
