@@ -199,7 +199,13 @@ function skip_libtorrent_qbittorrent() {
 }
 
 function install_qt() {
-    qt_repo_version=$(get_candidate_version qtbase5-dev)
+    #qt6-base-dev qt6-tools-dev
+    if [[ -z ${qbt_use_qt6} ]]; then
+        LIST='qtbase5-dev qttools5-dev'
+    else
+        LIST='qt6-base-dev qt6-tools-dev'
+    fi
+    qt_repo_version=$(get_candidate_version ${LIST[0]})
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
         if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
             install_qt_swizzin
@@ -210,7 +216,6 @@ function install_qt() {
         QT_METHOD=swizzin
         QT_SWIZZIN=QT_QMAKE="${QT_PREFIX}/bin"
     else
-        LIST='qtbase5-dev qttools5-dev'
         apt_install --no-recommends $LIST
         #If we're installing from repo then we can remove these (i.e. dist-upgrade or qbit downgrade)
         dpkg -r qtbase5-swizzin > /dev/null 2>&1
