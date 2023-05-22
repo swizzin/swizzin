@@ -65,18 +65,12 @@ if [[ -f /install/.sickchill.lock ]]; then
             active=$(systemctl is-active sickchill)
             unit=sickchill
         fi
-        codename=$(lsb_release -cs)
         systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
-        if [[ $codename == "stretch" ]]; then
-            pyenv_install
-            pyenv_install_version 3.7.7
-            pyenv_create_venv 3.7.7 /opt/.venv/sickchill
-        else
-            LIST='git python3-dev python3-venv python3-pip'
-            apt_install $LIST
-            python3 -m venv /opt/.venv/sickchill
-        fi
+        LIST='git python3-dev python3-venv python3-pip'
+        apt_install $LIST
+        python3 -m venv /opt/.venv/sickchill
+
         chown -R ${user}: /opt/.venv/sickchill
 
         echo_progress_start "Updating SickChill ..."

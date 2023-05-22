@@ -224,15 +224,15 @@ function build_deluge() {
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
             ;;
         1.3-stable)
-            if [[ $(_os_codename) =~ ^(focal|bullseye|jammy)$ ]]; then
-                LIST='python2.7-dev intltool xdg-utils librsvg2-common'
-                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity Automat==20.2.0'
-                pythonver=python2.7
+            if [[ $(_os_codename) = "buster" ]]; then
+                LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
+                pythonver=python2
                 distver=python2.7
                 args=
             else
-                LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
-                pythonver=python2
+                LIST='python2.7-dev intltool xdg-utils librsvg2-common'
+                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity Automat==20.2.0'
+                pythonver=python2.7
                 distver=python2.7
                 args=
             fi
@@ -252,25 +252,6 @@ function build_deluge() {
         done
     fi
 
-    if [[ $pythonver == python3 ]]; then
-        twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
-        if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
-            case $(_os_codename) in
-                "stretch")
-                    . /etc/swizzin/sources/functions/backports
-                    check_debian_backports
-                    set_packages_to_backports python3-twisted
-                    LIST='python3-twisted'
-                    apt_install $LIST
-                    ;;
-                *) ;;
-
-            esac
-        fi
-        if [[ -n $noexec ]]; then
-            mount -o remount,noexec /tmp
-        fi
-    fi
     rm_if_exists /tmp/deluge
     git clone -b ${deluge_git_branch} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
         echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."

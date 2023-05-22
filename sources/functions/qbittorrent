@@ -70,9 +70,6 @@ function whiptail_qbittorrent() {
 function qbittorrent_version_info() {
     if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
         case $(_os_codename) in
-            stretch)
-                QBITTORRENT_VERSION=4.3.1
-                ;;
             *)
                 QBITTORRENT_VERSION=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr | head -n1)
                 #latestv44=$(echo "$releases" | grep -m1 -oP '4\.4\.\d?.?\d')
@@ -260,9 +257,6 @@ function build_qt_swizzin() {
     cd /tmp
     QT_PREFIX=/usr/local/qt
     case $(_os_codename) in
-        stretch)
-            qt_branch=5.12
-            ;;
         *)
             #6.0 requires CMake 3.18
             qt_branch=5.15

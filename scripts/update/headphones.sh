@@ -7,14 +7,14 @@ if [[ -f /install/.headphones.lock ]]; then
         codename=$(lsb_release -cs)
         . /etc/swizzin/sources/functions/pyenv
         systemctl stop headphones
-        if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='git python2.7-dev virtualenv python-virtualenv python-pip'
         else
             LIST='git python2.7-dev'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
 

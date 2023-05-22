@@ -50,10 +50,9 @@ Please use these emojis here to fill the table below. It will nicely auto-format
 |--------		|-------- 	|-------- 	|-------- 	|----------		|
 | Jammy 		|			|			|			|				|
 | Focal 		|			|			|			|				|
-| Bionic		|			|			|			|				|
+| Bookworm      |           |           |           |               |
 | Bullseye		|			|			|			|				|
 | Buster		|			|			|			|				|
-| Stretch		|			|			|			|				|
 | Raspbian  	|	⚫️		|			|	⚫️		|	⚫️			|
 
 ### ✅❎ Passed

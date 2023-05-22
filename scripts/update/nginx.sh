@@ -4,11 +4,7 @@ function update_nginx() {
     codename=$(lsb_release -cs)
 
     case $codename in
-        stretch)
-            mcrypt="php-mcrypt"
-            geoip="php-geoip"
-            ;;
-        bionic | focal | buster | bullseye)
+        focal | buster | bullseye)
             mcrypt=
             geoip="php-geoip"
             ;;

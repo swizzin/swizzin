@@ -26,12 +26,6 @@ case $codename in
         apt_update
         echo_progress_done
         ;;
-    stretch)
-        . /etc/swizzin/sources/functions/backports
-        check_debian_backports
-        echo_info "Using latest backport"
-        set_packages_to_backports quassel-core
-        ;;
     *) ;;
 esac
 
