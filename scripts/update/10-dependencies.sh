@@ -28,7 +28,7 @@ elif [[ $(_os_distro) == "debian" ]]; then
         apt-add-repository -y contrib >> ${log} 2>&1
         trigger_apt_update=true
     fi
-    if ! grep '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
+    if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
         echo_info "Enabling non-free repo"
         apt-add-repository -y non-free >> ${log} 2>&1
         trigger_apt_update=true
