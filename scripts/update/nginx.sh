@@ -1,26 +1,7 @@
 #!/bin/bash
 
 function update_nginx() {
-    codename=$(lsb_release -cs)
-
-    case $codename in
-        stretch)
-            mcrypt="php-mcrypt"
-            geoip="php-geoip"
-            ;;
-        bionic | focal | buster | bullseye)
-            mcrypt=
-            geoip="php-geoip"
-            ;;
-        *)
-            mcrypt=
-            geoip=
-
-            ;;
-    esac
-
-    #Deprecate nginx-extras in favour of installing fancyindex alone
-
+    # Deprecate nginx-extras in favour of installing fancyindex alone
     if dpkg -s nginx-extras > /dev/null 2>&1; then
         apt_remove nginx-extras
         apt_install nginx libnginx-mod-http-fancyindex
@@ -28,32 +9,23 @@ function update_nginx() {
         rm $(ls -d /etc/nginx/modules-enabled/*.removed)
         systemctl reload nginx
     fi
-    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml php-zip ${geoip} ${mcrypt}"
-
-    missing=()
-    for dep in $LIST; do
-        if ! check_installed "$dep"; then
-            missing+=("$dep")
-        fi
-    done
-
-    if [[ ${missing[1]} != "" ]]; then
-        # echo_inf "Installing the following dependencies: ${missing[*]}" | tee -a $log
-        apt_install "${missing[@]}"
-    fi
-
+    # Install missing nginx packages
+    [[ $(lsb_release -cs) =~ ^(focal|buster|bullseye)$ ]] && geoip="php-geoip" || geoip=""
+    LIST="php-fpm php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-xml php-zip ${geoip}"
+    apt_install $LIST
+    # Purge php7.0-fpm on all platforms
     cd /etc/php
     phpv=$(ls -d */ | cut -d/ -f1)
     if [[ $phpv =~ 7\\.1 ]]; then
         if [[ $phpv =~ 7\\.0 ]]; then
-            apt_remove purge php7.0-fpm
+            apt_remove --purge php7.0-fpm
         fi
     fi
-
+    # Include php functions and set vars
     . /etc/swizzin/sources/functions/php
     phpversion=$(php_service_version)
     sock="php${phpversion}-fpm"
-
+    # Reconfigure php.ini for php-fpm, enable opcache php module, set environment PATH var for php
     for version in $phpv; do
         if [[ -f /etc/php/$version/fpm/php.ini ]]; then
             sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
@@ -74,8 +46,6 @@ function update_nginx() {
         mkdir -p /etc/nginx/modules-enabled/
         ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
     fi
-
-    phpversion=$(php_service_version)
 
     fcgis=($(find /etc/nginx -type f -exec grep -l "fastcgi_pass unix:/run/php/" {} \;))
     err=()
