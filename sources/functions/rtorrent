@@ -118,20 +118,25 @@ function build_deps_rtorrent() {
 }
 function sources_rtorrent() {
     echo_info "Preparing source files"
-    # Prepare xmlrpc source files
+    # Create logging and temp paths for xmlrpc, libtorrent and rtorrent
+    rt_create_source_paths
+    # Prepare xmlrpc, libtorrent and rtorrent source files
+    bash "/etc/swizzin/sources/build/prepare_xmlrpc.sh" $xlog $xpath &
+    bash "/etc/swizzin/sources/build/prepare_lt_rakshasa.sh" $llog $lelog $lpath $libtorrentver $libudns &
+    bash "/etc/swizzin/sources/build/prepare_rtorrent.sh" $rlog $relog $rpath $rtorrentver $libudns &
+}
+function rt_create_source_paths() {
+    # XMLRPC-C
     xlog="/root/logs/xmlrpc.log"
     xpath="/tmp/xmlrpc-c"
-    bash "/etc/swizzin/sources/build/prepare_xmlrpc.sh" $xlog $xpath &
-    # Prepare libtorrent source files
+    # Libtorrent
     llog="/root/logs/lt_rakshasa.log"
     lelog="/root/logs/lt_rkshasa_errors.log"
     lpath="/tmp/libtorrent"
-    bash "/etc/swizzin/sources/build/prepare_lt_rakshasa.sh" $llog $lelog $lpath $libtorrentver $libudns &
-    # Prepare rtorrent source files
+    # rTorrent
     rlog="/root/logs/rtorrent.log"
     relog="/root/logs/rtorrent_errors.log"
     rpath="/tmp/rtorrent"
-    bash "/etc/swizzin/sources/build/prepare_rtorrent.sh" $rlog $relog $rpath $rtorrentver $libudns &
 }
 function log_deps_rtorrent() {
     # Append output to swizzin log file and remove log files
@@ -142,9 +147,13 @@ function log_deps_rtorrent() {
     rt_log_append "xmlrc" $xlog "prepare"
     rt_log_append "libtorrent" $llog "prepare"
     rt_log_append "rtorrent" $rlog "prepare"
-    # Check for errors, remove error files and exit script on error
+    # Check for errors, remove error files
     rt_error_check $lelog
     rt_error_check $relog
+    # Exit script if error is found when checking
+    if [[ $rtinstallerror == "true" ]]; then
+        exit 1
+    fi
 }
 function rt_log_append() {
     local binary=$1
@@ -158,18 +167,18 @@ function rt_log_append() {
 }
 function rt_error_check() {
     local file=$1
+    rtinstallerror="false"
     . /etc/swizzin/sources/functions/utils
     if [[ $(grep -c "PASSED" $file) -lt 1 ]]; then
         local error=$(cat $file)
         echo_error $error
-        rm_if_exists $file
-        exit 1
+        rtinstallerror="true"
     fi
     rm_if_exists $file
 }
 
 function build_xmlrpc-c() {
-    cd "/tmp/xmlrpc-c"
+    cd $xpath
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
@@ -184,14 +193,13 @@ function build_xmlrpc-c() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/xmlrpc-c -p /root/dist/xmlrpc-c_VERSION.deb -s dir -t deb -n xmlrpc-c --version ${VERSION} --description "xmlrpc-c compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/xmlrpc-c_${VERSION}.deb >> $log 2>&1
-    cd /tmp
-    rm -rf xmlrpc-c
+    rm -rf $xpath
     rm -rf /tmp/dist/xmlrpc-c
 }
 
 function build_libtorrent_rakshasa() {
     VERSION=$libtorrentver
-    cd "/tmp/libtorrent"
+    cd $lpath
     ./configure --prefix=/usr >> $log 2>&1 || {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
@@ -205,13 +213,12 @@ function build_libtorrent_rakshasa() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb >> $log 2>&1
-    cd /tmp
     rm -rf /tmp/dist/libtorrent-rakshasa
-    rm -rf libtorrent*
+    rm -rf $lpath
 }
 
 function build_rtorrent() {
-    cd "/tmp/rtorrent"
+    cd $rpath
     VERSION=$rtorrentver
     stdc=
     if [[ ${rtorrentver} == "0.9.6" ]]; then
@@ -230,9 +237,8 @@ function build_rtorrent() {
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version ${VERSION} --description "rtorrent compiled by swizzin" > /dev/null 2>&1
     dpkg -i /root/dist/rtorrent_${VERSION}.deb >> $log 2>&1
-    cd "/tmp"
     ldconfig >> $log 2>&1
-    rm -rf rtorrent* >> $log 2>&1
+    rm -rf $rpath >> $log 2>&1
     rm -rf /tmp/dist/rtorrent
     rm_if_exists /root/dist
     rm_if_exists /tmp/dist
@@ -249,20 +255,22 @@ function remove_rtorrent() {
     if [[ -n $repo ]]; then
         toclean+=($repo)
     fi
-    for c in ${toclean[@]}; do
-        # TODO add option to pass extra flags
-        apt-get remove -y -q --allow-change-held-packages $c >> $log 2>&1
-    done
+    apt_remove --purge $toclean
 }
 
 function remove_rtorrent_legacy() {
-    rm -rf /usr/bin/rtorrent
-    cd /tmp
-    git clone https://github.com/rakshasa/libtorrent.git libtorrent >> /dev/null 2>&1
-    cd libtorrent
-    ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr >> $log 2>&1
-    make uninstall >> $log 2>&1
-    cd -
-    rm -rf /tmp/libtorrent
+    # Create logging and temp paths for xmlrpc and libtorrent
+    rt_create_source_paths
+    # Run prepare script to remove xmlrpc and libtorrent using make uninstall
+    bash "/etc/swizzin/sources/build/prepare_xmlrpc.sh" $xlog $xpath &
+    bash "/etc/swizzin/sources/build/prepare_lt_rakshasa.sh" $llog "/dev/null" $lpath "0.13.8" "false" &
+    # Remove rtorrent from the bin file
+    rm -rf /usr/bin/rtorrent >> $log 2>&1
+    # Wait for make uninstall to complete
+    wait
+    # Log our actions and remove temp files
+    rt_log_append "xmlrc" $xlog "remove"
+    rt_log_append "libtorrent" $llog "remove"
+    rm_if_exists $xpath
+    rm_if_exists $lpath
 }

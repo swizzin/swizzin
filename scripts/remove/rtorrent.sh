@@ -12,14 +12,14 @@ for u in ${users}; do
     rm -f /home/${u}/.rtorrent.rc
 done
 
+# We need to run our own script to ensure xmlrpc and libtorrent is removed properly. We can't relay on apt remove.
 . /etc/swizzin/sources/functions/rtorrent
 isdeb=$(dpkg -l | grep rtorrent)
 echo_progress_start "Removing old rTorrent binaries and libraries ... "
-if [[ -z $isdeb ]]; then
-    remove_rtorrent_legacy
-else
+if [[ -n $isdeb ]]; then
     remove_rtorrent
 fi
+remove_rtorrent_legacy
 echo_progress_done
 
 for a in rutorrent flood; do

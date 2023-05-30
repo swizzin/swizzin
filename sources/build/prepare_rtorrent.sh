@@ -44,9 +44,9 @@ patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> $rlog 2>&1
 if [[ $version == "0.9.6" ]]; then
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-0.9.6.patch >> $rlog 2>&1
 fi
-
 # Generate source files for compile
 ./autogen.sh >> $rlog 2>&1
-
+# Remove any existing rtorrent binaries
+rm -rf /usr/bin/rtorrent >> $rlog 2>&1
 # Echo PASSED to elog if we make it this far
 echo "PASSED" >> $elog 2>&1
