@@ -43,7 +43,7 @@ cd /home/$username
 wget "https://github.com/Jackett/Jackett/releases/download/${version}/Jackett.Binaries.Linux${arch}.tar.gz" >> "$log" 2>&1
 tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.*.tar.gz
-chown ${username}.${username} -R Jackett
+chown ${username}:${username} -R Jackett
 echo_progress_done
 
 echo_progress_start "Installing systemd service"
@@ -106,7 +106,7 @@ cat > /home/${username}/.config/Jackett/ServerConfig.json << JSC
 }
 JSC
 
-chown ${username}.${username} -R /home/${username}/.config
+chown ${username}:${username} -R /home/${username}/.config
 
 echo_progress_done "Jackett configured"
 

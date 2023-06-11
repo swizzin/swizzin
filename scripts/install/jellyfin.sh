@@ -54,7 +54,7 @@ create_self_ssl "${username}"
 #
 # Generate our NET core ssl format cert from the default certs created using the ssl function and give it the required permissions.
 openssl pkcs12 -export -nodes -out "/home/${username}/.ssl/${username}-self-signed.pfx" -inkey "/home/${username}/.ssl/${username}-self-signed.key" -in "/home/${username}/.ssl/${username}-self-signed.crt" -passout pass:
-chown "${username}.${username}" -R "/home/${username}/.ssl"
+chown "${username}:${username}" -R "/home/${username}/.ssl"
 chmod -R g+r "/home/${username}/.ssl"
 #
 # Create the required directories for this application.

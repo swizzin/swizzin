@@ -5,11 +5,21 @@ function whiptail_deluge() {
     if [[ -z $DELUGE_VERSION ]]; then
         repov=$(get_candidate_version deluge)
         # todo: add deluge 2.1 to whiptail menu
-        function=$(whiptail --title "Install Software" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 4 \
-            "Repo" "${repov}" \
-            "Deluge 1.3" "" \
-            "Deluge 2.0" "" \
-            "Deluge 2.1" "" 3>&1 1>&2 2>&3)
+        case $(_os_codename) in
+            buster | focal | bullseye | jammy)
+                function=$(whiptail --title "Pick deluge version" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 4 \
+                    "Repo" "${repov}" \
+                    "Deluge 2.1" "" \
+                    "Deluge 2.0" "" \
+                    "Deluge 1.3" "" 3>&1 1>&2 2>&3)
+                ;;
+            *)
+                function=$(whiptail --title "Pick deluge version" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+                    "Repo" "${repov}" \
+                    "Deluge 2.1" "" \
+                    "Deluge 2.0" "" 3>&1 1>&2 2>&3)
+                ;;
+        esac
         case $function in
             "Deluge 1.3")
                 export DELUGE_VERSION=1.3-stable
@@ -224,15 +234,15 @@ function build_deluge() {
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
             ;;
         1.3-stable)
-            if [[ $(_os_codename) =~ ^(focal|bullseye|jammy)$ ]]; then
-                LIST='python2.7-dev intltool xdg-utils librsvg2-common'
-                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity Automat==20.2.0'
-                pythonver=python2.7
+            if [[ $(_os_codename) = "buster" ]]; then
+                LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
+                pythonver=python2
                 distver=python2.7
                 args=
             else
-                LIST='python python-twisted python-openssl python-setuptools intltool python-xdg python-chardet python-notify python-pygame python-glade2 librsvg2-common xdg-utils python-mako'
-                pythonver=python2
+                LIST='python2.7-dev intltool xdg-utils librsvg2-common'
+                PIP='twisted pyopenssl setuptools pyxdg chardet notify pygame mako service_identity Automat==20.2.0'
+                pythonver=python2.7
                 distver=python2.7
                 args=
             fi
@@ -252,25 +262,6 @@ function build_deluge() {
         done
     fi
 
-    if [[ $pythonver == python3 ]]; then
-        twistedcheck=$(python3 -c "import twisted; from pkg_resources import parse_version; print(parse_version(twisted.__version__) > parse_version(str(17.1)))")
-        if [[ $twistedcheck == False ]] || [[ -z $twistedcheck ]]; then
-            case $(_os_codename) in
-                "stretch")
-                    . /etc/swizzin/sources/functions/backports
-                    check_debian_backports
-                    set_packages_to_backports python3-twisted
-                    LIST='python3-twisted'
-                    apt_install $LIST
-                    ;;
-                *) ;;
-
-            esac
-        fi
-        if [[ -n $noexec ]]; then
-            mount -o remount,noexec /tmp
-        fi
-    fi
     rm_if_exists /tmp/deluge
     git clone -b ${deluge_git_branch} git://deluge-torrent.org/deluge.git /tmp/deluge >> "${log}" 2>&1 || {
         echo_warn "Cloning Deluge from deluge-torrent.org failed, attempting github backup."
@@ -588,7 +579,7 @@ DHL
         echo "${u}:${pass}:10" > /home/${u}/.config/deluge/auth
         echo "localclient:${localpass}:10" >> /home/${u}/.config/deluge/auth
         chmod 600 /home/${u}/.config/deluge/auth
-        chown -R ${u}.${u} /home/${u}/.config/
+        chown -R ${u}:${u} /home/${u}/.config/
         mkdir /home/${u}/dwatch
         chown ${u}: /home/${u}/dwatch
         mkdir -p /home/${u}/torrents/deluge

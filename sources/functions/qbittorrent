@@ -16,7 +16,7 @@ function whiptail_qbittorrent() {
         case ${codename} in
             "buster")
                 #We can't go past 4.5 due to gcc8 missing features
-                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
+                function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
                     "4.4" "(${latestv44})" \
                     "4.3" "(${latestv43})" \
@@ -24,7 +24,7 @@ function whiptail_qbittorrent() {
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
             *)
-                function=$(whiptail --title "Install Software" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
+                function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
                     "4.5" "(${latestv45})" \
                     "4.4" "(${latestv44})" \
@@ -70,9 +70,6 @@ function whiptail_qbittorrent() {
 function qbittorrent_version_info() {
     if [[ ${QBITTORRENT_VERSION} == "latest" ]]; then
         case $(_os_codename) in
-            stretch)
-                QBITTORRENT_VERSION=4.3.1
-                ;;
             *)
                 QBITTORRENT_VERSION=$(git ls-remote -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/release-", ""); print $2 }' | grep -v -e "beta" -e "rc" | sort -Vr | head -n1)
                 #latestv44=$(echo "$releases" | grep -m1 -oP '4\.4\.\d?.?\d')
@@ -202,7 +199,13 @@ function skip_libtorrent_qbittorrent() {
 }
 
 function install_qt() {
-    qt_repo_version=$(get_candidate_version qtbase5-dev)
+    #qt6-base-dev qt6-tools-dev
+    if [[ -z ${qbt_use_qt6} ]]; then
+        LIST='qtbase5-dev qttools5-dev'
+    else
+        LIST='qt6-base-dev qt6-tools-dev'
+    fi
+    qt_repo_version=$(get_candidate_version ${LIST[0]})
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
         if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
             install_qt_swizzin
@@ -213,11 +216,12 @@ function install_qt() {
         QT_METHOD=swizzin
         QT_SWIZZIN=QT_QMAKE="${QT_PREFIX}/bin"
     else
-        LIST='qtbase5-dev qttools5-dev'
         apt_install --no-recommends $LIST
         #If we're installing from repo then we can remove these (i.e. dist-upgrade or qbit downgrade)
         dpkg -r qtbase5-swizzin > /dev/null 2>&1
         dpkg -r qttools5-swizzin > /dev/null 2>&1
+        dpkg -r qt6-swizzin > /dev/null 2>&1
+        dpkg -r cmake-swizzin > /dev/null 2>&1
         QT_METHOD=repo
     fi
 }
@@ -260,9 +264,6 @@ function build_qt_swizzin() {
     cd /tmp
     QT_PREFIX=/usr/local/qt
     case $(_os_codename) in
-        stretch)
-            qt_branch=5.12
-            ;;
         *)
             #6.0 requires CMake 3.18
             qt_branch=5.15

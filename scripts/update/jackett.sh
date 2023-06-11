@@ -17,7 +17,7 @@ if [[ -f /install/.jackett.lock ]]; then
         wget -q https://github.com/Jackett/Jackett/releases/download/$jackettver/Jackett.Binaries.LinuxAMDx64.tar.gz
         tar -xvzf Jackett.Binaries.LinuxAMDx64.tar.gz > /dev/null 2>&1
         rm -f Jackett.Binaries.LinuxAMDx64.tar.gz
-        chown ${username}.${username} -R Jackett
+        chown ${username}:${username} -R Jackett
         if [[ $active == "active" ]]; then
             restartjackett=1
         fi

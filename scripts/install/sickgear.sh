@@ -33,19 +33,11 @@ mkdir -p /opt/.venv
 chown ${user}: /opt/.venv
 
 #minver 3.7.2
-if [[ ! $codename =~ ("stretch"|"bionic") ]]; then
-    apt_install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv
-    echo_progress_start "Setting up venv for Sickgear"
-    python3 -m venv /opt/.venv/sickgear
-    echo_progress_done
-else
-    apt_install git-core openssl libssl-dev
-    #shellcheck source=sources/functions/pyenv
-    . /etc/swizzin/sources/functions/pyenv
-    pyenv_install
-    pyenv_install_version 3.7.7
-    pyenv_create_venv 3.7.7 /opt/.venv/sickgear
-fi
+apt_install git-core openssl libssl-dev python3 python3-pip python3-dev python3-venv
+echo_progress_start "Setting up venv for Sickgear"
+python3 -m venv /opt/.venv/sickgear
+echo_progress_done
+
 echo_progress_start "Installing python requirements"
 /opt/.venv/sickgear/bin/pip3 install lxml regex scandir soupsieve cheetah3 >> $log 2>&1
 chown -R ${user}: /opt/.venv/sickgear

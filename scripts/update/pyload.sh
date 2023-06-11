@@ -20,14 +20,14 @@ if [[ -f /install/.pyload.lock ]]; then
         isactive=$(systemctl is-active pyload@${user})
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now pyload@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
             LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
 

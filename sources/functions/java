@@ -6,9 +6,6 @@ install_java8() {
         apt_install openjdk-8-jre
     elif [[ $distribution == "debian" ]]; then
         case $codename in
-            "stretch")
-                apt_install openjdk-8-jre
-                ;;
             *)
                 echo_progress_start "Adding adoptopenjdk repository"
                 curl -s https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | gpg --dearmor > /usr/share/keyrings/adoptopenjdk-archive-keyring.gpg 2>> "${log}"

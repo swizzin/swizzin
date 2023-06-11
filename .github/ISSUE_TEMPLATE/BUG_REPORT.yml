@@ -37,12 +37,11 @@ body:
       label: What OS are you using?
       multiple: false
       options:
+        - Debian 12 (Bookworm)
         - Ubuntu 22.04 (Jammy)
         - Debian 11 (Bullseye)
         - Ubuntu 20.04 (Focal)
         - Debian 10 (Buster)
-        - Ubuntu 18.04 (Xenial)
-        - Debian 9 (Stretch)
     validations:
       required: true
   - type: dropdown
