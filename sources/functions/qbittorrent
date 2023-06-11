@@ -76,8 +76,8 @@ function qbittorrent_version_info() {
                 ;;
         esac
     fi
-    CFLAGS="-march=native"
-    CXXFLAGS="-march=native"
+    CFLAGS="-O3 -march=native"
+    CXXFLAGS="-O3 -march=native"
     case $QBITTORRENT_VERSION in
         4.1.*)
             libtorrent_branch=RC_1_1
@@ -390,7 +390,7 @@ function build_libtorrent_qbittorrent() {
             sed -i 's|-ltorrent-rasterbar|-l:libtorrent-rasterbar.a|g' /tmp/dist/libtorrent/usr/local/lib/pkgconfig/libtorrent-rasterbar.pc
             ;;
         autotools)
-            echo "using gcc : : : <cflags>\"-march=native -std=${stdcver}\" <cxxflags>\"-march=native -std=${stdcver}\" ;" > /root/user-config.jam
+            echo "using gcc : : : <cflags>\"-O3 -march=native -std=${stdcver}\" <cxxflags>\"-O3 -march=native -std=${stdcver}\" ;" > /root/user-config.jam
             /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1 || {
                 echo_error "The boost build of libtorrent did not complete successfully"
                 exit 1
@@ -401,7 +401,7 @@ function build_libtorrent_qbittorrent() {
             exit 1
             ;;
     esac
-    tag=" static with ${stdcver} march=native"
+    tag=" static with ${stdcver} O3 march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
     cd /tmp
@@ -424,11 +424,8 @@ function build_qbittorrent() {
         buster)
             OS_DEPS='libdouble-conversion1 libdouble-conversion-dev'
             ;;
-        bullseye | jammy)
-            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
-            ;;
         *)
-            OS_DEPS=''
+            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
             ;;
     esac
     LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev libiconv-hook-dev'
@@ -443,7 +440,7 @@ function build_qbittorrent() {
     rm -rf /tmp/release-${VERSION}.tar.gz
 
     cd /tmp/qbittorrent
-    tag=" static with ${stdcver} march=native"
+    tag=" static with ${stdcver} O3 march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
     case $build_type in
@@ -470,7 +467,7 @@ function build_qbittorrent() {
             }
             ;;
         autotools)
-            ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1 || {
+            ./configure --prefix=/usr --disable-gui --with-boost=${BOOST_ROOT} --with-boost-libdir="/usr/local/lib" libtorrent_CFLAGS="-I/usr/local/include -I${BOOST_ROOT}" libtorrent_LIBS="-L/usr/local/lib -l:libtorrent-rasterbar.a -lssl -lcrypto" CXXFLAGS="-O3 -march=native -std=${stdcver}" ${QT_SWIZZIN} >> ${log} 2>&1 || {
                 echo_error "The configure of qbittorrent did not complete successfully"
                 exit 1
             }
