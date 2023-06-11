@@ -20,7 +20,15 @@ fi
 
 username=$(_get_master_username)
 
-LIST='default-jre-headless unzip'
+case $(os_codename) in
+    bullseye)
+        java=openjdk-17-jdk-headless
+        ;;
+    *)
+        java=default-jre-headless
+        ;;
+esac
+LIST='unzip $java'
 apt_install $LIST
 
 echo_progress_start "Installing NZBHydra ${latestversion}"
@@ -43,10 +51,10 @@ if [[ $active == "active" ]]; then
     echo_progress_done
 fi
 
-mkdir -p /home/${user}/.config/nzbhydra2
+mkdir -p /home/${username}/.config/nzbhydra2
 
-chown ${user}: /home/${user}/.config
-chown ${user}: /home/${user}/.config/nzbhydra2
+chown ${username}: /home/${username}/.config
+chown ${username}: /home/${username}/.config/nzbhydra2
 
 echo_progress_start "Installing systemd service"
 cat > /etc/systemd/system/nzbhydra.service << EOH2
