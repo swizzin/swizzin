@@ -424,11 +424,8 @@ function build_qbittorrent() {
         buster)
             OS_DEPS='libdouble-conversion1 libdouble-conversion-dev'
             ;;
-        bullseye | bookworm | jammy)
-            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
-            ;;
         *)
-            OS_DEPS=''
+            OS_DEPS='libdouble-conversion3 libdouble-conversion-dev libmd4c0 libmd4c-dev libmd4c-html0 libmd4c-html0-dev'
             ;;
     esac
     LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev libiconv-hook-dev'
