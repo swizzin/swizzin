@@ -28,7 +28,7 @@ rutorrent_nginx_config
 rutorrent_user_config
 
 restart_php_fpm
-chown -R www-data.www-data /srv/rutorrent
+chown -R www-data:www-data /srv/rutorrent
 echo_progress_start "Reloading nginx"
 systemctl reload nginx >> $log 2>&1
 echo_progress_done

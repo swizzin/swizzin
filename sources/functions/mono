@@ -5,7 +5,7 @@ function mono_repo_setup() {
     codename=$(_os_codename)
     if [[ ! -f /etc/apt/sources.list.d/mono-xamarin.list ]]; then
         case $(_os_codename) in
-            stretch | buster | bionic)
+            buster)
                 gpg --no-default-keyring --keyring /usr/share/keyrings/mono-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF >> ${log} 2>&1
                 echo "deb [signed-by=/usr/share/keyrings/mono-archive-keyring.gpg] https://download.mono-project.com/repo/${distribution} ${codename}/snapshots/6.8/. main" > /etc/apt/sources.list.d/mono-xamarin.list
                 apt_update

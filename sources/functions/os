@@ -17,7 +17,9 @@ export -f _os_distro
 # Output examples:
 # - `focal`
 # - `buster`
-# - `stretch`
+# - `bookworm`
+# - `bullseye`
+# - `jammy`
 # - etc.
 _os_codename() {
     source /etc/os-release
