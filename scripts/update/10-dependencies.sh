@@ -7,7 +7,7 @@ fi
 
 if [[ $(_os_distro) == "ubuntu" ]]; then
     if [[ $(_os_codename) == "jammy" ]]; then
-        if ! grep 'ubuntu-toolchain-r' /etc/apt/sources.list | grep -q -v '^#'; then
+        if ! grep 'ubuntu-toolchain-r' /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-ppa-jammy.list | grep -q -v '^#'; then
             echo_info "Adding toolchain repo"
             add-apt-repository -y ppa:ubuntu-toolchain-r/ppa >> ${log} 2>&1
             trigger_apt_update=true
