@@ -163,7 +163,7 @@ function skip_libtorrent_deluge() {
 
 function build_libtorrent_deluge() {
     booststrap
-    echo 'using gcc : : : <cflags>"-march=native -std=c++14" <cxxflags>"-march=native -std=c++14" ;' > /root/user-config.jam
+    echo 'using gcc : : : <cflags>"-O3 -march=native -std=c++17" <cxxflags>"-O3 -march=native -std=c++17" ;' > /root/user-config.jam
     echo "using python : ${pythonmajor} : /usr/bin/${pythonver} : /usr/include/python${pythonmajor} : /usr/lib/python${pythonmajor} ;" >> /root/user-config.jam
     apt_install ${pythonver}-dev libssl-dev
     rm_if_exists /tmp/libtorrent
@@ -201,7 +201,7 @@ function build_libtorrent_deluge() {
     esac
     cd /tmp/libtorrent/bindings/python
     /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
-    tag=" static with c++14 march=native"
+    tag=" static with c++17 O3 march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent --version ${VERSION} --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> ${log} 2>&1 || {
         echo_error "Error packaging ${python}-libtorrent. Setup will exit"
