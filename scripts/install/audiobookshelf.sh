@@ -29,6 +29,7 @@ echo -e "$content" > /opt/swizzin/core/custom/profiles.py
 
 echo "Content has been written to /opt/swizzin/core/custom/profiles.py"
 touch /install/.audiobookshelf.lock
+systemctl restart panel
 }
 
 _install_audiobookshelf
