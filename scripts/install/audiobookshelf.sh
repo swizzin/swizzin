@@ -12,4 +12,23 @@ _install_audiobookshelf() {
     curl -o  /opt/swizzin/static/img/apps/audiobookshelf.png https://www.audiobookshelf.org/Logo.png
 }
 
+
+
+__add_to_pannel(){
+# Content to write
+content='from core.profiles import *\n\n
+class audiobookshelf_meta:\n
+    name = "audiobookshelf"\n
+    pretty_name = "Audiobookshelf"\n
+    baseurl = "/audiobookshelf"\n
+    systemd = "audiobookshelf@"\n
+    check_theD = True'
+
+# Write content to the file
+echo -e "$content" > /opt/swizzin/core/custom/profiles.py
+
+echo "Content has been written to /opt/swizzin/core/custom/profiles.py"
+}
+
 _install_audiobookshelf
+__add_to_pannel
