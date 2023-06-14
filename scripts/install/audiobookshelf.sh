@@ -9,6 +9,7 @@ _install_audiobookshelf() {
     apt update
     apt install audiobookshelf
     systemctl restart audiobookshelf.service
+    curl -o  /opt/swizzin/static/img/apps/audiobookshelf.png https://www.audiobookshelf.org/Logo.png
 }
 
 _install_audiobookshelf
