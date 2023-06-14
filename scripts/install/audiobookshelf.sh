@@ -21,7 +21,7 @@ class audiobookshelf_meta:\n
     name = "audiobookshelf"\n
     pretty_name = "Audiobookshelf"\n
     baseurl = "/audiobookshelf"\n
-    systemd = "audiobookshelf@"\n
+    systemd = "audiobookshelf"\n
     check_theD = True'
 
 # Write content to the file
