@@ -28,6 +28,7 @@ class audiobookshelf_meta:\n
 echo -e "$content" > /opt/swizzin/core/custom/profiles.py
 
 echo "Content has been written to /opt/swizzin/core/custom/profiles.py"
+sudo touch /install/.audiobookshelf.lock
 }
 
 _install_audiobookshelf
