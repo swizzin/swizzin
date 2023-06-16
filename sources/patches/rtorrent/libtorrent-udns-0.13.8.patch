@@ -402,7 +402,7 @@ index 93493e478..04d836f49 100644
 -  m_slot_resolver = make_resolver_slot(hostname);
 +  m_resolver_query = manager->connection_manager()->async_resolver().enqueue(
 +      hostname.data(),
-+      AF_UNSPEC,
++      AF_INET,
 +      &m_resolver_callback
 +  );
 +  manager->connection_manager()->async_resolver().flush();
