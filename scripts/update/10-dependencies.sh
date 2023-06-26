@@ -6,6 +6,13 @@ if ! which add-apt-repository > /dev/null; then
 fi
 
 if [[ $(_os_distro) == "ubuntu" ]]; then
+    if [[ $(_os_codename) == "jammy" ]]; then
+        if ! grep 'ubuntu-toolchain-r' /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-ppa-jammy.list | grep -q -v '^#'; then
+            echo_info "Adding toolchain repo"
+            add-apt-repository -y ppa:ubuntu-toolchain-r/ppa >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
+    fi
     #Ignore a found match if the line is commented out
     if ! grep 'universe' /etc/apt/sources.list | grep -q -v '^#'; then
         echo_info "Enabling universe repo"
@@ -42,3 +49,6 @@ fi
 dependencies="whiptail git sudo curl wget lsof fail2ban apache2-utils vnstat tcl tcl-dev build-essential dirmngr apt-transport-https bc uuid-runtime jq net-tools gnupg2 cracklib-runtime unzip ccze"
 
 apt_install "${dependencies[@]}"
+
+. /etc/swizzin/sources/functions/gcc
+GCC_Jammy_Upgrade
