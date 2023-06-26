@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.9.0]
+
+## June 26, 2023
+
+### New:
+
+- os: bookworm support
+- os: use gcc-12 in Jammy
+
+### Changed:
+
+- deluge: compile flags are more optmized
+- qbittorrent: use O3 compile flag
+
+### Fixed:
+
+- nzbhydra: broken variable
+- mylar: urllib3 pip depends
+- curl: use cmake
+- curl: don't use curl to install curl
+- rtorrent: udns can't use ipv6
+
 ## [3.8.0]
 
 ## May 4, 2023
