@@ -11,12 +11,7 @@
 # Source the global functions we require for this script.
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/ssl
-#
-# awaiting pull to remove
-function dist_info() {
-    DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-    DIST_ID="$(source /etc/os-release && echo "$ID")"
-}
+
 #
 # Get our some useful information from functions in the sourced utils script
 username="$(_get_master_username)"

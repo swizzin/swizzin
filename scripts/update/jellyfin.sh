@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 #
 if [[ -f /install/.jellyfin.lock ]]; then
-    # awaiting pull to remove
-    function dist_info() {
-        DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
-        DIST_ID="$(source /etc/os-release && echo "$ID")"
-    }
     # source the functions we need for this script.
     #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
