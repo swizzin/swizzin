@@ -196,7 +196,7 @@ sudo add-apt-repository universe
 
 #
 # Check if old, outdated repository for jellyfin is installed
-# If old key is found, delete it.
+# If old repository is found, delete it.
 if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
     echo "> Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
     rm -f /etc/apt/sources.list.d/jellyfin.list
