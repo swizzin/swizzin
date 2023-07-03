@@ -68,15 +68,127 @@ if [[ -f /install/.jellyfin.lock ]]; then
     fi
     #
     if ! check_installed jellyfin; then
-        echo_info "Moving Jellyfin to apt-managed installation"
+        echo_info "Updating Jellyfin installation using apt."
         #
-        # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-        curl -s https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key | gpg --dearmor > /usr/share/keyrings/jellyfin-archive-keyring.gpg 2>> "${log}"
-        echo "deb [signed-by=/usr/share/keyrings/jellyfin-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
+        # Make sure universe is enabled so that ffmpeg can be satisfied.
+        sudo add-apt-repository universe
+
         #
-        # install jellyfin and jellyfin-ffmepg using apt functions.
+        # Set a few variables so that we can add the right repository.
+        SUPPORTED_ARCHITECTURES='@(amd64|armhf|arm64)'
+        SUPPORTED_DEBIAN_RELEASES='@(buster|bullseye|bookworm)'
+        SUPPORTED_UBUNTU_RELEASES='@(trusty|xenial|bionic|cosmic|disco|eoan|focal|groovy|hirsute|impish|jammy|kinetic|lunar)'
+
+        # Validate that we're running on a supported (dpkg) architecture
+        # shellcheck disable=SC2254
+        # We cannot quote this extglob expansion or it doesn't work
+        case "${ARCHITECTURE}" in
+            ${SUPPORTED_ARCHITECTURES})
+                true
+                ;;
+            *)
+                echo "Sorry, Jellyfin doesn't support the CPU architecture '${ARCHITECTURE}'."
+                exit 1
+                ;;
+        esac
+
+        # Handle some known alternative base OS values with 1-to-1 mappings
+        # Use the result as the repository base OS
+        case "${BASE_OS}" in
+            raspbian)
+                # Raspbian uses the Debian repository
+                REPO_OS="debian"
+                ;;
+            linuxmint)
+                # Linux Mint can either be Debian- or Ubuntu-based, so pick the right one
+                if grep -q "DEBIAN_CODENAME=" /etc/os-release &> /dev/null; then
+                    VERSION="$(awk -F'=' '/^DEBIAN_CODENAME=/{ print $NF }' /etc/os-release)"
+                    REPO_OS="debian"
+                else
+                    VERSION="$(awk -F'=' '/^UBUNTU_CODENAME=/{ print $NF }' /etc/os-release)"
+                    REPO_OS="ubuntu"
+                fi
+                ;;
+            neon)
+                # Neon uses the Ubuntu repository
+                REPO_OS="ubuntu"
+                ;;
+            *)
+                REPO_OS="${BASE_OS}"
+                VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
+                ;;
+        esac
+
+        # Validate that we're running a supported release (variables at top of file)
+        case "${REPO_OS}" in
+            debian)
+                # shellcheck disable=SC2254
+                # We cannot quote this extglob expansion or it doesn't work
+                case "${VERSION}" in
+                    ${SUPPORTED_DEBIAN_RELEASES})
+                        true
+                        ;;
+                    *)
+                        echo "Sorry, we don't support the Debian codename '${VERSION}'."
+                        exit 1
+                        ;;
+                esac
+                ;;
+            ubuntu)
+                # shellcheck disable=SC2254
+                # We cannot quote this extglob expansion or it doesn't work
+                case "${VERSION}" in
+                    ${SUPPORTED_UBUNTU_RELEASES})
+                        true
+                        ;;
+                    *)
+                        echo "Sorry, we don't support the Ubuntu codename '${VERSION}'."
+                        exit 1
+                        ;;
+                esac
+                ;;
+            *)
+                echo "Sorry, we don't support the base OS '${REPO_OS}'."
+                exit 1
+                ;;
+        esac
+
+        #
+        # Check if old, outdated repository for jellyfin is installed
+        # If old repository is found, delete it.
+        if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
+            echo "> Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
+            rm -f /etc/apt/sources.list.d/jellyfin.list
+        fi
+
+        #
+        # Add Jellyfin signing key if not already present
+
+        if [[ ! -f /etc/apt/keyrings/jellyfin.gpg ]]; then
+            echo "> Did not find signing key. Adding it."
+            $FETCH https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
+        fi
+
+        #
+        # Install the Deb822 format jellyfin.sources entry
+        echo "> Installing Jellyfin repository into APT."
+        cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
+Types: deb
+URIs: https://repo.jellyfin.org/${REPO_OS}
+Suites: ${VERSION}
+Components: main
+Architectures: ${ARCHITECTURE}
+Signed-By: /etc/apt/keyrings/jellyfin.gpg
+EOF
+        #
+        # Update apt repositories to fetch Jellyfin repository
         apt_update #forces apt refresh
-        apt_install jellyfin jellyfin-ffmpeg
+
+        #
+        # Install Jellyfin and dependencies using apt
+        # Dependencies are automatically grabbed by apt
+        apt_install jellyfin
+
         #
         # Configure the new jellyfin service.
         systemctl -q stop jellyfin.service

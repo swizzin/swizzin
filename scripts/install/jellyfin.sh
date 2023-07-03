@@ -43,6 +43,10 @@ fi
 ARCHITECTURE="$(dpkg --print-architecture)"
 BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
 
+SUPPORTED_ARCHITECTURES='@(amd64|armhf|arm64)'
+SUPPORTED_DEBIAN_RELEASES='@(buster|bullseye|bookworm)'
+SUPPORTED_UBUNTU_RELEASES='@(trusty|xenial|bionic|cosmic|disco|eoan|focal|groovy|hirsute|impish|jammy|kinetic|lunar)'
+
 # Validate that we're running on a supported (dpkg) architecture
 # shellcheck disable=SC2254
 # We cannot quote this extglob expansion or it doesn't work
