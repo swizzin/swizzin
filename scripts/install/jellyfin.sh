@@ -178,16 +178,12 @@ EOF
 
 #
 # Update apt repositories to fetch Jellyfin repository
-echo_progress_start "Refreshing apt repositories."
 apt_update #forces apt refresh
-echo_progress_done "Repositories have been refreshed."
 
 #
 # Install Jellyfin and dependencies using apt
 # Dependencies are automatically grabbed by apt
-echo_progress_start "Installing Jellyfin with apt."
 apt_install jellyfin
-echo_progress_done "Jellyfin has been installed."
 
 #
 # Make sure Jellyfin finishes starting up before continuing.
