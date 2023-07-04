@@ -15,7 +15,6 @@
 #
 # Get our some useful information from functions in the sourced utils script
 username="$(_get_master_username)"
-dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
 
 if [[ $(systemctl is-active emby) == "active" ]]; then
     active=emby
