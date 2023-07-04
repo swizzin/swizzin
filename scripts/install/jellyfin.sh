@@ -35,6 +35,11 @@ if [[ -n $active ]]; then
     fi
 fi
 
+ARCHITECTURE="$(dpkg --print-architecture)"
+BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
+SUPPORTED_DEBIAN_RELEASES='@(buster|bullseye|bookworm)'
+SUPPORTED_UBUNTU_RELEASES='@(trusty|xenial|bionic|cosmic|disco|eoan|focal|groovy|hirsute|impish|jammy|kinetic|lunar)'
+
 # Handle some known alternative base OS values with 1-to-1 mappings
 # Use the result as the repository base OS
 case "${BASE_OS}" in
