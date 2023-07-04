@@ -6,7 +6,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
     . /etc/swizzin/sources/functions/utils
     # Get our main user credentials using a util function.
     username="$(_get_master_username)"
-    dist_info # get our distribution ID, set to DIST_ID, and VERSION_CODENAME, set to DIST_CODENAME, from /etc/os-release
     #
     # remove the old service and remove legacy files.
     if [[ -f /etc/systemd/system/jellyfin.service ]]; then
@@ -103,12 +102,12 @@ if [[ -f /install/.jellyfin.lock ]]; then
         if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
             echo_progress_start "Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
             rm -f /etc/apt/sources.list.d/jellyfin.list
+            rm -f /etc/apt/keyrings/jellyfin.gpg
             echo_progress_done "Removed old repository."
         fi
 
         #
         # Add Jellyfin signing key if not already present
-
         if [[ ! -f /etc/apt/keyrings/jellyfin.gpg ]]; then
             echo_progress_start "> Did not find signing key. Adding it."
             curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
