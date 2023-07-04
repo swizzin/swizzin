@@ -65,6 +65,11 @@ case "${BASE_OS}" in
 esac
 
 #
+## Get the paths to curl and wget
+CURL=$(which curl)
+WGET=$(which wget)
+
+#
 ## Set $FETCH so we know how to pull a key.
 if [[ -n ${CURL} ]]; then
     FETCH="${CURL} -fsSL"
