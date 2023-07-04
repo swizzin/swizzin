@@ -11,9 +11,9 @@ if [[ -f /install/.jellyfin.lock ]]; then
     # remove the old service and remove legacy files.
     if [[ -f /etc/systemd/system/jellyfin.service ]]; then
         echo_progress_start "Removing old Jellyfin service"
+        systemctl stop jellyfin.service
         systemctl -q disable --now jellyfin.service
         rm_if_exists /etc/systemd/system/jellyfin.service
-        kill -9 "$(ps xU "${username}")" | grep "/opt/jellyfin/jellyfin -d /home/${username}/.config/Jellyfin$" | awk '{print $1}' > /dev/null 2>&1
         rm_if_exists /opt/jellyfin
         rm_if_exists /opt/ffmpeg
         echo_progress_done "Old JF service removed"
