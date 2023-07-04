@@ -65,6 +65,32 @@ case "${BASE_OS}" in
 esac
 
 #
+## Set $FETCH so we know how to pull a key.
+if [[ -n ${CURL} ]]; then
+    FETCH="${CURL} -fsSL"
+elif [[ -n ${WGET} ]]; then
+    FETCH="${WGET} -O-"
+else
+    echo "Failed to find a suitable download program. We're not sure how you dowloaded this script, but we'll install 'curl' automatically."
+    # shellcheck disable=SC2206
+    # We are OK with word-splitting here since we control the contents
+    INSTALL_PKGS=(${INSTALL_PKGS[@]} curl)
+    FETCH="${CURL} -fsSL"
+    echo
+fi
+
+#
+## Get the path to gpg or install it
+GNUPG=$(which gpg)
+if [[ -z ${GNUPG} ]]; then
+    echo "Failed to find the GNUPG binary, but we'll install 'gnupg' automatically."
+    # shellcheck disable=SC2206
+    # We are OK with word-splitting here since we control the contents
+    INSTALL_PKGS=(${INSTALL_PKGS[@]} gnupg)
+    echo
+fi
+
+#
 ########
 ######## Variables End
 ########
@@ -168,7 +194,6 @@ Components: main
 Architectures: ${ARCHITECTURE}
 Signed-By: /etc/apt/keyrings/jellyfin.gpg
 EOF
-echo
 
 #
 # Update apt repositories to fetch Jellyfin repository
