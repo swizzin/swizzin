@@ -65,26 +65,6 @@ case "${BASE_OS}" in
 esac
 
 #
-## Get the paths to curl and wget
-CURL=$(which curl)
-WGET=$(which wget)
-
-#
-## Set $FETCH so we know how to pull a key.
-if [[ -n ${CURL} ]]; then
-    FETCH="${CURL} -fsSL"
-elif [[ -n ${WGET} ]]; then
-    FETCH="${WGET} -O-"
-else
-    echo "Failed to find a suitable download program. We're not sure how you dowloaded this script, but we'll install 'curl' automatically."
-    # shellcheck disable=SC2206
-    # We are OK with word-splitting here since we control the contents
-    INSTALL_PKGS=(${INSTALL_PKGS[@]} curl)
-    FETCH="${CURL} -fsSL"
-    echo
-fi
-
-#
 ## Get the path to gpg or install it
 GNUPG=$(which gpg)
 if [[ -z ${GNUPG} ]]; then
@@ -169,10 +149,6 @@ cat > /etc/jellyfin/network.xml <<- CONFIG
 CONFIG
 
 #
-# Make sure universe is enabled so that ffmpeg can be satisfied.
-sudo add-apt-repository universe
-
-#
 # Check if old, outdated repository for jellyfin is installed
 # If old repository is found, delete it.
 if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
@@ -185,7 +161,7 @@ fi
 #
 # Add Jellyfin signing key
 echo "> Fetching repository signing key."
-$FETCH https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
+curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
 echo_success "Jellyfin Signing Key Added"
 
 #
