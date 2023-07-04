@@ -36,8 +36,6 @@ fi
 
 ARCHITECTURE="$(dpkg --print-architecture)"
 BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
-SUPPORTED_DEBIAN_RELEASES='@(buster|bullseye|bookworm)'
-SUPPORTED_UBUNTU_RELEASES='@(trusty|xenial|bionic|cosmic|disco|eoan|focal|groovy|hirsute|impish|jammy|kinetic|lunar)'
 
 # Handle some known alternative base OS values with 1-to-1 mappings
 # Use the result as the repository base OS
@@ -63,40 +61,6 @@ case "${BASE_OS}" in
     *)
         REPO_OS="${BASE_OS}"
         VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
-        ;;
-esac
-
-# Validate that we're running a supported release (variables at top of file)
-case "${REPO_OS}" in
-    debian)
-        # shellcheck disable=SC2254
-        # We cannot quote this extglob expansion or it doesn't work
-        case "${VERSION}" in
-            ${SUPPORTED_DEBIAN_RELEASES})
-                true
-                ;;
-            *)
-                echo "Sorry, we don't support the Debian codename '${VERSION}'."
-                exit 1
-                ;;
-        esac
-        ;;
-    ubuntu)
-        # shellcheck disable=SC2254
-        # We cannot quote this extglob expansion or it doesn't work
-        case "${VERSION}" in
-            ${SUPPORTED_UBUNTU_RELEASES})
-                true
-                ;;
-            *)
-                echo "Sorry, we don't support the Ubuntu codename '${VERSION}'."
-                exit 1
-                ;;
-        esac
-        ;;
-    *)
-        echo "Sorry, we don't support the base OS '${REPO_OS}'."
-        exit 1
         ;;
 esac
 
