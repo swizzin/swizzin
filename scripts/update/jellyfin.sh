@@ -68,27 +68,10 @@ if [[ -f /install/.jellyfin.lock ]]; then
         # Make sure universe is enabled so that ffmpeg can be satisfied.
         sudo add-apt-repository universe
 
-        #
-        # Set a few variables so that we can add the right repository.
-        SUPPORTED_ARCHITECTURES='@(amd64|armhf|arm64)'
-        SUPPORTED_DEBIAN_RELEASES='@(buster|bullseye|bookworm)'
-        SUPPORTED_UBUNTU_RELEASES='@(trusty|xenial|bionic|cosmic|disco|eoan|focal|groovy|hirsute|impish|jammy|kinetic|lunar)'
-
-        # Validate that we're running on a supported (dpkg) architecture
-        # shellcheck disable=SC2254
-        # We cannot quote this extglob expansion or it doesn't work
-        case "${ARCHITECTURE}" in
-            ${SUPPORTED_ARCHITECTURES})
-                true
-                ;;
-            *)
-                echo "Sorry, Jellyfin doesn't support the CPU architecture '${ARCHITECTURE}'."
-                exit 1
-                ;;
-        esac
-
         # Handle some known alternative base OS values with 1-to-1 mappings
         # Use the result as the repository base OS
+        ARCHITECTURE="$(dpkg --print-architecture)"
+        BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
         case "${BASE_OS}" in
             raspbian)
                 # Raspbian uses the Debian repository
@@ -114,54 +97,22 @@ if [[ -f /install/.jellyfin.lock ]]; then
                 ;;
         esac
 
-        # Validate that we're running a supported release (variables at top of file)
-        case "${REPO_OS}" in
-            debian)
-                # shellcheck disable=SC2254
-                # We cannot quote this extglob expansion or it doesn't work
-                case "${VERSION}" in
-                    ${SUPPORTED_DEBIAN_RELEASES})
-                        true
-                        ;;
-                    *)
-                        echo "Sorry, we don't support the Debian codename '${VERSION}'."
-                        exit 1
-                        ;;
-                esac
-                ;;
-            ubuntu)
-                # shellcheck disable=SC2254
-                # We cannot quote this extglob expansion or it doesn't work
-                case "${VERSION}" in
-                    ${SUPPORTED_UBUNTU_RELEASES})
-                        true
-                        ;;
-                    *)
-                        echo "Sorry, we don't support the Ubuntu codename '${VERSION}'."
-                        exit 1
-                        ;;
-                esac
-                ;;
-            *)
-                echo "Sorry, we don't support the base OS '${REPO_OS}'."
-                exit 1
-                ;;
-        esac
-
         #
         # Check if old, outdated repository for jellyfin is installed
         # If old repository is found, delete it.
         if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
-            echo_info "Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
+            echo_progress_start "Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
             rm -f /etc/apt/sources.list.d/jellyfin.list
+            echo_progress_done "Removed old repository."
         fi
 
         #
         # Add Jellyfin signing key if not already present
 
         if [[ ! -f /etc/apt/keyrings/jellyfin.gpg ]]; then
-            echo "> Did not find signing key. Adding it."
-            $FETCH https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
+            echo_progress_start "> Did not find signing key. Adding it."
+            curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
+            echo_progress_done "Jellyfin Signing Key Added"
         fi
 
         #
@@ -177,16 +128,12 @@ Signed-By: /etc/apt/keyrings/jellyfin.gpg
 EOF
         #
         # Update apt repositories to fetch Jellyfin repository
-        echo_progress_start "Refreshing apt repositories."
         apt_update #forces apt refresh
-        echo_progress_done "Repositories updated."
 
         #
         # Install Jellyfin and dependencies using apt
         # Dependencies are automatically grabbed by apt
-        echo_progress_start "Updating Jellyfin package."
         apt_install jellyfin
-        echo_progress_done "Jellyfin has been updated."
 
         #
         # Configure the new jellyfin service.
