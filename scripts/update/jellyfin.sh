@@ -152,7 +152,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
         # Check if old, outdated repository for jellyfin is installed
         # If old repository is found, delete it.
         if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
-            echo "> Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
+            echo_info "Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
             rm -f /etc/apt/sources.list.d/jellyfin.list
         fi
 
@@ -177,12 +177,16 @@ Signed-By: /etc/apt/keyrings/jellyfin.gpg
 EOF
         #
         # Update apt repositories to fetch Jellyfin repository
+        echo_progress_start "Refreshing apt repositories."
         apt_update #forces apt refresh
+        echo_progress_done "Repositories updated."
 
         #
         # Install Jellyfin and dependencies using apt
         # Dependencies are automatically grabbed by apt
+        echo_progress_start "Updating Jellyfin package."
         apt_install jellyfin
+        echo_progress_done "Jellyfin has been updated."
 
         #
         # Configure the new jellyfin service.
