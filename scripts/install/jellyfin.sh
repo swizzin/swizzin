@@ -197,18 +197,21 @@ sudo add-apt-repository universe
 # Check if old, outdated repository for jellyfin is installed
 # If old repository is found, delete it.
 if [[ -f /etc/apt/sources.list.d/jellyfin.list ]]; then
-    echo "> Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
+    echo_progress_start "Found old-style '/etc/apt/sources.list.d/jellyfin.list' configuration; removing it."
     rm -f /etc/apt/sources.list.d/jellyfin.list
+    echo_progress_done "Removed old configuration."
+    echo_success "Old repository has been removed."
 fi
 
 #
 # Add Jellyfin signing key
 echo "> Fetching repository signing key."
 $FETCH https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
+echo_success "Jellyfin Signing Key Added"
 
 #
 # Install the Deb822 format jellyfin.sources entry
-echo "> Installing Jellyfin repository into APT."
+echo_info "Installing Jellyfin repository into APT."
 cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
 Types: deb
 URIs: https://repo.jellyfin.org/${REPO_OS}
@@ -221,17 +224,22 @@ echo
 
 #
 # Update apt repositories to fetch Jellyfin repository
+echo_progress_start "Refreshing apt repositories."
 apt_update #forces apt refresh
+echo_progress_done "Repositories have been refreshed."
 
 #
 # Install Jellyfin and dependencies using apt
 # Dependencies are automatically grabbed by apt
+echo_progress_start "Installing Jellyfin with apt."
 apt_install jellyfin
+echo_progress_done "Jellyfin has been installed."
 
 #
 # Make sure Jellyfin finishes starting up before continuing.
-echo "> Waiting 15 seconds for Jellyfin to fully start up."
+echo_progress_start "Waiting for Jellyfin to start."
 sleep 15
+echo_progress_done "Jellyfin should be started."
 
 #
 # Add the jellyfin user to the master user's group.
