@@ -117,7 +117,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
 
         #
         # Install the Deb822 format jellyfin.sources entry
-        echo "> Installing Jellyfin repository into APT."
+        echo_progress_start "Adding Jellyfin repository to apt"
         cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
 Types: deb
 URIs: https://repo.jellyfin.org/${REPO_OS}
@@ -126,6 +126,7 @@ Components: main
 Architectures: ${ARCHITECTURE}
 Signed-By: /etc/apt/keyrings/jellyfin.gpg
 EOF
+        echo_progress_done "Added Jellyfin repository"
         #
         # Update apt repositories to fetch Jellyfin repository
         apt_update #forces apt refresh
