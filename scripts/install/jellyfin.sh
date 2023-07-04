@@ -160,7 +160,6 @@ fi
 
 #
 # Add Jellyfin signing key
-echo "> Fetching repository signing key."
 curl -fsSL https://repo.jellyfin.org/jellyfin_team.gpg.key | gpg --dearmor --yes --output /etc/apt/keyrings/jellyfin.gpg
 echo_success "Jellyfin Signing Key Added"
 
