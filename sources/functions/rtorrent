@@ -131,6 +131,10 @@ function build_xmlrpc-c() {
     cd /tmp/xmlrpc-c
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
+    # Uninstall any left over files from previous repo installations
+    ./configure >> $log 2>&1
+    make uninstall >> $log 2>&1
+    # Configure as normal and continue with installation process
     ./configure --prefix=/usr --disable-cplusplus --disable-wininet-client --disable-libwww-client >> $log 2>&1 || {
         echo_error "Something went wrong while configuring xmlrpc"
         exit 1
