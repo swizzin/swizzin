@@ -12,6 +12,7 @@ function _install_mango() {
     mango_latest=$(github_latest_version getmango/Mango)
 
     case "$(_os_arch)" in
+        "arm32" | "arm64")
             echo_error "Currently unsupported but might be in the future. Please check back later!\nhttps://github.com/hkalexling/Mango/issues/131"
             exit 1
             ;;
