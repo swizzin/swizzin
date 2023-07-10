@@ -1,0 +1,21 @@
+repos:
+  - repo: https://github.com/jumanjihouse/pre-commit-hooks
+    rev: 3.0.0 # or specific git tag
+    hooks:
+      # - id: bundler-audit
+      # - id: check-mailmap
+      # - id: fasterer
+      # - id: forbid-binary
+      # - id: forbid-space-in-indent
+      # - id: git-check # Configure in .gitattributes
+      # - id: git-dirty  # Configure in .gitignore
+      # - id: markdownlint # Configure in .mdlrc
+      # - id: reek
+      # - id: require-ascii
+      # - id: rubocop
+      # - id: script-must-have-extension
+      # - id: script-must-not-have-extension
+      - id: shellcheck
+        # args: []
+      - id: shfmt
+        args: ["-ci -sr -i 4"]
