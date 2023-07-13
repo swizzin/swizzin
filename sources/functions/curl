@@ -25,7 +25,7 @@ build_cares() {
     cd /tmp/cares
     rm CMakeCache.txt >> $log 2>&1
 
-    cmake . -D CARES_STATIC=ON -D CARES_SHARED=OFF -D CARES_STATIC_PIC=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
+    cmake . -D CARES_STATIC=ON -D CARES_SHARED=ON -D CARES_STATIC_PIC=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
         echo_error "There was an error configuring c-ares! Please check the log for more info"
         cd /tmp
         rm -rf /tmp/cares >> $log 2>&1
@@ -58,7 +58,7 @@ build_curl() {
     cd /tmp/curl-debian-bullseye-backports
     rm CMakeCache.txt >> $log 2>&1
 
-    cmake . -D ENABLE_ARES=ON -D ENABLE_WEBSOCKETS=ON -D CURL_LTO=ON -D CURL_USE_OPENSSL=ON -D CURL_USE_OPENLDAP=ON -D CURL_BROTLI=ON -D CURL_ZSTD=ON -D CURL_USE_LIBPSL=ON -D USE_NGHTTP2=ON -D BUILD_SHARED_LIBS=OFF -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
+    cmake . -D ENABLE_ARES=ON -D ENABLE_WEBSOCKETS=ON -D CURL_LTO=ON -D CURL_USE_OPENSSL=ON -D CURL_USE_OPENLDAP=ON -D CURL_BROTLI=ON -D CURL_ZSTD=ON -D CURL_USE_LIBPSL=ON -D USE_NGHTTP2=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
         echo_error "There was an error configuring curl! Please check the log for more info"
         cd /tmp
         rm -rf /tmp/curl-* >> $log 2>&1
