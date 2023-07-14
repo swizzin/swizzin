@@ -35,12 +35,12 @@ case "$(_os_arch)" in
         ;;
 esac
 
-version=$(github_latest_version "Jackett/Jackett")
+dl_url=$(github_release_url "Jackett/Jackett" "Linux${arch}")
 password=$(cut -d: -f2 < /root/.master.info)
 
 echo_progress_start "Downloading and extracting jackett"
 cd /home/$username
-wget "https://github.com/Jackett/Jackett/releases/download/${version}/Jackett.Binaries.Linux${arch}.tar.gz" >> "$log" 2>&1
+wget "$dl_url" >> "$log" 2>&1
 tar -xvzf Jackett.Binaries.*.tar.gz > /dev/null 2>&1
 rm -f Jackett.Binaries.*.tar.gz
 chown ${username}:${username} -R Jackett

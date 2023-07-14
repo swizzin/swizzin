@@ -15,16 +15,12 @@
 
 user=$(_get_master_username)
 password="$(_get_user_password ${user})"
-latestversion=$(github_latest_version sabnzbd/sabnzbd) || {
-    echo_error "Failed to query GitHub for latest sabnzbd version"
-    exit 1
-}
-latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.tar.gz"
 
+latest="$(github_release_url sabnzbd/sabnzbd "src.tar.gz")"
 systempy3_ver=$(get_candidate_version python3)
 
 #Version 4.0 is going to raise the min python version to 3.8 so we have to differentiate whether or not to build a pyenv
-if dpkg --compare-versions ${systempy3_ver} lt 3.8.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
+if dpkg --compare-versions ${systempy3_ver} lt 3.8.0 && dpkg --compare-versions ${github_sabnzbd_version} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV=True
 else

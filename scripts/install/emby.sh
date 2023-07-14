@@ -35,8 +35,8 @@ fi
 username=$(cut -d: -f1 < /root/.master.info)
 
 echo_progress_start "Downloading emby installer"
-current=$(github_latest_version MediaBrowser/Emby.Releases)
-wget -O /tmp/emby.dpkg https://github.com/MediaBrowser/Emby.Releases/releases/download/${current}/emby-server-deb_${current}_$(_os_arch).deb >> $log 2>&1 || {
+dl_url=$(github_release_url MediaBrowser/Emby.Releases "$(_os_arch).deb")
+wget -O /tmp/emby.dpkg "$dl_url" >> $log 2>&1 || {
     echo_error "Failed to download"
     exit 1
 }
