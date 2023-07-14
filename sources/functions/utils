@@ -171,10 +171,11 @@ function github_latest_version() {
 
 function github_release_url() {
     # Argument expects the author/repo format, defaults to all DL links of the latest release
-    # Usage: github_latest_version "user/repo" ["name_filter"] ["tag"]
-    # Example: github_latest_version "autobrr/autborr"
-    # Example: github_latest_version "autobrr/autborr" "linux-amd64"
-    # Example: github_latest_version "autobrr/autborr" "linux-amd64" "v0.1.0"
+    # Usage: github_release_url "user/repo" ["name_filter"] ["tag"]
+    # Example: github_release_url "MediaBrowser/Emby.Releases"
+    # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb"
+    # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb" "v0.1.0"
+    # also exports a variable with the name of the repo and the version, e.g. `autobrr_version`
     repo="$1"
     filter="$2"
     tag="$3"
@@ -184,12 +185,18 @@ function github_release_url() {
             echo_error "Failed to query GitHub for version $tag of $repo"
             return 1
         }
+        release_tag="$tag"
     else
         response=$(curl -s "https://api.github.com/repos/$repo/releases/latest") || {
             echo_error "Failed to query GitHub for latest version of $repo"
             return 1
         }
+        release_tag=$(echo "$response" | jq -r '.tag_name')
     fi
+
+    # e.g. MediaBrowser/Emby.Releases -> Emby.Releases -> Emby
+    project_name=$(echo $repo | cut -d'/' -f2 | grep -oe '^\w*')
+    export ${project_name}_version="$release_tag"
 
     if [[ -z "$filter" ]]; then
         echo "$response" | jq -r ".assets[] | .browser_download_url"
