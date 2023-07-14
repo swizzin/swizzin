@@ -175,14 +175,14 @@ function github_release_url() {
     # Example: github_release_url "MediaBrowser/Emby.Releases"
     # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb"
     # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb" "v0.1.0"
-    # also exports a variable with the name of the repo and the version, e.g. `autobrr_version`
+    # also exports a variable with the name of the repo and the tag, e.g. `github_Emby_tag`
     repo="$1"
     filter="$2"
     tag="$3"
     if [[ -n "$tag" ]]; then
         # There is an inconsistency between the API in `tag` and `tags` FYI
         response=$(curl -s "https://api.github.com/repos/$repo/releases/tags/$tag") || {
-            echo_error "Failed to query GitHub for version $tag of $repo"
+            echo_error "Failed to query GitHub for tag $tag of $repo"
             return 1
         }
         release_tag="$tag"
@@ -196,7 +196,7 @@ function github_release_url() {
 
     # e.g. MediaBrowser/Emby.Releases -> Emby.Releases -> Emby
     project_name=$(echo $repo | cut -d'/' -f2 | grep -oe '^\w*')
-    export ${project_name}_version="$release_tag"
+    export github_${project_name}_tag="$release_tag"
 
     if [[ -z "$filter" ]]; then
         echo "$response" | jq -r ".assets[] | .browser_download_url"
