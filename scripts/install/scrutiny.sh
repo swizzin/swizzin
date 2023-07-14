@@ -2,13 +2,22 @@
 # Scrutiny installer by flying_sausages for Swizzin 2020
 # GPLv3 applies
 
-scrutinydir="/opt/scrutiny"
-webport=8086
+# based on https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md
 
-_setup () {
-    #Need to make sure it's 7.0+
-    #Not sure what debian or old ubuntus have
-    apt_install smartmontools
+scrutinydir="/opt/scrutiny"
+webport=8087
+
+_install() {
+
+    case "$(_os_arch)" in
+        "amd64") arch='amd64' ;;
+        "arm64") arch="arm64" ;;
+        "armhf") arch="arm-6" ;;
+        *)
+            echo_error "Arch not supported"
+            exit 1
+            ;;
+    esac
 
     mkdir -p "${scrutinydir}"/config
     mkdir -p "${scrutinydir}"/web
@@ -16,40 +25,19 @@ _setup () {
 
     useradd --system scrutiny -d "${scrutinydir}"
     usermod -a -G disk scrutiny
-}
 
-_install () {
+    wget -q https://repos.influxdata.com/influxdata-archive_compat.key
+    echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c influxdata-archive_compat.key' | sha256sum -c && cat influxdata-archive_compat.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
+    echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main' | sudo tee /etc/apt/sources.list.d/influxdata.list
 
-    if [[ $(arch) =~ "_64" ]]; then 
-        binversion="amd64"
-    else
-        echo "Arch not currently supported, exiting"
-        exit 1
-    fi
+    apt_update
+    apt_install influxdb2 smartmontools
 
-    echo "Downloading binaries and extracting source code" | tee -a $log
-    dlurl=$(curl -s https://api.github.com/repos/AnalogJ/scrutiny/releases/latest | grep "browser_download_url" | grep web-linux-$binversion | head -1 | cut -d\" -f 4)
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
-        echo "Failed to query github" | tee -a $log
-        exit 1
-    fi
-    wget "${dlurl}" -O "${scrutinydir}"/bin/scrutiny-web-linux-$binversion >> $log 2>&1
-    chmod +x "${scrutinydir}"/bin/scrutiny-web-linux-$binversion
+    #shellcheck source=sources/functions/scrutiny
+    . /etc/swizzin/sources/functions/scrutiny
+    _download_scrutiny
 
-    dlurl=$(curl -s https://api.github.com/repos/AnalogJ/scrutiny/releases/latest | grep "browser_download_url" | grep web-frontend | head -1 | cut -d\" -f 4)
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
-        echo "Failed to query github" | tee -a $log
-        exit 1
-    fi
-    wget "${dlurl}" -O /tmp/scrutiny-web-frontend.tar.gz >> $log 2>&1
-
-    tar xvzf /tmp/scrutiny-web-frontend.tar.gz --strip-components 1 -C "${scrutinydir}"/web >> $log 2>&1
-    rm -rf /tmp/scrutiny-web-frontend.tar.gz
-
-
-    cat > "${scrutinydir}"/config/scrutiny.yaml<<EOF
+    cat > "${scrutinydir}"/config/scrutiny.yaml << EOF
 version: 1
 
 web:
@@ -61,36 +49,24 @@ web:
       # The path to the Scrutiny frontend files (js, css, images) must be specified.
       # We'll populate it with files in the next section
       path: ${scrutinydir}/web
-    # backend:
-      # basepath: /scrutiny
   listen:
     port: $webport
     host: 0.0.0.0
 EOF
-
-    dlurl=$(curl -s https://api.github.com/repos/AnalogJ/scrutiny/releases/latest | grep "browser_download_url" | grep collector-metrics-linux-$binversion | head -1 | cut -d\" -f 4)
-    # shellcheck disable=SC2181
-    if [[ $? != 0 ]]; then
-        echo "Failed to query github" | tee -a $log
-        exit 1
-    fi
-    wget "${dlurl}" -O "${scrutinydir}"/bin/scrutiny-collector-metrics-linux-$binversion >> $log 2>&1
-
-    chmod +x "${scrutinydir}"/bin/scrutiny-collector-metrics-linux-$binversion
-    chown -R scrutiny:nogroup /opt/scrutiny
-    echo "Files downloaded"
+    # the basepath is set in the nginx install fyi
 }
 
-_systemd () {
-    echo "Installing systemd services"
-    cat > /etc/systemd/system/scrutiny-web.service <<SYSD
+_systemd() {
+    echo_progress_start "Installing systemd services"
+    cat > /etc/systemd/system/scrutiny-web.service << SYSD
 [Unit]
 Description=Scrutiny web frontend
+Requires=influxdb.service
 After=network.target
 
 [Service]
 User=scrutiny
-ExecStart=${scrutinydir}/bin/scrutiny-web-linux-$binversion start --config ${scrutinydir}/config/scrutiny.yaml
+ExecStart=${scrutinydir}/bin/scrutiny-web-linux-$arch start --config ${scrutinydir}/config/scrutiny.yaml
 Restart=on-abort
 TimeoutSec=20
 
@@ -98,59 +74,60 @@ TimeoutSec=20
 WantedBy=multi-user.target
 SYSD
 
-    cat > /etc/systemd/system/scrutiny-collector.service <<EOF
+    cat > /etc/systemd/system/scrutiny-collector.service << EOF
 [Unit]
 Description=Runs scrutiny collector
 Wants=scrutiny-collector.timer
 
 [Service]
-ExecStart=${scrutinydir}/bin/scrutiny-collector-metrics-linux-$binversion run --api-endpoint "http://localhost:$webport"
+ExecStart=${scrutinydir}/bin/scrutiny-collector-metrics-linux-$arch run --api-endpoint "http://localhost:$webport"
 WorkingDirectory=${scrutinydir}
-# Slice=shoes-scraper.slice
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-    cat > /etc/systemd/system/scrutiny-collector.timer<<EOF
+    cat > /etc/systemd/system/scrutiny-collector.timer << EOF
 [Unit] 
 Description=Run scrutiny-collector every 5 minutes
 Requires=scrutiny-collector.service
+
 [Timer]
 Unit=scrutiny-collector.service
 OnUnitInactiveSec=5min
 # RandomizedDelaySec=15min
 AccuracySec=1s
+Persistent=true
+
 [Install]
 WantedBy=timers.target
 EOF
 
+    systemctl enable --now -q influxdb
     systemctl daemon-reload
     systemctl enable --now -q scrutiny-web
 
     # One run for good measure
     sleep 5
-    ${scrutinydir}/bin/scrutiny-collector-metrics-linux-$binversion run --api-endpoint "http://localhost:$webport" >> $log 2>&1
+    ${scrutinydir}/bin/scrutiny-collector-metrics-linux-$arch run --api-endpoint "http://localhost:$webport" >> $log 2>&1
 
     systemctl enable --now -q scrutiny-collector.timer
     systemctl enable --now -q scrutiny-collector.service
-    echo "Scrutiny services started"
+    echo_progress_done "Scrutiny services started"
 }
 
-_nginx () {
+_nginx() {
     if [[ -f /install/.nginx.lock ]]; then
-        echo "Configuring nginx"
+        echo_progress_start "Configuring nginx"
         bash /etc/swizzin/scripts/nginx/scrutiny.sh
         systemctl reload nginx
-        echo "Nginx configured"
+        echo_progress_done "Nginx configured"
     fi
 }
 
-_setup
 _install
 _systemd
 _nginx
 
 touch /install/.scrutiny.lock
-echo "Scrutiny installed"
-
+echo_success "Scrutiny installed"
