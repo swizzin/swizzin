@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function _get_gh_latest_release() {
+    # Uses JQ to parse the JSON response from the GitHub API and return the "browser_download_url" of either latest or a specific tag
+    # Usage: _get_gh_latest_release "user/repo" ("filter") ("tag")
+    # Example: _get_gh_latest_release "autobrr/autborr"
+    # Example: _get_gh_latest_release "autobrr/autborr" "linux-amd64"
+    # Example: _get_gh_latest_release "autobrr/autborr" "linux-amd64" "v0.1.0"
+    repo="$1"
+    filter="$2"
+    tag="$3"
+    if [[ -n "$tag" ]]; then
+        # There is an inconsistency between the API in `tag` and `tags` FYI
+        response=$(curl -s "https://api.github.com/repos/$repo/releases/tags/$tag") || {
+            echo_error "Failed to query GitHub for version $tag of $repo"
+            return 1
+        }
+    else
+        response=$(curl -s "https://api.github.com/repos/$repo/releases/latest") || {
+            echo_error "Failed to query GitHub for latest version of $repo"
+            return 1
+        }
+    fi
+
+    if [[ -z "$filter" ]]; then
+        echo "$response" | jq -r ".assets[] | .browser_download_url"
+        return $?
+    else
+        echo "$response" | jq -r --arg str "$filter" -c '.assets[] | select(.name | contains($str)) | .browser_download_url'
+        return $?
+    fi
+}
+export -f _get_gh_latest_release
