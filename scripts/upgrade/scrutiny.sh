@@ -11,6 +11,15 @@ systemctl stop -q scrutiny-web
 
 #shellcheck source=sources/functions/scrutiny
 . /etc/swizzin/sources/functions/scrutiny
-_download_scrutiny
+case "$(_os_arch)" in
+    "amd64") arch='amd64' ;;
+    "arm64") arch="arm64" ;;
+    "armhf") arch="arm-6" ;;
+    *)
+        echo_error "Arch not supported"
+        exit 1
+        ;;
+esac
+_download_scrutiny "$arch"
 
 systemctl restart -q scrutiny-web
