@@ -166,7 +166,7 @@ function github_latest_version() {
     # Argument expects the author/repo format
     # e.g. swizzin/swizzin
     repo=$1
-    curl -s https://api.github.com/repos/$repo/releases/latest | jq -r '.tag_name'
+    curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest | grep -o '[^/]*$'
 }
 
 function github_release_url() {
@@ -178,31 +178,31 @@ function github_release_url() {
     # also exports a variable with the name of the repo and the tag, e.g. `github_Emby_tag`
     repo="$1"
     filter="$2"
-    tag="$3"
-    if [[ -n "$tag" ]]; then
-        # There is an inconsistency between the API in `tag` and `tags` FYI
-        response=$(curl -s "https://api.github.com/repos/$repo/releases/tags/$tag") || {
-            echo_error "Failed to query GitHub for tag $tag of $repo"
-            return 1
-        }
-        release_tag="$tag"
-    else
-        response=$(curl -s "https://api.github.com/repos/$repo/releases/latest") || {
+
+    if [[ -z "$3" ]]; then
+        tag=$(github_latest_version "${repo}") || {
             echo_error "Failed to query GitHub for latest version of $repo"
             return 1
         }
-        release_tag=$(echo "$response" | jq -r '.tag_name')
+    else
+        tag="$3"
+    fi
+
+    link_payload=$(curl -fsL https://github.com/${repo}/releases/expanded_assets/$tag) || {
+        echo_error "Failed to query GitHub for tag ${tag:='latest'} of $repo"
+        return 1
+    }
+
+    links=$(echo "${link_payload}" | grep -oP '(?<=href=")[^"]+' | sed -e 's|^|https://github.com|')
+
+    if [[ -n "$filter" ]]; then
+        echo "$links" | grep "$filter"
+    else
+        echo "$links"
     fi
 
     # e.g. MediaBrowser/Emby.Releases -> Emby.Releases -> Emby
-    project_name=$(echo $repo | cut -d'/' -f2 | grep -oe '^\w*')
-    export github_${project_name}_tag="$release_tag"
+    project_name=$(echo "$repo" | cut -d'/' -f2 | grep -oe '^\w*')
+    export github_${project_name}_tag="$tag"
 
-    if [[ -z "$filter" ]]; then
-        echo "$response" | jq -r ".assets[] | .browser_download_url"
-        return $?
-    else
-        echo "$response" | jq -r --arg str "$filter" -c '.assets[] | select(.name | contains($str)) | .browser_download_url'
-        return $?
-    fi
 }
