@@ -8,9 +8,10 @@ user=$(cut -d: -f1 < /root/.master.info)
 
 cat > /etc/nginx/apps/scrutiny.conf << EOF
 location /scrutiny/ {
-  proxy_pass http://localhost:$webport/;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
+    proxy_pass          http://localhost:$webport;
+    proxy_set_header    X-Forwarded-Host    \$http_host;
+    auth_basic          "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
 }
 EOF
 sed -i "/^  listen:/a \ \ \ \ \basepath: '/scrutiny'" "$scrutinydir/config/scrutiny.yaml"
