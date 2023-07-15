@@ -9,5 +9,6 @@ systemctl disable -q --now scrutiny-collector.service
 userdel -rf scrutiny
 if ask "Remove InfluxDB as well?"; then
     apt_remove influxdb2
+    rm /etc/apt/sources.list.d/influxdata.list
 fi
 rm /install/.scrutiny.lock
