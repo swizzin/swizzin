@@ -12,7 +12,7 @@ _download_scrutiny() {
             echo_error "Failed to query GitHub for latest version"
             exit 1
         }
-        echo_debug "Downloading $component from $dlurl"
+        echo_log_only "Downloading $component from $dlurl"
         if ! curl "$dlurl" -L -o "/tmp/scrutiny/$component" >> "$log" 2>&1; then
             echo_error "Downloading $component failed, exiting"
             exit 1
