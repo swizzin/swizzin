@@ -36,7 +36,9 @@ _install() {
     #shellcheck source=sources/functions/scrutiny
     . /etc/swizzin/sources/functions/scrutiny
     _download_scrutiny
+}
 
+_config() {
     cat > "${scrutinydir}"/config/scrutiny.yaml << EOF
 version: 1
 
@@ -49,6 +51,9 @@ web:
       # The path to the Scrutiny frontend files (js, css, images) must be specified.
       # We'll populate it with files in the next section
       path: ${scrutinydir}/web
+  influxdb:
+    host: localhost
+    port: 8086   
   listen:
     port: $webport
     host: 0.0.0.0
@@ -126,6 +131,7 @@ _nginx() {
 }
 
 _install
+_config
 _systemd
 _nginx
 
