@@ -1,6 +1,10 @@
 #!/bin/bash
 
 _download_scrutiny() {
+    if [[ -n $1 ]]; then
+        arch=$1
+    fi
+
     echo_progress_start "Downloading binaries"
     mkdir -p /tmp/scrutiny
     for component in {"scrutiny-web-linux-$arch","scrutiny-collector-metrics-linux-$arch","scrutiny-web-frontend.tar.gz"}; do
