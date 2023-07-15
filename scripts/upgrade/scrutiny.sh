@@ -5,6 +5,8 @@ if [[ ! -f /install/.scrutiny.lock ]]; then
     exit 1
 fi
 
+scrutinydir="/opt/scrutiny"
+
 #TODO make a backup before? not sure if there will be any persistent data, could move it somewhere else
 
 systemctl stop -q scrutiny-web
