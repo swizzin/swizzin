@@ -22,8 +22,10 @@ if [[ -f /install/.qbittorrent.lock ]]; then
     #Check for proxy_cookie_path in nginx to prevent writing cookies to /
     if [[ -f /install/.nginx.lock ]]; then
         if ! grep -q proxy_cookie_path /etc/nginx/apps/qbittorrent.conf; then
+            echo_progress_start "Updating qBittorrent nginx config"
             sed -r 's|(rewrite .*)|\1\n    proxy_cookie_path / "/qbittorrent/; Secure";|g' -i /etc/nginx/apps/qbittorrent.conf
             systemctl reload nginx
+            echo_progress_done
         fi
     fi
 fi

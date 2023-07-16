@@ -40,7 +40,8 @@ if [[ -f /install/.sonarrv3.lock ]]; then
     touch /install/.sonarr.lock
 fi
 if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/null 2>&1; then
-    echo_info "Migrating Sonarr away from apt management"
+    echo_info "Migrating Sonarr away from apt management!"
+    echo_progress_start "Migrating Sonarr away from apt management"
     isActive=$(systemctl is-active sonarr)
     isEnabled=$(systemctl is-enabled sonarr)
     cp -a /usr/lib/sonarr/bin /opt/Sonarr
@@ -108,5 +109,5 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     if [[ $isEnabled == "enabled" ]]; then
         systemctl enable sonarr >> ${log} 2>&1
     fi
-
+    echo_progress_done
 fi

@@ -2,6 +2,7 @@
 
 if [[ -f /install/.medusa.lock ]]; then
     if [[ -f /etc/systemd/system/medusa@.service ]]; then
+        echo_progress_start "Moving medusa to a python venv"
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active medusa@${user})
 
@@ -41,5 +42,6 @@ MSD
         if [[ $isactive == "active" ]]; then
             systemctl enable -q --now medusa 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

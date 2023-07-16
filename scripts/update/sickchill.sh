@@ -2,7 +2,7 @@
 # Update sickrage to sickchill
 
 if [[ -f /install/.sickrage.lock ]]; then
-    echo_info "Updating SickRage to SickChill"
+    echo_progress_start "Updating SickRage to SickChill"
     user=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active sickrage@$user)
     if [[ $active == 'active' ]]; then
@@ -51,6 +51,7 @@ SRC
         systemctl start sickchill@$master
     fi
     mv /install/.sickrage.lock /install/.sickchill.lock
+    echo_progress_done
 fi
 
 if [[ -f /install/.sickchill.lock ]]; then
@@ -98,9 +99,9 @@ WantedBy=multi-user.target
 SCSD
         systemctl daemon-reload
         rm_if_exists /etc/systemd/system/sickchill@.service
-        echo_progress_done
         if [[ $active == "active" ]]; then
             systemctl enable -q --now sickchill 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

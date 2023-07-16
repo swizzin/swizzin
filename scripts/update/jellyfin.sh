@@ -54,7 +54,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
         rm_if_exists "/home/${username}/.config/Jellyfin"
         rm_if_exists "/home/${username}/.cache/jellyfin"
         rm_if_exists "/home/${username}/.aspnet"
-        echo_progress_done "Configs adjusted"
         #
         apt_update          # forces apt refresh
         apt_install sqlite3 # We need this to edit the library.db
@@ -65,10 +64,11 @@ if [[ -f /install/.jellyfin.lock ]]; then
             sqlite3 /var/lib/jellyfin/data/library.db "UPDATE TypedBaseItems SET Path=REPLACE(Path, \"/home/${username}/.config/Jellyfin/root/default/${fixjelly##*/}\", \"${fixjelly}\");"
             sqlite3 /var/lib/jellyfin/data/library.db "UPDATE TypedBaseItems SET Data=REPLACE(Data, \"/home/${username}/.config/Jellyfin/root/default/${fixjelly##*/}\", \"${fixjelly}\");"
         done
+        echo_progress_done "Configs adjusted"
     fi
     #
     if ! check_installed jellyfin; then
-        echo_info "Moving Jellyfin to apt-managed installation"
+        echo_progress_start "Moving Jellyfin to apt-managed installation"
         #
         # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
         curl -s https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key | gpg --dearmor > /usr/share/keyrings/jellyfin-archive-keyring.gpg 2>> "${log}"
@@ -99,6 +99,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
         systemctl -q daemon-reload
         systemctl -q start jellyfin.service
         #
-        echo_success "Jellyfin updated"
+        echo_progress_done "Jellyfin updated"
     fi
 fi
