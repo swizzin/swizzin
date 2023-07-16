@@ -13,13 +13,6 @@ _systemd() {
         type=exec
     fi
 
-
-
-
-
-
-
-
     echo_progress_start "Installing Systemd service"
     cat > /etc/systemd/system/autobrr@.service << EOF
 [Unit]
