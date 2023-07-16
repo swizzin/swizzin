@@ -12,12 +12,12 @@
 
 ## Change Categories
 <!-- DELETE WHICHEVER BULLET DOES NOT APPLY -->
-- Bug fix <!-- non-breaking change which fixes an issue -->
-- New feature <!-- non-breaking change which adds functionality -->
-- Breaking change <!-- fix or feature that would cause existing functionality to not work as expected -->
+- Bug fix               <!-- non-breaking change which fixes an issue -->
+- New feature           <!-- non-breaking change which adds functionality -->
+- Breaking change       <!-- fix or feature that would cause existing functionality to not work as expected -->
 - Change in `functions` <!-- e.g. `utils`, `os`, `apt`, `ask`, etc. -->
-- Project structure <!-- major rewrites, large directory changes, etc. -->
-- Contribution flow <!-- IDE changes, `.github` dir, etc. -->
+- Project structure     <!-- major rewrites, large directory changes, etc. -->
+- Contribution flow     <!-- IDE changes, `.github` dir, etc. -->
 
 ## Checklist
 <!-- Please note that we also require you to check the CONTRIBUTORS.md file, this is just a short list-->
@@ -26,9 +26,7 @@
     - PR link: 
 - [ ] Changes to panel have been made OR are not necessary
     - PR link: 
-- [ ] Code is formatted [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Code conforms to project structure [(See more)](https://swizzin.ltd/dev/structure)
-- [ ] Shellcheck isn't screaming [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#editor-plugins-and-tooling)
 - [ ] Prints to terminal are handled [(See more)](https://github.com/swizzin/swizzin/blob/master/CONTRIBUTING.md#printing-into-the-terminal)
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] Testing was done
@@ -60,6 +58,8 @@ Please use these emojis here to fill the table below. It will nicely auto-format
 ### 🛠🛠 TODO
 
 ### ❌❌ Currently failing
+
+
 
 <!-- EXAMPLES :
 - Fresh app install without nginx
