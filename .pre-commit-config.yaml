@@ -8,4 +8,4 @@ repos:
     rev: v0.9.0.5
     hooks:
       - id: shellcheck
-        args: ["--severity=error", "--exclude", "SC2608"]
+        args: ["--severity=error"]
