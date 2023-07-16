@@ -15,4 +15,6 @@ location /scrutiny/ {
 }
 EOF
 sed -i "/^  listen:/a \ \ \ \ \basepath: '/scrutiny'" "$scrutinydir/config/scrutiny.yaml"
+sed -i "s/^\(\s*host:\s*\)0.0.0.0/\1127.0.0.1/" "$scrutinydir/config/scrutiny.yaml"
+
 systemctl restart scrutiny-web.service
