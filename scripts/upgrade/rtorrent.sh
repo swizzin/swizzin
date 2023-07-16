@@ -22,14 +22,14 @@ if [[ -n $noexec ]]; then
     mount -o remount,exec /tmp
     noexec=1
 fi
+
+# Upgrade script will automatically remove left over binares, we only need to remove apt packages ourselves
 isdeb=$(dpkg -l | grep rtorrent)
-echo_progress_start "Removing old rTorrent binaries and libraries ... "
-if [[ -z $isdeb ]]; then
-    remove_rtorrent_legacy
-else
+if [[ -n $isdeb ]]; then
+    echo_progress_start "Removing old rTorrent binaries and libraries ... "
     remove_rtorrent
+    echo_progress_done
 fi
-echo_progress_done
 
 echo_progress_start "Checking rTorrent Dependencies ... "
 depends_rtorrent
