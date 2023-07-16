@@ -40,4 +40,4 @@ repos:
     rev: v3.4.3.1
     hooks:
       - id: shfmt
-        args: ["-w -ci -sr -i 4"]
+        args: ["-w", "-ci", "-sr", "-i 4"]
