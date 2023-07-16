@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # from https://github.com/s0undt3ch/Deluge/blob/master/deluge/ui/console/commands/update-tracker.py
 # update-tracker.py
 #
