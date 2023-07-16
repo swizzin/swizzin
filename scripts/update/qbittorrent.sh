@@ -23,6 +23,7 @@ if [[ -f /install/.qbittorrent.lock ]]; then
         echo_info "Updating nginx config for qbit"
         /etc/swizzin/scripts/nginx/qbittorrent.sh
         systemctl reload nginx
+    fi
     #Check for proxy_cookie_path in nginx to prevent writing cookies to /
     if [[ -f /install/.nginx.lock ]]; then
         if ! grep -q proxy_cookie_path /etc/nginx/apps/qbittorrent.conf; then
