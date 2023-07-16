@@ -2,6 +2,8 @@
 
 if [[ -f /install/.couchpotato.lock ]]; then
     if [[ -f /etc/systemd/system/couchpotato@.service ]]; then
+        echo_progress_start "Updating CouchPotato"
+
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
@@ -47,5 +49,6 @@ CPSD
         if [[ $isactive == "active" ]]; then
             systemctl enable -q --now couchpotato 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

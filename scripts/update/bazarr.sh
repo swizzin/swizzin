@@ -4,7 +4,7 @@ if [[ -f /install/.bazarr.lock ]]; then
     codename=$(lsb_release -cs)
     user=$(cut -d: -f1 < /root/.master.info)
     if ! grep -q .venv /etc/systemd/system/bazarr.service; then
-        echo_info "Updating bazarr to python3 virtualenv"
+        echo_progress_start "Updating bazarr to python3 virtualenv"
         systempy3_ver=$(get_candidate_version python3)
 
         if dpkg --compare-versions ${systempy3_ver} lt 3.8.0; then
@@ -29,11 +29,14 @@ if [[ -f /install/.bazarr.lock ]]; then
         sed -i "s|WorkingDirectory=.*|WorkingDirectory=/opt/bazarr|g" /etc/systemd/system/bazarr.service
         systemctl daemon-reload
         systemctl try-restart bazarr
+        echo_progress_done
     fi
 
     if ! grep -q numpy <(/opt/.venv/bazarr/bin/pip freeze); then
+        echo_progress_start "Updating bazarr dependencies"
         sudo -u ${user} bash -c "/opt/.venv/bazarr/bin/pip3 install -r /opt/bazarr/requirements.txt" > /dev/null 2>&1
         systemctl try-restart bazarr
+        echo_progress_done
     fi
 
     # Switching deployment type from git-based to release archive

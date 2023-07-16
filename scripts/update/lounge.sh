@@ -23,6 +23,7 @@ function _uplounge() {
 if [[ -f /install/.lounge.lock ]]; then
     # Only apply these old updates in case lounge is still in home
     if [[ -d /home/lounge ]]; then
+        echo_progress_start "Moving lounge out of /home/lounge"
         if grep -q "/usr/bin/lounge" /etc/systemd/system/lounge.service; then
             sed -i "s/ExecStart=\/usr\/bin\/lounge/ExecStart=\/usr\/bin\/thelounge/g" /etc/systemd/system/lounge.service
             systemctl daemon-reload
@@ -55,6 +56,7 @@ if [[ -f /install/.lounge.lock ]]; then
         if [[ $active == "active" ]]; then
             systemctl start lounge
         fi
+        echo_progress_done
     fi
 
     if [[ -d /opt/lounge ]]; then

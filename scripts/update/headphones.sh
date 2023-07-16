@@ -3,6 +3,7 @@
 if [[ -f /install/.headphones.lock ]]; then
     user=$(cut -d: -f1 < /root/.master.info)
     if [[ -d /home/${user}/.headphones ]]; then
+        echo_progress_start "Updating Headphones to use python virtualenv"
         active=$(systemctl is-active headphones)
         codename=$(lsb_release -cs)
         . /etc/swizzin/sources/functions/pyenv
@@ -50,11 +51,14 @@ HEADSD
             systemctl enable -q --now headphones 2>&1 | tee -a $log
         fi
     fi
+    echo_progress_done
 
     if [[ -f /install/.nginx.lock ]]; then
         if grep -q 'http_proxy = 1' /opt/headphones/config.ini; then
+            echo_progress_start "Updating Headphones nginx"
             sed -i 's/http_proxy = 1/http_proxy = 0/g' /opt/headphones/config.ini
             systemctl try-restart headphones
+            echo_progress_done
         fi
     fi
 fi

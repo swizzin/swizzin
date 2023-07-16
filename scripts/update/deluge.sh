@@ -10,6 +10,8 @@ if [[ -f /install/.deluge.lock ]]; then
         reloadsys=true
     fi
     if [[ $reloadsys == "true" ]]; then
+        echo_progress_start "Updating Deluge systemd service files"
         systemctl daemon-reload
+        echo_progress_done
     fi
 fi
