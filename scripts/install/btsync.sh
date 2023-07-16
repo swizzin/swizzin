@@ -21,10 +21,8 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 BTSYNCIP=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 
 function _installBTSync1() {
-    #sudo sh -c 'echo "deb http://linux-packages.getsync.com/btsync/deb btsync non-free" > /etc/apt/sources.list.d/btsync.list'
-    #wget -qO - http://linux-packages.getsync.com/btsync/key.asc | sudo apt-key add - >> $log 2>&1
-    sudo sh -c 'echo "deb http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list'
-    wget -qO - https://linux-packages.resilio.com/resilio-sync/key.asc | apt-key add - >> $log 2>&1
+    echo "deb [signed-by=/usr/share/keyrings/btsync-archive-keyring.gpg] http://linux-packages.resilio.com/resilio-sync/deb resilio-sync non-free" > /etc/apt/sources.list.d/btsync.list
+    curl -s https://linux-packages.resilio.com/resilio-sync/key.asc | gpg --dearmor > /usr/share/keyrings/btsync-archive-keyring.gpg 2>> "${log}"
     apt_update
 }
 
@@ -48,7 +46,7 @@ function _installBTSync5() {
 
     "webui" :
     {
-        "listen" : "BTSGUIP:8888"
+        "listen" : "${BTSYNCIP}:8888"
     }
 }
 RSCONF
@@ -56,8 +54,6 @@ RSCONF
     sed -i "s/=rslsync/=${MASTER}/g" /etc/systemd/system/resilio-sync.service
     sed -i "s/rslsync:rslsync/${MASTER}:${MASTER}/g" /etc/systemd/system/resilio-sync.service
     systemctl daemon-reload
-    sed -i "s/BTSGUIP/$BTSYNCIP/g" /etc/resilio-sync/config.json
-
 }
 function _installBTSync6() {
     touch /install/.btsync.lock

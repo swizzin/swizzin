@@ -50,27 +50,26 @@ function _source_setup() {
     fi
 
     ln -s /etc/swizzin/scripts/ /usr/local/bin/swizzin
-    chmod -R 700 /etc/swizzin/scripts
     #shellcheck source=sources/globals.sh
     . /etc/swizzin/sources/globals.sh
+
+    # Set correct permissions on swizzin files
+    bash /etc/swizzin/scripts/update/04-setpermissions.sh
     echo
 }
 _source_setup "$@"
 
 function _arch_check() {
-    if [[ ! $(uname -m) == "x86_64" ]]; then
+    if [[ ! $(uname -m) =~ ("x86_64"|"aarch64") ]]; then
         echo_warn "$(_os_arch) detected!"
-        if [[ $(_os_arch) = "arm64" ]]; then
-            echo_info "We are in the process of bringing arm support to swizzin. Please let us know on github if you find any issues with a PROPERLY filled out issue template.\nAs such, we cannot guarantee everything works 100%, so please don't feel like you need to speak to the manager when things break. You've been warned."
-        else
-            echo_warn "This is an unsupported architecture and THINGS WILL BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
-        fi
+        echo_warn "This is an unsupported architecture and THINGS MIGHT BREAK.\nDO NOT CREATE ISSUES ON GITHUB."
         ask "Agree with the above and continue?" N || exit 1
         echo
+    else
+        echo_log_only "Arch detected as $(_os_arch)"
     fi
 }
 _arch_check
-
 function _option_parse() {
     while test $# -gt 0; do
         case "$1" in
@@ -103,9 +102,9 @@ function _option_parse() {
                 LOCAL=true
                 echo_info "Local = $LOCAL"
                 ;;
-            --run-checks)
-                export RUN_CHECKS=true
-                echo_info "RUN_CHECKS = $RUN_CHECKS"
+            --test)
+                export test=true
+                echo_info "test = $test"
                 ;;
             --rmgrsec)
                 rmgrsec=yes
@@ -117,11 +116,20 @@ function _option_parse() {
                     echo_error "File does not exist"
                     exit 1
                 fi
-                echo_info "Parsing env variables from $1\n--->"
-                #shellcheck disable=SC2046
-                export $(grep -v '^#' "$1" | grep '^[A-Z]' | tr '\n' ' ') # anything which begins with a cap is exported
-                #shellcheck disable=SC2091
-                source <(grep -v '^#' "$1" | grep '^[a-z]') # | read -d $'\x04' name -
+                envfile="$1"
+                echo_info "Parsing env variables from $envfile:\n$(grep -v '^#' "$envfile")"
+
+                # anything which begins with a cap is exported
+                if grep -v '^#' "$envfile" | grep '^[A-Z]' -q; then
+                    export $(grep -v '^#' "$envfile" | grep '^[A-Z]' | tr '\n' ' ')
+                fi
+
+                # anything with a lowercase will get sourced
+                if grep -v '^#' "$envfile" | grep '^[a-z]' -q; then
+                    source <(grep -v '^#' "$envfile" | grep '^[a-z]') # | read -d $'\x04' name -
+                fi
+
+                # If packages were in env, make the installArray
                 if [[ -n $packages ]]; then
                     readarray -td: installArray < <(printf '%s' "$packages")
                 fi
@@ -186,11 +194,11 @@ _os() {
     fi
     distribution=$(lsb_release -is)
     codename=$(lsb_release -cs)
-    if [[ ! $distribution =~ ("Debian"|"Ubuntu") ]]; then
+    if [[ ! $distribution =~ ^(Debian|Ubuntu)$ ]]; then
         echo_error "Your distribution ($distribution) is not supported. Swizzin requires Ubuntu or Debian."
         exit 1
     fi
-    if [[ ! $codename =~ ("xenial"|"bionic"|"stretch"|"buster"|"focal") ]]; then
+    if [[ ! $codename =~ ^(buster|focal|bullseye|jammy|bookworm)$ ]]; then
         echo_error "Your release ($codename) of $distribution is not supported."
         exit 1
     fi
@@ -257,10 +265,9 @@ function _choices() {
             fi
         done
         whiptail --title "rTorrent GUI" --checklist --noitem --separate-output "Optional: Select a GUI for rtorrent" 15 26 7 "${guis[@]}" 2> /root/guis || exit 1
-        readarray guis < /root/guis
-        for g in "${guis[@]}"; do
-            g=$(echo $g)
-            sed -i "/rtorrent/a $g" /root/results
+        readarray -t guis < /root/guis
+        for gui in "${guis[@]}"; do
+            sed -i "/rtorrent/a $gui" /root/results
         done
         rm -f /root/guis
     fi
@@ -305,12 +312,6 @@ function _check_results() {
         #shellcheck source=sources/functions/transmission
         . /etc/swizzin/sources/functions/transmission
         whiptail_transmission_source
-    fi
-    if grep -q qbittorrent "$results" || grep -q deluge "$results"; then
-        . /etc/swizzin/sources/functions/libtorrent
-        check_client_compatibility setup
-        whiptail_libtorrent_rasterbar
-        export SKIP_LT=True
     fi
 
     if [[ $(grep -s rutorrent "$gui") ]] && [[ ! $(grep -s nginx "$results") ]]; then # Check nginx requirement for more than rutorrent
@@ -381,16 +382,16 @@ function _post() {
         echo_info "You can now use the box command to manage swizzin features, e.g. \`box install nginx panel\`"
     fi
     echo_docs getting-started/box-basics
+    #
+    # Run the bash_completion installer from the update folder
+    bash /etc/swizzin/scripts/update/bash_completion.sh
 }
 
-_run_checks() {
-    if [[ $RUN_CHECKS = "true" ]]; then
-        echo
-        echo_info "Running post-install checks"
-        echo_progress_start "Checking all failed units"
-        systemctl list-units --failed
-        echo_progress_done "listed"
+_run_tests() {
+    if [[ $test = "true" ]] || [ -f /etc/swizzin/.test.lock ]; then
+        bash /etc/swizzin/scripts/box test || return 1
     fi
+
 }
 
 _run_post() {
@@ -420,4 +421,4 @@ _prioritize_results
 _install
 _post
 _run_post
-_run_checks
+_run_tests || exit 1

@@ -1,7 +1,8 @@
 #!/bin/bash
 if [[ -f /install/.btsync.lock ]]; then
     if [[ ! -f /etc/systemd/system/resilio-sync.service ]]; then
-        active=$(systemctl is-active lounge)
+        echo_progress_start "Installing Resilio Sync systemd service"
+        active=$(systemctl is-active resilo-sync)
         if [[ $active == "active" ]]; then
             systemctl stop resilo-sync
         fi
@@ -28,5 +29,6 @@ RSCONF
         if [[ $active == "active" ]]; then
             systemctl start resilio-sync
         fi
+        echo_progress_done
     fi
 fi

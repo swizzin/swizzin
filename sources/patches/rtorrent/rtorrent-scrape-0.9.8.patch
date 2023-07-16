@@ -1,0 +1,91 @@
+From b68c3b5f8d15a91955f90c1bdd24a0708a2fed2e Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Mon, 17 Apr 2023 19:08:21 -0400
+Subject: [PATCH] Disable forced tracker startup scrape
+
+---
+ src/command_tracker.cc       | 1 +
+ src/core/download_factory.cc | 7 ++++++-
+ src/core/download_factory.h  | 4 ++++
+ src/main.cc                  | 2 ++
+ 4 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/src/command_tracker.cc b/src/command_tracker.cc
+index 30c56eec7..e06947610 100644
+--- a/src/command_tracker.cc
++++ b/src/command_tracker.cc
+@@ -159,6 +159,7 @@ initialize_command_tracker() {
+   CMD2_ANY_VALUE      ("trackers.disable",    std::bind(&apply_enable_trackers, int64_t(0)));
+   CMD2_VAR_VALUE      ("trackers.numwant",    -1);
+   CMD2_VAR_BOOL       ("trackers.use_udp",    true);
++  CMD2_VAR_BOOL       ("trackers.delay_scrape", true);
+ 
+   CMD2_ANY_STRING_V   ("dht.mode.set",          std::bind(&core::DhtManager::set_mode, control->dht_manager(), std::placeholders::_2));
+   CMD2_VAR_VALUE      ("dht.port",              int64_t(6881));
+diff --git a/src/core/download_factory.cc b/src/core/download_factory.cc
+index b1bdd64b9..2d2ea5a3b 100644
+--- a/src/core/download_factory.cc
++++ b/src/core/download_factory.cc
+@@ -105,7 +105,8 @@ DownloadFactory::DownloadFactory(Manager* m) :
+   m_session(false),
+   m_start(false),
+   m_printLog(true),
+-  m_isFile(false) {
++  m_isFile(false),
++  m_initLoad(false) {
+ 
+   m_taskLoad.slot() = std::bind(&DownloadFactory::receive_load, this);
+   m_taskCommit.slot() = std::bind(&DownloadFactory::receive_commit, this);
+@@ -274,6 +275,10 @@ DownloadFactory::receive_success() {
+ 
+   if (!rpc::call_command_value("trackers.use_udp"))
+     download->enable_udp_trackers(false);
++    
++  // Skip forcing trackers to scrape when rtorrent starts
++  if (m_initLoad && rpc::call_command_value("trackers.delay_scrape"))
++    download->set_resume_flags(torrent::Download::start_skip_tracker);
+ 
+   // Check first if we already have these values set in the session
+   // torrent, so that it is safe to change the values.
+diff --git a/src/core/download_factory.h b/src/core/download_factory.h
+index 01695e882..29fa9760b 100644
+--- a/src/core/download_factory.h
++++ b/src/core/download_factory.h
+@@ -76,6 +76,9 @@ class DownloadFactory {
+ 
+   bool                get_start() const     { return m_start; }
+   void                set_start(bool v)     { m_start = v; }
++  
++  bool                get_init_load() const { return m_initLoad; }
++  void                set_init_load(bool v) { m_initLoad = v; }
+ 
+   bool                print_log() const     { return m_printLog; }
+   void                set_print_log(bool v) { m_printLog = v; }
+@@ -105,6 +108,7 @@ class DownloadFactory {
+   bool                m_start;
+   bool                m_printLog;
+   bool                m_isFile;
++  bool                m_initLoad;
+ 
+   command_list_type         m_commands;
+   torrent::Object::map_type m_variables;
+diff --git a/src/main.cc b/src/main.cc
+index 6be6a4dee..c76558f8f 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -132,6 +132,7 @@ load_session_torrents() {
+ 
+     // Replace with session torrent flag.
+     f->set_session(true);
++    f->set_init_load(true);
+     f->slot_finished(std::bind(&rak::call_delete_func<core::DownloadFactory>, f));
+     f->load(entries.path() + first->d_name);
+     f->commit();
+@@ -146,6 +147,7 @@ load_arg_torrents(char** first, char** last) {
+ 
+     // Replace with session torrent flag.
+     f->set_start(true);
++    f->set_init_load(true);
+     f->slot_finished(std::bind(&rak::call_delete_func<core::DownloadFactory>, f));
+     f->load(*first);
+     f->commit();

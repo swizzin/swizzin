@@ -2,19 +2,21 @@
 
 if [[ -f /install/.couchpotato.lock ]]; then
     if [[ -f /etc/systemd/system/couchpotato@.service ]]; then
+        echo_progress_start "Updating CouchPotato"
+
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active couchpotato@${user})
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now couchpotato@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='git python2.7-dev python-virtualenv virtualenv'
         else
             LIST='git python2.7-dev'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
         python2_venv ${user} couchpotato
@@ -47,5 +49,6 @@ CPSD
         if [[ $isactive == "active" ]]; then
             systemctl enable -q --now couchpotato 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

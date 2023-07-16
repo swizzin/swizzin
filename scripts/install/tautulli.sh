@@ -58,6 +58,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/tautulli.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "Tautulli will run on port 8181"
 fi
 touch /install/.tautulli.lock
 

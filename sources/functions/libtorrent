@@ -1,202 +1,110 @@
 #!/bin/bash
 
-function whiptail_libtorrent_rasterbar() {
-    if [[ -z $libtorrent ]]; then
-        repov=$(get_candidate_version libtorrent-rasterbar7)
-        repov+=$(get_candidate_version libtorrent-rasterbar8)
-        repov+=$(get_candidate_version libtorrent-rasterbar9)
-        if [[ -n $qbittorrent ]] && [[ $qbittorrent == "repo" ]]; then
-            qbitversion=$(get_candidate_version qbittorrent-nox)
-        elif [[ -n $qbittorrent ]]; then
-            qbitversion=$qbittorrent
+function detect_libtorrent_rasterbar_conflict() {
+    called_by=$1
+    repo_libtorrents=(libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar10 libtorrent-rasterbar-dev)
+    conflicting_libtorrent_packages=()
+    for lib in "${repo_libtorrents[@]}"; do
+        if dpkg -s $lib > /dev/null 2>&1; then
+            repolibtorrent=true
         fi
-        if [[ -n $deluge ]] && [[ $deluge == "repo" ]]; then
-            delugeversion=$(get_candidate_version deluge)
-            case $delugeversion in
-                1.3.*)
-                    delugeversion=1.3-stable
-                    ;;
-                *)
-                    delugeversion=master
-                    ;;
-            esac
-        elif [[ -n $deluge ]]; then
-            delugeversion=$deluge
+    done
+    if [[ ${repolibtorrent} == "true" ]]; then
+        if [[ $called_by == "deluge" ]]; then
+            libtorrent_libnames=(python3-libtorrent python-libtorrent)
+            for lib in "${libtorrent_libnames[@]}"; do
+                #If these are not "swizzin" packages they must be repo, so avoid triggering the staticconflict
+                if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
+                    libtorrent_libnames=("${libtorrent_libnames[@]/$lib/}")
+                fi
+            done
         fi
-        if [[ ($delugeversion == "1.3-stable" && -n $qbittorrent) || ($delugeversion == "1.3-stable" && $(lsb_release -cs) == "focal") ]]; then
-            case $(lsb_release -cs) in
-                "xenial" | "focal")
-                    function="1.1"
-                    echo_info "Defaulting to libtorrent branch RC_1_1 for shared compatbility"
-                    ;;
-                *)
-                    function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                        Repo "(${repov})" \
-                        1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
-                    ;;
-            esac
-        elif [[ -n $qbittorrent ]] && dpkg --compare-versions $qbitversion ge 4.3.0; then
-            function="1.2"
-            echo_info "Defaulting to libtorrent branch RC_1_2 for compatibility"
-        elif [[ $delugeversion == master ]] || [[ -n $qbittorrent ]]; then
-            case $(lsb_release -cs) in
-                "xenial")
-                    function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                        1.1 "compiled - branch RC_1_1" \
-                        1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-                    ;;
-                *)
-                    function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                        Repo "(${repov})" \
-                        1.1 "libtorrent branch RC_1_1" \
-                        1.2 "libtorrent branch RC_1_2" 3>&1 1>&2 2>&3)
-                    ;;
-            esac
+    else
+        libtorrent_libnames=(libtorrent-rasterbar python3-libtorrent python-libtorrent)
+    fi
+    if [[ -n $libtorrent_libnames ]]; then
+        for lib in "${libtorrent_libnames[@]}"; do
+            if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib | grep static > /dev/null 2>&1; then
+                staticconflict=true
+                conflicting_libtorrent_packages+=($lib)
+            fi
+        done
+    fi
+    if [[ ${#conflicting_libtorrent_packages[@]} -gt 0 ]]; then
+        (
+            IFS=$'\n'
+            echo_warn "The following conflicting packages have been detected but are not statically built:\n${conflicting_libtorrent_packages[*]}"
+        )
+    fi
+    if [[ $staticconflict == true ]]; then
+        echo_warn "In order to continue, your server will compile static libtorrent libraries."
+        if ask "Do you agree? Vendor customizations or patches will be lost unless you provide a patch yourself (/root/libtorrent-{RC_1_1,RC_1_2}.patch).
+No changes will be made if you say no."; then
+            libtorrent_resolve_shared_conflict
         else
-            case $(lsb_release -cs) in
-                "stretch" | "xenial" | "bionic")
-                    function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                        Repo "(${repov})" \
-                        1.0 "compiled - branch RC_1_0" \
-                        1.1 "compiled - branch RC_1_1" 3>&1 1>&2 2>&3)
-                    ;;
-                *)
-                    function=$(whiptail --title "Install Software" --menu "Choose a libtorrent branch:" --ok-button "Continue" --nocancel 12 50 3 \
-                        Repo "(${repov})" \
-                        1.1 "libtorrent branch RC_1_1" 3>&1 1>&2 2>&3)
-                    ;;
-            esac
+            echo_info "Install will now exit"
+            exit 1
         fi
-
-        if [[ $function == Repo ]]; then
-            export libtorrent=repo
-        elif [[ $function == 1.0 ]]; then
-            export libtorrent=RC_1_0
-        elif [[ $function == 1.1 ]]; then
-            export libtorrent=RC_1_1
-        elif [[ $function == 1.2 ]]; then
-            export libtorrent=RC_1_2
-        fi
-        echo_log_only "Libtorrent = $libtorrent"
     fi
 }
 
-function whiptail_libtorrent_install_resolve_conflict() {
-    message="Deluge 1.3 is not compatible with versions of qBittorrent greater than 4.3.0. You will be presented with options to resolve this conflict."
-    whiptail --msgbox "${message}" --title "ERROR: libtorrent conflict" --scrolltext 12 78
-    function=$(whiptail --title "ERROR: libtorrent conflict" --menu "Choose a resolution:" --ok-button "Continue" --nocancel 12 50 4 \
-        "Upgrade Deluge" "" \
-        "Downgrade qBittorrent" "" \
-        "Remove Deluge" "" \
-        "Remove qBittorrent" "" 3>&1 1>&2 2>&3)
-    case $function in
-        "Upgrade Deluge") export deluge=master ;;
-        "Downgrade qBittorrent") export qbittorrent=4.2.5 ;;
-        "Remove Deluge")
-            unset deluge
-            sed -i '/deluge/d' /root/results{,2}
-            ;;
-        "Remove qBittorrent")
-            unset qbittorrent
-            sed -i '/qbittorrent/d' /root/results{,2}
-            ;;
-    esac
-}
-
-function check_client_compatibility() {
-    if [[ $1 == "setup" ]]; then
-        setup=true
-    fi
-    if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-        qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
-        qbitversion=$qbittorrent
-    elif [[ $qbittorrent == "repo" ]]; then
-        qbitversion=$(get_candidate_version qbittorrent-nox)
-    elif [[ -n $qbittorrent ]]; then
-        qbitversion=$qbittorrent
-    fi
-    if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
-        dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-        case $dver in
+function libtorrent_resolve_shared_conflict() {
+    if [[ -f /install/.deluge.lock ]] && [[ -z ${DELUGE_VERSION} ]]; then
+        deluge_version=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
+        case $deluge_version in
             1.3.*)
-                deluge=1.3-stable
+                DELUGE_VERSION=1.3-stable
                 ;;
             *)
-                deluge=master
+                DELUGE_VERSION=master
                 ;;
         esac
     fi
-    if [[ -n $deluge && -n $qbittorrent ]]; then
-        if [[ $deluge == "1.3-stable" ]] || ([[ $deluge == "repo" && $(lsb_release -cs) =~ ("stretch"|"buster"|"xenial"|"bionic") ]]); then
-            if dpkg --compare-versions ${qbitversion} ge 4.3.0; then
-                if [[ ${setup} == true ]]; then
-                    whiptail_libtorrent_install_resolve_conflict
-                else
-                    echo_error "Deluge 1.3 is not compatible with versions of qBittorrent greater than 4.3.0.
-You can resolve this error with one of the following actions:
-- Upgrade Deluge to at least v2
-- Downgrade qBittorrent to at most v4.2.5
-- Remove qBittorrent
-- Remove Deluge"
-                    exit 1
-                fi
-            fi
-        fi
+    if [[ -f /install/.qbittorrent.lock ]] && [[ -z ${QBITTORRENT_VERSION} ]]; then
+        QBITTORRENT_VERSION=$(qbittorrent-nox --version 2> /dev/null | grep -oP '\d+\.\d+\.\d+')
     fi
+    apt_remove "${conflicting_libtorrent_packages[@]}"
+    if [[ -n $DELUGE_VERSION && ! ${called_by} == deluge && "${conflicting_libtorrent_packages[*]}" =~ python ]]; then
+        #shellcheck source=sources/functions/deluge
+        . /etc/swizzin/sources/functions/deluge
+        . /etc/swizzin/sources/functions/fpm
+        echo_info "Recompiling Deluge for compatibility before continuing"
+        install_fpm
+        apt_remove --purge '^deluge.*'
+        deluge_version_info
+        build_libtorrent_deluge
+        build_deluge
+        unset DELUGE_VERSION
+    fi
+    if [[ -n $QBITTORRENT_VERSION && ! ${called_by} == qbittorrent ]]; then
+        #shellcheck source=sources/functions/qbittorrent
+        . /etc/swizzin/sources/functions/qbittorrent
+        . /etc/swizzin/sources/functions/fpm
+        echo_info "Recompiling qBittorrent for compatibility before continuing"
+        install_fpm
+        apt_remove --purge qbittorrent-nox
+        qbittorrent_version_info
+        build_libtorrent_qbittorrent
+        build_qbittorrent
+        unset QBITTORRENT_VERSION
+    fi
+    rm_if_exists /install/.libtorrent.lock
 }
 
-function skip_libtorrent_rasterbar() {
-    if [[ ! -f /install/.libtorrent.lock ]]; then
-        false
-        return
-    elif [[ -n $SKIP_LT ]]; then
-        return
-    else
-        libtorrent_current=$(pkg-config --modversion libtorrent-rasterbar 2> /dev/null)
-        if [[ -f /install/.qbittorrent.lock ]] && [[ -z $qbittorrent ]]; then
-            qbittorrent=$(qbittorrent-nox --version | grep -oP '\d+\.\d+\.\d+')
+function check_shared_libtorrent_rasterbar() {
+    called_by=$1
+    if dpkg -l | grep libtorrent-rasterbar | grep -v static | grep swizzin > /dev/null 2>&1; then
+        echo_info "Found conflicting $a. Removing."
+        if [[ $called_by == "deluge" && -f /install/.qbittorrent.lock ]]; then
+            echo_warn "qBittorrent may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade qbittorent\` after this."
         fi
-        if [[ -f /install/.deluge.lock ]] && [[ -z $deluge ]]; then
-            dver=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+')
-            case $dver in
-                1.3.*)
-                    deluge=1.3-stable
-                    ;;
-                *)
-                    deluge=master
-                    ;;
-            esac
+        if [[ $called_by == "qbittorrent" && -f /install/.deluge.lock ]]; then
+            echo_warn "Deluge may not function as expected if you have not yet upgraded it to a static build or converted it to \"repo\". You should run \`box upgrade deluge\` after this."
         fi
-        case $libtorrent_current in
-            1.2.*)
-                if ! dpkg -s libtorrent-rasterbar | grep -q c++14; then
-                    false
-                    return
-                elif [[ ! $deluge == 1.3-stable ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-            1.1.*)
-                if [[ -n $qbittorrent ]] && dpkg --compare-versions $qbittorrent ge 4.3.0; then
-                    false
-                    return
-                elif [[ $deluge == "master" ]] && dpkg -s python3-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                elif [[ $deluge == "1.3-stable" ]] && dpkg -s python-libtorrent > /dev/null 2>&1 && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                elif [[ -z $deluge ]] && [[ -n $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-            1.0.*)
-                if [[ -z $qbittorrent ]] && whiptail_skip_libtorrent_rasterbar; then
-                    return
-                fi
-                ;;
-        esac
+        dpkg -r libtorrent-rasterbar > /dev/null 2>&1
+    elif dpkg -l | grep libtorrent-rasterbar | grep static | grep swizzin > /dev/null 2>&1 && [[ $called_by == "qbittorrent" ]]; then
+        dpkg -r libtorrent-rasterbar > /dev/null 2>&1
     fi
-    false
-    return
 }
 
 function whiptail_skip_libtorrent_rasterbar() {
@@ -207,153 +115,77 @@ function whiptail_skip_libtorrent_rasterbar() {
     fi
 }
 
-function build_libtorrent_rasterbar() {
-    release=$(lsb_release -cs)
-    . /etc/swizzin/sources/functions/fpm
-
-    if [[ $libtorrent = "repo" ]]; then
-        cleanup=(python3-libtorrent python-libtorrent libtorrent-rasterbar libtorrent-rasterbar-dev)
-        for a in ${cleanup[@]}; do
-            if dpkg -l | grep $a | grep swizzin > /dev/null 2>&1; then
-                echo_info "Found $a. Removing."
-                dpkg -r $a > /dev/null 2>&1
+function cleanup_repo_libtorrent() {
+    if [[ $called_by == "deluge" ]]; then
+        libtorrent_libnames=(python3-libtorrent python-libtorrent)
+        for lib in "${libtorrent_libnames[@]}"; do
+            #If these are not "swizzin" packages they must be repo, so just remove them and get on with it
+            #Since deluge called the conflict function which only triggers when compiled, we can assume these packages are no longer required no matter what
+            if dpkg -s $lib > /dev/null 2>&1 && ! dpkg -s $lib 2> /dev/null | grep swizzin > /dev/null 2>&1; then
+                dpkg -r ${lib} > /dev/null 2>&1
             fi
         done
-        case $release in
-            "xenial")
-                apt_install libtorrent-rasterbar8 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
-                ;;
-            "stretch" | "buster" | "bionic")
-                apt_install libtorrent-rasterbar9 python-libtorrent python3-libtorrent libtorrent-rasterbar-dev pkg-config
-                ;;
-            *)
-                apt_install libtorrent-rasterbar9 python3-libtorrent libtorrent-rasterbar-dev pkg-config
-                ;;
-
-        esac
-    else
-        if [[ -n $deluge ]]; then
-            dcanditate=$deluge
-            if [[ $dcanditate == "repo" ]]; then
-                . /etc/swizzin/sources/functions/apt
-                daptver=$(get_candidate_version deluged)
-                if [[ $daptver =~ ^1.* ]]; then
-                    dcanditate=1.3-stable
-                else
-                    dcanditate=master
-                fi
-            fi
-            case $dcanditate in
-                master)
-                    python=python3
-                    pythonbin=$python
-                    pythonapt="python3-dev python3-setuptools libboost-python-dev"
-                    case $release in
-                        "stretch" | "xenial")
-                            python_configure_args="--with-boost-python=boost_python-py35"
-                            ;;
-                        *)
-                            python_configure_args="--with-boost-python=boost_python3"
-                            ;;
-                    esac
-                    remove=python-libtorrent
-                    ;;
-                1.3-stable)
-                    python=python
-                    pythonbin=python2
-                    pythonapt="python2.7-dev python-setuptools libboost-python-dev"
-                    remove=python3-libtorrent
-                    case $release in
-                        "focal")
-                            pythonbin=python2.7
-                            pythonapt="python2.7-dev python-setuptools libboost-python1.67-dev"
-                            #python_configure_args="--with-boost-python=boost_python27"
-                            LIST="libboost1.67-dev libboost-system1.67-dev libboost-chrono1.67-dev libboost-random1.67-dev libboost1.67-tools-dev build-essential autoconf automake libtool libssl-dev libgeoip-dev geoip-database ${pythonapt}"
-                            ;;
-                    esac
-                    ;;
-            esac
-        fi
-        cleanup=($remove libtorrent-rasterbar7 libtorrent-rasterbar8 libtorrent-rasterbar9 libtorrent-rasterbar-dev)
-        for a in ${cleanup[@]}; do
-            if dpkg -l | grep $a > /dev/null 2>&1; then
-                echo_info "Found package conflict: $a. Removing."
-                dpkg -r $a > /dev/null 2>&1
-            fi
-        done
-        LTRC=$libtorrent
-        if [[ -z $LIST ]]; then
-            LIST="build-essential autoconf automake pkg-config libtool libboost-system-dev libssl-dev libgeoip-dev libboost-chrono-dev libboost-random-dev libboost-tools-dev geoip-database ${pythonapt}"
-        fi
-        apt_install $LIST
-        apt_autoremove
-        install_fpm
-        noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-        if [[ -n $noexec ]]; then
-            mount -o remount,exec /tmp
-            noexec=1
-        fi
-        cd /tmp
-        . /etc/swizzin/sources/functions/utils
-        rm_if_exists "/tmp/libtorrent"
-        if ! check_ram 2G; then
-            swap=true
-            tmp_swap_on
-        fi
-        git clone -b ${LTRC} https://github.com/arvidn/libtorrent.git >> "${log}" 2>&1 || {
-            echo_error "ERROR: git could not clone the libtorrent repository"
-            exit 1
-        }
-        cd libtorrent
-        if [[ ! $LTRC =~ ("RC_1_0"|"RC_1_1") ]]; then
-            configure_args="-std=c++14"
-            tag=" with c++14"
-            #Temporarily pin libtorrent to 1.2.11 to prevent b2 python binding issues
-            git checkout tags/v1.2.11 >> ${log} 2>&1
-            #RC_1_2 requires c++14 to build for qBittorrent. In order to build we currently require this workaround otherwise.
-            sed -i 's/AX_CXX_COMPILE_STDCXX_11.*/AX_CXX_COMPILE_STDCXX(14, [noext], [optional], [skip])/g' configure.ac
-        fi
-        ./autotool.sh >> "${log}" 2>&1
-        ./configure --with-lib-geoip --with-libiconv CXXFLAGS=${configure_args} >> "${log}" 2>&1
-        VERSION=$(grep "VERSION =" Jamfile | grep -oP '\d+.\d+.\d+')
-        #The following sed command is a settings change in the python binding to "force on" force reannounce in the python binding
-        #If not enabled, Deluge may not properly reannounce on unregistered torrents.
-        #For more info on the change and why this is changed (including why this is not default in upstream): https://github.com/arvidn/libtorrent/issues/3226
-        case $LTRC in
-            RC_1_1)
-                sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 0|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1|g' bindings/python/src/torrent_handle.cpp
-                ;;
-            RC_1_2)
-                sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
-                #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
-                ;;
-        esac
-        #If you wish to patch libtorrent with custom values (i.e. settings pack), simply ensure the patch exists at /root/libtorrent.patch) before starting the install and the patch will be applied to the branch selected.
-        if [[ -f /root/libtorrent.patch ]]; then
-            patch -p1 < /root/libtorrent.patch >> ${log} 2>&1
-        fi
-        make -j$(nproc) >> "${log}" 2>&1
-        make DESTDIR=/tmp/dist/libtorrent install >> ${log} 2>&1
-        mkdir -p /root/dist
-        fpm -f -C /tmp/dist/libtorrent -p /root/dist/libtorrent-rasterbar_VERSION.deb -s dir -t deb -n libtorrent-rasterbar --version ${VERSION} --description "Libtorrent rasterbar compiled by swizzin$tag" >> ${log} 2>&1
-        dpkg -i /root/dist/libtorrent-rasterbar_${VERSION}.deb
-        if [[ -n $deluge ]]; then
-            echo_progress_start "Building python binding"
-            PYTHON=${pythonbin} ./configure --enable-python-binding --with-libiconv ${python_configure_args} CXXFLAGS=${configure_args} >> "${log}" 2>&1
-            fpm --verbose --python-bin=${pythonbin} --python-package-name-prefix=${python} -n ${python}-libtorrent -f -p /root/dist/${python}-libtorrent_VERSION.deb --version ${VERSION} --description "Libtorrent rasterbar python bindings compiled by swizzin$tag" -s python -t deb /tmp/libtorrent/bindings/python/setup.py >> $log 2>&1
-            dpkg -i /root/dist/${python}-libtorrent_${VERSION}.deb
-            echo_progress_done "Python binding built"
-        fi
-        ldconfig
-        cd /tmp
-        rm -r libtorrent
-        rm -r /tmp/dist
-        if [[ $swap == "true" ]]; then
-            tmp_swap_off
-        fi
-        if [[ -n $noexec ]]; then
-            mount -o remount,noexec /tmp
-        fi
     fi
-    if [[ ! -f /install/.libtorrent.lock ]]; then touch /install/.libtorrent.lock; fi
+    #Clean up traces of repo libtorrents if no further repo clients are installed
+    #repo_libtorrents is defined in detect_libtorrent_rasterbar_conflict()
+    if [[ -n $DELUGE_VERSION && ! $DELUGE_VERSION == "repo" ]] && dpkg -s qbittorrent-nox 2> /dev/null | grep swizzin | grep static > /dev/null 2>&1; then
+        for package in ${repo_libtorrents[@]}; do
+            dpkg -r $package > /dev/null 2>&1
+        done
+    fi
+    if [[ -n $QBITTORRENT_VERSION && ! $QBITTORRENT_VERSION == "repo" ]] && (dpkg -s python-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1 || dpkg -s python3-libtorrent 2> /dev/null | grep swizzin > /dev/null 2>&1); then
+        for package in ${repo_libtorrents[@]}; do
+            dpkg -r $package > /dev/null 2>&1
+        done
+    fi
+}
+
+function booststrap() {
+    BOOST_VERSION=1_75_0
+    export BOOST_ROOT=/opt/boost_${BOOST_VERSION}
+    export BOOST_INCLUDEDIR=${BOOST_ROOT}
+    export BOOST_BUILD_PATH=${BOOST_ROOT}
+    if [[ ! -d ${BOOST_ROOT} ]]; then
+        echo_progress_start "Installing boost"
+        cd /opt
+        wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+            echo_warn "Could not download boost from main mirror, attempting fallback."
+            wget https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+                echo_error "Boost could not be downloaded. Setup will exit."
+                exit 1
+            }
+        }
+        tar xvf boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
+        rm -f boost_${BOOST_VERSION}.tar.gz
+        cd ${BOOST_ROOT}
+        /opt/boost_${BOOST_VERSION}/bootstrap.sh --with-libraries=system >> ${log} 2>&1
+        echo_progress_done "Boost installed!"
+    fi
+}
+
+function libtorrent_clone() {
+    libtorrent_github_tags_list=$(git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)
+
+    case $libtorrent_branch in
+        RC_1_1)
+            libtorrent_github_tag=RC_1_1
+            ;;
+        RC_1_2)
+            tag_libtorrent_version=1.2
+            ;;
+        RC_2_0)
+            tag_libtorrent_version=2.0
+            ;;
+        *)
+            tag_libtorrent_version=1.2
+            ;;
+    esac
+
+    libtorrent_github_tag_default="$(grep -Eom1 "v${tag_libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
+    libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
+
+    git clone --no-tags --single-branch --branch "${libtorrent_github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "https://github.com/arvidn/libtorrent.git" "/tmp/libtorrent" >> ${log} 2>&1 || {
+        echo_error "Libtorrent could not be cloned from git. Setup will not proceed"
+        exit 1
+    }
 }

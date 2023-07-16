@@ -29,17 +29,11 @@ if [[ -n $active ]]; then
     fi
 fi
 
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
-    pyenv_install
-    pyenv_install_version 3.7.7
-    pyenv_create_venv 3.7.7 /opt/.venv/sickchill
-else
-    LIST='git python3-dev python3-venv python3-pip'
-    apt_install $LIST
-    echo_progress_start "Installing venv for sickchill"
-    python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
-    echo_progress_done
-fi
+LIST='git python3-dev python3-venv python3-pip'
+apt_install $LIST
+echo_progress_start "Installing venv for sickchill"
+python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
+echo_progress_done
 
 chown -R ${user}: /opt/.venv/sickchill
 echo_progress_start "Cloning SickChill"
@@ -79,6 +73,8 @@ if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/sickchill.sh
     systemctl reload nginx
     echo_progress_done
+else
+    echo_info "SickChill will run on port 8081"
 fi
 
 echo_success "SickChill installed"

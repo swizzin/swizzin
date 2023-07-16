@@ -31,6 +31,10 @@ wget "${dlurl}" -O $mangodir/mango >> $log 2>&1
 chmod +x "$mangodir"/mango
 echo_progress_done
 
+# shellcheck source=sources/functions/mango
+. /etc/swizzin/sources/functions/mango
+_mkconf_mango
+
 if [[ $wasActive = "true" ]]; then
     echo_progress_start "Restarting Mango ($($mangodir/mango --version))"
     systemctl start mango

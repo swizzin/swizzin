@@ -75,6 +75,8 @@ function _install() {
         bash /usr/local/bin/swizzin/nginx/nzbget.sh
         systemctl reload nginx
         echo_progress_done
+    else
+        echo_info "Nzbget will run on port $port"
     fi
 
     echo_progress_start "Enabling nzbget for all users"

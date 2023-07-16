@@ -25,6 +25,7 @@ network.scgi.open_local = /var/run/${user}/.rtorrent.sock
 schedule2 = chmod_scgi_socket, 0, 0, "execute2=chmod,\"g+w,o=\",/var/run/${user}/.rtorrent.sock"
 network.tos.set = throughput
 pieces.hash.on_completion.set = no
+pieces.preload.min_rate.set = 50000
 protocol.pex.set = no
 schedule = watch_directory,5,5,load.start=/home/${user}/rwatch/*.torrent
 session.path.set = /home/${user}/.sessions/
@@ -41,14 +42,14 @@ execute = {sh,-c,/usr/bin/php /srv/rutorrent/php/initplugins.php ${user} &}
 
 # -- END HERE --
 EOF
-    chown ${user}.${user} -R /home/${user}/.rtorrent.rc
+    chown ${user}:${user} -R /home/${user}/.rtorrent.rc
 }
 
 function _makedirs() {
     mkdir -p /home/${user}/torrents/rtorrent 2>> $log
     mkdir -p /home/${user}/.sessions
     mkdir -p /home/${user}/rwatch
-    chown -R ${user}.${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
+    chown -R ${user}:${user} /home/${user}/{torrents,.sessions,rwatch} 2>> $log
     usermod -a -G www-data ${user} 2>> $log
     usermod -a -G ${user} www-data 2>> $log
 }
@@ -77,6 +78,7 @@ EOF
 export DEBIAN_FRONTEND=noninteractive
 
 . /etc/swizzin/sources/functions/rtorrent
+. /etc/swizzin/sources/functions/curl
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)
 rutorrent="/srv/rutorrent/"
@@ -98,6 +100,14 @@ if [[ -n $noexec ]]; then
 fi
 depends_rtorrent
 if [[ ! $rtorrentver == repo ]]; then
+    configure_curl
+    echo_progress_start "Building c-ares from source"
+    build_cares
+    echo_progress_done
+    echo_progress_start "Building curl from source"
+    build_curl
+    echo_progress_done
+    configure_rtorrent
     echo_progress_start "Building xmlrpc-c from source"
     build_xmlrpc-c
     echo_progress_done

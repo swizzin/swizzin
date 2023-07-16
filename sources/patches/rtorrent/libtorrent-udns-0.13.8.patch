@@ -1,0 +1,785 @@
+From b606567abbc2f8df38dadac3b77b81b183fdfdb5 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Mon, 17 Apr 2023 13:10:00 -0400
+Subject: [PATCH] Udns 0.13.8 (#3)
+
+---
+ .gitignore                        |   1 +
+ .travis.yml                       |  25 ++++
+ configure.ac                      |   2 +
+ scripts/udns.m4                   |  26 ++++
+ src/torrent/connection_manager.cc |  81 +++++++++++-
+ src/torrent/connection_manager.h  |  44 +++++--
+ src/tracker/tracker_udp.cc        |  49 ++-----
+ src/tracker/tracker_udp.h         |   6 +-
+ src/utils/Makefile.am             |   4 +-
+ src/utils/udnsevent.cc            | 208 ++++++++++++++++++++++++++++++
+ src/utils/udnsevent.h             |  57 ++++++++
+ 11 files changed, 449 insertions(+), 54 deletions(-)
+ create mode 100644 scripts/udns.m4
+ create mode 100644 src/utils/udnsevent.cc
+ create mode 100644 src/utils/udnsevent.h
+
+diff --git a/.gitignore b/.gitignore
+index 440ac77b3..fd57e0b8c 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -41,6 +41,7 @@ scripts/lt*.m4
+ .#*
+ \#*#
+ *~
++*.swp
+ 
+ # Packages #
+ ############
+diff --git a/.travis.yml b/.travis.yml
+index 5af882deb..cbc8ac76d 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -4,6 +4,17 @@ matrix:
+   include:
+   - compiler: clang
+     env: COMPILER=clang++ SKIP_CHECK=true SKIP_COVERAGE=true
++    addons:
++      apt:
++        packages:
++        - libudns-dev
++  - compiler: clang
++    env: COMPILER=clang++ SKIP_COVERAGE=true
++    addons:
++      apt:
++        packages:
++        - libcppunit-dev
++        - libudns-dev
+   - compiler: clang
+     env: COMPILER=clang++ SKIP_COVERAGE=true
+     addons:
+@@ -20,6 +31,7 @@ matrix:
+         packages:
+         - clang-3.6
+         - libcppunit-dev
++        - libudns-dev
+   - compiler: clang
+     env: COMPILER=clang++-3.7 SKIP_COVERAGE=true
+     addons:
+@@ -30,6 +42,7 @@ matrix:
+         packages:
+         - clang-3.7
+         - libcppunit-dev
++        - libudns-dev
+   - compiler: clang
+     env: COMPILER=clang++-3.8 SKIP_COVERAGE=true
+     addons:
+@@ -40,6 +53,7 @@ matrix:
+         packages:
+         - clang-3.8
+         - libcppunit-dev
++        - libudns-dev
+   - compiler: gcc
+     env: COMPILER=g++-4.7 SKIP_CHECK=true SKIP_COVERAGE=true
+     addons:
+@@ -47,6 +61,16 @@ matrix:
+         sources: ubuntu-toolchain-r-test
+         packages:
+         - g++-4.7
++        - libudns-dev
++  - compiler: gcc
++    env: COMPILER=g++-4.7 SKIP_COVERAGE=true
++    addons:
++      apt:
++        sources: ubuntu-toolchain-r-test
++        packages:
++        - g++-4.7
++        - libcppunit-dev
++        - libudns-dev
+   - compiler: gcc
+     env: COMPILER=g++-4.7 SKIP_COVERAGE=true
+     addons:
+@@ -63,6 +87,7 @@ matrix:
+         packages:
+         - g++-4.8
+         - libcppunit-dev
++        - libudns-dev
+ 
+ before_install:
+   - if [ ! $SKIP_COVERAGE ]; then pip install --user cpp-coveralls; fi
+diff --git a/configure.ac b/configure.ac
+index 4ed08124b..ef4a4fab8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -103,6 +103,8 @@ AC_ARG_ENABLE(cyrus-rc4,
+   ]
+ )
+ 
++TORRENT_WITH_UDNS()
++
+ AC_CHECK_FUNCS(posix_memalign)
+ 
+ TORRENT_CHECK_MADVISE()
+diff --git a/scripts/udns.m4 b/scripts/udns.m4
+new file mode 100644
+index 000000000..fee645c9d
+--- /dev/null
++++ b/scripts/udns.m4
+@@ -0,0 +1,26 @@
++dnl function for enabling/disabling udns support
++AC_DEFUN([TORRENT_WITH_UDNS], [
++  AC_ARG_WITH(
++    [udns],
++    AS_HELP_STRING([--without-udns], [Don't use udns, falling back to synchronous DNS resolution.])
++  )
++dnl neither ubuntu nor fedora ships a pkgconfig file for udns
++  AS_IF(
++    [test "x$with_udns"  != "xno"],
++    [AC_CHECK_HEADERS([udns.h], [have_udns=yes], [have_udns=no])],
++    [have_udns=no]
++  )
++  AS_IF(
++    [test "x$have_udns" = "xyes"],
++    [
++      AC_DEFINE(USE_UDNS, 1, Define to build with udns support.)
++      LIBS="$LIBS -ludns"
++    ],
++    [
++      AS_IF(
++        [test "x$with_udns" = "xyes"],
++        [AC_MSG_ERROR([udns requested but not found])]
++      )
++    ]
++  )
++])
+diff --git a/src/torrent/connection_manager.cc b/src/torrent/connection_manager.cc
+index 972dcbfc3..f1a5778a6 100644
+--- a/src/torrent/connection_manager.cc
++++ b/src/torrent/connection_manager.cc
+@@ -48,11 +48,79 @@
+ #include "exceptions.h"
+ #include "manager.h"
+ 
++#ifdef USE_UDNS
++#include "utils/udnsevent.h"
++#endif
++
+ namespace torrent {
+ 
+-// Fix TrackerUdp, etc, if this is made async.
+-static ConnectionManager::slot_resolver_result_type*
+-resolve_host(const char* host, int family, int socktype, ConnectionManager::slot_resolver_result_type slot) {
++AsyncResolver::AsyncResolver(ConnectionManager *) {}
++
++#ifdef USE_UDNS
++class UdnsAsyncResolver : public AsyncResolver {
++public:
++  UdnsAsyncResolver(ConnectionManager *cm) : AsyncResolver(cm) {}
++
++  void *enqueue(const char *name, int family, resolver_callback *cbck) {
++    return m_udnsevent.enqueue_resolve(name, family, cbck);
++  }
++
++  void flush() {
++    m_udnsevent.flush_resolves();
++  }
++
++  void cancel(void *query) {
++    m_udnsevent.cancel(static_cast<udns_query*>(query));
++  }
++
++protected:
++  UdnsEvent           m_udnsevent;
++};
++#define ASYNC_RESOLVER_IMPL UdnsAsyncResolver
++#else
++class StubAsyncResolver : public AsyncResolver {
++public:
++  struct mock_resolve {
++    std::string hostname;
++    int family;
++    resolver_callback *callback;
++  };
++
++  StubAsyncResolver(ConnectionManager *cm): AsyncResolver(cm), m_connection_manager(cm) {}
++
++  void *enqueue(const char *name, int family, resolver_callback *cbck) {
++    mock_resolve *mr = new mock_resolve {name, family, cbck};
++    m_mock_resolve_queue.emplace_back(mr);
++    return mr;
++  }
++
++  void flush() {
++    // dequeue all callbacks and resolve them synchronously
++    while (!m_mock_resolve_queue.empty()) {
++      std::unique_ptr<mock_resolve> mr = std::move(m_mock_resolve_queue.back());
++      m_mock_resolve_queue.pop_back();
++      m_connection_manager->resolver()(mr->hostname.c_str(), mr->family, 0, *(mr->callback));
++    }
++  }
++
++  void cancel(void *query) {
++    auto it = std::find(
++      std::begin(m_mock_resolve_queue),
++      std::end(m_mock_resolve_queue),
++      std::unique_ptr<mock_resolve>(static_cast<mock_resolve*>(query))
++    );
++    if (it != std::end(m_mock_resolve_queue)) m_mock_resolve_queue.erase(it);
++  }
++
++protected:
++  ConnectionManager *m_connection_manager;
++  std::vector<std::unique_ptr<mock_resolve>> m_mock_resolve_queue;
++};
++#define ASYNC_RESOLVER_IMPL StubAsyncResolver
++#endif
++
++static void
++resolve_host(const char* host, int family, int socktype, resolver_callback slot) {
+   if (manager->main_thread_main()->is_current())
+     thread_base::release_global_lock();
+ 
+@@ -64,7 +132,7 @@ resolve_host(const char* host, int family, int socktype, ConnectionManager::slot
+       thread_base::acquire_global_lock();
+ 
+     slot(NULL, err);
+-    return NULL;
++    return;
+   }
+ 
+   rak::socket_address sa;
+@@ -75,7 +143,7 @@ resolve_host(const char* host, int family, int socktype, ConnectionManager::slot
+     thread_base::acquire_global_lock();
+   
+   slot(sa.c_sockaddr(), 0);
+-  return NULL;
++  return;
+ }
+ 
+ ConnectionManager::ConnectionManager() :
+@@ -89,7 +157,8 @@ ConnectionManager::ConnectionManager() :
+ 
+   m_listen(new Listen),
+   m_listen_port(0),
+-  m_listen_backlog(SOMAXCONN) {
++  m_listen_backlog(SOMAXCONN),
++  m_async_resolver(new ASYNC_RESOLVER_IMPL(this)) {
+ 
+   m_bindAddress = (new rak::socket_address())->c_sockaddr();
+   m_localAddress = (new rak::socket_address())->c_sockaddr();
+diff --git a/src/torrent/connection_manager.h b/src/torrent/connection_manager.h
+index 2dcf2b379..5b03f110f 100644
+--- a/src/torrent/connection_manager.h
++++ b/src/torrent/connection_manager.h
+@@ -39,12 +39,13 @@
+ #ifndef LIBTORRENT_CONNECTION_MANAGER_H
+ #define LIBTORRENT_CONNECTION_MANAGER_H
+ 
+-#include <list>
+ #include <arpa/inet.h>
+ #include <netinet/in.h>
+ #include <netinet/in_systm.h>
+ #include <netinet/ip.h>
+ #include <sys/socket.h>
++#include <list>
++#include <memory>
+ #include lt_tr1_functional
+ #include <torrent/common.h>
+ 
+@@ -54,6 +55,29 @@ namespace torrent {
+ // First element is upload throttle, second element is download throttle.
+ typedef std::pair<Throttle*, Throttle*> ThrottlePair;
+ 
++// The sockaddr argument in the result call is NULL if the resolve failed,
++// and the int holds the error code.
++typedef std::function<void (const sockaddr*, int)> resolver_callback;
++
++// Encapsulates whether we do genuine async resolution or fall back to sync.
++// In a build with USE_UDNS, these do genuine asynchronous DNS resolution.
++// In a build without it, they're stubbed out to use a synchronous getaddrinfo(3)
++// call, while exposing the same API.
++class LIBTORRENT_EXPORT AsyncResolver {
++public:
++  AsyncResolver(ConnectionManager *);
++
++  // this queues a DNS resolve but doesn't send it. it doesn't execute any callbacks
++  // and returns control immediately. the return value is an opaque identifier that
++  // can be used to cancel the query (as long as the callback hasn't been executed yet):
++  virtual void*   enqueue(const char *name, int family, resolver_callback *cbck) = 0;
++  // this sends any queued resolves. it can execute arbitrary callbacks
++  // before returning control:
++  virtual void    flush() = 0;
++  // this cancels a pending async query (as long as the callback hasn't executed yet):
++  virtual void    cancel(void *query) = 0;
++};
++
+ class LIBTORRENT_EXPORT ConnectionManager {
+ public:
+   typedef uint32_t size_type;
+@@ -100,9 +124,7 @@ class LIBTORRENT_EXPORT ConnectionManager {
+   typedef std::function<uint32_t (const sockaddr*)>     slot_filter_type;
+   typedef std::function<ThrottlePair (const sockaddr*)> slot_throttle_type;
+ 
+-  // The sockaddr argument in the result slot call is NULL if the resolve failed, and the int holds the errno.
+-  typedef std::function<void (const sockaddr*, int)> slot_resolver_result_type;
+-  typedef std::function<slot_resolver_result_type* (const char*, int, int, slot_resolver_result_type)> slot_resolver_type;
++  typedef std::function<void (const char*, int, int, resolver_callback)> slot_resolver_type;
+ 
+   ConnectionManager();
+   ~ConnectionManager();
+@@ -154,12 +176,16 @@ class LIBTORRENT_EXPORT ConnectionManager {
+   void                set_listen_port(port_type p)            { m_listen_port = p; }
+   void                set_listen_backlog(int v);
+ 
+-  // The resolver returns a pointer to its copy of the result slot
+-  // which the caller may set blocked to prevent the slot from being
+-  // called. The pointer must be NULL if the result slot was already
+-  // called because the resolve was synchronous.
++  void*               enqueue_async_resolve(const char *name, int family, resolver_callback *cbck);
++  void                flush_async_resolves();
++  void                cancel_async_resolve(void *query);
++
++  // Legacy synchronous resolver interface.
+   slot_resolver_type& resolver()          { return m_slot_resolver; }
+ 
++  // Asynchronous resolver interface.
++  AsyncResolver&      async_resolver()    { return *m_async_resolver; }
++
+   // The slot returns a ThrottlePair to use for the given address, or
+   // NULLs to use the default throttle.
+   slot_throttle_type& address_throttle()  { return m_slot_address_throttle; }
+@@ -190,6 +216,8 @@ class LIBTORRENT_EXPORT ConnectionManager {
+   slot_filter_type    m_slot_filter;
+   slot_resolver_type  m_slot_resolver;
+   slot_throttle_type  m_slot_address_throttle;
++
++  std::unique_ptr<AsyncResolver> m_async_resolver;
+ };
+ 
+ }
+diff --git a/src/tracker/tracker_udp.cc b/src/tracker/tracker_udp.cc
+index 93493e478..04d836f49 100644
+--- a/src/tracker/tracker_udp.cc
++++ b/src/tracker/tracker_udp.cc
+@@ -70,25 +70,22 @@ TrackerUdp::TrackerUdp(TrackerList* parent, const std::string& url, int flags) :
+ 
+   m_port(0),
+ 
+-  m_slot_resolver(NULL),
+   m_readBuffer(NULL),
+   m_writeBuffer(NULL) {
+ 
+   m_taskTimeout.slot() = std::bind(&TrackerUdp::receive_timeout, this);
++
++  m_resolver_callback = std::bind(&TrackerUdp::start_announce, this, std::placeholders::_1, std::placeholders::_2);
++  m_resolver_query = NULL;
+ }
+ 
+ TrackerUdp::~TrackerUdp() {
+-  if (m_slot_resolver != NULL) {
+-    *m_slot_resolver = resolver_type();
+-    m_slot_resolver = NULL;
+-  }
+-
+   close_directly();
+ }
+   
+ bool
+ TrackerUdp::is_busy() const {
+-  return get_fd().is_valid();
++  return (m_resolver_query != NULL) || get_fd().is_valid();
+ }
+ 
+ void
+@@ -104,15 +101,12 @@ TrackerUdp::send_state(int state) {
+   LT_LOG_TRACKER(DEBUG, "hostname lookup (address:%s)", hostname.data());
+ 
+   m_sendState = state;
+-
+-  // Because we can only remember one slot, set any pending resolves blocked
+-  // so that if this tracker is deleted, the member function won't be called.
+-  if (m_slot_resolver != NULL) {
+-    *m_slot_resolver = resolver_type();
+-    m_slot_resolver = NULL;
+-  }
+-
+-  m_slot_resolver = make_resolver_slot(hostname);
++  m_resolver_query = manager->connection_manager()->async_resolver().enqueue(
++      hostname.data(),
++      AF_INET,
++      &m_resolver_callback
++  );
++  manager->connection_manager()->async_resolver().flush();
+ }
+ 
+ bool
+@@ -128,21 +122,9 @@ TrackerUdp::parse_udp_url(const std::string& url, hostname_type& hostname, int&
+   return false;
+ }
+ 
+-TrackerUdp::resolver_type*
+-TrackerUdp::make_resolver_slot(const hostname_type& hostname) {
+-  return manager->connection_manager()->resolver()(hostname.data(), PF_UNSPEC, SOCK_DGRAM,
+-                                                   std::bind(&TrackerUdp::start_announce,
+-                                                             this,
+-                                                             std::placeholders::_1,
+-                                                             std::placeholders::_2));
+-}
+-
+ void
+ TrackerUdp::start_announce(const sockaddr* sa, int err) {
+-  if (m_slot_resolver != NULL) {
+-    *m_slot_resolver = resolver_type();
+-    m_slot_resolver = NULL;
+-  }
++  m_resolver_query = NULL;
+ 
+   if (sa == NULL)
+     return receive_failed("could not resolve hostname");
+@@ -180,9 +162,6 @@ TrackerUdp::start_announce(const sockaddr* sa, int err) {
+ 
+ void
+ TrackerUdp::close() {
+-  if (!get_fd().is_valid())
+-    return;
+-
+   LT_LOG_TRACKER(DEBUG, "request cancelled (state:%s url:%s)",
+                  option_as_string(OPTION_TRACKER_EVENT, m_latest_event), m_url.c_str());
+ 
+@@ -191,9 +170,6 @@ TrackerUdp::close() {
+ 
+ void
+ TrackerUdp::disown() {
+-  if (!get_fd().is_valid())
+-    return;
+-
+   LT_LOG_TRACKER(DEBUG, "request disowned (state:%s url:%s)",
+                  option_as_string(OPTION_TRACKER_EVENT, m_latest_event), m_url.c_str());
+ 
+@@ -202,6 +178,9 @@ TrackerUdp::disown() {
+ 
+ void
+ TrackerUdp::close_directly() {
++  manager->connection_manager()->async_resolver().cancel(m_resolver_query);
++  m_resolver_query = NULL;
++
+   if (!get_fd().is_valid())
+     return;
+ 
+diff --git a/src/tracker/tracker_udp.h b/src/tracker/tracker_udp.h
+index aaa7ff671..a5f250a77 100644
+--- a/src/tracker/tracker_udp.h
++++ b/src/tracker/tracker_udp.h
+@@ -56,8 +56,6 @@ class TrackerUdp : public SocketDatagram, public Tracker {
+   typedef ProtocolBuffer<512> ReadBuffer;
+   typedef ProtocolBuffer<512> WriteBuffer;
+ 
+-  typedef ConnectionManager::slot_resolver_result_type resolver_type;
+-
+   static const uint64_t magic_connection_id = 0x0000041727101980ll;
+ 
+   TrackerUdp(TrackerList* parent, const std::string& url, int flags);
+@@ -94,14 +92,14 @@ class TrackerUdp : public SocketDatagram, public Tracker {
+   bool                process_error_output();
+ 
+   bool                parse_udp_url(const std::string& url, hostname_type& hostname, int& port) const;
+-  resolver_type*      make_resolver_slot(const hostname_type& hostname);
+ 
+   rak::socket_address m_connectAddress;
+   int                 m_port;
+ 
+   int                 m_sendState;
+ 
+-  resolver_type*      m_slot_resolver;
++  resolver_callback   m_resolver_callback;
++  void*               m_resolver_query;
+ 
+   uint32_t            m_action;
+   uint64_t            m_connectionId;
+diff --git a/src/utils/Makefile.am b/src/utils/Makefile.am
+index 27ce359b1..d148ff798 100644
+--- a/src/utils/Makefile.am
++++ b/src/utils/Makefile.am
+@@ -9,6 +9,8 @@ libsub_utils_la_SOURCES = \
+ 	sha1.h \
+ 	sha_fast.cc \
+ 	sha_fast.h \
+-	queue_buckets.h
++	queue_buckets.h \
++	udnsevent.cc \
++	udnsevent.h
+ 
+ AM_CPPFLAGS = -I$(srcdir) -I$(srcdir)/.. -I$(top_srcdir)
+diff --git a/src/utils/udnsevent.cc b/src/utils/udnsevent.cc
+new file mode 100644
+index 000000000..b53d32e8a
+--- /dev/null
++++ b/src/utils/udnsevent.cc
+@@ -0,0 +1,208 @@
++#include "config.h"
++#ifdef USE_UDNS
++
++#include <netdb.h>
++#include <netinet/in.h>
++#include <sys/socket.h>
++
++#include <udns.h>
++
++#include <torrent/common.h>
++#include "udnsevent.h"
++#include "globals.h"
++#include "manager.h"
++#include "torrent/poll.h"
++
++namespace torrent {
++
++int udnserror_to_gaierror(int udnserror) {
++  switch (udnserror) {
++    case DNS_E_TEMPFAIL:
++      return EAI_AGAIN;
++    case DNS_E_PROTOCOL:
++      // this isn't quite right
++      return EAI_FAIL;
++    case DNS_E_NXDOMAIN:
++      return EAI_NONAME;
++    case DNS_E_NODATA:
++      return EAI_ADDRFAMILY;
++    case DNS_E_NOMEM:
++      return EAI_MEMORY;
++    case DNS_E_BADQUERY:
++      return EAI_NONAME;
++    default:
++      return EAI_ADDRFAMILY;
++  }
++}
++
++// Compatibility layers so udns can call std::function callbacks.
++
++void a4_callback_wrapper(struct ::dns_ctx *ctx, ::dns_rr_a4 *result, void *data) {
++  struct sockaddr_in sa;
++  udns_query *query = static_cast<udns_query*>(data);
++  // udns will free the a4_query after this callback exits
++  query->a4_query = NULL;
++
++  if (result == NULL || result->dnsa4_nrr == 0) {
++    if (query->a6_query == NULL) {
++      // nothing more to do: call the callback with a failure status
++      (*(query->callback))(NULL, udnserror_to_gaierror(::dns_status(ctx)));
++      delete query;
++    }
++    // else: return and wait to see if we get an a6 response
++  } else {
++    sa.sin_family = AF_INET;
++    sa.sin_port = 0;
++    sa.sin_addr = result->dnsa4_addr[0];
++    if (query->a6_query != NULL) {
++      ::dns_cancel(ctx, query->a6_query);
++    }
++    (*query->callback)(reinterpret_cast<sockaddr*>(&sa), 0);
++    delete query;
++  }
++}
++
++void a6_callback_wrapper(struct ::dns_ctx *ctx, ::dns_rr_a6 *result, void *data) {
++  struct sockaddr_in6 sa;
++  udns_query *query = static_cast<udns_query*>(data);
++  // udns will free the a6_query after this callback exits
++  query->a6_query = NULL;
++
++  if (result == NULL || result->dnsa6_nrr == 0) {
++    if (query->a4_query == NULL) {
++      // nothing more to do: call the callback with a failure status
++      (*(query->callback))(NULL, udnserror_to_gaierror(::dns_status(ctx)));
++      delete query;
++    }
++    // else: return and wait to see if we get an a6 response
++  } else {
++    sa.sin6_family = AF_INET6;
++    sa.sin6_port = 0;
++    sa.sin6_addr = result->dnsa6_addr[0];
++    if (query->a4_query != NULL) {
++      ::dns_cancel(ctx, query->a4_query);
++    }
++    (*query->callback)(reinterpret_cast<sockaddr*>(&sa), 0);
++    delete query;
++  }
++}
++
++
++UdnsEvent::UdnsEvent() {
++  // reinitialize the default context, no-op
++  // TODO don't do this here --- do it once in the manager, or in rtorrent
++  ::dns_init(NULL, 0);
++  // thread-safe context isolated to this object:
++  m_ctx = ::dns_new(NULL);
++  m_fileDesc = ::dns_open(m_ctx);
++  if (m_fileDesc == -1) throw internal_error("dns_init failed");
++
++  m_taskTimeout.slot() = std::bind(&UdnsEvent::process_timeouts, this);
++}
++
++UdnsEvent::~UdnsEvent() {
++  priority_queue_erase(&taskScheduler, &m_taskTimeout);
++  ::dns_close(m_ctx);
++  ::dns_free(m_ctx);
++  m_fileDesc = -1;
++
++  for (auto it = std::begin(m_malformed_queries); it != std::end(m_malformed_queries); ++it) {
++    delete *it;
++  }
++}
++
++void UdnsEvent::event_read() {
++  ::dns_ioevent(m_ctx, 0);
++}
++
++void UdnsEvent::event_write() {
++}
++
++void UdnsEvent::event_error() {
++}
++
++struct udns_query *UdnsEvent::enqueue_resolve(const char *name, int family, resolver_callback *callback) {
++  struct udns_query *query = new udns_query { NULL, NULL, callback, 0 };
++
++  if (family == AF_INET || family == AF_UNSPEC) {
++    query->a4_query = ::dns_submit_a4(m_ctx, name, 0, a4_callback_wrapper, query);
++    if (query->a4_query == NULL) {
++      // XXX udns does query parsing up front and will fail immediately
++      // during submission of malformed domain names, e.g., `..`. In order to
++      // maintain a clean interface, keep track of this query internally
++      // so we can call the callback later with a failure code
++      if (::dns_status(m_ctx) == DNS_E_BADQUERY) {
++        // this is what getaddrinfo(3) would return:
++        query->error = EAI_NONAME;
++        m_malformed_queries.push_back(query);
++        return query;
++      } else {
++        // unrecoverable errors, like ENOMEM
++        throw new internal_error("dns_submit_a4 failed");
++      }
++    }
++  }
++
++  if (family == AF_INET6 || family == AF_UNSPEC) {
++    query->a6_query = ::dns_submit_a6(m_ctx, name, 0, a6_callback_wrapper, query);
++    if (query->a6_query == NULL) {
++      // it should be impossible for dns_submit_a6 to fail if dns_submit_a4
++      // succeeded, but just in case, make it a hard failure:
++      if (::dns_status(m_ctx) == DNS_E_BADQUERY && query->a4_query == NULL) {
++        query->error = EAI_NONAME;
++        m_malformed_queries.push_back(query);
++        return query;
++      } else {
++        throw new internal_error("dns_submit_a6 failed");
++      }
++    }
++  }
++
++  return query;
++}
++
++void UdnsEvent::flush_resolves() {
++  // first process any queries that were malformed
++  while (!m_malformed_queries.empty()) {
++    udns_query *query = m_malformed_queries.back();
++    m_malformed_queries.pop_back();
++    (*(query->callback))(NULL, query->error);
++    delete query;
++  }
++  process_timeouts();
++}
++
++void UdnsEvent::process_timeouts() {
++  int timeout = ::dns_timeouts(m_ctx, -1, 0);
++  if (timeout == -1) {
++    // no pending queries
++    manager->poll()->remove_read(this);
++    manager->poll()->remove_error(this);
++  } else {
++    manager->poll()->insert_read(this);
++    manager->poll()->insert_error(this);
++    priority_queue_erase(&taskScheduler, &m_taskTimeout);
++    priority_queue_insert(&taskScheduler, &m_taskTimeout, (cachedTime + rak::timer::from_seconds(timeout)).round_seconds());
++  }
++}
++
++void UdnsEvent::cancel(struct udns_query *query) {
++  if (query == NULL) return;
++
++  if (query->a4_query != NULL) ::dns_cancel(m_ctx, query->a4_query);
++
++  if (query->a6_query != NULL) ::dns_cancel(m_ctx, query->a6_query);
++
++  auto it = std::find(std::begin(m_malformed_queries), std::end(m_malformed_queries), query);
++  if (it != std::end(m_malformed_queries)) m_malformed_queries.erase(it);
++
++  delete query;
++}
++
++const char *UdnsEvent::type_name() {
++  return "UdnsEvent";
++}
++
++}
++
++#endif
+diff --git a/src/utils/udnsevent.h b/src/utils/udnsevent.h
+new file mode 100644
+index 000000000..f214814e2
+--- /dev/null
++++ b/src/utils/udnsevent.h
+@@ -0,0 +1,57 @@
++#ifndef LIBTORRENT_NET_UDNSEVENT_H
++#define LIBTORRENT_NET_UDNSEVENT_H
++
++#include lt_tr1_functional
++
++#include <list>
++#include <inttypes.h>
++
++#include <rak/priority_queue_default.h>
++#include "torrent/event.h"
++#include "torrent/connection_manager.h"
++
++struct dns_ctx;
++struct dns_query;
++
++namespace torrent {
++
++struct udns_query {
++    ::dns_query *a4_query;
++    ::dns_query *a6_query;
++    resolver_callback  *callback;
++    int                 error;
++};
++
++class UdnsEvent : public Event {
++public:
++
++  typedef std::vector<udns_query*> query_list_type;
++
++  UdnsEvent();
++  ~UdnsEvent();
++
++  virtual void        event_read();
++  virtual void        event_write();
++  virtual void        event_error();
++  virtual const char* type_name();
++
++  // wraps udns's dns_submit_a[46] functions. they and it return control immediately,
++  // without either sending outgoing UDP packets or executing callbacks:
++  udns_query*         enqueue_resolve(const char *name, int family, resolver_callback *callback);
++  // wraps the dns_timeouts function. it sends packets and can execute arbitrary
++  // callbacks:
++  void                flush_resolves();
++  // wraps the dns_cancel function:
++  void                cancel(udns_query *query);
++
++protected:
++  void                process_timeouts();
++
++  ::dns_ctx*             m_ctx;
++  rak::priority_item     m_taskTimeout;
++  query_list_type        m_malformed_queries;
++};
++
++}
++
++#endif

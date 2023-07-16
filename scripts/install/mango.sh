@@ -9,16 +9,15 @@ mangousr="mango"
 # Downloading the latest binary
 function _install_mango() {
     echo_progress_start "Downloading binary"
+    mango_latest=$(github_latest_version getmango/Mango)
 
     case "$(_os_arch)" in
-        "arm64" | "arm32")
-            # TODO this needs the build process for amr
-            # dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | grep "$(_os_arch)" | cut -d\" -f 4)
+        "arm32" | "arm64")
             echo_error "Currently unsupported but might be in the future. Please check back later!\nhttps://github.com/hkalexling/Mango/issues/131"
             exit 1
             ;;
         "amd64")
-            dlurl=$(curl -s https://api.github.com/repos/hkalexling/Mango/releases/latest | grep "browser_download_url" | head -1 | cut -d\" -f 4)
+            dlurl="https://github.com/getmango/Mango/releases/download/${mango_latest}/mango"
             ;;
         *)
             echo_error "Unsupported arch?"
@@ -41,34 +40,6 @@ function _install_mango() {
     useradd $mangousr --system -d "$mangodir" >> $log 2>&1
     sudo chown -R $mangousr:$mangousr $mangodir
 
-}
-
-## Creating config
-function _mkconf_mango() {
-    echo_progress_start "Configuring mango"
-    mkdir -p $mangodir/.config/mango
-    cat > "$mangodir/.config/mango/config.yml" << CONF
-#Please do not edit as swizzin will be replacing this file as updates roll out. 
-port: 9003
-base_url: /
-library_path: $mangodir/library
-db_path: $mangodir/.config/mango/mango.db
-scan_interval_minutes: 5
-log_level: info
-upload_path: $mangodir/uploads
-disable_ellipsis_truncation: false
-mangadex:
-  base_url: https://mangadex.org
-  api_url: https://mangadex.org/api
-  download_wait_seconds: 5
-  download_retries: 4
-  download_queue_db_path: $mangodir/.config/mango/queue.db
-  chapter_rename_rule: '[Vol.{volume} ][Ch.{chapter} ]{title|id}'
-  manga_rename_rule: '{title}'
-CONF
-    chown $mangousr:$mangousr -R $mangodir
-    chmod o-rwx $mangodir/.config
-    echo_progress_done
 }
 
 # Creating systemd unit
@@ -128,12 +99,19 @@ if [[ -n $1 ]]; then
 fi
 
 _install_mango
+
+# shellcheck source=sources/functions/mango
+. /etc/swizzin/sources/functions/mango
 _mkconf_mango
+
 _addusers_mango
 _mkservice_mango
 
 if [[ -f /install/.nginx.lock ]]; then
     bash /etc/swizzin/scripts/nginx/mango.sh
+    systemctl reload nginx
+else
+    echo_info "Mango will run on port 9003"
 fi
 
 echo_info "Please use your existing credentials when logging in.\nYou can access your files in $mangodir/library"

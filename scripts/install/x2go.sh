@@ -32,17 +32,18 @@ if [[ $distribution == Ubuntu ]]; then
 else
     cat > /etc/apt/sources.list.d/x2go.list << EOF
 # X2Go Repository (release builds)
-deb http://packages.x2go.org/debian ${release} main
+deb [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} main
 # X2Go Repository (sources of release builds)
-deb-src http://packages.x2go.org/debian ${release} main
+deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} main
 
 # X2Go Repository (nightly builds)
-#deb http://packages.x2go.org/debian ${release} heuler
+#deb [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} heuler
 # X2Go Repository (sources of nightly builds)
-#deb-src http://packages.x2go.org/debian ${release} heuler
+#deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} heuler
 EOF
     echo_progress_done "Repo added"
-    apt-key --keyring /etc/apt/trusted.gpg.d/x2go.gpg adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
+    mkdir -m 700 /root/.gnupg
+    gpg --no-default-keyring --keyring /usr/share/keyrings/x2go-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
     apt_update
     apt_install x2go-keyring
 fi

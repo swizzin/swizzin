@@ -2,7 +2,7 @@
 # Update sickrage to sickchill
 
 if [[ -f /install/.sickrage.lock ]]; then
-    echo_info "Updating SickRage to SickChill"
+    echo_progress_start "Updating SickRage to SickChill"
     user=$(cut -d: -f1 < /root/.master.info)
     active=$(systemctl is-active sickrage@$user)
     if [[ $active == 'active' ]]; then
@@ -51,6 +51,7 @@ SRC
         systemctl start sickchill@$master
     fi
     mv /install/.sickrage.lock /install/.sickchill.lock
+    echo_progress_done
 fi
 
 if [[ -f /install/.sickchill.lock ]]; then
@@ -65,18 +66,12 @@ if [[ -f /install/.sickchill.lock ]]; then
             active=$(systemctl is-active sickchill)
             unit=sickchill
         fi
-        codename=$(lsb_release -cs)
         systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
-        if [[ $codename =~ ("xenial"|"stretch") ]]; then
-            pyenv_install
-            pyenv_install_version 3.7.7
-            pyenv_create_venv 3.7.7 /opt/.venv/sickchill
-        else
-            LIST='git python3-dev python3-venv python3-pip'
-            apt_install $LIST
-            python3 -m venv /opt/.venv/sickchill
-        fi
+        LIST='git python3-dev python3-venv python3-pip'
+        apt_install $LIST
+        python3 -m venv /opt/.venv/sickchill
+
         chown -R ${user}: /opt/.venv/sickchill
 
         echo_progress_start "Updating SickChill ..."
@@ -104,9 +99,9 @@ WantedBy=multi-user.target
 SCSD
         systemctl daemon-reload
         rm_if_exists /etc/systemd/system/sickchill@.service
-        echo_progress_done
         if [[ $active == "active" ]]; then
             systemctl enable -q --now sickchill 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

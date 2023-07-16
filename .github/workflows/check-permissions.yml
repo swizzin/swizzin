@@ -1,0 +1,9 @@
+name: check-permissions
+on: [push, pull_request]
+jobs:
+  check-permissions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Check permissions on swizzin files
+        run: ./.github/scripts/check-permissions.sh

@@ -2,19 +2,20 @@
 
 if [[ -f /install/.sabnzbd.lock ]]; then
     if [[ -f /etc/systemd/system/sabnzbd@.service ]]; then
+        echo_progress_start "Updating SABnzbd to use pyenv"
         user=$(_get_master_username)
         codename=$(_os_codename)
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
         systemctl disable -q --now sabnzbd@${user} >> "${log}" 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='par2 p7zip-full python2.7-dev python-pip virtualenv python-virtualenv libglib2.0-dev libdbus-1-dev'
         else
             LIST='par2 p7zip-full python2.7-dev libxml2-dev libxslt1-dev libglib2.0-dev'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
 
@@ -52,5 +53,6 @@ SABSD
         if [[ $active == "active" ]]; then
             systemctl enable -q --now sabnzbd 2>&1 | tee -a "${log}"
         fi
+        echo_done
     fi
 fi

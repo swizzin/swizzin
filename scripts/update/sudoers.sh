@@ -5,6 +5,7 @@ master=$(cut -d: -f1 < /root/.master.info)
 distribution=$(lsb_release -is)
 
 if [[ ! -f /etc/sudoers.d/env_keep ]] && [[ $distribution = "Ubuntu" ]]; then
+    echo_info "Adding env_keep to sudoers"
     echo 'Defaults  env_keep -="HOME"' > /etc/sudoers.d/env_keep
 fi
 
@@ -31,6 +32,7 @@ done
 
 if [[ -f /etc/sudoers.d/panel ]]; then
     if grep -q -E "(sed|grep|box|drop_caches|set_interface|pkill|killall|reload|vnstat|ifstat|PACKAGECMNDS)" /etc/sudoers.d/panel; then
+        echo_info "Fixing sudo permissions for panel"
         cat > /etc/sudoers.d/panel << SUD
 #secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin/swizzin:/usr/local/bin/swizzin/scripts:/usr/local/bin/swizzin/scripts/install:/usr/local/bin/swizzin/scripts/remove:/usr/local/bin/swizzin/panel"
 #Defaults  env_keep -="HOME"
@@ -51,7 +53,7 @@ SUD
 fi
 
 if ! groups "$master" | grep -q sudo; then
-    echo_log_only "Moving user to the sudo usergroup"
+    echo_log_only "Moving $master to the sudo usergroup"
     usermod -a -G sudo "$master"
     # rm /etc/sudoers.d/swizzin
 fi

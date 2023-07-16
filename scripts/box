@@ -52,11 +52,10 @@ function _install() {
     done
     whiptail --title "Install Software" --checklist --noitem --separate-output "Make some choices:" 15 26 7 "${installa[@]}" 2> results
 
-    readarray result < results
-    for i in "${result[@]}"; do
-        result=$(echo $i)
+    readarray -t result < results
+    for result in "${result[@]}"; do
         echo_info "Installing ${result}"
-        bash /usr/local/bin/swizzin/install/${result}.sh
+        bash "/usr/local/bin/swizzin/install/${result}.sh"
     done
 
     rm results
@@ -73,9 +72,8 @@ function _remove() {
         fi
     done
     whiptail --title "Remove Software" --noitem --checklist --separate-output "Make some choices:" 15 26 7 "${removea[@]}" 2> results
-    readarray result < results
-    for i in "${result[@]}"; do
-        result=$(echo $i)
+    readarray -t result < results
+    for result in "${result[@]}"; do
         echo_info -e "Removing ${result}"
         bash /usr/local/bin/swizzin/remove/${result}.sh
     done
@@ -87,17 +85,16 @@ function _cli() {
     arg=("$@")
     packages=("${arg[@]:1}")
     repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d "." -f 1))
-    for i in "${packages[@]}"; do
-        app=${i}
+    for app in "${packages[@]}"; do
         if [[ -f /install/.${app}.lock ]]; then
-            echo_warn "Package $i already installed"
+            echo_warn "Package $app already installed"
         else
-            if [[ "${repo[*]}" =~ $i ]]; then
-                echo_info "Installing $i"
-                echo_docs "applications/$i"
-                bash /usr/local/bin/swizzin/install/$i.sh
+            if [[ "${repo[*]}" =~ $app ]]; then
+                echo_info "Installing $app"
+                echo_docs "applications/$app"
+                bash /usr/local/bin/swizzin/install/$app.sh
             else
-                echo_warn "Package $i not found"
+                echo_warn "Package $app not found"
             fi
         fi
     done
@@ -106,15 +103,14 @@ function _cli() {
 function _clr() {
     arg=("$@")
     packages=("${arg[@]:1}")
-    for i in "${packages[@]}"; do
-        app=${i}
+    for app in "${packages[@]}"; do
         if [[ -f /install/.$app.lock ]]; then
             schedule_remove="true"
-            echo_info "Removing $i "
-            bash /usr/local/bin/swizzin/remove/$i.sh
-            echo_success "$i removed"
+            echo_info "Removing $app"
+            bash /usr/local/bin/swizzin/remove/$app.sh
+            echo_success "$app removed"
         else
-            echo_warn "Package $i not installed"
+            echo_warn "Package $app not installed"
         fi
     done
     if [[ $schedule_remove = "true" ]]; then
@@ -122,26 +118,71 @@ function _clr() {
     fi
 }
 
-#shellcheck disable=SC2120
 function _update() {
-    if [[ -L /etc/swizzin ]]; then
-        echo_warn "Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
-    elif [[ -e /etc/swizzin/.dev.lock ]]; then
-        echo_warn "Not updating /etc/swizzin as a dev lockfile is present."
-    elif [[ $1 == "--dev" ]]; then
-        echo_warn "Not updating from git due to --dev flag"
-    else
-        echo_progress_start "Updating swizzin local repository"
-        cd /etc/swizzin || exit
-        git checkout master
-        git fetch origin master
-        git reset --hard origin/master
-        echo_info "HEAD is now set to $(git log --pretty=format:'%h' -n1)"
-        echo_progress_done "Local repository updated"
+    # Checking for develop branch
+    if [ "$branch_name" == "develop" ]; then
+        SWIZ_GIT_REF="develop"
+        export SWIZ_GIT_REF
     fi
 
+    if [[ -L /etc/swizzin ]]; then
+        noupdate_message="Not updating /etc/swizzin as it is a symlink. Please consult your provider/maintainers in case you believe this is an error."
+        noupdate="true"
+    elif [[ -e /etc/swizzin/.dev.lock ]]; then
+        noupdate_message="Not updating /etc/swizzin as a dev lockfile is present."
+        noupdate="true"
+    elif [[ $1 == "--dev" ]]; then
+        noupdate_message="Not updating from git due to --dev flag"
+        noupdate="true"
+    fi
+
+    #Checking for EOL releases
+    case "$(_os_codename)" in
+        "focal" | "buster" | "bullseye" | "jammy" | "bookworm")
+            echo_log_only "OS supported"
+            ;;
+        *)
+            name=$(_os_codename)
+            echo_warn "${name^} is not supported by swizzin at this stage.
+You will not be receiving any new updates past the last supported commit. Swizzin will continue to run as-is.
+We URGE you to migrate to a supported release if/while you still have the chance."
+            SWIZ_GIT_REF="tags/eol-$(_os_codename)"
+            export SWIZ_GIT_REF
+            ;;
+    esac
+    echo_log_only "noupdate = $noupdate"
+    # If there is nothing blocking the update...
+    if [[ -z $noupdate ]]; then
+        # Run the git update procedure
+        echo_progress_start "Updating swizzin local repository"
+        git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
+            {
+                echo_warn "Unclean repo detected, resetting current branch."
+                git -C /etc/swizzin reset --hard >> $log 2>&1
+                git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1
+            }
+        {
+            #shellcheck disable=SC2129
+            git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
+            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
+        } || {
+            echo_error "Failed to update from git"
+            exit 1
+        }
+        echo_progress_done "Local repository updated using: ${SWIZ_GIT_REF:-master}"
+        echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
+    else
+        echo_warn "$noupdate_message"
+    fi
+    export SWIZ_REPO_SCRIPT_RAN=true
+
+    echo_log_only "Re-sourcing globals.sh"
+    # source globals again in case changes were made
+    #shellcheck source=sources/globals.sh
+    . /etc/swizzin/sources/globals.sh
+
     for f in /etc/swizzin/scripts/update/*; do
-        bash "$f"
+        bash "$f" || exit 1
     done
 }
 
@@ -149,12 +190,11 @@ function _upgrade() {
     arg=("$@")
     packages=("${arg[@]:1}")
     repo=($(find /usr/local/bin/swizzin/upgrade -type f -printf "%f\n" | cut -d "." -f 1))
-    for i in "${packages[@]}"; do
-        app=${i}
-        if [[ "${repo[*]}" =~ $i ]]; then
-            bash /usr/local/bin/swizzin/upgrade/$i.sh
+    for app in "${packages[@]}"; do
+        if [[ "${repo[*]}" =~ $app ]]; then
+            bash /usr/local/bin/swizzin/upgrade/"$app".sh || exit 1
         else
-            echo_warn "Upgrade script for $i does not exist"
+            echo_warn "Upgrade script for $app does not exist"
         fi
     done
 }
@@ -164,54 +204,53 @@ function _help() {
     sgformat="${bold}%-15s${normal}"
     spacing=$(echo $'\t' | pr -Te15)
 
-    echo -e "Usage: $(basename $0) [ install | remove | upgrade ] ${bold}pkg1 pkg2 [...]${normal}\n"
-    echo -e "       $(basename $0) [ adduser | deluser | chpasswd ] ${bold}username${normal}\n"
-    echo -e "       $(basename $0) [ list | update ]\n"
-    echo -e "       $(basename $0) panel fix-disk [ root | home ]\n"
-    echo -e "       $(basename $0)\n"
+    echo -e "Usage:\t$(basename $0)"
+    echo -e "\t$(basename $0) [ install | remove | upgrade ] ${bold}pkg1${normal} [ pkg2 ... ]"
+    echo -e "\t$(basename $0) [ adduser | deluser | chpasswd ] ${bold}username${normal} [ password ]"
+    echo -e "\t$(basename $0) [ list | update ]"
+    echo
     echo -e "Note: Only install and remove functions accept package arguments. List and update must be run without modifiers\n" | fmt --goal=66 --tagged-paragraph
-    echo -e "\n"
+    echo
     printf "${sgformat}" "install"
-    echo -e "The install function requires at least one package name as an argument but will accept multiples\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box install quassel syncthing znc\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The install function requires at least one package name as an argument but will accept multiples" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box install quassel syncthing znc" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "remove"
-    echo -e "The remove function requires at least one package name as an argument but will accept multiples\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box remove quassel syncthing znc\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "adduser"
-    echo -e "The adduser function requires a single user to be specified, this user will be created\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box adduser freeloadingfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "deluser"
-    echo -e "The deluser function requires a single user to be specified, this user will be removed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box deluser exgirlfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "chpasswd"
-    echo -e "The chpasswd function requires a single user to be specified, their password will be changed\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    echo -e "               Example: box chpasswd forgetfulfriend\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "update"
-    echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The remove function requires at least one package name as an argument but will accept multiples" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box remove quassel syncthing znc" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "upgrade"
-    echo -e "Runs the associated upgrade script.\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
-    printf "${sgformat}" "panel fix-disk"
-    echo -e "The panel fix-disk command change the disk widget in the web panel to root or home\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "Runs the associated upgrade script." | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box upgrade plex curl" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "adduser"
+    echo -e "The adduser function requires a single user to be specified, this user will be created" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box adduser freeloadingfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "deluser"
+    echo -e "The deluser function requires a single user to be specified, this user will be removed" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box deluser exgirlfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "chpasswd"
+    echo -e "The chpasswd function requires a single user to be specified, their password will be changed" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "               Example: box chpasswd forgetfulfriend" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
+    printf "${sgformat}" "update"
+    echo -e "The update command will update your local swizzin repository to the latest version and run important update scripts" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo
     printf "${sgformat}" "list"
-    echo -e "The list command will list packages available to be managed by box\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
+    echo -e "The list command will list packages available to be managed by box" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
 }
 
 function _list() {
     repo=($(find /usr/local/bin/swizzin/install -type f -printf "%f\n" | cut -d. -f 1 | sort -d))
-    if [[ -f /srv/panel/inc/localize.php ]]; then
-        lang=$(grep language /srv/panel/inc/localize.php | cut -d "'" -f 2)
-        locale=/srv/panel/lang/$lang
-    else
-        locale=/etc/swizzin/sources/lang_en
-    fi
-    for i in "${repo[@]}"; do
-        app=$i
-        if [[ $i == ombi ]]; then app=ombi; fi
+    locale=/etc/swizzin/sources/lang_en
+    for app in "${repo[@]}"; do
         sgformat="${bold}%-15s${normal}"
         spacing=$(echo $'\t' | pr -Te15)
         description=$(grep -i -m 1 \\\[\'$app $locale | cut -d= -f2 | sed "s/ '//g" | sed "s/';//g" | sed "s/\\\'/'/g")
         if [[ -z $description ]]; then description="Description missing"; fi
-        printf "${sgformat}" "$i"
+        printf "${sgformat}" "$app"
         echo -e "${description}\n" | fmt --goal=50 | sed -e "2,\$s/^/$spacing/"
 
     done
@@ -257,41 +296,43 @@ function _adduser() {
     fi
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd."${user}" "$user" "$pass" >> $log 2>&1
-    chmod 750 /home/"${user}"
 
     if [[ -f /install/.quota.lock ]]; then
         bash /etc/swizzin/scripts/setdisk "$user"
     fi
 
+    mkdir /home/"$user"/.config
+    chown "$user": /home/"$user"/.config
+    chmod 750 /home/"${user}"
+
     if [[ -f /install/.panel.lock ]]; then setfacl -m g:swizzin:rx /home/"${user}"; fi
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
-        if [[ $app = "rutorrent" ]]; then
-            if [[ -d /srv/rutorrent ]]; then
-                if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
-            fi
-        fi
-
+    for app in rtorrent rutorrent deluge autodl autobrr flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ -f /install/.${app}.lock ]]; then
-            if [[ $app = "flood" ]]; then
-                /usr/local/bin/swizzin/install/${app}.sh
-            else
-                /usr/local/bin/swizzin/install/${app}.sh "${user}"
-                if [[ $app = "deluge" ]]; then
+            case $app in
+                autodl)
+                    /usr/local/bin/swizzin/install/${app}.sh "${user}"
+                    ;;
+                deluge)
+                    /usr/local/bin/swizzin/install/${app}.sh "${user}"
                     app="{deluged,deluge-web}"
                     eval systemctl enable -q ${app}@"${user}"
                     eval systemctl start ${app}@"${user}"
-                elif [[ $app =~ ("rutorrent"|"lounge"|"organizr"|"mango"|"wireguard") ]]; then
-                    : #Multi-user app without user service files. wireguard interface is started in wg script
-                else
-                    if [[ $app = "autodl" ]]; then app=irssi; fi
+                    ;;
+                rutorrent)
+                    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+                    /usr/local/bin/swizzin/install/${app}.sh
+                    ;;
+                *)
+                    /usr/local/bin/swizzin/install/${app}.sh "${user}"
                     systemctl enable -q ${app}@"${user}"
                     systemctl start ${app}@"${user}"
-                fi
-            fi
+                    ;;
+            esac
         fi
+
     done
 
     USER=${user^^}
@@ -333,40 +374,44 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent; do
-        if [[ $app = "rutorrent" ]]; then
-            if [[ -d /srv/rutorrent ]]; then
-                if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
-            fi
-        fi
-
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr; do
         if [[ -f /install/.${app}.lock ]]; then
-            if [[ $app = "rutorrent" ]]; then
-                rm -rf /srv/rutorrent/conf/users/${user}
-                rm -rf /srv/rutorrent/share/users/${user}
-                rm -f /etc/nginx/apps/${user}*
-            elif [[ $app = "lounge" ]]; then
-                su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
-            elif [[ $app = "mango" ]]; then
-                if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-                su mango -c "$mangodir/mango admin user delete ${user}"
-            elif [[ $app = "wireguard" ]]; then
-                rm -rf /home/${user}/.wireguard
-                systemctl disable --now wg-quick@wg"$(id -u "$user")"
-            elif [[ $app = "deluge" ]]; then
-                app="{deluged,deluge-web}"
-                rm -rf /etc/nginx/conf.d/${user}.deluge.conf
-                eval systemctl disable ${app}@${user}
-                eval systemctl stop ${app}@${user}
-            elif [[ $app == "organizr" ]]; then
-                #TODO automate removal steps
-                echo_info "Remember to manually remove the organizr account!"
-            elif [[ $app == "autodl" ]]; then
-                systemctl disable --now irssi@${user}
-            else
-                systemctl disable ${app}@${user}
-                systemctl stop ${app}@${user}
-            fi
+            case $app in
+                autodl)
+                    systemctl disable --now irssi@${user}
+                    ;;
+                deluge)
+                    app="{deluged,deluge-web}"
+                    rm -rf /etc/nginx/conf.d/${user}.deluge.conf
+                    eval systemctl disable ${app}@${user}
+                    eval systemctl stop ${app}@${user}
+                    ;;
+                lounge)
+                    su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
+                    ;;
+                mango)
+                    if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+                    su mango -c "$mangodir/mango admin user delete ${user}"
+                    ;;
+                organizr)
+                    #TODO automate removal steps
+                    echo_info "Remember to manually remove the organizr account!"
+                    ;;
+                rutorrent)
+                    if [[ ! -f /install/.rutorrent.lock ]]; then touch /install/.rutorrent.lock; fi
+                    rm -rf /srv/rutorrent/conf/users/${user}
+                    rm -rf /srv/rutorrent/share/users/${user}
+                    rm -f /etc/nginx/apps/${user}*
+                    ;;
+                wireguard)
+                    rm -rf /home/${user}/.wireguard
+                    systemctl disable --now wg-quick@wg"$(id -u "$user")"
+                    ;;
+                *)
+                    systemctl disable ${app}@${user}
+                    systemctl stop ${app}@${user}
+                    ;;
+            esac
         fi
     done
 
@@ -392,6 +437,11 @@ function _deluser() {
 
 function _chpasswd() {
     user="$2"
+    if ! id "$user"; then
+        echo_error "User $user does not exist."
+        exit 1
+    fi
+
     [[ -n $3 ]] && pass="$3"
     . /etc/swizzin/sources/functions/utils
     password_check
@@ -405,38 +455,53 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
-    if [[ -e /install/.deluge.lock ]]; then
-        systemctl stop deluged@${user} >> $log 2>&1
-        systemctl stop deluge-web@${user} >> $log 2>&1
-        DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
-        DWP=$(python2 /usr/local/bin/swizzin/deluge.Userpass.py "${pass}" "${DWSALT}")
-        sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
-        sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
-        sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
-        sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
-        systemctl start deluged@${user} >> $log 2>&1
-        systemctl start deluge-web@${user} >> $log 2>&1
-    fi
-    if [[ -e /install/.transmission.lock ]]; then
-        systemctl stop transmission@${user} >> $log 2>&1
-        sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
-        systemctl start transmission@${user} >> $log 2>&1
-    fi
-    if [[ -f /install/.lounge.lock ]]; then
-        su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
-    fi
-    if [[ -f /install/.mango.lock ]]; then
-        if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-        su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
-    fi
-    if [[ -f /install/.organizr.lock ]]; then
-        #TODO fix when API allows to
-        echo_warn "Remember to manually change the organizr account's password!"
-    fi
-    if [[ -f /install/.qbittorrent.lock ]]; then
-        . /etc/swizzin/sources/functions/qbittorrent
-        qbittorrent_chpasswd "${user}" "${pass}"
-    fi
+    for app in autobrr deluge lounge mango organizr qbittorrent transmission; do
+        if [[ -f /install/.${app}.lock ]]; then
+            case $app in
+                autobrr)
+                    echo -n "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
+                    ;;
+                deluge)
+                    systemctl stop deluged@${user} >> $log 2>&1
+                    systemctl stop deluge-web@${user} >> $log 2>&1
+                    DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+                    if $(command -v python2.7 > /dev/null 2>&1); then
+                        pythonversion=python2.7
+                    elif $(command -v python3 > /dev/null 2>&1); then
+                        pythonversion=python3
+                    fi
+                    DWP=$(${pythonversion} /usr/local/bin/swizzin/deluge.Userpass.py ${pass} ${DWSALT})
+                    sed -i "s/.*${user}.*/${user}:${pass}:10/" /home/$user/.config/deluge/auth
+                    sed -i "s/.*pwd_salt.*/  \"pwd_salt\": \"${DWSALT}\",/" /home/$user/.config/deluge/web.conf
+                    sed -i "s/.*pwd_sha1.*/  \"pwd_sha1\": \"${DWP}\",/" /home/$user/.config/deluge/web.conf
+                    sed -i "/$user/{n;s/.*/      \"${pass}\"/}" /home/${user}/.config/deluge/hostlist.conf.1.2
+                    systemctl start deluged@${user} >> $log 2>&1
+                    systemctl start deluge-web@${user} >> $log 2>&1
+                    ;;
+                lounge)
+                    su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
+                    ;;
+                mango)
+                    if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
+                    su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
+                    ;;
+                organizr)
+                    #TODO fix when API allows to
+                    echo_warn "Remember to manually change the organizr account's password!"
+                    ;;
+                qbittorrent)
+                    . /etc/swizzin/sources/functions/qbittorrent
+                    qbittorrent_chpasswd "${user}" "${pass}"
+                    ;;
+                transmission)
+                    systemctl stop transmission@${user} >> $log 2>&1
+                    sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
+                    systemctl start transmission@${user} >> $log 2>&1
+                    ;;
+                *) ;;
+            esac
+        fi
+    done
     echo_success "Password for $user changed"
     pass=""
     unset pass
@@ -445,6 +510,80 @@ function _chpasswd() {
 function _nukeovh() {
     bash /etc/swizzin/scripts/nukeovh
 }
+
+function _gobrr() {
+    app=$2
+    if [[ $app != brr ]]; then
+        echo_error "You can only go brr"
+        exit 1
+    fi
+
+    apt_install --no-recommends mpv
+    mpv --vo=tct --really-quiet https://media.tenor.co/videos/36c2c191bf4e05338e48c83a9a81ce35/mp4 --loop-file=2 &
+    if [[ ! -f /install/.autobrr.lock ]]; then
+        bash /etc/swizzin/scripts/install/autobrr.sh >> ${log} 2>&1
+    fi
+    wait
+    echo_success "BOX WENT BRR"
+}
+
+_run_tests() {
+    shift
+    if [[ -n $1 ]]; then
+        list=("$@")
+    else
+        #shellcheck source=sources/functions/utils
+        . /etc/swizzin/sources/functions/utils
+        readarray -t list < <(_get_installed_apps)
+        echo_info "Tests to run: ${list[*]}"
+    fi
+
+    export bell=false
+    oldlog="$log"
+    log="/root/logs/tests-$(date +%Y.%m.%d-%H:%M:%S).txt"
+    # log='./test-results.txt'
+    export log
+    touch "$log"
+    for item in "${list[@]}"; do
+        if [ -f /etc/swizzin/scripts/tests/"$item".sh ]; then
+            echo_log_only "Running test for $item"
+            bash /etc/swizzin/scripts/tests/"$item".sh || BAD="true"
+
+        else
+            echo_log_only "Running default test for $item.\nThis test is likely to fail in case the item is not a standard service+nginx app"
+            bash /etc/swizzin/scripts/tests/_basetest.sh "$item" || BAD="true"
+
+        fi
+    done
+
+    if [ "$BAD" == "true" ]; then
+        exit 1
+    else
+        echo_success "All tests completed succesfully.\nTest log can be found in $log"
+    fi
+    log="$oldlog"
+    export log
+
+}
+
+branch_name="$(git -C /etc/swizzin symbolic-ref HEAD 2> /dev/null)" || branch_name="(unnamed branch)" # detached HEAD
+branch_name=${branch_name##refs/heads/}
+
+if [[ $branch_name != 'master' ]]; then
+    echo_info "Currently on branch: $branch_name"
+fi
+
+if [ -f /etc/swizzin/.test.lock ]; then
+    testmsg="Tests will be ran at the end of this due to .test.lock"
+    runtests="true"
+elif [[ "$*" == *--test* ]]; then
+    testmsg="Tests will be ran due to --test flag"
+    runtests="true"
+    #Removing `--test` from the arguments
+    for arg in "$@"; do [[ $arg == --test ]] || args+=("$arg"); done
+    set -- "${args[@]}"
+    echo_log_only "Args after cleanup: $(printf "%s\n" "$@")"
+fi
 
 case "$1" in
     "")
@@ -462,7 +601,6 @@ case "$1" in
             exit 1
         fi
         _cli "$@"
-        exit 0
         ;;
     "remove" | "rm")
         if [[ -z $2 ]]; then
@@ -470,7 +608,6 @@ case "$1" in
             exit 1
         fi
         _clr "$@"
-        exit 0
         ;;
     "adduser")
         if [[ -n $4 ]]; then
@@ -478,7 +615,6 @@ case "$1" in
             exit 1
         fi
         _adduser "$@"
-        exit 0
         ;;
     "deluser")
         if [[ -z $2 ]]; then
@@ -490,7 +626,6 @@ case "$1" in
             exit 1
         fi
         _deluser "$@"
-        exit 0
         ;;
     "chpasswd")
         if [[ -z $2 ]]; then
@@ -502,7 +637,6 @@ case "$1" in
             exit 1
         fi
         _chpasswd "$@"
-        exit 0
         ;;
     "rmgrsec")
         _nukeovh
@@ -510,10 +644,10 @@ case "$1" in
         ;;
     "rtx")
         /usr/local/bin/swizzin/rtx
+        exit 0
         ;;
     "update")
         _update "$2"
-        exit 0
         ;;
     "upgrade")
         if [[ $2 = "--dev" ]]; then
@@ -526,14 +660,26 @@ case "$1" in
         fi
         _update $dev
         _upgrade "$@"
-        exit 0
         ;;
     "list")
         _list
         exit 0
+        ;;
+    "test")
+        _run_tests "$@"
+        exit 0 # No need to double-run tests
+        ;;
+    "go")
+        _gobrr "$@"
         ;;
     *)
         echo_error "Invalid command: $1"
         exit 1
         ;;
 esac
+
+if [[ $runtests == "true" ]]; then
+    echo
+    echo_warn "$testmsg"
+    _run_tests
+fi

@@ -15,19 +15,20 @@
 
 if [[ -f /install/.pyload.lock ]]; then
     if [[ -f /etc/systemd/system/pyload@.service ]]; then
+        echo_progress_start "Updating pyLoad to use pyenv"
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now pyload@${user} >> ${log} 2>&1
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='tesseract-ocr gocr rhino python2.7-dev python-pip virtualenv python-virtualenv libcurl4-openssl-dev sqlite3'
         else
             LIST='tesseract-ocr gocr rhino libcurl4-openssl-dev python2.7-dev sqlite3'
         fi
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
 
@@ -58,5 +59,6 @@ PYSD
         if [[ $isactive == "active" ]]; then
             systemctl enable -q --now pyload 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

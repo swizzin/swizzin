@@ -2,6 +2,7 @@
 
 if [[ -f /install/.nzbhydra.lock ]]; then
     if [[ -f /etc/systemd/system/nzbhydra@.service ]]; then
+        echo_progress_start "Updating NZBHydra to use a venv"
         user=$(cut -d: -f1 < /root/.master.info)
         codename=$(lsb_release -cs)
         active=$(systemctl is-active nzbhydra@${user})
@@ -10,7 +11,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
             systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1
         fi
 
-        if [[ $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ $codename = "buster" ]]; then
             LIST='git python2.7-dev virtualenv python-virtualenv'
         else
             LIST='git python2.7-dev'
@@ -18,7 +19,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
 
         apt_install $LIST
 
-        if [[ ! $codename =~ ("xenial"|"stretch"|"buster"|"bionic") ]]; then
+        if [[ ! $codename = "buster" ]]; then
             python_getpip
         fi
 
@@ -56,5 +57,6 @@ NZBH
         if [[ $active == "active" ]]; then
             systemctl enable -q --now nzbhydra 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi

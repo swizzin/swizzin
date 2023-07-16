@@ -40,21 +40,19 @@ function _selectiface() {
 }
 
 function _install_wg() {
-    if [[ $distribution == "Debian" ]]; then
-        if [[ ! $codename == "stretch" ]]; then
+
+    case ${codename} in
+        buster)
             check_debian_backports
-        else
-            echo_info "Adding debian unstable repository and limiting packages"
-            echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
-            printf 'Package: *\nPin: release a=unstable\nPin-Priority: 10\n\nPackage: *\nPin: release a=stretch-backports\nPin-Priority: 250' > /etc/apt/preferences.d/limit-unstable
-        fi
-    elif [[ $codename =~ ("bionic"|"xenial") ]]; then
-        #This *should* be enabled by default but you know what they say about assumptions.
-        check_ubuntu_updates
-    fi
+            PKGS+=(wireguard-dkms qrencode iptables)
+            ;;
+        *)
+            PKGS=(wireguard qrencode iptables)
+            ;;
+    esac
 
     apt_update
-    apt_install --recommends wireguard qrencode
+    apt_install --recommends ${PKGS[@]}
 
     if [[ ! -d /etc/wireguard ]]; then
         mkdir /etc/wireguard
@@ -111,7 +109,7 @@ function _mkconf_wg() {
 Address = ${subnet}1
 SaveConfig = true
 PostUp = iptables -A FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -A FORWARD -i wg$(id -u $u) -o $wgiface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i $wgiface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $wgiface -s ${subnet}0/24 -j SNAT --to-source $ip
-PostDown = iptables -D FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -D FORWARD -i wg$(id -u $u) -o $wgiface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -D FORWARD -i $wgiface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -A POSTROUTING -o $wgiface -s ${subnet}0/24 -j SNAT --to-source $ip
+PostDown = iptables -D FORWARD -i wg$(id -u $u) -j ACCEPT; iptables -D FORWARD -i wg$(id -u $u) -o $wgiface -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -D FORWARD -i $wgiface -o wg$(id -u $u) -m state --state RELATED,ESTABLISHED -j ACCEPT; iptables -t nat -D POSTROUTING -o $wgiface -s ${subnet}0/24 -j SNAT --to-source $ip
 ListenPort = 5$(id -u $u)
 PrivateKey = $serverpriv
 
@@ -150,6 +148,8 @@ AllowedIPs = 0.0.0.0/0
 #PersistentKeepalive = 25
 EOWGC
 
+    chown -R "$u": /home/"$u"/.wireguard
+
     systemctl enable -q --now wg-quick@wg$(id -u $u) 2>&1 | tee -a $log
     if [[ $? == 0 ]]; then
         echo_progress_done "Enabled for $u (wg$(id -u $u)). Config stored in /home/$u/.wireguard/$u.conf"
@@ -162,8 +162,8 @@ EOWGC
 . /etc/swizzin/sources/functions/utils
 . /etc/swizzin/sources/functions/backports
 
-distribution=$(lsb_release -is)
-codename=$(lsb_release -cs)
+distribution=$(_os_distro)
+codename=$(_os_codename)
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 if [[ -f /install/.wireguard.lock ]]; then
     wgiface=$(cat /install/.wireguard.lock)

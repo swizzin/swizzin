@@ -54,7 +54,7 @@ create_self_ssl "${username}"
 #
 # Generate our NET core ssl format cert from the default certs created using the ssl function and give it the required permissions.
 openssl pkcs12 -export -nodes -out "/home/${username}/.ssl/${username}-self-signed.pfx" -inkey "/home/${username}/.ssl/${username}-self-signed.key" -in "/home/${username}/.ssl/${username}-self-signed.crt" -passout pass:
-chown "${username}.${username}" -R "/home/${username}/.ssl"
+chown "${username}:${username}" -R "/home/${username}/.ssl"
 chmod -R g+r "/home/${username}/.ssl"
 #
 # Create the required directories for this application.
@@ -76,43 +76,68 @@ cat > /etc/jellyfin/dlna.xml <<- CONFIG
 CONFIG
 #
 # Create the system.xml. This is the applications main configuration file.
-cat > /etc/jellyfin/system.xml <<- CONFIG
-	<?xml version="1.0"?>
-	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
-	  <EnableUPnP>false</EnableUPnP>
-	  <EnableHttps>true</EnableHttps>
-	  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
-	  <IsPortAuthorized>true</IsPortAuthorized>
-	  <EnableRemoteAccess>true</EnableRemoteAccess>
-	  <BaseUrl />
-	  <LocalNetworkAddresses>
-		<string>0.0.0.0</string>
-	  </LocalNetworkAddresses>
-	  <RequireHttps>true</RequireHttps>
-	</ServerConfiguration>
+#cat > /etc/jellyfin/system.xml <<- CONFIG
+#	<?xml version="1.0"?>
+#	<ServerConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+#	  <IsStartupWizardCompleted>false</IsStartupWizardCompleted>
+#	  <IsPortAuthorized>true</IsPortAuthorized>
+#	</ServerConfiguration>
+#CONFIG
+
+# Create the network.xml. This is the applications network configuration file.
+cat > /etc/jellyfin/network.xml <<- CONFIG
+<?xml version="1.0" encoding="utf-8"?>
+<NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <RequireHttps>true</RequireHttps>
+  <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
+  <CertificatePassword />
+  <BaseUrl />
+  <PublicHttpsPort>8920</PublicHttpsPort>
+  <HttpServerPortNumber>8096</HttpServerPortNumber>
+  <HttpsPortNumber>8920</HttpsPortNumber>
+  <EnableHttps>true</EnableHttps>
+  <PublicPort>8096</PublicPort>
+  <EnableIPV6>false</EnableIPV6>
+  <EnableIPV4>true</EnableIPV4>
+  <IgnoreVirtualInterfaces>true</IgnoreVirtualInterfaces>
+  <VirtualInterfaceNames>vEthernet*</VirtualInterfaceNames>
+  <TrustAllIP6Interfaces>false</TrustAllIP6Interfaces>
+  <PublishedServerUriBySubnet />
+  <RemoteIPFilter />
+  <IsRemoteIPFilterBlacklist>false</IsRemoteIPFilterBlacklist>
+  <EnableUPnP>false</EnableUPnP>
+  <EnableRemoteAccess>true</EnableRemoteAccess>
+  <LocalNetworkSubnets />
+  <LocalNetworkAddresses />
+  <KnownProxies />
+</NetworkConfiguration>
 CONFIG
+
 #
 # Add the jellyfin official repository and key to our installation so we can use apt-get to install it jellyfin and jellyfin-ffmepg.
-wget -q -O - "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | apt-key add - >> "${log}" 2>&1
-echo "deb [arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
+curl -s "https://repo.jellyfin.org/$DIST_ID/jellyfin_team.gpg.key" | gpg --dearmor > /usr/share/keyrings/jellyfin-archive-keyring.gpg 2>> "${log}"
+echo "deb [signed-by=/usr/share/keyrings/jellyfin-archive-keyring.gpg arch=$(dpkg --print-architecture)] https://repo.jellyfin.org/$DIST_ID $DIST_CODENAME main" > /etc/apt/sources.list.d/jellyfin.list
 #
 # install jellyfin and jellyfin-ffmepg using apt functions.
 apt_update #forces apt refresh
-apt_install jellyfin jellyfin-ffmpeg
+apt_install jellyfin
+
 #
 # Add the jellyfin user to the master user's group.
 usermod -a -G "${username}" jellyfin
 #
+
 chown jellyfin:jellyfin /etc/jellyfin/dlna.xml
-chown jellyfin:jellyfin /etc/jellyfin/system.xml
-chown jellyfin:root /etc/jellyfin/logging.json
+chown jellyfin:jellyfin /etc/jellyfin/network.xml
+chown jellyfin:root /etc/jellyfin/logging.default.json
 chown jellyfin:adm /etc/jellyfin
 #
 # Configure the nginx proxypass using positional parameters.
 if [[ -f /install/.nginx.lock ]]; then
     bash /usr/local/bin/swizzin/nginx/jellyfin.sh
     systemctl -q restart nginx.service
+else
+    echo_info "Jellyfin will run on port 8920"
 fi
 #
 # Restart the jellyfin service to make sure our changes take effect

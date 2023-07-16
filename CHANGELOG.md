@@ -1,5 +1,457 @@
 # Changelog
 
+## [3.9.1]
+
+## July 16, 2023
+
+### Development:
+- add pre-commit.ci integration
+
+### Fixed:
+- mango: stop offering to install mango on arm because it's unsupported
+- updates: add echos to all update actions
+- rtorrent: build shared libs for curl (should fix compile errors related to zlib)
+- rtorrent: autoremove after repo clean (should fix segfaults related to xmlrpc-c)
+
+## [3.9.0]
+
+## June 26, 2023
+
+### New:
+
+- os: bookworm support
+- os: use gcc-12 in Jammy
+
+### Changed:
+
+- deluge: compile flags are more optmized
+- qbittorrent: use O3 compile flag
+
+### Fixed:
+
+- nzbhydra: broken variable
+- mylar: urllib3 pip depends
+- curl: use cmake
+- curl: don't use curl to install curl
+- rtorrent: udns can't use ipv6
+
+## [3.8.0]
+
+## May 4, 2023
+
+### New:
+
+- rtorrent: add UDNS install option
+- rtorrent: compile a fancier, featureful version of curl
+
+### Changed:
+
+- rutorrent: enable localhostedmode (will load much faster now!)
+- autodl: change some downloading logic
+- rutorrent: install ffmpeg by default
+- rutorrent: update config for v4.1.4
+
+### Fixed:
+
+- let's encrypt: respects ecc certs for hooks
+- sabnzbd: python packaging logic for v4 (python3 < 3.8)
+- bazarr: python packing logic improvements and remove EOL support (python3 < 3.8)
+- rtorrent: limit piece preloading to torrents uploading at 50KB/s+ (no updater script for this. [It's a simple config change if you want this](https://github.com/swizzin/swizzin/commit/cd3519824a8b7dc631d2d709533024533c87aac8))
+- nginx: remove duplicate packages from install params
+- rutorrent: arm64 support for filemanager (reinstall the plugin if this is you)
+
+## [3.7.1]
+
+## April 15, 2023
+
+### Updated
+- rutorrent: version 4.0.2, 4.0.3 compatibility
+
+### Fixed
+- rtorrent:
+  - resolve lockfile crash
+  - patch xmlrpc-c for newer architectures
+  - support 10gbit throttles
+  - lower repo priority on the installation options
+- nextcloud: version pinned everything except jammy
+- lounge: remove problematic `npm config set`
+
+## [3.7.0]
+
+## April 2, 2023
+
+This release is mainly aimed at improving the ruTorrent issues as a result of a recent surge in development, but a few other improvements made it in as well.
+
+### New
+- New application: jfa-go
+
+### Changed
+- qbittorrent: disabled 4.5 branch on buster due to gcc incompatibilities
+- rtorrent: compiliation improvements and better LTO settings thanks to @stickz
+- rtorrent: installation speed improvements thanks to @stickz
+- php: will now set path in the pool config, avoiding the need to manually set path in ruTorrent configs
+- readme: removed more feathub links
+
+### Fixed
+- rtx: revert to filemanager pinning on 4.0 rutorrent version
+- rtx: better tag detection of your current installation
+- rtx: ensure rutorrent directory is a git safe.dir
+- rutorrent: better version matching, avoid beta releases now that 4.0 is stable
+- rutorrent: botched scgi creation
+- quota: fix rutorrent diskspace creation (use existing function rather than duplicate code)
+- wireguard: finally found the pesky bug causing rt kernel to be installed in buster (should be generally more functional in buster now as well)
+- box list: not showing package names
+
+## [3.6.0]
+
+## January 21, 2023
+
+### Changed
+ - Do not use git.io links for quick setup. Bespoke s5n.sh links have been setup for this
+ - Stretch and Bionic have officially been EOL'd. The current commit will be retagged for eol-bionic and eol-stretch. Please update your OS to something that isn't 5+ years old
+ - rtx now supports some rudimentary cli options for installing plugins and themes without the GUI
+ - qBittorrent now supports version 4.5
+ - Deluge 2.1 is supported
+ - Node version has been bumped to version 18 LTS
+
+### Fixed
+ - qBittorrent now has some better error handling
+ - Deluge Automat version has been pinned
+
+
+## [3.5.3]
+
+## October 15, 2022
+
+### Changed
+ - qbittorrent: installs now default to RC_1_2 libtorrent branch for 4.4.x (following upstream). You may choose to compile with RC_2_0 if you `export LIBTORRENT_VERSION=RC_2_0` before install.
+ - panel: added proper log management/levels
+
+
+### Fixed
+ - fpm: fixed installation on stretch, bionic and buster
+ - netdata: uninstall now exists (again)
+ - mango: fixed dl links
+ - calibre: libopengl0 
+ - nginx/php: add zip module
+ - rutorrent: fix version sorting, install latest
+ - rtx: fix version grepping for tag support in many plugins
+ - rutorrent: un-pin filemanager plugin
+ - deluge: don't chmod deluge.UpdateTracker.py
+ - qbit: removed useless code
+ - panel: fixed log spam of missing profiles (nginx, vsftp, quota, rclone, ffmpeg, etc) 
+
+## [3.5.2]
+
+## September 2, 2022
+
+### New
+ - rtorrent: add user patch support
+
+### Fixed
+
+ - transmission: add support for nginx fancy index download endpoint
+ - jellyfin: support new install settings/locations
+ - wireguard: postdown script was adding the nat rule instead of deleting it
+
+## [3.5.1]
+
+## July 10, 2022
+
+### Fixed
+ - x2go: debian keychain quirk
+ - prevent log clobbering from certain commands
+ - rtx: DarkBetter and MaterialDesign themes are ruTorrent submodules now
+ - jellyfin: fix apt dependency resolution
+
+## [3.5.0]
+
+### New
+ - Ubuntu Jammy Support (22.04)
+ - Add b to funding. Toss him some money.
+
+### Updated
+ - The Lounge will now use yarn for the install method. Existing installs will be swapped to the new method.
+ - ruTorrent installs will no longer install club-quickbox theme by default. The theme needs work to be compatible with v4
+
+### Fixed
+ - Pull git repo updates as user owning repo (Ubuntu CVE fix)
+ - Update the *arr nginx configs
+ - apt-key is deprecated, use current best practices for pulling in keys
+    - Existing keys won't be updated. You will only start to see noisy warnings starting in Jammy, so this will only potentially affect you if you dist-upgrade, but keys previously via apt-key will still work
+ - hold rtorrent/qbittorrent packages when compiled
+ - wireguard wasn't installing iptables even though it depends on it
+ - emby upgrader qol fixes and suspiciously missing arm support
+ - qbittorrent 4.4.3.1 update broke version matching because it was fuzzy, now it is not.
+
+### Upstream issues
+ - Jellyfin builds are known not to work under Jammy. This is not our fault. Track here for info on when this is resolved.
+    - https://github.com/jellyfin/jellyfin/issues/7742
+
+## [3.4.0]
+
+### New
+ - Readarr has finally left beta
+
+### Fixed
+ - rtorrent: optimize performance (thanks stickz!)
+ - qbittorrent: fix git tagging for qttools compiles
+ - bazarr: fix proxy setup bad sed
+
+## [3.3.2]
+
+## Feb 18, 2022
+
+Hotfix release
+
+### Fixed
+ - radarr: properly setting host variable in the reverse proxy (todo: lidarr, etc)
+ - flood: fixed an issue which was causing an unresolvable issue during `box update`
+ - sabnzbd: bump pyenv version requirements
+ - rutorrent(filemanager): pinned filemanager-share/media packages to match fm
+
+## [3.3.1]
+
+## Feb 13, 2022
+
+Hotfix release
+
+### Fixed
+ - grep in check_installed function will now make a more reliable check. It was sometimes greedily matching the string "not-installed" causing apt_install to skip the package.
+ - Pinned filemanager-rutorrent to last known working commit as the latest commit is broken and causing ruTorrent to not load.
+ - Mango pushed another config change which caused the app to break.
+
+## [3.3.0]
+
+## Feb 12, 2022
+
+Some good fixes in this release that have been some glaring issues for a little while now. Major improvements to the ruTorrent install-flow, enabling qbit 4.4 builds and fixing broken flood compiles.
+
+Also, lots of first time contributors in this release. Thank you for your contributions!
+
+### Updated
+ - qBittorrent
+   - qBittorrent now has support for version 4.4.*
+     - These builds utilize libtorrent 2.0 and QT6
+     - Thanks to @userdocs and their contributions to providing us a github workflow to produce the deb builds used in the new version for cmake/qt6 automagically
+   - qBittorrent reverse proxy will now properly write the cookie path
+ - ruTorrent
+   - ruTorrent will now pin to the latest version tag on install. Master has become a bit unstable so this should provide a better experience for everybody. swizzin has generated some logic to keep installs rolling with the most recent tag.
+   - `rtx` is now version aware when you install plugins will do its best to install a plugin from a matching version tag
+   - pulled the autodl-plugin into our organization and applied the patches to make it work with ruTorrent 4
+   - If you are still having version issues and plugin problems, please uninstall and reinstall ruTorrent -- we don't officially support upgrades, so a reinstallation would be the best way to resolve outstanding issues at this point. Be aware some settings/traffic data may be lost. I would encourage you to backup your ruTorrent folder (/srv/rutorrent) first if you value this data and would like to attempt to restore it.
+ - rTorrent
+   - Community members have provided patches to help fix some instabilities to rTorrent:
+     - bencode dos vulnerabilities in rTorrent 0.9.6 (@static53)
+     - fix a crash in rTorrent when xmlrpc receives invalid data (@stickz)
+   - rTorrent has internally received some TLC and code updates as the rtorrent code is some of the first that was ever contributed to this repo
+ - Flood
+   - We now use jesec's fork and npm install this package globally. Existing users of flood will need to reinstall their package to receive updates moving forward. We no longer compile flood on a per-user basis. Regretfully some double authentication issues remain; however, I determined this to be the best solution since we have support for all the backends flood supports. If you take issue with the new layout, see the reasoning [here](https://github.com/swizzin/swizzin/pull/579#issuecomment-1030685911)
+ - mango
+   - updated the default config and push new config on mango upgrades (@rubysamurai)
+ - mylar
+   - cleaned up some issues preventing a clean experience on a fresh installation
+ - `box`
+   - The box management script has received some TLC in the form of refactoring 
+   - `apt_install` function will now do some checks and only inform you about the packages it is actually installing
+
+### Internal/Development notes
+ - New function `github_latest_version` in the utils functions
+   - `github_latest_version mylar3/mylar3` queries the release page of the org/project and returns the latest version of a package. You can then use this version to generate your case statement to download stuff based on architecture.
+ - Restructured patches to live in `sources/patches/appname`
+
+
+## [3.2.0]
+
+## January 1, 2022
+
+Happy new year! Due to some recent, major bugs, swizzin is getting an update today to fix some issues with AutoDL and Deluge 1.3. Also a few new apps and some other fixes.
+
+Enjoy!
+
+### Added
+ - Navidrome
+ - Mylar
+ - Debug functions
+
+### Updated
+  - Node to 16 LTS
+
+### Fixed
+ - Some bazarr variables were returning as null and creating chatter
+ - Incorrect python version being used during `box chpasswd` with Deluge 1.3 installed
+ - Branch used when installing 1.3-stable of Deluge
+ - Calibre-web installer to update venv requirements on upgrade and remove the deprecated `-f` flag
+ - Pinned ruTorrent to a known working commit to prevent a fatal error with outdated autodl
+ - Nextcloud broke download links for older versions
+
+## [3.1.1]
+
+## October 14, 2021
+
+### Added
+ - `populate_var` function for swizdb toolkit
+
+### Updated
+ - Node version bump to 14 LTS.
+   - We will no longer clobber your choices if you are running a newer node version than is required by swizzin packages
+
+### Fixed
+ - apt function `check_install` was sometimes improperly returning the installed status of dependencies
+
+## [3.1.0]
+
+## September 20, 2021
+
+### Added
+ - New app: Autobrr
+   - A torrent client agnostic replacement for Autodl-irssi written in go.
+   - Still in active development. The author was kind enough to contribute the entire flow to swizzin, which is why it has been included despite being in active development.
+   - Consider not using it quite yet if you are afraid of potentially having to reinstall the application and reset-up your filters in the event an app upgrade requires a full database wipe. That said, the application currently does what it says on the box.
+ - Checking out the `develop` branch will keep you on `develop` over future runs of `box update`
+
+### Updated
+ - Sonarr installations will now use the tarball method of install rather than the apt repo (fixes Bullseye "no repo found" for Sonarr)
+ - Include arm64 in official support during install
+ - nginx will now default to TLS1.3 and http/2 connections
+ - made tests a bit less noisy
+ - Offer to remove mysql database when removing nextcloud
+
+### Fixed
+ - Autodl grepping for gui/server ports could accidentally return the wrong port if your client was fully setup.
+ - `/home/${user}/.config` will now be generated when creating/adding a user to prevent scenarios in which `~/.config` is created and owned by `root`
+ - Parsing `--test` and `--env` arguments during setup
+ - enable pre-allocation in qbittorrent by default (XFS users rejoice)
+ - Calibre: `os_arch` command not found during upgrade
+ - Filebrowser arm compatibility was broken on upgrades
+
+## [3.0.0] was technically months ago edition
+
+## August 16, 2021
+
+### Added
+ - develop branch
+ - Styled echos (@flying-sausages)
+   - We are working to make the installers more quiet and streamlined. If you notice anything odd or out of place, feel free to bring it up!
+ - ARMv64 support
+ - Radarr v3 (dotnet)
+   - #diemono
+ - Prowlarr (@bakerboy448)
+ - Ombi v4 -- ombi v3 is no more
+ - Airsonic (@flying-sausages)
+ - Calibre, Content server and Calibre-web (@flying-sausages)
+ - `sources/globals.sh` loads the most commonly used functions. Useful for writing your own scripts or debugging swizzin or reasons
+ - Actually upgrade plex if you run `box upgrade plex` after the install installation of the update script
+ - `box upgrade lounge`
+ - `touch /etc/swizzin/.dev.lock` to prevent `box update` from forcing you to git head. Useful for troubleshooting or saying "stop updating my swizz"
+ - Reboot required detection at the end of `setup.sh`
+ - Unattended setup. Please see related docs for info on how to use (accepts arguments and env files)
+ - cracklib is now mandatory when choosing an account password, unless you can read the docs
+   - Please make sure you elevate to root properly `su -` is the correct command, not `su`. A note has been added to the readme.
+ - Echo ports at the end of installers if nginx is not installed
+ - bash completion (@userdocs)
+ - `swizdb`: functions for a persistent storage of swizzin application-related config options
+ - `box test` (mostly for dev QoL) 
+
+### Removed
+ - Xenial support (stretch life support notice ~ June 2022)
+   - Last commit supporting xenial lives at tag: xenial-eol. Please consider upgrading your server!
+ - Sonarr v2 (old stable)
+ - Couchpotato
+ - Headphones
+ - Subsonic
+ - Revert: Add Komga -- it's probably not coming back
+
+### Updated
+ - Libtorrent static libraries: any version of qBittorrent can be installed with any version of Deluge.
+   - Deluge and qBittorrent now use static libraries built directly into the apps themselves. This allows them to be version agnostic which will be important for retaining compatibility with upcoming qBittorrent versions while maintaining compatibility with the slower pace of Deluge development.
+   - Libtorrent will accept a patch at `/root/libtorrent-${libtorrent_branch}.patch` if you would like to change the settings of libtorrent before compilation
+      - During upgrades Deluge and qBittorrent will ask to continue to use the existing version of libtorrent if it deems the current version acceptable for the requested change
+   - Bullseye will likely be the last OS supporting Deluge 1.3.15 as steps will not be taken to maintain python2 compatibility if/when distros purge python2 packages
+ - Jellyfin: Use apt-get to install the jellyfin packages from the officially maintained repositories
+ - Quick start: Made the quick-start command shorter and more memorable. Added the `source` to help prevent `box` post-install confusion.
+ - Librespeed: update nginx config
+ - Refined global depends (added things like `jq`)
+ - Some usernames cannot be used when adding a user
+ - pip2 is install from getpip if using bullseye or focal
+ - Websocket support for Mango
+ - rar/unrar install function
+ - update sabnzbd:
+   - Support 3.2.0
+   - Update python version requirements
+   - Pre-write config template to prevent infinite `sleep`
+ - Update backports management
+ - Pin nextcloud to v20 on Bionic
+ - Code quality cleanups
+ - Allow subdirectories in `/etc/nginx/apps`
+ - Removed ungraceful ExecStop command for `deluged`
+ - \*arr scripts are becoming more uniform
+ - Ensure swizzin directory perms stay correct between updates
+ - Moved to opt:
+   - Lounge
+   - sabnzbd
+ - Add config purging to ombi
+ - Use upstream removal script for netdata
+ - Add equivalent of apt-get install --only-upgrade to `apt_install`
+ - Moved unzip to global depends
+
+### Fixed
+ - qBittorrent depends were getting a bit too heavy. All deps are installed without use of recommends for qBittorrent and qt-related libraries.
+   - ***FOCAL ERRATA:*** By default, focal recommended to install an entire x server, mesa, gnome3 and a display manager, gdm, simply for requesting two qt development packages. If you find your server "crashing" or stop responding, it's probably suspending due to power management provided by `gdm`. Gnome 3 is an entire desktop package and the entire x11 server along with gnome3 and gdm can be safely purged if you run a headless server. If you installed gnome or a gui on purpose, you know who you are.
+   - It does not appear Debian has ever had this issue.
+ - Fixed an issue with nginx + remote torrent adder extension & php
+ - Lots of bug fixes all throughout qbit and deluge scripts during rewrite
+ - Refine panel (`swizzin`) user permissions and abilities
+ - Circumstances in which transmission did not install nginx proxy (all of them)
+ - Cat and mouse with python2/pip2 and focal
+ - `box upgrade curl` broke a couple times but we fixed it (it's been a long time since we posted a changelog...)
+ - jellyfin:
+   - cache and metadata paths
+   - nginx proxy ip
+ - fixed an issue with pyload and setuptools>45 (aka python3 only setuptools)
+ - qBittorrent: made the systemd service more graceful
+ - Emby and JF cannot be installed side by side, so you will be prevented of this scenario.
+ - organizr v21 fixes
+ - various pyenv fixes
+ - fixed ~/.config permissions to ensure the user always owns this
+ - fpm compilation in focal
+ - typo in jackett updater script that was causing it to fire unconditionally
+ - stretch-related pip maintenance
+ - typos in various echos
+ - Hotfix jellyfin baseurl and bind ip settings during setup
+ - Basic auth was protecting emby for some reason
+ - Ensure sonarr is using the correct branch when running its nginx config
+ - Fix sonarr timeout when waiting for heartbeat
+ - boost mirror died, updated main and added a backup
+ - rtorrent mirror died
+   - recreated approximate patch-set of the tarball shipped from rtorrent.net for 0.9.6 and patched rtorrent for bullseye
+ - ruTorrent: Ensure /srv is created, get rid of cds, remove cloudscraper and python dep
+ - Don't spam syslogs with trasmission chatter
+ - python2 virtualenv installation of focal/bullseye
+ - ensure users can read their own wireguard configs
+ - set Let's Encrypt as the default certificate authority (acme.sh now defaults to zerossl)
+ - fixed bazarr config for sonarrv3
+ - Fixed a few erroneous paths in lounge scripts
+ - Fixed a scenario which would cause `box upgrade sabnzbd` to fail
+ - bad service name in resilio sync updater
+ - kill `box chpasswd` if user does not exist
+ - bazarr deployment method has been moved to github releases due to compiled translations
+
+### GitHub Meta
+ - Updated issue template that we hope is easier to fill out
+ - No longer auto closing issues
+
+### Developer Meta
+ - PR Template
+ - Use conventional commits to explain changes
+ - Utilize CI to make PRs easier
+ - Contributing guidelines updated
+ - Code is linted for formatting
+   - We format with spaces. I can't help if spaces make you feel some kinda way.
+ - Editorconfig and workspace preferences for development
+ - vscode snippets to make life easier for repetitive functions
+ - Recommended extensions to ensure your code is formatted properly 
+
 ## [2.6.0]
 
 ## October 8, 2020

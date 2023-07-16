@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# ln -fs /etc/swizzin/sources/bash_completion/swizzin /etc/bash_completion.d/swizzin
+#
+_command_complete() {
+    local cur sub_cmd
+    cur=${COMP_WORDS[COMP_CWORD]}
+    sub_cmd=${COMP_WORDS[1]}
+
+    mapfile -t apps_array < '/var/lib/swizzin/db/bash_completion/apps.list'
+    mapfile -t upgrade_array < '/var/lib/swizzin/db/bash_completion/upgrade.list'
+
+    case ${COMP_CWORD} in
+        1)
+            mapfile -t COMPREPLY < <(compgen -W "install remove adduser deluser chpasswd update upgrade rtx rmgrsec list help" -- "${cur}")
+            ;;
+        *)
+            case ${sub_cmd} in
+                install)
+                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${apps_array[@]%.*}")" -- "${cur}")
+                    ;;
+                remove)
+                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${apps_array[@]%.*}")" -- "${cur}")
+                    ;;
+                upgrade)
+                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${upgrade_array[@]%.*}")" -- "${cur}")
+                    ;;
+                *) ;;
+            esac
+            ;;
+    esac
+}
+# complete -o nosort -F _command_complete box
+complete -F _command_complete box

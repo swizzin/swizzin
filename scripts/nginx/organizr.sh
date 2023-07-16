@@ -9,7 +9,7 @@
 #   under the GPL along with build & install instructions.
 
 if [[ ! -f /install/.nginx.lock ]]; then
-    echo_error "nginx does not appear to be installed, ruTorrent requires a webserver to function. Please install nginx first before installing this package."
+    echo_error "nginx does not appear to be installed, Organizr requires a webserver to function. Please install nginx first before installing this package."
     exit 1
 fi
 #shellcheck source=sources/functions/php
@@ -51,4 +51,3 @@ ORGNGINX
 reload_php_fpm
 
 chown -R www-data:www-data /srv/organizr
-systemctl reload nginx

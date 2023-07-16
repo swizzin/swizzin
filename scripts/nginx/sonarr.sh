@@ -1,47 +1,78 @@
 #!/bin/bash
-# Nginx Configuration for Sonarr
-# Author: liara
-# Copyright (C) 2017 Swizzin
-# Licensed under GNU General Public License v3.0 GPL-3 (in short)
-#
-#   You may copy, distribute and modify the software as long as you track
-#   changes/dates in source files. Any modifications to our software
-#   including (via compiler) GPL-licensed code must also be made available
-#   under the GPL along with build & install instructions.
-MASTER=$(cut -d: -f1 < /root/.master.info)
-isactive=$(systemctl is-active sonarr@"$MASTER")
+# Nginx conf for *Arr
+# Flying sausages 2020
+# Refactored by Bakerboy448 2021
+master=$(_get_master_username)
+app_name="sonarr"
 
-if [[ $isactive == "active" ]]; then
-    systemctl stop sonarr@"$MASTER"
+if ! SONARR_OWNER="$(swizdb get $app_name/owner)"; then
+    SONARR_OWNER=$(_get_master_username)
 fi
+user="$SONARR_OWNER"
 
-if [[ ! -f /etc/nginx/apps/sonarr.conf ]]; then
-    cat > /etc/nginx/apps/sonarr.conf << SONARR
-location /sonarr {
-  proxy_pass        http://127.0.0.1:8989/sonarr;
-  proxy_set_header Host \$proxy_host;
-  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Proto \$scheme;
-  proxy_redirect off;
-  auth_basic "What's the password?";
-  auth_basic_user_file /etc/htpasswd.d/htpasswd.${MASTER};
+app_port="8989"
+app_sslport="8990"
+app_configdir="/home/$user/.config/${app_name^}"
+app_baseurl="$app_name"
+app_servicefile="${app_name}.service"
+app_branch="main"
+
+cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
+location ^~ /$app_baseurl {
+    proxy_pass http://127.0.0.1:$app_port;
+    proxy_set_header Host \$proxy_host;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Host \$host;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection \$http_connection;
+
+    auth_basic "What's the password?";
+    auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
 }
-SONARR
+
+# Allow the API External Access via NGINX
+
+location ^~ /$app_baseurl/api {
+    auth_basic off;
+    proxy_pass http://127.0.0.1:$app_port;
+}
+ARRNGINX
+
+wasActive=$(systemctl is-active $app_servicefile)
+
+if [[ $wasActive == "active" ]]; then
+    echo_log_only "Stopping $app_name"
+    systemctl stop -q "$app_servicefile"
 fi
-if [[ ! -d /home/${MASTER}/.config/NzbDrone/ ]]; then mkdir -p /home/"${MASTER}"/.config/NzbDrone/; fi
-cat > /home/"${MASTER}"/.config/NzbDrone/config.xml << SONN
+
+apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
+
+cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
-  <Port>8989</Port>
-  <UrlBase>sonarr</UrlBase>
+  <LogLevel>info</LogLevel>
+  <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
-  <SslPort>9898</SslPort>
+  <Port>$app_port</Port>
+  <SslPort>$app_sslport</SslPort>
   <EnableSsl>False</EnableSsl>
-  <LogLevel>Info</LogLevel>
-  <Branch>master</Branch>
   <LaunchBrowser>False</LaunchBrowser>
+  <ApiKey>${apikey}</ApiKey>
+  <AuthenticationMethod>None</AuthenticationMethod>
+  <UrlBase>$app_baseurl</UrlBase>
+  <Branch>$app_branch</Branch>
 </Config>
-SONN
-chown -R "${MASTER}": /home/"${MASTER}"/.config/NzbDrone/
-if [[ $isactive == "active" ]]; then
-    systemctl start sonarr@"$MASTER"
+ARRCONFIG
+
+if [[ -f /install/.rutorrent.lock ]]; then
+    sqlite3 /home/"$user"/.config/Sonarr/sonarr.db "INSERT or REPLACE INTO Config VALUES('6', 'certificatevalidation', 'DisabledForLocalAddresses');"
+fi
+
+chown -R "$user":"$user" "$app_configdir"
+
+# Switch app back off if it was dead before; otherwise start it
+if [[ $wasActive == "active" ]]; then
+    systemctl start "$app_servicefile" -q
 fi

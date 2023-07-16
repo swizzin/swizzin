@@ -2,26 +2,31 @@
 
 if [[ -f /install/.tautulli.lock ]]; then
     if [[ ! -d /opt/tautulli/.git ]]; then
+        echo_progress_start "Updating Tautulli to use git"
         systemctl stop tautulli
-        cd /opt/tautulli
-        git init
-        git remote add origin https://github.com/Tautulli/Tautulli.git
-        git fetch origin
-        git reset --hard origin/master
+        chown -R tautulli:nogroup /opt/tautulli
+        sudo -u tautulli git -C /opt/tautulli init
+        sudo -u tautulli git -C /opt/tautulli remote add origin https://github.com/Tautulli/Tautulli.git
+        sudo -u tautulli git -C /opt/tautulli fetch origin
+        sudo -u tautulli git -C /opt/tautulli reset --hard origin/master
         systemctl start tautulli
+        echo_progress_done
     fi
 
     if ! grep -q python3 /etc/systemd/system/tautulli.service; then
+        echo_progress_start "Updating Tautulli systemd service file"
         sed -i 's|ExecStart=.*|ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli|g' /etc/systemd/system/tautulli.service
-        cd /opt/tautulli
-        git pull
         chown -R tautulli:nogroup /opt/tautulli
+        sudo -u tautulli git -C /opt/tautulli pull
         systemctl daemon-reload
         systemctl try-restart tautulli
+        echo_progress_done
     fi
 fi
 
 if [[ -f /install/.plexpy.lock ]]; then
+    echo_info "Updating PlexPy to Tautulli"
+    echo_progress_start "Updating PlexPy to Tautulli"
     # only update if plexpy is installed, otherwise use the app built-in updater
 
     # backup plexpy config and remove it
@@ -55,4 +60,5 @@ if [[ -f /install/.plexpy.lock ]]; then
     if [[ $active == "active" ]]; then
         systemctl enable -q --now tautulli
     fi
+    echo_progress_done
 fi

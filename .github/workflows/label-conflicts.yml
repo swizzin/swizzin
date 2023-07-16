@@ -1,0 +1,16 @@
+name: "Label conflict branches"
+on:
+  push:
+    branches:
+      - master
+      - develop
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mschilde/auto-label-merge-conflicts@master
+        with:
+          CONFLICT_LABEL_NAME: "has conflicts"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX_RETRIES: 3
+          WAIT_MS: 20000

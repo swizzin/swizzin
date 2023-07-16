@@ -12,10 +12,5 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
-export distribution=$(lsb_release -is)
-export release=$(lsb_release -rs)
-export codename=$(lsb_release -cs)
-
-apt_install ffmpeg
-
-touch /install/.ffmpeg.lock
+. /etc/swizzin/sources/functions/ffmpeg
+ffmpeg_install

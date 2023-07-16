@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+# All tests here are reusable per application
+# Test HAS TO `return 1` in case it fails.
+# If a function returns without specifying an exit/return code, it is assumed the test passed.
+
+# Attempts to guess the port the application is running on using the nginx installers.
+get_port() {
+    installer="/etc/swizzin/scripts/nginx/$1.sh"
+    if [ -f "$installer" ]; then
+        grep -w "proxy_pass" "$installer" | sed 's/.*://; s/[^0-9].*//'
+    else
+        # No installer for application found
+        return 1
+    fi
+}
+
+# Attempts to verify that the service for an application specified by $1 is running.
+check_service() {
+    echo_log_only "Checking $1 service is active"
+    systemctl -q is-active "$1" || {
+        systemctl status "$1" >> $log 2>&1
+        echo_warn "$1.service not active!"
+        return 1
+    }
+}
+
+# Attempts to verify that the reverse proxy configuration for an application accessible at https://localhost/$1  is accessible.
+check_nginx() {
+    if [ ! -f /install/.nginx.lock ]; then
+        echo_warn "nginx not installed, cannot verify if $1 is reachable through it. Skipping."
+        return
+    fi
+
+    extra_params="$2"
+    echo_log_only "Checking if $1 is reachable via nginx"
+    master="$(_get_master_username)"
+    password="$(_get_user_password "$master")"
+    curl --user "${master}:${password}" $extra_params -sSfLk https://127.0.0.1/"$1" -o /dev/null >> $log 2>&1 || {
+        echo_warn "Querying https://127.0.0.1/$1 failed"
+        return 1
+    }
+}
+
+# Attempts to verify that an application accessible at http://localhost:$1  is accessible.
+# If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
+check_port_curl() {
+    echo_log_only "Checking if port $1 is reachable via curl"
+    if [ "$1" -eq "$1" ] 2> /dev/null; then
+        port=$1
+    else
+        port=$(get_port "$1") || {
+            echo_warn "Couldn't guess port of $1"
+            return 1
+        }
+    fi
+    extra_params="$2"
+
+    curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null >> $log 2>&1 || {
+        echo_warn "Querying http://127.0.0.1:$port failed"
+        return 1
+    }
+}
+
+# Attempts to verify that an application has opened and listens to the port $1 using `lsof`.
+# If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
+check_port() {
+    echo_log_only "Checking if port $1 is open and listened to"
+    if [ "$1" -eq "$1" ] 2> /dev/null; then
+        port=$1
+    else
+        port=$(get_port "$1") || {
+            echo_warn "Couldn't guess port of $1"
+            return 1
+        }
+    fi
+
+    lsof "-i:$port" >> $log 2>&1 || {
+        echo_warn "Port $port does not seem to be open"
+        return 1
+    }
+
+}
+
+# based off the value of $BAD, returns an appropriate message and kills the test with an appropriate exit code.
+evaluate_bad() {
+    if [[ $BAD == "true" ]]; then
+        echo_error "$1 did not pass tests"
+        exit 1
+    else
+        echo_log_only "$1 passed all tests"
+    fi
+}

@@ -17,7 +17,7 @@ After=network.target
 User=%i
 Group=%i
 Type=simple
-ExecStart=/usr/bin/transmission-daemon -f --log-error
+ExecStart=/usr/bin/transmission-daemon -f --log-error --logfile /home/%i/.config/transmission-daemon/transmission.log
 ExecReload=/bin/kill -s HUP $MAINPID
 
 [Install]

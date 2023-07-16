@@ -1,0 +1,35 @@
+From 326598abe30a82f8f74794788e11228300a36164 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Fri, 24 Feb 2023 12:57:59 -0500
+Subject: [PATCH] Allow 10 gigabit speed throttles
+
+This commit increases max upload and download speed by 16 times. It allows utilization of 10 gigabit connections.
+---
+ src/torrent/download/resource_manager.cc | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/torrent/download/resource_manager.cc b/src/torrent/download/resource_manager.cc
+index 8ca7b02e..f882a202 100644
+--- a/src/torrent/download/resource_manager.cc
++++ b/src/torrent/download/resource_manager.cc
+@@ -187,16 +187,16 @@ ResourceManager::set_group(iterator itr, uint16_t grp) {
+ 
+ void
+ ResourceManager::set_max_upload_unchoked(unsigned int m) {
+-  if (m > (1 << 16))
+-    throw input_error("Max unchoked must be between 0 and 2^16.");
++  if (m > (1 << 20))
++    throw input_error("Max unchoked must be between 0 and 2^20.");
+ 
+   m_maxUploadUnchoked = m;
+ }
+ 
+ void
+ ResourceManager::set_max_download_unchoked(unsigned int m) {
+-  if (m > (1 << 16))
+-    throw input_error("Max unchoked must be between 0 and 2^16.");
++  if (m > (1 << 20))
++    throw input_error("Max unchoked must be between 0 and 2^20.");
+ 
+   m_maxDownloadUnchoked = m;
+ }

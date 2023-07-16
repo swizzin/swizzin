@@ -1,5 +1,6 @@
 #!/bin/bash
 # nginx setup for qbittorrent
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 users=($(_get_user_list))
 
@@ -39,6 +40,8 @@ location /qbittorrent/ {
     fastcgi_buffers 8 16k;
     fastcgi_buffer_size 32k;
     
+    proxy_cookie_path / "/qbittorrent/; Secure";
+
     # The following directives effectively nullify Cross-site request forgery (CSRF)
     # protection mechanism in qBittorrent, only use them when you encountered connection problems.
     # You should consider disable "Enable Cross-site request forgery (CSRF) protection"

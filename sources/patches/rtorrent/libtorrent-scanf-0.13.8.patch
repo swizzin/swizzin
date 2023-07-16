@@ -1,0 +1,217 @@
+From e342e02350be6ae2df5f397ae2d5ccb853175a74 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Mon, 17 Apr 2023 17:48:59 -0400
+Subject: [PATCH] Add udpTrackerInfo vector
+
+---
+ rak/tracker_info.h          | 67 +++++++++++++++++++++++++++++++++++++
+ src/globals.cc              |  1 +
+ src/globals.h               |  3 ++
+ src/torrent/tracker_list.cc |  9 +++--
+ src/tracker/tracker_udp.cc  | 29 ++++------------
+ src/tracker/tracker_udp.h   |  3 +-
+ 6 files changed, 86 insertions(+), 26 deletions(-)
+ create mode 100644 rak/tracker_info.h
+
+diff --git a/rak/tracker_info.h b/rak/tracker_info.h
+new file mode 100644
+index 000000000..50a03d136
+--- /dev/null
++++ b/rak/tracker_info.h
+@@ -0,0 +1,67 @@
++#ifndef RAK_TRACKER_H
++#define RAK_TRACKER_H
++
++#include <string>
++#include <vector>
++
++namespace rak {
++
++class tracker_info {
++public:
++  bool equals (const std::string u) { return url.compare(u) == 0; }
++
++  void set (const std::string u, const char* h, const int p) {
++    url = u;
++    hostname.assign(h);
++    port = p;
++    broken = false;
++  }
++  void set_broken() { broken = true; }
++  bool get_broken() { return broken; }
++
++  std::string get_url() { return url; }
++  std::string get_hostname() { return hostname; }
++  int get_port() { return port; }
++
++private:
++  bool broken;
++  std::string url;
++  std::string hostname;
++  int port;
++};
++
++class udp_tracker_vector : public std::vector<tracker_info> {
++public:
++  tracker_info get_info(const std::string url) {
++    for (size_t i=0; i<size(); i++) {
++      if (at(i).equals(url)) {
++        return at(i);
++      }
++    }
++    return create_info(url);
++  }
++
++private:
++  typedef std::vector<tracker_info>           base_type;
++  typedef typename base_type::reference       reference;
++  using base_type::size;
++  using base_type::at;
++
++  tracker_info create_info(const std::string url) {
++    char hostname[1024] = {0};
++    int port;
++    tracker_info new_info;
++
++    if (sscanf(url.c_str(), "udp://%1023[^:]:%i/announce", &hostname, &port) == 2 && hostname[0] != '\0' && port > 0 && port < (1 << 16)) {
++      new_info.set(url, hostname, port);
++      base_type::push_back(new_info);
++      return new_info;
++    }
++
++    new_info.set_broken();
++    return new_info;
++  }
++};
++}
++
++#endif
+diff --git a/src/globals.cc b/src/globals.cc
+index 88130c19c..c33d395a7 100644
+--- a/src/globals.cc
++++ b/src/globals.cc
+@@ -43,5 +43,6 @@ namespace torrent {
+ 
+ LIBTORRENT_EXPORT rak::priority_queue_default taskScheduler;
+ LIBTORRENT_EXPORT rak::timer                  cachedTime;
++LIBTORRENT_EXPORT rak::udp_tracker_vector     udpTrackerInfo;
+ 
+ }
+diff --git a/src/globals.h b/src/globals.h
+index 564ac86df..967d0d482 100644
+--- a/src/globals.h
++++ b/src/globals.h
+@@ -39,12 +39,15 @@
+ 
+ #include <rak/timer.h>
+ #include <rak/priority_queue_default.h>
++#include <rak/tracker_info.h>
+ 
+ namespace torrent {
+ 
+ extern rak::priority_queue_default taskScheduler;
+ extern rak::timer                  cachedTime;
+ 
++extern rak::udp_tracker_vector udpTrackerInfo;
++
+ }
+ 
+ #endif
+diff --git a/src/torrent/tracker_list.cc b/src/torrent/tracker_list.cc
+index 625055da7..ee1f2dcef 100644
+--- a/src/torrent/tracker_list.cc
++++ b/src/torrent/tracker_list.cc
+@@ -197,8 +197,13 @@ TrackerList::insert_url(unsigned int group, const std::string& url, bool extra_t
+       std::strncmp("https://", url.c_str(), 8) == 0) {
+     tracker = new TrackerHttp(this, url, flags);
+ 
+-  } else if (std::strncmp("udp://", url.c_str(), 6) == 0) {
+-    tracker = new TrackerUdp(this, url, flags);
++  } else if (std::strncmp("udp://", url.c_str(), 6) == 0) {    
++    rak::tracker_info udpInfo = udpTrackerInfo.get_info(url);
++    if (udpInfo.get_broken()) {
++       LT_LOG_TRACKER(INFO, "skipped broken tracker (url:%s)", url.c_str());
++       return;
++    }    
++    tracker = new TrackerUdp(this, udpInfo, flags);
+ 
+   } else if (std::strncmp("dht://", url.c_str(), 6) == 0 && TrackerDht::is_allowed()) {
+     tracker = new TrackerDht(this, url, flags);
+diff --git a/src/tracker/tracker_udp.cc b/src/tracker/tracker_udp.cc
+index 04d836f49..2ba6ea212 100644
+--- a/src/tracker/tracker_udp.cc
++++ b/src/tracker/tracker_udp.cc
+@@ -65,10 +65,11 @@
+ 
+ namespace torrent {
+ 
+-TrackerUdp::TrackerUdp(TrackerList* parent, const std::string& url, int flags) :
+-  Tracker(parent, url, flags),
++TrackerUdp::TrackerUdp(TrackerList* parent, rak::tracker_info& info, int flags) :
++  Tracker(parent, info.get_url(), flags),
+ 
+-  m_port(0),
++  m_port(info.get_port()),
++  m_hostname(info.get_hostname()),
+ 
+   m_readBuffer(NULL),
+   m_writeBuffer(NULL) {
+@@ -93,35 +94,17 @@ TrackerUdp::send_state(int state) {
+   close_directly();
+   m_latest_event = state;
+ 
+-  hostname_type hostname;
+-
+-  if (!parse_udp_url(m_url, hostname, m_port))
+-    return receive_failed("could not parse hostname or port");
+-
+-  LT_LOG_TRACKER(DEBUG, "hostname lookup (address:%s)", hostname.data());
++  LT_LOG_TRACKER(DEBUG, "hostname lookup (address:%s)", m_hostname.c_str());
+ 
+   m_sendState = state;
+   m_resolver_query = manager->connection_manager()->async_resolver().enqueue(
+-      hostname.data(),
++      m_hostname.c_str(),
+       AF_UNSPEC,
+       &m_resolver_callback
+   );
+   manager->connection_manager()->async_resolver().flush();
+ }
+ 
+-bool
+-TrackerUdp::parse_udp_url(const std::string& url, hostname_type& hostname, int& port) const {
+-  if (std::sscanf(m_url.c_str(), "udp://%1023[^:]:%i", hostname.data(), &port) == 2 && hostname[0] != '\0' &&
+-      port > 0 && port < (1 << 16))
+-    return true;
+-
+-  if (std::sscanf(m_url.c_str(), "udp://[%1023[^]]]:%i", hostname.data(), &port) == 2 && hostname[0] != '\0' &&
+-      port > 0 && port < (1 << 16))
+-    return true;
+-
+-  return false;
+-}
+-
+ void
+ TrackerUdp::start_announce(const sockaddr* sa, int err) {
+   m_resolver_query = NULL;
+diff --git a/src/tracker/tracker_udp.h b/src/tracker/tracker_udp.h
+index a5f250a77..480a1e885 100644
+--- a/src/tracker/tracker_udp.h
++++ b/src/tracker/tracker_udp.h
+@@ -58,7 +58,7 @@ class TrackerUdp : public SocketDatagram, public Tracker {
+ 
+   static const uint64_t magic_connection_id = 0x0000041727101980ll;
+ 
+-  TrackerUdp(TrackerList* parent, const std::string& url, int flags);
++  TrackerUdp(TrackerList* parent, rak::tracker_info& info, int flags);
+   ~TrackerUdp();
+   
+   const char*         type_name() const { return "tracker_udp"; }
+@@ -95,6 +95,7 @@ class TrackerUdp : public SocketDatagram, public Tracker {
+ 
+   rak::socket_address m_connectAddress;
+   int                 m_port;
++  std::string         m_hostname;
+ 
+   int                 m_sendState;
+ 

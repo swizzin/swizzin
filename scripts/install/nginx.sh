@@ -10,9 +10,8 @@
 #   under the GPL along with build & install instructions.
 #
 
-distribution=$(lsb_release -is)
-release=$(lsb_release -rs)
-codename=$(lsb_release -cs)
+distribution=$(_os_distro)
+codename=$(_os_codename)
 
 if [[ -n $(pidof apache2) ]]; then
     if [[ -z $apache2 ]]; then
@@ -36,19 +35,22 @@ if [[ -n $(pidof apache2) ]]; then
     fi
 fi
 
-if [[ $codename =~ ("xenial"|"stretch") ]]; then
-    mcrypt=php-mcrypt
-else
-    mcrypt=
-fi
+case $codename in
+    focal | buster | bullseye)
+        mcrypt=
+        geoip="php-geoip"
+        ;;
+    *)
+        mcrypt=
+        geoip=
 
-if [[ $codename == "xenial" ]]; then
-    APT="nginx-extras subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-else
-    APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json ${mcrypt} php-mbstring php-opcache php-geoip php-xml"
-fi
+        ;;
+esac
+
+APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-zip ${geoip} ${mcrypt}"
 
 apt_install $APT
+mkdir -p /srv
 
 cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)
@@ -64,6 +66,7 @@ for version in $phpv; do
         -e "s/;opcache.max_accelerated_files=2000/opcache.max_accelerated_files=4000/" \
         -e "s/;opcache.revalidate_freq=2/opcache.revalidate_freq=240/" /etc/php/$version/fpm/php.ini
     phpenmod -v $version opcache
+    sed -i 's/;env\[PATH\]/env[PATH]/g' /etc/php/$version/fpm/pool.d/www.conf
 done
 echo_progress_done "PHP config modified"
 
@@ -100,8 +103,8 @@ server {
 
 # SSL configuration
 server {
-  listen 443 ssl default_server;
-  listen [::]:443 ssl default_server;
+  listen 443 ssl http2 default_server;
+  listen [::]:443 ssl http2 default_server;
   server_name _;
   ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
   ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
@@ -110,14 +113,10 @@ server {
   server_tokens off;
   root /srv/;
 
-  include /etc/nginx/apps/*;
+  include /etc/nginx/apps/*.conf;
 
   location ~ /\.ht {
     deny all;
-  }
-
-  location /fancyindex {
-
   }
 }
 NGC
@@ -132,9 +131,9 @@ cd /etc/nginx/ssl
 openssl dhparam -out dhparam.pem 2048 >> $log 2>&1
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
-ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_protocols TLSv1.2 TLSv1.3;
 ssl_prefer_server_ciphers on;
-ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:EECDH+AESGCM:EDH+AESGCM;
 ssl_ecdh_curve secp384r1;
 ssl_session_cache shared:SSL:10m;
 ssl_session_tickets off;
@@ -144,9 +143,7 @@ resolver 127.0.0.1 valid=300s;
 resolver_timeout 5s;
 # Disable preloading HSTS for now.  You can use the commented out header line that includes
 # the "preload" directive if you understand the implications.
-#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
-
-#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+#add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 #add_header X-Frame-Options DENY;
 add_header X-Frame-Options SAMEORIGIN;
 add_header X-Content-Type-Options nosniff;
@@ -189,12 +186,31 @@ fancyindex_localtime on;
 fancyindex_exact_size off;
 fancyindex_header "/fancyindex/header.html";
 fancyindex_footer "/fancyindex/footer.html";
-#fancyindex_ignore "examplefile.html"; # Ignored files will not show up in the directory listing, but will still be public. 
-#fancyindex_ignore "Nginx-Fancyindex-Theme"; # Making sure folder where files are don't show up in the listing. 
+#fancyindex_ignore "examplefile.html"; # Ignored files will not show up in the directory listing, but will still be public.
+#fancyindex_ignore "Nginx-Fancyindex-Theme"; # Making sure folder where files are don't show up in the listing.
 fancyindex_name_length 255; # Maximum file name length in bytes, change as you like.
 FIC
 sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
 sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+
+#Some ruTorrent plugins need to bypass htpasswd, so we stuff the php for this here
+cat > /etc/nginx/apps/fancyindex.conf << FIAC
+location /fancyindex {
+    location ~ \.php($|/) {
+        fastcgi_split_path_info ^(.+?\.php)(/.+)$;
+        # Work around annoying nginx "feature" (https://trac.nginx.org/nginx/ticket/321)
+        set \$path_info \$fastcgi_path_info;
+        fastcgi_param PATH_INFO \$path_info;
+
+        # Make sure the script exists.
+        try_files \$fastcgi_script_name =404;
+        fastcgi_pass unix:/run/php/${sock}.sock;
+        fastcgi_param SCRIPT_FILENAME \$request_filename;
+        include fastcgi_params;
+        fastcgi_index index.php;
+    }
+}
+FIAC
 echo_progress_done "Fancyindex installed"
 
 locks=($(find /usr/local/bin/swizzin/nginx -type f -printf "%f\n" | cut -d "." -f 1 | sort -d -r))
@@ -209,7 +225,7 @@ done
 
 echo_progress_start "Restarting nginx"
 systemctl restart nginx
-echo_progress_done "Nginx restared"
+echo_progress_done "Nginx restarted"
 
 #shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php

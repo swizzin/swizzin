@@ -53,16 +53,24 @@ else
     #a2enmod rewrite > /dev/null 2>&1
     cd /tmp
 
-    #Nextcloud 16 no longer supports php7.0, so 15 is the last supported release for Debian 9
     echo_progress_start "Downloading and extracting Nextcloud"
     codename=$(lsb_release -cs)
-    if [[ $codename =~ ("stretch"|"xenial") ]]; then
-        version="nextcloud-$(curl -s https://nextcloud.com/changelog/ | grep -A5 '"latest15"' | grep 'id=' | cut -d'"' -f2 | sed 's/-/./g')"
-    else
-        version=latest
-    fi
-    wget -q https://download.nextcloud.com/server/releases/${version}.zip > /dev/null 2>&1
-    unzip ${version}.zip > /dev/null 2>&1
+    case $codename in
+        buster)
+            version=latest-23
+            ;;
+        focal | bullseye)
+            version=latest-25
+            ;;
+        *)
+            version=latest
+            ;;
+    esac
+    wget https://download.nextcloud.com/server/releases/${version}.zip >> ${log} 2>&1 || {
+        echo_error "Could not download nextcloud"
+        exit 1
+    }
+    unzip ${version}.zip >> ${log} 2>&1
     mv nextcloud /srv
     rm -rf /tmp/${version}.zip
     echo_progress_done "Nextcloud extracted"
