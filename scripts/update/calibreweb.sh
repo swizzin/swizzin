@@ -16,7 +16,7 @@ if [[ -f /install/.calibreweb.lock ]]; then
         echo_progress_done
     fi
     if [[ -f /etc/nginx/apps/calibreweb.conf ]]; then
-        proxy_buffer_size=$(grep -oP 'proxy_buffer_size\s+\K\d+' /etc/nginx/apps/calibreweb.conf)
+        proxy_buffer_size=$(grep -oP 'proxy_buffer_size\s+\K\S+' /etc/nginx/apps/calibreweb.conf)
         if [[ "$proxy_buffer_size" == "128k;" ]]; then
             echo_progress_start "Updating Calibre Web nginx config"
             bash /usr/local/bin/swizzin/nginx/calibreweb.sh
