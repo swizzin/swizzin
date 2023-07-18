@@ -34,22 +34,6 @@ if [[ -n $active ]]; then
     fi
 fi
 
-ARCHITECTURE="$(_os_arch)"
-BASE_OS="$(_os_distro)"
-
-# Handle some known alternative base OS values with 1-to-1 mappings
-# Use the result as the repository base OS
-case "${BASE_OS}" in
-    raspbian)
-        # Raspbian uses the Debian repository
-        REPO_OS="debian"
-        ;;
-    *)
-        REPO_OS="${BASE_OS}"
-        VERSION="$(_os_codename)"
-        ;;
-esac
-
 #
 ## Get the path to gpg or install it
 GNUPG=$(which gpg)
@@ -151,16 +135,7 @@ echo_success "Jellyfin Signing Key Added"
 
 #
 # Install the Deb822 format jellyfin.sources entry
-echo_progress_start "Adding Jellyfin repository to apt."
-cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
-Types: deb
-URIs: https://repo.jellyfin.org/${REPO_OS}
-Suites: ${VERSION}
-Components: main
-Architectures: ${ARCHITECTURE}
-Signed-By: /etc/apt/keyrings/jellyfin.gpg
-EOF
-echo_progress_done "Jellyfin repository added."
+add_jellyfin_repo
 
 #
 # Update apt repositories to fetch Jellyfin repository

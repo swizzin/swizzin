@@ -64,21 +64,6 @@ if [[ -f /install/.jellyfin.lock ]]; then
     if ! check_installed jellyfin; then
         echo_progress_start "Updating Jellyfin installation using apt."
 
-        # Handle some known alternative base OS values with 1-to-1 mappings
-        # Use the result as the repository base OS
-        ARCHITECTURE="$(_os_arch)"
-        BASE_OS="$(_os_distro)"
-        case "${BASE_OS}" in
-            raspbian)
-                # Raspbian uses the Debian repository
-                REPO_OS="debian"
-                ;;
-            *)
-                REPO_OS="${BASE_OS}"
-                VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
-                ;;
-        esac
-
         #
         # Check if old, outdated repository for jellyfin is installed
         # If old repository is found, delete it.
@@ -99,16 +84,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
 
         #
         # Install the Deb822 format jellyfin.sources entry
-        echo_progress_start "Adding Jellyfin repository to apt"
-        cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
-Types: deb
-URIs: https://repo.jellyfin.org/${REPO_OS}
-Suites: ${VERSION}
-Components: main
-Architectures: ${ARCHITECTURE}
-Signed-By: /etc/apt/keyrings/jellyfin.gpg
-EOF
-        echo_progress_done "Added Jellyfin repository"
+        add_jellyfin_repo
         #
         # Update apt repositories to fetch Jellyfin repository
         apt_update #forces apt refresh
