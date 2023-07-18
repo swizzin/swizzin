@@ -44,20 +44,6 @@ case "${BASE_OS}" in
         # Raspbian uses the Debian repository
         REPO_OS="debian"
         ;;
-    linuxmint)
-        # Linux Mint can either be Debian- or Ubuntu-based, so pick the right one
-        if grep -q "DEBIAN_CODENAME=" /etc/os-release &> /dev/null; then
-            VERSION="$(awk -F'=' '/^DEBIAN_CODENAME=/{ print $NF }' /etc/os-release)"
-            REPO_OS="debian"
-        else
-            VERSION="$(awk -F'=' '/^UBUNTU_CODENAME=/{ print $NF }' /etc/os-release)"
-            REPO_OS="ubuntu"
-        fi
-        ;;
-    neon)
-        # Neon uses the Ubuntu repository
-        REPO_OS="ubuntu"
-        ;;
     *)
         REPO_OS="${BASE_OS}"
         VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
