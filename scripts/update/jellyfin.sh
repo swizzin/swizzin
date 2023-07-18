@@ -62,7 +62,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
     fi
     #
     if ! check_installed jellyfin; then
-        echo_info "Updating Jellyfin installation using apt."
+        echo_progress_start "Moving Jellyfin to apt-managed installation"
         #
         # Make sure universe is enabled so that ffmpeg can be satisfied.
         sudo add-apt-repository universe
