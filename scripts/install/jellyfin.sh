@@ -109,7 +109,7 @@ CONFIG
 cat > /etc/jellyfin/network.xml <<- CONFIG
 <?xml version="1.0" encoding="utf-8"?>
 <NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <RequireHttps>false</RequireHttps>
+  <RequireHttps>true</RequireHttps>
   <CertificatePath>/home/${username}/.ssl/${username}-self-signed.pfx</CertificatePath>
   <CertificatePassword />
   <BaseUrl />
