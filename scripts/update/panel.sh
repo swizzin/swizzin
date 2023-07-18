@@ -15,7 +15,6 @@ if [[ -f /install/.panel.lock ]]; then
 
         echo_progress_done "Panel has been swizzified"
     else
-        echo_progress_start "Updating panel to latest version"
         if [[ -d /opt/swizzin/venv ]]; then
             echo_progress_start "Moving swizzin venv to /opt/.venv"
             mkdir -p /opt/.venv
@@ -28,6 +27,7 @@ if [[ -f /install/.panel.lock ]]; then
             systemctl daemon-reload
             echo_progress_done "venv moved"
         fi
+
         pyminver=3.6.0
         pyenv_version=$(/opt/.venv/swizzin/bin/python3 --version | awk '{print $2}')
 
@@ -38,12 +38,16 @@ if [[ -f /install/.panel.lock ]]; then
             pyenv_create_venv 3.8.6 /opt/.venv/swizzin
             chown -R swizzin: /opt/.venv/swizzin
         fi
+
         chown -R swizzin: /opt/swizzin
         chown -R swizzin: /opt/.venv/swizzin
+        # Handles its own prints FYI
         bash /usr/local/bin/swizzin/upgrade/panel.sh
-        echo_progress_done
+
     fi
+
     if ! grep -q SYSDCMNDS /etc/sudoers.d/panel; then
+        echo_progress_start "Adding panel to sudoers"
         cat > /etc/sudoers.d/panel << EOSUD
 #Defaults  env_keep -="HOME"
 Defaults:swizzin !logfile
@@ -56,7 +60,10 @@ Cmnd_Alias   SYSDCMNDS = /bin/systemctl start *, /bin/systemctl stop *, /bin/sys
 swizzin     ALL = (ALL) NOPASSWD: CMNDS, SYSDCMNDS
 EOSUD
     fi
+
     if grep -q -E "swizzin.*/bin/sh" /etc/passwd; then
+        echo_progress_start "Removing shell access for panel"
         usermod swizzin -s /usr/sbin/nologin
+        echo_progress_done
     fi
 fi

@@ -273,6 +273,7 @@ function remove_rtorrent() {
         # TODO add option to pass extra flags
         apt-get remove -y -q --allow-change-held-packages $c >> $log 2>&1
     done
+    apt-get autoremove -y >> $log 2>&1
 }
 
 function remove_rtorrent_legacy() {

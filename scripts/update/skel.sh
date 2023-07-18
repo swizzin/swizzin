@@ -1,6 +1,7 @@
 #!/bin/bash
 # FIxes the removal of the skel that was done back in the past
 if [[ ! -f /etc/skel/.bashrc ]]; then
+    echo_info "Installing /etc/skel/.bashrc"
     cd /tmp
     apt-get download bash -q
     dpkg-deb -x bash* bash
@@ -20,5 +21,5 @@ if [[ ! -f /etc/skel/.bashrc ]]; then
             fi
         fi
     done
-
+    echo_progress_done
 fi

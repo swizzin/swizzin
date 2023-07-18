@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.9.1]
+
+## July 16, 2023
+
+### Development:
+- add pre-commit.ci integration
+
+### Fixed:
+- mango: stop offering to install mango on arm because it's unsupported
+- updates: add echos to all update actions
+- rtorrent: build shared libs for curl (should fix compile errors related to zlib)
+- rtorrent: autoremove after repo clean (should fix segfaults related to xmlrpc-c)
+
 ## [3.9.0]
 
 ## June 26, 2023

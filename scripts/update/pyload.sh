@@ -15,6 +15,7 @@
 
 if [[ -f /install/.pyload.lock ]]; then
     if [[ -f /etc/systemd/system/pyload@.service ]]; then
+        echo_progress_start "Updating pyLoad to use pyenv"
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
@@ -58,5 +59,6 @@ PYSD
         if [[ $isactive == "active" ]]; then
             systemctl enable -q --now pyload 2>&1 | tee -a $log
         fi
+        echo_progress_done
     fi
 fi
