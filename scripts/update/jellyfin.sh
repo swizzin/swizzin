@@ -62,7 +62,7 @@ if [[ -f /install/.jellyfin.lock ]]; then
     fi
     #
     if ! check_installed jellyfin; then
-        echo_progress_start "Moving Jellyfin to apt-managed installation"
+        echo_progress_start "Updating Jellyfin installation using apt."
         #
         # Make sure universe is enabled so that ffmpeg can be satisfied.
         sudo add-apt-repository universe
@@ -134,9 +134,11 @@ EOF
         # Install Jellyfin and dependencies using apt
         # Dependencies are automatically grabbed by apt
         apt_install jellyfin
+        echo_progress_done "Finished updating Jellyfin via apt."
 
         #
         # Configure the new jellyfin service.
+        echo_progress_start "Configuring Jellyfin"
         systemctl -q stop jellyfin.service
         #
         # Add the jellyfin user to the master user's group to use our ssl certs.
