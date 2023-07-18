@@ -34,8 +34,8 @@ if [[ -n $active ]]; then
     fi
 fi
 
-ARCHITECTURE="$(dpkg --print-architecture)"
-BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
+ARCHITECTURE="$(_os_arch)"
+BASE_OS="$(_os_distro)"
 
 # Handle some known alternative base OS values with 1-to-1 mappings
 # Use the result as the repository base OS
@@ -46,7 +46,7 @@ case "${BASE_OS}" in
         ;;
     *)
         REPO_OS="${BASE_OS}"
-        VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
+        VERSION="$(_os_codename)"
         ;;
 esac
 
