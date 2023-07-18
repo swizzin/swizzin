@@ -63,14 +63,11 @@ if [[ -f /install/.jellyfin.lock ]]; then
     #
     if ! check_installed jellyfin; then
         echo_progress_start "Updating Jellyfin installation using apt."
-        #
-        # Make sure universe is enabled so that ffmpeg can be satisfied.
-        sudo add-apt-repository universe
 
         # Handle some known alternative base OS values with 1-to-1 mappings
         # Use the result as the repository base OS
-        ARCHITECTURE="$(dpkg --print-architecture)"
-        BASE_OS="$(awk -F'=' '/^ID=/{ print $NF }' /etc/os-release)"
+        ARCHITECTURE="$(_os_arch)"
+        BASE_OS="$(_os_distro)"
         case "${BASE_OS}" in
             raspbian)
                 # Raspbian uses the Debian repository
