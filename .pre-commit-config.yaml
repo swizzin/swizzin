@@ -1,21 +1,15 @@
 repos:
-  - repo: https://github.com/jumanjihouse/pre-commit-hooks
-    rev: 3.0.0 # or specific git tag
+  - repo: https://github.com/maxwinterstein/shfmt-py
+    rev: v3.4.3.1
     hooks:
-      # - id: bundler-audit
-      # - id: check-mailmap
-      # - id: fasterer
-      # - id: forbid-binary
-      # - id: forbid-space-in-indent
-      # - id: git-check # Configure in .gitattributes
-      # - id: git-dirty  # Configure in .gitignore
-      # - id: markdownlint # Configure in .mdlrc
-      # - id: reek
-      # - id: require-ascii
-      # - id: rubocop
-      # - id: script-must-have-extension
-      # - id: script-must-not-have-extension
       - id: shfmt
-        args: ["-w -ci -sr -i 4"]
+        args: ["-w", "-ci", "-sr", "-i", "4"]
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.5
+    hooks:
       - id: shellcheck
         args: ["--severity=error"]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0 # Use the ref you want to point at
+    hooks:
+      - id: check-executables-have-shebangs

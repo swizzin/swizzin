@@ -1,3 +1,20 @@
+# TL;DR:
+
+1. Familiarize yourself with the documentation and code available at [swizzin Dev Docs](https://swizzin.ltd/dev/).
+1. Make sure your PRs are from and targeted to the `develop` branch.
+1. PRs should meet specific criteria, including a completed checklist
+    - If your PR doesn't meet the criteria, mark it as "Draft PR" and optionally prepend the title with `WIP:`.
+1. Follow the 4-space indentation style in bash code, use `shellcheck` to catch errors, and add helpful comments for reusable code.
+    - Use recommended VSCode extensions, and install required plugins/tools using `pre-commit install`.
+1. Place new software installations in `/opt`, configurations in `~/.config/`, and logs in `/root/logs`.
+1. Ensure scripts are compatible with unattended installations through environment variables.
+1. Use the provided `apt` handling functions and override default behaviors using available options.
+1. Use the functions exported from `sources/functions/color_echo` for terminal prints and logging.
+1. Use service files for application management 
+1. Describe user management for your application when necessary.
+1. Create documentation pages on the [Swizzin Docs](https://github.com/liaralabs/docs.swizzin.ltd) repo for new applications.
+
+----
 # Contributing guidelines
 Here are a couple things to take into account when contributing to swizzin.
 
@@ -23,6 +40,9 @@ Please note that Extensions for VSCode should pop up as "recommended extensions"
 
 ### Required
 Please make sure that you have the following plugins and tools installed and working correctly.
+
+**NOTE**: You can install these with [`pre-commit install`](https://pre-commit.com/#install) and they will be applied before you make your commit
+
 - `shellcheck` [VSCode Plugin](https://marketplace.visualstudio.com/items?itemName=timonwong.shellcheck) and [Binary](https://www.shellcheck.net/) (**version 0.7.1 or higher**)
   - If you are not using VS Code with the plugin above, please make sure to catch **anything** that `shellcheck` does not like.
   - Wherever you deem appropriate, add `#shellcheck disable=...` _inline_ to suppress the warnings.

@@ -4,7 +4,7 @@
 
 readarray -t users < <(_get_user_list)
 
-if [[ -d /home/*/.flood ]]; then
+if ! test -n "$(find /home -mindepth 2 -maxdepth 2 -type d -name '.flood' -print -quit)"; then
     echo_error "Your flood installation is outdated/unsupported. Please reinstall flood"
     exit 1
 fi
