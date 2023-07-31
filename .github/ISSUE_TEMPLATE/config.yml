@@ -6,9 +6,6 @@ contact_links:
   - name: "Troubleshooting Guide"
     url: https://swizzin.ltd/docs/guides/troubleshooting
     about: "Please make sure to follow these steps before submitting a bug."
-  - name: "Feature Requests"
-    url: https://feathub.com/liaralabs/swizzin
-    about: In case you'd like something new, search here or create a new suggestion.
   - name: "GitHub Discussions"
     url: https://github.com/liaralabs/swizzin/discussions
     about: Please ask and answer non-bug-related questions here.
