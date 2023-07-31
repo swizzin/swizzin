@@ -111,3 +111,14 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
     fi
     echo_progress_done
 fi
+# Check for /feed/calendar auth bypass
+if [[ -f /install/.readarr.lock ]]; then
+    if [[ -f /install/.nginx.lock ]]; then
+        if ! grep -q "calendar" /etc/nginx/apps/sonarr.conf; then
+            echo_progress_start "Upgrading nginx config for Sonarr"
+            bash /etc/swizzin/scripts/nginx/sonarr.sh
+            systemctl reload nginx -q
+            echo_progress_done "nginx conf for Sonarr upgraded"
+        fi
+    fi
+fi

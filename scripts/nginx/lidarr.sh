@@ -39,6 +39,14 @@ location ^~ /$app_baseurl/api {
     auth_basic off;
     proxy_pass http://127.0.0.1:$app_port;
 }
+
+# Allow Calendar Feed External Access via NGINX
+
+location ^~ /$app_baseurl/feed/calendar {
+    auth_basic off;
+    proxy_pass http://127.0.0.1:$app_port;
+}
+
 ARRNGINX
 
 wasActive=$(systemctl is-active $app_servicefile)
