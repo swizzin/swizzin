@@ -3,6 +3,7 @@
 
 configure_curl() {
     apt_install cmake libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev
+    rm /usr/local/lib/libcurl.la
 }
 
 build_cares() {
