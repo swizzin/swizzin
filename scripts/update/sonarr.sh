@@ -6,12 +6,14 @@ if [[ -f /install/.sonarr.lock ]]; then
     mono_repo_update
     systemctl try-restart sonarr
 
-    # Update Sonarr nginx config to bakerboy specs
-    if grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf; then
-        echo_progress_start "Upgrading nginx config for Sonarr"
-        bash /etc/swizzin/scripts/nginx/sonarr.sh
-        systemctl reload nginx -q
-        echo_progress_done "Nginx config for Sonarr upgraded"
+    if [[ -f /install/.nginx.lock ]]; then
+        # Update Sonarr nginx config to bakerboy specs or to allow feed auth bypass
+        if grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf || ! grep -q "calendar" /etc/nginx/apps/sonarr.conf; then
+            echo_progress_start "Upgrading nginx config for Sonarr"
+            bash /etc/swizzin/scripts/nginx/sonarr.sh
+            systemctl reload nginx -q
+            echo_progress_done "Nginx config for Sonarr upgraded"
+        fi
     fi
 fi
 
@@ -110,15 +112,4 @@ if [[ -f /install/.sonarr.lock ]] && dpkg -l | grep sonarr | grep ^ii > /dev/nul
         systemctl enable sonarr >> ${log} 2>&1
     fi
     echo_progress_done
-fi
-# Check for /feed/calendar auth bypass
-if [[ -f /install/.readarr.lock ]]; then
-    if [[ -f /install/.nginx.lock ]]; then
-        if ! grep -q "calendar" /etc/nginx/apps/sonarr.conf; then
-            echo_progress_start "Upgrading nginx config for Sonarr"
-            bash /etc/swizzin/scripts/nginx/sonarr.sh
-            systemctl reload nginx -q
-            echo_progress_done "nginx conf for Sonarr upgraded"
-        fi
-    fi
 fi

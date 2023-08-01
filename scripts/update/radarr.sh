@@ -107,7 +107,7 @@ ${app_name^} updater is exiting, please try again later."
     fi
     if [[ -f /install/.nginx.lock ]]; then
         # check for /feed/calendar auth bypass
-        if grep -q "7878/radarr" /etc/nginx/apps/radarr.conf || ! grep -q "calendar" /etc/nginx/apps/sonarr.conf; then
+        if grep -q "7878/radarr" /etc/nginx/apps/radarr.conf || ! grep -q "calendar" /etc/nginx/apps/radarr.conf; then
             echo_progress_start "Upgrading nginx config for Radarr"
             bash /etc/swizzin/scripts/nginx/radarr.sh
             systemctl reload nginx -q
