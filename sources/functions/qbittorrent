@@ -206,7 +206,11 @@ function install_qt() {
         LIST='qt6-base-dev qt6-tools-dev'
     fi
     qt_repo_version=$(get_candidate_version ${LIST[0]})
-    if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
+    if [[ -z $qt_repo_version ]]; then
+        qt_repo_version=0
+        echo_log_only "${LIST[0]} was not found in the repo. setup will use qt6-swizzin instead"
+    fi
+    if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version} 2>&1; then
         if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
             install_qt_swizzin
             QT_PREFIX=/opt/local
