@@ -203,7 +203,7 @@ function install_qt() {
     if [[ -z ${qbt_use_qt6} ]]; then
         LIST='qtbase5-dev qttools5-dev'
     else
-        LIST='qt6-base-dev qt6-tools-dev'
+        LIST='qt6-base-dev qt6-tools-dev qt6-l10n-tools qt6-tools-dev-tools'
     fi
     qt_repo_version=$(get_candidate_version ${LIST[0]})
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version}; then
