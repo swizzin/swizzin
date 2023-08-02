@@ -106,11 +106,12 @@ ${app_name^} updater is exiting, please try again later."
         echo_log_only "Radarr's ports are not on 8787"
     fi
     if [[ -f /install/.nginx.lock ]]; then
-        if grep -q "7878/radarr" /etc/nginx/apps/radarr.conf; then
+        # check for /feed/calendar auth bypass
+        if grep -q "7878/radarr" /etc/nginx/apps/radarr.conf || ! grep -q "calendar" /etc/nginx/apps/radarr.conf; then
             echo_progress_start "Upgrading nginx config for Radarr"
             bash /etc/swizzin/scripts/nginx/radarr.sh
             systemctl reload nginx -q
-            echo_progress_done "Nginx config for Radarr upgraded"
+            echo_progress_done "nginx config for Radarr upgraded"
         fi
     fi
 fi
