@@ -74,8 +74,10 @@ function configure_rtorrent() {
         export rtorrentpipe=""
     fi
     # GCC optimization level for program compilation
-    if [ $(nproc) -le 2 ]; then
+    if [ $(nproc) -le 1 ]; then
         export rtorrentlevel="-O1"
+    elif [ $(nproc) -ge 8 ]; then
+        export rtorrentlevel="-O3"
     else
         export rtorrentlevel="-O2"
     fi
@@ -114,7 +116,7 @@ function depends_rtorrent() {
         cd /tmp/udns
         ./autogen.sh >> $log 2>&1
         ./configure --prefix=/usr >> $log 2>&1
-        make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} -O2 -fPIC" >> $log 2>&1
+        make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel} -fPIC" >> $log 2>&1
         make -s install >> $log 2>&1
         cd /tmp
         rm -rf udns*
