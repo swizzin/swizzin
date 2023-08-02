@@ -402,7 +402,7 @@ index 93493e478..04d836f49 100644
 -  m_slot_resolver = make_resolver_slot(hostname);
 +  m_resolver_query = manager->connection_manager()->async_resolver().enqueue(
 +      hostname.data(),
-+      AF_INET,
++      AF_UNSPEC,
 +      &m_resolver_callback
 +  );
 +  manager->connection_manager()->async_resolver().flush();
@@ -657,7 +657,7 @@ index 000000000..b53d32e8a
 +    }
 +  }
 +
-+  if (family == AF_INET6 || family == AF_UNSPEC) {
++  if (family == AF_INET6) {
 +    query->a6_query = ::dns_submit_a6(m_ctx, name, 0, a6_callback_wrapper, query);
 +    if (query->a6_query == NULL) {
 +      // it should be impossible for dns_submit_a6 to fail if dns_submit_a4
