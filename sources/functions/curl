@@ -76,6 +76,6 @@ build_curl() {
     cd /tmp
     rm -rf /tmp/curl-* >> $log 2>&1
 
-    ldconfig /usr/local/bin
     ldconfig /usr/local/lib
+    ldconfig /usr/local/bin
 }
