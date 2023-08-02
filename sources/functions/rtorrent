@@ -5,7 +5,7 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent() {
-    if [[ -z $rtorrentver ]] && [[ -z $1 ]]; then
+	if [[ -z $rtorrentver ]] && [[ -z $1 ]] && [[ -z $RTORRENT_VERSION ]]; then
         repov=$(get_candidate_version rtorrent)
 
         whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s. UDNS includes a stability patch for UDP trackers on rTorrent." 15 50
@@ -20,43 +20,49 @@ function whiptail_rtorrent() {
             exit 1
         }
 
-        case $function in
-            0.9.6)
-                export rtorrentver='0.9.6'
-                export libtorrentver='0.13.6'
-                export libudns='false'
-                ;;
-
-            0.9.7)
-                export rtorrentver='0.9.7'
-                export libtorrentver='0.13.7'
-                export libudns='false'
-                ;;
-
-            0.9.8)
-                export rtorrentver='0.9.8'
-                export libtorrentver='0.13.8'
-                export libudns='false'
-                ;;
-
-            UDNS)
-                export rtorrentver='0.9.8'
-                export libtorrentver='0.13.8'
-                export libudns='true'
-                ;;
-
-            Repo)
-                export rtorrentver='repo'
-                export libtorrentver='repo'
-                export libudns='false'
-                ;;
-
-            *)
-                echo_error "$function is not a valid rTorrent version"
-                exit 1
-                ;;
-        esac
+        set_rtorrent_version $function
+    elif [[ -n $RTORRENT_VERSION ]]; then
+        set_rtorrent_version $RTORRENT_VERSION
     fi
+}
+
+function set_rtorrent_version() {
+	case $1 in
+        0.9.6 | '0.9.6')
+            export rtorrentver='0.9.6'
+            export libtorrentver='0.13.6'
+            export libudns='false'
+            ;;
+
+        0.9.7 | '0.9.7')
+            export rtorrentver='0.9.7'
+            export libtorrentver='0.13.7'
+            export libudns='false'
+            ;;
+
+        0.9.8 | '0.9.8')
+            export rtorrentver='0.9.8'
+            export libtorrentver='0.13.8'
+            export libudns='false'
+            ;;
+
+        UDNS | 'UDNS')
+            export rtorrentver='0.9.8'
+            export libtorrentver='0.13.8'
+            export libudns='true'
+            ;;
+
+        Repo | 'Repo')
+            export rtorrentver='repo'
+            export libtorrentver='repo'
+            export libudns='false'
+            ;;
+
+        *)
+            echo_error "$1 is not a valid rTorrent version"
+            exit 1
+            ;;
+    esac
 }
 
 function configure_rtorrent() {
