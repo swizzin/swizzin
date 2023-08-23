@@ -41,8 +41,10 @@ fi
 python2_venv ${user} pyload
 
 echo_progress_start "Installing python dependencies"
-PIP='wheel setuptools<45 pycurl pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
+PIP='wheel setuptools<45 pycrypto tesseract pillow pyOpenSSL js2py feedparser beautifulsoup'
 /opt/.venv/pyload/bin/pip install $PIP >> "${log}" 2>&1
+# Fix 'ImportError: pycurl: libcurl link-time ssl backend (openssl) is different from compile-time ssl backend (none/other)' error
+/opt/.venv/pyload/bin/pip install pycurl --no-cache-dir >> "${log}" 2>&1
 chown -R ${user}: /opt/.venv/pyload
 echo_progress_done
 
