@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/maxwinterstein/shfmt-py
-    rev: v3.4.3.1
+    rev: v3.7.0.1
     hooks:
       - id: shfmt
         args: ["-w", "-ci", "-sr", "-i", "4"]
