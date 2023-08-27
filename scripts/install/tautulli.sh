@@ -14,9 +14,30 @@
 #   under the GPL along with build & install instructions.
 #
 
+. /etc/swizzin/sources/functions/pyenv
+
 user=$(cut -d: -f1 < /root/.master.info)
 
-apt_install python3
+systempy3_ver=$(get_candidate_version python3)
+
+if dpkg --compare-versions ${systempy3_ver} lt 3.8.0; then
+    PYENV=True
+else
+    LIST='python3-dev python3-setuptools python3-pip python3-venv'
+    apt_install $LIST
+fi
+
+case ${PYENV} in
+    True)
+        pyenv_install
+        pyenv_install_version 3.11.3
+        pyenv_create_venv 3.11.3 /opt/.venv/tautulli
+        chown -R tautulli: /opt/.venv/tautulli
+        ;;
+    *)
+        python3_venv tautulli tautulli
+        ;;
+esac
 
 cd /opt
 echo_progress_start "Cloning latest Tautulli repo"
@@ -36,7 +57,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli
+ExecStart=/opt/.venv/tautulli/bin/python3 /opt/tautulli/Tautulli.py --quiet --daemon --nolaunch --config /opt/tautulli/config.ini --datadir /opt/tautulli
 GuessMainPID=no
 Type=forking
 User=tautulli
