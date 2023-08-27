@@ -3,7 +3,7 @@
 
 configure_curl() {
     apt_install cmake libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev
-    rm /usr/local/lib/libcurl.la
+    rm_if_exists /usr/local/lib/libcurl.la
 }
 
 build_cares() {
@@ -76,6 +76,6 @@ build_curl() {
     cd /tmp
     rm -rf /tmp/curl-* >> $log 2>&1
 
-    ldconfig /usr/local/bin
     ldconfig /usr/local/lib
+    ldconfig /usr/local/bin
 }
