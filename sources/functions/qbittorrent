@@ -360,9 +360,9 @@ function build_libtorrent_qbittorrent() {
     if [[ ${libtorrent_branch} == "RC_1_1" ]]; then
         #Dirty hack to ensure finished library uses `libtorrent-rasterbar` for its name in the deprecated 1.1 branch
         sed -i 's/virtual-target.add-prefix-and-suffix $(name)/virtual-target.add-prefix-and-suffix $(name)-rasterbar/g' Jamfile
-    elif [[ ${libtorrent_branch} == "RC_1_2" ]]; then
-        sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
-        sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
+    #elif [[ ${libtorrent_branch} == "RC_1_2" ]]; then
+        #sed -i 's|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = reannounce_flags_t{}))|, (arg("seconds") = 0, arg("tracker_idx") = -1, arg("flags") = 1))|g' bindings/python/src/torrent_handle.cpp
+        #sed -i 's|static constexpr reannounce_flags_t ignore_min_interval = 0_bit|static constexpr reannounce_flags_t ignore_min_interval = 1_bit|g' include/libtorrent/torrent_handle.hpp
     fi
     VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
     case $build_type in
@@ -450,6 +450,13 @@ function build_qbittorrent() {
     rm -rf /tmp/release-${VERSION}.tar.gz
 
     cd /tmp/qbittorrent
+
+    if [[ $build_type == "cmake" ]]; then
+        # Patch force_reannounce function to actually force the reannounce
+        echo_info "Patching qBit reannounce function"
+        sed -i 's|m_nativeHandle.force_reannounce(0, index);|m_nativeHandle.force_reannounce(0, index, lt::torrent_handle::ignore_min_interval);|g' src/base/bittorrent/torrentimpl.cpp
+    fi
+
     tag=" static with ${stdcver} O3 march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     booststrap
