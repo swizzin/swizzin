@@ -10,7 +10,7 @@ if [[ -f /install/.jfago.lock ]]; then
 
         useradd -r jfago -s /usr/sbin/nologin > /dev/null 2>&1
         mkdir -p /opt/jfago/config
-        mv /root/.config/jfa-go/ /opt/jfago/config/
+        mv /root/.config/jfa-go/ /opt/jfago/config
         chown jfago: /opt/jfago -R
 
         cat > /etc/systemd/system/jfago.service << EOF
