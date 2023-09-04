@@ -1,6 +1,6 @@
 #!/bin/bash
 # Updater for jfa-go
-if [[ /install/.jfago.lock ]]; then
+if [[ -f /install/.jfago.lock ]]; then
     # If installed as root user, move to /opt/jfago
     if [[ -d /root/.config/jfago ]]; then
         # Store if the service was active before starting
