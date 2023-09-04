@@ -5,7 +5,7 @@ systemctl disable --now jfago -q
 
 rm_if_exists /root/.config/jfa-go
 rm_if_exists /opt/jfago
-userdel jfago
+userdel -rf jfago
 
 apt_remove jfa-go
 
