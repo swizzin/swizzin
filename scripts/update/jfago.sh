@@ -10,7 +10,7 @@ if [[ -f /install/.jfago.lock ]]; then
         [[ $isactive == "active" ]] && systemctl stop jfago -q
 
         useradd -r jfago -s /usr/sbin/nologin > /dev/null 2>&1
-        mkdir -p /opt/jfago/config
+        mkdir -p /opt/jfago/
         mv /root/.config/jfa-go/ /opt/jfago/config
         chown jfago: /opt/jfago -R
 
