@@ -10,7 +10,7 @@ userdel -rf jfago
 apt_remove jfa-go
 
 rm_if_exists /usr/share/keyrings/jfa-go-archive-keyring.gpg
-rrm_if_exists /etc/apt/sources.list.d/jfa-go.list
+rm_if_exists /etc/apt/sources.list.d/jfa-go.list
 
 apt_update
 
