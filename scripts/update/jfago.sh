@@ -3,6 +3,7 @@
 if [[ -f /install/.jfago.lock ]]; then
     # If installed as root user, move to /opt/jfago
     if [[ -d /root/.config/jfa-go ]]; then
+        echo_progress_start "jfa-go install is running as root! Moving to unprivileged user."
         # Store if the service was active before starting
         isactive=$(systemctl is-active jfago)
         echo_log_only "jfago was $isactive"
@@ -27,5 +28,6 @@ EOF
 
         systemctl daemon-reload
         [[ $isactive == "active" ]] && systemctl start jfago -q
+        echo_progress_done
     fi
 fi
