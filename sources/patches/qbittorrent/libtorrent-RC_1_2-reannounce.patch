@@ -1,0 +1,21 @@
+diff --git a/src/torrent.cpp b/src/torrent.cpp
+index a01018bd5..0a60661d2 100644
+--- a/src/torrent.cpp
++++ b/src/torrent.cpp
+@@ -3689,6 +3689,7 @@ bool is_downloading_state(int const st)
+                                        aep.next_announce = (flags & torrent_handle::ignore_min_interval)
+                                                ? time_point_cast<seconds32>(t) + seconds32(1)
+                                                : std::max(time_point_cast<seconds32>(t), aep.min_announce) + seconds32(1);
++                                       aep.min_announce = aep.next_announce;
+                                        aep.triggered_manually = true;
+ #ifndef TORRENT_DISABLE_LOGGING
+                                        found_one = true;
+@@ -3706,6 +3707,7 @@ bool is_downloading_state(int const st)
+                                aep.next_announce = (flags & torrent_handle::ignore_min_interval)
+                                        ? time_point_cast<seconds32>(t) + seconds32(1)
+                                        : std::max(time_point_cast<seconds32>(t), aep.min_announce) + seconds32(1);
++                               aep.min_announce = aep.next_announce;
+                                aep.triggered_manually = true;
+ #ifndef TORRENT_DISABLE_LOGGING
+                                found_one = true;
+
