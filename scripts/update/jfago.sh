@@ -2,7 +2,7 @@
 # Updater for jfa-go
 if [[ -f /install/.jfago.lock ]]; then
     # If installed as root user, move to /opt/jfago
-    if [[ -d /root/.config/jfago ]]; then
+    if [[ -d /root/.config/jfa-go ]]; then
         # Store if the service was active before starting
         isactive=$(systemctl is-active jfago)
         echo_log_only "jfago was $isactive"
