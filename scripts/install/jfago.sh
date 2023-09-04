@@ -30,6 +30,7 @@ useradd -r jfago -s /usr/sbin/nologin > /dev/null 2>&1
 echo_progress_start "Setting up systemd service"
 jfagobinary=$(which jfa-go)
 mkdir -p /opt/jfago/config/
+chown jfago: /opt/jfago -R
 
 cat > /etc/systemd/system/jfago.service << EOF
 [Unit]
