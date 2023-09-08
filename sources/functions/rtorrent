@@ -15,6 +15,7 @@ function whiptail_rtorrent() {
             0.9.7 "" \
             0.9.6 "" \
             UDNS "(0.9.8)" \
+            PGO "(0.9.8)" \
             Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
@@ -32,30 +33,42 @@ function set_rtorrent_version() {
             export rtorrentver='0.9.6'
             export libtorrentver='0.13.6'
             export libudns='false'
+            export rtorrentpgo='false'
             ;;
 
         0.9.7 | '0.9.7')
             export rtorrentver='0.9.7'
             export libtorrentver='0.13.7'
             export libudns='false'
+            export rtorrentpgo='false'
             ;;
 
         0.9.8 | '0.9.8')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
             export libudns='false'
+            export rtorrentpgo='false'
             ;;
 
         UDNS | 'UDNS')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
             export libudns='true'
+            export rtorrentpgo='false'
+            ;;
+			
+		PGO | 'PGO')
+            export rtorrentver='0.9.8'
+            export libtorrentver='0.13.8'
+            export libudns='true'
+            export rtorrentpgo='true'
             ;;
 
         Repo | 'Repo')
             export rtorrentver='repo'
             export libtorrentver='repo'
             export libudns='false'
+            export rtorrentpgo='false'
             ;;
 
         *)
@@ -86,6 +99,12 @@ function configure_rtorrent() {
         export rtorrentlevel="-O3"
     else
         export rtorrentlevel="-O2"
+    fi
+    # GCC PGO for program compilation
+    if [[ ${rtorrentpgo} == "true" ]]; then
+        export rtorrentprofile="-fprofile-use"
+    else
+        export rtorrentprofile=""	
     fi
 }
 
@@ -250,7 +269,23 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
+    if [[ ${rtorrentpgo} == "true" ]]; then
+        echo_log_only "Begin fprofile generate for rTorrent"
+        make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} -fprofile-generate" >> $log 2>&1 || {
+            echo_error "Something went wrong while making rtorrent with -fprofile-generate"
+            exit 1
+        }
+        make install >> $log 2>&1
+        echo_info "Running rTorrent PGO for 30s. Please wait..."
+        touch ~/.rtorrent.rc
+        screen -d -m -fa -S rtorrent_pgo rtorrent
+        sleep 30
+        screen -X -S rtorrent_pgo quit
+        rm_if_exists "~/.rtorrent.rc"
+        make clean >> $log 2>&1
+        echo_log_only "End fprofile generate for rTorrent"
+    fi
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} ${rtorrentprofile}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
