@@ -27,5 +27,11 @@ if [[ -f /install/.qbittorrent.lock ]]; then
             systemctl reload nginx
             echo_progress_done
         fi
+        users=($(_get_user_list))
+        for user in ${users[@]}; do
+            if grep 'WebUI\\Address=*' /home/${user}/.config/qBittorrent/qBittorrent.conf; then
+                echo_warn "qBittorrent WebUI for ${user} is bound to all interfaces and can be accessed without the nginx proxy. The updater will not update this default for you in the event you want to keep it this way. You can fix this yourself in the qBittorrent WebUI: Settings > Web UI > Web User Interface > IP Address: 127.0.0.1. You can suppress this warning by changing your bind address to 0.0.0.0, though this may interfere with ipv6 access. Restart qBittorrent after making the change."
+            fi
+        done
     fi
 fi
