@@ -23,19 +23,26 @@ else
     echo_info "jfago will run on port 8056"
 fi
 
+# Create jfago user
+useradd -r jfago -s /usr/sbin/nologin > /dev/null 2>&1
+
 # Create systemd service
 echo_progress_start "Setting up systemd service"
 jfagobinary=$(which jfa-go)
-cat > "/etc/systemd/system/jfago.service" << ADC
+mkdir -p /opt/jfago/config/
+chown jfago: /opt/jfago -R
+
+cat > /etc/systemd/system/jfago.service << EOF
 [Unit]
 Description=An account management system for Jellyfin.
-
+After=network.target
 [Service]
-ExecStart=$jfagobinary -config /root/.config/jfa-go/config.ini -data /root/.config/jfa-go/
+ExecStart=${jfagobinary} -config /opt/jfago/config/config.ini -data /opt/jfago/config/
+User=jfago
 
 [Install]
 WantedBy=multi-user.target
-ADC
+EOF
 
 systemctl daemon-reload -q
 echo_progress_done "Service installed"
@@ -45,10 +52,10 @@ echo_progress_start "Enabling and starting jfago to create config file"
 systemctl -q enable jfago --now
 echo_progress_done
 
-crudini --set /root/.config/jfa-go/config.ini ui url_base /jfa-go
+crudini --set /opt/jfago/config/config.ini ui url_base /jfa-go
 
 # This file is created after installation to prevent reinstalling. You will need to remove the app first which deletes this file.
 touch /install/.jfago.lock
 echo_success "jfago installed but not configured"
-echo_info "Edit /root/.config/jfa-go/config.ini to configure and then restart the service with systemctl restart jfago"
+echo_info "Edit /opt/jfago/config/config.ini to configure and then restart the service with systemctl restart jfago"
 exit
