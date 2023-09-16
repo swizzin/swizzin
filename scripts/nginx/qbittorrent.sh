@@ -59,4 +59,14 @@ upstream ${user}.qbittorrent {
   server 127.0.0.1:${port};
 }
 QBTUC
+    if grep 'WebUI\\Address=*' /home/${user}/.config/qBittorrent/qBittorrent.conf; then
+        active=$(systemctl is-active qbittorrent@${user})
+        if [[ $active == "active" ]]; then
+            systemctl stop qbittorrent@${user} >> ${log} 2>&1
+        fi
+        sed -i 's|WebUI\\Address=.*|WebUI\\Address=127.0.0.1|g' /home/${user}/.config/qBittorrent/qBittorrent.conf
+        if [[ $active == "active" ]]; then
+            systemctl start qbittorrent@${user} >> ${log} 2>&1
+        fi
+    fi
 done
