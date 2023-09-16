@@ -59,7 +59,7 @@ upstream ${user}.qbittorrent {
   server 127.0.0.1:${port};
 }
 QBTUC
-    if grep 'WebUI\\Address=*' /home/${user}/.config/qBittorrent/qBittorrent.conf; then
+    if grep -q 'WebUI\\Address=*' /home/${user}/.config/qBittorrent/qBittorrent.conf; then
         active=$(systemctl is-active qbittorrent@${user})
         if [[ $active == "active" ]]; then
             systemctl stop qbittorrent@${user} >> ${log} 2>&1
