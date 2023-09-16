@@ -53,7 +53,7 @@ build_curl() {
         exit 1
     }
 
-    unzip -q /tmp/curl.zip -d /tmp >> $log 2>&1
+    unzip -q -o /tmp/curl.zip -d /tmp >> $log 2>&1
     rm /tmp/curl.zip
 
     cd /tmp/curl-debian-bullseye-backports
