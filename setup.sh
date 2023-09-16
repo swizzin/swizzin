@@ -367,7 +367,10 @@ function _post() {
     ring_the_bell
     echo_success "Swizzin installation complete!"
     if [[ -f /install/.nginx.lock ]]; then
-        echo_info "Seedbox can be accessed at https://${user}@${ip}"
+        echo_info "Seedbox can be accessed at https://${ip}"
+        if [[ ! -f /install/.panel.lock ]]; then
+            echo_info "Expect a 403 forbidden error on the root domain, since you did not install the panel."
+        fi
     fi
 
     if [[ -f /install/.deluge.lock ]]; then
