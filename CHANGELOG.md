@@ -1,5 +1,33 @@
 # Changelog
 
+## [3.9.2]
+
+## September 16, 2023
+
+### Meta/Development:
+- Update pre-commit.ci integrations
+- Update contributing.md
+- Remove feathub link from issue template
+
+### Changed:
+- nginx: dhparam generation will now happen asyncronously
+- tautulli: now uses a venv, updated buster to use pyenv
+- rtorrent: xmlrpc will now track super-stable
+- rtorrent: added PGO build option
+
+### Fixed:
+- curl: regression with gcc12 on jammy
+- curl: fix potential unzip issue
+- qbit: expand qt6 deps (packages were split)
+- qbit: fix deps for focal
+- qbit: don't bind to `*` if nginx is installed. Warn existing users of this (mis)config
+- arrs: allow access for /feed/calendar via nginx
+- nginx: maintained update code
+- nginx: fix package errors during remove
+- pyload: fix pycurl install
+- rtorrent: various fixes
+- jfago: will no longer run as root
+
 ## [3.9.1]
 
 ## July 16, 2023
