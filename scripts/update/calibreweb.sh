@@ -16,3 +16,13 @@ if [[ -f /install/.calibreweb.lock ]]; then
         echo_progress_done
     fi
 fi
+
+# Remove the proxy_bind setting from Nginx Conf.
+if [[ -f /etc/nginx/apps/calibreweb.conf ]]; then
+    if grep -q "proxy_bind[ \t]\+\$server_addr;" /etc/nginx/apps/calibreweb.conf ]]; then
+        echo_log_only "Removing proxy_bind from CalibreWeb nginx conf"
+        # Find the proxy_bind line, and remove it
+        sed -i 's/proxy_bind[[:space:]]\+\\\$server_addr;//g' /etc/nginx/apps/calibreweb.conf
+        systemctl reload nginx
+    fi
+fi
