@@ -17,7 +17,7 @@ if [[ -f /install/.btsync.lock ]]; then
 
     "webui" :
     {
-        "listen" : "BTSGUIP:8888"
+        "listen" : "127.0.0.1:8888"
     }
 }
 RSCONF
