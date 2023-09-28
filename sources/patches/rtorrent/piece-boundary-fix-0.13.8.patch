@@ -1,0 +1,27 @@
+From 74252e0027f3e1244b362b68e2e2f6cf5de0f672 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Thu, 28 Sep 2023 15:06:51 -0400
+Subject: [PATCH] piece boundary fix
+
+---
+ src/torrent/data/file_list.cc | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/torrent/data/file_list.cc b/src/torrent/data/file_list.cc
+index 4721bdbd6..6fa23bff1 100644
+--- a/src/torrent/data/file_list.cc
++++ b/src/torrent/data/file_list.cc
+@@ -682,9 +682,12 @@ FileList::inc_completed(iterator firstItr, uint32_t index) {
+   if (firstItr == end())
+     throw internal_error("FileList::inc_completed() first == m_entryList->end().", data()->hash());
+ 
++  // If the index falls right on a piece boundary, don't extend the
++  // inc_completed_protected into the next file accidentally
++  int offset = lastItr == firstItr ? 1 : 0;
+   // TODO: Check if this works right for zero-length files.
+   std::for_each(firstItr,
+-                lastItr == end() ? end() : (lastItr + 1),
++                lastItr == end() ? end() : (lastItr + offset),
+                 std::mem_fun(&File::inc_completed_protected));
+ 
+   return lastItr;
