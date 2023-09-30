@@ -260,6 +260,8 @@ function build_rtorrent() {
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
     #apply scgi-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/scgi-fix.patch >> "$log" 2>&1
+    #apply session-file-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/session-file-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
     stdc=
     if [[ ${rtorrentver} == "0.9.6" ]]; then
