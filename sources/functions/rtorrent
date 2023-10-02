@@ -258,6 +258,8 @@ function build_rtorrent() {
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
+    #apply xmlrpc-logic-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-logic-fix.patch >> "$log" 2>&1
     #apply scgi-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/scgi-fix.patch >> "$log" 2>&1
     #apply session-file-fix to all rtorrents
