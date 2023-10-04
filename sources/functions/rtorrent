@@ -251,6 +251,12 @@ function build_rtorrent() {
     else
         echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
     fi
+    #apply memory leak fixes to 0.9.8 branches bases only (0.9.8, UDNS, PGO) to reduce maintenance and testing
+    #apply first thing to ensure compatibility with the tracker delay scrape patch by modifying higher line numbers first
+    if [[ ${rtorrentver} == "0.9.8" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-ml-fixes-0.9.8.patch >> "$log" 2>&1
+    fi
+    #apply tracker delay scrape patch to UDNS branch	
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
     fi

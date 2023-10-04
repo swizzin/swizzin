@@ -1,0 +1,114 @@
+From ece7a0338d50bffa68993454697b86a055c54a6f Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Wed, 4 Oct 2023 07:12:02 -0400
+Subject: [PATCH] Fix various memory leaks
+
+Resolves a potential memory leak with the curses UI when filtering torrents.
+
+Resolves a memory leak with dynamic commands in the .rtorrent.rc file.
+
+Resolves a memory leak during software initialization with choke groups.
+---
+ src/command_dynamic.cc  |  2 +-
+ src/command_groups.cc   | 11 +++++++++++
+ src/command_helpers.cc  |  6 ++++++
+ src/command_helpers.h   |  1 +
+ src/main.cc             |  2 ++
+ src/ui/download_list.cc |  2 ++
+ 6 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/src/command_dynamic.cc b/src/command_dynamic.cc
+index a8d0ff02f..3d7a123b1 100644
+--- a/src/command_dynamic.cc
++++ b/src/command_dynamic.cc
+@@ -147,7 +147,7 @@ system_method_insert_object(const torrent::Object::list_type& args, int flags) {
+     throw torrent::input_error("Invalid type.");
+   }
+ 
+-  int cmd_flags = 0;
++  int cmd_flags = rpc::CommandMap::flag_delete_key;
+ 
+   if (!(flags & rpc::object_storage::flag_static))
+     cmd_flags |= rpc::CommandMap::flag_modifiable;
+diff --git a/src/command_groups.cc b/src/command_groups.cc
+index 359a532e5..cb8bdb584 100644
+--- a/src/command_groups.cc
++++ b/src/command_groups.cc
+@@ -381,3 +381,14 @@ initialize_command_groups() {
+                                                                  std::bind(&torrent::choke_queue::heuristics, CHOKE_GROUP(&torrent::choke_group::down_queue))));
+   CMD2_ANY_LIST    ("choke_group.down.heuristics.set", std::bind(&apply_cg_heuristics_set, std::placeholders::_2, false));
+ }
++
++void cleanup_command_groups() {
++#if USE_CHOKE_GROUP
++#else
++  while (!cg_list_hack.empty()) {
++    auto cg = cg_list_hack.back();
++    delete cg;
++    cg_list_hack.pop_back();
++  }
++#endif
++}
+\ No newline at end of file
+diff --git a/src/command_helpers.cc b/src/command_helpers.cc
+index 54c0b35e4..31599e265 100644
+--- a/src/command_helpers.cc
++++ b/src/command_helpers.cc
+@@ -57,6 +57,12 @@ void initialize_command_tracker();
+ void initialize_command_scheduler();
+ void initialize_command_ui();
+ 
++void cleanup_command_groups();
++
++void cleanup_commands() {
++  cleanup_command_groups();
++}
++
+ void
+ initialize_commands() {
+   initialize_command_dynamic();
+diff --git a/src/command_helpers.h b/src/command_helpers.h
+index a104fbbc4..48e7ea258 100644
+--- a/src/command_helpers.h
++++ b/src/command_helpers.h
+@@ -42,6 +42,7 @@
+ #include "rpc/object_storage.h"
+ 
+ void initialize_commands();
++void cleanup_commands();
+ 
+ //
+ // New std::function based command_base helper functions:
+diff --git a/src/main.cc b/src/main.cc
+index 6be6a4dee..2310013dc 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -509,6 +509,8 @@ main(int argc, char** argv) {
+     return -1;
+   }
+ 
++  cleanup_commands();
++
+   torrent::log_cleanup();
+ 
+   delete control;
+diff --git a/src/ui/download_list.cc b/src/ui/download_list.cc
+index f1d6af5c6..7cb0e9a89 100644
+--- a/src/ui/download_list.cc
++++ b/src/ui/download_list.cc
+@@ -272,6 +272,7 @@ DownloadList::receive_view_input(Input type) {
+           std::getline(ss, view_name_var, ',');
+           if (current_view()->name() == rak::trim(view_name_var)) {
+               control->core()->push_log_std("View '" + current_view()->name() + "' can't be filtered.");
++              delete input;
+               return;
+           }
+       }
+@@ -281,6 +282,7 @@ DownloadList::receive_view_input(Input type) {
+     break;
+ 
+   default:
++    delete input;
+     throw torrent::internal_error("DownloadList::receive_view_input(...) Invalid input type.");
+   }
+ 
