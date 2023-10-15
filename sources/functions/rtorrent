@@ -199,6 +199,7 @@ function build_libtorrent_rakshasa() {
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/lookup-cache-0.13.8.patch >> "$log" 2>&1
     fi
     #apply piece boundary fix to all libtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/piece-boundary-fix-0.13.8.patch >> "$log" 2>&1	
@@ -261,6 +262,7 @@ function build_rtorrent() {
     #apply tracker delay scrape patch to UDNS branch	
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/fast-session-loading-0.9.8.patch >> "$log" 2>&1
     fi
     #apply lockfile-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1

@@ -1,0 +1,73 @@
+From 41b8950ec54b61526361e5028475d680ccdf759c Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sun, 15 Oct 2023 18:54:10 -0400
+Subject: [PATCH] Speed up torrent session loading
+
+Don't check if torrents are being removed.
+Perform hash checks after session is loaded.
+---
+ src/control.cc               |  2 --
+ src/core/download_factory.cc | 10 ++++++----
+ src/main.cc                  |  7 +++++++
+ 3 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/src/control.cc b/src/control.cc
+index 60c9b5301..89a7be071 100644
+--- a/src/control.cc
++++ b/src/control.cc
+@@ -114,8 +114,6 @@ Control::initialize() {
+   m_core->listen_open();
+   m_core->download_store()->enable(rpc::call_command_value("session.use_lock"));
+ 
+-  m_core->set_hashing_view(*m_viewManager->find_throw("hashing"));
+-
+   m_ui->init(this);
+ 
+   if(!display::Canvas::daemon()) {
+diff --git a/src/core/download_factory.cc b/src/core/download_factory.cc
+index 2d2ea5a3b..2a147f5cf 100644
+--- a/src/core/download_factory.cc
++++ b/src/core/download_factory.cc
+@@ -323,11 +323,13 @@ DownloadFactory::receive_success() {
+     std::for_each(m_commands.begin(), m_commands.end(),
+                   rak::bind2nd(std::ptr_fun(&rpc::parse_command_multiple_std), rpc::make_target(download)));
+ 
+-    if (m_manager->download_list()->find(infohash) == m_manager->download_list()->end())
+-      throw torrent::input_error("The newly created download was removed.");
+-
+     if (!m_session)
+-       rpc::call_command("d.state.set", (int64_t)m_start, rpc::make_target(download));
++    {
++      if (m_manager->download_list()->find(infohash) == m_manager->download_list()->end())
++        throw torrent::input_error("The newly created download was removed.");
++
++      rpc::call_command("d.state.set", (int64_t)m_start, rpc::make_target(download));
++    }
+ 
+     rpc::commands.call_catch(m_session ? "event.download.inserted_session" : "event.download.inserted_new",
+                              rpc::make_target(download), torrent::Object(), "Download event action failed: ");
+diff --git a/src/main.cc b/src/main.cc
+index c76558f8f..de8dcfe70 100644
+--- a/src/main.cc
++++ b/src/main.cc
+@@ -62,6 +62,7 @@
+ #include "core/download_factory.h"
+ #include "core/download_store.h"
+ #include "core/manager.h"
++#include "core/view_manager.h"
+ #include "display/canvas.h"
+ #include "display/window.h"
+ #include "display/manager.h"
+@@ -137,6 +138,12 @@ load_session_torrents() {
+     f->load(entries.path() + first->d_name);
+     f->commit();
+   }
++  
++  // Perform hash checks after the session is loaded
++  const auto& hashing_view = *control->view_manager()->find_throw("hashing");
++  control->core()->set_hashing_view(hashing_view);
++  hashing_view->set_focus(hashing_view->focus());
++  priority_queue_perform(&taskScheduler, cachedTime);
+ }
+ 
+ void

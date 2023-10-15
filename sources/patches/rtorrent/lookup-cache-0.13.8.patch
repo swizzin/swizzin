@@ -1,0 +1,286 @@
+From 2ff6646c2710e244a4357e13c216cd01c4a53b0d Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sun, 15 Oct 2023 14:03:04 -0400
+Subject: [PATCH] Add libtorrent lookup cache
+
+Cache torrent hashes to reduce lookup times.
+---
+ src/dht/dht_hash_map.h                   | 59 ++---------------------
+ src/torrent/download/download_manager.cc | 61 +++++++++++++++---------
+ src/torrent/download/download_manager.h  |  7 +++
+ src/torrent/hash_string.h                | 38 +++++++++++++++
+ 4 files changed, 88 insertions(+), 77 deletions(-)
+
+diff --git a/src/dht/dht_hash_map.h b/src/dht/dht_hash_map.h
+index 140f070bb..3b566a7ab 100644
+--- a/src/dht/dht_hash_map.h
++++ b/src/dht/dht_hash_map.h
+@@ -53,60 +53,9 @@
+ namespace torrent {
+ 
+ #if HAVE_TR1
+-// Hash functions for HashString keys, and dereferencing HashString pointers.
+-
+-// Since the first few bits are very similar if not identical (since the IDs
+-// will be close to our own node ID), we use an offset of 64 bits in the hash
+-// string. These bits will be uniformly distributed until the number of DHT
+-// nodes on the planet approaches 2^64 which is... unlikely.
+-// An offset of 64 bits provides 96 significant bits which is fine as long as
+-// the size of size_t does not exceed 12 bytes, while still having correctly
+-// aligned 64-bit access.
+-static const unsigned int hashstring_hash_ofs = 8;
+-
+-struct hashstring_ptr_hash : public std::unary_function<const HashString*, size_t> {
+-  size_t operator () (const HashString* n) const {
+-#if USE_ALIGNED
+-    size_t result = 0;
+-    const char *first = n->data() + hashstring_hash_ofs;
+-    const char *last = first + sizeof(size_t);
+-
+-    while (first != last)
+-      result = (result << 8) + *first++;
+-    
+-    return result;
+-#else
+-    return *(size_t*)(n->data() + hashstring_hash_ofs);
+-#endif
+-  }
+-};
+-
+-struct hashstring_hash : public std::unary_function<HashString, size_t> {
+-  size_t operator () (const HashString& n) const {
+-#if USE_ALIGNED
+-    size_t result = 0;
+-    const char *first = n.data() + hashstring_hash_ofs;
+-    const char *last = first + sizeof(size_t);
+-
+-    while (first != last)
+-      result = (result << 8) + *first++;
+-    
+-    return result;
+-#else
+-    return *(size_t*)(n.data() + hashstring_hash_ofs);
+-#endif
+-  }
+-};
+-
+-// Compare HashString pointers by dereferencing them.
+-struct hashstring_ptr_equal : public std::binary_function<const HashString*, const HashString*, bool> {
+-  size_t operator () (const HashString* one, const HashString* two) const 
+-  { return *one == *two; }
+-};
+-
+-class DhtNodeList : public std::unordered_map<const HashString*, DhtNode*, hashstring_ptr_hash, hashstring_ptr_equal> {
++class DhtNodeList : public std::unordered_map<const HashString*, DhtNode*> {
+ public:
+-  typedef std::unordered_map<const HashString*, DhtNode*, hashstring_ptr_hash, hashstring_ptr_equal> base_type;
++  using base_type = std::unordered_map<const HashString*, DhtNode*>;
+ 
+   // Define accessor iterator with more convenient access to the key and
+   // element values.  Allows changing the map definition more easily if needed.
+@@ -125,9 +74,9 @@ class DhtNodeList : public std::unordered_map<const HashString*, DhtNode*, hashs
+ 
+ };
+ 
+-class DhtTrackerList : public std::unordered_map<HashString, DhtTracker*, hashstring_hash> {
++class DhtTrackerList : public std::unordered_map<HashString, DhtTracker*> {
+ public:
+-  typedef std::unordered_map<HashString, DhtTracker*, hashstring_hash> base_type;
++  using base_type = std::unordered_map<HashString, DhtTracker*>;
+ 
+   template<typename T>
+   struct accessor_wrapper : public T {
+diff --git a/src/torrent/download/download_manager.cc b/src/torrent/download/download_manager.cc
+index 6df2792c6..e4ba9c089 100644
+--- a/src/torrent/download/download_manager.cc
++++ b/src/torrent/download/download_manager.cc
+@@ -50,37 +50,58 @@ DownloadManager::insert(DownloadWrapper* d) {
+   if (find(d->info()->hash()) != end())
+     throw internal_error("Could not add torrent as it already exists.");
+ 
++  lookup_cache.emplace(d->info()->hash(), size());
++  obfuscated_to_hash.emplace(d->info()->hash_obfuscated(), d->info()->hash());
++
+   return base_type::insert(end(), d);
+ }
+ 
+ DownloadManager::iterator
+ DownloadManager::erase(DownloadWrapper* d) {
+-  iterator itr = std::find(begin(), end(), d);
++  auto itr = find(d->info()->hash());
+ 
+   if (itr == end())
+     throw internal_error("Tried to remove a torrent that doesn't exist");
+     
++  lookup_cache.erase(lookup_cache.find(d->info()->hash()));
++  obfuscated_to_hash.erase(obfuscated_to_hash.find(d->info()->hash_obfuscated()));
++
+   delete *itr;
+   return base_type::erase(itr);
+ }
+ 
+ void
+ DownloadManager::clear() {
+-  while (!empty()) {
+-    delete base_type::back();
+-    base_type::pop_back();
+-  }
++  base_type::clear();
++  lookup_cache.clear();
++  obfuscated_to_hash.clear();
+ }
+ 
+ DownloadManager::iterator
+ DownloadManager::find(const std::string& hash) {
+-  return std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
+-                                                 rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
++  return find(*HashString::cast_from(hash));
+ }
+ 
+ DownloadManager::iterator
+ DownloadManager::find(const HashString& hash) {
+-  return std::find_if(begin(), end(), rak::equal(hash, rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
++  auto cached = lookup_cache.find(hash);
++
++  if (cached == lookup_cache.end()) {
++    return end();
++  }
++
++  auto cached_i = cached->second;
++
++  auto itr = cached_i < size() ? begin() + cached_i : end();
++  if (itr == end() || (*itr)->info()->hash() != hash) {
++    itr = std::find_if(begin(), end(), [hash](DownloadWrapper* wrapper) {
++      return hash == wrapper->info()->hash();
++    });
++  }
++
++  lookup_cache[hash] = itr - begin();
++
++  return itr; 
+ }
+ 
+ DownloadManager::iterator
+@@ -95,24 +116,20 @@ DownloadManager::find_chunk_list(ChunkList* cl) {
+ 
+ DownloadMain*
+ DownloadManager::find_main(const char* hash) {
+-  iterator itr = std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
+-                                                         rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash))));
+-
+-  if (itr == end())
+-    return NULL;
+-  else
+-    return (*itr)->main();
++  auto itr = find(*HashString::cast_from(hash));
++  return itr == end() ? NULL : (*itr)->main();
+ }
+ 
+ DownloadMain*
+-DownloadManager::find_main_obfuscated(const char* hash) {
+-  iterator itr = std::find_if(begin(), end(), rak::equal(*HashString::cast_from(hash),
+-                                                         rak::on(std::mem_fun(&DownloadWrapper::info), std::mem_fun(&DownloadInfo::hash_obfuscated))));
++DownloadManager::find_main_obfuscated(const char* obfuscated) {
++  auto hash_itr = obfuscated_to_hash.find(*HashString::cast_from(obfuscated));
+ 
+-  if (itr == end())
+-    return NULL;
+-  else
+-    return (*itr)->main();
++  if (hash_itr == obfuscated_to_hash.end()) {
++    return nullptr;
++  }
++  
++  auto itr = find(hash_itr->second);
++  return itr == end() ? NULL : (*itr)->main();
+ }
+ 
+ }
+diff --git a/src/torrent/download/download_manager.h b/src/torrent/download/download_manager.h
+index 4dba916cd..b864e8e22 100644
+--- a/src/torrent/download/download_manager.h
++++ b/src/torrent/download/download_manager.h
+@@ -37,8 +37,11 @@
+ #ifndef LIBTORRENT_DOWNLOAD_MANAGER_H
+ #define LIBTORRENT_DOWNLOAD_MANAGER_H
+ 
++#include <unordered_map>
+ #include <vector>
++
+ #include <torrent/common.h>
++#include <torrent/hash_string.h>
+ 
+ namespace torrent {
+ 
+@@ -90,6 +93,10 @@ class LIBTORRENT_EXPORT DownloadManager : private std::vector<DownloadWrapper*>
+   iterator            erase(DownloadWrapper* d) LIBTORRENT_NO_EXPORT;
+ 
+   void                clear() LIBTORRENT_NO_EXPORT;
++  
++ private:
++  std::unordered_map<HashString, size_type>  lookup_cache;
++  std::unordered_map<HashString, HashString> obfuscated_to_hash;
+ };
+ 
+ }
+diff --git a/src/torrent/hash_string.h b/src/torrent/hash_string.h
+index af60780a2..22150fca0 100644
+--- a/src/torrent/hash_string.h
++++ b/src/torrent/hash_string.h
+@@ -61,6 +61,10 @@ class LIBTORRENT_EXPORT HashString {
+ 
+   static const size_type size_data = 20;
+ 
++  static constexpr unsigned int hashstring_hash_ofs = 8;
++  static_assert((hashstring_hash_ofs + sizeof(size_t)) <=
++                HashString::size_data);
++
+   size_type           size() const                      { return size_data; }
+ 
+   iterator            begin()                           { return m_data; }
+@@ -99,6 +103,14 @@ class LIBTORRENT_EXPORT HashString {
+ 
+   static HashString*  cast_from(char* src)                   { return (HashString*)src; }
+ 
++  size_t hash() const {
++    size_t result = 0;
++    std::memcpy(&result,
++                m_data + torrent::HashString::hashstring_hash_ofs,
++                sizeof(size_t));
++    return result;
++  }
++
+ private:
+   char                m_data[size_data];
+ };
+@@ -132,4 +144,30 @@ operator <= (const HashString& one, const HashString& two) {
+ 
+ }
+ 
++namespace std {
++
++template<>
++struct hash<torrent::HashString> {
++  std::size_t operator()(const torrent::HashString& n) const noexcept {
++    return n.hash();
++  }
++};
++
++template<>
++struct hash<torrent::HashString*> {
++  std::size_t operator()(const torrent::HashString* n) const noexcept {
++    return n->hash();
++  }
++};
++
++template<>
++struct equal_to<torrent::HashString*> {
++  bool operator()(const torrent::HashString* a,
++                  const torrent::HashString* b) const noexcept {
++    return *a == *b;
++  }
++};
++
++}
++
+ #endif
