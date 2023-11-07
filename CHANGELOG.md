@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.10.0]
+
+## November 6, 2023
+
+## SECURITY
+
+> [!WARNING]
+> All btsync/rslsync users are encouraged to check their installations to ensure they have a Web UI password set. You can do so from the Settings > Web UI. This issue should be resolved moving forward. New installations should once more prompt username/password generation on first setup.
+
+- btsync/rslsync: we were made aware that new installs of resilio haven't been prompting users to create passwords. To be clear, this is a regression, as previous behavior prompted the user to create a password on first setup. It was identified the the "Skip EULA" config option was causing this behavior and has been removed. An update script will run to remove this option from existing configs, but it may not trigger password creation.
+
+### Changed:
+- rtorrent: stickz commited a bunch of performance related patches. Enjoy!
+- qbittorrent: builds for 4.6 have been enabled but not thoroughly tested. Feel free to report any issues
+
+### Fixed
+- qbittorrent: overzealous grep will continue to warn you of "misconfigurations" despite having the desired bind config set.
+- npm: swapped from script to repo method of initializing npm and nodejs
+- calibre-web: don't set proxy_bind (fixes issue with ipv6)
+
 ## [3.9.2]
 
 ## September 16, 2023
