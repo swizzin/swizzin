@@ -13,7 +13,6 @@ if [[ -f /install/.btsync.lock ]]; then
     "listening_port" : 0,
     "storage_path" : "/home/${MASTER}/.config/resilio-sync/",
     "pid_file" : "/var/run/resilio-sync/sync.pid",
-    "agree_to_EULA": "yes",
 
     "webui" :
     {
@@ -30,5 +29,15 @@ RSCONF
             systemctl start resilio-sync
         fi
         echo_progress_done
+    fi
+    if grep -q EULA /etc/resilio-sync/config.json > /dev/null 2>&1; then
+        isActive=$(systemctl is-active resilio-sync)
+        if [[ $isActive == "active" ]]; then
+            systemctl stop resilio-sync
+        fi
+        sed -i '/EULA/d' /etc/resilio-sync/config.json
+        if [[ $isActive == "active" ]]; then
+            systemctl start resilio-sync
+        fi
     fi
 fi

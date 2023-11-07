@@ -42,7 +42,6 @@ function _installBTSync5() {
     "listening_port" : 0,
     "storage_path" : "/home/${MASTER}/.config/resilio-sync/",
     "pid_file" : "/var/run/resilio-sync/sync.pid",
-    "agree_to_EULA": "yes",
 
     "webui" :
     {
