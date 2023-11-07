@@ -39,4 +39,5 @@ RSCONF
         if [[ $isActive == "active" ]]; then
             systemctl start resilio-sync
         fi
+    fi
 fi
