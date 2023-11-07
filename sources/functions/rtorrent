@@ -199,7 +199,10 @@ function build_libtorrent_rakshasa() {
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/lookup-cache-0.13.8.patch >> "$log" 2>&1
     fi
+    #apply piece boundary fix to all libtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/piece-boundary-fix-0.13.8.patch >> "$log" 2>&1	
     if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
     fi
@@ -251,13 +254,26 @@ function build_rtorrent() {
     else
         echo_log_only "No rTorrent patch found at /root/rtorrent-${rtorrentver}.patch"
     fi
+    #apply memory leak fixes to 0.9.8 branches bases only (0.9.8, UDNS, PGO) to reduce maintenance and testing
+    #apply first thing to ensure compatibility with the tracker delay scrape patch by modifying higher line numbers first
+    if [[ ${rtorrentver} == "0.9.8" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-ml-fixes-0.9.8.patch >> "$log" 2>&1
+    fi
+    #apply tracker delay scrape patch to UDNS branch	
     if [[ ${libudns} == "true" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/fast-session-loading-0.9.8.patch >> "$log" 2>&1
     fi
     #apply lockfile-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
     #apply xmlrpc-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-fix.patch >> "$log" 2>&1
+    #apply xmlrpc-logic-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/xmlrpc-logic-fix.patch >> "$log" 2>&1
+    #apply scgi-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/scgi-fix.patch >> "$log" 2>&1
+    #apply session-file-fix to all rtorrents
+    patch -p1 < /etc/swizzin/sources/patches/rtorrent/session-file-fix.patch >> "$log" 2>&1
     #use pkgconfig for cppunit if 0.9.6
     stdc=
     if [[ ${rtorrentver} == "0.9.6" ]]; then

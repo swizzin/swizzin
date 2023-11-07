@@ -1,0 +1,46 @@
+From 7594fc942ecd0ed64f7feea24bd54b6fdddba49b Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sat, 30 Sep 2023 10:34:07 -0400
+Subject: [PATCH] Fix saving session files
+
+Resolves a data corruption issue with torrent session during a power loss.
+---
+ src/core/download_store.cc | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/src/core/download_store.cc b/src/core/download_store.cc
+index 536dba10a..e111b41bc 100644
+--- a/src/core/download_store.cc
++++ b/src/core/download_store.cc
+@@ -40,6 +40,7 @@
+ 
+ #include <fstream>
+ #include <stdio.h>
++#include <fcntl.h>
+ #include <unistd.h>
+ #include <rak/error_number.h>
+ #include <rak/path.h>
+@@ -102,6 +103,7 @@ bool
+ DownloadStore::write_bencode(const std::string& filename, const torrent::Object& obj, uint32_t skip_mask) {
+   torrent::Object tmp;
+   std::fstream output(filename.c_str(), std::ios::out | std::ios::trunc);
++  int fd = -1;
+ 
+   if (!output.is_open())
+     goto download_store_save_error;
+@@ -121,6 +123,15 @@ DownloadStore::write_bencode(const std::string& filename, const torrent::Object&
+     goto download_store_save_error;
+ 
+   output.close();
++  
++  // Ensure that the new file is actually written to the disk
++  fd = ::open(filename.c_str(), O_WRONLY);
++  if (fd < 0)
++    goto download_store_save_error;
++
++  fsync(fd);
++  ::close(fd);
++
+   return true;
+ 
+ download_store_save_error:

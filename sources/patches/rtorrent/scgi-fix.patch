@@ -1,0 +1,23 @@
+From f600ba802201da20834751412faafa374ce255c4 Mon Sep 17 00:00:00 2001
+From: stickz <stickman002@mail.com>
+Date: Sat, 30 Sep 2023 08:36:15 -0400
+Subject: [PATCH] Increase maximum SCGI request to 16MB
+
+Fixing a problem where xmlrpc-c information fails to update if user is running too many torrents.
+---
+ src/rpc/scgi_task.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/rpc/scgi_task.h b/src/rpc/scgi_task.h
+index e75e9e1ea..a42349bf8 100644
+--- a/src/rpc/scgi_task.h
++++ b/src/rpc/scgi_task.h
+@@ -51,7 +51,7 @@ class SCgiTask : public torrent::Event {
+ public:
+   static const unsigned int default_buffer_size = 2047;
+   static const          int max_header_size     = 2000;
+-  static const          int max_content_size    = (2 << 20);
++  static const          int max_content_size    = (2 << 23);
+ 
+   SCgiTask() { m_fileDesc = -1; }
+ 
