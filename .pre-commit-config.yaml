@@ -5,11 +5,11 @@ repos:
       - id: shfmt
         args: ["-w", "-ci", "-sr", "-i", "4"]
   - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.9.0.5
+    rev: v0.9.0.6
     hooks:
       - id: shellcheck
         args: ["--severity=error"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0 # Use the ref you want to point at
+    rev: v4.5.0 # Use the ref you want to point at
     hooks:
       - id: check-executables-have-shebangs
