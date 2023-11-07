@@ -3,10 +3,14 @@
 
 function npm_install() {
     if [[ ! -f /etc/apt/sources.list.d/nodesource.list ]]; then
-        bash <(curl -sL https://deb.nodesource.com/setup_18.x) >> $log 2>&1 || {
-            echo_error "Failed to install node"
-            return 1
-        }
+        apt_update
+        apt_install ca-certificates curl gnupg
+        mkdir -p /etc/apt/keyrings
+        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+        NODE_MAJOR=18
+        echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+        apt_update
+        apt_install nodejs
     elif [[ -f /etc/apt/sources.list.d/nodesource.list ]]; then
         npm_update
     fi
@@ -22,10 +26,12 @@ function npm_update() {
     if [[ -f /etc/apt/sources.list.d/nodesource.list ]]; then
         if [[ $(grep -m1 -oP 'node_\d+' /etc/apt/sources.list.d/nodesource.list | sed 's/node_//g') -lt "18" ]]; then
             echo_progress_start "Upgrading nodejs to version 18 LTS"
-            bash <(curl -sL https://deb.nodesource.com/setup_18.x) >> $log 2>&1 || {
-                echo_error "Failed to install node"
-                return 1
-            }
+            apt_update
+            apt_install ca-certificates curl gnupg
+            mkdir -p /etc/apt/keyrings
+            curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+            NODE_MAJOR=18
+            echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
             apt_update
             apt_upgrade
             echo_progress_done "Npm upgraded"
