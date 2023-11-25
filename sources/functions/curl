@@ -47,7 +47,7 @@ build_cares() {
 build_curl() {
     cd /tmp
 
-    wget -q -O /tmp/curl.zip https://salsa.debian.org/debian/curl/-/archive/debian/bullseye-backports/curl-debian-bullseye-backports.zip >> ${log} 2>&1 || {
+    wget -q -O /tmp/curl.zip https://salsa.debian.org/debian/curl/-/archive/debian/bookworm-backports/curl-debian-bookworm-backports.zip >> ${log} 2>&1 || {
         echo_error "There was an error downloading curl! Please check the log for more info"
         rm /tmp/curl.zip >> $log 2>&1
         exit 1
@@ -56,7 +56,7 @@ build_curl() {
     unzip -q -o /tmp/curl.zip -d /tmp >> $log 2>&1
     rm /tmp/curl.zip
 
-    cd /tmp/curl-debian-bullseye-backports
+    cd /tmp/curl-debian-bookworm-backports
     rm CMakeCache.txt >> $log 2>&1
 
     cmake . -D ENABLE_ARES=ON -D ENABLE_WEBSOCKETS=ON -D CURL_LTO=ON -D CURL_USE_OPENSSL=ON -D CURL_USE_OPENLDAP=ON -D CURL_BROTLI=ON -D CURL_ZSTD=ON -D CURL_USE_LIBPSL=ON -D USE_NGHTTP2=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
