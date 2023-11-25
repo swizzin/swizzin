@@ -78,4 +78,7 @@ build_curl() {
 
     ldconfig /usr/local/lib
     ldconfig /usr/local/bin
+
+    rm_if_exists /usr/local/lib/libcurl.so.4
+    ln -s /usr/local/lib/libcurl.so.4.8.0 /usr/local/lib/libcurl.so.4 >> $log 2>&1
 }
