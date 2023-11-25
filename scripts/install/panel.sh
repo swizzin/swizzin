@@ -31,7 +31,7 @@ useradd -r swizzin -s /usr/sbin/nologin > /dev/null 2>&1
 
 systempy3_ver=$(get_candidate_version python3)
 
-if dpkg --compare-versions ${systempy3_ver} lt 3.6.0; then
+if dpkg --compare-versions ${systempy3_ver} lt 3.7.0; then
     LIST='acl'
     PYENV=True
 else
