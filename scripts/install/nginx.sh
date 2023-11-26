@@ -112,6 +112,7 @@ server {
   listen 80 default_server;
   listen [::]:80 default_server;
   server_name _;
+  server_tokens off;
 
   location /.well-known {
     alias /srv/.well-known;
