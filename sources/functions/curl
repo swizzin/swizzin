@@ -24,7 +24,7 @@ build_cares() {
     rm /tmp/cares.tar.gz
 
     cd /tmp/cares
-    rm CMakeCache.txt >> $log 2>&1
+    rm_if_exists CMakeCache.txt
 
     cmake . -D CARES_STATIC=ON -D CARES_SHARED=ON -D CARES_STATIC_PIC=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
         echo_error "There was an error configuring c-ares! Please check the log for more info"
@@ -46,6 +46,7 @@ build_cares() {
 
 build_curl() {
     cd /tmp
+    . /etc/swizzin/sources/functions/utils
 
     wget -q -O /tmp/curl.zip https://salsa.debian.org/debian/curl/-/archive/debian/bookworm-backports/curl-debian-bookworm-backports.zip >> ${log} 2>&1 || {
         echo_error "There was an error downloading curl! Please check the log for more info"
@@ -57,7 +58,7 @@ build_curl() {
     rm /tmp/curl.zip
 
     cd /tmp/curl-debian-bookworm-backports
-    rm CMakeCache.txt >> $log 2>&1
+    rm_if_exists CMakeCache.txt
 
     cmake . -D ENABLE_ARES=ON -D ENABLE_WEBSOCKETS=ON -D CURL_LTO=ON -D CURL_USE_OPENSSL=ON -D CURL_USE_OPENLDAP=ON -D CURL_BROTLI=ON -D CURL_ZSTD=ON -D CURL_USE_LIBPSL=ON -D USE_NGHTTP2=ON -D BUILD_SHARED_LIBS=ON -D CMAKE_BUILD_TYPE:STRING="Release" -D CMAKE_C_FLAGS_RELEASE:STRING="-w -O3 -flto=\"$(nproc)\" -march=native" >> ${log} 2>&1 || {
         echo_error "There was an error configuring curl! Please check the log for more info"
