@@ -4,7 +4,7 @@ function _navidrome_download_latest() {
     echo_progress_start "Downloading release archive"
 
     case "$(_os_arch)" in
-        "amd64") arch='x86_64' ;;
+        "amd64") arch='amd64' ;;
         "arm64") arch="arm64" ;;
         "armhf") arch="armv7" ;;
         *)
