@@ -13,7 +13,7 @@ function autobrr_download_latest() {
             ;;
     esac
 
-    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | cut -d \" -f4) || {
+    latest=$(curl -sL https://api.github.com/repos/autobrr/autobrr/releases/latest | grep "linux_$arch" | grep browser_download_url | grep ".tar.gz" | cut -d \" -f4) || {
         echo_error "Failed to query GitHub for latest version"
         exit 1
     }
