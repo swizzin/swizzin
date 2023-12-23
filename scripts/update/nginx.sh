@@ -201,6 +201,13 @@ FIAC
         echo_progress_done
     fi
 
+    # Disable emitting nginx version for HTTP protocol
+    if [[ $(grep -c 'server_tokens' /etc/nginx/sites-enabled/default) -lt 2 ]]; then
+        echo_progress_start "Disable emitting nginx version for HTTP protocol"
+        sed '/listen 80 default_server;/a \ \ server_tokens off;' -i /etc/nginx/sites-enabled/default
+        echo_progress_done
+    fi
+
     #TODO: This needs an if statement
     # fix /etc/nginx/sites-enabled/default to not cause nginx to fail on reloading when there are subdirectories in /etc/nginx/apps like /etc/nginx/apps/authelia
     echo_progress_start "Fixing nginx for recursive configs"
