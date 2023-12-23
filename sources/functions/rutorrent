@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function rutorrent_install() {
-    apt_install sox geoip-database p7zip-full zip unzip
+    apt_install sox geoip-database p7zip-full zip unzip php-bcmath
 
     mkdir -p /srv
     if [[ ! -d /srv/rutorrent ]]; then
@@ -17,6 +17,7 @@ function rutorrent_install() {
         rm -rf /srv/rutorrent/plugins/_cloudflare
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
+        rm -rf /srv/rutorrent/plugins/geoip
         rm -rf /srv/rutorrent/conf/config.php
         echo_progress_done "ruTorrent cloned"
     fi
@@ -46,6 +47,10 @@ function rutorrent_install() {
         cd /srv/rutorrent/plugins
         svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+    fi
+
+    if [[ ! -d /srv/rutorrent/plugins/geoip2 ]]; then
+        git clone https://github.com/Micdu70/geoip2-rutorrent /srv/rutorrent/plugins/geoip2 >> ${log} 2>&1 || { echo_error "git of geoip2 plugin to main plugins seems to have failed"; }
     fi
 
     echo_progress_done "Plugins downloaded"
