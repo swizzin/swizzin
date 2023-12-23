@@ -130,7 +130,7 @@ function depends_rtorrent() {
     rm_if_exists "/tmp/mktorrent"
     unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
     cd mktorrent
-    make >> $log 2>&1
+    make -j$(nproc) CC=gcc CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel}" >> $log 2>&1
     make install PREFIX=/usr >> $log 2>&1
     cd /tmp
     rm -rf mktorrent*
@@ -163,7 +163,7 @@ function build_xmlrpc-c() {
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
+    make -j$(nproc) CFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
@@ -217,7 +217,7 @@ function build_libtorrent_rakshasa() {
         fi
     fi
     ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr >> $log 2>&1 || {
+    ./configure --prefix=/usr --enable-aligned >> $log 2>&1 || {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
