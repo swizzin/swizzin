@@ -26,7 +26,7 @@ app_servicefile="$app_name.service"
 app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 app_lockname="${app_name//-/}"
-app_branch="develop" # Change to stable when available, tell users to migrate manually.
+app_branch="main"
 
 if [ ! -d "$swiz_configdir" ]; then
     mkdir -p "$swiz_configdir"
@@ -43,7 +43,7 @@ _install() {
 
     echo_progress_start "Downloading release archive"
 
-    urlbase="https://services.sonarr.tv/v1/download/develop/latest?version=4&os=linux"
+    urlbase="https://services.sonarr.tv/v1/download/${app_branch}/latest?version=4&os=linux"
     case "$(_os_arch)" in
         "amd64") dlurl="${urlbase}&arch=x64" ;;
         "armhf") dlurl="${urlbase}&arch=arm" ;;
