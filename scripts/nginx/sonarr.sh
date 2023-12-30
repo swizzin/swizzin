@@ -16,7 +16,7 @@ app_sslport="9898"
 app_configdir="/home/$user/.config/${app_name^}"
 app_baseurl="$app_name"
 app_servicefile="${app_name}.service"
-app_branch="develop"
+app_branch="main"
 
 cat > /etc/nginx/apps/$app_name.conf << ARRNGINX
 location /$app_baseurl {
@@ -48,11 +48,9 @@ fi
 
 apikey=$(grep -oPm1 "(?<=<ApiKey>)[^<]+" "$app_configdir"/config.xml)
 
-# Set to Debug as this is alpha software
-# ToDo: Logs back to Info
 cat > "$app_configdir"/config.xml << ARRCONFIG
 <Config>
-  <LogLevel>trace</LogLevel>
+  <LogLevel>info</LogLevel>
   <UpdateMechanism>BuiltIn</UpdateMechanism>
   <BindAddress>127.0.0.1</BindAddress>
   <Port>$app_port</Port>
