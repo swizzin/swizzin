@@ -1,0 +1,12 @@
+#!/bin/bash
+
+_sonarr_version() {
+    if sonarrv="$(/usr/bin/mono /opt/Sonarr/Sonarr.exe \? |& head -n 1 | grep -Eo "Version(.*)$")"; then
+        [[ "$sonarrv" =~ ^(Version 0.2.(.*))$ ]] && echo "mono-v2"
+        [[ "$sonarrv" =~ ^(Version 3.0.(.*))$ ]] && echo "mono-v3"
+    elif sonarrv="$(/opt/Sonarr/Sonarr \? |& head -n 1 | grep -Eo "Version(.*)$")"; then
+        [[ "$sonarrv" =~ ^(Version 4.0.(.*))$ ]] && echo "dotnet-v4"
+    else
+        echo_log_only "Sonarr Version Error: No version could be determined"
+    fi
+}
