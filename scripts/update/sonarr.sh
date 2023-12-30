@@ -12,7 +12,7 @@ if [[ -f /install/.sonarr.lock ]]; then
 
         if [[ $(_sonarr_version) = "mono-v3" ]]; then
             echo_progress_start "Downloading release files"
-            urlbase="https://services.sonarr.tv/v1/download/develop/latest?version=4&os=linux"
+            urlbase="https://services.sonarr.tv/v1/download/main/latest?version=4&os=linux"
             case "$(_os_arch)" in
                 "amd64") dlurl="${urlbase}&arch=x64" ;;
                 "armhf") dlurl="${urlbase}&arch=arm" ;;
