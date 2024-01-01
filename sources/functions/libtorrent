@@ -148,9 +148,9 @@ function booststrap() {
     if [[ ! -d ${BOOST_ROOT} ]]; then
         echo_progress_start "Installing boost"
         cd /opt
-        wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
-            echo_warn "Could not download boost from main mirror, attempting fallback."
-            wget https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+        curl -O https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
+            echo_warn "Could not download boost from sourceforge mirror, attempting fallback."
+            wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
                 echo_error "Boost could not be downloaded. Setup will exit."
                 exit 1
             }
