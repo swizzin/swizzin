@@ -148,13 +148,41 @@ function booststrap() {
     if [[ ! -d ${BOOST_ROOT} ]]; then
         echo_progress_start "Installing boost"
         cd /opt
-        curl -O https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
-            echo_warn "Could not download boost from sourceforge mirror, attempting fallback."
-            wget https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1 || {
-                echo_error "Boost could not be downloaded. Setup will exit."
-                exit 1
-            }
-        }
+        declare -A boost_mirror_urls=(
+    		["jfrog.io"]="https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz"
+            ["boost.io"]="https://archives.boost.io/release/${BOOST_VERSION//_/.}/source/boost_${BOOST_VERSION}.tar.gz"
+    		["sourceforge"]="https://deac-ams.dl.sourceforge.net/project/boost/boost/${BOOST_VERSION//_/.}/boost_${BOOST_VERSION}.tar.gz"
+		)
+		
+        boost_failed_downloads=0
+        boost_valid_mime_types=("application/octet-stream" "application/x-gzip")
+        
+		for boost_mirror in "${!boost_mirror_urls[@]}"; do
+    		boost_url="${boost_mirror_urls[${boost_mirror}]}"
+
+    		boost_response=$(wget --spider -S --max-redirect=2 --server-response "${boost_url}" 2>&1)
+    		boost_content_type=$(echo "${boost_response}" | awk '/Content-Type/ {print $2}')
+
+    		if [[ " ${boost_valid_mime_types[*]} " == *" ${boost_content_type} "* ]]; then
+       			echo "Downloading from ${boost_mirror}: ${boost_url}..." >> ${log} 2>&1
+        		wget --max-redirect=2 "${boost_url}" >> ${log} 2>&1
+        		if [ $? -eq 0 ]; then
+            		echo_info "Download from ${boost_mirror} successful, extracting files."
+            		break
+        		else
+            		echo_info "Download from ${boost_mirror}. Trying next mirror..." >> ${log}
+                    ((boost_failed_downloads++))
+        		fi
+    		else
+        		echo_info "Skipping mirror ${boost_mirror}. Not a gzip file or offline" >> ${log} 2>&1
+                ((boost_failed_downloads++))
+    		fi
+		done
+        
+        if [ "${boost_failed_downloads}" -eq "${#boost_mirror_urls[@]}" ]; then
+   			echo_error "No download mirror available."
+            exit 1
+		fi
         tar xvf boost_${BOOST_VERSION}.tar.gz >> ${log} 2>&1
         rm -f boost_${BOOST_VERSION}.tar.gz
         cd ${BOOST_ROOT}
