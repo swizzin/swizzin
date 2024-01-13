@@ -20,7 +20,7 @@ fi
 
 username=$(_get_master_username)
 
-case $(os_codename) in
+case $(_os_codename) in
     bullseye)
         java=openjdk-17-jdk-headless
         ;;
@@ -28,7 +28,7 @@ case $(os_codename) in
         java=default-jre-headless
         ;;
 esac
-LIST='unzip $java'
+LIST="unzip $java"
 apt_install $LIST
 
 echo_progress_start "Installing NZBHydra ${latestversion}"
