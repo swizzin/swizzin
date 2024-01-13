@@ -7,7 +7,7 @@ if [[ -f /usr/libexec/netdata/netdata-uninstaller.sh ]]; then
         exit 1
     }
 else
-    bash <(curl -Ssf https://my-netdata.io/kickstart.sh 2>> ${log} || { echo "exit 1"; }) --uninstall --non-interactive >> $log 2>&1 || {
+    bash <(curl -Ssf https://get.netdata.cloud/kickstart.sh 2>> ${log} || { echo "exit 1"; }) --uninstall --non-interactive >> $log 2>&1 || {
         echo_error "Netdata remover failed!"
         exit 1
     }
