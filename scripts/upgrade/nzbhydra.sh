@@ -131,7 +131,7 @@ WorkingDirectory=/opt/nzbhydra2
 # NZBHydra stores its data in a "data" subfolder of its installation path
 # To change that set the --datafolder parameter:
 # --datafolder /path-to/datafolder
-ExecStart=/opt/nzbhydra2/nzbhydra2 --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile
+ExecStart=/opt/nzbhydra2/nzbhydra2wrapperPy3.py --nobrowser --datafolder /home/${username}/.config/nzbhydra2 --nopidfile
 
 Restart=always
 
@@ -159,7 +159,7 @@ if [[ -z $localversion ]] || dpkg --compare-versions ${localversion#v} lt ${late
     unzip nzbhydra2.zip >> ${log} 2>&1
     rm -f nzbhydra2.zip
 
-    chmod +x nzbhydra2
+    chmod +x nzbhydra2 nzbhydra2wrapperPy3.py
     chown -R ${username}: /opt/nzbhydra2
 
     if [[ $active == "active" ]]; then
