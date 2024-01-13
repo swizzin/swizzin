@@ -3,7 +3,7 @@
 # Author: liara
 
 echo_progress_start "Running netdata install script"
-bash <(curl -Ss https://my-netdata.io/kickstart.sh) --non-interactive >> $log 2>&1
+bash <(curl -Ss https://get.netdata.cloud/kickstart.sh) --non-interactive >> $log 2>&1
 echo_progress_done
 
 if [[ -f /install/.nginx.lock ]]; then
