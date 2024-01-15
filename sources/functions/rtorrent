@@ -201,8 +201,6 @@ function build_libtorrent_rakshasa() {
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/lookup-cache-0.13.8.patch >> "$log" 2>&1
     fi
-    #apply piece boundary fix to all libtorrents
-    patch -p1 < /etc/swizzin/sources/patches/rtorrent/piece-boundary-fix-0.13.8.patch >> "$log" 2>&1	
     if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
     fi
