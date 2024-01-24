@@ -7,6 +7,7 @@
 *******************************************************************************/
 
 // packages
+$L['AIRSONIC'] = 'Airsonic is a web-based audio player. It is a maintained forked of Subsonic, with the paid components modified to be free.';
 $L['AUTOBRR'] = 'A powerful modern autodl alternative, which monitors IRC announce channels to get releases as soon as they are available and send to your favorite client.';
 $L['AUTODL'] = 'A tool to help you automatically add torrents to your clients from IRC announce channels, filtering them through regex expressions.';
 $L['BAZARR'] = 'The "-arr" tool to manage subtitles for items in Sonarr and Radarr.';
@@ -23,6 +24,7 @@ $L['FLOOD'] = 'A web frontend for rtorrent with a focus on simplicity and a plea
 $L['HEADPHONES'] = 'A music download manager.';
 $L['JACKETT'] = 'API Support for your favorite private trackers.';
 $L['JELLYFIN'] = 'A TV, Film and Music media streaming player, forked from Emby to keep it free and open-source.';
+$L['JFAGO'] = 'jfa-go is a user management app for Jellyfin (and now Emby) that provides invite-based account creation as well as other features that make one's instance much easier to manage.';
 $L['LETSENCRYPT'] = 'A tool to generate and manage SSL Certificates the easy and automated way.';
 $L['LIBRESPEED'] = 'Speed-test type utility which allows you to measure your upload and download against your machine.';
 $L['LIDARR'] = 'Music management tool for both torrents and usenet.';
@@ -40,12 +42,12 @@ $L['OMBI'] = 'A TV, film and music request system with multi-user support which 
 $L['ORGANIZR'] = 'A Dashboard or a one-place-stop webpage for your applications which can heavily integrate into some installed media server and seedbox applications.';
 $L['OVPN'] = 'SSL/TLS based user-space VPN. Supports Linux, Solaris, OpenBSD, FreeBSD, NetBSD, Mac OS X, and Windows 2000/XP+.';
 $L['PANEL'] = 'Homegrown homepage for your server, swizzin style.';
-$L['PLEX_REQUESTS'] = 'Ombi offers a beautiful and easy to use interface for items users wish to be added to the library. Integrates with CouchPotato, SickRage and Sonarr.';
 $L['PLEX'] = 'Plex lets you stream your content to any Plex enabled device.';
+$L['PROWLARR'] = 'Prowlarr is an indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers.';
 $L['PYLOAD'] = 'pyLoad is a download manager for `Hoster` websites, video sites, and HTTP/FTP links. A list of supported sites can be found <a href="https://github.com/pyload/pyload/wiki/Supported-Hoster" target="_blank">here</a>';
 $L['QBITTORRENT'] = 'qBittorrent is an open-source software alternative to µTorrent based on the Qt toolkit and libtorrent-rasterbar library.';
 $L['QUASSEL'] = 'Quassel IRC is a modern, cross-platform, distributed IRC client based on the Qt4 framework.';
-$L['QUOTAS'] = 'This feature of Linux allows the system administrator to allocate a maximum amount of disk space a user or group may use.';
+$L['QUOTA'] = 'This feature of Linux allows the system administrator to allocate a maximum amount of disk space a user or group may use.';
 $L['RADARR'] = 'A Film management system which works with both torrents and usenet.';
 $L['RAPIDLEECH'] = 'Rapid Leech is a free server transfer script for use on various popular upload/download sites such as uploaded.net, Rapidshare.com and more than 120 others.';
 $L['RCLONE'] = 'Rclone is a feature-rich command-line program to manage files on cloud storage supporting over 70 cloud storage products.';
