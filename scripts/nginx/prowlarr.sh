@@ -33,7 +33,7 @@ location ^~ /$app_baseurl {
     auth_basic_user_file /etc/htpasswd.d/htpasswd.${master};
 }
 # Allow the API/Indexer External Access via NGINX
-location ^~ /$app_baseurl(/[0-9]+)?/api {
+location ^~ /$app_baseurl/api {
     auth_request off;
     proxy_pass http://127.0.0.1:$app_port;
 }
