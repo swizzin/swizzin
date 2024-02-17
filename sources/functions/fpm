@@ -9,6 +9,10 @@ function install_fpm() {
         case $(_os_codename) in
             buster)
                 gem install public_suffix -v 4.0.7 >> $log 2>&1
+                gem install dotenv -v 2.8.1 >> $log 2>&1
+                ;;
+            focal)
+                gem install dotenv -v 2.8.1 >> $log 2>&1
                 ;;
             *) ;;
         esac
