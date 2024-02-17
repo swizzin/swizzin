@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.11.0]
+
+## Feb 17, 2024
+
+### New:
+- Sonarr v4 support :tada:
+
+### Changed:
+- nginx: stop version emission
+- boost: more robust mirror fallback mechanisms
+- curl: upgrade to 8.4
+- box: package descriptions have been updated
+- node: bump to 20.x LTS
+
+### Fixed:
+- rutorrent: country flags
+- autobrr: issue with package selection during install
+- navidrome: fails to download on arm64
+- netdata: install/remove url
+- nzbhydra: java variable resolution
+- nzbhydra: use python wrapper for launching
+- nzbhydra: upgrader issues
+- rtorrent: build flag issues
+- rtorrent: remove piece boundary fix
+- rtorrent: pin xmlrpc to rev 3212
+- fpm: fix dotenv dependency issue in focal/buster
+- nginx: fancyindex installation (note, it should fix existing installs if you haven't touched anything)
+
+
 ## [3.10.0]
 
 ## November 6, 2023
