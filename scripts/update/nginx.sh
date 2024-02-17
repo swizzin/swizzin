@@ -65,6 +65,7 @@ function update_nginx() {
     if [[ ! -d /srv/fancyindex ]]; then
         git clone https://github.com/Naereen/Nginx-Fancyindex-Theme/ /tmp/fancyindex >> $log 2>&1
         mv /tmp/fancyindex/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
+        rm -rf /tmp/fancyindex
     fi
 
     if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
