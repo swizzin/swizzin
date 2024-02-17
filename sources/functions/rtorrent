@@ -153,7 +153,7 @@ function build_xmlrpc-c() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/xmlrpc-c"
     rm_if_exists "/tmp/dist/xmlrpc-c "
-    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/super_stable /tmp/xmlrpc-c >> $log 2>&1;
+    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/stable@3212 /tmp/xmlrpc-c >> $log 2>&1;
     cd /tmp/xmlrpc-c
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
