@@ -27,30 +27,27 @@ function rutorrent_install() {
     sed -i 's/pathToCreatetorrent = '\'\''/pathToCreatetorrent = '\''\/usr\/bin\/mktorrent'\''/' /srv/rutorrent/plugins/create/conf.php
     sed -i "s/\$pathToExternals\['sox'\] = ''/\$pathToExternals\['sox'\] = '\/usr\/bin\/sox'/g" /srv/rutorrent/plugins/spectrogram/conf.php
 
-    #shellcheck source=sources/functions/utils
     . /etc/swizzin/sources/functions/utils
     install_rar
 
-    #if [[ ! -d /srv/rutorrent/plugins/theme/themes/club-QuickBox ]]; then
-    #    git clone https://github.com/QuickBox/club-QuickBox /srv/rutorrent/plugins/theme/themes/club-QuickBox >> "$log" 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
-    #    perl -pi -e "s/\$defaultTheme \= \"\"\;/\$defaultTheme \= \"club-QuickBox\"\;/g" /srv/rutorrent/plugins/theme/conf.php
-    #fi
-
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
-        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || {
+            echo_error "git of file-manager plugin to main plugins seems to have failed";
+        }
         rutorrent_fm_config
-        #pinning filemanager should no longer be required
-        #git -C /srv/rutorrent/plugins/filemanager checkout 234f5f20841ad3d1e3c095e6c6954a875fc8a6ea >> ${log} 2>&1
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
-        cd /srv/rutorrent/plugins
-        svn co https://github.com/Gyran/rutorrent-ratiocolor.git/trunk ratiocolor >> "$log" 2>&1
-        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || { echo_error "git of autodl plugin to main plugins seems to have failed"; }
+        git clone https://github.com/Gyran/rutorrent-ratiocolor /srv/rutorrent/plugins/ratiocolor >> "$log" 2>&1
+        sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || {
+            echo_error "git of ratio plugin to main plugins seems to have failed";
+        }
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/geoip2 ]]; then
-        git clone https://github.com/Micdu70/geoip2-rutorrent /srv/rutorrent/plugins/geoip2 >> ${log} 2>&1 || { echo_error "git of geoip2 plugin to main plugins seems to have failed"; }
+        git clone https://github.com/Micdu70/geoip2-rutorrent /srv/rutorrent/plugins/geoip2 >> ${log} 2>&1 || {
+            echo_error "git of geoip2 plugin to main plugins seems to have failed";
+        }
     fi
 
     echo_progress_done "Plugins downloaded"
