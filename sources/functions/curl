@@ -2,6 +2,16 @@
 # Upgrade curl to bypass the bug in Debian 10. Can be used on any system however, but the benefit is to Buster users most
 
 configure_curl() {
+    # Install required Jammy dependency for upgrading from Focal
+    . /etc/swizzin/sources/functions/os
+    if [[ "$(_os_arch)" = "amd64" ] && [ "$(_os_codename)" = "jammy" ]]; then
+        mkdir -p /tmp/libldap
+        cd /tmp/libldap
+        wget -q http://http.us.debian.org/debian/pool/main/o/openldap/libldap-2.4-2_2.4.47+dfsg-3+deb10u7_amd64.deb >> ${log} 2>&1
+        dpkg -i libldap-2.4-2_2.4.47+dfsg-3+deb10u7_amd64.deb >> ${log} 2>&1
+        rm -rf /tmp/libldap >> $log 2>&1
+    fi
+
     apt_install cmake libssl-dev libnghttp2-dev libzstd-dev libldap2-dev libssh2-1-dev libpsl-dev
     rm_if_exists /usr/local/lib/libcurl.la
 }
