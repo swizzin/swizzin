@@ -8,8 +8,6 @@ mangousr="mango"
 
 # Downloading the latest binary
 function _install_mango() {
-    echo_progress_start "Downloading binary"
-    mango_latest=$(github_latest_version getmango/Mango)
 
     case "$(_os_arch)" in
         "arm32" | "arm64")
@@ -17,7 +15,7 @@ function _install_mango() {
             exit 1
             ;;
         "amd64")
-            dlurl="https://github.com/getmango/Mango/releases/download/${mango_latest}/mango"
+            dlurl=$(github_release_url getmango/Mango | grep -e 'mango$')
             ;;
         *)
             echo_error "Unsupported arch?"
@@ -28,6 +26,7 @@ function _install_mango() {
 
     mkdir -p "$mangodir"
     mkdir -p "$mangodir"/library
+    echo_progress_start "Downloading binary"
     wget "${dlurl}" -O $mangodir/mango >> "$log" 2>&1 || {
         echo_error "Failed to download binary"
         exit 1
