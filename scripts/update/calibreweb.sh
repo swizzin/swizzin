@@ -15,6 +15,14 @@ if [[ -f /install/.calibreweb.lock ]]; then
         fi
         echo_progress_done
     fi
+    if [[ -f /etc/nginx/apps/calibreweb.conf ]]; then
+        if ! grep -q -- "proxy_buffer_size" /etc/nginx/apps/calibreweb.conf; then
+            echo_progress_start "Updating Calibre Web nginx config"
+            bash /usr/local/bin/swizzin/nginx/calibreweb.sh
+            systemctl reload nginx
+            echo_progress_done
+        fi
+    fi
 fi
 
 # Remove the proxy_bind setting from Nginx Conf.
