@@ -82,4 +82,9 @@ build_curl() {
 
     rm_if_exists /usr/local/lib/libcurl.so.4
     ln -s /usr/local/lib/libcurl.so.4.8.0 /usr/local/lib/libcurl.so.4 >> $log 2>&1
+
+    # force lookup of curl path next time it's used
+    if hash -t curl > /dev/null 2>&1; then
+        hash -d curl
+    fi
 }
