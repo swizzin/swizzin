@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.11.1]
+
+## March 12, 2024
+
+### SECURITY:
+ - Pyload has been removed from installation due to a Remote Code Execution vulnerability (CVE-2023-0297). Existing users will be encouraged to uninstall the software with every box update. This is a major issue, please remove. You've been warned!
+
+### Fixed:
+ - curl: scripts may use the wrong path (/usr/bin/curl) if curl has been previously primed during execution of the scripts and which caches its path. Clear the hash table for curl after we compile it ourselves to prevent odd errors.
+
 ## [3.11.0]
 
 ## Feb 17, 2024
