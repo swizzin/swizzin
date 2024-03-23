@@ -85,12 +85,22 @@ function configure_rtorrent() {
     else
         export rtorrentflto=""
     fi
-    # pipe optimizations for 512MB plus memory
     memory=$(awk '/MemAvailable/ {printf( "%.f\n", $2 / 1024 )}' /proc/meminfo)
+    # pipe optimizations for 512MB plus memory
     if [[ $memory > 512 ]]; then
         export rtorrentpipe="-pipe"
     else
         export rtorrentpipe=""
+    fi
+    # address space optimization for higher memory counts
+    if [[ $memory > 65536 ]]; then
+        export rtorrentaddress="6144"
+    elif [[ $memory > 32768 ]]; then
+        export rtorrentaddress="4096"
+    elif [[ $memory > 16384 ]]; then
+        export rtorrentaddress="2048"
+    else
+        export rtorrentaddress="1024"
     fi
     # GCC optimization level for program compilation
     if [ $(nproc) -le 1 ]; then
@@ -215,7 +225,7 @@ function build_libtorrent_rakshasa() {
         fi
     fi
     ./autogen.sh >> $log 2>&1
-    ./configure --prefix=/usr --enable-aligned >> $log 2>&1 || {
+    ./configure --prefix=/usr --enable-aligned --with-address-space="${rtorrentaddress}" >> $log 2>&1 || {
         echo_error "Something went wrong while configuring libtorrent"
         exit 1
     }
