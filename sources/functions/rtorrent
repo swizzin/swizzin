@@ -123,18 +123,43 @@ function depends_rtorrent() {
         apt_install $APT
     fi
 
+    # Build mktorrent in the background and wait for it to complete
+    # Build libudns in the foreground at the same time
+    build_maketorrent &
+    build_libudns
+    wait
+
+    # Append mktorrent build log to swizzin.log then delete it
+    mlog="/root/logs/mktorrent.log"
+    . /etc/swizzin/sources/functions/utils
+    cat $mlog >> $log
+    rm_if_exists $mlog
+}
+
+function build_maketorrent() {
+    mlog="/root/logs/mktorrent.log"
+
     # mktorrent from source
     cd /tmp
-    curl -sL https://github.com/Rudde/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1
+    curl -sL https://github.com/pobrn/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $mlog 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
-    unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
+    unzip -d mktorrent -j mktorrent.zip >> $mlog 2>&1
     cd mktorrent
-    make -j$(nproc) CC=gcc CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel}" >> $log 2>&1
-    make install PREFIX=/usr >> $log 2>&1
-    cd /tmp
-    rm -rf mktorrent*
 
+    # Configure mktorrent 
+    echo "CC = gcc" >> Makefile	
+    echo "CFLAGS = -w -flto -O3" >> Makefile
+    echo "USE_PTHREADS = 1" >> Makefile
+    echo "USE_OPENSSL = 1" >> Makefile
+
+    # Build maketorrent
+    make -j$(nproc) >> $mlog 2>&1
+    make install PREFIX=/usr >> $mlog 2>&1
+    rm_if_exists "/tmp/mktorrent"
+}
+
+function build_libudns() {
     # libudns from source
     if [[ ${libudns} == "true" ]]; then
         git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
