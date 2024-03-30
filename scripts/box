@@ -505,6 +505,7 @@ function _chpasswd() {
     echo_success "Password for $user changed"
     pass=""
     unset pass
+    rm /root/"$user".info
 }
 
 function _nukeovh() {
