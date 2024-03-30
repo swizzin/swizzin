@@ -11,11 +11,11 @@ function whiptail_qbittorrent() {
         latestv43=$(echo "$releases" | grep -m1 -oP '^4\.3\.\d?.?\d')
         latestv44=$(echo "$releases" | grep -m1 -oP '^4\.4\.\d?.?\d')
         latestv45=$(echo "$releases" | grep -m1 -oP '^4\.5\.\d?.?\d')
-		latestv46=$(echo "$releases" | grep -m1 -oP '^4\.6\.\d?.?\d')
+        latestv46=$(echo "$releases" | grep -m1 -oP '^4\.6\.\d?.?\d')
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
-            "buster")
+            buster)
                 #We can't go past 4.5 due to gcc8 missing features
                 function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
@@ -24,10 +24,21 @@ function whiptail_qbittorrent() {
                     "4.2" "(${latestv42})" \
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
+            focal | bullseye)
+                #We can't go past 4.6.3 due to openssl3
+                function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
+                    "Repo" "${repov}" \
+                    "4.6.3" "(4.6.3)" \
+                    "4.5" "(${latestv45})" \
+                    "4.4" "(${latestv44})" \
+                    "4.3" "(${latestv43})" \
+                    "4.2" "(${latestv42})" \
+                    "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
+                ;;
             *)
                 function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
-					"4.6" "(${latestv46})" \
+                    "4.6" "(${latestv46})" \
                     "4.5" "(${latestv45})" \
                     "4.4" "(${latestv44})" \
                     "4.3" "(${latestv43})" \
@@ -49,17 +60,17 @@ function whiptail_qbittorrent() {
             4.3)
                 export QBITTORRENT_VERSION=${latestv43}
                 ;;
-            4.3.1)
-                export QBITTORRENT_VERSION=4.3.1
-                ;;
             4.4)
                 export QBITTORRENT_VERSION=${latestv44}
                 ;;
             4.5)
                 export QBITTORRENT_VERSION=${latestv45}
                 ;;
-			4.6)
+            4.6)
                 export QBITTORRENT_VERSION=${latestv46}
+                ;;
+            4.6.3)
+                export QBITTORRENT_VERSION="4.6.3"
                 ;;
             Repo)
                 export QBITTORRENT_VERSION=repo
@@ -175,7 +186,7 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=cmake
             ;;
-		4.6.*)
+        4.6.[0123]*)
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
                     RC_2_0)
@@ -196,6 +207,31 @@ function qbittorrent_version_info() {
             libtorrent_minimum_version=1.2.19
             stdcver="c++17"
             qt_minimum_version=6.4
+            qbt_use_qt6=ON
+            cryptography_type=openssl
+            build_type=cmake
+            ;;
+        4.6.*)
+            if [[ -n ${LIBTORRENT_VERSION} ]]; then
+                case $LIBTORRENT_VERSION in
+                    RC_2_0)
+                        libtorrent_branch=RC_2_0
+                        ;;
+                    RC_1_2)
+                        libtorrent_branch=RC_1_2
+                        ;;
+                    *)
+                        echo_error "LIBTORRENT_VERSION must be either RC_1_2 or RC_2_0. You entered ${LIBTORRENT_VERSION}."
+                        exit 1
+                        ;;
+                esac
+                echo_info "Overriding libtorrent version with ${LIBTORRENT_VERSION}"
+            else
+                libtorrent_branch=RC_1_2
+            fi
+            libtorrent_minimum_version=1.2.19
+            stdcver="c++17"
+            qt_minimum_version=6.5
             qbt_use_qt6=ON
             cryptography_type=openssl
             build_type=cmake
