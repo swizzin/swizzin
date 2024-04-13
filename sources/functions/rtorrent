@@ -163,7 +163,7 @@ function build_xmlrpc-c() {
     }
     source <(sed 's/ //g' version.mk)
     VERSION=$XMLRPC_MAJOR_RELEASE.$XMLRPC_MINOR_RELEASE.$XMLRPC_POINT_RELEASE
-    make -j$(nproc) CFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1
+    make -j$(nproc) CFLAGS="-w ${rtorrentlevel} ${rtorrentpipe}" >> $log 2>&1
     make DESTDIR=/tmp/dist/xmlrpc-c install >> $log 2>&1 || {
         echo_error "Something went wrong while making xmlrpc"
         exit 1
