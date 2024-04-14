@@ -15,7 +15,7 @@ function whiptail_rtorrent() {
             0.9.7 "" \
             0.9.6 "" \
             UDNS "(0.9.8)" \
-            PGO "(0.9.8)" \
+            STICKZ "(0.9.8)" \
             Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
@@ -33,42 +33,42 @@ function set_rtorrent_version() {
             export rtorrentver='0.9.6'
             export libtorrentver='0.13.6'
             export libudns='false'
-            export rtorrentpgo='false'
+            export rtorrentstickz='false'
             ;;
 
         0.9.7 | '0.9.7')
             export rtorrentver='0.9.7'
             export libtorrentver='0.13.7'
             export libudns='false'
-            export rtorrentpgo='false'
+            export rtorrentstickz='false'
             ;;
 
         0.9.8 | '0.9.8')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
             export libudns='false'
-            export rtorrentpgo='false'
+            export rtorrentstickz='false'
             ;;
 
         UDNS | 'UDNS')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
             export libudns='true'
-            export rtorrentpgo='false'
+            export rtorrentstickz='false'
             ;;
 			
-		PGO | 'PGO')
+        STICKZ | 'STICKZ')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
             export libudns='true'
-            export rtorrentpgo='true'
+            export rtorrentstickz='true'
             ;;
 
         Repo | 'Repo')
             export rtorrentver='repo'
             export libtorrentver='repo'
             export libudns='false'
-            export rtorrentpgo='false'
+            export rtorrentstickz='false'
             ;;
 
         *)
@@ -99,12 +99,6 @@ function configure_rtorrent() {
         export rtorrentlevel="-O3"
     else
         export rtorrentlevel="-O2"
-    fi
-    # GCC PGO for program compilation
-    if [[ ${rtorrentpgo} == "true" ]]; then
-        export rtorrentprofile="-fprofile-use"
-    else
-        export rtorrentprofile=""	
     fi
 }
 
@@ -177,13 +171,39 @@ function build_xmlrpc-c() {
 }
 
 function build_libtorrent_rakshasa() {
+    if [[ ${rtorrentstickz} == "true" ]]; then
+        build_libtorrent_stickz
+    else	
+        build_libtorrent_swizzin
+    fi
+}
+
+function build_libtorrent_stickz() {
+    cd "/tmp"
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists "/tmp/libtorrent"
+    mkdir /tmp/libtorrent
+    git clone -q https://github.com/stickz/rtorrent /tmp/libtorrent >> $log 2>&1
+    cd /tmp/libtorrent/libtorrent >> $log 2>&1
+    ./autogen.sh >> $log 2>&1
+    ./configure --prefix=/usr --enable-aligned >> $log 2>&1 || {
+        echo_error "Something went wrong while configuring libtorrent"
+        exit 1
+    }
+    make -j$(nproc) CXXFLAGS="-O3 -flto=\"$(nproc)\" -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing" >> $log 2>&1 || {
+        echo_error "Something went wrong while making libtorrent"
+        exit 1
+    }
+    libtorrent_install
+}
+
+function build_libtorrent_swizzin() {
     libtorrentloc="https://github.com/rakshasa/libtorrent/archive/refs/tags/v${libtorrentver}.tar.gz"
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/libtorrent"
     mkdir /tmp/libtorrent
     curl -sL ${libtorrentloc} -o /tmp/libtorrent-${libtorrentver}.tar.gz
-    VERSION=$libtorrentver
     tar -xf /tmp/libtorrent-${libtorrentver}.tar.gz -C /tmp/libtorrent --strip-components=1 >> $log 2>&1
     cd /tmp/libtorrent >> $log 2>&1
 
@@ -223,17 +243,48 @@ function build_libtorrent_rakshasa() {
         echo_error "Something went wrong while making libtorrent"
         exit 1
     }
+    libtorrent_install
+}
+
+function libtorrent_install() {
+    . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/dist/libtorrent-rakshasa"
     make DESTDIR=/tmp/dist/libtorrent-rakshasa install >> $log 2>&1
     mkdir -p /root/dist
-    fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${VERSION} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/libtorrent-rakshasa_${VERSION}.deb >> $log 2>&1
-    cd /tmp
-    rm -rf /tmp/dist/libtorrent-rakshasa
-    rm -rf libtorrent*
+    fpm -f -C /tmp/dist/libtorrent-rakshasa -p /root/dist/libtorrent-rakshasa_VERSION.deb -s dir -t deb -n libtorrent-rakshasa --version ${libtorrentver} --description "libtorrent-rakshasa compiled by swizzin" > /dev/null 2>&1
+    dpkg -i /root/dist/libtorrent-rakshasa_${libtorrentver}.deb >> $log 2>&1
+    rm_if_exists "/tmp/dist/libtorrent-rakshasa"
+    rm_if_exists "/tmp/libtorrent"
 }
 
 function build_rtorrent() {
+    if [[ ${rtorrentstickz} == "true" ]]; then
+        build_rtorrent_stickz
+    else	
+        build_rtorrent_swizzin
+    fi
+}
+
+function build_rtorrent_stickz() {
+    cd "/tmp"
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists "/tmp/rtorrent"
+    mkdir /tmp/rtorrent
+    git clone -q https://github.com/stickz/rtorrent /tmp/rtorrent >> $log 2>&1
+    cd /tmp/rtorrent/rtorrent >> $log 2>&1	
+    ./autogen.sh >> $log 2>&1
+    ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
+        echo_error "Something went wrong while configuring rtorrent"
+        exit 1
+    }
+    make -j$(nproc) CXXFLAGS="-O3 -flto=\"$(nproc)\" -Werror=odr -Werror=lto-type-mismatch -Werror=strict-aliasing" >> $log 2>&1 || {
+        echo_error "Something went wrong while making rtorrent"
+        exit 1
+    }
+    rtorrent_install
+}
+
+function build_rtorrent_swizzin() {
     rtorrentloc="https://github.com/rakshasa/rtorrent/archive/refs/tags/v${rtorrentver}.tar.gz"
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
@@ -241,7 +292,6 @@ function build_rtorrent() {
     mkdir /tmp/rtorrent
     curl -sL ${rtorrentloc} -o /tmp/rtorrent-${rtorrentver}.tar.gz
     tar -xzf /tmp/rtorrent-${rtorrentver}.tar.gz -C /tmp/rtorrent --strip-components=1 >> $log 2>&1
-    VERSION=$rtorrentver
     cd /tmp/rtorrent
     if [[ -f /root/rtorrent-${rtorrentver}.patch ]]; then
         patch -p1 < /root/rtorrent-${rtorrentver}.patch >> ${log} 2>&1 || {
@@ -283,35 +333,23 @@ function build_rtorrent() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    if [[ ${rtorrentpgo} == "true" ]]; then
-        echo_log_only "Begin fprofile generate for rTorrent"
-        make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} -fprofile-generate" >> $log 2>&1 || {
-            echo_error "Something went wrong while making rtorrent with -fprofile-generate"
-            exit 1
-        }
-        make install >> $log 2>&1
-        echo_info "Running rTorrent PGO for 30s. Please wait..."
-        touch ~/.rtorrent.rc
-        screen -d -m -fa -S rtorrent_pgo rtorrent
-        sleep 30
-        screen -X -S rtorrent_pgo quit
-        rm_if_exists "~/.rtorrent.rc"
-        make clean >> $log 2>&1
-        echo_log_only "End fprofile generate for rTorrent"
-    fi
-    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} ${rtorrentprofile}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }
+    rtorrent_install
+}
+
+function rtorrent_install() {
+    . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/dist/rtorrent"
     make DESTDIR=/tmp/dist/rtorrent install >> $log 2>&1
     mkdir -p /root/dist
-    fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version ${VERSION} --description "rtorrent compiled by swizzin" > /dev/null 2>&1
-    dpkg -i /root/dist/rtorrent_${VERSION}.deb >> $log 2>&1
-    cd "/tmp"
+    fpm -f -C /tmp/dist/rtorrent -p /root/dist/rtorrent_VERSION.deb -s dir -t deb -n rtorrent --version ${rtorrentver} --description "rtorrent compiled by swizzin" > /dev/null 2>&1
+    dpkg -i /root/dist/rtorrent_${rtorrentver}.deb >> $log 2>&1
     ldconfig >> $log 2>&1
-    rm -rf rtorrent* >> $log 2>&1
-    rm -rf /tmp/dist/rtorrent
+    rm_if_exists "/tmp/dist/rtorrent"
+    rm_if_exists "/tmp/rtorrent"
     apt-mark hold rtorrent >> ${log} 2>&1
 }
 
