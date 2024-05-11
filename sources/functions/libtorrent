@@ -145,7 +145,7 @@ function booststrap() {
     export BOOST_ROOT=/opt/boost_${BOOST_VERSION}
     export BOOST_INCLUDEDIR=${BOOST_ROOT}
     export BOOST_BUILD_PATH=${BOOST_ROOT}
-    oldBoosts=($(ls /opt/boost | grep boost | grep -v ${BOOST_VERSION}))
+    oldBoosts=($(ls /opt 2> /dev/null | grep boost | grep -v ${BOOST_VERSION}))
     if [[ -n ${oldBoosts[@]} ]]; then
         for oldBoost in ${oldBoosts[@]}; do
             echo_info "Removing old boost: ${oldBoost}"
