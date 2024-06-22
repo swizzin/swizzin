@@ -172,7 +172,7 @@ function build_libtorrent_deluge() {
     libtorrent_clone
 
     cd /tmp/libtorrent
-    VERSION=$(grep AC_INIT configure.ac | grep -oP '\d+\.\d+\.\d+')
+    VERSION=$(grep -oP "VERSION\ = \K\d\.\d\.\d+" Jamfile)
 
     if [[ -f /root/libtorrent-${libtorrent_branch}.patch ]]; then
         patch -p1 < /root/libtorrent-${libtorrent_branch}.patch >> ${log} 2>&1 || {
