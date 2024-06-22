@@ -123,28 +123,49 @@ function depends_rtorrent() {
         apt_install $APT
     fi
 
+    build_maketorrent
+    build_libudns
+}
+
+function build_maketorrent() {
     # mktorrent from source
-    cd /tmp
-    curl -sL https://github.com/Rudde/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/mktorrent"
+    rm_if_exists "/tmp/mktorrent.zip"
+    cd /tmp
+    curl -sL https://github.com/pobrn/mktorrent/archive/v1.1.zip -o mktorrent.zip >> $log 2>&1
     unzip -d mktorrent -j mktorrent.zip >> $log 2>&1
     cd mktorrent
-    make -j$(nproc) CC=gcc CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel}" >> $log 2>&1
-    make install PREFIX=/usr >> $log 2>&1
-    cd /tmp
-    rm -rf mktorrent*
 
+    # Configure mktorrent 
+    echo "CC = gcc" >> Makefile	
+    echo "CFLAGS = -w -flto -O3" >> Makefile
+    echo "USE_PTHREADS = 1" >> Makefile
+    echo "USE_OPENSSL = 1" >> Makefile
+
+    # Build maketorrent
+    make -j$(nproc) >> $log 2>&1
+    make install PREFIX=/usr >> $log 2>&1
+    rm_if_exists "/tmp/mktorrent"
+    rm_if_exists "/tmp/mktorrent.zip"
+}
+
+function build_libudns() {
     # libudns from source
     if [[ ${libudns} == "true" ]]; then
-        git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
+        . /etc/swizzin/sources/functions/utils
+        rm_if_exists "/tmp/udns"
+        cd /tmp
+        git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1 || {
+            echo_error "Something went wrong while downloading udns"
+            exit 1
+        }
         cd /tmp/udns
         ./autogen.sh >> $log 2>&1
         ./configure --prefix=/usr >> $log 2>&1
         make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel} -fPIC" >> $log 2>&1
         make -s install >> $log 2>&1
-        cd /tmp
-        rm -rf udns*
+        rm_if_exists "/tmp/udns"
     fi
 }
 
