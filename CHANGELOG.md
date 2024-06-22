@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.12.0]
+
+## June 22, 2024
+
+### New:
+- Ubuntu Noble support
+
+### Fixed:
+- Libtorrent will use boost 1.85 on bookworm and newer distros
+- Libtorrent version string grep
+- Install rsyslog explicitly for fail2ban
+- qbittorrent: add qt6-base-private-dev depedency
+
 ## [3.11.1]
 
 ## March 12, 2024
