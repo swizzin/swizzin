@@ -7,20 +7,21 @@ _command_complete() {
     cur=${COMP_WORDS[COMP_CWORD]}
     sub_cmd=${COMP_WORDS[1]}
 
-    mapfile -t apps_array < '/var/lib/swizzin/db/bash_completion/apps.list'
-    mapfile -t upgrade_array < '/var/lib/swizzin/db/bash_completion/upgrade.list'
+    mapfile -t install_array < <(find "/etc/swizzin/scripts/install/" -type f -exec basename {} \; | sort)
+    mapfile -t remove_array < <(find "/etc/swizzin/scripts/remove/" -type f -exec basename {} \; | sort)
+    mapfile -t upgrade_array < <(find "/etc/swizzin/scripts/upgrade/" -type f -exec basename {} \; | sort)
 
     case ${COMP_CWORD} in
         1)
-            mapfile -t COMPREPLY < <(compgen -W "install remove adduser deluser chpasswd update upgrade rtx rmgrsec list help" -- "${cur}")
+            mapfile -t COMPREPLY < <(compgen -W "install it remove rm adduser deluser chpasswd update upgrade rtx rmgrsec list help test" -- "${cur}")
             ;;
         *)
             case ${sub_cmd} in
-                install)
-                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${apps_array[@]%.*}")" -- "${cur}")
+                install | it)
+                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${install_array[@]%.*}")" -- "${cur}")
                     ;;
-                remove)
-                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${apps_array[@]%.*}")" -- "${cur}")
+                remove | rm)
+                    mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${remove_array[@]%.*}")" -- "${cur}")
                     ;;
                 upgrade)
                     mapfile -t COMPREPLY < <(compgen -W "$(printf "%s " "${upgrade_array[@]%.*}")" -- "${cur}")
