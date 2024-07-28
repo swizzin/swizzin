@@ -138,7 +138,7 @@ function _update() {
 
     #Checking for EOL releases
     case "$(_os_codename)" in
-        "focal" | "buster" | "bullseye" | "jammy" | "bookworm")
+        "focal" | "buster" | "bullseye" | "jammy" | "bookworm" | "noble")
             echo_log_only "OS supported"
             ;;
         *)
