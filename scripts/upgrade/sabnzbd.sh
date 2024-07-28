@@ -10,15 +10,11 @@ fi
 . /etc/swizzin/sources/functions/pyenv
 localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")
-latestversion=$(github_latest_version sabnzbd/sabnzbd) || {
-    echo_error "Failed to query GitHub for latest sabnzbd version"
-    exit 1
-}
-latest="https://github.com/sabnzbd/sabnzbd/archive/refs/tags/${latestversion}.tar.gz"
+latest=$(github_release_url sabnzbd/sabnzbd "src.tar.gz")
 
 pyvenv_version=$(/opt/.venv/sabnzbd/bin/python --version | awk '{print $2}')
 
-if dpkg --compare-versions ${pyvenv_version} lt 3.8.0 && dpkg --compare-versions ${latestversion} ge 3.5.0; then
+if dpkg --compare-versions ${pyvenv_version} lt 3.8.0 && dpkg --compare-versions ${github_sabnzbd_version} ge 3.5.0; then
     LIST='par2 p7zip-full libffi-dev libssl-dev libglib2.0-dev libdbus-1-dev'
     PYENV_REBUILD=True
 elif [[ -f /opt/.venv/sabnzbd/bin/python2 ]]; then
@@ -29,7 +25,7 @@ else
 fi
 apt_install $LIST
 
-if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
+if dpkg --compare-versions ${localversion:-0.0} lt ${github_sabnzbd_version}; then
     if [[ $PYENV_REBUILD == True ]]; then
         echo_progress_start "Upgrading SABnzbd python virtual environment"
         rm -rf /opt/.venv/sabnzbd
@@ -79,14 +75,14 @@ if dpkg --compare-versions ${localversion:-0.0} lt ${latestversion}; then
     rm /tmp/sabnzbd.tar.gz
 
     echo_progress_start "Checking pip requirements"
-    if [[ $latestversion =~ ^3\.0\.[1-2] ]]; then
+    if [[ $github_sabnzbd_version =~ ^3\.0\.[1-2] ]]; then
         sed -i "s/feedparser.*/feedparser<6.0.0/g" /opt/sabnzbd/requirements.txt
     fi
     sudo -u ${user} bash -c "/opt/.venv/sabnzbd/bin/pip install -r /opt/sabnzbd/requirements.txt" >> "$log" 2>&1
     echo_progress_done
     systemctl try-restart sabnzbd
-    echo_info "SABnzbd has been upgraded to version ${latestversion}!"
+    echo_info "SABnzbd has been upgraded to version ${github_sabnzbd_version}!"
 else
-    echo_info "Nothing to do! Current version (${localversion}) matches the remote version (${latestversion})"
+    echo_info "Nothing to do! Current version (${localversion}) matches the remote version (${github_sabnzbd_version})"
     exit 0
 fi
