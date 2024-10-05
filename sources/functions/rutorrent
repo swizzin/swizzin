@@ -15,6 +15,7 @@ function rutorrent_install() {
         chown -R www-data:www-data /srv/rutorrent
         rm -rf /srv/rutorrent/plugins/throttle
         rm -rf /srv/rutorrent/plugins/_cloudflare
+        rm -rf /srv/rutorrent/plugins/dump
         rm -rf /srv/rutorrent/plugins/extratio
         rm -rf /srv/rutorrent/plugins/rpc
         rm -rf /srv/rutorrent/plugins/geoip
