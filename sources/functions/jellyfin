@@ -1,0 +1,32 @@
+#!/bin/bash
+# Contributers: katiethedev
+# This functions file is created to resolve some replicated code between the install and update functions.
+
+# This function adds the Jellyfin repository.
+function add_jellyfin_repo() {
+    # Set required variables
+    ARCHITECTURE="$(_os_arch)"
+    BASE_OS="$(_os_distro)"
+    case "${BASE_OS}" in
+        raspbian)
+            # Raspbian uses the Debian repository
+            REPO_OS="debian"
+            ;;
+        *)
+            REPO_OS="${BASE_OS}"
+            VERSION="$(awk -F'=' '/^VERSION_CODENAME=/{ print $NF }' /etc/os-release)"
+            ;;
+    esac
+
+    # Install the Deb822 format jellyfin.sources entry
+    echo_progress_start "Adding Jellyfin repository to apt."
+    cat << EOF | tee /etc/apt/sources.list.d/jellyfin.sources
+Types: deb
+URIs: https://repo.jellyfin.org/${REPO_OS}
+Suites: ${VERSION}
+Components: main
+Architectures: ${ARCHITECTURE}
+Signed-By: /etc/apt/keyrings/jellyfin.gpg
+EOF
+    echo_progress_done "Jellyfin repository added."
+}
