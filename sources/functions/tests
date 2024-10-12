@@ -6,11 +6,25 @@
 
 # Attempts to guess the port the application is running on using the nginx installers.
 get_port() {
+    appnginxconf="/etc/nginx/apps/$1.conf"
     installer="/etc/swizzin/scripts/nginx/$1.sh"
-    if [ -f "$installer" ]; then
-        grep -w "proxy_pass" "$installer" | sed 's/.*://; s/[^0-9].*//'
+    if [ -f /install/.nginx.lock ] && [ -f "$appnginxconf" ] && grep -w "proxy_pass" "$appnginxconf" -q; then
+        echo_log_only "Found compatible local nginx config for $1"
+        port="$(grep -w "proxy_pass" "$appnginxconf" | sed 's/.*://; s/[^0-9].*//')"
+    elif [ -f "$installer" ]; then
+        echo_log_only "Trying to find port from installer of $1"
+        port="$(grep -w "proxy_pass" "$installer" | sed 's/.*://; s/[^0-9].*//')"
+
     else
+        echo_log_only "Neither config nor installer worked for guessing port for $1"
         # No installer for application found
+        return 1
+    fi
+
+    #check if port returned is a normal number
+    if [ "$port" -eq "$port" ] 2> /dev/null; then
+        echo "$port"
+    else
         return 1
     fi
 }
@@ -26,6 +40,7 @@ check_service() {
 }
 
 # Attempts to verify that the reverse proxy configuration for an application accessible at https://localhost/$1  is accessible.
+# $2 is optionally supplied to curl as extra parementers, e.g. basic auth
 check_nginx() {
     if [ ! -f /install/.nginx.lock ]; then
         echo_warn "nginx not installed, cannot verify if $1 is reachable through it. Skipping."
@@ -44,6 +59,9 @@ check_nginx() {
 
 # Attempts to verify that an application accessible at http://localhost:$1  is accessible.
 # If $1 is not a number sequence, the ports are guessed off of the application name supplied via $1
+# $2 is optionally supplied to curl as extra parementers, e.g. basic auth
+# $3 is optionally used as a baseurl to append to the location curl queries
+# $4 is optionally used as the protocol to use instead of `http`
 check_port_curl() {
     echo_log_only "Checking if port $1 is reachable via curl"
     if [ "$1" -eq "$1" ] 2> /dev/null; then
@@ -55,9 +73,20 @@ check_port_curl() {
         }
     fi
     extra_params="$2"
-
-    curl -sSfLk $extra_params http://127.0.0.1:"$port" -o /dev/null >> $log 2>&1 || {
-        echo_warn "Querying http://127.0.0.1:$port failed"
+    if [ -f /install/.nginx.lock ]; then
+        if [[ -n $3 ]]; then
+            baseurl="$3"
+        else
+            if [ "$1" -eq "$1" ] 2> /dev/null; then
+                : # TODO handle the case when the function just got the port number and not the name of the application
+            fi
+            baseurl="$1"
+        fi
+    fi
+    #shellcheck disable=SC2086
+    curl -sSfLk $extra_params ${4:-http://}127.0.0.1:"$port"/"$baseurl" -o /dev/null || {
+        echo_warn "Querying ${4:-http://}127.0.0.1:$port/$baseurl failed"
+        echo
         return 1
     }
 }
