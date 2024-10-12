@@ -119,7 +119,7 @@ ${app_name^} updater is exiting, please try again later."
     fi
 
     if [[ -f /install/.nginx.lock ]]; then
-        if grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf || ! grep -q "calendar" /etc/nginx/apps/sonarr.conf; then
+        if grep -q "8989/sonarr" /etc/nginx/apps/sonarr.conf || ! grep -q "proxy_read_timeout" /etc/nginx/apps/sonarr.conf; then
             echo_progress_start "Upgrading nginx config for Sonarr"
             bash /etc/swizzin/scripts/nginx/sonarr.sh
             systemctl reload nginx -q

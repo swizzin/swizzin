@@ -36,6 +36,8 @@ location /$app_baseurl {
 location /$app_baseurl/api {
     auth_basic off;
     proxy_pass http://127.0.0.1:$app_port;
+    # Extend read timeout to allow long "Interactive Searches" to complete
+    proxy_read_timeout 900;
 }
 
 # Allow Calendar Feed External Access via NGINX
