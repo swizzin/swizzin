@@ -28,7 +28,7 @@ if [[ -f /install/.panel.lock ]]; then
             echo_progress_done "venv moved"
         fi
 
-        pyminver=3.6.0
+        pyminver=3.7.0
         pyenv_version=$(/opt/.venv/swizzin/bin/python3 --version | awk '{print $2}')
 
         if dpkg --compare-versions ${pyenv_version} lt ${pyminver}; then
