@@ -539,7 +539,7 @@ function build_qbittorrent() {
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
     if [[ $QBITTORENT_VERSION = "4.6.7" ]]; then
         echo_info "Applying security patch for qBittorrent 4.6.7"
-        curl https://github.com/qbittorrent/qBittorrent/commit/91943e4815ae40a273b39432340357a4ce879f3b.patch | git apply -v >> $log 2>&1
+        curl -s https://github.com/qbittorrent/qBittorrent/commit/91943e4815ae40a273b39432340357a4ce879f3b.patch | git apply -v >> $log 2>&1
     fi
     booststrap
     case $build_type in
