@@ -23,6 +23,7 @@ $L['FILEBROWSER'] = 'A file manager that allows access, editing, and basic file 
 $L['FLOOD'] = 'A web frontend for rtorrent with a focus on simplicity and a pleasant GUI.';
 $L['HEADPHONES'] = 'A music download manager.';
 $L['JACKETT'] = 'API Support for your favorite private trackers.';
+$L['LAZYLIBRARIAN'] = 'LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs.';
 $L['JELLYFIN'] = 'A TV, Film and Music media streaming player, forked from Emby to keep it free and open-source.';
 $L['JFAGO'] = 'jfa-go is a user management app for Jellyfin (and now Emby) that provides invite-based account creation as well as other features that make one's instance much easier to manage.';
 $L['LETSENCRYPT'] = 'A tool to generate and manage SSL Certificates the easy and automated way.';
