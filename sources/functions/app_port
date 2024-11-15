@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Use this function to get a port from the array using the command inside an install script app_proxy_port="$(_get_app_port)"
+
+declare -A app_port
+
+# #shellcheck source=sources/functions/app_port
+# . /etc/swizzin/sources/functions/app_port
+# _get_app_port
+
+#shellcheck source=sources/default_ports
+. /etc/swizzin/sources/default_ports
+
+_get_app_port() {
+    which_app="$(basename -- "$0" \.sh)"
+    if [[ -n "${app_port[${which_app}]+${which_app}}" ]]; then
+        printf '%s' "${app_port[${which_app}]}"
+    else
+        echo_error "ERROR get_app_port ${which_app} does not exist or does not have a port defined"
+        exit 1
+    fi
+    return
+}
