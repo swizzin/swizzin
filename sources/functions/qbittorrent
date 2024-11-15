@@ -313,6 +313,7 @@ function install_qt_swizzin() {
         dpkg -i /tmp/qt6-swizzin.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing qt6-swizzin. Setup will not proceed"
         }
+        apt install -f -y >> ${log} 2>&1
         rm -rf /tmp/qt6-swizzin.deb
         echo_progress_done "qt6-swizzin installed"
     fi
