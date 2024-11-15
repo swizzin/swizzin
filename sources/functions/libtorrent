@@ -142,11 +142,8 @@ function cleanup_repo_libtorrent() {
 
 function booststrap() {
     case $(_os_codename) in
-        buster | focal | bullseye)
+        buster | focal | bullseye | jammy)
             BOOST_VERSION=1_75_0
-            ;;
-        jammy)
-            BOOST_VERSION=1_76_0
             ;;
         *)
             BOOST_VERSION=1_85_0
