@@ -11,7 +11,8 @@ function whiptail_qbittorrent() {
         latestv43=$(echo "$releases" | grep -m1 -oP '^4\.3\.\d?.?\d')
         latestv44=$(echo "$releases" | grep -m1 -oP '^4\.4\.\d?.?\d')
         latestv45=$(echo "$releases" | grep -m1 -oP '^4\.5\.\d?.?\d')
-		latestv46=$(echo "$releases" | grep -m1 -oP '^4\.6\.\d?.?\d')
+        latestv46=$(echo "$releases" | grep -m1 -oP '^4\.6\.\d?.?\d')
+        latestv50=$(echo "$releases" | grep -m1 -oP '^5\.0\.\d?.?\d')
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
@@ -24,16 +25,27 @@ function whiptail_qbittorrent() {
                     "4.2" "(${latestv42})" \
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
-            *)
+            "bullseye" | "focal" | "jammy")
                 function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
-					"4.6" "(${latestv46})" \
+                    "4.6" "(${latestv46})" \
                     "4.5" "(${latestv45})" \
                     "4.4" "(${latestv44})" \
                     "4.3" "(${latestv43})" \
                     "4.2" "(${latestv42})" \
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 #"Latest" "(${latestv})" 3>&1 1>&2 2>&3)
+                ;;
+            *)
+                function=$(
+                    whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
+                        "Repo" "${repov}" \
+                        "5.0" "(${latestv50})" \
+                        "4.6" "(${latestv46})" \
+                        "4.5" "(${latestv45})" \
+                        "4.4" "(${latestv44})" \
+                        "4.3" "(${latestv43})" 3>&1 1>&2 2>&3
+                )
                 ;;
         esac
         case $function in
@@ -58,8 +70,11 @@ function whiptail_qbittorrent() {
             4.5)
                 export QBITTORRENT_VERSION=${latestv45}
                 ;;
-			4.6)
+            4.6)
                 export QBITTORRENT_VERSION=${latestv46}
+                ;;
+            5.0)
+                export QBITTORRENT_VERSION=${latestv50}
                 ;;
             Repo)
                 export QBITTORRENT_VERSION=repo
@@ -175,7 +190,7 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=cmake
             ;;
-		4.6.*)
+        4.6.*)
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
                     RC_2_0)
@@ -196,6 +211,31 @@ function qbittorrent_version_info() {
             libtorrent_minimum_version=1.2.19
             stdcver="c++17"
             qt_minimum_version=6.4
+            qbt_use_qt6=ON
+            cryptography_type=openssl
+            build_type=cmake
+            ;;
+        5.0.*)
+            if [[ -n ${LIBTORRENT_VERSION} ]]; then
+                case $LIBTORRENT_VERSION in
+                    RC_2_0)
+                        libtorrent_branch=RC_2_0
+                        ;;
+                    RC_1_2)
+                        libtorrent_branch=RC_1_2
+                        ;;
+                    *)
+                        echo_error "LIBTORRENT_VERSION must be either RC_1_2 or RC_2_0. You entered ${LIBTORRENT_VERSION}."
+                        exit 1
+                        ;;
+                esac
+                echo_info "Overriding libtorrent version with ${LIBTORRENT_VERSION}"
+            else
+                libtorrent_branch=RC_1_2
+            fi
+            libtorrent_minimum_version=1.2.19
+            stdcver="c++20"
+            qt_minimum_version=6.5
             qbt_use_qt6=ON
             cryptography_type=openssl
             build_type=cmake
@@ -242,6 +282,7 @@ function install_qt() {
     fi
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version} 2>&1; then
         if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
+            install_zlib_ng
             install_qt_swizzin
             QT_PREFIX=/opt/local
         else
@@ -272,6 +313,7 @@ function install_qt_swizzin() {
         dpkg -i /tmp/qt6-swizzin.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing qt6-swizzin. Setup will not proceed"
         }
+        apt install -f -y >> ${log} 2>&1
         rm -rf /tmp/qt6-swizzin.deb
         echo_progress_done "qt6-swizzin installed"
     fi
@@ -291,6 +333,23 @@ function install_cmake_swizzin() {
         }
         rm -rf /tmp/cmake-swizzin.deb
         echo_progress_done "cmake-swizzin installed"
+    fi
+}
+
+function install_zlib_ng() {
+    latest_zlib_ng=$(github_latest_version swizzin/zlib-ng-crossbuild)
+    installed_zlib_ng=$(dpkg-query --showformat='${Version}' --show zlib-ng 2> /dev/null)
+    if [[ -z ${installed_zlib_ng} ]] || dpkg --compare-versions ${installed_zlib_ng} lt ${latest_zlib_ng//_/+}; then
+        echo_progress_start "Installing latest zlib-ng"
+        wget -O /tmp/zlib-ng.deb https://github.com/swizzin/zlib-ng-crossbuild/releases/download/${latest_zlib_ng}/$(_os_distro)-$(_os_codename)-zlib-ng-$(_os_arch).deb >> ${log} 2>&1 || {
+            echo_error "zlib-ng could not be downloaded from github. Setup will not proceed"
+            exit 1
+        }
+        dpkg -i /tmp/zlib-ng.deb >> ${log} 2>&1 || {
+            echo_error "Something went wrong when installing zlib-ng. Setup will not proceed"
+        }
+        rm -rf /tmp/zlib-ng.deb
+        echo_progress_done "zlib-ng installed"
     fi
 }
 
@@ -479,6 +538,10 @@ function build_qbittorrent() {
     cd /tmp/qbittorrent
     tag=" static with ${stdcver} O3 march=native"
     #Ensure boost variables are loaded (i.e. libtorrent skipped)
+    if [[ $VERSION = "4.6.7" ]]; then
+        echo_info "Applying security patch for qBittorrent 4.6.7"
+        curl -s https://github.com/qbittorrent/qBittorrent/commit/91943e4815ae40a273b39432340357a4ce879f3b.patch | git apply -v >> $log 2>&1
+    fi
     booststrap
     case $build_type in
         cmake)
@@ -595,7 +658,7 @@ function qbittorrent_user_config() {
     chown $user: /home/${user}/.config/qBittorrent
     cat > /home/${user}/.config/qBittorrent/qBittorrent.conf << QBTCONF
 [BitTorrent]
-Session\DisableAutoTMMByDefault=false 
+Session\DisableAutoTMMByDefault=false
 
 [Preferences]
 Bittorrent\MaxConnecs=-1
