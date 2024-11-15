@@ -61,15 +61,17 @@ for u in ${users[@]}; do
     done
 
     confpath="/home/${u}/.config/transmission-daemon/settings.json"
-    jq '.["rpc-bind-address"] = "127.0.0.1"' "$confpath" >> /root/logs/swizzin.log
+
+    jq '.["rpc-bind-address"] = "127.0.0.1"' "$confpath" >> "${confpath}.tmp"
+    mv "${confpath}.tmp" "$confpath"
+    
     RPCPORT=$(jq -r '.["rpc-port"]' < "$confpath")
-    if [[ ! -f /etc/nginx/conf.d/${u}.transmission.conf ]]; then
-        cat > /etc/nginx/conf.d/${u}.transmission.conf << TDCONF
+    cat > /etc/nginx/conf.d/${u}.transmission.conf << TDCONF
 upstream ${u}.transmission {
     server 127.0.0.1:${RPCPORT};
 }
 TDCONF
-    fi
+    
     if [[ $active == "active" ]]; then
         systemctl start transmission@${u}
         echo_log_only "Activating service"
