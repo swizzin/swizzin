@@ -13,32 +13,69 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
             trigger_apt_update=true
         fi
     fi
-    #Ignore a found match if the line is commented out
-    if ! grep 'universe' /etc/apt/sources.list | grep -q -v '^#'; then
-        echo_info "Enabling universe repo"
-        add-apt-repository -y universe >> ${log} 2>&1
-        trigger_apt_update=true
-    fi
-    if ! grep 'multiverse' /etc/apt/sources.list | grep -q -v '^#'; then
-        echo_info "Enabling multiverse repo"
-        add-apt-repository -y multiverse >> ${log} 2>&1
-        trigger_apt_update=true
-    fi
-    if ! grep 'restricted' /etc/apt/sources.list | grep -q -v '^#'; then
-        echo_info "Enabling restricted repo"
-        add-apt-repository -y restricted >> ${log} 2>&1
-        trigger_apt_update=true
+    listFile="/etc/apt/sources.list.d/ubuntu.sources"
+    if [[ -f ${listFile} ]]; then
+        components=(universe multiverse restricted)
+        tmpFile=$(mktemp)
+        cp "$listFile" "$tmpFile"
+        for component in "${components[@]}"; do
+            sed -i "/^Components:/ {
+                /$component/! s/$/ $component/
+            }" "$tmpFile"
+        done
+
+        if ! cmp -s "$listFile" "$tmpFile"; then
+            trigger_apt_update=true
+            mv "$tmpFile" "$listFile"
+        else
+            rm "$tmpFile"
+        fi
+    else
+        if ! grep 'universe' /etc/apt/sources.list | grep -q -v '^#'; then
+            echo_info "Enabling universe repo"
+            add-apt-repository -y universe >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
+        if ! grep 'multiverse' /etc/apt/sources.list | grep -q -v '^#'; then
+            echo_info "Enabling multiverse repo"
+            add-apt-repository -y multiverse >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
+        if ! grep 'restricted' /etc/apt/sources.list | grep -q -v '^#'; then
+            echo_info "Enabling restricted repo"
+            add-apt-repository -y restricted >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
-    if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
-        echo_info "Enabling contrib repo"
-        apt-add-repository -y contrib >> ${log} 2>&1
-        trigger_apt_update=true
-    fi
-    if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
-        echo_info "Enabling non-free repo"
-        apt-add-repository -y non-free >> ${log} 2>&1
-        trigger_apt_update=true
+    listFile="/etc/apt/sources.list.d/debian.sources"
+    if [[ -f ${listFile} ]]; then
+        components=(contrib non-free)
+        tmpFile=$(mktemp)
+        cp "$listFile" "$tmpFile"
+        for component in "${components[@]}"; do
+            sed -i "/^Components:/ {
+            /$component/! s/$/ $component/
+        }" "$tmpFile"
+        done
+
+        if ! cmp -s "$listFile" "$tmpFile"; then
+            trigger_apt_update=true
+            mv "$tmpFile" "$listFile"
+        else
+            rm "$tmpFile"
+        fi
+    else
+        if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
+            echo_info "Enabling contrib repo"
+            apt-add-repository -y contrib >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
+        if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
+            echo_info "Enabling non-free repo"
+            apt-add-repository -y non-free >> ${log} 2>&1
+            trigger_apt_update=true
+        fi
     fi
 fi
 if [[ $trigger_apt_update == "true" ]]; then
