@@ -25,7 +25,7 @@ function whiptail_qbittorrent() {
                     "4.2" "(${latestv42})" \
                     "4.1" "(${latestv41})" 3>&1 1>&2 2>&3)
                 ;;
-            "bullseye" | "focal")
+            "bullseye" | "focal" | "jammy")
                 function=$(whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                     "Repo" "${repov}" \
                     "4.6" "(${latestv46})" \
@@ -282,6 +282,7 @@ function install_qt() {
     fi
     if ! dpkg --compare-versions ${qt_repo_version} ge ${qt_minimum_version} 2>&1; then
         if dpkg --compare-versions ${qt_minimum_version} ge 6.0; then
+            install_zlib_ng
             install_qt_swizzin
             QT_PREFIX=/opt/local
         else
@@ -331,6 +332,23 @@ function install_cmake_swizzin() {
         }
         rm -rf /tmp/cmake-swizzin.deb
         echo_progress_done "cmake-swizzin installed"
+    fi
+}
+
+function install_zlib_ng() {
+    latest_zlib_ng=$(github_latest_version swizzin/zlib-ng-crossbuild)
+    installed_zlib_ng=$(dpkg-query --showformat='${Version}' --show zlib-ng 2> /dev/null)
+    if [[ -z ${installed_zlib_ng} ]] || dpkg --compare-versions ${installed_zlib_ng} lt ${latest_zlib_ng//_/+}; then
+        echo_progress_start "Installing latest zlib-ng"
+        wget -O /tmp/zlib-ng.deb https://github.com/swizzin/zlib-ng-crossbuild/releases/download/${latest_zlib_ng}/$(_os_distro)-$(_os_codename)-zlib-ng-$(_os_arch).deb >> ${log} 2>&1 || {
+            echo_error "zlib-ng could not be downloaded from github. Setup will not proceed"
+            exit 1
+        }
+        dpkg -i /tmp/zlib-ng.deb >> ${log} 2>&1 || {
+            echo_error "Something went wrong when installing zlib-ng. Setup will not proceed"
+        }
+        rm -rf /tmp/zlib-ng.deb
+        echo_progress_done "zlib-ng installed"
     fi
 }
 
