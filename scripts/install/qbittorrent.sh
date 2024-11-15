@@ -39,7 +39,6 @@ case ${QBITTORRENT_VERSION} in
             build_libtorrent_qbittorrent
             echo_progress_done "Build completed"
         fi
-        install_qt
         echo_progress_start "Building qBittorrent"
         build_qbittorrent
         cleanup_repo_libtorrent

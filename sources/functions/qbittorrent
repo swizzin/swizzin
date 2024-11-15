@@ -312,8 +312,8 @@ function install_qt_swizzin() {
         }
         dpkg -i /tmp/qt6-swizzin.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing qt6-swizzin. Setup will not proceed"
+            exit 1
         }
-        apt install -f -y >> ${log} 2>&1
         rm -rf /tmp/qt6-swizzin.deb
         echo_progress_done "qt6-swizzin installed"
     fi
@@ -330,6 +330,7 @@ function install_cmake_swizzin() {
         }
         dpkg -i /tmp/cmake-swizzin.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing cmake-swizzin. Setup will not proceed"
+            exit 1
         }
         rm -rf /tmp/cmake-swizzin.deb
         echo_progress_done "cmake-swizzin installed"
@@ -347,6 +348,7 @@ function install_zlib_ng() {
         }
         dpkg -i /tmp/zlib-ng.deb >> ${log} 2>&1 || {
             echo_error "Something went wrong when installing zlib-ng. Setup will not proceed"
+            exit 1
         }
         rm -rf /tmp/zlib-ng.deb
         echo_progress_done "zlib-ng installed"
@@ -526,6 +528,7 @@ function build_qbittorrent() {
     esac
     LIST='build-essential automake pkg-config libtool git zlib1g-dev libssl-dev libgeoip-dev python3 libstdc++-*-dev libicu6* libicu-dev libiconv-hook-dev'
     apt_install --no-recommends "$LIST ${OS_DEPS}"
+    install_qt
     rm_if_exists "/tmp/qbittorrent"
     wget -O /tmp/release-${VERSION}.tar.gz https://github.com/qbittorrent/qBittorrent/archive/release-${VERSION}.tar.gz >> "${log}" 2>&1 || {
         echo_error "qBittorrent could not be downloaded. Setup will not proceed"
