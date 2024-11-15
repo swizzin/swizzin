@@ -2,14 +2,14 @@
 
 [![CodeFactor](https://www.codefactor.io/repository/github/liaralabs/swizzin/badge)](https://www.codefactor.io/repository/github/liaralabs/swizzin) [![Discord](https://img.shields.io/discord/577667871727943696?logo=discord&logoColor=white)](https://discord.gg/sKjs9UM)  ![GitHub](https://img.shields.io/github/license/liaralabs/swizzin) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/liaralabs/swizzin) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/liaralabs/swizzin)
 
-# 3.12.0 Stable
+# 3.13.0 Stable
 
 [website](https://swizzin.ltd) \| [docs](https://swizzin.ltd/getting-started) \| [discord](https://discord.gg/bDFqAUF)
 
 Please use [Discord](https://discord.gg/bDFqAUF) for all community functions, and [GitHub discussions](https://github.com/swizzin/swizzin/discussions) for feature requests and to raise issues.
 
 ## What is swizzin?
-Swizzin is a light, modular seedbox solution that can be installed on Debian 10/11/12 or Ubuntu 20.04/22.04/24.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
+Swizzin is a light, modular seedbox solution that can be installed on Debian 11/12 or Ubuntu 20.04/22.04/24.04. The QuickBox package repo has been ported over for your installing pleasure, including the panel -- if you so choose!
 
 Box has been revamped to reduce and consolidate the amount of commands you need to remember to manage your seedbox. More on this below. In addition to that, additional add-on packages can be installed during installation. No need to wait until the installer finishes! Now with unattended installs!
 
@@ -58,7 +58,7 @@ sudo bash swizzin/setup.sh --local
 
 Want to specify the user and their password? And the packages to have installed? Use the `--user` and `--pass` flags, and add packages as arguments!
 ```bash
-bash <(curl -sL git.io/swizzin) --unattend qbittorrent nginx panel --user tester --pass test1234 
+bash <(curl -sL git.io/swizzin) --unattend qbittorrent nginx panel --user tester --pass test1234
 ```
 
 Want something a bit more complex, specify package install variables, don't want a super long command to type, and store the configuration? Use the `--env` flag with your custom `env` file! (see the [unattended.example.env](unattended.example.env) file for an example)
@@ -70,7 +70,7 @@ bash <(curl -sL git.io/swizzin) --env /path/to/your/env/file/here.env
 
 Long-term support branches only:
 
--   Debian 10/11/12
+-   Debian 11/12
 -   Ubuntu 20.04/22.04/24.04
 
 ## Support and Help
@@ -109,7 +109,7 @@ Box functions:
 ## Contributing
 We welcome any bug fixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organized and keep your submissions supported properly.
 
-We're more than happy to talk about any changes to our codebase on the Discord server which you can find an invite link to on the top of this page. 
+We're more than happy to talk about any changes to our codebase on the Discord server which you can find an invite link to on the top of this page.
 
 ## Donations
 

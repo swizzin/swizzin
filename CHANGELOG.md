@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.13.0]
+
+## Nov 15, 2024
+
+### New:
+- qBittorrent 5 support for Bookwork+ and Noble+ distributions
+- rTorrent 0.10.0 support
+
+### Removed:
+- Buster support
+
+### Fixed:
+- deps: ensure cron is installed
+- ruTorrent: v5 compatibility
+- noble: box update bug
+- sonarr: fix long interactive searches
+- qBittorrent: Backport ssl validation fix to v4.6.7
+
+
 ## [3.12.0]
 
 ## June 22, 2024
@@ -232,14 +251,14 @@ This release is mainly aimed at improving the ruTorrent issues as a result of a 
  - fpm: fixed installation on stretch, bionic and buster
  - netdata: uninstall now exists (again)
  - mango: fixed dl links
- - calibre: libopengl0 
+ - calibre: libopengl0
  - nginx/php: add zip module
  - rutorrent: fix version sorting, install latest
  - rtx: fix version grepping for tag support in many plugins
  - rutorrent: un-pin filemanager plugin
  - deluge: don't chmod deluge.UpdateTracker.py
  - qbit: removed useless code
- - panel: fixed log spam of missing profiles (nginx, vsftp, quota, rclone, ffmpeg, etc) 
+ - panel: fixed log spam of missing profiles (nginx, vsftp, quota, rclone, ffmpeg, etc)
 
 ## [3.5.2]
 
@@ -352,7 +371,7 @@ Also, lots of first time contributors in this release. Thank you for your contri
  - mylar
    - cleaned up some issues preventing a clean experience on a fresh installation
  - `box`
-   - The box management script has received some TLC in the form of refactoring 
+   - The box management script has received some TLC in the form of refactoring
    - `apt_install` function will now do some checks and only inform you about the packages it is actually installing
 
 ### Internal/Development notes
@@ -451,7 +470,7 @@ Enjoy!
  - Echo ports at the end of installers if nginx is not installed
  - bash completion (@userdocs)
  - `swizdb`: functions for a persistent storage of swizzin application-related config options
- - `box test` (mostly for dev QoL) 
+ - `box test` (mostly for dev QoL)
 
 ### Removed
  - Xenial support (stretch life support notice ~ June 2022)
@@ -550,7 +569,7 @@ Enjoy!
    - We format with spaces. I can't help if spaces make you feel some kinda way.
  - Editorconfig and workspace preferences for development
  - vscode snippets to make life easier for repetitive functions
- - Recommended extensions to ensure your code is formatted properly 
+ - Recommended extensions to ensure your code is formatted properly
 
 ## [2.6.0]
 
@@ -723,7 +742,7 @@ This is a **massive** release! Over 100 files have been touched and updated with
 - bazarr will now use python3
 
 ### Removed
-- quickbox_dashboard has been permanently removed. 
+- quickbox_dashboard has been permanently removed.
 
 ### Fixed
 - GitHub API changed the output of some of their commands. Autodl was having some issues as a result, but the API change has been worked around.
@@ -962,7 +981,7 @@ This is a **massive** release! Over 100 files have been touched and updated with
 - Better sed matching for potential changes in the fancyindex naming
 - Updated depends in various packages to improve stand-alone functionality
 
-## [1.1.1] 
+## [1.1.1]
 
 ###January 10th, 2018
 
@@ -1169,4 +1188,3 @@ This is a **massive** release! Over 100 files have been touched and updated with
 - proxy_redirect will no longer attempt to redirect to localhost
 - prevent nested while loops creating infinite loops
 - emby install issues
-
