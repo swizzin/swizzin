@@ -21,7 +21,7 @@ MASTER=$(cut -d: -f1 < /root/.master.info)
 
 echo_progress_start "Adding Syncthing Repository"
 curl -s https://syncthing.net/release-key.txt | gpg --dearmor > /usr/share/keyrings/syncthing-archive-keyring.gpg 2>> "${log}"
-echo "deb [signed-by=/usr/share/keyrings/syncthing-archive-keyring.gpg] http://apt.syncthing.net/ syncthing release" > /etc/apt/sources.list.d/syncthing.list
+echo "deb [signed-by=/usr/share/keyrings/syncthing-archive-keyring.gpg] http://apt.syncthing.net/ syncthing stable" > /etc/apt/sources.list.d/syncthing.list
 echo_progress_done "Repo added"
 apt_update
 
