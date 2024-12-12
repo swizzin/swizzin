@@ -149,6 +149,13 @@ DIN
         echo_progress_start "Removing php directive from root location"
         sed -i -e '/location ~ \\.php$ {/,/}/d' /etc/nginx/sites-enabled/default
         echo_progress_done
+    fi    
+
+    # Sync body size in proxy.conf with server value.
+    if grep -q 'client_max_body_size 10M;' /etc/nginx/snippets/proxy.conf; then
+        echo_progress_start "Setting client_max_body_size default to 40MB"
+        sed -i 's|client_max_body_size 10M;|client_max_body_size 40M;|g' /etc/nginx/snippets/proxy.conf
+        echo_progress_done
     fi
 
     # Remove fancy index location block because it's now an app conf
