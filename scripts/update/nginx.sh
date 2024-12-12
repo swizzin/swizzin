@@ -149,7 +149,7 @@ DIN
         echo_progress_start "Removing php directive from root location"
         sed -i -e '/location ~ \\.php$ {/,/}/d' /etc/nginx/sites-enabled/default
         echo_progress_done
-    fi    
+    fi
 
     # Sync body size in proxy.conf with server value.
     if grep -q 'client_max_body_size 10M;' /etc/nginx/snippets/proxy.conf; then
