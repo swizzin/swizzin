@@ -146,7 +146,7 @@ function booststrap() {
             BOOST_VERSION=1_75_0
             ;;
         *)
-            BOOST_VERSION=1_85_0
+            BOOST_VERSION=1_86_0
             ;;
     esac
     export BOOST_ROOT=/opt/boost_${BOOST_VERSION}
