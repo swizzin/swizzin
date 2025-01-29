@@ -16,7 +16,7 @@ for user in "${users[@]}"; do
         BAD=true
         continue
     }
-    confpath="/home/${user}/nzbget/nzbget.conf"
+    confpath="/opt/nzbget/nzbget.conf"
     port=$(grep 'ControlPort' "$confpath" | cut -d= -f2)
     check_port_curl "$port" "$extra_params" || BAD=true
 done
