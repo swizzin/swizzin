@@ -22,10 +22,10 @@ fi
 
 for u in "${users[@]}"; do
     isactive=$(systemctl is-active nzbget@$u)
-    sed -i "s/SecureControl=yes/SecureControl=no/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlIP=0.0.0.0/ControlIP=127.0.0.1/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlUsername=nzbget/ControlUsername=/g" /home/$u/nzbget/nzbget.conf
-    sed -i "s/ControlPassword=tegbzn6789/ControlPassword=/g" /home/$u/nzbget/nzbget.conf
+    sed -i "s/SecureControl=yes/SecureControl=no/g" /opt/nzbget/nzbget.conf
+    sed -i "s/ControlIP=0.0.0.0/ControlIP=127.0.0.1/g" /opt/nzbget/nzbget.conf
+    sed -i "s/ControlUsername=nzbget/ControlUsername=/g" /opt/nzbget/nzbget.conf
+    sed -i "s/ControlPassword=tegbzn6789/ControlPassword=/g" /opt/nzbget/nzbget.conf
 
     if [[ ! -f /etc/nginx/conf.d/${u}.nzbget.conf ]]; then
         NZBPORT=$(grep ControlPort /home/$u/nzbget/nzbget.conf | cut -d= -f2)
