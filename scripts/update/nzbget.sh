@@ -6,7 +6,7 @@ if [[ -f /install/.nzbget.lock ]]; then
         cat > /etc/systemd/system/nzbget@.service << NZBGD
 [Unit]
 Description=NZBGet Daemon
-Documentation=http://nzbget.net/Documentation
+Documentation=http://nzbget.com/documentation
 After=network.target
 
 [Service]
