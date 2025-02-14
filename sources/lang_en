@@ -34,6 +34,7 @@ $L['MEDUSA'] = 'Medusa is an automatic Video Library Manager for TV Shows.';
 $L['MYLAR'] = 'An automated Comic Book (cbr/cbz) downloader program for use with NZB and torrents.';
 $L['NAVIDROME'] = 'Navidrome is an open source web-based music collection server and streamer.';
 $L['NETDATA'] = 'Monitoring and statistics tool for your server.';
+$L['NETRONOME'] = 'Netronome is a modern network speed testing and monitoring tool with a clean, intuitive web interface. It offers both scheduled and on-demand speed tests with detailed visualizations and historical tracking.';
 $L['NEXTCLOUD'] = 'Nextcloud is an open source, self-hosted file sync and share and communication app platform. Access & sync your files, contacts, calendars & communicate and collaborate across your devices. You decide what happens with your data, where it is and who can access it!';
 $L['NGINX'] = 'A web server which functions primarily as a reverse proxy in order to facilitate access to web-based applications without the need to remember port numbers.';
 $L['NZBGET'] = 'NZBGet is an efficient, open-source Usenet software designed for downloading binary content from Usenet newsgroups.';
