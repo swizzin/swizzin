@@ -26,7 +26,6 @@ function netronome_download_latest() {
 
     echo_progress_start "Extracting archive"
 
-    # the archive contains both netronome and netronomectl to easily setup the user
     tar xfv "/tmp/netronome.tar.gz" --directory /usr/bin/ >> "$log" 2>&1 || {
         echo_error "Failed to extract"
         exit 1

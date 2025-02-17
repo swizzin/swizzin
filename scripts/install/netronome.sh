@@ -49,7 +49,7 @@ _add_users() {
         port=$(port 10000 12000)
 
         # generate a sessionSecret
-        sessionSecret="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c16)"
+        sessionSecret="$(head /dev/urandom | xxd -p -l 32)"
 
         mkdir -p "/home/$user/.config/netronome/"
         chown "$user": "/home/$user/.config"
@@ -67,7 +67,7 @@ host = "0.0.0.0"
 port = ${port}
 
 [logging]
-level = "trace"  # trace, debug, info, warn, error, fatal, panic
+level = "debug"  # trace, debug, info, warn, error, fatal, panic
 
 [speedtest]
 timeout = 30
@@ -75,7 +75,22 @@ timeout = 30
 [speedtest.iperf]
 test_duration = 10
 parallel_conns = 4
+
+[session]
+session_secret = "${sessionSecret}"
 CFG
+
+        _get_user_password "$user" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" create-user "$user" || {
+            echo_error "Failed to execute netronome command"
+            exit 1
+        }
+
+        chown -R "$user": "/home/$user/.config/netronome"
+
+        systemctl enable -q --now netronome@"${user}" 2>&1 | tee -a $log
+        echo_progress_done "Started netronome for $user"
+
+    done
 }
 
 ##############################
