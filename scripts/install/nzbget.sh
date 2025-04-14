@@ -11,35 +11,8 @@
 #
 #################################################################################
 
-function _download() {
-    echo_progress_start "Downloading install script"
-    cd /tmp
-    wget https://nzbget.net/download/nzbget-latest-bin-linux.run >> $log 2>&1
-    echo_progress_done
-}
-
-function _service() {
-    echo_progress_start "Installing systemd service"
-    cat > /etc/systemd/system/nzbget@.service << NZBGD
-[Unit]
-Description=NZBGet Daemon
-Documentation=http://nzbget.net/Documentation
-After=network.target
-
-[Service]
-User=%i
-Group=%i
-Type=forking
-ExecStart=/bin/sh -c "/home/%i/nzbget/nzbget -D"
-ExecStop=/bin/sh -c "/home/%i/nzbget/nzbget -Q"
-ExecReload=/bin/sh -c "/home/%i/nzbget/nzbget -O"
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-NZBGD
-    echo_progress_done
-}
+# shellcheck source=sources/functions/nzbget
+. /etc/swizzin/sources/functions/nzbget
 
 function _install() {
     cd /tmp
@@ -92,8 +65,8 @@ function _cleanup() {
     rm -rf nzbget-latest-bin-linux.run
 }
 
-users=($(cut -d: -f1 < /etc/htpasswd))
-master=$(cut -d: -f1 < /root/.master.info)
+users=$(_get_user_list)
+master=$(_get_master_username)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 
 if [[ -n $noexec ]]; then
