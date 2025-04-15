@@ -90,6 +90,7 @@ function ts_renewal() {
     tailscale cert \
         --cert-file "/etc/nginx/ssl/${ts_hostname}/cert.pem" \
         --key-file "/etc/nginx/ssl/${ts_hostname}/key.pem" \
+        --min-validity "1104h" \
         "${ts_hostname}" >> "${log}" 2>&1
 
     echo_progress_start "Reloading Nginx"
