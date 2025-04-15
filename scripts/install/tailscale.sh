@@ -38,7 +38,7 @@ if [[ -f /install/.nginx.lock ]]; then
             chmod 700 /etc/nginx/ssl/
             chown -R www-data:www-data "/etc/nginx/ssl/${ts_hostname}"
             sed -i "s|server_name .*;|server_name ${ts_hostname};|g" /etc/nginx/sites-enabled/default
-            sed -i "s|ssl_certificate .*;|ssl_certificate /etc/nginx/ssl/${ts_hostname}/cert.pem;|g" /etc/nginx/sites-enabled/default
+            sed -i "s|ssl_certificate .*;|ssl_certificate /etc/nginx/ssl/${ts_hostname}/fullchain.pem;|g" /etc/nginx/sites-enabled/default
             sed -i "s|ssl_certificate_key .*;|ssl_certificate_key /etc/nginx/ssl/${ts_hostname}/key.pem;|g" /etc/nginx/sites-enabled/default
             echo_progress_done
             echo_progress_start "Installing renewal job"

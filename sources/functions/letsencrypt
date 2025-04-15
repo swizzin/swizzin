@@ -88,7 +88,7 @@ function ts_renewal() {
     mkdir -p "/etc/nginx/ssl/${ts_hostname}"
 
     tailscale cert \
-        --cert-file "/etc/nginx/ssl/${ts_hostname}/cert.pem" \
+        --cert-file "/etc/nginx/ssl/${ts_hostname}/fullchain.pem" \
         --key-file "/etc/nginx/ssl/${ts_hostname}/key.pem" \
         --min-validity "1104h" \
         "${ts_hostname}" >> "${log}" 2>&1
