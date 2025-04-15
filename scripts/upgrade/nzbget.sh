@@ -22,7 +22,7 @@ if [[ -f /install/.nzbget.lock ]]; then
 
         _download
 
-        for u in "${users[@]}"; do
+        for u in ${users}; do
             echo_progress_start "Upgrading nzbget for $u"
             sh nzbget-latest-bin-linux.run --destdir /home/$u/nzbget >> $log 2>&1
             chown -R $u:$u /home/$u/nzbget

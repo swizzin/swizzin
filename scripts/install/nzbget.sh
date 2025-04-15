@@ -53,7 +53,7 @@ function _install() {
     fi
 
     echo_progress_start "Enabling nzbget for all users"
-    for u in "${users[@]}"; do
+    for u in ${users}; do
         systemctl enable -q nzbget@$u 2>&1 | tee -a $log
         systemctl start nzbget@$u
     done
