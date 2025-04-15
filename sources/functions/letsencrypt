@@ -72,9 +72,14 @@ function le_znc_hook() {
     echo_progress_done
 }
 
-function ts_renewal() {
-    ts_hostname=$(tailscale status --self --peers=false --json | jq -r '.Self.DNSName' | sed 's/\.$//')
+function ts_hostname() {
+    tailscale status --self --peers=false --json | jq -r '.Self.DNSName' | sed 's/\.$//'
+}
 
+export -f ts_hostname
+
+function ts_renewal() {
+    ts_hostname=$(ts_hostname)
     if [[ -z "${ts_hostname}" ]]; then
         echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
         exit 1
@@ -99,8 +104,7 @@ function ts_renewal() {
 }
 
 function ts_znc_hook() {
-    ts_hostname=$(tailscale status --self --peers=false --json | jq -r '.Self.DNSName' | sed 's/\.$//')
-
+    ts_hostname=$(ts_hostname)
     if [[ -z "${ts_hostname}" ]]; then
         echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
         exit 1
@@ -110,8 +114,7 @@ function ts_znc_hook() {
 }
 
 function ts_vsftpd_hook() {
-    ts_hostname=$(tailscale status --self --peers=false --json | jq -r '.Self.DNSName' | sed 's/\.$//')
-
+    ts_hostname=$(ts_hostname)
     if [[ -z "${ts_hostname}" ]]; then
         echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
         exit 1
