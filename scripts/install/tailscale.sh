@@ -2,6 +2,8 @@
 # Tailscale Installer for Swizzin
 # This script installs Tailscale on a Swizzin server.
 
+. /etc/swizzin/sources/functions/letsencrypt
+
 if [[ -f /install/.tailscale.lock ]]; then
     echo_error "Tailscale is already installed. Please remove /install/.tailscale.lock to reinstall."
 fi
@@ -40,6 +42,9 @@ if [[ -f /install/.nginx.lock ]]; then
             sed -i "s|ssl_certificate .*;|ssl_certificate /etc/nginx/ssl/${ts_hostname}/cert.pem;|g" /etc/nginx/sites-enabled/default
             sed -i "s|ssl_certificate_key .*;|ssl_certificate_key /etc/nginx/ssl/${ts_hostname}/key.pem;|g" /etc/nginx/sites-enabled/default
             echo_progress_done
+            echo_progress_start "Installing renewal job"
+            ts_znc_hook
+            ts_vsftpd_hook
         fi
         echo_progress_start "Applying your changes to nginx"
         systemctl reload nginx >> $log 2>&1
