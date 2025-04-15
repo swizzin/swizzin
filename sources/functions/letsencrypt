@@ -89,8 +89,12 @@ function ts_renewal() {
 
     echo_progress_start "Reloading Nginx"
     systemctl reload nginx
-    ts_znc_hook
-    ts_vsftpd_hook
+    if [[ -f /install/.znc.lock ]]; then
+        ts_znc_hook
+    fi
+    if [[ -f /install/.vsftpd.lock ]]; then
+        ts_vsftpd_hook
+    fi
     echo_progress_done
 }
 
