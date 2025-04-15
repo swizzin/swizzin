@@ -5,7 +5,7 @@ if [[ -f /install/.znc.lock ]]; then
     . /etc/swizzin/sources/functions/letsencrypt
     # Check if using tailnet address in default config, else use LE
     if grep -q ".ts.net" "/etc/nginx/sites-enabled/default"; then
-        _ts_znc_hook
+        ts_znc_hook
     else
         le_znc_hook
     fi
