@@ -36,5 +36,6 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 NZBGD
+    systemctl daemon-reload
     echo_progress_done
 }
