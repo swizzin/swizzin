@@ -9,6 +9,7 @@ function whiptail_deluge() {
             buster | focal | bullseye | jammy)
                 function=$(whiptail --title "Pick deluge version" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 4 \
                     "Repo" "${repov}" \
+                    "Deluge 2.2" "" \
                     "Deluge 2.1" "" \
                     "Deluge 2.0" "" \
                     "Deluge 1.3" "" 3>&1 1>&2 2>&3)
@@ -28,6 +29,9 @@ function whiptail_deluge() {
                 export DELUGE_VERSION=2.0.x
                 ;;
             "Deluge 2.1")
+                export DELUGE_VERSION=deluge-2.1.1
+                ;;
+            "Deluge 2.2")
                 export DELUGE_VERSION=master
                 ;;
             "Repo")
@@ -112,7 +116,7 @@ function deluge_version_info() {
             python=python3
             deluge_git_branch=2.0.x
             ;;
-        master)
+        deluge-2.1.1|master)
             cryptography=openssl
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
@@ -227,7 +231,7 @@ function build_deluge() {
         noexec=1
     fi
     case $DELUGE_VERSION in
-        master | 2.0.x)
+        master | deluge-2.1.1 | 2.0.x)
             LIST='python3 python3-setuptools python3-pip intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
             pythonver=python3
             distver=python3
@@ -321,11 +325,18 @@ function apt_install_deluge() {
 }
 
 function dweb_check() {
-    if [[ ${DELUGE_VERSION} == master ]]; then
-        sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
-    else
-        sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
-    fi
+    case $DELUGE_VERSION in
+        master | deluge-2.1.1 | 2.0.x)
+            sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web -d|g' /etc/systemd/system/deluge-web@.service
+            ;;
+        1.3-stable)
+            sed -i 's|ExecStart=.*|ExecStart=/usr/bin/deluge-web|g' /etc/systemd/system/deluge-web@.service
+        ;;
+        *)
+            echo_error "$DELUGE_VERSION branch not recognized. Setup will now exit"
+            exit 1
+            ;;
+    esac
     systemctl daemon-reload
     dvermajor=$(deluged -v | grep deluged | grep -oP '\d+\.\d+\.\d+' | cut -d. -f1)
     for u in ${users[@]}; do
