@@ -60,4 +60,5 @@ if [[ -f /install/.nginx.lock ]]; then
     fi
 fi
 
+touch /install/.tailscale.lock
 echo_progress_done "Tailscale installed and configured successfully."
