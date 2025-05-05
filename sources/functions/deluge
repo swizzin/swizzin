@@ -15,7 +15,7 @@ function whiptail_deluge() {
                     "Deluge 1.3" "" 3>&1 1>&2 2>&3)
                 ;;
             *)
-                function=$(whiptail --title "Pick deluge version" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 3 \
+                function=$(whiptail --title "Pick deluge version" --menu "Choose a Deluge version:" --ok-button "Continue" --nocancel 12 50 4 \
                     "Repo" "${repov}" \
                     "Deluge 2.2" "" \
                     "Deluge 2.1" "" \
