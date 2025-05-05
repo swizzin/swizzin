@@ -119,7 +119,7 @@ function check_ram() {
 # \
 # Exits if cannot continue
 function check_swap_on() {
-    if ! check_ram 2G; then
+    if ! check_ram 4G; then
         echo_progress_start "Setup is enabling the use of a temporary 2GB swap file"
         dd if=/dev/zero of=/.swapfile bs=1M count=2048 > /dev/null 2>&1 || {
             echo_error "Cannot continue with install because swap file could not be created. Does device have 2GB of free space?"
