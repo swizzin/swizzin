@@ -170,6 +170,10 @@ function build_libtorrent_rakshasa_new() {
     . /etc/swizzin/sources/functions/utils
     download_libtorrent_rakshasa
     auto_patch_libtorrent_rakshasa
+	
+    if [[ ${libtorrentver} == "0.15.3" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-0.15.3-resume-fix.patch >> "$log" 2>&1
+    fi
 
     autoreconf -vfi >> $log 2>&1
     ./configure --prefix=/usr --enable-aligned >> $log 2>&1 || {

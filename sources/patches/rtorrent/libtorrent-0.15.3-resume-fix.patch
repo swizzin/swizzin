@@ -1,0 +1,48 @@
+From: rakshasa <sundell.software@gmail.com>
+From: stickz <stickman002@mail.com>
+Date: Thu, 29 May 2025 09:44:45 +0200
+Subject: [PATCH] Fixed memory access issue in resume
+Commit: https://github.com/rakshasa/libtorrent/commit/4ed7d2bc37053d95e6aa29e86e6f01ff79139a15
+Commit: https://github.com/rakshasa/libtorrent/commit/5160010de70c8418bc11d8d48819e043a1244860
+
+This patch merges two crash fixes for rTorrent 0.15.3 from upstream.
+
+diff --git a/src/torrent/bitfield.h b/src/torrent/bitfield.h
+index 29106b575..7f68847e3 100644
+--- a/src/torrent/bitfield.h
++++ b/src/torrent/bitfield.h
+@@ -110,8 +72,8 @@ class LIBTORRENT_EXPORT Bitfield {
+ 
+   // Remember to use modulo.
+   static value_type   mask_at(size_type idx)        { return 1 << (7 - idx); }
+-  static value_type   mask_before(size_type idx)    { return static_cast<value_type>(~0) << (8 - idx); }
+-  static value_type   mask_from(size_type idx)      { return static_cast<value_type>(~0) >> idx; }
++  static value_type   mask_before(size_type idx)    { return value_type{0xff} << (8 - idx); }
++  static value_type   mask_from(size_type idx)      { return value_type{0xff} >> idx; }
+ 
+ private:
+   size_type           m_size{};
+
+diff --git a/src/torrent/utils/resume.cc b/src/torrent/utils/resume.cc
+index 904557d86..0868b2f7d 100644
+--- a/src/torrent/utils/resume.cc
++++ b/src/torrent/utils/resume.cc
+@@ -315,11 +315,16 @@ resume_load_uncertain_pieces(Download download, const Object& object) {
+ 
+   LT_LOG_LOAD("found %zu uncertain pieces", uncertain.size() / 2);
+ 
+-  for (auto itr = uncertain.begin(); itr + sizeof(uint32_t) < uncertain.end(); itr += sizeof(uint32_t)) {
++  const char* itr  = uncertain.c_str();
++  const char* last = uncertain.c_str() + uncertain.size();
++
++  while (itr + sizeof(uint32_t) <= last) {
+     // Fix this so it does full ranges.
+     download.update_range(Download::update_range_recheck | Download::update_range_clear,
+-                          ntohl(*reinterpret_cast<const uint32_t*>(&(*itr))),
+-                          ntohl(*reinterpret_cast<const uint32_t*>(&(*std::next(itr)))));
++                          ntohl(*reinterpret_cast<const uint32_t*>(itr)),
++                          ntohl(*reinterpret_cast<const uint32_t*>(itr)) + 1);
++
++    itr += sizeof(uint32_t);
+   }
+ }
