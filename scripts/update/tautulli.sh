@@ -18,7 +18,7 @@ if [[ -f /install/.tautulli.lock ]]; then
         . /etc/swizzin/sources/functions/pyenv
         systempy3_ver=$(get_candidate_version python3)
 
-        if dpkg --compare-versions ${systempy3_ver} lt 3.8.0; then
+        if dpkg --compare-versions ${systempy3_ver} lt 3.8.0 || dpkg --compare-versions ${systempy3_ver} ge 3.12.0; then
             PYENV=True
             echo_info "pyenv will be used for the Tautulli venv. You may need to restart tautulli manually!"
         else
