@@ -82,7 +82,7 @@ parallel_conns = 4
 session_secret = "${sessionSecret}"
 CFG
 
-        _get_user_password "$user" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" create-user "$user" || {
+        _get_user_password "$user" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" create-user "$user" >> "$log" 2>&1 || {
             echo_error "Failed to execute netronome command"
             exit 1
         }
