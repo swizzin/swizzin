@@ -23,7 +23,9 @@ After=syslog.target network.target
 Type=$type
 User=%i
 Group=%i
-ExecStart=/usr/bin/netronome --config=/home/%i/.config/netronome/
+ExecStart=/usr/bin/netronome --config=/home/%i/.config/netronome/config.toml serve
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
 
 [Install]
 WantedBy=multi-user.target
@@ -49,7 +51,7 @@ _add_users() {
         port=$(port 10000 12000)
 
         # generate a sessionSecret
-        sessionSecret="$(head /dev/urandom | xxd -p -l 32)"
+        sessionSecret="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c32)"
 
         mkdir -p "/home/$user/.config/netronome/"
         chown "$user": "/home/$user/.config"
@@ -102,6 +104,10 @@ if [ -n "$1" ]; then
     _nginx
     exit 0
 fi
+
+echo_progress_start "Installing dependencies"
+apt_install iperf3
+echo_progress_done "Dependencies installed"
 
 netronome_download_latest
 _systemd
