@@ -67,6 +67,7 @@ path = "netronome.db"
 [server]
 host = "0.0.0.0"
 port = ${port}
+base_url = "/netronome"
 
 [logging]
 level = "debug"  # trace, debug, info, warn, error, fatal, panic
