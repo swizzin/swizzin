@@ -33,7 +33,7 @@ function rutorrent_install() {
 
     if [[ ! -d /srv/rutorrent/plugins/filemanager ]]; then
         git clone https://github.com/nelu/rutorrent-filemanager /srv/rutorrent/plugins/filemanager >> ${log} 2>&1 || {
-            echo_error "git of file-manager plugin to main plugins seems to have failed";
+            echo_error "git of file-manager plugin to main plugins seems to have failed"
         }
         rutorrent_fm_config
     fi
@@ -41,13 +41,13 @@ function rutorrent_install() {
     if [[ ! -d /srv/rutorrent/plugins/ratiocolor ]]; then
         git clone https://github.com/Gyran/rutorrent-ratiocolor /srv/rutorrent/plugins/ratiocolor >> "$log" 2>&1
         sed -i "s/changeWhat = \"cell-background\";/changeWhat = \"font\";/g" /srv/rutorrent/plugins/ratiocolor/init.js || {
-            echo_error "git of ratio plugin to main plugins seems to have failed";
+            echo_error "git of ratio plugin to main plugins seems to have failed"
         }
     fi
 
     if [[ ! -d /srv/rutorrent/plugins/geoip2 ]]; then
         git clone https://github.com/Micdu70/geoip2-rutorrent /srv/rutorrent/plugins/geoip2 >> ${log} 2>&1 || {
-            echo_error "git of geoip2 plugin to main plugins seems to have failed";
+            echo_error "git of geoip2 plugin to main plugins seems to have failed"
         }
     fi
 
