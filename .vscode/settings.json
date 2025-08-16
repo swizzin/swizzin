@@ -1,41 +1,46 @@
 {
-    "cSpell.words": [
-        "Raspbian",
-        "Sysinfo",
-        "armhf",
-        "dpkg",
-        "mcrypt",
-        "shellcheck",
-        "swizzin",
-        "xenial"
-    ],
-    "shellformat.flag": "-ci -sr -i 4 -ln bash",
-    "editor.detectIndentation": false,
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "shellcheck.customArgs": [
-        "-x"
-    ],
-    "shellcheck.enableQuickFix": true,
-    "shellcheck.useWorkspaceRootAsCwd": true,
-    "shellcheck.run": "onType",
-    "editor.formatOnType": true,
-    "diffEditor.codeLens": true,
-    "telemetry.enableTelemetry": false,
-    "githubIssues.ignoreCompletionTrigger": [
-        "python",
-        "makefile",
-        "shellscript",
-        "bash"
-    ],
-    "conventionalCommits.scopes": [
-        "ide",
-        "box",
-        "setup",
-        "apt",
-        "echos",
-        "swizdb",
-        "shellcheck",
-    ],
-    "conventionalCommits.promptFooter": false
+  "cSpell.words": [
+    "Raspbian",
+    "Sysinfo",
+    "armhf",
+    "dpkg",
+    "mcrypt",
+    "shellcheck",
+    "swizzin",
+    "xenial"
+  ],
+  "editor.detectIndentation": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "shellcheck.customArgs": [
+    "-x"
+  ],
+  "shellcheck.enableQuickFix": true,
+  "shellcheck.useWorkspaceRootAsCwd": true,
+  "shellcheck.run": "onType",
+  "editor.formatOnType": true,
+  "diffEditor.codeLens": true,
+  "telemetry.enableTelemetry": false,
+  "githubIssues.ignoreCompletionTrigger": [
+    "python",
+    "makefile",
+    "shellscript",
+    "bash"
+  ],
+  "conventionalCommits.scopes": [
+    "ide",
+    "box",
+    "setup",
+    "apt",
+    "echos",
+    "swizdb",
+    "shellcheck",
+  ],
+  "conventionalCommits.promptFooter": false,
+  "shellformat.useEditorConfig": true,
+  "bashIde.enableSourceErrorDiagnostics": true,
+  "bashIde.shfmt.path": "",
+  "[shellscript]": {
+    "editor.defaultFormatter": "mkhl.shfmt"
+  }
 }

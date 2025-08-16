@@ -5,7 +5,7 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent() {
-	if [[ -z $rtorrentver ]] && [[ -z $1 ]] && [[ -z $RTORRENT_VERSION ]]; then
+    if [[ -z $rtorrentver ]] && [[ -z $1 ]] && [[ -z $RTORRENT_VERSION ]]; then
         repov=$(get_candidate_version rtorrent)
 
         whiptail --title "rTorrent Install Advisory" --msgbox "We recommend the latest rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
@@ -30,7 +30,7 @@ function whiptail_rtorrent() {
 }
 
 function set_rtorrent_version() {
-	case $1 in
+    case $1 in
         0.9.6 | '0.9.6')
             export rtorrentver='0.9.6'
             export libtorrentver='0.13.6'
@@ -60,7 +60,7 @@ function set_rtorrent_version() {
             export rtorrentver='0.15.3'
             export libtorrentver='0.15.3'
             ;;
-			
+
         0.15.5 | '0.15.5')
             export rtorrentver='0.15.5'
             export libtorrentver='0.15.5'
@@ -130,7 +130,7 @@ function depends_rtorrent() {
     rm -rf mktorrent*
 }
 
-function build_xmlrpc-c() {    
+function build_xmlrpc-c() {
     if [[ ! ${rtorrentver} == "0.15.1" && ! ${rtorrentver} == "0.15.3" && ! ${rtorrentver} == "0.15.5" ]]; then
         build_xmlrpc-c_old
     fi
@@ -141,7 +141,7 @@ function build_xmlrpc-c_old() {
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/xmlrpc-c"
     rm_if_exists "/tmp/dist/xmlrpc-c "
-    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/stable@3212 /tmp/xmlrpc-c >> $log 2>&1;
+    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/stable@3212 /tmp/xmlrpc-c >> $log 2>&1
     cd /tmp/xmlrpc-c
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
@@ -176,7 +176,7 @@ function build_libtorrent_rakshasa_new() {
     . /etc/swizzin/sources/functions/utils
     download_libtorrent_rakshasa
     auto_patch_libtorrent_rakshasa
-	
+
     if [[ ${libtorrentver} == "0.15.3" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-0.15.3-resume-fix.patch >> "$log" 2>&1
     fi

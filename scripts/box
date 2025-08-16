@@ -465,6 +465,7 @@ function _chpasswd() {
                     systemctl stop deluged@${user} >> $log 2>&1
                     systemctl stop deluge-web@${user} >> $log 2>&1
                     DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+                    # shellcheck disable=SC2328
                     if $(command -v python2.7 > /dev/null 2>&1); then
                         pythonversion=python2.7
                     elif $(command -v python3 > /dev/null 2>&1); then
