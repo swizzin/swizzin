@@ -18,3 +18,19 @@ trim_trailing_whitespace = false
 # use 2 spaces for YML
 [*.yml]
 indent_size = 2
+
+[[bash]]
+# -ln bash
+shell_variant      = bash
+# -ci
+switch_case_indent = true
+# -sr
+space_redirects    = true
+
+[[shell]]
+# -ln bash
+shell_variant      = bash
+# -ci
+switch_case_indent = true
+# -sr
+space_redirects    = true

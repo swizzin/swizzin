@@ -9,7 +9,6 @@
         "swizzin",
         "xenial"
     ],
-    "shellformat.flag": "-ci -sr -i 4 -ln bash",
     "editor.detectIndentation": false,
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true,
@@ -37,5 +36,5 @@
         "swizdb",
         "shellcheck",
     ],
-    "conventionalCommits.promptFooter": false
+    "conventionalCommits.promptFooter": false,
 }
