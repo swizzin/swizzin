@@ -59,7 +59,7 @@ rm_if_exists $templog
 touch $templog
 
 # Start openssl dhparam as a background task using temp.log
-openssl dhparam -out dhparam.pem 2048 >> $templog 2>&1 &
+openssl dhparam -out dhparam.pem 4096 >> $templog 2>&1 &
 
 # Install packages for nginx in the foreground
 APT="nginx libnginx-mod-http-fancyindex subversion ssl-cert php-fpm libfcgi0ldbl php-cli php-dev php-xml php-curl php-xmlrpc php-json php-mbstring php-opcache php-zip ${geoip} ${mcrypt}"
@@ -80,8 +80,8 @@ cd /etc/php
 phpv=$(ls -d */ | cut -d/ -f1)
 echo_progress_start "Making adjustments to PHP"
 for version in $phpv; do
-    sed -i -e "s/post_max_size = 8M/post_max_size = 64M/" \
-        -e "s/upload_max_filesize = 2M/upload_max_filesize = 92M/" \
+    sed -i -e "s/post_max_size = 8M/post_max_size = 100M/" \
+        -e "s/upload_max_filesize = 2M/upload_max_filesize = 100M/" \
         -e "s/expose_php = On/expose_php = Off/" \
         -e "s/128M/768M/" \
         -e "s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/" \
@@ -150,9 +150,11 @@ mkdir -p /etc/nginx/snippets/
 mkdir -p /etc/nginx/apps/
 
 cat > /etc/nginx/snippets/ssl-params.conf << SSC
-ssl_protocols TLSv1.2 TLSv1.3;
+ssl_protocols TLSv1.3;
 ssl_prefer_server_ciphers on;
-ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:EECDH+AESGCM:EDH+AESGCM;
+ssl_ciphers EECDH+CHACHA20:EECDH+AESGCM:EDH+AESGCM;
+ssl_conf_command Ciphersuites TLS_CHACHA20_POLY1305_SHA256:TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256;
+ssl_conf_command Options PrioritizeChaCha;
 ssl_ecdh_curve secp384r1;
 ssl_session_cache shared:SSL:10m;
 ssl_session_tickets off;
