@@ -4,7 +4,7 @@
         "foxundermoon.shell-format",
         "timonwong.shellcheck",
         "remisa.shellman",
-        "me-dutour-mathieu.vscode-github-actions"
+        "me-dutour-mathieu.vscode-github-actions",
         "vivaxy.vscode-conventional-commits"
     ]
 }
