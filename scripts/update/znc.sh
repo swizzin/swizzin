@@ -1,8 +1,14 @@
 #!/bin/bash
 
 if [[ -f /install/.znc.lock ]]; then
+    # shellcheck source=sources/functions/letsencrypt
     . /etc/swizzin/sources/functions/letsencrypt
-    le_znc_hook
+    # Check if using tailnet address in default config, else use LE
+    if grep -q ".ts.net" "/etc/nginx/sites-enabled/default"; then
+        ts_znc_hook
+    else
+        le_znc_hook
+    fi
 
     if [[ ! -s /install/.znc.lock ]]; then
         echo_progress_start "Updating ZNC config"
