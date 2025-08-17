@@ -48,7 +48,7 @@ _add_users() {
         echo_progress_start "Enabling netronome for $user"
 
         # get random available port
-        port=$(port 10000 12000)
+        port=$(port 10000 10200)
 
         # generate a sessionSecret
         sessionSecret="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c32)"
