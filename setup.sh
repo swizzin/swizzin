@@ -247,7 +247,7 @@ function _choices() {
     packages=()
     extras=()
     guis=()
-    locks=(nginx rtorrent deluge qbittorrent autodl panel vsftpd ffmpeg quota transmission)
+    locks=(nginx rtorrent deluge qbittorrent panel autobrr vsftpd ffmpeg quota transmission)
     for i in "${locks[@]}"; do
         app=${i}
         if [[ ! -f /install/.$app.lock ]]; then
