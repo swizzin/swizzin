@@ -486,6 +486,9 @@ function _chpasswd() {
                     if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
                     su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
                     ;;
+                netronome)
+                    echo -n "$pass" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" change-password "$user"
+                    ;;
                 organizr)
                     #TODO fix when API allows to
                     echo_warn "Remember to manually change the organizr account's password!"
