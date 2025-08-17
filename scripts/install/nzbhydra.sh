@@ -46,7 +46,13 @@ wget -O nzbhydra2.zip ${latest} >> ${log} 2>&1
 unzip nzbhydra2.zip >> ${log} 2>&1
 rm -f nzbhydra2.zip
 
-chmod +x nzbhydra2 nzbhydra2wrapperPy3.py
+if [[ $arch = 'amd64' ]]; then
+    chmod +x nzbhydra2
+else
+    chmod +x core
+fi
+
+chmod +x nzbhydra2wrapperPy3.py
 chown -R ${username}: /opt/nzbhydra2
 echo_progress_done
 
