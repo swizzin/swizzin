@@ -168,3 +168,41 @@ function github_latest_version() {
     repo=$1
     curl -fsSLI -o /dev/null -w %{url_effective} https://github.com/${repo}/releases/latest | grep -o '[^/]*$'
 }
+
+function github_release_url() {
+    # Argument expects the author/repo format, defaults to all DL links of the latest release
+    # Usage: github_release_url "user/repo" ["name_filter"] ["tag"]
+    # Example: github_release_url "MediaBrowser/Emby.Releases"
+    # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb"
+    # Example: github_release_url "MediaBrowser/Emby.Releases" "$(_os_arch).deb" "v0.1.0"
+    # also exports a variable with the name of the repo and the tag, e.g. `github_Emby_tag`
+    repo="$1"
+    filter="$2"
+
+    if [[ -z "$3" ]]; then
+        tag=$(github_latest_version "${repo}") || {
+            echo_error "Failed to query GitHub for latest version of $repo"
+            return 1
+        }
+    else
+        tag="$3"
+    fi
+
+    link_payload=$(curl -fsL https://github.com/${repo}/releases/expanded_assets/$tag) || {
+        echo_error "Failed to query GitHub for tag ${tag:='latest'} of $repo"
+        return 1
+    }
+
+    links=$(echo "${link_payload}" | grep -oP '(?<=href=")[^"]+' | sed -e 's|^|https://github.com|')
+
+    if [[ -n "$filter" ]]; then
+        echo "$links" | grep "$filter"
+    else
+        echo "$links"
+    fi
+
+    # e.g. MediaBrowser/Emby.Releases -> Emby.Releases -> Emby
+    project_name=$(echo "$repo" | cut -d'/' -f2 | grep -oe '^\w*')
+    export github_${project_name}_tag="$tag"
+
+}
