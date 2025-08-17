@@ -9,14 +9,19 @@
 #   under the GPL along with build & install instructions.
 #
 
-if [[ "$(_os_arch)" != "amd64" ]]; then
-    echo_warn "You're on $(_os_arch) and we don't support this with nzbhydra yet.
-If you really want this, take a screenshot of this and ping @sausage in the discord and we'll look at it when that happens lol.
-The installer will now exit"
-    exit 1
-fi
-
 . /etc/swizzin/sources/functions/utils
+
+case "$(_os_arch)" in
+    amd64)
+        arch='amd64'
+        ;;
+    arm64)
+        arch="arm64"
+        ;;
+    *)
+        echo_error "Arch not supported for nzbhydra"
+        ;;
+esac
 
 username=$(_get_master_username)
 
@@ -32,7 +37,7 @@ LIST="unzip $java"
 apt_install $LIST
 
 echo_progress_start "Installing NZBHydra ${latestversion}"
-latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | head -1 | cut -d\" -f 4)
+latest=$(curl -s https://api.github.com/repos/theotherp/nzbhydra2/releases/latest | grep -E "browser_download_url" | grep linux | grep "$arch" | head -1 | cut -d\" -f 4)
 latestversion=$(echo $latest | grep -oP 'v\d+\.\d+\.\d+')
 cd /opt
 mkdir nzbhydra2
