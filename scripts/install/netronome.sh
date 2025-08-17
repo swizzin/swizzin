@@ -70,7 +70,7 @@ port = ${port}
 base_url = "/netronome"
 
 [logging]
-level = "debug"  # trace, debug, info, warn, error, fatal, panic
+level = "warn"  # trace, debug, info, warn, error, fatal, panic
 
 [speedtest]
 timeout = 30
