@@ -57,29 +57,12 @@ _add_users() {
 
         cat > "/home/$user/.config/qui/config.toml" << CFG
 # qui Configuration
-
-[database]
-type = "sqlite"
-path = "qui.db"
-
-[server]
 host = "0.0.0.0"
 port = ${port}
 baseUrl = "/qui/"
-
-[logging]
-level = "info"  # ERROR, DEBUG, INFO, WARN, TRACE
-
-[session]
+level = "INFO"  # ERROR, DEBUG, INFO, WARN, TRACE
 sessionSecret = "${sessionSecret}"
-
-[storage]
-dataDir = "/home/$user/.config/qui/data"
 CFG
-
-        # Create data directory
-        mkdir -p "/home/$user/.config/qui/data"
-
         # Create user account using qui CLI
         _get_user_password "$user" | /usr/bin/qui create-user --config-dir "/home/$user/.config/qui/" --username "$user" >> "$log" 2>&1 || {
             echo_error "Failed to execute qui command"
