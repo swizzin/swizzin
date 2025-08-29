@@ -490,7 +490,7 @@ function _chpasswd() {
                     echo -n "$pass" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" change-password "$user"
                     ;;
                 qui)
-                    echo -n "$pass" | /usr/bin/qui change-password --config-dir "/home/$user/.config/qui/" --username "$user"
+                    /usr/bin/qui change-password --config-dir "/home/$user/.config/qui/" --username "$user" --new-password "$pass"
                     ;;
                 organizr)
                     #TODO fix when API allows to
