@@ -28,8 +28,6 @@ else
     swizdb set "calibre/library_path" "$CALIBRE_LIBRARY_PATH"
 fi
 
-clbServerPath="/home/$CALIBRE_LIBRARY_USER/.config/calibrecs"
-
 _adduser() {
     echo_progress_start "Adding users to calibre content server"
     for user in "${users[@]}"; do
@@ -60,7 +58,7 @@ ExecStart=/usr/bin/calibre-server --max-opds-items=30 --max-opds-ungrouped-items
 
 [Install]
 WantedBy=multi-user.target
-    
+
 CALICS
     echo_progress_done "Calibre content server installed"
     echo_info "The Calibre content server will run on port 8089, please make note of this in case you want to use it in automation"
