@@ -97,3 +97,4 @@ echo_progress_done "Calibre CS enabled"
 echo_success "Calibre content server installed"
 
 touch /install/.calibrecs.lock
+echo "users_managed" >> /install/.calibrecs.lock
