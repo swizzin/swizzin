@@ -25,6 +25,11 @@ else
 fi
 
 _install() {
+    if [ "$(_os_arch)" == "armhf" ]; then
+        echo_error "Calibre is not supported on armhf"
+        exit 1
+    fi
+
     deps=(
         xdg-utils
         wget
