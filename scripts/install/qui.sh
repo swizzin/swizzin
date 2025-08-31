@@ -64,7 +64,8 @@ level = "INFO"  # ERROR, DEBUG, INFO, WARN, TRACE
 sessionSecret = "${sessionSecret}"
 CFG
         # Create user account using qui CLI
-        _get_user_password "$user" | /usr/bin/qui create-user --config-dir "/home/$user/.config/qui/" --username "$user" >> "$log" 2>&1 || {
+        password=$(_get_user_password "$user")
+        /usr/bin/qui create-user --config-dir "/home/$user/.config/qui/" --username "$user" --password "$password" >> "$log" 2>&1 || {
             echo_error "Failed to execute qui command"
             exit 1
         }
