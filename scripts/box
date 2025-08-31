@@ -309,10 +309,13 @@ function _adduser() {
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl autobrr flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl autobrr flood nzbget lounge transmission wireguard organizr mango qbittorrent calibrecs; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
+                    /usr/local/bin/swizzin/install/${app}.sh "${user}"
+                    ;;
+                calibrecs)
                     /usr/local/bin/swizzin/install/${app}.sh "${user}"
                     ;;
                 deluge)
@@ -374,7 +377,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr calibrecs; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -406,6 +409,11 @@ function _deluser() {
                 wireguard)
                     rm -rf /home/${user}/.wireguard
                     systemctl disable --now wg-quick@wg"$(id -u "$user")"
+                    ;;
+                calibrecs)
+                    # shellcheck source=sources/functions/calibrecs
+                    source /etc/swizzin/sources/functions/calibrecs
+                    calibre-server-usrmgr remove "${user}"
                     ;;
                 *)
                     systemctl disable ${app}@${user}
@@ -501,6 +509,11 @@ function _chpasswd() {
                     systemctl stop transmission@${user} >> $log 2>&1
                     sed -i "s/.*rpc-password.*/  \"rpc-password\": \"${pass}\",/" /home/$user/.config/transmission-daemon/settings.json
                     systemctl start transmission@${user} >> $log 2>&1
+                    ;;
+                calibrecs)
+                    # source sources/functions/calibrecs
+                    source /etc/swizzin/sources/functions/calibrecs
+                    calibre-server-usrmgr chpass "${user}" "${pass}"
                     ;;
                 *) ;;
             esac
