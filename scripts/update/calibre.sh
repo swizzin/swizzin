@@ -10,7 +10,11 @@ fi
 if check_installed calibre; then
     echo_info "Moving calibre to the online installer instead of the apt install"
 
-    echo_progress_start "Installing calibre"
+    echo_progress_start "Removing apt-based calibre binaries"
+    apt_remove calibre
+    echo_progress_done
+
+    echo_progress_start "Installing calibre from web installer"
     wget https://download.calibre-ebook.com/linux-installer.sh -O /tmp/calibre-installer.sh >> $log 2>&1
     if ! bash /tmp/calibre-installer.sh install_dir=/opt >> $log 2>&1; then
         echo_error "Failed to install calibre from web installer, please investigate and try again"
@@ -18,7 +22,4 @@ if check_installed calibre; then
     fi
     echo_progress_done
 
-    echo_progress_start "Removing apt-based calibre binaries"
-    apt_remove calibre
-    echo_progress_done
 fi
