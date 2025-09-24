@@ -22,6 +22,8 @@ location /sabnzbd {
   proxy_pass        http://127.0.0.1:65080/sabnzbd;
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
+  allow 127.0.0.0/16;       # localhost (covers 127.0.0.1)
+  deny  all;                # everything else must use basic auth
 }
 SAB
 fi
