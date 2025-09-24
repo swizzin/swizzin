@@ -23,6 +23,7 @@ location /sabnzbd {
   auth_basic "What's the password?";
   auth_basic_user_file /etc/htpasswd.d/htpasswd.${user};
   allow 127.0.0.0/16;       # localhost (covers 127.0.0.1)
+  allow 172.20.0.0/16;      # Docker bridge 
   deny  all;                # everything else must use basic auth
 }
 SAB
