@@ -5,18 +5,19 @@ export release=$(lsb_release -rs)
 export codename=$(lsb_release -cs)
 
 function whiptail_rtorrent() {
-	if [[ -z $rtorrentver ]] && [[ -z $1 ]] && [[ -z $RTORRENT_VERSION ]]; then
+    if [[ -z $rtorrentver ]] && [[ -z $1 ]] && [[ -z $RTORRENT_VERSION ]]; then
         repov=$(get_candidate_version rtorrent)
 
-        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s. UDNS includes a stability patch for UDP trackers on rTorrent." 15 50
+        whiptail --title "rTorrent Install Advisory" --msgbox "We recommend the latest rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
 
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
+            0.15.5 "(UDNS)" \
+            0.15.3 "(UDNS)" \
+            0.15.1 "" \
             0.10.0 "" \
             0.9.8 "" \
             0.9.7 "" \
             0.9.6 "" \
-            UDNS "(0.9.8)" \
-            PGO "(0.9.8)" \
             Repo "(${repov})" 3>&1 1>&2 2>&3) || {
             echo_error "rTorrent version choice aborted"
             exit 1
@@ -29,54 +30,45 @@ function whiptail_rtorrent() {
 }
 
 function set_rtorrent_version() {
-	case $1 in
+    case $1 in
         0.9.6 | '0.9.6')
             export rtorrentver='0.9.6'
             export libtorrentver='0.13.6'
-            export libudns='false'
-            export rtorrentpgo='false'
             ;;
 
         0.9.7 | '0.9.7')
             export rtorrentver='0.9.7'
             export libtorrentver='0.13.7'
-            export libudns='false'
-            export rtorrentpgo='false'
             ;;
 
         0.9.8 | '0.9.8')
             export rtorrentver='0.9.8'
             export libtorrentver='0.13.8'
-            export libudns='false'
-            export rtorrentpgo='false'
             ;;
-			
+
         0.10.0 | '0.10.0')
             export rtorrentver='0.10.0'
             export libtorrentver='0.14.0'
-            export libudns='false'
-            export rtorrentpgo='false'
             ;;
 
-        UDNS | 'UDNS')
-            export rtorrentver='0.9.8'
-            export libtorrentver='0.13.8'
-            export libudns='true'
-            export rtorrentpgo='false'
+        0.15.1 | '0.15.1')
+            export rtorrentver='0.15.1'
+            export libtorrentver='0.15.1'
             ;;
-			
-		PGO | 'PGO')
-            export rtorrentver='0.9.8'
-            export libtorrentver='0.13.8'
-            export libudns='true'
-            export rtorrentpgo='true'
+
+        0.15.3 | '0.15.3')
+            export rtorrentver='0.15.3'
+            export libtorrentver='0.15.3'
+            ;;
+
+        0.15.5 | '0.15.5')
+            export rtorrentver='0.15.5'
+            export libtorrentver='0.15.5'
             ;;
 
         Repo | 'Repo')
             export rtorrentver='repo'
             export libtorrentver='repo'
-            export libudns='false'
-            export rtorrentpgo='false'
             ;;
 
         *)
@@ -108,12 +100,6 @@ function configure_rtorrent() {
     else
         export rtorrentlevel="-O2"
     fi
-    # GCC PGO for program compilation
-    if [[ ${rtorrentpgo} == "true" ]]; then
-        export rtorrentprofile="-fprofile-use"
-    else
-        export rtorrentprofile=""	
-    fi
 }
 
 function depends_rtorrent() {
@@ -142,26 +128,20 @@ function depends_rtorrent() {
     make install PREFIX=/usr >> $log 2>&1
     cd /tmp
     rm -rf mktorrent*
-
-    # libudns from source
-    if [[ ${libudns} == "true" ]]; then
-        git clone -q https://github.com/shadowsocks/libudns /tmp/udns >> $log 2>&1
-        cd /tmp/udns
-        ./autogen.sh >> $log 2>&1
-        ./configure --prefix=/usr >> $log 2>&1
-        make -j$(nproc) CFLAGS="-w ${rtorrentflto} ${rtorrentpipe} ${rtorrentlevel} -fPIC" >> $log 2>&1
-        make -s install >> $log 2>&1
-        cd /tmp
-        rm -rf udns*
-    fi
 }
 
 function build_xmlrpc-c() {
+    if [[ ! ${rtorrentver} == "0.15.1" && ! ${rtorrentver} == "0.15.3" && ! ${rtorrentver} == "0.15.5" ]]; then
+        build_xmlrpc-c_old
+    fi
+}
+
+function build_xmlrpc-c_old() {
     cd "/tmp"
     . /etc/swizzin/sources/functions/utils
     rm_if_exists "/tmp/xmlrpc-c"
     rm_if_exists "/tmp/dist/xmlrpc-c "
-    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/stable@3212 /tmp/xmlrpc-c >> $log 2>&1;
+    svn checkout svn://svn.code.sf.net/p/xmlrpc-c/code/stable@3212 /tmp/xmlrpc-c >> $log 2>&1
     cd /tmp/xmlrpc-c
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.guess config.guess >> $log 2>&1
     cp -rf /etc/swizzin/sources/patches/rtorrent/xmlrpc-config.sub config.sub >> $log 2>&1
@@ -185,7 +165,7 @@ function build_xmlrpc-c() {
 }
 
 function build_libtorrent_rakshasa() {
-    if [[ ${libtorrentver} == "0.14.0" ]]; then
+    if [[ ${libtorrentver} == "0.14.0" || ${libtorrentver} == "0.15.1" || ${libtorrentver} == "0.15.3" || ${libtorrentver} == "0.15.5" ]]; then
         build_libtorrent_rakshasa_new
     else
         build_libtorrent_rakshasa_old
@@ -196,6 +176,10 @@ function build_libtorrent_rakshasa_new() {
     . /etc/swizzin/sources/functions/utils
     download_libtorrent_rakshasa
     auto_patch_libtorrent_rakshasa
+
+    if [[ ${libtorrentver} == "0.15.3" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-0.15.3-resume-fix.patch >> "$log" 2>&1
+    fi
 
     autoreconf -vfi >> $log 2>&1
     ./configure --prefix=/usr --enable-aligned >> $log 2>&1 || {
@@ -215,11 +199,6 @@ function build_libtorrent_rakshasa_old() {
     download_libtorrent_rakshasa
     auto_patch_libtorrent_rakshasa
 
-    if [[ ${libudns} == "true" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-udns-0.13.8.patch >> "$log" 2>&1
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/libtorrent-scanf-0.13.8.patch >> "$log" 2>&1
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/lookup-cache-0.13.8.patch >> "$log" 2>&1
-    fi
     if [[ ${libtorrentver} =~ ^("0.13.7"|"0.13.8")$ ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/throttle-fix-0.13.7-8.patch >> "$log" 2>&1
     fi
@@ -284,7 +263,7 @@ function install_libtorrent_rakshasa() {
 }
 
 function build_rtorrent() {
-    if [[ ${rtorrentver} == "0.10.0" ]]; then
+    if [[ ${rtorrentver} == "0.10.0" || ${rtorrentver} == "0.15.1" || ${rtorrentver} == "0.15.3" || ${rtorrentver} == "0.15.5" ]]; then
         build_rtorrent_new
     else
         build_rtorrent_old
@@ -295,12 +274,24 @@ function build_rtorrent_new() {
     . /etc/swizzin/sources/functions/utils
     download_rtorrent
     auto_patch_rtorrent
-	
-    autoreconf -vfi >> $log 2>&1	
-    ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
-        echo_error "Something went wrong while configuring rtorrent"
-        exit 1
-    }
+
+    if [[ ${rtorrentver} == "0.10.0" ]]; then
+        patch -p1 < /etc/swizzin/sources/patches/rtorrent/1310-scgi-fix.patch >> "$log" 2>&1
+    fi
+
+    autoreconf -vfi >> $log 2>&1
+
+    if [[ ${rtorrentver} == "0.10.0" ]]; then
+        ./configure --prefix=/usr --with-xmlrpc-c >> $log 2>&1 || {
+            echo_error "Something went wrong while configuring rtorrent 0.10.0 with xmlrpc-c"
+            exit 1
+        }
+    else
+        ./configure --prefix=/usr --with-xmlrpc-tinyxml2 >> $log 2>&1 || {
+            echo_error "Something went wrong while configuring rtorrent with tinyxml2"
+            exit 1
+        }
+    fi
     make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
@@ -312,16 +303,11 @@ function build_rtorrent_new() {
 function build_rtorrent_old() {
     download_rtorrent
     auto_patch_rtorrent
-	
-    #apply memory leak fixes to 0.9.8 branches bases only (0.9.8, UDNS, PGO) to reduce maintenance and testing
+
+    #apply memory leak fixes to 0.9.8 branches bases only (0.9.8, UDNS) to reduce maintenance and testing
     #apply first thing to ensure compatibility with the tracker delay scrape patch by modifying higher line numbers first
     if [[ ${rtorrentver} == "0.9.8" ]]; then
         patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-ml-fixes-0.9.8.patch >> "$log" 2>&1
-    fi
-    #apply tracker delay scrape patch to UDNS branch	
-    if [[ ${libudns} == "true" ]]; then
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/rtorrent-scrape-0.9.8.patch >> "$log" 2>&1
-        patch -p1 < /etc/swizzin/sources/patches/rtorrent/fast-session-loading-0.9.8.patch >> "$log" 2>&1
     fi
     #apply lockfile-fix to all rtorrents
     patch -p1 < /etc/swizzin/sources/patches/rtorrent/lockfile-fix.patch >> "$log" 2>&1
@@ -344,23 +330,7 @@ function build_rtorrent_old() {
         echo_error "Something went wrong while configuring rtorrent"
         exit 1
     }
-    if [[ ${rtorrentpgo} == "true" ]]; then
-        echo_log_only "Begin fprofile generate for rTorrent"
-        make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} -fprofile-generate" >> $log 2>&1 || {
-            echo_error "Something went wrong while making rtorrent with -fprofile-generate"
-            exit 1
-        }
-        make install >> $log 2>&1
-        echo_info "Running rTorrent PGO for 30s. Please wait..."
-        touch ~/.rtorrent.rc
-        screen -d -m -fa -S rtorrent_pgo rtorrent
-        sleep 30
-        screen -X -S rtorrent_pgo quit
-        rm_if_exists "~/.rtorrent.rc"
-        make clean >> $log 2>&1
-        echo_log_only "End fprofile generate for rTorrent"
-    fi
-    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc} ${rtorrentprofile}" >> $log 2>&1 || {
+    make -j$(nproc) CXXFLAGS="-w ${rtorrentlevel} ${rtorrentflto} ${rtorrentpipe} ${stdc}" >> $log 2>&1 || {
         echo_error "Something went wrong while making rtorrent"
         exit 1
     }

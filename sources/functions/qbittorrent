@@ -13,6 +13,7 @@ function whiptail_qbittorrent() {
         latestv45=$(echo "$releases" | grep -m1 -oP '^4\.5\.\d?.?\d')
         latestv46=$(echo "$releases" | grep -m1 -oP '^4\.6\.\d?.?\d')
         latestv50=$(echo "$releases" | grep -m1 -oP '^5\.0\.\d?.?\d')
+        latestv51=$(echo "$releases" | grep -m1 -oP '^5\.1\.\d?.?\d')
         #latestv=$(echo "$releases" | grep -m1 -oP '\d.\d?.?\d?.?\d')
         repov=$(get_candidate_version qbittorrent-nox)
         case ${codename} in
@@ -40,6 +41,7 @@ function whiptail_qbittorrent() {
                 function=$(
                     whiptail --title "Pick qbittorrent version" --menu "Choose a qBittorrent version:" --ok-button "Continue" --nocancel 12 50 6 \
                         "Repo" "${repov}" \
+                        "5.1" "(${latestv51})" \
                         "5.0" "(${latestv50})" \
                         "4.6" "(${latestv46})" \
                         "4.5" "(${latestv45})" \
@@ -75,6 +77,9 @@ function whiptail_qbittorrent() {
                 ;;
             5.0)
                 export QBITTORRENT_VERSION=${latestv50}
+                ;;
+            5.1)
+                export QBITTORRENT_VERSION=${latestv51}
                 ;;
             Repo)
                 export QBITTORRENT_VERSION=repo
@@ -240,8 +245,33 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=cmake
             ;;
+        5.1.*)
+            if [[ -n ${LIBTORRENT_VERSION} ]]; then
+                case $LIBTORRENT_VERSION in
+                    RC_2_0)
+                        libtorrent_branch=RC_2_0
+                        ;;
+                    RC_1_2)
+                        libtorrent_branch=RC_1_2
+                        ;;
+                    *)
+                        echo_error "LIBTORRENT_VERSION must be either RC_1_2 or RC_2_0. You entered ${LIBTORRENT_VERSION}."
+                        exit 1
+                        ;;
+                esac
+                echo_info "Overriding libtorrent version with ${LIBTORRENT_VERSION}"
+            else
+                libtorrent_branch=RC_1_2
+            fi
+            libtorrent_minimum_version=1.2.20
+            stdcver="c++20"
+            qt_minimum_version=6.5
+            qbt_use_qt6=ON
+            cryptography_type=openssl
+            build_type=cmake
+            ;;
         *)
-            echo_error "qBittorrent version should be between 4.1.*(.*) and 4.4.*(.*) -- Setup will not proceed."
+            echo_error "qBittorrent version should be between 4.1.*(.*) and 5.1.*(.*) -- Setup will not proceed."
             exit 1
             ;;
     esac

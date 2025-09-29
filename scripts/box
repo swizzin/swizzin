@@ -309,7 +309,7 @@ function _adduser() {
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl autobrr flood nzbget lounge transmission wireguard organizr mango qbittorrent; do
+    for app in rtorrent rutorrent deluge autodl autobrr flood netronome nzbget lounge transmission wireguard organizr mango qbittorrent; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -374,7 +374,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr netronome; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -455,7 +455,7 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
-    for app in autobrr deluge lounge mango organizr qbittorrent transmission; do
+    for app in autobrr deluge lounge mango netronome organizr qbittorrent transmission; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autobrr)
@@ -465,6 +465,7 @@ function _chpasswd() {
                     systemctl stop deluged@${user} >> $log 2>&1
                     systemctl stop deluge-web@${user} >> $log 2>&1
                     DWSALT=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w 32 | head -n 1)
+                    # shellcheck disable=SC2328
                     if $(command -v python2.7 > /dev/null 2>&1); then
                         pythonversion=python2.7
                     elif $(command -v python3 > /dev/null 2>&1); then
@@ -484,6 +485,9 @@ function _chpasswd() {
                 mango)
                     if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
                     su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
+                    ;;
+                netronome)
+                    echo -n "$pass" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" change-password "$user"
                     ;;
                 organizr)
                     #TODO fix when API allows to

@@ -20,7 +20,7 @@ user=$(cut -d: -f1 < /root/.master.info)
 
 systempy3_ver=$(get_candidate_version python3)
 
-if dpkg --compare-versions ${systempy3_ver} lt 3.8.0; then
+if dpkg --compare-versions ${systempy3_ver} lt 3.8.0 || dpkg --compare-versions ${systempy3_ver} ge 3.12.0; then
     PYENV=True
 else
     LIST='python3-dev python3-setuptools python3-pip python3-venv'

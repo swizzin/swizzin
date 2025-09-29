@@ -10,4 +10,5 @@ if [[ -f /install/.readarr.lock ]]; then
             echo_progress_done "nginx conf for Readarr upgraded"
         fi
     fi
+    echo_info "Readarr has reached EOL. Please see https://github.com/Readarr/Readarr/blob/develop/README.md#announcement-retirement-of-readarr"
 fi
