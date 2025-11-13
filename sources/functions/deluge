@@ -258,7 +258,7 @@ function build_deluge() {
     fi
     case $DELUGE_VERSION in
         2.2.x | 2.1.x | 2.0.x)
-            LIST='python3 python3-setuptools python3-pip intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
+            LIST='python3 python3-setuptools python3-pip intltool python3-zope.interface python3-twisted python3-openssl python3-xdg python3-chardet python3-mako python3-packaging python3-setproctitle python3-rencode python3-pil librsvg2-common xdg-utils'
             pythonver=python3
             distver=python3
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg"
