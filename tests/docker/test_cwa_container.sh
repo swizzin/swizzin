@@ -15,15 +15,25 @@ IMAGE="crocodilestick/calibre-web-automated:latest"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --keep)
-            KEEP=true; shift;;
+            KEEP=true
+            shift
+            ;;
         --debug)
-            DEBUG=true; shift;;
+            DEBUG=true
+            shift
+            ;;
         --open)
-            OPEN=true; shift;;
+            OPEN=true
+            shift
+            ;;
         --image)
-            IMAGE="$2"; shift 2;;
+            IMAGE="$2"
+            shift 2
+            ;;
         *)
-            IMAGE="$1"; shift;;
+            IMAGE="$1"
+            shift
+            ;;
     esac
 done
 
@@ -35,7 +45,7 @@ LOG_FILE="/tmp/${NAME}.log"
 
 # Ensure temp dirs are writable by the app user (UID 1000 in this image).
 echo "Preparing temporary dirs: $CONFIG_DIR $LIB_DIR $INGEST_DIR" | tee -a "$LOG_FILE"
-if chown -R 1000:1000 "$CONFIG_DIR" "$LIB_DIR" "$INGEST_DIR" 2>/dev/null; then
+if chown -R 1000:1000 "$CONFIG_DIR" "$LIB_DIR" "$INGEST_DIR" 2> /dev/null; then
     echo "Chowned temp dirs to 1000:1000" | tee -a "$LOG_FILE"
 else
     echo "Warning: unable to chown temp dirs (run with sudo to allow chown), continuing anyway." | tee -a "$LOG_FILE"
@@ -55,7 +65,7 @@ cleanup() {
     docker logs "$NAME" --tail 500 2>&1 | sed 's/^/LOG: /' | tee -a "$LOG_FILE" || true
     # Only remove the container if not asked to keep it
     if [ "$KEEP" != "true" ]; then
-        docker rm -f "$NAME" &>/dev/null || true
+        docker rm -f "$NAME" &> /dev/null || true
     else
         echo "Keeping container $NAME as requested (--keep)" | tee -a "$LOG_FILE"
         echo "Temporary host dirs retained for inspection:" | tee -a "$LOG_FILE"
@@ -75,12 +85,12 @@ trap cleanup EXIT
 
 echo "Test start: image=$IMAGE" | tee "$LOG_FILE"
 
-if ! command -v docker >/dev/null 2>&1; then
+if ! command -v docker > /dev/null 2>&1; then
     echo "Docker is required to run this test" | tee -a "$LOG_FILE"
     exit 2
 fi
 # Verify we can talk to the Docker daemon (permission check)
-if ! docker info >/dev/null 2>&1; then
+if ! docker info > /dev/null 2>&1; then
     err=$(docker info 2>&1 || true)
     echo "Cannot connect to Docker daemon: ${err%%$'\n'*}" | tee -a "$LOG_FILE"
     echo "Hint: you may need to run the script with sudo, or add your user to the 'docker' group: 'sudo usermod -aG docker \$(whoami) && newgrp docker'" | tee -a "$LOG_FILE"
@@ -113,7 +123,7 @@ echo "Container started: $container_id" | tee -a "$LOG_FILE"
 host_port=""
 start_ts=$(date +%s)
 while [ -z "$host_port" ]; do
-    if docker ps -q -f name="^/${NAME}$" >/dev/null; then
+    if docker ps -q -f name="^/${NAME}$" > /dev/null; then
         map=$(docker port "$NAME" 8083/tcp || true)
         if [ -n "$map" ]; then
             # format is 0.0.0.0:12345 or :::12345 (take the first mapping line)
@@ -139,14 +149,14 @@ internal_start=$(date +%s)
 internal_timeout=60
 internal_code="000"
 while true; do
-    internal_code=$(docker exec "$NAME" curl -s -k -o /dev/null -w '%{http_code}' http://127.0.0.1:8083/ 2>/dev/null || echo "000")
+    internal_code=$(docker exec "$NAME" curl -s -k -o /dev/null -w '%{http_code}' http://127.0.0.1:8083/ 2> /dev/null || echo "000")
     echo "Internal http_code=$internal_code" | tee -a "$LOG_FILE"
     # Accept any 2xx or 3xx as a successful response (200 redirect to /login is common)
     if [[ "$internal_code" =~ ^(2|3) ]]; then
         echo "Internal container check: OK (http_code=$internal_code)" | tee -a "$LOG_FILE"
         break
     fi
-    if [ $(( $(date +%s) - internal_start )) -ge $internal_timeout ]; then
+    if [ $(($(date +%s) - internal_start)) -ge $internal_timeout ]; then
         echo "Internal healthcheck timed out after ${internal_timeout}s, last code=$internal_code" | tee -a "$LOG_FILE"
         echo "Container process list and logs:" | tee -a "$LOG_FILE"
         docker exec -w / "$NAME" ps aux | sed 's/^/PROC: /' | tee -a "$LOG_FILE" || true
@@ -173,9 +183,9 @@ while true; do
         echo "Container logs (last 200 lines):" | tee -a "$LOG_FILE"
         docker logs "$NAME" --tail 200 | tee -a "$LOG_FILE"
         echo "Temp dir ownerships:" | tee -a "$LOG_FILE"
-        ls -ld "$CONFIG_DIR" "$LIB_DIR" "$INGEST_DIR" 2>/dev/null | sed 's/^/OWN: /' | tee -a "$LOG_FILE" || true
+        ls -ld "$CONFIG_DIR" "$LIB_DIR" "$INGEST_DIR" 2> /dev/null | sed 's/^/OWN: /' | tee -a "$LOG_FILE" || true
         echo "Docker inspect mounts:" | tee -a "$LOG_FILE"
-        docker inspect "$NAME" --format '{{json .Mounts}}' 2>/dev/null | sed 's/^/MNT: /' | tee -a "$LOG_FILE" || true
+        docker inspect "$NAME" --format '{{json .Mounts}}' 2> /dev/null | sed 's/^/MNT: /' | tee -a "$LOG_FILE" || true
         exit 4
     fi
     sleep 2
@@ -195,18 +205,18 @@ fi
 open_url() {
     url="$1"
     echo "Attempting to open URL: $url" | tee -a "$LOG_FILE"
-    if command -v xdg-open >/dev/null 2>&1; then
-        xdg-open "$url" >/dev/null 2>&1 &
+    if command -v xdg-open > /dev/null 2>&1; then
+        xdg-open "$url" > /dev/null 2>&1 &
         echo "Launched with xdg-open" | tee -a "$LOG_FILE"
         return 0
     fi
-    if command -v gio >/dev/null 2>&1; then
-        gio open "$url" >/dev/null 2>&1 &
+    if command -v gio > /dev/null 2>&1; then
+        gio open "$url" > /dev/null 2>&1 &
         echo "Launched with gio open" | tee -a "$LOG_FILE"
         return 0
     fi
-    if command -v python3 >/dev/null 2>&1; then
-        python3 -m webbrowser "$url" >/dev/null 2>&1 &
+    if command -v python3 > /dev/null 2>&1; then
+        python3 -m webbrowser "$url" > /dev/null 2>&1 &
         echo "Launched with python3 -m webbrowser" | tee -a "$LOG_FILE"
         return 0
     fi
@@ -215,7 +225,7 @@ open_url() {
 }
 
 # Success
-cat <<EOF | tee -a "$LOG_FILE"
+cat << EOF | tee -a "$LOG_FILE"
 
 SUCCESS: Calibre-Web Automated container responded successfully.
 Container: $NAME ($container_id)
