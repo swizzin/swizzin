@@ -59,14 +59,8 @@ _add_users() {
         chown -R "$user": "/home/$user/.config/shinkro"
 
         # Run shinkro setup to create config, DB, and admin user
-        # Setup prompts: config directory (accept default), username, password, password confirmation
         user_password="$(_get_user_password "$user")"
-        {
-            echo ""               # Accept default config directory
-            echo "$user"          # Username
-            echo "$user_password" # Password
-            echo "$user_password" # Password confirmation
-        } | /usr/bin/shinkro setup --config="/home/$user/.config/shinkro" >> "$log" 2>&1 || {
+        /usr/bin/shinkro setup --config="/home/$user/.config/shinkro" --username="$user" --password="$user_password" >> "$log" 2>&1 || {
             echo_error "Failed to execute shinkro setup command"
             exit 1
         }

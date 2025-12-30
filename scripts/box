@@ -462,10 +462,7 @@ function _chpasswd() {
                     echo -n "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
                     ;;
                 shinkro)
-                    {
-                        echo "$pass" # New password
-                        echo "$pass" # Confirm password
-                    } | /usr/bin/shinkro --config="/home/$user/.config/shinkro" change-password "$user" >> "$log" 2>&1
+                    /usr/bin/shinkro --config="/home/$user/.config/shinkro" change-password "$user" --password="$pass" >> "$log" 2>&1
                     ;;
                 deluge)
                     systemctl stop deluged@${user} >> $log 2>&1
