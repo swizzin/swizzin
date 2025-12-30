@@ -20,7 +20,7 @@ for user in "${users[@]}"; do
     confpath="/home/${user}/.config/shinkro/config.toml"
     port=$(grep -e '^Port' "$confpath" | cut -d' ' -f3)
     echo_log_only "Checking if port $port/shinkro is reachable via curl"
-	#shinkro run on port/BaseUrl and needs to query it instead of just port for this test
+    #shinkro run on port/BaseUrl and needs to query it instead of just port for this test
     curl -sSfLk http://127.0.0.1:"$port"/shinkro/ -o /dev/null >> "$log" 2>&1 || {
         echo_warn "Querying http://127.0.0.1:$port/shinkro/ failed"
         BAD=true
