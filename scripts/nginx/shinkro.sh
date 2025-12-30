@@ -9,13 +9,15 @@ readarray -t users < <(_get_user_list)
 cat > /etc/nginx/apps/shinkro.conf << 'SHINKRO'
 location /shinkro/ {
     proxy_pass              http://$remote_user.shinkro;
-    proxy_http_version      1.1;
-    proxy_set_header        X-Forwarded-Host        $http_host;
+    proxy_set_header        Host                    $host;
+    proxy_set_header        X-Forwarded-For         $proxy_add_x_forwarded_for;
+    proxy_set_header        X-Forwarded-Host        $host;
+    proxy_set_header        X-Forwarded-Proto       $scheme;
+    proxy_set_header        Upgrade                 $http_upgrade;
+    proxy_set_header        Connection              $http_connection;
 
     auth_basic "What's the password?";
     auth_basic_user_file /etc/htpasswd;
-
-    rewrite ^/shinkro/(.*) /$1 break;
 }
 SHINKRO
 
