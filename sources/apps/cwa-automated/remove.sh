@@ -9,7 +9,7 @@ LOCK_FILE="/install/cwa-automated.lock"
 # shellcheck disable=SC1091
 . /etc/swizzin/sources/functions/color_echo || true
 
-if command -v echo_progress_start &>/dev/null; then
+if command -v echo_progress_start &> /dev/null; then
     echo_progress_start "Removing Calibre-Web Automated"
 fi
 
@@ -21,7 +21,7 @@ fi
 
 rm -rf "$CWA_HOME" || true
 
-if id "$CWA_USER" &>/dev/null; then
+if id "$CWA_USER" &> /dev/null; then
     userdel --remove "$CWA_USER" || true
 fi
 
@@ -33,14 +33,14 @@ if [ -f /etc/systemd/system/cwa-automated.service ]; then
 fi
 
 # Reload nginx only if present and config test passes
-if command -v nginx &>/dev/null; then
-    if nginx -t >/dev/null 2>&1; then
+if command -v nginx &> /dev/null; then
+    if nginx -t > /dev/null 2>&1; then
         systemctl reload nginx || true
     fi
 fi
 
 rm -f "$LOCK_FILE" || true
 
-if command -v echo_progress_done &>/dev/null; then
+if command -v echo_progress_done &> /dev/null; then
     echo_progress_done "Removed Calibre-Web Automated"
 fi

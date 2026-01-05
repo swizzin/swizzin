@@ -9,7 +9,7 @@ CWA_BRANCH="${CWA_BRANCH:-master}"
 # shellcheck disable=SC1091
 . /etc/swizzin/sources/functions/color_echo || true
 
-if command -v echo_progress_start &>/dev/null; then
+if command -v echo_progress_start &> /dev/null; then
     echo_progress_start "Updating Calibre-Web Automated"
 fi
 
@@ -30,7 +30,7 @@ if [ -d "$CWA_HOME" ]; then
         systemctl restart cwa-automated.service || true
     fi
 
-    if command -v echo_progress_done &>/dev/null; then
+    if command -v echo_progress_done &> /dev/null; then
         echo_progress_done "Calibre-Web Automated updated"
     fi
 else

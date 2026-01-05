@@ -27,12 +27,12 @@ log() {
 }
 
 # Start progress if helper exists
-if command -v echo_progress_start &>/dev/null; then
+if command -v echo_progress_start &> /dev/null; then
     echo_progress_start "Installing Calibre-Web Automated"
 fi
 
 ensure_user() {
-    if ! id "$CWA_USER" &>/dev/null; then
+    if ! id "$CWA_USER" &> /dev/null; then
         echo_info "Creating user $CWA_USER"
         useradd --system --no-create-home -d "$CWA_HOME" --shell /usr/sbin/nologin "$CWA_USER"
     fi
@@ -45,7 +45,7 @@ ensure_user() {
 install_prereqs() {
     echo_info "Installing system packages"
     # Use apt_install from sources/functions if available
-    if command -v apt_install &>/dev/null; then
+    if command -v apt_install &> /dev/null; then
         apt_install --recommends git "$PYTHON_BIN"-venv "$PYTHON_BIN"-dev build-essential
     else
         apt-get update
@@ -103,8 +103,8 @@ install_service_and_nginx() {
     fi
 
     # Test and reload nginx if available
-    if command -v nginx &>/dev/null; then
-        if nginx -t >/dev/null 2>&1; then
+    if command -v nginx &> /dev/null; then
+        if nginx -t > /dev/null 2>&1; then
             systemctl reload nginx || echo_warn "nginx reload failed"
         else
             echo_warn "nginx config test failed; not reloading nginx"
@@ -114,7 +114,7 @@ install_service_and_nginx() {
 
 write_lock() {
     mkdir -p /install
-    cat >"$LOCK_FILE" <<EOF
+    cat > "$LOCK_FILE" << EOF
 installed: true
 path: $CWA_HOME
 date: $(date -Iseconds)
@@ -132,7 +132,7 @@ main() {
     install_service_and_nginx
     write_lock
     log "Calibre-Web Automated installed"
-    if command -v echo_progress_done &>/dev/null; then
+    if command -v echo_progress_done &> /dev/null; then
         echo_progress_done "Calibre-Web Automated installed"
     fi
 }
