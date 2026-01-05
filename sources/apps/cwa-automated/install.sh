@@ -20,7 +20,7 @@ LOG="/root/logs/swizzin.log"
 echo_progress_start "Installing Calibre-Web Automated"
 
 ensure_user() {
-    if ! id "$CWA_USER" &>/dev/null; then
+    if ! id "$CWA_USER" &> /dev/null; then
         echo_info "Creating user $CWA_USER"
         useradd --system --home "$CWA_HOME" --shell /usr/sbin/nologin "$CWA_USER"
     fi
@@ -29,7 +29,7 @@ ensure_user() {
 install_prereqs() {
     echo_info "Installing system packages"
     # Use apt_install from sources/functions if available
-    if command -v apt_install &>/dev/null; then
+    if command -v apt_install &> /dev/null; then
         apt_install --recommends git "$PYTHON_BIN"-venv "$PYTHON_BIN"-dev build-essential
     else
         apt-get update

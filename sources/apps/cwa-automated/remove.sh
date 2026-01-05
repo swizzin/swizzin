@@ -11,7 +11,7 @@ echo_progress_start "Removing Calibre-Web Automated"
 systemctl stop cwa-automated.service || true
 systemctl disable cwa-automated.service || true
 rm -rf "$CWA_HOME"
-if id "$CWA_USER" &>/dev/null; then
+if id "$CWA_USER" &> /dev/null; then
     userdel --remove "$CWA_USER" || true
 fi
 rm -f /etc/nginx/sites-enabled/cwa-automated.conf /etc/nginx/sites-available/cwa-automated.conf
