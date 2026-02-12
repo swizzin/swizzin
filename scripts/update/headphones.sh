@@ -6,6 +6,7 @@ if [[ -f /install/.headphones.lock ]]; then
         echo_progress_start "Updating Headphones to use python virtualenv"
         active=$(systemctl is-active headphones)
         codename=$(lsb_release -cs)
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         systemctl stop headphones
         if [[ $codename = "buster" ]]; then

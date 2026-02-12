@@ -87,5 +87,6 @@ dependencies="whiptail git sudo curl wget lsof rsyslog fail2ban apache2-utils vn
 
 apt_install "${dependencies[@]}"
 
+#shellcheck source=sources/functions/gcc
 . /etc/swizzin/sources/functions/gcc
 GCC_Jammy_Upgrade

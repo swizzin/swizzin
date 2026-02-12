@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 active=$(systemctl status rclone@* | grep -m1 .service | awk '{print $2}')
 if [[ -n $active ]]; then

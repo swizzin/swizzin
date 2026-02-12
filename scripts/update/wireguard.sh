@@ -6,6 +6,7 @@ if [[ -f /install/.wireguard.lock ]]; then
     if [[ $distribution == "Debian" ]]; then
         if grep -q "Pin-Priority: 150" /etc/apt/preferences.d/limit-unstable 2> /dev/null; then
             echo_progress_start "Fixing wireguard repo issues"
+            #shellcheck source=sources/functions/backports
             . /etc/swizzin/sources/functions/backports
             check_debian_backports
             rm /etc/apt/sources.list.d/unstable.list

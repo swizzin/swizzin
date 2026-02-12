@@ -12,5 +12,6 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+#shellcheck source=sources/functions/ffmpeg
 . /etc/swizzin/sources/functions/ffmpeg
 ffmpeg_install

@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 systemctl disable --now jfago -q

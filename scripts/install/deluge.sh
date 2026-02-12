@@ -13,9 +13,13 @@
 #
 #################################################################################
 
+#shellcheck source=sources/functions/deluge
 . /etc/swizzin/sources/functions/deluge
+#shellcheck source=sources/functions/libtorrent
 . /etc/swizzin/sources/functions/libtorrent
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/fpm
 . /etc/swizzin/sources/functions/fpm
 
 local_packages=/usr/local/bin/swizzin
