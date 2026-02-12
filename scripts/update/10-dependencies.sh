@@ -49,9 +49,12 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         fi
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
+    if [[ $(_os_release) == "trixie" ]]; then
+	    apt modernize-sources -y >> ${log} 2>&1
+    fi
     listFile="/etc/apt/sources.list.d/debian.sources"
     if [[ -f ${listFile} ]]; then
-        components=(contrib non-free)
+        components=(contrib non-free non-free-firmware)
         tmpFile=$(mktemp)
         cp "$listFile" "$tmpFile"
         for component in "${components[@]}"; do
