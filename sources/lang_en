@@ -28,7 +28,6 @@ $L['LETSENCRYPT'] = 'A tool to generate and manage SSL Certificates the easy and
 $L['LIBRESPEED'] = 'Speed-test type utility which allows you to measure your upload and download against your machine.';
 $L['LIDARR'] = 'Music management tool for both torrents and usenet.';
 $L['LOUNGE'] = 'An always-on IRC client accessible through a web browser.';
-$L['MANGO'] = 'A Mangadex manga downloader, organizer and reader.';
 $L['MEDUSA'] = 'Medusa is an automatic Video Library Manager for TV Shows.';
 $L['MYLAR'] = 'An automated Comic Book (cbr/cbz) downloader program for use with NZB and torrents.';
 $L['NAVIDROME'] = 'Navidrome is an open source web-based music collection server and streamer.';
