@@ -10,7 +10,9 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 user=$(_get_master_username)

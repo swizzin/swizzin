@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [[ -f /install/.znc.lock ]]; then
+    #shellcheck source=sources/functions/letsencrypt
     . /etc/swizzin/sources/functions/letsencrypt
     le_znc_hook
 

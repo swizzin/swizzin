@@ -2,6 +2,7 @@
 # Nginx Configuration for RapidLeech
 MASTER=$(cut -d: -f1 < /root/.master.info)
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"

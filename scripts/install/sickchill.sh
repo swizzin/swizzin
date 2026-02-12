@@ -4,7 +4,9 @@
 
 user=$(cut -d: -f1 < /root/.master.info)
 codename=$(lsb_release -cs)
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 if [[ $(systemctl is-active medusa) == "active" ]]; then

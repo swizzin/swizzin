@@ -8,9 +8,13 @@ if [[ ! -f /install/.qbittorrent.lock ]]; then
 fi
 
 # Source the required functions
+#shellcheck source=sources/functions/qbittorrent
 . /etc/swizzin/sources/functions/qbittorrent
+#shellcheck source=sources/functions/libtorrent
 . /etc/swizzin/sources/functions/libtorrent
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/fpm
 . /etc/swizzin/sources/functions/fpm
 
 users=($(_get_user_list))

@@ -47,6 +47,7 @@ $L['PLEX'] = 'Plex lets you stream your content to any Plex enabled device.';
 $L['PROWLARR'] = 'Prowlarr is an indexer manager/proxy built on the popular arr .net/reactjs base stack to integrate with your various PVR apps. Prowlarr supports management of both Torrent Trackers and Usenet Indexers.';
 $L['PYLOAD'] = 'pyLoad is a download manager for `Hoster` websites, video sites, and HTTP/FTP links. A list of supported sites can be found <a href="https://github.com/pyload/pyload/wiki/Supported-Hoster" target="_blank">here</a>';
 $L['QBITTORRENT'] = 'qBittorrent is an open-source software alternative to µTorrent based on the Qt toolkit and libtorrent-rasterbar library.';
+$L['QUI'] = 'A modern, lightweight web interface for managing qBittorrent instances with real-time updates and multi-instance support from a single interface.';
 $L['QUASSEL'] = 'Quassel IRC is a modern, cross-platform, distributed IRC client based on the Qt4 framework.';
 $L['QUOTA'] = 'This feature of Linux allows the system administrator to allocate a maximum amount of disk space a user or group may use.';
 $L['RADARR'] = 'A Film management system which works with both torrents and usenet.';

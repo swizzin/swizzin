@@ -9,6 +9,7 @@
 #   under the GPL along with build & install instructions.
 #
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 case "$(_os_arch)" in

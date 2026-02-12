@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 active=$(systemctl is-active nzbhydra)
 username=$(_get_master_username)

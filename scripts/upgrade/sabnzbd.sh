@@ -6,7 +6,9 @@ if [[ ! -f /install/.sabnzbd.lock ]]; then
     exit 1
 fi
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 localversion=$(/opt/.venv/sabnzbd/bin/python /opt/sabnzbd/SABnzbd.py --version | grep -m1 SABnzbd | cut -d- -f2)
 #latest=$(curl -s https://sabnzbd.org/downloads | grep -m1 Linux | grep download-link-src | grep -oP "href=\"\K[^\"]+")

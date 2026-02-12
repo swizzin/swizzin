@@ -6,6 +6,7 @@ if [[ -f /install/.nzbhydra.lock ]]; then
         user=$(cut -d: -f1 < /root/.master.info)
         codename=$(lsb_release -cs)
         active=$(systemctl is-active nzbhydra@${user})
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         if [[ $active == "active" ]]; then
             systemctl disable -q --now nzbhydra@${user} >> ${log} 2>&1

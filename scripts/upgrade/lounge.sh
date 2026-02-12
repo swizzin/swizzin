@@ -33,6 +33,7 @@ if [[ $(systemctl is-active lounge) == "active" ]]; then
 fi
 
 if ! command -v yarn > /dev/null 2>&1; then
+    #shellcheck source=sources/functions/npm
     . /etc/swizzin/sources/functions/npm
     yarn_install
 fi

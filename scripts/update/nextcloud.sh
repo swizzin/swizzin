@@ -4,6 +4,7 @@
 if [[ -f /install/.nextcloud.lock ]]; then
     if ! grep -q 'set $path_info' /etc/nginx/apps/nextcloud.conf; then
         echo_progress_start "Updating Nextcloud nginx config"
+        #shellcheck source=sources/functions/php
         . /etc/swizzin/sources/functions/php
         phpversion=$(php_service_version)
         sock="php${phpversion}-fpm"
