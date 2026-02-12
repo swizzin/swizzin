@@ -16,6 +16,7 @@ The installer will now exit"
     exit 1
 fi
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 username=$(_get_master_username)

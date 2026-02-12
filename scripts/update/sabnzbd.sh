@@ -5,6 +5,7 @@ if [[ -f /install/.sabnzbd.lock ]]; then
         echo_progress_start "Updating SABnzbd to use pyenv"
         user=$(_get_master_username)
         codename=$(_os_codename)
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         active=$(systemctl is-active sabnzbd@${user})
         systemctl disable -q --now sabnzbd@${user} >> "${log}" 2>&1

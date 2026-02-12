@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 user=$(_get_master_username)
 systemctl disable --now nzbhydra

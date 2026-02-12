@@ -26,6 +26,7 @@ rm -f /etc/nginx/sites-enabled/default
 rm -f /etc/nginx/conf.d/*
 rm -f /etc/nginx/snippets/{ssl-params,proxy,fancyindex}.conf
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 
 phpversion=$(php_service_version)

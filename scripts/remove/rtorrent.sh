@@ -12,6 +12,7 @@ for u in ${users}; do
     rm -f /home/${u}/.rtorrent.rc
 done
 
+#shellcheck source=sources/functions/rtorrent
 . /etc/swizzin/sources/functions/rtorrent
 isdeb=$(dpkg -l | grep rtorrent)
 echo_progress_start "Removing old rTorrent binaries and libraries ... "

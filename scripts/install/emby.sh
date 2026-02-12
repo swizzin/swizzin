@@ -12,6 +12,7 @@
 #   including (via compiler) GPL-licensed code must also be made available
 #   under the GPL along with build & install instructions.
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 
 if [[ $(systemctl is-active jellyfin) == "active" ]]; then

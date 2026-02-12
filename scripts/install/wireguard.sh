@@ -160,6 +160,7 @@ EOWGC
 
 # shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/backports
 . /etc/swizzin/sources/functions/backports
 
 distribution=$(_os_distro)

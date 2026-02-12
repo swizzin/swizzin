@@ -14,6 +14,7 @@
 #   under the GPL along with build & install instructions.
 #
 
+#shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 
 user=$(cut -d: -f1 < /root/.master.info)

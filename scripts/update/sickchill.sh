@@ -56,7 +56,9 @@ fi
 
 if [[ -f /install/.sickchill.lock ]]; then
     if [[ -f /etc/systemd/system/sickchill@.service ]] || [[ -f /opt/.venv/sickchill/bin/python2 ]]; then
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
+        #shellcheck source=sources/functions/utils
         . /etc/swizzin/sources/functions/utils
         user=$(_get_master_username)
         if [[ -f /etc/systemd/system/sickchill@.service ]]; then

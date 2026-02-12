@@ -53,6 +53,7 @@ chmod 700 /etc/nginx/ssl
 cd /etc/nginx/ssl
 
 # Create temp.log for openssl dhparm generation to prevent a race condition with logging
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 templog="/root/logs/temp.log"
 rm_if_exists $templog
@@ -99,6 +100,7 @@ if [[ ! -f /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf ]]; then
     ln -s /usr/share/nginx/modules-available/mod-http-fancyindex.conf /etc/nginx/modules-enabled/50-mod-http-fancyindex.conf
 fi
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 phpversion=$(php_service_version)
 sock="php${phpversion}-fpm"

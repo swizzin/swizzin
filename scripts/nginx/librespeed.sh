@@ -3,6 +3,7 @@
 # Nginx configuration for LibreSpeed
 # Author - hwcltjn
 
+#shellcheck source=sources/functions/php
 . /etc/swizzin/sources/functions/php
 
 if [[ ! -f /etc/nginx/apps/librespeed.conf ]]; then

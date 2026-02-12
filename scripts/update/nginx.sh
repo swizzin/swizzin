@@ -22,6 +22,7 @@ function update_nginx() {
         fi
     fi
     # Include php functions and set vars
+    #shellcheck source=sources/functions/php
     . /etc/swizzin/sources/functions/php
     phpversion=$(php_service_version)
     sock="php${phpversion}-fpm"

@@ -106,6 +106,7 @@ else
     echo_progress_done "Permissions set"
 
     echo_progress_start "Configuring nginx and php"
+    #shellcheck source=sources/functions/php
     . /etc/swizzin/sources/functions/php
     phpversion=$(php_service_version)
     sock="php${phpversion}-fpm"

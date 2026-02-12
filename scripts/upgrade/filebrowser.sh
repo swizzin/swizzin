@@ -5,6 +5,7 @@ if [[ ! -f /install/.filebrowser.lock ]]; then
     exit 1
 fi
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 username=$(_get_master_username)
 
