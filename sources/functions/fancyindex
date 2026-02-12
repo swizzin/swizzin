@@ -1,0 +1,25 @@
+#!/bin/bash
+
+download_theme() {
+    theme_url="https://github.com/alehaa/nginx-fancyindex-flat-theme/releases/download/v1.2/nginx-fancyindex-flat-theme-1.2.tar.gz"
+    wget -q $theme_url -O /tmp/fancyindex.tar.gz
+    mkdir -p /tmp/fancyindex
+    tar -xzf /tmp/fancyindex.tar.gz -C /tmp/fancyindex --strip-components=1
+    mv /tmp/fancyindex /srv/fancyindex
+
+    # fix refs
+    sed -i 's|href="/[^/]*|href="/fancyindex|g' /srv/fancyindex/header.html
+    sed -i 's|src="/[^/]*|src="/fancyindex|g' /srv/fancyindex/header.html
+}
+
+cat_config() {
+    cat > /etc/nginx/snippets/fancyindex.conf << FIC
+    fancyindex on;
+    fancyindex_localtime on;
+    fancyindex_exact_size off;
+    fancyindex_show_path   off;
+    fancyindex_header "/fancyindex/header.html";
+    fancyindex_footer "/fancyindex/footer.html";
+    fancyindex_name_length 255; # Maximum file name length in bytes, change as you like.
+FIC
+}
