@@ -71,3 +71,58 @@ function le_znc_hook() {
     fi
     echo_progress_done
 }
+
+function ts_hostname() {
+    tailscale status --self --peers=false --json | jq -r '.Self.DNSName' | sed 's/\.$//'
+}
+
+export -f ts_hostname
+
+function ts_renewal() {
+    ts_hostname=$(ts_hostname)
+    if [[ -z "${ts_hostname}" ]]; then
+        echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
+        exit 1
+    fi
+
+    mkdir -p "/etc/nginx/ssl/${ts_hostname}"
+
+    tailscale cert \
+        --cert-file "/etc/nginx/ssl/${ts_hostname}/fullchain.pem" \
+        --key-file "/etc/nginx/ssl/${ts_hostname}/key.pem" \
+        --min-validity "1104h" \
+        "${ts_hostname}" >> "${log}" 2>&1
+
+    echo_progress_start "Reloading Nginx"
+    systemctl reload nginx
+    if [[ -f /install/.znc.lock ]]; then
+        ts_znc_hook
+    fi
+    if [[ -f /install/.vsftpd.lock ]]; then
+        ts_vsftpd_hook
+    fi
+    echo_progress_done
+}
+
+function ts_znc_hook() {
+    ts_hostname=$(ts_hostname)
+    if [[ -z "${ts_hostname}" ]]; then
+        echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
+        exit 1
+    fi
+
+    cat /etc/nginx/ssl/"${ts_hostname}"/{key,fullchain}.pem > /home/znc/.znc/znc.pem
+}
+
+function ts_vsftpd_hook() {
+    ts_hostname=$(ts_hostname)
+    if [[ -z "${ts_hostname}" ]]; then
+        echo_warn "Tailscale hostname not found. Skipping Tailscale certificate renewal."
+        exit 1
+    fi
+
+    sed -i "s#rsa_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem#rsa_cert_file=/etc/nginx/ssl/"${ts_hostname}"/fullchain.pem#g" /etc/vsftpd.conf
+    sed -i "s#rsa_private_key_file=/etc/ssl/private/ssl-cert-snakeoil.key#rsa_private_key_file=/etc/nginx/ssl/"${ts_hostname}"/key.pem#g" /etc/vsftpd.conf
+
+    systemctl try-restart vsftpd
+}
