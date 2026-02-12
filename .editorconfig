@@ -19,17 +19,9 @@ trim_trailing_whitespace = false
 [*.{yml,yaml}]
 indent_size = 2
 
-[[bash]]
+[{*.sh,scripts/**/*,sources/**/*}]
 indent_size = 4
-# -ln bash
-shell_variant      = bash
-# -ci
-switch_case_indent = true
-# -sr
-space_redirects    = true
-
-[[shell]]
-indent_size = 4
+# Settings for shfmt
 # -ln bash
 shell_variant      = bash
 # -ci
