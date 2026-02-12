@@ -50,7 +50,7 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
     if [[ $(_os_release) == "trixie" ]]; then
-	    apt modernize-sources -y >> ${log} 2>&1
+        apt modernize-sources -y >> ${log} 2>&1
     fi
     listFile="/etc/apt/sources.list.d/debian.sources"
     if [[ -f ${listFile} ]]; then
