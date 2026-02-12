@@ -8,7 +8,7 @@ if [[ -f /install/.calibreweb.lock ]]; then
     fi
     if ! /opt/.venv/calibreweb/bin/python3 -c "import pkg_resources; pkg_resources.require(open('/opt/calibreweb/requirements.txt',mode='r'))" &> /dev/null; then
         echo_progress_start "Updating Calibre Web requirements"
-        /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt
+        /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt >> ${log} 2>&1
         if systemctl is-enabled calibreweb > /dev/null 2>&1 &&
             [[ "$(tail -n 1 /opt/calibreweb/calibre-web.log | grep -c 'webserver stop (restart=True)')" -eq 1 ]]; then
             systemctl restart calibreweb
