@@ -1,5 +1,29 @@
 # Changelog
 
+## [3.15.0] (Feb 12 2026)
+
+### Removed
+- @flying-sausages: Remove mango (#1263)
+- @flying-sausages: remove: autodl (#1253)
+- @brettpetch: delete(readarr): Retirement of readarr due to metadata issues. (#1241)
+
+### New
+- @s0up4200: feat: Netronome (#1244)
+- @s0up4200: feat: qui (#1256)
+
+### Fixes
+- @s0up4200: fix: include netronome in user management scripts (#1257)
+- @flying-sausages: fix: bad grep in calibreweb udpater (#1260)
+- @flying-sausages: fix: calibre libxcb-cursor0 dependency (#1259)
+- @the-mann: Fix Kobo Sync (#942)
+- @brettpetch: bugfix(deluge): Ensure that python3-packaging is installed (#1271)
+
+### DX
+- @flying-sausages: formatting upgrade (#1248)
+- @flying-sausages: Add shellcheck source comments (#1279)
+- @flying-sausages: fix editorconfig shfmt support (#1278)
+
+
 ## [3.14.0]
 
 ## Aug 16, 2025
