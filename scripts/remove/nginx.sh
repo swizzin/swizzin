@@ -12,6 +12,7 @@ apt_remove --purge $LIST
 rm -rf /etc/nginx
 rm -rf /etc/php
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 rm_if_exists "/srv/rutorrent"
 rm_if_exists "/install/.rutorrent.lock"

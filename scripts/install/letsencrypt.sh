@@ -15,6 +15,7 @@ if [[ ! -f /install/.nginx.lock ]]; then
     exit 1
 fi
 
+#shellcheck source=sources/functions/letsencrypt
 . /etc/swizzin/sources/functions/letsencrypt
 ip=$(ip route get 1 | sed -n 's/^.*src \([0-9.]*\) .*$/\1/p')
 

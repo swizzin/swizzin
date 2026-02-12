@@ -15,6 +15,7 @@ if [[ -f /install/.tautulli.lock ]]; then
 
     if [[ ! -d /opt/.venv/tautulli ]]; then
         echo_progress_start "Migrating Tautulli to venv"
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         systempy3_ver=$(get_candidate_version python3)
 
@@ -69,6 +70,7 @@ if [[ -f /install/.plexpy.lock ]]; then
     rm /etc/systemd/system/plexpy.service
 
     # install tautulli instead
+    #shellcheck disable=SC1091
     source /usr/local/bin/swizzin/install/tautulli.sh &> /dev/null
     systemctl stop tautulli
 

@@ -3,7 +3,9 @@
 if [[ -f /install/.jellyfin.lock ]]; then
     # awaiting pull to remove
     function dist_info() {
+        #shellcheck disable=SC1091
         DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+        #shellcheck disable=SC1091
         DIST_ID="$(source /etc/os-release && echo "$ID")"
     }
     # source the functions we need for this script.

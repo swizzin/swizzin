@@ -13,6 +13,7 @@ codename=$(lsb_release -cs)
 _install() {
 
     user=$(cut -d: -f1 < /root/.master.info)
+    #shellcheck source=sources/functions/pyenv
     . /etc/swizzin/sources/functions/pyenv
     systempy3_ver=$(get_candidate_version python3)
 

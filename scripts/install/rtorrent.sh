@@ -79,7 +79,9 @@ EOF
 
 export DEBIAN_FRONTEND=noninteractive
 
+#shellcheck source=sources/functions/rtorrent
 . /etc/swizzin/sources/functions/rtorrent
+#shellcheck source=sources/functions/curl
 . /etc/swizzin/sources/functions/curl
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
 user=$(cut -d: -f1 < /root/.master.info)

@@ -9,12 +9,16 @@
 ########
 #
 # Source the global functions we require for this script.
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
+#shellcheck source=sources/functions/ssl
 . /etc/swizzin/sources/functions/ssl
 #
 # awaiting pull to remove
 function dist_info() {
+    #shellcheck disable=SC1091
     DIST_CODENAME="$(source /etc/os-release && echo "$VERSION_CODENAME")"
+    #shellcheck disable=SC1091
     DIST_ID="$(source /etc/os-release && echo "$ID")"
 }
 #

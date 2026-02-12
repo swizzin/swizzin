@@ -20,6 +20,7 @@ if [[ -f /install/.pyload.lock ]]; then
         codename=$(lsb_release -cs)
         user=$(cut -d: -f1 < /root/.master.info)
         isactive=$(systemctl is-active pyload@${user})
+        #shellcheck source=sources/functions/pyenv
         . /etc/swizzin/sources/functions/pyenv
         systemctl disable -q --now pyload@${user} >> ${log} 2>&1
         if [[ $codename = "buster" ]]; then

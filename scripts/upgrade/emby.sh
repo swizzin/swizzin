@@ -1,6 +1,7 @@
 #!/bin/bash
 # Simple tool to grab the latest release of emby
 
+#shellcheck source=sources/functions/utils
 . /etc/swizzin/sources/functions/utils
 latest=$(github_latest_version MediaBrowser/Emby.Releases)
 current=$(dpkg-query -f='${Version}' --show emby-server)
