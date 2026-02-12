@@ -57,6 +57,7 @@ $L['RTORRENT'] = 'rTorrent is a quick and efficient BitTorrent client written in
 $L['RUTORRENT'] = 'A web-based, multi-user capable interface for rtorrent overflowing with functionality and plugin extensibility ';
 $L['SABNZBD'] = 'SABnzbd is a multi-platform binary newsgroup downloader. The program works in the background and simplifies the downloading verifying and extracting of files from Usenet. SABnzbd uses NZB files (similar to .torrent files, but for Usenet), instead of browsing Usenet directly.';
 $L['SHELLINABOX'] = 'A web-based terminal for your machine.';
+$L['SHINKRO'] = 'An application to sync Plex watch status and ratings for anime to MyAnimeList.';
 $L['SICKCHILL'] = 'SickChill is an automatic Video Library Manager for TV Shows similarly to SickRage and SickBeard before it.';
 $L['SICKGEAR'] = 'SickGear, like others in the Sick* lineage, provides management of TV shows and/or Anime, it detects new episodes, links downloader apps, and more.';
 $L['SICKRAGE'] = 'Video File Manager for TV Shows, It watches for new episodes of your favorite shows and when they are posted it does its magic.';

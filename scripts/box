@@ -309,7 +309,7 @@ function _adduser() {
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl autobrr flood netronome nzbget lounge transmission wireguard organizr mango qbittorrent qui; do
+    for app in rtorrent rutorrent deluge autodl autobrr shinkro flood netronome nzbget lounge transmission wireguard organizr mango qbittorrent qui; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -374,7 +374,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr netronome qui; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr shinkro netronome qui; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -455,11 +455,14 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
-    for app in autobrr deluge lounge mango netronome organizr qbittorrent qui transmission; do
+    for app in autobrr shinkro deluge lounge mango netronome organizr qbittorrent qui transmission; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autobrr)
                     echo -n "$pass" | /usr/bin/autobrrctl --config "/home/$user/.config/autobrr" change-password "$user"
+                    ;;
+                shinkro)
+                    /usr/bin/shinkro --config="/home/$user/.config/shinkro" change-password "$user" --password="$pass" >> "$log" 2>&1
                     ;;
                 deluge)
                     systemctl stop deluged@${user} >> $log 2>&1
