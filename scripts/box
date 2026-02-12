@@ -309,7 +309,7 @@ function _adduser() {
     echo "D /var/run/${user} 0750 ${user} ${user} -" >> /etc/tmpfiles.d/"${user}".conf
     systemd-tmpfiles /etc/tmpfiles.d/"${user}".conf --create >> $log 2>&1
 
-    for app in rtorrent rutorrent deluge autodl autobrr flood netronome nzbget lounge transmission wireguard organizr mango qbittorrent qui; do
+    for app in rtorrent rutorrent deluge autodl autobrr flood netronome nzbget lounge transmission wireguard organizr qbittorrent qui; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -374,7 +374,7 @@ function _deluser() {
     echo_warn "This will delete the user '${user}' and all associated configs and subdirectories.\nTHIS ACTION CANNOT BE UNDONE.\nRemoval will start as soon as you confirm this message."
     ask "Are you sure you want to continue?" N || exit 1
 
-    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission mango wireguard organizr qbittorrent autobrr netronome qui; do
+    for app in rtorrent rutorrent deluge autodl flood nzbget lounge transmission wireguard organizr qbittorrent autobrr netronome qui; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autodl)
@@ -388,10 +388,6 @@ function _deluser() {
                     ;;
                 lounge)
                     su -s /bin/sh lounge -c "thelounge remove ${user}" > /dev/null
-                    ;;
-                mango)
-                    if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-                    su mango -c "$mangodir/mango admin user delete ${user}"
                     ;;
                 organizr)
                     #TODO automate removal steps
@@ -455,7 +451,7 @@ function _chpasswd() {
     htpasswd -b /etc/htpasswd $user "$pass" >> $log 2>&1
     mkdir -p /etc/htpasswd.d/
     htpasswd -b -c /etc/htpasswd.d/htpasswd.${user} $user "$pass" >> $log 2>&1
-    for app in autobrr deluge lounge mango netronome organizr qbittorrent qui transmission; do
+    for app in autobrr deluge lounge netronome organizr qbittorrent qui transmission; do
         if [[ -f /install/.${app}.lock ]]; then
             case $app in
                 autobrr)
@@ -481,10 +477,6 @@ function _chpasswd() {
                     ;;
                 lounge)
                     su -s /bin/sh lounge -c "thelounge reset $user " <<< "${pass}" >> $log 2>&1
-                    ;;
-                mango)
-                    if [[ -z $mangodir ]]; then mangodir="/opt/mango"; fi
-                    su mango -c "$mangodir/mango admin user update ${user} -p ${pass}" >> $log 2>&1
                     ;;
                 netronome)
                     echo -n "$pass" | /usr/bin/netronome --config "/home/$user/.config/netronome/config.toml" change-password "$user"
