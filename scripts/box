@@ -120,9 +120,9 @@ function _clr() {
 
 function _update() {
     # Checking for develop branch
+    SWIZ_GIT_REF="origin/master"
     if [ "$branch_name" == "develop" ]; then
         SWIZ_GIT_REF="origin/develop"
-        export SWIZ_GIT_REF
     fi
 
     if [[ -L /etc/swizzin ]]; then
@@ -147,34 +147,35 @@ function _update() {
 You will not be receiving any new updates past the last supported commit. Swizzin will continue to run as-is.
 We URGE you to migrate to a supported release if/while you still have the chance."
             SWIZ_GIT_REF="tags/eol-$(_os_codename)"
-            export SWIZ_GIT_REF
             ;;
     esac
+    export SWIZ_GIT_REF
     echo_log_only "noupdate = $noupdate"
     # If there is nothing blocking the update...
     if [[ -z $noupdate ]]; then
         # Run the git update procedure
         echo_progress_start "Updating swizzin local repository"
-        git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1 ||
+        git -C /etc/swizzin checkout "${SWIZ_GIT_REF}" >> $log 2>&1 ||
             {
                 echo_warn "Unclean repo detected, resetting current branch."
                 git -C /etc/swizzin reset --hard >> $log 2>&1
-                git -C /etc/swizzin checkout "${SWIZ_GIT_REF:-master}" >> $log 2>&1
+                git -C /etc/swizzin checkout "${SWIZ_GIT_REF}" >> $log 2>&1
             }
         {
             #shellcheck disable=SC2129
             git -C /etc/swizzin fetch --all --tags --prune >> $log 2>&1
-            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF:-origin/master}" >> $log 2>&1
+            git -C /etc/swizzin reset --hard "${SWIZ_GIT_REF}" >> $log 2>&1
         } || {
             echo_error "Failed to update from git"
             exit 1
         }
-        echo_progress_done "Local repository updated using: ${SWIZ_GIT_REF:-master}"
+        echo_progress_done "Local repository updated using: ${SWIZ_GIT_REF}"
         echo_info "HEAD is now set to $(git -C /etc/swizzin log --pretty=format:'%h' -n1)"
     else
         echo_warn "$noupdate_message"
     fi
-    export SWIZ_REPO_SCRIPT_RAN=true
+    SWIZ_REPO_SCRIPT_RAN=true
+    export SWIZ_REPO_SCRIPT_RAN
 
     echo_log_only "Re-sourcing globals.sh"
     # source globals again in case changes were made
