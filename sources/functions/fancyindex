@@ -1,7 +1,7 @@
 #!/bin/bash
 
 download_theme() {
-    theme_url="https://github.com/Naereen/Nginx-Fancyindex-Theme/archive/ee2e73c8dd1584b84ddad0cfcc44fbd903bdccd8.zip"
+    theme_url="https://github.com/Naereen/Nginx-Fancyindex-Theme/archive/ee2e73c8dd1584b84ddad0cfcc44fbd903bdccd8.tar.gz"
     wget -q $theme_url -O /tmp/fancyindex.tar.gz
     mkdir -p /tmp/fancyindex
     tar -xzf /tmp/fancyindex.tar.gz -C /tmp/fancyindex --strip-components=1
