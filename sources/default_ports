@@ -1,0 +1,5 @@
+app_port[authelia]=9091
+app_port[filebrowser]=9090
+app_port[jackett]=9117
+app_port[radarr]=7878
+app_port[sabnzbd]=65080
