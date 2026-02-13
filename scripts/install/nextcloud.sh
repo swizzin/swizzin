@@ -131,6 +131,25 @@ location = /.well-known/caldav {
 location /.well-known/acme-challenge { }
 
 location ^~ /nextcloud {
+    add_header Cache-Control "public, max-age=15778463";
+    # Add headers to serve security related headers  (It is intended
+    # to have those duplicated to the ones above)
+    # Before enabling Strict-Transport-Security headers please read
+    # into this topic first.
+    #add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
+    #
+    # WARNING: Only add the preload option once you read about
+    # the consequences in https://hstspreload.org/. This option
+    # will add the domain to a hardcoded list that is shipped
+    # in all major browsers and getting removed from this list
+    # could take several months.
+    add_header Referrer-Policy "no-referrer" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Download-Options "noopen" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Permitted-Cross-Domain-Policies "none" always;
+    add_header X-Robots-Tag "none" always;
+    add_header X-XSS-Protection "1; mode=block" always;
 
     # set max upload size
     client_max_body_size 512M;
@@ -185,26 +204,6 @@ location ^~ /nextcloud {
     # Make sure it is BELOW the PHP block
     location ~ ^\/nextcloud\/.+[^\/]\.(?:css|js|woff2?|svg|gif|map)\$ {
         try_files \$uri /nextcloud/index.php\$request_uri;
-        add_header Cache-Control "public, max-age=15778463";
-        # Add headers to serve security related headers  (It is intended
-        # to have those duplicated to the ones above)
-        # Before enabling Strict-Transport-Security headers please read
-        # into this topic first.
-        #add_header Strict-Transport-Security "max-age=15768000; includeSubDomains; preload;" always;
-        #
-        # WARNING: Only add the preload option once you read about
-        # the consequences in https://hstspreload.org/. This option
-        # will add the domain to a hardcoded list that is shipped
-        # in all major browsers and getting removed from this list
-        # could take several months.
-        add_header Referrer-Policy "no-referrer" always;
-        add_header X-Content-Type-Options "nosniff" always;
-        add_header X-Download-Options "noopen" always;
-        add_header X-Frame-Options "SAMEORIGIN" always;
-        add_header X-Permitted-Cross-Domain-Policies "none" always;
-        add_header X-Robots-Tag "none" always;
-        add_header X-XSS-Protection "1; mode=block" always;
-
         # Optional: Don't log access to assets
         access_log off;
     }
