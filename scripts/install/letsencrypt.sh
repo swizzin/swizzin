@@ -40,7 +40,7 @@ if [[ $main == yes ]]; then
     sed -i "s/server_name .*;/server_name $hostname;/g" /etc/nginx/sites-enabled/default
 fi
 
-if [[ -n $LE_CF_API ]] || [[ -n $LE_CF_EMAIL ]] || [[ -n $LE_CF_ZONE ]]; then
+if [[ -n $LE_CF_API ]] || [[ -n $LE_CF_ZONE ]]; then
     LE_BOOL_CF=yes
 fi
 
@@ -84,17 +84,9 @@ if [[ ${cf} == yes ]]; then
         api=$LE_CF_API
     fi
 
-    if [[ -z $LE_CF_EMAIL ]]; then
-        echo_query "CF Email"
-        read -e email
-    else
-        api=$LE_CF_EMAIL
-    fi
-
     export CF_Key="${api}"
-    export CF_Email="${email}"
 
-    valid=$(curl -X GET "https://api.cloudflare.com/client/v4/user" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json")
+    valid=$(curl -X GET "https://api.cloudflare.com/client/v4/user" -H "X-Auth-Key: $api" -H "Content-Type: application/json")
     if [[ $valid == *"\"success\":false"* ]]; then
         message="API CALL FAILED. DUMPING RESULTS:\n$valid"
         echo_error "$message"
@@ -110,8 +102,8 @@ if [[ ${cf} == yes ]]; then
             zone=$LE_CF_ZONE
         fi
 
-        zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
-        addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Email: $email" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
+        zoneid=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=$zone" -H "X-Auth-Key: $api" -H "Content-Type: application/json" | grep -Po '(?<="id":")[^"]*' | head -1)
+        addrecord=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$zoneid/dns_records" -H "X-Auth-Key: $api" -H "Content-Type: application/json" --data "{\"id\":\"$zoneid\",\"type\":\"A\",\"name\":\"$hostname\",\"content\":\"$ip\",\"proxied\":true}")
         if [[ $addrecord == *"\"success\":false"* ]]; then
             message="API UPDATE FAILED. DUMPING RESULTS:\n$addrecord"
             echo_error "$message"
