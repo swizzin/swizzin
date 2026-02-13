@@ -121,7 +121,7 @@ function _clr() {
 function _update() {
     # Checking for develop branch
     if [ "$branch_name" == "develop" ]; then
-        SWIZ_GIT_REF="develop"
+        SWIZ_GIT_REF="origin/develop"
         export SWIZ_GIT_REF
     fi
 
