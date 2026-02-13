@@ -63,7 +63,7 @@ function update_nginx() {
         echo_progress_done
     done
 
-    if [[ ! -d /srv/fancyindex ]] || ! grep -q "https://GitHub.com/Naereen/Nginx-Fancyindex-Theme" /srv/fancyindex/styles.css; then
+    if [[ ! -d /srv/fancyindex ]] || [ ! -f /srv/fancyindex/sw.js ]; then
         echo_progress_start "Updating fancyindex theme"
 
         #shellcheck source=sources/functions/fancyindex
