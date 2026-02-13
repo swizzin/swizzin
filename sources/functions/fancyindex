@@ -5,7 +5,7 @@ download_theme() {
     wget -q $theme_url -O /tmp/fancyindex.tar.gz
     mkdir -p /tmp/fancyindex
     tar -xzf /tmp/fancyindex.tar.gz -C /tmp/fancyindex --strip-components=1
-    mv /tmp/fancyindex/Nginx-Fancyindex /srv/fancyindex
+    mv /tmp/fancyindex/Nginx-Fancyindex/* /srv/fancyindex
     rm -rf /tmp/fancyindex
 
     # fix refs
