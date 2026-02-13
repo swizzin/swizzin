@@ -6,15 +6,27 @@ if [[ -f /install/.calibreweb.lock ]]; then
         sed -i 's/cps.py -f/cps.py/g' /etc/systemd/system/calibreweb.service
         systemctl daemon-reload
     fi
-    if ! /opt/.venv/calibreweb/bin/python3 -c "import pkg_resources; pkg_resources.require(open('/opt/calibreweb/requirements.txt',mode='r'))" &> /dev/null; then
+
+    pip_version=$(/opt/.venv/calibreweb/bin/pip -V | cut -d' ' -f2)
+    if dpkg --compare-versions "$pip_version" lt "23.0"; then
+        echo_progress_start "Upgrading pip for Calibre Web"
+        /opt/.venv/calibreweb/bin/pip install --upgrade pip >> ${log} 2>&1
+        echo_progress_done
+    fi
+
+    #shellcheck source=sources/functions/pyenv
+    . /etc/swizzin/sources/functions/pyenv
+
+    if ! python3_check_reqs calibreweb /opt/calibreweb/requirements.txt; then
         echo_progress_start "Updating Calibre Web requirements"
-        /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt
+        /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt >> ${log} 2>&1
         if systemctl is-enabled calibreweb > /dev/null 2>&1 &&
             [[ "$(tail -n 1 /opt/calibreweb/calibre-web.log | grep -c 'webserver stop (restart=True)')" -eq 1 ]]; then
             systemctl restart calibreweb
         fi
         echo_progress_done
     fi
+
     if [[ -f /etc/nginx/apps/calibreweb.conf ]]; then
         if ! grep -q -- "proxy_buffer_size" /etc/nginx/apps/calibreweb.conf; then
             echo_progress_start "Updating Calibre Web nginx config"
