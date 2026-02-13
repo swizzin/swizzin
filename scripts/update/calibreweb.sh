@@ -8,7 +8,7 @@ if [[ -f /install/.calibreweb.lock ]]; then
     fi
 
     pip_version=$(/opt/.venv/calibreweb/bin/pip -V | cut -d' ' -f2)
-    if dpkg --compare-versions "$pip_version" lt "22.2"; then
+    if dpkg --compare-versions "$pip_version" lt "23.0"; then
         echo_progress_start "Upgrading pip for Calibre Web"
         /opt/.venv/calibreweb/bin/pip install --upgrade pip >> ${log} 2>&1
         echo_progress_done
