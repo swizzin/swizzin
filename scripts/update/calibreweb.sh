@@ -14,7 +14,10 @@ if [[ -f /install/.calibreweb.lock ]]; then
         echo_progress_done
     fi
 
-    if ! /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt --dry-run | grep -q -i would; then
+    #shellcheck source=sources/functions/pyenv
+    . /etc/swizzin/sources/functions/pyenv
+
+    if ! python3_check_reqs calibreweb /opt/calibreweb/requirements.txt; then
         echo_progress_start "Updating Calibre Web requirements"
         /opt/.venv/calibreweb/bin/pip install -r /opt/calibreweb/requirements.txt >> ${log} 2>&1
         if systemctl is-enabled calibreweb > /dev/null 2>&1 &&

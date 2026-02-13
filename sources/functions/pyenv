@@ -146,3 +146,24 @@ function python3_venv() {
     chown -R ${user}: /opt/.venv/${app}
     echo_progress_done "Venv set up"
 }
+
+# Checks if requirements are installed. Returns 1 if reqs missing.
+# \
+# Parameters:
+# - `$1` = The name of the app to check the `venv` for
+# - `$2` = The path to the `requirements.txt` to check against
+
+function python3_check_reqs() {
+    app=$1
+    reqs_path=$2
+
+    report=$(/opt/.venv/"${app}"/bin/pip install -r "$reqs_path" --dry-run --quiet --disable-pip-version-check --report - 2>> "$log")
+    to_install_count=$(jq '.install | length' <<< "$report")
+    echo_log_only "Detected ${to_install_count} missing requirements for ${app} given reqs in ${reqs_path}"
+
+    if [[ $to_install_count -gt 0 ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
