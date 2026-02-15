@@ -276,7 +276,10 @@ function _adduser() {
 
     if id -u "${user}" > /dev/null 2>&1; then
         echo_info "The user ${user} already appears to be present on this machine; however, it does not appear to be configured as a swizzin user.\nThe user will be added to swizzin."
-        ask "Continue setting up user?" Y || exit 1
+        if [ -z "$UNATTEND" ]; then
+            ask "Continue setting up user?" Y || exit 1
+        fi
+
         existing=true
     fi
 
