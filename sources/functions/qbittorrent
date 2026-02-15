@@ -516,7 +516,7 @@ function build_libtorrent_qbittorrent() {
             ;;
         autotools)
             echo "using gcc : : : <cflags>\"-O3 -march=native -std=${stdcver}\" <cxxflags>\"-O3 -march=native -std=${stdcver}\" ;" > /root/user-config.jam
-            /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1 || {
+            /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) crypto=${cryptography_type} address-model=$(getconf LONG_BIT) optimization=speed threading=multi variant=release link=static install --prefix=/tmp/dist/libtorrent/usr/local install >> ${log} 2>&1 || {
                 echo_error "The boost build of libtorrent did not complete successfully"
                 exit 1
             }
