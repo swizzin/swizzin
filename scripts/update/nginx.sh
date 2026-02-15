@@ -222,11 +222,12 @@ FIAC
         echo_progress_done
     fi
 
-    #TODO: This needs an if statement
     # fix /etc/nginx/sites-enabled/default to not cause nginx to fail on reloading when there are subdirectories in /etc/nginx/apps like /etc/nginx/apps/authelia
-    echo_progress_start "Fixing nginx for recursive configs"
-    sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/\*.conf;|g' -i /etc/nginx/sites-enabled/default
-    echo_progress_done
+    if ! grep -q "include /etc/nginx/apps/\*.conf;" /etc/nginx/sites-enabled/default; then
+        echo_progress_start "Fixing nginx for recursive configs"
+        sed 's|include /etc/nginx/apps/\*;|include /etc/nginx/apps/\*.conf;|g' -i /etc/nginx/sites-enabled/default
+        echo_progress_done
+    fi
 
     #TODO: This needs an if statement
     echo_progress_start "Restarting php-fpm and nginx"
