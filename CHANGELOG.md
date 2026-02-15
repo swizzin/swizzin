@@ -135,7 +135,7 @@
 - qbittorrent: overzealous grep will continue to warn you of "misconfigurations" despite having the desired bind config set.
 - npm: swapped from script to repo method of initializing npm and nodejs
 - calibre-web: don't set proxy_bind (fixes issue with ipv6)
-
+ - calibre-web-automated: add installer and nginx/update/remove scripts to support Calibre-Web Automated (CWA); add docs and test script (2025-12-17)
 ## [3.9.2]
 
 ## September 16, 2023

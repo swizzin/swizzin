@@ -70,9 +70,10 @@ _library() {
 _install
 _library
 
-echo_info "You can install calibreweb or calibrecs separately"
+echo_info "You can install calibreweb, calibrewebautomated (CWA) or calibrecs separately"
 echo_docs "application/calibreweb"
 echo_docs "application/calibrecs"
+echo_docs "applications/calibrewebautomated"
 
 touch /install/.calibre.lock
 echo_success "Calibre installed"

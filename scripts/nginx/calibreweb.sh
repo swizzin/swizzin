@@ -1,4 +1,5 @@
 #!/bin/bash
+# Nginx proxy for Calibre-Web Automated (CWA)
 cat > /etc/nginx/apps/calibreweb.conf << EOF
 location /calibreweb {
         proxy_pass              http://127.0.0.1:8083;

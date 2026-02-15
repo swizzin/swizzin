@@ -106,6 +106,21 @@ Box functions:
     -   Usage: `box rtx` or `rtx`
 
 
+## Calibre-Web Automated (CWA) support
+
+A new optional package `calibrewebautomated` was added to this repository, providing an installer, nginx helper, update & remove scripts for Calibre-Web Automated (CWA).
+
+- Docs: `docs/applications/calibrewebautomated.md`
+- Test script: `tests/docker/test_cwa_container.sh`
+
+Use the test script to quickly verify a CWA container:
+
+```
+./tests/docker/test_cwa_container.sh
+```
+
+Note: CWA and Calibre-Web both default to port 8083; change the port for at least one instance if you plan to run both concurrently.
+
 ## Contributing
 We welcome any bug fixes, improvements or new applications submitted through Pull Requests. We have a short [Contributing guideline](CONTRIBUTING.md) that we'd like you to consult before so that we can keep our code clean and organized and keep your submissions supported properly.
 
