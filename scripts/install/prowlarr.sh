@@ -28,7 +28,7 @@ app_dir="/opt/${app_name^}"
 app_binary="${app_name^}"
 #Remove any dashes in appname per FS
 app_lockname="${app_name//-/}"
-app_branch="nightly"
+app_branch="master"
 #ToDo: Update branch
 
 if [ ! -d "$swiz_configdir" ]; then
