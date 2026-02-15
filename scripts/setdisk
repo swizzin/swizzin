@@ -88,7 +88,8 @@ function _setdisk() {
 
 if [[ -f /install/.quota.lock ]]; then
     _setdisk "$1" "$2"
+    exit $?
 else
     echo "Quota not installed"
-    return 1
+    exit 1
 fi
