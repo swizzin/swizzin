@@ -63,21 +63,14 @@ function update_nginx() {
         echo_progress_done
     done
 
-    if [[ ! -d /srv/fancyindex ]]; then
-        git clone https://github.com/Naereen/Nginx-Fancyindex-Theme/ /tmp/fancyindex >> $log 2>&1
-        mv /tmp/fancyindex/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
-        rm -rf /tmp/fancyindex
-    fi
-
-    if grep -q -e "-dark" -e "Nginx-Fancyindex" /srv/fancyindex/header.html; then
+    if [[ ! -d /srv/fancyindex ]] || [ ! -f /srv/fancyindex/sw.js ]; then
         echo_progress_start "Updating fancyindex theme"
-        sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
-        echo_progress_done
-    fi
 
-    if grep -q "Nginx-Fancyindex" /srv/fancyindex/footer.html; then
-        echo_progress_start "Updating fancyindex footer"
-        sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+        #shellcheck source=sources/functions/fancyindex
+        . /etc/swizzin/sources/functions/fancyindex
+        download_theme
+        cat_config
+
         echo_progress_done
     fi
 

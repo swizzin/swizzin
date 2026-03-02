@@ -200,22 +200,10 @@ PROX
 echo_progress_done "Config installed"
 
 echo_progress_start "Installing fancyindex"
-git clone https://github.com/Naereen/Nginx-Fancyindex-Theme/ /tmp/fancyindex >> $log 2>&1
-mv /tmp/fancyindex/Nginx-Fancyindex-Theme-dark /srv/fancyindex >> $log 2>&1
-rm -rf /tmp/fancyindex
-
-cat > /etc/nginx/snippets/fancyindex.conf << FIC
-fancyindex on;
-fancyindex_localtime on;
-fancyindex_exact_size off;
-fancyindex_header "/fancyindex/header.html";
-fancyindex_footer "/fancyindex/footer.html";
-#fancyindex_ignore "examplefile.html"; # Ignored files will not show up in the directory listing, but will still be public.
-#fancyindex_ignore "Nginx-Fancyindex-Theme"; # Making sure folder where files are don't show up in the listing.
-fancyindex_name_length 255; # Maximum file name length in bytes, change as you like.
-FIC
-sed -i 's/href="\/[^\/]*/href="\/fancyindex/g' /srv/fancyindex/header.html
-sed -i 's/src="\/[^\/]*/src="\/fancyindex/g' /srv/fancyindex/footer.html
+#shellcheck source=sources/functions/fancyindex
+. /etc/nginx/sources/functions/fancyindex
+download_theme
+cat_config
 
 #Some ruTorrent plugins need to bypass htpasswd, so we stuff the php for this here
 cat > /etc/nginx/apps/fancyindex.conf << FIAC
