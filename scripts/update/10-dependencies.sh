@@ -1,11 +1,12 @@
 #!/bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
 
-if ! which add-apt-repository > /dev/null; then
-    apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
-fi
-
 if [[ $(_os_distro) == "ubuntu" ]]; then
+
+    if ! which add-apt-repository > /dev/null; then
+        apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
+    fi
+
     if [[ $(_os_codename) == "jammy" ]]; then
         if ! grep -s 'ubuntu-toolchain-r' /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-ppa-jammy.list 2> /dev/null | grep -q -v '^#'; then
             echo_info "Adding toolchain repo"
@@ -48,9 +49,12 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         fi
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
+    if [[ $(_os_release) == "trixie" ]]; then
+        apt modernize-sources -y >> ${log} 2>&1
+    fi
     listFile="/etc/apt/sources.list.d/debian.sources"
     if [[ -f ${listFile} ]]; then
-        components=(contrib non-free)
+        components=(contrib non-free non-free-firmware)
         tmpFile=$(mktemp)
         cp "$listFile" "$tmpFile"
         for component in "${components[@]}"; do
@@ -66,6 +70,9 @@ elif [[ $(_os_distro) == "debian" ]]; then
             rm "$tmpFile"
         fi
     else
+        if ! which add-apt-repository > /dev/null; then
+            apt_install software-properties-common
+        fi
         if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
             echo_info "Enabling contrib repo"
             apt-add-repository -y contrib >> ${log} 2>&1
