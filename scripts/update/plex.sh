@@ -1,11 +1,15 @@
 #!/bin/bash
 
 if [[ -f /etc/apt/sources.list.d/plexmediaserver.list ]]; then
-    if grep -q "/deb/" /etc/apt/sources.list.d/plexmediaserver.list; then
-        echo_info "Updating plex apt repo endpoint"
-        echo "deb https://downloads.plex.tv/repo/deb public main" > /etc/apt/sources.list.d/plexmediaserver.list
-        apt_update
-    fi
+    echo_info "Updating plex apt repo endpoint"
+    rm /etc/apt/sources.list.d/plexmediaserver.list
+    # shellcheck source=sources/functions/utils
+    . /etc/swizzin/sources/functions/utils
+    rm_if_exists /usr/share/keyrings/plex-archive-keyring.gpg
+    rm_if_exists /usr/share/keyrings/plexmediaserver.gpg
+    curl -sL https://downloads.plex.tv/plex-keys/PlexSign.v2.key | gpg --yes --dearmor -o /usr/share/keyrings/plexmediaserver.v2.gpg
+    echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb/ public main" > /etc/apt/sources.list.d/plex.list >> ${log} 2>&1
+    apt_update
 fi
 
 # removing lockfile for the upgrade script so that it can be re-run as many times as people want
