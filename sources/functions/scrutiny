@@ -1,0 +1,30 @@
+#!/bin/bash
+
+_download_scrutiny() {
+    if [[ -n $1 ]]; then
+        arch=$1
+    fi
+
+    echo_progress_start "Downloading binaries"
+    mkdir -p /tmp/scrutiny
+    for component in {"scrutiny-web-linux-$arch","scrutiny-collector-metrics-linux-$arch","scrutiny-web-frontend.tar.gz"}; do
+        dlurl=$(curl -s https://api.github.com/repos/AnalogJ/scrutiny/releases/latest | jq -r --arg component "$component" -c '.assets[] | select(."name"==$component) | .browser_download_url') || {
+            echo_error "Failed to query GitHub for latest version"
+            exit 1
+        }
+        echo_log_only "Downloading $component from $dlurl"
+        if ! curl "$dlurl" -L -o "/tmp/scrutiny/$component" >> "$log" 2>&1; then
+            echo_error "Downloading $component failed, exiting"
+            exit 1
+        fi
+        chmod +x "/tmp/scrutiny/$component"
+    done
+
+    mv /tmp/scrutiny/scrutiny-web-linux-$arch "${scrutinydir}"/bin/scrutiny-web-linux-$arch
+    mv /tmp/scrutiny/scrutiny-collector-metrics-linux-$arch "${scrutinydir}"/bin/scrutiny-collector-metrics-linux-$arch
+    tar xvzf /tmp/scrutiny/scrutiny-web-frontend.tar.gz --strip-components 1 -C "${scrutinydir}"/web >> $log 2>&1
+
+    chown -R scrutiny:nogroup /opt/scrutiny
+    echo_progress_done "Files downloaded"
+    rm -rf /tmp/scrutiny
+}
