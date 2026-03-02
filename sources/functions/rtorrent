@@ -11,6 +11,7 @@ function whiptail_rtorrent() {
         whiptail --title "rTorrent Install Advisory" --msgbox "We recommend the latest rTorrent version selection instead of repo (distro) releases. They will compile additional performance and stability improvements in 90s." 15 50
 
         function=$(whiptail --title "Choose an rTorrent version" --menu "All versions other than repo will be locally compiled from source" --ok-button "Continue" 14 50 5 \
+            0.15.7 "(UDNS)" \
             0.15.5 "(UDNS)" \
             0.15.3 "(UDNS)" \
             0.15.1 "" \
@@ -64,6 +65,11 @@ function set_rtorrent_version() {
         0.15.5 | '0.15.5')
             export rtorrentver='0.15.5'
             export libtorrentver='0.15.5'
+            ;;
+
+        0.15.7 | '0.15.7')
+            export rtorrentver='0.15.7'
+            export libtorrentver='0.15.7'
             ;;
 
         Repo | 'Repo')
@@ -131,7 +137,7 @@ function depends_rtorrent() {
 }
 
 function build_xmlrpc-c() {
-    if [[ ! ${rtorrentver} == "0.15.1" && ! ${rtorrentver} == "0.15.3" && ! ${rtorrentver} == "0.15.5" ]]; then
+    if [[ ! ${rtorrentver} == "0.15.1" && ! ${rtorrentver} == "0.15.3" && ! ${rtorrentver} == "0.15.5" && ! ${rtorrentver} == "0.15.7" ]]; then
         build_xmlrpc-c_old
     fi
 }
@@ -165,7 +171,7 @@ function build_xmlrpc-c_old() {
 }
 
 function build_libtorrent_rakshasa() {
-    if [[ ${libtorrentver} == "0.14.0" || ${libtorrentver} == "0.15.1" || ${libtorrentver} == "0.15.3" || ${libtorrentver} == "0.15.5" ]]; then
+    if [[ ${libtorrentver} == "0.14.0" || ${libtorrentver} == "0.15.1" || ${libtorrentver} == "0.15.3" || ${libtorrentver} == "0.15.5" || ${libtorrentver} == "0.15.7" ]]; then
         build_libtorrent_rakshasa_new
     else
         build_libtorrent_rakshasa_old
@@ -263,7 +269,7 @@ function install_libtorrent_rakshasa() {
 }
 
 function build_rtorrent() {
-    if [[ ${rtorrentver} == "0.10.0" || ${rtorrentver} == "0.15.1" || ${rtorrentver} == "0.15.3" || ${rtorrentver} == "0.15.5" ]]; then
+    if [[ ${rtorrentver} == "0.10.0" || ${rtorrentver} == "0.15.1" || ${rtorrentver} == "0.15.3" || ${rtorrentver} == "0.15.5" || ${rtorrentver} == "0.15.7" ]]; then
         build_rtorrent_new
     else
         build_rtorrent_old
