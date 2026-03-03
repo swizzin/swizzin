@@ -10,6 +10,5 @@ location /calibrewebautomated {
 }
 EOF
 
-sed '/ExecStart=/ s/$/ -i 127.0.0.1/' -i /etc/systemd/system/calibrewebautomated.service
 systemctl daemon-reload
 systemctl try-restart calibrewebautomated
