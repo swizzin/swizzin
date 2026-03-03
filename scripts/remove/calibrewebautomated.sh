@@ -2,6 +2,8 @@
 
 rm -rf /opt/.venv/calibrewebautomated
 rm -rf /opt/calibrewebautomated
+rm -rf /config/cwa.db
+rm -rf /app
 
 systemctl disable --now -q calibrewebautomated
 rm /etc/systemd/system/calibrewebautomated.service
