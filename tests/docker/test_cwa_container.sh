@@ -14,16 +14,26 @@ OPEN=false
 IMAGE="crocodilestick/calibre-web-automated:latest"
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --keep)
-            KEEP=true; shift;;
-        --debug)
-            DEBUG=true; shift;;
-        --open)
-            OPEN=true; shift;;
-        --image)
-            IMAGE="$2"; shift 2;;
-        *)
-            IMAGE="$1"; shift;;
+    --keep)
+        KEEP=true
+        shift
+        ;;
+    --debug)
+        DEBUG=true
+        shift
+        ;;
+    --open)
+        OPEN=true
+        shift
+        ;;
+    --image)
+        IMAGE="$2"
+        shift 2
+        ;;
+    *)
+        IMAGE="$1"
+        shift
+        ;;
     esac
 done
 
@@ -90,7 +100,7 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 echo "Pulling image $IMAGE..." | tee -a "$LOG_FILE"
-docker pull "$IMAGE" >> "$LOG_FILE" 2>&1
+docker pull "$IMAGE" >>"$LOG_FILE" 2>&1
 
 # Run container
 run_opts="-d"
@@ -148,7 +158,7 @@ while true; do
         echo "Internal container check: OK (http_code=$internal_code)" | tee -a "$LOG_FILE"
         break
     fi
-    if [ $(( $(date +%s) - internal_start )) -ge $internal_timeout ]; then
+    if [ $(($(date +%s) - internal_start)) -ge $internal_timeout ]; then
         echo "Internal healthcheck timed out after ${internal_timeout}s, last code=$internal_code" | tee -a "$LOG_FILE"
         echo "Container process list and logs:" | tee -a "$LOG_FILE"
         docker exec -w / "$NAME" ps aux | sed 's/^/PROC: /' | tee -a "$LOG_FILE" || true
@@ -191,7 +201,7 @@ if echo "$content" | grep -qi "calibre" || echo "$content" | grep -qi "cwa"; the
     echo "Root page content looks correct" | tee -a "$LOG_FILE"
 else
     echo "Root page content did not contain expected keywords, saving snippet" | tee -a "$LOG_FILE"
-    echo "$content" | sed -n '1,200p' >> "$LOG_FILE"
+    echo "$content" | sed -n '1,200p' >>"$LOG_FILE"
 fi
 
 # helper: try to open a URL using available desktop helpers

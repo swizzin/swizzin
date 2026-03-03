@@ -54,7 +54,7 @@ function prepare_env() {
     mkdir -p "$(dirname "$LOG")"
     touch "$LOG"
     export log="$LOG"
-    export CALIBRE_LIBRARY_USER="$(logname 2>/dev/null || echo tester)"
+    export CALIBRE_LIBRARY_USER="$(logname 2> /dev/null || echo tester)"
     export CALIBRE_LIBRARY_PATH="/home/$CALIBRE_LIBRARY_USER/Calibre Library"
     mkdir -p /install
 }
@@ -87,7 +87,7 @@ function cleanup() {
     systemctl disable calibrewebautomated.service || true
     rm -f /etc/systemd/system/calibrewebautomated.service || true
     systemctl daemon-reload || true
-    userdel -r calibrewebautomated 2>/dev/null || true
+    userdel -r calibrewebautomated 2> /dev/null || true
     rm -rf /opt/calibrewebautomated /opt/.venv/calibrewebautomated || true
     rm -f /etc/nginx/apps/calibrewebautomated.conf || true
     rm -f /install/.calibrewebautomated.lock || true
@@ -108,7 +108,7 @@ function restore() {
 }
 
 function usage() {
-    cat <<EOF
+    cat << EOF
 Usage: sudo bash $0 [--nginx] [--keep]
   --nginx   : create /install/.nginx.lock so nginx conf is applied
   --keep    : keep deployed files in /usr/local/bin/swizzin and /etc/swizzin (no restore)
@@ -122,10 +122,19 @@ NGINX_LOCK=false
 KEEP=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --nginx) NGINX_LOCK=true; shift ;;
-        --keep) KEEP=true; shift ;;
-        -h|--help) usage ;;
-        *) echo "Unknown arg: $1"; usage ;;
+        --nginx)
+            NGINX_LOCK=true
+            shift
+            ;;
+        --keep)
+            KEEP=true
+            shift
+            ;;
+        -h | --help) usage ;;
+        *)
+            echo "Unknown arg: $1"
+            usage
+            ;;
     esac
 done
 
