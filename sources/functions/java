@@ -7,12 +7,12 @@ install_java8() {
     elif [[ $distribution == "debian" ]]; then
         case $codename in
             *)
-                echo_progress_start "Adding adoptopenjdk repository"
-                curl -s https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | gpg --dearmor > /usr/share/keyrings/adoptopenjdk-archive-keyring.gpg 2>> "${log}"
-                echo "deb [signed-by=/usr/share/keyrings/adoptopenjdk-archive-keyring.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ ${codename} main" > /etc/apt/sources.list.d/adoptopenjdk.list
-                echo_progress_done "adoptopenjdk repos enabled"
+                echo_progress_start "Adding temurin repository"
+                curl -s https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor > /usr/share/keyrings/temurin-archive-keyring.gpg 2>> "${log}"
+                echo "deb [signed-by=/usr/share/keyrings/temurin-archive-keyring.gpg] https://packages.adoptium.net/artifactory/deb/ ${codename} main" > /etc/apt/sources.list.d/temurin.list
+                echo_progress_done "temurin repos enabled"
                 apt_update
-                apt_install adoptopenjdk-8-hotspot
+                apt_install temurin-8-jdk
                 ;;
         esac
     fi
