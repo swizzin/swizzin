@@ -1,7 +1,7 @@
 #!/bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
 
-if ! which add-apt-repository > /dev/null; then
+if ! which add-apt-repository > /dev/null && [ "$(_os_codename)" != "trixie" ]; then
     apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
 fi
 
@@ -68,12 +68,20 @@ elif [[ $(_os_distro) == "debian" ]]; then
     else
         if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
             echo_info "Enabling contrib repo"
-            apt-add-repository -y contrib >> ${log} 2>&1
+            if [[ $(_os_codename) != "trixie" ]]; then
+                apt-add-repository -y contrib >> ${log} 2>&1
+            else
+                sed -i 's/^\(deb .*main\)/\1 contrib/' /etc/apt/sources.list >> ${log} 2>&1
+            fi
             trigger_apt_update=true
         fi
         if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
             echo_info "Enabling non-free repo"
-            apt-add-repository -y non-free >> ${log} 2>&1
+            if [[ $(_os_codename) != "trixie" ]]; then
+                apt-add-repository -y non-free >> ${log} 2>&1
+            else
+                sed -i 's/^\(deb .*main.*\)/\1 non-free/' /etc/apt/sources.list >> ${log} 2>&1
+            fi
             trigger_apt_update=true
         fi
     fi
