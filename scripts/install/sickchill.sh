@@ -31,7 +31,7 @@ if [[ -n $active ]]; then
     fi
 fi
 
-LIST='git python3-dev python3-venv python3-pip'
+LIST='git python3-dev python3-venv python3-pip python3-rarfile' # TODO: Add appdirs
 apt_install $LIST
 echo_progress_start "Installing venv for sickchill"
 python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
