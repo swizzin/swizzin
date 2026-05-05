@@ -101,6 +101,7 @@ enable_all_par = 1
 direct_unpack_threads = 1
 password = "${password}"
 username = "${user}"
+url_base = "sabnzbd"
 SAB_INI
 chown -R ${user}: /opt/sabnzbd
 chown ${user}: /home/${user}/.config
