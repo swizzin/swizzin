@@ -70,7 +70,7 @@ if [[ -f /install/.sickchill.lock ]]; then
         fi
         systemctl disable -q --now ${unit} >> ${log} 2>&1
         rm_if_exists /opt/.venv/sickchill
-        LIST='git python3-dev python3-venv python3-pip'
+        LIST='git python3-dev python3-venv python3-pip python3-rarfile'
         apt_install $LIST
         python3 -m venv /opt/.venv/sickchill
 
@@ -81,8 +81,9 @@ if [[ -f /install/.sickchill.lock ]]; then
             mv /home/${user}/.sickchill /opt/sickchill
         fi
         sudo -u ${user} bash -c "cd /opt/sickchill; git pull" >> $log 2>&1
-        # echo "Installing requirements.txt with pip ..."
-        sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
+        sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install 'setuptools<71'" >> $log 2>&1
+        sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install 'stevedore<5.2'" >> $log 2>&1
+        sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install appdirs /opt/sickchill/" >> $log 2>&1
 
         cat > /etc/systemd/system/sickchill.service << SCSD
 [Unit]
