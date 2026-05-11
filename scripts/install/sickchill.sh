@@ -3,7 +3,6 @@
 # Author: liara
 
 user=$(cut -d: -f1 < /root/.master.info)
-codename=$(lsb_release -cs)
 #shellcheck source=sources/functions/pyenv
 . /etc/swizzin/sources/functions/pyenv
 #shellcheck source=sources/functions/utils
@@ -31,7 +30,7 @@ if [[ -n $active ]]; then
     fi
 fi
 
-LIST='git python3-dev python3-venv python3-pip'
+LIST='git python3-dev python3-venv python3-pip python3-rarfile'
 apt_install $LIST
 echo_progress_start "Installing venv for sickchill"
 python3 -m venv /opt/.venv/sickchill >> ${log} 2>&1
@@ -43,8 +42,10 @@ git clone https://github.com/SickChill/SickChill.git /opt/sickchill >> ${log} 2>
 chown -R $user: /opt/sickchill
 echo_progress_done
 
-echo_progress_start "Installing requirements.txt with pip"
-sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install -r /opt/sickchill/requirements.txt" >> $log 2>&1
+echo_progress_start "Installing SickChill dependencies with pip"
+sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install 'setuptools<71'" >> $log 2>&1
+sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install 'stevedore<5.2'" >> $log 2>&1
+sudo -u ${user} bash -c "/opt/.venv/sickchill/bin/pip3 install appdirs /opt/sickchill/" >> $log 2>&1
 echo_progress_done
 
 install_rar
@@ -72,6 +73,11 @@ echo_progress_done "Sickchill started"
 
 if [[ -f /install/.nginx.lock ]]; then
     echo_progress_start "Configuring nginx"
+    # Wait for SickChill to generate config.ini on first launch
+    timeout=10
+    while [[ ! -f /opt/sickchill/config.ini ]] && ((timeout-- > 0)); do
+        sleep 1
+    done
     bash /usr/local/bin/swizzin/nginx/sickchill.sh
     systemctl reload nginx
     echo_progress_done

@@ -30,7 +30,10 @@ read 'claim'
 echo_progress_start "Installing plex keys and sources ... "
 apt_install apt-transport-https
 curl -sL https://downloads.plex.tv/plex-keys/PlexSign.v2.key | gpg --yes --dearmor -o /usr/share/keyrings/plexmediaserver.v2.gpg
-echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb/ public main" > /etc/apt/sources.list.d/plex.list
+# Clean up old/legacy Plex source files before writing our managed entry.
+rm -f /etc/apt/sources.list.d/plexmediaserver.list /etc/apt/sources.list.d/plexmediaserver.sources
+# repo.plex.tv is the signed Plex APT endpoint; downloads.plex.tv/repo/deb may be unsigned.
+echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb public main" > /etc/apt/sources.list.d/plex.list
 echo
 
 apt_update

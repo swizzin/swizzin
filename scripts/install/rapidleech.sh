@@ -28,6 +28,10 @@ function _installRapidleech1() {
     echo_progress_start "Cloning rapidleech"
     git clone https://github.com/Th3-822/rapidleech.git /home/"${MASTER}"/rapidleech >> $log 2>&1
     chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
+    chmod 775 /home/"${MASTER}"/rapidleech/configs
+    chmod 775 /home/"${MASTER}"/rapidleech/configs/config.php
+    chmod 775 /home/"${MASTER}"/rapidleech/configs/files.lst
+    chmod 775 /home/"${MASTER}"/rapidleech/files
     echo_progress_done
 }
 

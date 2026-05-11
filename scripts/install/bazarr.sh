@@ -35,7 +35,13 @@ _install() {
     esac
 
     if [[ $(_os_arch) =~ "arm" ]]; then
-        apt_install libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg libatlas-base-dev
+        arm_deps=(libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg)
+        if [[ -n "$(get_candidate_version libatlas-base-dev)" ]]; then
+            arm_deps+=(libatlas-base-dev)
+        else
+            echo_warn "Skipping libatlas-base-dev because no apt candidate is available on this architecture."
+        fi
+        apt_install "${arm_deps[@]}"
     fi
 
     echo_progress_start "Downloading bazarr source"

@@ -38,6 +38,16 @@ esac
 version=$(github_latest_version "Jackett/Jackett")
 password=$(cut -d: -f2 < /root/.master.info)
 
+echo_progress_start "Installing Jackett dependencies..."
+icu_pkg=$(apt-cache pkgnames libicu 2> /dev/null | grep -E '^libicu[0-9]+$' | sort -V | tail -n1)
+if [[ -n "$icu_pkg" ]]; then
+    apt_install "$icu_pkg"
+else
+    echo_warn "Could not detect a versioned libicu package; installing libicu-dev"
+    apt_install libicu-dev
+fi
+echo_progress_done
+
 echo_progress_start "Downloading and extracting jackett"
 cd /home/$username
 wget "https://github.com/Jackett/Jackett/releases/download/${version}/Jackett.Binaries.Linux${arch}.tar.gz" >> "$log" 2>&1

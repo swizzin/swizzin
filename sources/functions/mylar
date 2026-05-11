@@ -31,6 +31,8 @@ function _download_latest() {
     /opt/.venv/mylar/bin/pip install -r /opt/mylar/requirements.txt &>> "${log}"
     # hotfix for urllib3 breaking stuff
     /opt/.venv/mylar/bin/pip install 'urllib3<2'
+    # Python 3.13+ removed stdlib imghdr; Mylar still imports it.
+    /opt/.venv/mylar/bin/pip install standard-imghdr &>> "${log}"
     chown -R "${mylar_owner}": /opt/mylar/
     chown -R "${mylar_owner}": /opt/.venv/mylar/
 }
