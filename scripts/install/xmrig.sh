@@ -1,9 +1,14 @@
 #!/bin/bash
 # xmrig installer
 # Author: liara
+#shellcheck source=sources/functions/utils
+. /etc/swizzin/sources/functions/utils
 user=$(cut -d: -f1 < /root/.master.info)
 noexec=$(grep "/tmp" /etc/fstab | grep noexec)
-latest=$(curl -s https://github.com/xmrig/xmrig/releases/latest | grep -oP 'v\K\d+.\d+.\d+')
+# GitHub's /releases/latest page is now a bodyless redirect, so scraping it returns an empty
+# version and `git clone --branch v` fails, cascading into every later step. Resolve the tag
+# via the redirect target instead (github_latest_version returns e.g. "v6.21.0").
+latest=$(github_latest_version xmrig/xmrig)
 
 while true; do
     echo_query "Please choose a dev donation amount. Minimum fee is 1%."
@@ -43,10 +48,21 @@ apt_install screen git build-essential cmake libuv1-dev libmicrohttpd-dev libssl
 
 cd /tmp
 echo_progress_start "Cloning xmrig"
-git clone --depth 1 --single-branch --branch v${latest} https://github.com/xmrig/xmrig.git >> $log 2>&1
+if [[ -z $latest ]]; then
+    echo_error "Could not determine the latest xmrig release. Setup will exit."
+    exit 1
+fi
+rm_if_exists /tmp/xmrig
+git clone --depth 1 --single-branch --branch ${latest} https://github.com/xmrig/xmrig.git >> $log 2>&1 || {
+    echo_error "Cloning xmrig ${latest} failed. Setup will exit."
+    exit 1
+}
 echo_progress_done
 
-cd xmrig
+cd xmrig || {
+    echo_error "xmrig source directory missing after clone. Setup will exit."
+    exit 1
+}
 sed -i "s/donate.ssl.xmrig.com/diglett.swizzin.ltd/g" src/net/strategies/DonateStrategy.cpp
 sed -i "s/donate.v2.xmrig.com/diglett.swizzin.ltd/g" src/net/strategies/DonateStrategy.cpp
 sed -i "s/kDefaultDonateLevel = 5/kDefaultDonateLevel = $fee/g" src/donate.h
@@ -60,6 +76,10 @@ mkdir build
 cd build
 cmake .. >> $log 2>&1
 make -j$(nproc) >> $log 2>&1
+if [[ ! -f xmrig ]]; then
+    echo_error "xmrig build did not produce a binary. Check ${log}. Setup will exit."
+    exit 1
+fi
 mv xmrig /usr/local/bin/
 echo_progress_done
 
@@ -80,9 +100,11 @@ if [[ -n $noexec ]]; then
     mount -o remount,noexec /tmp
 fi
 
-if [[ -z $(grep vm.nr_hugepages=128 /etc/sysctl.conf) ]]; then
-    echo "vm.nr_hugepages=128" >> /etc/sysctl.conf
-    sysctl -p
+# Trixie ships no /etc/sysctl.conf by default (settings live in /etc/sysctl.d/), so grepping
+# it errors. Use a drop-in, which is the supported way to add sysctl settings.
+if [[ ! -f /etc/sysctl.d/99-xmrig.conf ]]; then
+    echo "vm.nr_hugepages=128" > /etc/sysctl.d/99-xmrig.conf
+    sysctl -p /etc/sysctl.d/99-xmrig.conf >> $log 2>&1
 fi
 
 cat > /etc/systemd/system/xmrig.service << XMR
@@ -104,8 +126,8 @@ XMR
 
 echo_progress_done
 
-echo_progress_start
+echo_progress_start "Starting xmrig"
 systemctl enable -q --now xmrig 2>&1 | tee -a $log
-echo_done
+echo_progress_done
 touch /install/.xmrig.lock
 echo_success "Xmrig Installed"
