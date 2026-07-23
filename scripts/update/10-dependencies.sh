@@ -1,11 +1,14 @@
 #!/bin/bash
 # Ensures that dependencies are installed and corrects them if that is not the case.
 
-if ! which add-apt-repository > /dev/null && [ "$(_os_codename)" != "trixie" ]; then
-    apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
-fi
-
 if [[ $(_os_distro) == "ubuntu" ]]; then
+    # add-apt-repository ships in software-properties-common, which no longer exists in
+    # Debian trixie. Only install it where it is actually used and actually available.
+    if ! which add-apt-repository > /dev/null; then
+        apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
+    fi
+
+
     if [[ $(_os_codename) == "jammy" ]]; then
         if ! grep -s 'ubuntu-toolchain-r' /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-ppa-jammy.list 2> /dev/null | grep -q -v '^#'; then
             echo_info "Adding toolchain repo"
@@ -48,9 +51,20 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         fi
     fi
 elif [[ $(_os_distro) == "debian" ]]; then
+    # trixie installs ship deb822 sources, but a box dist-upgraded from bookworm still
+    # carries a legacy /etc/apt/sources.list. We cannot fall back to apt-add-repository
+    # there because software-properties-common was dropped from trixie, so convert the
+    # legacy entries first and let the deb822 branch below handle components uniformly.
+    if [[ -f /etc/apt/sources.list ]] && grep -qE '^\s*deb(-src)?\s' /etc/apt/sources.list &&
+        apt-get --version 2> /dev/null | grep -qE 'apt 3\.'; then
+        echo_info "Converting legacy apt sources to deb822 format"
+        apt modernize-sources -y >> ${log} 2>&1
+    fi
     listFile="/etc/apt/sources.list.d/debian.sources"
     if [[ -f ${listFile} ]]; then
-        components=(contrib non-free)
+        # trixie split firmware out of non-free; harmless to request on older releases
+        # since the component simply resolves to nothing there.
+        components=(contrib non-free non-free-firmware)
         tmpFile=$(mktemp)
         cp "$listFile" "$tmpFile"
         for component in "${components[@]}"; do
@@ -66,22 +80,17 @@ elif [[ $(_os_distro) == "debian" ]]; then
             rm "$tmpFile"
         fi
     else
+        if ! which add-apt-repository > /dev/null; then
+            apt_install software-properties-common
+        fi
         if ! grep contrib /etc/apt/sources.list | grep -q -v '^#'; then
             echo_info "Enabling contrib repo"
-            if [[ $(_os_codename) != "trixie" ]]; then
-                apt-add-repository -y contrib >> ${log} 2>&1
-            else
-                sed -i 's/^\(deb .*main\)/\1 contrib/' /etc/apt/sources.list >> ${log} 2>&1
-            fi
+            apt-add-repository -y contrib >> ${log} 2>&1
             trigger_apt_update=true
         fi
         if ! grep -P '\bnon-free(\s|$)' /etc/apt/sources.list | grep -q -v '^#'; then
             echo_info "Enabling non-free repo"
-            if [[ $(_os_codename) != "trixie" ]]; then
-                apt-add-repository -y non-free >> ${log} 2>&1
-            else
-                sed -i 's/^\(deb .*main.*\)/\1 non-free/' /etc/apt/sources.list >> ${log} 2>&1
-            fi
+            apt-add-repository -y non-free >> ${log} 2>&1
             trigger_apt_update=true
         fi
     fi
