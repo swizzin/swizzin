@@ -245,7 +245,7 @@ function qbittorrent_version_info() {
             cryptography_type=openssl
             build_type=cmake
             ;;
-        5.1.*)
+        5.1.* | 5.2.*)
             if [[ -n ${LIBTORRENT_VERSION} ]]; then
                 case $LIBTORRENT_VERSION in
                     RC_2_0)
@@ -271,7 +271,7 @@ function qbittorrent_version_info() {
             build_type=cmake
             ;;
         *)
-            echo_error "qBittorrent version should be between 4.1.*(.*) and 5.1.*(.*) -- Setup will not proceed."
+            echo_error "qBittorrent version should be between 4.1.*(.*) and 5.2.*(.*) -- Setup will not proceed."
             exit 1
             ;;
     esac
