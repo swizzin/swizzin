@@ -8,7 +8,6 @@ if [[ $(_os_distro) == "ubuntu" ]]; then
         apt_install software-properties-common # Ubuntu may require universe/mutliverse enabled for certain packages so we must ensure repos are enabled before deps are attempted to installed
     fi
 
-
     if [[ $(_os_codename) == "jammy" ]]; then
         if ! grep -s 'ubuntu-toolchain-r' /etc/apt/sources.list.d/ubuntu-toolchain-r-ubuntu-ppa-jammy.list 2> /dev/null | grep -q -v '^#'; then
             echo_info "Adding toolchain repo"
