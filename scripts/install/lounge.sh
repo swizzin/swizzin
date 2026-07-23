@@ -12,10 +12,28 @@ function _install() {
         exit 1
     }
     yarn --non-interactive cache clean >> $log 2>&1
-    sudo -u lounge bash -c "thelounge install thelounge-theme-zenburn" >> $log 2>&1
     echo_progress_done
 
+    # Install the zenburn theme into THELOUNGE_HOME. Run right after `yarn global add`, the
+    # install can silently no-op (returning 0 without persisting), leaving config.js pointing
+    # at a theme that isn't there ("default theme ... does not exist"). So pin THELOUNGE_HOME,
+    # retry, and confirm it actually landed in packages/package.json before referencing it.
     mkdir -p /opt/lounge/.thelounge/
+    chown -R lounge: /opt/lounge
+    echo_progress_start "Installing lounge theme"
+    lounge_theme="default"
+    for _ in 1 2 3; do
+        sudo -H -u lounge bash -c "THELOUNGE_HOME=/opt/lounge/.thelounge thelounge install thelounge-theme-zenburn" >> $log 2>&1
+        if grep -q 'thelounge-theme-zenburn' /opt/lounge/.thelounge/packages/package.json 2> /dev/null; then
+            lounge_theme="thelounge-theme-zenburn"
+            break
+        fi
+        sleep 2
+    done
+    if [[ $lounge_theme == "default" ]]; then
+        echo_warn "thelounge-theme-zenburn could not be installed; lounge will use the default theme."
+    fi
+    echo_progress_done
 
     cat > /opt/lounge/.thelounge/config.js << 'EOF'
 "use strict";
@@ -500,6 +518,12 @@ module.exports = {
 	},
 };
 EOF
+
+    # config.js is written with the theme hard-coded; drop back to the default theme if the
+    # zenburn package didn't actually install, so lounge doesn't warn about a missing theme.
+    if [[ $lounge_theme != "thelounge-theme-zenburn" ]]; then
+        sed -i 's/theme: "thelounge-theme-zenburn"/theme: "default"/' /opt/lounge/.thelounge/config.js
+    fi
 
     chown -R lounge: /opt/lounge
 

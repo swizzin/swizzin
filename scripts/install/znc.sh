@@ -59,6 +59,14 @@ if [[ -f /install/nginx.lock ]]; then
     le_znc_hook
 fi
 
+# znc --makeconf is interactive; if it was cancelled or driven without a tty it produces no
+# config. Don't write a lock and claim success in that case -- the daemon would have nothing
+# to serve and the grep below would just spam "No such file" errors.
+if [[ ! -f /home/znc/.znc/configs/znc.conf ]]; then
+    echo_error "ZNC configuration was not created (znc --makeconf did not complete). ZNC is not configured; re-run the install and answer the prompts. Setup will exit."
+    exit 1
+fi
+
 systemctl start znc
 echo "$(grep Port /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" > /install/.znc.lock
 echo "$(grep SSL /home/znc/.znc/configs/znc.conf | sed -e 's/^[ \t]*//')" >> /install/.znc.lock
