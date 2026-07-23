@@ -28,10 +28,14 @@ function _installRapidleech1() {
     echo_progress_start "Cloning rapidleech"
     git clone https://github.com/Th3-822/rapidleech.git /home/"${MASTER}"/rapidleech >> $log 2>&1
     chown "${MASTER}":"${MASTER}" -R /home/"${MASTER}"/rapidleech
+    # config.php is not in the repo; rapidleech writes it on first run, so the group-writable
+    # configs directory is what actually matters. Only chmod the paths that exist to avoid
+    # a spurious "cannot access" error on every install.
     chmod 775 /home/"${MASTER}"/rapidleech/configs
-    chmod 775 /home/"${MASTER}"/rapidleech/configs/config.php
-    chmod 775 /home/"${MASTER}"/rapidleech/configs/files.lst
     chmod 775 /home/"${MASTER}"/rapidleech/files
+    for f in configs/config.php configs/files.lst; do
+        [[ -e /home/"${MASTER}"/rapidleech/$f ]] && chmod 775 /home/"${MASTER}"/rapidleech/$f
+    done
     echo_progress_done
 }
 
