@@ -171,9 +171,22 @@ if [[ -f /install/.wireguard.lock ]]; then
 fi
 if [[ -z $wgiface ]]; then
     defiface=$(route | grep '^default' | grep -o '[^ ]*$')
+    # Fall back to `ip route` if net-tools reports nothing (route is deprecated).
+    [[ -z $defiface ]] && defiface=$(ip -o route show default 2> /dev/null | grep -oP 'dev \K\S+' | head -1)
     IFACES=($(ip link show | grep -i broadcast | grep UP | grep qlen | cut -d: -f 2 | cut -d@ -f 1 | sed -e 's/ //g'))
     #MASTER=$(ip link show | grep -i broadcast | grep -e MASTER | cut -d: -f 2| cut -d@ -f 1 | sed -e 's/ //g')
     _defiface_confirm
+    # If the confirmation prompt was skipped (e.g. no tty during an unattended install),
+    # `select` exits without setting wgiface, and an empty interface produces a broken
+    # PostUp rule ("iptables ... -o  -m state") that stops wg-quick from starting. Fall
+    # back to the auto-detected interface so the generated config is always valid.
+    if [[ -z $wgiface ]]; then
+        wgiface=$defiface
+    fi
+    if [[ -z $wgiface ]]; then
+        echo_error "Could not determine the main network interface for WireGuard. Setup will exit."
+        exit 1
+    fi
     if [[ -f /install/.wireguard.lock ]]; then echo $wgiface > /install/.wireguard.lock; fi
 fi
 
