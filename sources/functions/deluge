@@ -232,7 +232,25 @@ function build_libtorrent_deluge() {
         *) ;;
     esac
     cd /tmp/libtorrent/bindings/python
-    /opt/boost_${BOOST_VERSION}/b2 -j$(nproc) python=${pythonmajor} crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1
+    # Compiling libtorrent's python bindings peaks at roughly 1 GB of RAM per job, so a
+    # plain -j$(nproc) gets cc1plus OOM-killed on small-RAM/high-core boxes. Cap the job
+    # count by available memory so the build degrades in speed rather than dying.
+    ltjobs=$(nproc)
+    memjobs=$(awk '/MemAvailable/ {print int($2/1048576)}' /proc/meminfo)
+    if [[ -n $memjobs ]] && ((memjobs < ltjobs)); then
+        ltjobs=$((memjobs > 0 ? memjobs : 1))
+        echo_log_only "Limiting libtorrent build to ${ltjobs} jobs based on available memory"
+    fi
+    /opt/boost_${BOOST_VERSION}/b2 -j${ltjobs} python=${pythonmajor} crypto=${cryptography} variant=release libtorrent-link=static boost-link=static install_module python-install-path=/tmp/dist/libtorrent-python/usr/local/lib/python${pythonmajor}/dist-packages >> ${log} 2>&1 || {
+        echo_error "Building the libtorrent python bindings failed. Check ${log} (a 'Killed signal terminated program cc1plus' there means the compiler ran out of memory). Setup will exit"
+        exit 1
+    }
+    # b2 can exit 0 having produced nothing; without this the empty tree gets packaged and
+    # installed, and deluged then dies with "No libtorrent library found" on every start.
+    if ! find /tmp/dist/libtorrent-python -name '*.so' -print -quit | grep -q .; then
+        echo_error "libtorrent built no python module. Check ${log}. Setup will exit"
+        exit 1
+    fi
     tag=" static with c++17 O3 march=native"
     mkdir -p /root/dist
     fpm -f -C /tmp/dist/libtorrent-python -p /root/dist/${python}-libtorrent_VERSION.deb -s dir -t deb -n ${python}-libtorrent -d libzstd1 --version ${VERSION} --description "Libtorrent rasterbar python binding compiled by swizzin$tag" >> ${log} 2>&1 || {
@@ -264,6 +282,15 @@ function build_deluge() {
             pythonver=python3
             distver=python3
             args="--python-disable-dependency=pyxdg --python-disable-dependency=pyopenssl -d python3-openssl -d python3-xdg -d python3-six"
+            # Python 3.13 (trixie) removed the stdlib cgi module under PEP 594, but
+            # deluge/httpdownloader.py still does `import cgi` up to and including 2.1.1, so
+            # deluged aborts at startup with ModuleNotFoundError: No module named 'cgi'.
+            # Debian ships the backport as python3-legacy-cgi; deluge master has dropped the
+            # import, so this is a no-op once that lands in a release.
+            if [[ -n "$(get_candidate_version python3-legacy-cgi)" ]]; then
+                LIST="$LIST python3-legacy-cgi"
+                args="$args -d python3-legacy-cgi"
+            fi
             ;;
         1.3-stable)
             if [[ $(_os_codename) = "buster" ]]; then
