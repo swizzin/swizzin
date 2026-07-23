@@ -29,6 +29,14 @@ if [[ $distribution == Ubuntu ]]; then
     apt-add-repository ppa:x2go/stable -y >> ${log} 2>&1
     echo_progress_done "Repos installed via PPA"
     apt_update
+elif [[ $release == "trixie" ]]; then
+    # The X2Go archive key (E1F958385BFE2B6E) carries a SHA-1 self-certification, which the
+    # Sequoia verifier apt uses from trixie onwards rejects outright ("Signing key ... is not
+    # bound"). Adding the repo would leave a permanently broken apt source warning on every
+    # update while contributing nothing, because trixie ships x2goserver 4.1.0.6 and
+    # x2go-keyring in main already. Use Debian's own packages instead.
+    rm -f /etc/apt/sources.list.d/x2go.list
+    echo_progress_done "Using Debian's x2go packages (upstream repo key is not usable on trixie)"
 else
     cat > /etc/apt/sources.list.d/x2go.list << EOF
 # X2Go Repository (release builds)
@@ -42,8 +50,9 @@ deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages
 #deb-src [signed-by=/usr/share/keyrings/x2go-archive-keyring.gpg] http://packages.x2go.org/debian ${release} heuler
 EOF
     echo_progress_done "Repo added"
-    mkdir -m 700 /root/.gnupg
-    gpg --no-default-keyring --keyring /usr/share/keyrings/x2go-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E1F958385BFE2B6E >> ${log} 2>&1
+    mkdir -p /usr/share/keyrings
+    curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xE1F958385BFE2B6E" |
+        gpg --dearmor --yes -o /usr/share/keyrings/x2go-archive-keyring.gpg >> ${log} 2>&1
     apt_update
     apt_install x2go-keyring
 fi

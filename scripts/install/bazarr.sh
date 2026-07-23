@@ -35,7 +35,18 @@ _install() {
     esac
 
     if [[ $(_os_arch) =~ "arm" ]]; then
-        apt_install libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg libatlas-base-dev
+        arm_deps=(libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg)
+        # ATLAS was removed from Debian entirely (#1088045, "dead upstream"), so trixie has
+        # no libatlas-base-dev. OpenBLAS registers the same libblas.so/liblapack.so
+        # alternatives, so anything linking -lblas/-llapack keeps working. Pick whichever
+        # BLAS provider this release actually ships rather than dropping BLAS altogether.
+        for blas in libatlas-base-dev libopenblas-dev libblas-dev; do
+            if [[ -n "$(get_candidate_version "$blas")" ]]; then
+                arm_deps+=("$blas")
+                break
+            fi
+        done
+        apt_install "${arm_deps[@]}"
     fi
 
     echo_progress_start "Downloading bazarr source"
