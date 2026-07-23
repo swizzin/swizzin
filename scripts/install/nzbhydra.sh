@@ -42,7 +42,11 @@ wget -O nzbhydra2.zip ${latest} >> ${log} 2>&1
 unzip nzbhydra2.zip >> ${log} 2>&1
 rm -f nzbhydra2.zip
 
-chmod +x nzbhydra2 nzbhydra2wrapperPy3.py
+# Upstream no longer ships a standalone "nzbhydra2" launcher (it runs via the Py3 wrapper),
+# so only mark the files that actually exist executable instead of erroring on the old name.
+for f in nzbhydra2 nzbhydra2wrapperPy3.py nzbhydra2wrapper.py; do
+    [[ -f $f ]] && chmod +x "$f"
+done
 chown -R ${username}: /opt/nzbhydra2
 echo_progress_done
 
