@@ -31,4 +31,7 @@ bind=127.0.0.1
 sockets=
 EOF
 
-systemctl reload webmin
+# Use restart rather than reload: this runs immediately after apt has started webmin, and
+# a SIGHUP landing before miniserv installs its handler terminates it instead of reloading,
+# leaving webmin dead after a successful-looking install.
+systemctl restart webmin
