@@ -2,7 +2,10 @@
 
 function check_debian_backports() {
     codename=$(lsb_release -cs)
-    if grep -q "${codename}-backports" /etc/apt/sources.list; then
+    # Since trixie, Debian ships deb822 sources in /etc/apt/sources.list.d/*.sources
+    # and leaves /etc/apt/sources.list as a stub, so only grepping the latter would
+    # re-add an already-enabled suite in legacy format and trip apt's duplicate check.
+    if grep -rqs "${codename}-backports" /etc/apt/sources.list /etc/apt/sources.list.d/; then
         echo_log_only "Debian ${codename} backports already enabled."
     else
         echo_info "Enabling Debian ${codename} backports repository"
