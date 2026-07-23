@@ -5,7 +5,15 @@ function restart_php_fpm() {
     version=$(php_service_version)
     serv="php${version}-fpm.service"
     echo_log_only "Restarting $serv"
+    # Installing several php-using apps in one run bounces this unit repeatedly. systemd's
+    # default rate limit (StartLimitBurst=5 per 10s) then refuses to start it and leaves it
+    # failed with 'start-limit-hit', silently taking down every php app on the box. Clearing
+    # the counter first makes the restart reliable regardless of how often we were called.
+    systemctl reset-failed "$serv" >> $log 2>&1
     systemctl restart $serv >> $log 2>&1
+    if ! systemctl is-active --quiet "$serv"; then
+        echo_warn "$serv did not come back up; check 'journalctl -u $serv'"
+    fi
 }
 
 function reload_php_fpm() {
