@@ -36,11 +36,16 @@ _install() {
 
     if [[ $(_os_arch) =~ "arm" ]]; then
         arm_deps=(libxml2-dev libxslt1-dev python3-libxml2 python3-lxml unrar-free ffmpeg)
-        if [[ -n "$(get_candidate_version libatlas-base-dev)" ]]; then
-            arm_deps+=(libatlas-base-dev)
-        else
-            echo_warn "Skipping libatlas-base-dev because no apt candidate is available on this architecture."
-        fi
+        # ATLAS was removed from Debian entirely (#1088045, "dead upstream"), so trixie has
+        # no libatlas-base-dev. OpenBLAS registers the same libblas.so/liblapack.so
+        # alternatives, so anything linking -lblas/-llapack keeps working. Pick whichever
+        # BLAS provider this release actually ships rather than dropping BLAS altogether.
+        for blas in libatlas-base-dev libopenblas-dev libblas-dev; do
+            if [[ -n "$(get_candidate_version "$blas")" ]]; then
+                arm_deps+=("$blas")
+                break
+            fi
+        done
         apt_install "${arm_deps[@]}"
     fi
 
