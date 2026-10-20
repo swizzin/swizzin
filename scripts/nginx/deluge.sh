@@ -24,7 +24,15 @@ location /deluge.downloads {
 
   location ~* \.php$ {
 
-  } 
+  }
+  # Files that a browser opens as a document able to run scripts (HTML, XML, SVG...,
+  # following nginx's mime.types) are sandboxed: their scripts cannot act as the
+  # dashboard. An add_header here replaces the server's, so those are repeated.
+  location ~* \.(s?html?|xhtml|xml|svgz?|atom|rss|mml|kml|xspf)\$ {
+    add_header Content-Security-Policy "sandbox" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+  }
 }
 DIN
 fi
