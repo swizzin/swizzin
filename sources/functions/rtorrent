@@ -105,7 +105,7 @@ function configure_rtorrent() {
 function depends_rtorrent() {
     if [[ ! $rtorrentver == repo ]]; then
         APT='subversion dos2unix bc screen zip unzip sysstat build-essential comerr-dev
-    dstat automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
+    automake libtool libcppunit-dev libssl-dev pkg-config libcurl4-openssl-dev
     libsigc++-2.0-dev unzip curl libncurses5-dev yasm fontconfig libfontconfig1
     libfontconfig1-dev mediainfo autoconf-archive'
         apt_install $APT
